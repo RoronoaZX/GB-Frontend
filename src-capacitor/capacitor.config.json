@@ -1,0 +1,6 @@
+{
+  "appId": "com.gbims.app",
+  "appName": "GB Bakeshop IMS",
+  "bundledWebRuntime": false,
+  "webDir": "www"
+}

@@ -1,0 +1,208 @@
+<template>
+  <div align="right">
+    <q-input
+      class="q-pb-lg q-pl-md"
+      v-model="searchQuery"
+      @update:model-value="search"
+      outlined
+      placeholder="Search"
+      debounce="1000"
+      style="width: 500px; max-width: 1500px; min-width: 100px"
+      flat
+      dense
+      rounded
+    >
+      <template>
+        <q-icon name="search" />
+      </template>
+    </q-input>
+  </div>
+  <q-table
+    :filter="filter"
+    :virtual-scroll-sticky-size-start="48"
+    flat
+    :columns="userColumns"
+    :rows="userRows ?? []"
+    row-key="name"
+    virtual-scroll
+    hide-bottom
+    v-model:pagination="pagination"
+    :rows-per-page-options="[0]"
+  >
+    <template v-slot:body-cell-position="props">
+      <q-td :props="props">
+        <q-chip
+          text-color="white"
+          :color="getBadgePositionColor(props.row.position)"
+        >
+          {{ props.row.position }}
+        </q-chip>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-status="props">
+      <q-td :props="props">
+        <q-chip
+          outline
+          text-color="white"
+          :color="getBadgeStatusColor(props.row.status)"
+        >
+          {{ props.row.status }}
+        </q-chip>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-action="props">
+      <q-td :props="props">
+        <UsersEdit />
+      </q-td>
+    </template>
+  </q-table>
+</template>
+
+<script setup>
+// import { useUserStore } from "src/stores/user-store";
+// import { computed, onMounted, ref, watch } from "vue";
+// import UsersEdit from "./UsersEdit.vue";
+
+// const userStore = useUserStore();
+// const userRows = computed(() => userStore.users);
+// const filter = ref("");
+// const loading = ref(false);
+// const showNoDataMessage = ref(false);
+// const pagination = ref({
+//   rowsPerPage: 0,
+// });
+// const searchQuery = ref("");
+
+// const search = async () => {
+//   loading.value = true;
+//   showNoDataMessage.value = false;
+//   try {
+//     await userStore.searchUser(searchQuery.value);
+//     showNoDataMessage.value = userRows.value.length === 0;
+//   } catch (error) {
+//     console.error("Error fetching user:", error);
+//   } finally {
+//     loading.value = false;
+//   }
+// };
+
+// watch(searchQuery, (newValue) => {
+//   if (newValue.trim() !== "") {
+//     search();
+//   } else {
+//     userRows.value = userStore.fetchUser();
+//     showNoDataMessage.value = userRows.value.length === 0;
+//   }
+// });
+
+// onMounted(async () => {
+//   try {
+//     userRows.value = await userStore.fetchUser();
+//     showNoDataMessage.value = userRows.value && userRows.value.length === 0;
+//   } catch (error) {
+//     console.error("Error fetching users:", error);
+//     showNoDataMessage.value = true;
+//   } finally {
+//     loading.value = false;
+//   }
+// });
+
+// const userColumns = [
+//   {
+//     name: "name",
+//     label: "User's Name",
+//     align: "center",
+//     field: (row) => `${row.firstname} ${row.middlename} ${row.lastname}`,
+//     format: (val) => `${val}`,
+//     sortable: true,
+//   },
+//   {
+//     name: "position",
+//     label: "Position",
+//     align: "center",
+//     field: "position",
+//     sortable: true,
+//   },
+//   {
+//     name: "status",
+//     label: "Status",
+//     align: "center",
+//     field: "status",
+//     sortable: true,
+//   },
+//   {
+//     name: "action",
+//     label: "Action",
+//     align: "center",
+//     sortable: true,
+//   },
+// ];
+
+// const getBadgePositionColor = (position) => {
+//   switch (position) {
+//     case "Super Admin":
+//       return "negative";
+//     case "Admin":
+//       return "blue-grey-8";
+//     case "Scaler":
+//       return "info";
+//     case "Lamesador":
+//       return "indigo";
+//     case "Hornero":
+//       return "purple";
+//     case "Baker":
+//       return "warning";
+//     case "Cashier":
+//       return "secondary";
+//     case "Sales Clerk":
+//       return "deep-orange";
+//     case "Utility":
+//       return "deep-purple";
+//     case "Not Yet Assigned":
+//       return "grey";
+//     default:
+//       return "grey";
+//   }
+// };
+
+// const getBadgeStatusColor = (status) => {
+//   switch (status) {
+//     case "Current":
+//       return "positive";
+//     case "Former":
+//       return "red-6";
+//     default:
+//       return "grey";
+//   }
+// };
+</script>
+
+<style lang="scss" scoped>
+.absolute-full {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.spinner-wrapper {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.data-error {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.table-container {
+  max-height: 400px; /* Adjust as needed */
+  overflow: hidden;
+}
+
+.q-table-container {
+  overflow: hidden !important; /* Target the container generated by q-table */
+}
+</style>

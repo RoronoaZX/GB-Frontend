@@ -1,0 +1,49 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "description": "A Quasar Project",
+  "productName": "GB Bakeshop IMS",
+  "author": "nil712",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.vue ./",
+    "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "test": "echo \"No test specified\" && exit 0",
+    "dev": "quasar dev -m capacitor -T android",
+    "build": "quasar build -m capacitor -T android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.1",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.1.1",
+    "@quasar/extras": "^1.16.4",
+    "axios": "^1.7.2",
+    "chart.js": "^4.4.3",
+    "date-holidays": "^3.23.12",
+    "moment": "^2.30.1",
+    "moment-holiday": "^1.5.1",
+    "pdfmake": "^0.2.12",
+    "pinia": "^2.0.11",
+    "quasar": "^2.16.0",
+    "vue": "^3.4.18",
+    "vue-router": "^4.0.12"
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.3.2",
+    "@quasar/app-vite": "^1.9.0",
+    "@vue/devtools": "^6.6.3",
+    "autoprefixer": "^10.4.2",
+    "electron": "^31.3.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "postcss": "^8.4.14",
+    "prettier": "^2.5.1",
+    "vite-plugin-checker": "^0.6.4"
+  },
+  "engines": {
+    "node": "^20 || ^18 || ^16",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}
