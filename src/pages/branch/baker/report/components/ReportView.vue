@@ -27,24 +27,31 @@
         />
       </q-card-section>
 
-      <q-card-section class="report-info">
-        <div class="report-section">
-          <div class="section-content">
-            <div>
-              <strong>Date:</strong> {{ formatDate(report.created_at) }}
-            </div>
-            <div><strong>Branch:</strong> {{ report.branch.name }}</div>
-            <div>
-              <strong>Baker:</strong>
-              {{ capitalizeFirstLetter(report.user.name) }}
-            </div>
-            <div><strong>Kilo:</strong> {{ report.kilo }}</div>
-            <div><strong>Over:</strong> {{ report.over }}</div>
-            <div>
-              <strong>Actual Target:</strong> {{ report.actual_target }}
+      <q-card-section>
+        <div class="row justify-between">
+          <div>
+            <div class="section-content">
+              <div class="row q-gutter-x-sm">
+                <div class="text-subtitle2">Date:</div>
+                <div class="text-body1 text-weight-light">
+                  {{ formatDate(report.created_at) }}
+                </div>
+              </div>
+              <div class="row q-gutter-x-sm">
+                <div class="text-subtitle2">Branch:</div>
+                <div class="text-body1 text-weight-light">
+                  {{ report.branch.name }}
+                </div>
+              </div>
+              <div class="row q-gutter-x-sm">
+                <div class="text-subtitle2">Baker:</div>
+                <div class="text-body1 text-weight-light">
+                  {{ formatFullname(report.user.employee) }}
+                </div>
+              </div>
             </div>
           </div>
-          <div class="status-chip">
+          <div>
             <q-chip
               square
               :color="getBadgeStatusColor(report.status)"
@@ -54,58 +61,93 @@
             </q-chip>
           </div>
         </div>
-
-        <div
-          class="report-section"
-          v-if="
-            report.ingredient_bakers_reports &&
-            report.ingredient_bakers_reports.length
-          "
-        >
-          <div class="section-title">Ingredients</div>
-          <ul>
-            <li
-              v-for="ingredient in report.ingredient_bakers_reports"
-              :key="ingredient.id"
-            >
-              <strong>{{ ingredient.ingredients.code }}</strong> -
-              {{ formatQuantity(ingredient.quantity) }}
-            </li>
-          </ul>
+        <div class="row q-mt-sm item-start q-gutter-x-xl">
+          <div class="row q-gutter-x-sm text-overline">
+            <div>Kilo:</div>
+            <div>
+              {{ report.kilo }}
+            </div>
+          </div>
+          <div class="row q-gutter-x-sm text-overline">
+            <div>Over:</div>
+            <div class="text-weight-light">
+              {{ report.over }}
+            </div>
+          </div>
+          <div class="row q-gutter-x-sm text-overline">
+            <div>Short:</div>
+            <div class="text-weight-light">
+              {{ report.short }}
+            </div>
+          </div>
+          <div class="row q-gutter-x-sm text-overline">
+            <div>Actual Target:</div>
+            <div class="text-weight-light">
+              {{ report.actual_target }}
+            </div>
+          </div>
         </div>
+        <q-separator class="q-my-md"></q-separator>
+        <div class="row justify-between">
+          <div
+            class="report-section"
+            v-if="
+              report.ingredient_bakers_reports &&
+              report.ingredient_bakers_reports.length
+            "
+          >
+            <div class="section-title" align="center">Ingredients</div>
+            <ul>
+              <div
+                v-for="ingredient in report.ingredient_bakers_reports"
+                :key="ingredient.id"
+              >
+                <div class="row q-gutter-md">
+                  <div class="">
+                    {{ ingredient.ingredients.code }}
+                  </div>
 
-        <div
-          class="report-section"
-          v-if="
-            report.bread_bakers_reports && report.bread_bakers_reports.length
-          "
-        >
-          <div class="section-title">Breads</div>
-          <ul>
-            <li v-for="bread in report.bread_bakers_reports" :key="bread.id">
-              <strong>{{ bread.bread.name }}</strong> -
-              {{ bread.bread_production }} pcs
-            </li>
-          </ul>
-        </div>
+                  <div>- {{ formatQuantity(ingredient.quantity) }}</div>
+                </div>
+              </div>
+            </ul>
+          </div>
 
-        <div
-          class="report-section"
-          v-if="
-            report.filling_bakers_reports &&
-            report.filling_bakers_reports.length
-          "
-        >
-          <div class="section-title">Fillings</div>
-          <ul>
-            <li
-              v-for="filling in report.filling_bakers_reports"
-              :key="filling.id"
-            >
-              <strong>{{ filling.bread.name }}</strong> -
-              {{ filling.filling_production }} pcs
-            </li>
-          </ul>
+          <div
+            class="report-section"
+            v-if="
+              report.bread_bakers_reports && report.bread_bakers_reports.length
+            "
+          >
+            <div class="section-title" align="center">Breads</div>
+            <ul>
+              <div v-for="bread in report.bread_bakers_reports" :key="bread.id">
+                <div class="row q-gutter-md">
+                  <div>{{ bread.bread.name }}</div>
+                  <div>- {{ bread.bread_production }} pcs</div>
+                </div>
+              </div>
+            </ul>
+          </div>
+
+          <div
+            class="report-section"
+            v-if="
+              report.filling_bakers_reports &&
+              report.filling_bakers_reports.length
+            "
+          >
+            <div class="section-title">Fillings</div>
+            <ul>
+              <li
+                v-for="filling in report.filling_bakers_reports"
+                :key="filling.id"
+              >
+                <div>{{ filling.bread.name }}</div>
+                - {{ filling.filling_production }} pcs
+              </li>
+            </ul>
+          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -122,6 +164,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+console.log("bakerView", props.report);
 
 const bakersReportDialog = ref(false);
 
@@ -144,6 +188,18 @@ const capitalizeFirstLetter = (fullName) => {
       .join(" ");
   }
   return `${firstName} ${middleNames} ${lastName}`.trim();
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
 const getBadgeStatusColor = (status) => {
@@ -205,9 +261,9 @@ const formatQuantity = (quantity) => {
   padding: 1rem;
 }
 
-.report-section {
+/* .report-section {
   margin-top: 1.5rem;
-}
+} */
 
 .section-title {
   font-size: 1.2rem;
@@ -219,9 +275,9 @@ const formatQuantity = (quantity) => {
   margin-bottom: 1rem;
 }
 
-.status-chip {
+/* .status-chip {
   margin-top: 1rem;
-}
+} */
 
 @media screen and (max-width: 600px) {
   .report-dialog {

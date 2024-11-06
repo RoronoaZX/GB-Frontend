@@ -34,6 +34,7 @@
       <q-card-section class="q-px-xl q-pt-none q-pb-lg">
         <div class="q-mt-lg q-animated q-animate-bounce">
           <q-input
+            class="text-capitalize"
             v-model="addNewBranchForm.name"
             outlined
             dense
@@ -43,6 +44,7 @@
         </div>
         <div class="q-mt-lg q-animated q-animate-bounce">
           <q-input
+            class="text-capitalize"
             v-model="addNewBranchForm.location"
             outlined
             dense
@@ -51,7 +53,54 @@
           />
         </div>
         <div class="q-mt-lg q-animated q-animate-bounce">
-          <q-select
+          <div>
+            <q-input
+              v-model="searchKeyword"
+              label="Search Employee"
+              outlined
+              dense
+              @update:model-value="search"
+              debounce="500"
+              placeholder="Enter name or position"
+              @focus="showDropdown = true"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="grey" size="sm" />
+              </template>
+              <div
+                v-if="showDropdown && searchKeyword"
+                class="custom-list z-top"
+              >
+                <q-card>
+                  <q-list separator>
+                    <q-item v-if="!employees?.length">
+                      No Employee Record
+                    </q-item>
+                    <template v-else>
+                      <q-item
+                        @click="autoFillEmployee(employee)"
+                        v-for="employee in employees"
+                        :key="employee.id"
+                        clickable
+                      >
+                        <q-item-section>
+                          {{
+                            `${employee.firstname} ${
+                              employee.middlename
+                                ? employee.middlename.charAt(0) + "."
+                                : ""
+                            } ${employee.lastname}`
+                          }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-card>
+              </div>
+            </q-input>
+          </div>
+          <!-- <q-select
             v-model="addNewBranchForm.employee"
             outlined
             flat
@@ -63,7 +112,7 @@
             @filter="filteredEmployee"
             hide-dropdown-icon
             behavior="menu"
-          />
+          /> -->
         </div>
         <div class="q-mt-lg q-animated q-animate-bounce">
           <q-select
@@ -118,6 +167,7 @@
           color="teal"
           label="Create"
           @click="addNewBranch"
+          :loading="loading"
         />
       </q-card-actions>
     </q-card>
@@ -125,7 +175,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { Notify } from "quasar";
 import { useBranchesStore } from "src/stores/branch";
 import { useWarehousesStore } from "src/stores/warehouse";
@@ -144,43 +194,46 @@ const warehouseOptions = ref([]);
 const filterWarehouseOptions = ref([]);
 const loading = ref(false);
 const statusOptions = ["Open", "Open soon", "Close"];
-
+const searchLoading = ref(false);
 const selectedWarehouse = ref(null);
 
-const searchKeyword = ref("");
-const employeeOptions = ref([]); // Holds the fetched employee options
-const selectedEmployee = ref(null);
-const filterEmployeeOptions = ref(employeeOptions.value);
-
-const fetchEmployee = async () => {
-  const employee = await employeeStore.fetchEmployee();
-  employeeOptions.value = employeeStore.employees.map((val) => ({
-    label: `${val.firstname} ${val.middlename ? val.middlename + " " : ""}${
-      val.lastname
-    }`,
-    value: val.id,
-  }));
-  filterEmployeeOptions.value = employeeOptions.value;
+const searchKeyword = ref(null);
+const showDropdown = ref(false);
+const employees = computed(() => employeeStore.employee);
+const search = async () => {
+  if (searchKeyword.value.trim()) {
+    searchLoading.value = true;
+    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    searchLoading.value = false;
+    showDropdown.value = true;
+  }
 };
 
-onMounted(fetchEmployee);
+const autoFillEmployee = (employee) => {
+  // Log the selected employee data
+  console.log("Selected Employee:", employee);
 
-const filteredEmployee = (val, update) => {
-  update(() => {
-    const needle = val.toLowerCase();
-    filterEmployeeOptions.value =
-      val === ""
-        ? employeeOptions.value
-        : employeeOptions.value.filter((v) =>
-            v.label.toLowerCase().includes(needle)
-          );
-  });
+  addNewBranchForm.employee_id = employee.id;
+  addNewBranchForm.employee_name = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+  searchKeyword.value = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+
+  showDropdown.value = false;
+  // Log the filled designation data
+  console.log("Filled addNewBranchForm Data:", addNewBranchForm);
+  // setTimeout(() => {
+  //   searchKeyword.value = null;
+  // }, 0);
 };
 
 const addNewBranchForm = reactive({
   name: "",
   location: "",
-  employee: "",
+  employee_id: "",
+  employee_name: "",
   phone: "",
   status: "",
 });
@@ -218,10 +271,10 @@ const filterWarehouses = (val, update) => {
 
 const addNewBranch = async () => {
   try {
+    loading.value = true;
     const formData = {
       ...addNewBranchForm,
       warehouse_id: selectedWarehouse.value?.value || null,
-      employee_id: addNewBranchForm.employee.value || null,
     };
     console.log("brabrbbar", formData);
 
@@ -236,18 +289,23 @@ const addNewBranch = async () => {
       error.response?.data?.message ||
       error.message ||
       "Failed to create branch. Please try again.";
+    addNewBranchDialogVisible.value = true;
     Notify.create({
       color: "negative",
       icon: "warning",
       message: errorMessage,
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 const resetFormData = () => {
   addNewBranchForm.name = "";
   addNewBranchForm.location = "";
-  addNewBranchForm.person_incharge = "";
+  addNewBranchForm.employee_id = "";
+  addNewBranchForm.employee_name = "";
+  searchKeyword.value = null;
   selectedWarehouse.value = null;
   addNewBranchForm.phone = "";
   addNewBranchForm.status = "";

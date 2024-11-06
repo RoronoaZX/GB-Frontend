@@ -39,6 +39,7 @@
         <q-form @submit.prevent="create">
           <div class="q-mt-lg q-animated q-animate-bounce">
             <q-input
+              class="text-capitalize"
               v-model="addRawMaterialsForm.name"
               outlined
               dense

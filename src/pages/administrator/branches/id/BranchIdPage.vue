@@ -8,7 +8,7 @@
         </div>
         <div>
           <q-icon name="fa-solid fa-store" color="red-6" />
-          {{ branchName }}
+          {{ capitalizeFirstLetter(branchName) }}
         </div>
       </div>
 
@@ -24,6 +24,7 @@
           >
             <q-tab name="products" label="Products" />
             <q-tab name="rawMaterials" label="Raw Materials" />
+            <q-tab name="recipe" label="Recipe" />
             <q-tab name="production" label="Production" />
           </q-tabs>
         </div>
@@ -36,6 +37,10 @@
 
             <q-tab-panel name="rawMaterials">
               <RawMaterialsPage />
+            </q-tab-panel>
+
+            <q-tab-panel name="recipe">
+              <RecipePage />
             </q-tab-panel>
 
             <q-tab-panel name="production">
@@ -51,6 +56,7 @@
 import ProductPage from "./components/products/ProductPage.vue";
 import RawMaterialsPage from "./components/raw_materials/RawMaterialsPage.vue";
 import ProductionPage from "./components/production/ProductionPage.vue";
+import RecipePage from "./components/recipe/RecipePage.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api } from "src/boot/axios";
@@ -78,6 +84,14 @@ const getBranch = async () => {
 onMounted(() => {
   getBranch();
 });
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const tab = ref("products");
 

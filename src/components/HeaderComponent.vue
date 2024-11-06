@@ -1,29 +1,45 @@
 <template>
   <q-header elevated class="bg-white">
-    <q-toolbar>
-      <q-btn
-        color="red-6"
-        flat
-        @click="adminDrawer = !adminDrawer"
-        round
-        dense
-        icon="menu"
-      />
-      <q-toolbar-title class="py-md">
-        <img src="../assets/GB_LOGO.png" style="width: 50px; height: 40px" />
-      </q-toolbar-title>
+    <q-toolbar class="row">
+      <div class="col-4">
+        <div class="row">
+          <q-btn
+            color="red-6"
+            flat
+            @click="adminDrawer = !adminDrawer"
+            dense
+            icon="menu"
+          />
+          <q-toolbar-title class="py-md">
+            <img
+              src="../assets/GB_LOGO.png"
+              style="width: 50px; height: 40px"
+            />
+          </q-toolbar-title>
+        </div>
+      </div>
+      <div class="col-4 d-flex justify-center" align="center">
+        <div class="text-black mx-2 text-h6">
+          <div>{{ getActiveMenuItemLabel }}</div>
+        </div>
+      </div>
 
-      <div class="q-gutter-sm row items-center no-wrap">
-        <!-- <q-btn round dense flat icon="message">
-          <q-tooltip>Messages</q-tooltip>
-        </q-btn>
-        <q-btn round dense flat color="grey-10" icon="notifications">
-          <q-badge color="red" class="text-white" floating> 2 </q-badge>
-          <q-tooltip>Notifications</q-tooltip>
-        </q-btn> -->
-        <ProfileAvatarComponent />
+      <!-- <q-btn round dense flat icon="message">
+        <q-tooltip>Messages</q-tooltip>
+      </q-btn>
+      <q-btn round dense flat color="grey-10" icon="notifications">
+        <q-badge color="red" class="text-white" floating> 2 </q-badge>
+        <q-tooltip>Notifications</q-tooltip>
+      </q-btn> -->
+      <div class="col-4" align="right">
+        <div class="">
+          <div>
+            <ProfileAvatarComponent />
+          </div>
+        </div>
       </div>
     </q-toolbar>
+    <q-ajax-bar ref="bar" position="top" color="red-6" size="7px" skip-hijack />
   </q-header>
   <q-drawer
     v-model="adminDrawer"
@@ -55,10 +71,12 @@
 
 <script setup>
 import ProfileAvatarComponent from "./ProfileAvatarComponent.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
 const adminDrawer = ref(false);
 const activeMenuItem = ref("dashboard");
+const role = ref(localStorage.getItem("role"));
+const bar = ref(null);
 
 const menuItems = [
   {
@@ -66,13 +84,15 @@ const menuItems = [
     icon: "fa-solid fa-house",
     to: "/admin/dashboard",
     label: "Dashboard",
+    toolbarDisplay: "📊 Dashboard",
     separator: true,
   },
   {
-    name: "rawMaterials",
+    name: "raw_materials",
     icon: "fa-solid fa-layer-group",
     to: "/admin/raw_materials",
     label: "Raw Materials",
+    toolbarDisplay: "🛠️ Raw Materials",
     separator: true,
   },
   {
@@ -80,20 +100,23 @@ const menuItems = [
     icon: "description",
     to: "/admin/recipe",
     label: "Recipe",
+    toolbarDisplay: "📜 Recipe",
     separator: true,
   },
   {
-    name: "wareHouse",
+    name: "warehouse",
     icon: "factory",
     to: "/admin/warehouse",
     label: "Warehouse",
+    toolbarDisplay: "🏭 Warehouse",
     separator: true,
   },
   {
-    name: "storeBranches",
+    name: "branches",
     icon: "fa-solid fa-store",
     to: "/admin/branches",
     label: "Branches",
+    toolbarDisplay: "🏪 Branches",
     separator: true,
   },
   {
@@ -101,6 +124,7 @@ const menuItems = [
     icon: "fa-solid fa-cake-candles",
     to: "/admin/products",
     label: "Products",
+    toolbarDisplay: "🥖 Products",
     separator: true,
   },
   {
@@ -108,16 +132,31 @@ const menuItems = [
     icon: "fa-solid fa-users",
     to: "/admin/users",
     label: "Users",
+    toolbarDisplay: "👥 Roles and Permission",
     separator: true,
   },
+  ...(role.value === "Super Admin"
+    ? [
+        {
+          name: "devices",
+          icon: "fa-solid fa-mobile",
+          to: "/admin/devices",
+          label: "Devices",
+          toolbarDisplay: "📱 Device",
+          separator: true,
+        },
+      ]
+    : []),
   {
     name: "payroll",
     icon: "fa-solid fa-sack-dollar",
     to: "/admin/payroll",
     label: "Payroll",
+    toolbarDisplay: "💰 Payroll Management",
     separator: true,
   },
 ];
+
 onMounted(() => {
   const storedActiveMenuItem = localStorage.getItem("activeMenuItem");
   if (storedActiveMenuItem) {
@@ -125,11 +164,23 @@ onMounted(() => {
   }
 });
 
-// Function to update activeMenuItem and store it in localStorage
-const setActiveMenuItem = (itemName) => {
+const setActiveMenuItem = async (itemName) => {
+  const barRef = bar.value; // Start the loading bar when a menu item is clicked
+  barRef.start();
   activeMenuItem.value = itemName;
   localStorage.setItem("activeMenuItem", itemName);
+
+  // Wait for the route navigation to complete, then stop the loading bar
+  // Wait for the DOM update
+  barRef.stop();
 };
+
+const getActiveMenuItemLabel = computed(() => {
+  const activeItem = menuItems.find(
+    (item) => item.name === activeMenuItem.value
+  );
+  return activeItem ? activeItem.toolbarDisplay : "Menu";
+});
 </script>
 
 <style lang="scss" scoped>

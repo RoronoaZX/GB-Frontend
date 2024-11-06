@@ -1,8 +1,10 @@
 <template>
-  <div class="row q-gutter-x-xl justify-center">
+  <div class="row justify-center">
     <div>
       <div>
-        <div class="text-h6 q-ma-sm">{{ recipeName }}</div>
+        <div class="text-h6 q-ma-sm">
+          {{ capitalizeFirstLetter(recipeName) }}
+        </div>
       </div>
       <div class="row q-gutter-sm">
         <div>
@@ -72,20 +74,19 @@
         </div>
       </div>
       <div class="q-mt-md q-gutter-md">
-        <div
-          v-for="(bread, index) in recipe?.bread_groups || []"
-          :key="bread.product_id"
-        >
-          <div>{{ bread.bread_name }}</div>
-          <div>
-            <q-input
-              outlined
-              v-model="bakersReport.breads[index].value"
-              dense
-              type="number"
-              placeholder="Pcs"
-              style="width: 210px; max-width: 300px; min-width: 50px"
-            />
+        <div v-if="bakersReport.breads.length">
+          <div v-for="(bread, index) in bakersReport.breads" :key="bread.id">
+            <div>{{ bread.bread_name }}</div>
+            <div>
+              <q-input
+                outlined
+                v-model="bakersReport.breads[index].value"
+                dense
+                type="number"
+                placeholder="Pcs"
+                style="width: 210px; max-width: 300px; min-width: 50px"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -150,10 +151,18 @@ const recipe = computed(() => bakerReportStore.recipes);
 // console.log("erwe:", recipe.value);
 
 const recipeName = computed(() => {
-  const name = recipe.value?.name ? recipe.value.name : "Recipe Name";
-  const category = recipe.value?.category ? recipe.value.category : "Category";
+  const name = recipe.value?.name ?? "Recipe Name";
+  const category = recipe.value?.category ?? "Category";
   return `${name} - ${category}`;
 });
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const bakersReport = reactive({
   user_id: null,
@@ -241,10 +250,10 @@ const resetReportForm = () => {
   bakersReport.over = 0;
   bakersReport.actual_target = 0;
   bakersReport.breads =
-    recipe.value?.bread_groups.map((group) => ({
+    recipe.value?.bread_groups?.map((group) => ({
       id: group.product_id,
       bread_name: group.bread_name,
-      value: "",
+      value: "", // Initialize value as an empty string
     })) || [];
 };
 

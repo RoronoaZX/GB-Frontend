@@ -32,7 +32,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
       type: "positive",
       message: "Raw Materials successfully created",
       timeout: 1000,
-      postion: "top",
+      // postion: "top",
     });
 
     Loading.hide();
@@ -52,7 +52,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
       type: "positive",
       message: "Raw Materials updated successfully",
       timeout: 1000,
-      position: "top",
+      // position: "top",
     });
 
     Loading.hide();
@@ -65,7 +65,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
       (rawMaterial) => rawMaterial.id !== id
     );
     Notify.create({
-      type: "negative",
+      type: "positive",
       icon: "warning",
       message: `Raw Materials successfully deleted`,
       timeout: 1000,

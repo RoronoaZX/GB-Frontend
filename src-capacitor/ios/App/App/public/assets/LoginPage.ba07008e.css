@@ -1,0 +1,27 @@
+
+.my-card[data-v-07314030] {
+  background-color: #ffffff;
+  animation: mymove-07314030 2s infinite;
+}
+.logo[data-v-07314030] {
+  width: 150px;
+  height: auto;
+  max-width: 100%;
+}
+.input-dynamic[data-v-07314030] {
+  transition: all 0.3s ease;
+}
+@media (max-height: 600px) {
+.my-card[data-v-07314030] {
+    height: 90vh; /* Make card responsive when screen height is small */
+}
+.input-dynamic[data-v-07314030] {
+    font-size: 14px;
+    padding: 8px 12px;
+}
+}
+@keyframes mymove-07314030 {
+50% {
+    box-shadow: 10px 20px 30px rgb(254, 154, 154);
+}
+}

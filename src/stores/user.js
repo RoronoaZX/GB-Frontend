@@ -42,23 +42,28 @@ export const useUsersStore = defineStore("users", () => {
       Loading.show();
       const response = await api.post("/api/register", data);
       console.log("response user data", response.data);
-      // const newUser = {
-      //   ...response.data,
-      //   name: data.name,
-      //   email: data.email,
-      //   birthdate: data.birthdate,
-      //   address: data.address,
-      //   sex: data.sex,
-      //   status: data.status,
-      //   phone: data.phone,
-      //   role: data.role,
-      // };
+      const newUser = {
+        id: response.data.user.id,
+        name: response.data.user.name,
+        email: response.data.user.email,
+        birthdate: response.data.user.birthdate,
+        address: response.data.user.address,
+        sex: response.data.user.sex,
+        status: response.data.user.status,
+        phone: response.data.user.phone,
+        role: response.data.user.role,
+        employee_id: response.data.user.employee_id,
+        firstname: response.data.user.firstname,
+        middlename: response.data.user.middlename,
+        lastname: response.data.user.lastname,
+        position: response.data.user.position,
+      };
 
-      users.value.unshift(response.data);
+      users.value.unshift(newUser);
       Notify.create({
         type: "positive",
         message: "User created successfully",
-        position: "top",
+        // position: "top",
       });
       console.log("response", response.data);
     } catch (error) {
@@ -66,7 +71,7 @@ export const useUsersStore = defineStore("users", () => {
       Notify.create({
         type: "negative",
         message: "Failed to create user",
-        position: "top",
+        // position: "top",
       });
     } finally {
       Loading.hide();
@@ -126,7 +131,7 @@ export const useUsersStore = defineStore("users", () => {
 
   const searchUser = async (searchQuery) => {
     try {
-      const response = await api.post(`/api/search-user`, {
+      const response = await api.post(`/api/search`, {
         keyword: searchQuery,
       });
       users.value = response.data;
@@ -157,6 +162,23 @@ export const useUsersStore = defineStore("users", () => {
     }
   };
 
+  const updateEmail = async (id, email) => {
+    console.log("====================================");
+    console.log("id", id);
+    console.log("====================================");
+    console.log("====================================");
+    console.log("email", email);
+    console.log("====================================");
+
+    try {
+      const response = await api.put(`/api/user-email/${id}`, {
+        email: email,
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   return {
     user,
     users,
@@ -166,5 +188,6 @@ export const useUsersStore = defineStore("users", () => {
     searchUserWithID,
     fetchUserById,
     updateUser,
+    updateEmail,
   };
 });

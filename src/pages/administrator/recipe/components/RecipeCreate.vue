@@ -33,6 +33,7 @@
       <q-card-section class="q-mx-md">
         <div class="q-mt-md q-animated q-animate-bounce">
           <q-input
+            class="text-capitalize"
             v-model="recipe.name"
             outlined
             dense
@@ -42,8 +43,8 @@
             ]"
           />
         </div>
-        <div class="q-mt-md q-animated q-animate-bounce">
-          <!-- <div>Target Pcs</div> -->
+        <!-- <div class="q-mt-md q-animated q-animate-bounce">
+          <div>Target Pcs</div>
           <q-input
             v-model="recipe.target"
             suffix=" / 1kg"
@@ -55,7 +56,7 @@
               (val) => (val && val.length > 0) || 'Target piece/s is required',
             ]"
           />
-        </div>
+        </div> -->
         <div class="q-mt-md q-animated q-animate-bounce">
           <!-- <div class="q-my-sm">Category</div> -->
           <q-select
@@ -71,8 +72,8 @@
             ]"
           />
         </div>
-        <div class="q-mt-md q-animated q-animate-bounce">
-          <!-- <div>Breads</div> -->
+        <!-- <div class="q-mt-md q-animated q-animate-bounce">
+          <div>Breads</div>
           <q-select
             v-model="breadGroup"
             use-input
@@ -90,17 +91,17 @@
             @filter="filterFn"
             :rules="[(val) => (val && val.length > 0) || 'Bread is required']"
           >
-            <!-- @new-value="createValue"
+            @new-value="createValue"
             @filter="filterBread"
-            @filter-abort="abortFilterFn" -->
+            @filter-abort="abortFilterFn"
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
               </q-item>
             </template>
           </q-select>
-        </div>
-        <div class="q-mt-md q-gutter-y-sm q-animated q-animate-bounce">
+        </div> -->
+        <!-- <div class="q-mt-md q-gutter-y-sm q-animated q-animate-bounce">
           <div class="text-weight-thin">Ingredients List</div>
           <div>
             <q-list dense separator class="box">
@@ -132,7 +133,7 @@
         <div class="q-mt-xl q-gutter-y-sm q-animated q-animate-bounce">
           <div class="row justify-between">
             <div>
-              <!-- <div align="center">Ingredients</div> -->
+              <div align="center">Ingredients</div>
               <q-select
                 v-model="selectedIngredients.name"
                 debounce="3000"
@@ -158,7 +159,7 @@
             </div>
 
             <div>
-              <!-- <div align="center">Quantity</div> -->
+              <div align="center">Quantity</div>
               <q-input
                 v-model="selectedIngredients.quantity"
                 outlined
@@ -185,7 +186,7 @@
               />
             </div>
           </form>
-        </div>
+        </div> -->
         <!-- <q-separator class="q-my-lg"></q-separator> -->
         <q-card-actions
           class="row q-mt-md q-px-lg q-py-sm q-pt-none"
@@ -205,135 +206,134 @@
 </template>
 
 <script setup>
-import { useProductsStore } from "src/stores/product";
+// import { useProductsStore } from "src/stores/product";
+// import { useRawMaterialsStore } from "src/stores/raw-material";
 import { ref, reactive, watch, computed } from "vue";
-import { useRawMaterialsStore } from "src/stores/raw-material";
 import { useRecipeStore } from "src/stores/recipe";
 import { Notify } from "quasar";
 const recipeRows = computed(() => recipeStore.recipes);
 
-const breadProductStore = useProductsStore();
-const ingredientsStore = useRawMaterialsStore();
+// const breadProductStore = useProductsStore();
+// const ingredientsStore = useRawMaterialsStore();
 const recipeStore = useRecipeStore();
 const dialog = ref(false);
 const openAddRecipe = () => {
   dialog.value = true;
 };
 const category = ["Dough", "Filling"];
+const loading = ref(false);
 const recipe = reactive({
   name: "",
-  target: "",
   category: "",
 });
 
-const breadGroup = ref(null);
-const breadOptions = ref([]);
-const filterBreadOptions = ref(breadOptions.value);
-const ingredientGroup = ref([]);
-const ingredientOptions = ref([]);
-const selectedIngredients = reactive({
-  name: "",
-  quantity: "",
-});
-const filterIngredientsOptions = ref(ingredientOptions.value);
+// const breadGroup = ref(null);
+// const breadOptions = ref([]);
+// const filterBreadOptions = ref(breadOptions.value);
+// const ingredientGroup = ref([]);
+// const ingredientOptions = ref([]);
+// const selectedIngredients = reactive({
+//   name: "",
+//   quantity: "",
+// });
+// const filterIngredientsOptions = ref(ingredientOptions.value);
 
-const loading = ref(false);
+// const fetchBreadsData = async () => {
+//   const breads = await breadProductStore.fetchProductsByCategory("Bread");
 
-const fetchBreadsData = async () => {
-  const breads = await breadProductStore.fetchProductsByCategory("Bread");
+//   loading.value = false;
+//   breadOptions.value = breadProductStore.breads.map((val) => {
+//     return {
+//       label: val.name,
+//       value: val.id,
+//     };
+//   });
+// };
+// fetchBreadsData();
 
-  loading.value = false;
-  breadOptions.value = breadProductStore.breads.map((val) => {
-    return {
-      label: val.name,
-      value: val.id,
-    };
-  });
-};
-fetchBreadsData();
+// const fetchIngredientsData = async () => {
+//   const ingredient = await ingredientsStore.fetchIngredients("Ingredients");
+//   loading.value = false;
+//   ingredientOptions.value = ingredientsStore.ingredients.map((val) => {
+//     return {
+//       label: val.name,
+//       value: val.id,
+//       unit: val.unit,
+//     };
+//   });
+// };
+// fetchIngredientsData();
 
-const fetchIngredientsData = async () => {
-  const ingredient = await ingredientsStore.fetchIngredients("Ingredients");
-  loading.value = false;
-  ingredientOptions.value = ingredientsStore.ingredients.map((val) => {
-    return {
-      label: val.name,
-      value: val.id,
-      unit: val.unit,
-    };
-  });
-};
-fetchIngredientsData();
+// const clearData = () => {
+//   (selectedIngredients.name = ""), (selectedIngredients.quantity = "");
+// };
 
-const clearData = () => {
-  (selectedIngredients.name = ""), (selectedIngredients.quantity = "");
-};
+// const createValue = (val, done) => {
+//   if (val.length > 2) {
+//     if (!breadOptions.value.includes(val)) {
+//       done(val, "add-unique");
+//     }
+//   }
+// };
 
-const createValue = (val, done) => {
-  if (val.length > 2) {
-    if (!breadOptions.value.includes(val)) {
-      done(val, "add-unique");
-    }
-  }
-};
+// const filterFn = (val, update) => {
+//   update(() => {
+//     if (val === "") {
+//       filterBreadOptions.value = breadOptions.value;
+//     } else {
+//       const needle = val.toLowerCase();
+//       filterBreadOptions.value = breadOptions.value.filter(
+//         (v) => v.label.toLowerCase().indexOf(needle) > -1
+//       );
+//     }
+//   });
+// };
 
-const filterFn = (val, update) => {
-  update(() => {
-    if (val === "") {
-      filterBreadOptions.value = breadOptions.value;
-    } else {
-      const needle = val.toLowerCase();
-      filterBreadOptions.value = breadOptions.value.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
-      );
-    }
-  });
-};
-
-const createValueIngredient = (val, done) => {
-  if (val.length > 2) {
-    if (!ingredientOptions.value.includes(val)) {
-      done(val, "add-unique");
-    }
-  }
-};
-const filterIngredients = (val, update) => {
-  update(() => {
-    if (val === "") {
-      filterIngredientsOptions.value = ingredientOptions.value;
-    } else {
-      const needle = val.toLowerCase();
-      filterIngredientsOptions.value = ingredientOptions.value.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
-      );
-    }
-  });
-};
+// const createValueIngredient = (val, done) => {
+//   if (val.length > 2) {
+//     if (!ingredientOptions.value.includes(val)) {
+//       done(val, "add-unique");
+//     }
+//   }
+// };
+// const filterIngredients = (val, update) => {
+//   update(() => {
+//     if (val === "") {
+//       filterIngredientsOptions.value = ingredientOptions.value;
+//     } else {
+//       const needle = val.toLowerCase();
+//       filterIngredientsOptions.value = ingredientOptions.value.filter(
+//         (v) => v.label.toLowerCase().indexOf(needle) > -1
+//       );
+//     }
+//   });
+// };
 
 const saveRecipe = async () => {
-  const newData = {
-    name: recipe.name,
-    target: recipe.target,
-    category: recipe.category,
-    status: "Active",
-    breads: breadGroup.value.map((bread) => ({
-      bread_id: bread.value,
-    })),
-    ingredients: ingredientGroup.value.map((ingredient) => ({
-      ingredient_id: ingredient.ingredients_id,
-      quantity: ingredient.quantity,
-    })),
-  };
-  console.log("Recipe", newData);
+  // const newData = {
+  //   name: recipe.name,
+  //   target: recipe.target,
+  //   category: recipe.category,
+  //   status: "Active",
+  //   breads: breadGroup.value.map((bread) => ({
+  //     bread_id: bread.value,
+  //   })),
+  //   ingredients: ingredientGroup.value.map((ingredient) => ({
+  //     ingredient_id: ingredient.ingredients_id,
+  //     quantity: ingredient.quantity,
+  //   })),
+  // };
+
+  console.log("Recipe", recipe);
   try {
     loading.value = true;
-    await recipeStore.createRecipe(newData);
+    await recipeStore.createRecipe(recipe);
     loading.value = false;
     dialog.value = false;
     Notify.create({
       type: "positive",
       message: "Recipe created successfully",
-      position: "top",
+      // position: "top",
     });
     clearRecipeData();
     // await reloadTableData();
@@ -349,61 +349,61 @@ const saveRecipe = async () => {
 
 const clearRecipeData = () => {
   recipe.name = "";
-  recipe.target = "";
   recipe.category = "";
-  breadGroup.value = null;
-  ingredientGroup.value = [];
-  selectedIngredients.name = "";
-  selectedIngredients.quantity = "";
+  // recipe.target = "";
+  // breadGroup.value = null;
+  // ingredientGroup.value = [];
+  // selectedIngredients.name = "";
+  // selectedIngredients.quantity = "";
 
   dialog.value = false;
 };
 
-const addIngredients = () => {
-  const data = ingredientGroup.value;
+// const addIngredients = () => {
+//   const data = ingredientGroup.value;
 
-  function findObjectById(arr, id) {
-    return arr.find((obj) => obj.ingredients_id == id);
-  }
-  const idToSearch = selectedIngredients.name.value;
+//   function findObjectById(arr, id) {
+//     return arr.find((obj) => obj.ingredients_id == id);
+//   }
+//   const idToSearch = selectedIngredients.name.value;
 
-  const foundObject = findObjectById(data, idToSearch);
-  if (!foundObject) {
-    ingredientGroup.value = [
-      ...data,
-      {
-        ingredients_id: selectedIngredients.name.value,
-        label: selectedIngredients.name.label,
-        quantity: selectedIngredients.quantity,
-        unit: selectedIngredients.name.unit,
-      },
-    ];
-    clearData();
-  } else {
-    Notify.create({
-      type: "negative",
-      icon: "warning",
-      message: "Ingredient already exist",
-      timeout: 2000,
-    });
-    // alert("ingredient already exist!");
-  }
-};
+//   const foundObject = findObjectById(data, idToSearch);
+//   if (!foundObject) {
+//     ingredientGroup.value = [
+//       ...data,
+//       {
+//         ingredients_id: selectedIngredients.name.value,
+//         label: selectedIngredients.name.label,
+//         quantity: selectedIngredients.quantity,
+//         unit: selectedIngredients.name.unit,
+//       },
+//     ];
+//     clearData();
+//   } else {
+//     Notify.create({
+//       type: "negative",
+//       icon: "warning",
+//       message: "Ingredient already exist",
+//       timeout: 2000,
+//     });
+//     // alert("ingredient already exist!");
+//   }
+// };
 
-const removeIngredient = (index) => {
-  ingredientGroup.value.splice(index, 1);
-};
+// const removeIngredient = (index) => {
+//   ingredientGroup.value.splice(index, 1);
+// };
 
-watch(
-  () => selectedIngredients.name,
-  (newVal) => {
-    if (newVal && newVal.unit) {
-      selectedIngredients.unit = newVal.unit;
-    } else {
-      selectedIngredients.unit = "";
-    }
-  }
-);
+// watch(
+//   () => selectedIngredients.name,
+//   (newVal) => {
+//     if (newVal && newVal.unit) {
+//       selectedIngredients.unit = newVal.unit;
+//     } else {
+//       selectedIngredients.unit = "";
+//     }
+//   }
+// );
 </script>
 <style>
 .q-chip {

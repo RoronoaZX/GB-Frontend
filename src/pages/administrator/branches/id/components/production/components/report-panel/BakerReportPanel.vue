@@ -23,9 +23,9 @@
         <div>
           Name:
           {{
-            capitalizeName(
-              props.bakersReport[0]?.user?.name ||
-                props.bakersReport[1]?.user?.name ||
+            formatFullname(
+              reportsData[0]?.user?.employee ||
+                reportsData[1]?.user?.employee ||
                 "No name available"
             )
           }}
@@ -203,7 +203,7 @@
       transition-hide="slide-down"
     >
       <div class="q-ma-sm">
-        <div class="q-ma-md" align="center">
+        <div class="q-ma-sm" align="center">
           <q-btn icon="close" flat dense round v-close-popup class="text-white">
             <q-tooltip>Close</q-tooltip>
           </q-btn>
@@ -234,6 +234,25 @@ const pdfUrl = ref("");
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMM. DD, YYYY");
+};
+
+const printPdf = (bakerReport) => {
+  const docDefinition = generateDocDefinition(bakerReport);
+
+  // Open the generated PDF in a new tab or download directly
+  pdfMake.createPdf(docDefinition).print();
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
 const formatTimeFromDB = (dateString) => {
@@ -294,14 +313,8 @@ const getBreadReports = (reportsData) => {
   }
 };
 
-const openPrintDialog = (bakerReport) => {
-  const docDefinition = generateDocDefinition(bakerReport);
-  pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
-    pdfUrl.value = dataUrl;
-    printDialog.value = true;
-  });
-};
 const generateDocDefinition = (bakerReport) => {
+  console.log("bakerReport", bakerReport);
   const recipeName = `${bakerReport.recipe.name} (${bakerReport.recipe_category})`;
   const target = bakerReport.recipe.target;
   const actualTarget = bakerReport.actual_target;
@@ -380,8 +393,8 @@ const generateDocDefinition = (bakerReport) => {
             text: `Branch Name: ${
               bakerReport.branch.name || "No name available"
             }
-                Baker: ${capitalizeName(
-                  bakerReport?.user?.name || "Unknown Baker Name"
+                Baker: ${formatFullname(
+                  bakerReport?.user?.employee || "Unknown Baker Name"
                 )}
                 Recipe: ${bakerReport.recipe?.name || "Unknown Recipe"} (${
               bakerReport.recipe_category || "Unknown Category"
@@ -531,6 +544,13 @@ const generateDocDefinition = (bakerReport) => {
     },
     pageMargins: [20, 20, 20, 20], // Reduced page margins for better fit
   };
+};
+const openPrintDialog = (bakerReport) => {
+  const docDefinition = generateDocDefinition(bakerReport);
+  pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
+    pdfUrl.value = dataUrl;
+    printDialog.value = true;
+  });
 };
 </script>
 

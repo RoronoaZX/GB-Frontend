@@ -70,6 +70,7 @@ const signOut = () => {
   setTimeout(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("activeMenuItem");
     loading.value = false;
     router.push("/");
   }, 1000);

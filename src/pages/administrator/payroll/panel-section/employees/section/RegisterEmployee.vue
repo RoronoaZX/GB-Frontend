@@ -9,14 +9,19 @@
     </div>
   </q-card>
 
-  <q-dialog v-model="addEmployeeDialog" persistent>
-    <q-card style="width: 500px; max-width: 80vw">
+  <q-dialog
+    v-model="addEmployeeDialog"
+    persistent
+    position="right"
+    backdrop-filter="blur(4px) saturate(150%)"
+  >
+    <q-card style="width: 500px; max-width: 100vw">
       <q-card-section
         class="row items-center q-px-md q-py-sm bg-gradient text-white"
       >
         <div class="text-h5 q-mr-md">👨‍💼👩‍💼 Add New Employee</div>
         <q-space />
-        <q-btn icon="close" flat dense round v-close-popup />
+        <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
       <q-card-section>
         <div class="q-gutter-y-sm">
@@ -121,9 +126,16 @@
           </div>
         </div>
       </q-card-section>
-      <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
+      <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="left">
         <q-btn class="glossy" color="grey-9" label="Dismiss" v-close-popup />
-        <q-btn class="glossy" color="teal" label="Add" icon="add" @click="save">
+        <q-btn
+          class="glossy"
+          color="teal"
+          label="Add"
+          icon="add"
+          @click="save"
+          :loading="loading"
+        >
         </q-btn>
         <!-- @click="addNewBranch" -->
       </q-card-actions>
@@ -140,7 +152,7 @@ import { onMounted, reactive, ref } from "vue";
 const employeeStore = useEmployeeStore();
 
 const addEmployeeDialog = ref(false);
-
+const loading = ref(false);
 const openAddEmployeeDialog = () => {
   addEmployeeDialog.value = true;
 };
@@ -218,12 +230,14 @@ const employeeInfo = reactive({
 });
 
 const save = async () => {
+  loading.value = true;
   const employeeForm = {
     ...employeeInfo,
     employment_type_id: employeeInfo.employment_type.value,
   };
   console.log("employee", employeeForm);
   const data = await employeeStore.createEmployee(employeeForm);
+  loading.value = false;
   clearForm();
   addEmployeeDialog.value = false;
 };

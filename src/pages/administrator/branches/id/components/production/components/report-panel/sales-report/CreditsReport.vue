@@ -27,6 +27,9 @@
           {{ formatPrice(props.sales_Reports[0].credit_total) }}
         </div>
       </q-card-section>
+      <q-card-section>
+        <!-- {{ sales_Reports[0].credit_reports }} -->
+      </q-card-section>
     </q-card>
   </div>
 </template>

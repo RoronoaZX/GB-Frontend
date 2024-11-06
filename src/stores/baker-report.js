@@ -53,6 +53,10 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
     setUser(user) {
       this.user = user;
     },
+    clearData() {
+      this.recipes = {};
+      this.reports = [];
+    },
 
     async fetchBranchRawMaterials(branchId) {
       const response = await api.get(`/api/branch/${branchId}/rawMaterials`);

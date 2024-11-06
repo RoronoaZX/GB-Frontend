@@ -26,13 +26,13 @@
                 outlined
                 dense
                 rounded
+                debounce="1000"
                 style="width: 415px"
                 placeholder="Search Name"
               >
                 <template v-slot:append>
-                  <div>
-                    <q-icon name="search" />
-                  </div>
+                  <q-icon v-if="!employeeSearchLoading" name="search" />
+                  <q-spinner v-else color="grey" size="sm" />
                 </template>
                 <div
                   v-if="isDropdownVisible && showUserCard"
@@ -48,7 +48,7 @@
                       </q-item>
 
                       <!-- No Data Available Message -->
-                      <q-item v-if="!loading && !userDataSearch.length">
+                      <q-item v-if="!loading && !employees.length">
                         <q-item-section>
                           No data available in this branch.
                         </q-item-section>
@@ -58,12 +58,20 @@
                       <template v-else>
                         <q-item
                           @click="autoFillUser(user)"
-                          v-for="user in userDataSearch"
+                          v-for="user in employees"
                           :key="user.id"
                           clickable
                         >
                           <q-item-section>
-                            <q-item-label>{{ user.name }}</q-item-label>
+                            <q-item-label>
+                              {{
+                                `${user.employee.firstname} ${
+                                  user.employee.middlename
+                                    ? user.employee.middlename.charAt(0) + "."
+                                    : ""
+                                } ${user.employee.lastname}`
+                              }}
+                            </q-item-label>
                           </q-item-section>
                         </q-item>
                       </template>
@@ -80,13 +88,13 @@
                 placeholder="Search"
                 outlined
                 flat
+                debounce="1000"
                 dense
                 style="width: 240px"
               >
                 <template v-slot:append>
-                  <div>
-                    <q-icon name="search" />
-                  </div>
+                  <q-icon v-if="!productSearchLoading" name="search" />
+                  <q-spinner v-else color="grey" size="sm" />
                 </template>
 
                 <div
@@ -145,7 +153,6 @@
               @click="addCreditToList"
             ></q-btn>
           </div>
-
           <div>
             <q-field outlined dense readonly>
               <template v-slot:control>
@@ -225,16 +232,20 @@
 
 <script setup>
 import { Notify } from "quasar";
+import { useEmployeeStore } from "src/stores/employee";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useUsersStore } from "src/stores/user";
 import { ref, reactive, computed, watch } from "vue";
 
 const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
+const employeeStore = useEmployeeStore();
+const employees = computed(() => employeeStore.branchEmployees);
 const salesReportsStore = useSalesReportsStore();
 const productSearchData = computed(() => salesReportsStore.products);
 console.log("products search", productSearchData.value);
 const userData = salesReportsStore.user;
+console.log("userdata", userData);
 const dialog = ref(false);
 const searchQuery = ref("");
 const productSearch = ref("");
@@ -243,6 +254,29 @@ const showProductCard = ref(false);
 let userSelected = false;
 let productsSelected = false;
 const loading = ref(false); // Loading state
+const employeeSearchLoading = ref(false);
+const productSearchLoading = ref(false);
+
+const formatUserName = (user) => {
+  const { firstname, middlename, lastname } = user.employee;
+  return `${firstname} ${
+    middlename ? middlename.charAt(0) + "." : ""
+  } ${lastname}`;
+};
+
+const searchUsers = async () => {
+  if (searchQuery.value) {
+    employeeSearchLoading.value = true; // Set loading to true
+    const branchId = userData?.data?.employee?.branch_employee?.branch_id || "";
+    console.log("searchQuery.value", searchQuery.value);
+    console.log("branchId", branchId);
+    await employeeStore.searchEmployeeWithBranchID(searchQuery.value, branchId);
+    // console.log("response user",);
+
+    employeeSearchLoading.value = false;
+    showUserCard.value = true;
+  }
+};
 
 const openDialog = () => {
   dialog.value = true;
@@ -283,38 +317,33 @@ const clearProduct = () => {
   creditForm.pieces = "";
 };
 
-const searchUsers = async () => {
-  if (searchQuery.value) {
-    loading.value = true; // Set loading to true
-    const branchId = userData?.data?.branch_employee?.branch_id || "";
-    await userDataStore.searchUserWithID(searchQuery.value, branchId);
-    loading.value = false; // Set loading to false
-    showUserCard.value = true;
-  }
-};
-
 const isDropdownVisible = computed(() => {
-  return searchQuery.value && userDataSearch.value.length > 0;
+  return searchQuery.value && employees.value.length > 0;
 });
 
 const autoFillUser = (user) => {
-  searchQuery.value = user.name;
-  creditForm.name = user.name;
-  creditForm.credit_user_id = user.id;
+  console.log("credit", user);
+  searchQuery.value = `${user.employee.firstname} ${
+    user.employee.middlename ? user.employee.middlename.charAt(0) + "." : ""
+  } ${user.employee.lastname}`;
+  creditForm.credit_user_id = user.employee.id;
+  creditForm.name = `${user.employee.firstname} ${
+    user.employee.middlename ? user.employee.middlename.charAt(0) + "." : ""
+  } ${user.employee.lastname}`;
   userSelected = true; // Set flag when user is selected
   showUserCard.value = false;
 };
 
 const searchProducts = async () => {
   if (productSearch.value) {
-    loading.value = true; // Set loading to true
-    const branchId = userData?.data?.branch_employee?.branch_id || "";
+    productSearchLoading.value = true; // Set loading to true
+    const branchId = userData?.data?.employee?.branch_employee?.branch_id || "";
     const response = await salesReportsStore.searchBranchProducts(
       productSearch.value,
       branchId
     );
     console.log("response", response);
-    loading.value = false;
+    productSearchLoading.value = false;
     showProductCard.value = true;
   }
 };
@@ -353,6 +382,7 @@ const addCreditToList = () => {
   const totalAmount = productCreditTotalAmount.value;
 
   creditList.value.push({
+    credit_user_id: creditForm.credit_user_id,
     product_id: creditForm.product_id,
     name: creditForm.name,
     productName: creditForm.productName,
@@ -409,11 +439,13 @@ const handleSubmit = () => {
   const formattedTotalAmount = parseFloat(creditForm.creditTotal);
   const employeeCreditReport = {
     user_id: userData?.data.id,
-    branch_id: userData?.data?.branch_employee?.branch_id || "",
+    branch_id: userData?.data?.employee?.branch_employee?.branch_id || "",
     credit_user_id: creditForm.credit_user_id,
     credit_user_name: creditForm.name,
     total_amount: formattedTotalAmount,
     credits: creditList.value.map((credit) => ({
+      credit_user_id: credit.credit_user_id,
+      branch_id: userData?.data?.employee?.branch_employee?.branch_id || "",
       productName: credit.productName,
       product_id: credit.product_id,
       price: credit.price,

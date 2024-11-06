@@ -25,7 +25,9 @@
               clickable
             >
               <q-item-section>
-                <q-item-label>{{ recipe.name }}</q-item-label>
+                <q-item-label>{{
+                  capitalizeFirstLetter(recipe.name)
+                }}</q-item-label>
               </q-item-section>
               <q-item-section>
                 <q-item-label side>{{ recipe.category }}</q-item-label>
@@ -57,6 +59,13 @@ const search = async () => {
 const autoFillRecipe = (recipe) => {
   bakerReports.setRecipe(recipe);
   searchQuery.value = "";
+};
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 console.log("recipes", recipes.value);

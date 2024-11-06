@@ -3,6 +3,10 @@ import { api } from "./axios";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSupervisorStore } from "src/stores/supervisor";
+// import { useLoadingBarStore } from "src/stores/loading";
+import { Loading } from "quasar";
+
+// const loadingBarStore = useLoadingBarStore();
 
 export default boot(async ({ router }) => {
   router.beforeEach(async (to, from, next) => {
@@ -10,13 +14,18 @@ export default boot(async ({ router }) => {
     const role = localStorage.getItem("role");
     // console.log("Boot File - Role:", role);
     // console.log("Boot File - Token:", token);
-
+    Loading.value = true;
     if (token) {
       try {
+        // Loading.show();
+        // this.$refs.bar.start();
+        // loadingBarStore.start(); // Start the loading bar
         const useBakersReport = useBakerReportsStore();
         const useSalesReport = useSalesReportsStore();
         const useSupervisor = useSupervisorStore();
+
         const user = await api.get("/api/profile");
+
         console.log("user:", user.data);
         useBakersReport.setUser(user.data);
         useSalesReport.setUser(user.data);
@@ -28,7 +37,7 @@ export default boot(async ({ router }) => {
           } else if (role === "Baker") {
             next("/branch/baker");
           } else if (role === "Cashier") {
-            next("/branch/sales_lady");
+            next("/branch/sales_lady/products");
           } else {
             next();
           }
@@ -47,6 +56,10 @@ export default boot(async ({ router }) => {
         } else {
           next();
         }
+      } finally {
+        // Loading.hide();
+        // this.$refs.bar.stop();
+        // loadingBarStore.stop();
       }
     } else {
       if (to.path !== "/") {
@@ -55,5 +68,6 @@ export default boot(async ({ router }) => {
         next();
       }
     }
+    Loading.value = false;
   });
 });

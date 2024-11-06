@@ -33,6 +33,7 @@
           <div class="q-mt-lg q-animated q-animate-bounce">
             <div>Name of Warehouse</div>
             <q-input
+              class="text-capitalize"
               v-model="addNewWarehouseForm.name"
               outlined
               dense
@@ -42,6 +43,7 @@
           <div class="q-mt-md q-animated q-animate-bounce">
             <div>Location</div>
             <q-input
+              class="text-capitalize"
               v-model="addNewWarehouseForm.location"
               outlined
               dense
@@ -50,19 +52,51 @@
           </div>
           <div class="q-mt-md q-animated q-animate-bounce">
             <div>Person In-charge</div>
-            <q-select
-              v-model="addNewWarehouseForm.employee"
+            <q-input
+              v-model="searchKeyword"
+              label="Search Employee"
               outlined
-              flat
               dense
-              use-input
-              clearable
-              input-debounce="0"
-              :options="filterEmployeeOptions"
-              @filter="filteredEmployee"
-              hide-dropdown-icon
-              behavior="menu"
-            />
+              @update:model-value="search"
+              debounce="500"
+              placeholder="Enter name or position"
+              @focus="showDropdown = true"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="grey" size="sm" />
+              </template>
+              <div
+                v-if="showDropdown && searchKeyword"
+                class="custom-list z-top"
+              >
+                <q-card>
+                  <q-list separator>
+                    <q-item v-if="!employees?.length">
+                      No Employee Record
+                    </q-item>
+                    <template v-else>
+                      <q-item
+                        @click="autoFillEmployee(employee)"
+                        v-for="employee in employees"
+                        :key="employee.id"
+                        clickable
+                      >
+                        <q-item-section>
+                          {{
+                            `${employee.firstname} ${
+                              employee.middlename
+                                ? employee.middlename.charAt(0) + "."
+                                : ""
+                            } ${employee.lastname}`
+                          }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-card>
+              </div>
+            </q-input>
           </div>
           <div class="row q-gutter-x-sm q-mt-md">
             <div class="col-6 q-animated q-animate-bounce">
@@ -97,6 +131,7 @@
             color="teal"
             label="Create"
             @click="createWarehouse"
+            :loading="loading"
           />
         </q-card-actions>
       </q-card>
@@ -113,62 +148,80 @@ import { useEmployeeStore } from "src/stores/employee";
 const employeeStore = useEmployeeStore();
 const warehousesStore = useWarehousesStore();
 const addWarehouseDialogVisible = ref(false);
-const employees = computed(() => employeeStore.employees);
+const employees = computed(() => employeeStore.employee);
 const warehouseStatus = ["Open", "Close"];
 const open_adding_warehouse_dialog = () => {
   addWarehouseDialogVisible.value = true;
 };
 const searchKeyword = ref("");
-const employeeOptions = ref([]); // Holds the fetched employee options
-const selectedEmployee = ref(null);
-const filterEmployeeOptions = ref(employeeOptions.value);
+const showDropdown = ref(false);
+const loading = ref(false);
+const searchLoading = ref(false);
+// const employeeOptions = ref([]);
+// const selectedEmployee = ref(null);
+// const filterEmployeeOptions = ref(employeeOptions.value);
 
-const fetchEmployee = async () => {
-  const employee = await employeeStore.fetchEmployee();
-  employeeOptions.value = employeeStore.employees.map((val) => ({
-    label: `${val.firstname} ${val.middlename ? val.middlename + " " : ""}${
-      val.lastname
-    }`,
-    value: val.id,
-  }));
-  filterEmployeeOptions.value = employeeOptions.value;
+const search = async () => {
+  if (searchKeyword.value.trim()) {
+    searchLoading.value = true;
+    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    searchLoading.value = false;
+    showDropdown.value = true;
+  }
 };
 
-onMounted(fetchEmployee);
+const autoFillEmployee = (employee) => {
+  // Log the selected employee data
+  console.log("Selected Employee:", employee);
 
-const filteredEmployee = (val, update) => {
-  update(() => {
-    const needle = val.toLowerCase();
-    filterEmployeeOptions.value =
-      val === ""
-        ? employeeOptions.value
-        : employeeOptions.value.filter((v) =>
-            v.label.toLowerCase().includes(needle)
-          );
-  });
+  addNewWarehouseForm.employee_id = employee.id;
+  addNewWarehouseForm.employee_name = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+  searchKeyword.value = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+
+  showDropdown.value = false;
+  // Log the filled designation data
+  console.log("Filled addNewBranchForm Data:", addNewWarehouseForm);
+  // setTimeout(() => {
+  //   searchKeyword.value = null;
+  // }, 0);
 };
+
+// onMounted(fetchEmployee);
+
+// const filteredEmployee = (val, update) => {
+//   update(() => {
+//     const needle = val.toLowerCase();
+//     filterEmployeeOptions.value =
+//       val === ""
+//         ? employeeOptions.value
+//         : employeeOptions.value.filter((v) =>
+//             v.label.toLowerCase().includes(needle)
+//           );
+//   });
+// };
 
 //reactive warehouse form
 const addNewWarehouseForm = reactive({
   name: "",
   location: "",
-  employee: "",
+  employee_id: "",
+  employee_name: "",
   phone: "",
   status: null,
 });
 
 //create warehouse
 const createWarehouse = async () => {
-  const warehouse = {
-    ...addNewWarehouseForm,
-    employee_id: addNewWarehouseForm.employee.value,
-  };
-
-  console.log("awarehoouse data send", warehouse);
-
-  const res = await warehousesStore.createWarehouses(warehouse);
+  console.log("awarehoouse data send", addNewWarehouseForm);
+  loading.value = true;
+  const res = await warehousesStore.createWarehouses(addNewWarehouseForm);
   console.log("redssdfs", res);
 
+  loading.value = false;
   resetFormData();
   addWarehouseDialogVisible.value = false;
 };
@@ -179,6 +232,7 @@ const resetFormData = () => {
   addNewWarehouseForm.location = "";
   addNewWarehouseForm.person_incharge = "";
   addNewWarehouseForm.phone = "";
+  searchKeyword.value = null;
   addNewWarehouseForm.employee = "";
   addNewWarehouseForm.status = [""];
 };

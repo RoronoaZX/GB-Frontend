@@ -3,7 +3,7 @@
     <q-card-section class="row justify-between">
       <div class="text-h6">
         <!-- <q-icon name="fa-solid fa-layer-group" /> -->
-        🛠️ Raw Materials
+        <!-- 🛠️ Raw Materials -->
         <!-- <div class="q-gutter-x-sm">
           <q-badge label="Good" class="text-white" color="primary" />
           <q-badge label="Warning" class="text-white" color="warning" />

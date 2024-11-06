@@ -63,16 +63,16 @@ const originalData = props.delete.row;
 const onDelete = async () => {
   try {
     await materialsStore.deleteRawMaterials(originalData.id);
-    Notify.create({
-      message: "Item deleted successfully.",
-      type: "positive",
-      position: "top-right",
-    });
+    // Notify.create({
+    //   message: "Item deleted successfully.",
+    //   type: "positive",
+    //   // position: "top-right",
+    // });
   } catch (error) {
     Notify.create({
       message: `Failed to delete item: ${error.message}`,
       type: "negative",
-      position: "top-right",
+      // position: "top-right",
     });
   }
   dialogVisible.value = false;

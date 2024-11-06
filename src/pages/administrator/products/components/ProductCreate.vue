@@ -41,6 +41,7 @@
         <q-card-section class="q-px-xl q-pt-none q-pb-lg">
           <div class="q-mt-lg q-animated q-animate-bounce">
             <q-input
+              class="text-capitalize"
               v-model="addNewProductForm.name"
               outlined
               dense

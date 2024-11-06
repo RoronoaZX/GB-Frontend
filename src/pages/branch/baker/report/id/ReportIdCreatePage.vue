@@ -6,7 +6,7 @@
       <q-card-section>
         <div class="text-h6 text-dark row justify-between">
           <div>
-            <q-btn outline flat icon="arrow_back" to="/branch/baker/report" />
+            <q-btn outline flat icon="arrow_back" @click="goBack" />
           </div>
           <q-space />
           <div>
@@ -50,6 +50,7 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
 import ReportContentComponent from "./components/ReportListComponent.vue";
 import ReportRecipeInput from "./components/ReportRecipeInputComponent.vue";
 import ReportSearch from "./components/ReportSearchComponent.vue";
@@ -58,10 +59,15 @@ import ReportSearch from "./components/ReportSearchComponent.vue";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { computed } from "vue";
 
+const router = useRouter();
 const bakerReport = useBakerReportsStore();
 const report = computed(() => bakerReport.recipes);
 
 console.log("report", report);
+const goBack = () => {
+  bakerReport.clearData(); // Clear the data in the store
+  router.push("/branch/baker/report"); // Navigate back
+};
 </script>
 
 <style lang="scss" scoped></style>

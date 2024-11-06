@@ -1,7 +1,11 @@
 <template>
-  <q-card class="q-pa-md user-card" @click="openDesignationDialog">
+  <q-card
+    class="q-pa-md user-card"
+    @click="openDesignationDialog"
+    align="center"
+  >
     <div class="q-mb-md text-center">
-      <q-icon name="add_business" size="70px" color="yellow-7" />
+      <q-icon name="add_business" size="60px" color="yellow-7" />
     </div>
 
     <div class="text-center">
@@ -11,14 +15,18 @@
     </div>
   </q-card>
 
-  <q-dialog v-model="designationDialog">
+  <q-dialog
+    v-model="designationDialog"
+    backdrop-filter="blur(4px) saturate(150%)"
+    position="right"
+  >
     <q-card style="width: 500px; max-width: 80vw">
       <q-card-section
         class="row items-center q-px-md q-py-sm bg-gradient text-white"
       >
         <div class="text-h5 q-mr-md">👨‍💼👩‍💼 Add Employee Designation</div>
         <q-space />
-        <q-btn icon="close" flat dense round v-close-popup />
+        <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
       <q-card-section>
         <div>
@@ -32,7 +40,8 @@
             placeholder="Enter name or position"
           >
             <template v-slot:append>
-              <q-icon name="search" />
+              <q-icon v-if="!searchLoading" name="search" />
+              <q-spinner v-else color="grey" size="sm" />
             </template>
             <div v-if="searchKeyword" class="custom-list z-top">
               <q-card>
@@ -120,9 +129,15 @@
           </div>
         </div>
       </q-card-section>
-      <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
+      <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="left">
         <q-btn class="glossy" color="grey-9" label="Dismiss" v-close-popup />
-        <q-btn class="glossy" color="teal" label="Add" @click="save" />
+        <q-btn
+          class="glossy"
+          color="teal"
+          label="Add"
+          @click="save"
+          :loading="loading"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -142,11 +157,15 @@ const branchOptions = ref([]);
 const selectedBranch = ref([]);
 const searchKeyword = ref("");
 const filterBranchOptions = ref(branchOptions.value);
+const loading = ref(false);
+const searchLoading = ref(false);
 
-const employees = computed(() => employeeStore.employees);
+const employees = computed(() => employeeStore.employee);
 const search = async () => {
   if (searchKeyword.value.trim()) {
-    await employeeStore.searchEmployee(searchKeyword.value);
+    searchLoading.value = true;
+    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    searchLoading.value = false;
   }
 };
 
@@ -224,14 +243,17 @@ const clearDesignationForm = () => {
 };
 
 const save = async () => {
+  loading.value = true;
   const designation = {
     ...addDesignation,
     branch_id: addDesignation.branch_name.value,
   };
+
   await designationStore.createDesignation(designation);
   console.log("Designation Data to Save:", designation);
+  loading.value = false;
   clearDesignationForm();
-  openDesignationDialog.value = false;
+  designationDialog.value = false;
 };
 </script>
 

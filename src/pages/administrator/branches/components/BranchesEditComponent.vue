@@ -43,7 +43,53 @@
         </div>
         <div class="q-mt-lg q-animated q-animate-bounce">
           <div>Person In-charge</div>
-          <q-input v-model="editBranchesForm.person_incharge" outlined dense />
+          <div>
+            <q-input
+              v-model="searchKeyword"
+              label="Search Employee"
+              outlined
+              dense
+              @update:model-value="search"
+              debounce="500"
+              placeholder="Enter name or position"
+              @focus="showDropdown = true"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="grey" size="sm" />
+              </template>
+              <div
+                v-if="showDropdown && searchKeyword"
+                class="custom-list z-top"
+              >
+                <q-card>
+                  <q-list separator>
+                    <q-item v-if="!employees?.length">
+                      No Employee Record
+                    </q-item>
+                    <template v-else>
+                      <q-item
+                        @click="autoFillEmployee(employee)"
+                        v-for="employee in employees"
+                        :key="employee.id"
+                        clickable
+                      >
+                        <q-item-section>
+                          {{
+                            `${employee.firstname} ${
+                              employee.middlename
+                                ? employee.middlename.charAt(0) + "."
+                                : ""
+                            } ${employee.lastname}`
+                          }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-card>
+              </div>
+            </q-input>
+          </div>
         </div>
         <div class="q-mt-lg q-animated q-animate-bounce">
           <div>Under Warehouse</div>
@@ -102,7 +148,9 @@ import { Notify } from "quasar";
 import { reactive, ref, onMounted, computed } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useBranchesStore } from "src/stores/branch";
+import { useEmployeeStore } from "src/stores/employee";
 
+const employeeStore = useEmployeeStore();
 const branchesStore = useBranchesStore();
 const warehousesStore = useWarehousesStore();
 const warehouses = computed(() => warehousesStore.warehouses);
@@ -111,21 +159,52 @@ const dialog = ref(false);
 const warehouseOptions = ref([]);
 let editRow = props.edit.row;
 const statusOptions = ["Open", "Open soon", "Close"];
+const searchKeyword = ref(null);
+const searchLoading = ref(false);
+const showDropdown = ref(false);
 
-const editBranchesForm = reactive({
-  name: "",
-  location: "",
-  person_incharge: "",
-  warehouse_id: null,
-  phone: "",
-  status: null,
-});
+const employees = computed(() => employeeStore.employee);
+const search = async () => {
+  if (searchKeyword.value.trim()) {
+    searchLoading.value = true;
+    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    searchLoading.value = false;
+    showDropdown.value = true;
+  }
+};
+
+const autoFillEmployee = (employee) => {
+  // Log the selected employee data
+  console.log("Selected Employee:", employee);
+
+  editBranchesForm.employee_id = employee.id;
+  editBranchesForm.employee_name = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+  searchKeyword.value = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+
+  showDropdown.value = false;
+  // Log the filled designation data
+  console.log("Filled editBranchesForm Data:", editBranchesForm);
+  // setTimeout(() => {
+  //   searchKeyword.value = null;
+  // }, 0);
+};
 
 const openEditForm = () => {
   console.log("Edit Row Data:", editRow);
+  showDropdown.value = false;
   editBranchesForm.name = editRow.name;
   editBranchesForm.location = editRow.location;
-  editBranchesForm.person_incharge = editRow.person_incharge;
+  editBranchesForm.employee_id = editRow.employee_id;
+  editBranchesForm.employee_name = editRow.employees
+    ? formatFullname(editRow.employees)
+    : "No Person in Charge";
+  searchKeyword.value = editRow.employees
+    ? formatFullname(editRow.employees)
+    : "No Person in Charge";
   editBranchesForm.warehouse_id = editRow?.warehouse_id
     ? editRow.warehouse_id
     : editRow?.warehouse?.id
@@ -137,7 +216,33 @@ const openEditForm = () => {
   console.log("Edit Data:", editBranchesForm);
 };
 
+const editBranchesForm = reactive({
+  name: "",
+  location: "",
+  person_incharge: "",
+  employee_id: "",
+  employee_name: "",
+  warehouse_id: null,
+  phone: "",
+  status: null,
+});
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
 const saveEditedBranches = async () => {
+  console.log("editRow.id", editRow.id);
+  console.log("editBranchesForm", editBranchesForm);
   try {
     await branchesStore.updateBranches(editRow.id, editBranchesForm);
 

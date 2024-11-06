@@ -1,9 +1,9 @@
 <template>
   <div class="row justify-between">
-    <div class="col-8">
+    <div class="col-10">
       <TableSection />
     </div>
-    <div class="col-3 q-gutter-y-md">
+    <div class="col-2 q-gutter-y-md">
       <RegisterEmployee />
       <DesignationEmployee />
     </div>

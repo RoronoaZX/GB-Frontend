@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <div class="q-pa-md elegant-container">
-      <div align="right">
+      <div>
         <q-input
           class="q-pb-lg"
           v-model="searchQuery"
@@ -90,7 +90,41 @@
             <q-card-section>
               <div class="q-mb-sm elegant-detail">
                 <q-icon name="mail" class="q-mr-sm" />
-                <span>{{ user.email }}</span>
+                <q-popup-edit
+                  @update:model-value="(val) => onSave(user, val)"
+                  v-model="user.email"
+                  title="Edit Email"
+                  persistent
+                  auto-save
+                  buttons
+                  label-set="Save"
+                  label-cancel="Close"
+                  fit
+                  v-slot="scope"
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-input
+                    v-model="scope.value"
+                    dense
+                    type="email"
+                    :rules="[emailRule]"
+                    placeholder="Email"
+                    class="popup-input"
+                    filled
+                    borderless
+                    @keyup.enter="scope.set"
+                  />
+                </q-popup-edit>
+
+                <div class="email-display">
+                  <span class="email-text">{{ user.email }}</span>
+                  <q-icon
+                    name="edit"
+                    size="sm"
+                    class="edit-icon text-primary"
+                  />
+                </div>
               </div>
               <div class="q-mb-sm elegant-detail">
                 <q-icon name="calendar_today" class="q-mr-sm" />
@@ -108,17 +142,18 @@
 
             <q-separator />
 
-            <q-card-actions class="q-pa-md text-center">
+            <!-- <q-card-actions class="q-pa-md text-center">
               <q-btn
                 class="text-subtitle2 elegant-btn"
                 outline
                 dense
                 flat
                 label="View Profile"
-                @click="goToUserProfile(user)"
+                @click="handleUserDialog(user)"
               >
+                @click="goToUserProfile(user)"
               </q-btn>
-            </q-card-actions>
+            </q-card-actions> -->
           </q-card>
         </div>
       </div>
@@ -128,13 +163,16 @@
 <script setup>
 import { useUsersStore } from "src/stores/user";
 import { computed, onMounted, ref, watch } from "vue";
-import { date, Loading } from "quasar";
+import { date, Loading, Notify, useQuasar, QPopupProxy } from "quasar";
 import { useRouter } from "vue-router";
+import UserEditProfile from "./UserEditProfile.vue";
 
 const userStore = useUsersStore();
 const router = useRouter();
+const emailPopup = ref(null);
+const $q = useQuasar();
 const users = computed(() => userStore.users);
-console.log("userdata", users.value);
+console.log("userdatasssss  ", users.value);
 
 onMounted(async () => {
   await reloadUserData();
@@ -156,33 +194,6 @@ const reloadUserData = async () => {
   }
 };
 
-// const formattedUserName = computed(() => {
-//   return users.value.map((user) => {
-//     const { firstname, middlename, lastname } = user;
-
-//     // Split first name if it has multiple words
-//     const formattedFirstName = firstname
-//       .split(" ")
-//       .map((name) => name.charAt(0).toUpperCase() + name.slice(1))
-//       .join(" ");
-
-//     const middleInitial = middlename
-//       ? `${middlename.charAt(0).toUpperCase()}.`
-//       : "";
-//     const lastInitial = lastname.charAt(0).toUpperCase();
-
-//     const formattedName = `${formattedFirstName} ${middleInitial} ${lastInitial}${lastname.slice(
-//       1
-//     )}`;
-
-//     // Log the formatted name to the console
-//     console.log("Formatted User Name:", formattedName);
-
-//     return formattedName;
-//   });
-// });
-
-//fromat date
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMMM D, YYYY");
 };
@@ -208,79 +219,54 @@ const formattedUserName = (user) => {
   )}`;
 };
 
-// const userRows = computed(() => {
-//   return Array.isArray(users.value)
-//     ? users.value.map((user) => {
-//         const { firstname, middlename, lastname } = user;
-
-//         // Format first name and initials
-//         const formattedFirstName = firstname
-//           .split(" ")
-//           .map((name) => name.charAt(0).toUpperCase() + name.slice(1))
-//           .join(" ");
-
-//         const middleInitial = middlename
-//           ? `${middlename.charAt(0).toUpperCase()}.`
-//           : "";
-//         const lastInitial = lastname.charAt(0).toUpperCase();
-
-//         const formattedUserName = `${formattedFirstName} ${middleInitial} ${lastInitial}${lastname.slice(
-//           1
-//         )}`;
-
-//         return {
-//           ...user,
-//           formattedUserName, // Add formatted name directly to user
-//           birthdateFormatted: formatDate(user.birthdate),
-//         };
-//       })
-//     : [];
-// });
-
-// console.log("UsersPage", userRows.value);
 const loading = ref(true);
 const showNoDataMessage = ref(false);
 const searchQuery = ref("");
 
-// const search = async () => {
-//   loading.value = true;
-//   showNoDataMessage.value = false;
-//   try {
-//     if (searchQuery.value.trim() === "") {
-//       await userStore.fetchUsers();
-//     } else {
-//       await userStore.searchUser(searchQuery.value);
-//     }
-//     showNoDataMessage.value = userRows.value.length === 0;
-//   } catch (error) {
-//     console.error("Error fetching user:", error);
-//     showNoDataMessage.value = true;
-//   } finally {
-//     loading.value = false;
-//   }
+const search = async () => {
+  loading.value = true;
+  showNoDataMessage.value = false;
+  await userStore.searchUser(searchQuery.value);
+  loading.value = false;
+  // try {
+  //   if (searchQuery.value.trim() === "") {
+  //     await userStore.fetchUsers();
+  //   } else {
+  //     await userStore.searchUser(searchQuery.value);
+  //   }
+  //   showNoDataMessage.value = users.value.length === 0;
+  // } catch (error) {
+  //   console.error("Error fetching user:", error);
+  //   showNoDataMessage.value = true;
+  // } finally {
+  //   loading.value = false;
+  // }
+};
+
+// const editEmail = (user) => {
+//   // Trigger the popup edit manually
+//   emailPopup.value.show();
 // };
 
-// watch(searchQuery, async (newValue) => {
-//   if (newValue.trim() === "") {
-//     await search();
-//   }
-// });
+const onSave = async (user, newEmail) => {
+  try {
+    const id = user.id;
 
-// onMounted(async () => {
-//   loading.value = true;
-//   try {
-//     await Promise.all([
-//       userStore.fetchUsers(),
-//       new Promise((resolve) => setTimeout(resolve, 1000)),
-//     ]);
-//     showNoDataMessage.value = userRows.value.length === 0;
-//   } catch (error) {
-//     console.error("Error fetching users:", error);
-//     showNoDataMessage.value = true;
-//   } finally {
-//     loading.value = false;
-//   }
-// });
+    users.value.email = newEmail;
+
+    // console.log("id", id);
+    // console.log("newEmail", newEmail);
+    await userStore.updateEmail(id, newEmail);
+    Notify.create({
+      type: "positive",
+      message: "yeah",
+    });
+  } catch (error) {
+    console.log("====================================");
+    console.log("ERRRR", error);
+    console.log("====================================");
+  }
+};
 
 const getBadgePositionColor = (role) => {
   switch (role) {
@@ -311,29 +297,38 @@ const getBadgePositionColor = (role) => {
   }
 };
 
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "Current":
-      return "positive";
-    case "Former":
-      return "red-6";
-    default:
-      return "grey";
-  }
+// const getBadgeStatusColor = (status) => {
+//   switch (status) {
+//     case "Current":
+//       return "positive";
+//     case "Former":
+//       return "red-6";
+//     default:
+//       return "grey";
+//   }
+// };
+
+const handleUserDialog = (user) => {
+  $q.dialog({
+    component: UserEditProfile,
+    componentProps: {
+      user: user,
+    },
+  });
 };
 
-const goToUserProfile = async (user) => {
-  console.log("userId", user.id); // Check if this is defined and valid
-  Loading.show();
-  try {
-    await router.push({
-      name: "UserIdPage",
-      params: { user_id: user.id },
-    });
-  } finally {
-    Loading.hide();
-  }
-};
+// const goToUserProfile = async (user) => {
+//   console.log("userId", user.id); // Check if this is defined and valid
+//   Loading.show();
+//   try {
+//     await router.push({
+//       name: "UserIdPage",
+//       params: { user_id: user.id },
+//     });
+//   } finally {
+//     Loading.hide();
+//   }
+// };
 </script>
 
 <style lang="scss" scoped>
@@ -434,5 +429,61 @@ const goToUserProfile = async (user) => {
   color: #007bff;
   border-color: #007bff;
   font-weight: 600;
+}
+
+.edit-icon {
+  color: white;
+}
+.email-display {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.email-container {
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.email-display {
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+  background-color: transparent;
+}
+
+.email-display:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.email-text {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #333;
+  margin-right: 8px;
+}
+
+.edit-icon {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.email-display:hover .edit-icon {
+  opacity: 1;
+}
+
+.q-popup-edit {
+  max-width: 300px;
+}
+
+.popup-input {
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 6px;
 }
 </style>

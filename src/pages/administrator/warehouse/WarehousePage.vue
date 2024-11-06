@@ -4,7 +4,7 @@
       <q-card-section class="row justify-between">
         <div class="text-h6 text-dark">
           <!-- <q-icon name="factory" /> -->
-          🏭 Warehouse
+          <!-- 🏭 Warehouse -->
           <div class="q-gutter-x-sm">
             <q-badge label="Open" outline color="info" />
             <q-badge label="Closed" outline color="accent" />

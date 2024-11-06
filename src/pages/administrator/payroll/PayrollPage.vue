@@ -1,8 +1,8 @@
 <template>
   <q-page class="elegant-container" flat>
-    <div class="col-4 text-h6 q-pt-md q-pb-md" align="center">
+    <!-- <div class="col-4 text-h6 q-pt-md q-pb-md" align="center">
       💰 Payroll Management
-    </div>
+    </div> -->
     <q-tabs
       v-model="tab"
       dense
@@ -42,14 +42,14 @@
       </q-tab>
 
       <!-- Salary Tab -->
-      <q-tab name="salary">
+      <q-tab name="attendance">
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
-            name="attach_money"
+            name="access_time"
             size="md"
-            :class="tab === 'salary' ? 'text-teal' : 'text-grey-7'"
+            :class="tab === 'attendance' ? 'text-teal' : 'text-grey-7'"
           />
-          <div class="text-weight-bold text-lg">Salary</div>
+          <div class="text-weight-bold text-lg">Attendance</div>
           <!-- <div class="text-caption text-grey-6">Salary Report</div> -->
         </div>
       </q-tab>
@@ -63,7 +63,6 @@
             :class="tab === 'allowances' ? 'text-teal' : 'text-grey-7'"
           />
           <div class="text-weight-bold text-lg">Allowances & Deductions</div>
-          <!-- <div class="text-caption text-grey-6">Allowances & Deductions</div> -->
         </div>
       </q-tab>
 
@@ -71,8 +70,8 @@
       <q-tab name="payslip">
         <div class="q-pa-sm q-gutter-sm flex flex-column items-center">
           <q-icon
-            name="settings"
-            size="lg"
+            name="payment"
+            size="md"
             :class="tab === 'payslip' ? 'text-teal' : 'text-grey-7'"
           />
           <div class="text-weight-bold text-lg">Payslip</div>
@@ -87,8 +86,8 @@
       <q-tab-panel name="employees">
         <EmployeeesPage />
       </q-tab-panel>
-      <q-tab-panel name="salary">
-        <SalaryPage />
+      <q-tab-panel name="attendance">
+        <AttendancePage />
       </q-tab-panel>
       <q-tab-panel name="allowances">
         <AllowanceDeductionPage />
@@ -119,7 +118,7 @@
 <script setup>
 import DashboardPage from "./panel-section/dashboard/DashboardPage.vue";
 import EmployeeesPage from "./panel-section/employees/EmployeesPage.vue";
-import SalaryPage from "./panel-section/salary/SalaryPage.vue";
+import AttendancePage from "./panel-section/attendance/AttendancePage.vue";
 import AllowanceDeductionPage from "./panel-section/allowance-deduction/AllowanceDeductionPage.vue";
 import PayslipPage from "./panel-section/payslip/PayslipPage.vue";
 import { ref } from "vue";

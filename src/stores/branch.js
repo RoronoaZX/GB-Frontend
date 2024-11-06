@@ -17,23 +17,26 @@ export const useBranchesStore = defineStore("branches", () => {
 
   const fetchBranches = async () => {
     const response = await api.get("/api/branches");
-    branches.value = response.data.map((branch) => {
-      const data = { ...branch };
-      const warehouse = warehouses.value.find(
-        (warehouse) => warehouse.id === data.warehouse_id
-      );
+    branches.value = response.data;
+    console.log("response", response.data);
 
-      data.warehouse = warehouse ? warehouse.name : "No Warehouse";
+    // branches.value = response.data.map((branch) => {
+    //   const data = { ...branch };
+    //   const warehouse = warehouses.value.find(
+    //     (warehouse) => warehouse.id === data.warehouse_id
+    //   );
 
-      const employee = employees.value.find(
-        (employee) => employee.id === data.employee_id
-      );
-      data.employee = employee
-        ? `${employee.firstname} ${employee.lastname}`
-        : "No Employee Assigned";
+    //   data.warehouse = warehouse ? warehouse.name : "No Warehouse";
 
-      return data;
-    });
+    //   const employee = employees.value.find(
+    //     (employee) => employee.id === data.employee_id
+    //   );
+    //   data.employee = employee
+    //     ? `${employee.firstname} ${employee.lastname}`
+    //     : "No Employee Assigned";
+
+    //   return data;
+    // });
   };
 
   const fetchBranchesById = async (id) => {
@@ -48,6 +51,7 @@ export const useBranchesStore = defineStore("branches", () => {
 
   const createBranches = async (data) => {
     console.log("Data parameters being sent:", data);
+    // Loading.show();
     try {
       const response = await api.post("/api/branches", data);
       const warehouse = warehouses.value.find(
@@ -70,46 +74,49 @@ export const useBranchesStore = defineStore("branches", () => {
         type: "positive",
         message: "Branch created successfully",
         timeout: 1000,
-        position: "top",
+        // position: "top",
       });
     } catch (error) {
       Notify.create({
         type: "negative",
         icon: "error",
         message: "Failed to create branch",
-        position: "top",
+        // position: "top",
       });
-    } finally {
-      Loading.hide();
     }
   };
 
   const updateBranches = async (id, data) => {
     Loading.show();
     try {
-      await api.put(`/api/branches/${id}`, data);
-      const index = branches.value.findIndex((item) => item.id === id);
-      if (index > -1) {
-        branches.value[index] = {
-          ...branches.value[index],
-          ...data,
+      const response = await api.put(`/api/branches/${id}`, data);
 
-          warehouse: warehouses.value.find(
-            (item) => item.id === data.warehouse_id
-          ),
-        };
-      }
+      branches.value = response.data;
+      fetchBranches();
+      // const index = branches.value.findIndex((item) => item.id === id);
+      // if (index > -1) {
+      //   branches.value[index] = {
+      //     ...branches.value[index],
+      //     ...response.data,
+
+      //     warehouse: warehouses.value.find(
+      //       (item) => item.id === data.warehouse_id
+      //     ),
+      //   };
+      // }
+
       Notify.create({
         type: "positive",
         message: "Branch updated successfully",
-        position: "top",
+        // position: "top",
       });
     } catch (error) {
+      console.log("updateBranches", error);
       Notify.create({
         type: "negative",
         icon: "error",
         message: "Failed to update branch",
-        position: "top",
+        // position: "top",
       });
     } finally {
       Loading.hide();
@@ -124,14 +131,14 @@ export const useBranchesStore = defineStore("branches", () => {
       Notify.create({
         type: "positive",
         message: "Branch successfully delete",
-        position: "top",
+        // position: "top",
       });
     } catch (error) {
       Notify.create({
         type: "negative",
         icon: "error",
         message: "Failed to delete branch",
-        position: "top",
+        // position: "top",
       });
     } finally {
       Loading.hide();

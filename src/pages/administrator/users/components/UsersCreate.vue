@@ -11,7 +11,7 @@
   <q-dialog v-model="dialog" persistent full-height>
     <q-card>
       <div class="q-ma-xm" align="right">
-        <q-btn icon="close" flat dense round v-close-popup />
+        <q-btn class="q-ma-sm" icon="close" flat dense round v-close-popup />
       </div>
       <div>
         <q-stepper

@@ -38,6 +38,7 @@
         <div class="q-mt-lg q-animated q-animate-bounce">
           <!-- <div>Name of Bread</div> -->
           <q-input
+            class="text-capitalize"
             v-model="editProductForm.name"
             outlined
             dense

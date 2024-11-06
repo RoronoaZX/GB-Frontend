@@ -1,8 +1,8 @@
 <template>
-  <div align="right">
+  <div align="left">
     <q-input
       v-model="filter"
-      class="q-pb-lg q-pl-md"
+      class="q-pb-lg q-pl-sm"
       outlined
       placeholder="Search"
       flat
@@ -39,6 +39,11 @@
       :rows-per-page-options="[0]"
       hide-bottom
     >
+      <template v-slot:body-cell-name="props">
+        <q-td key="name" :props="props">
+          {{ capitalizeFirstLetter(props.row.name) }}
+        </q-td>
+      </template>
       <template v-slot:body-cell-category="props">
         <q-td key="name" :props="props">
           <q-badge :color="getBadgeCategoryColor(props.row.category)">
@@ -103,6 +108,14 @@ const filteredRows = computed(() => {
 onMounted(async () => {
   await reloadTableData();
 });
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const reloadTableData = async () => {
   try {

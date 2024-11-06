@@ -1,8 +1,8 @@
 <template>
-  <div align="right">
+  <div>
     <q-input
       v-model="filter"
-      class="q-pb-lg q-pl-md"
+      class="q-pb-lg q-pl-sm"
       outlined
       placeholder="Search"
       flat
@@ -39,11 +39,26 @@
       :rows-per-page-options="[0]"
       hide-bottom
     >
-      <template>
+      <!-- <template>
         <q-td key="name" :props="props">
           <a @click.prevent="goToBranch(props.row)" class="warehouse-link">
             {{ props.row.name }}
           </a>
+        </q-td>
+      </template> -->
+      <template v-slot:body-cell-name="props">
+        <q-td :props="props">
+          {{ capitalizeFirstLetter(props.row.name) }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-location="props">
+        <q-td :props="props">
+          {{ capitalizeFirstLetter(props.row.location) }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-personIncharge="props">
+        <q-td :props="props">
+          {{ formatFullname(props.row.employees) }}
         </q-td>
       </template>
       <template v-slot:body-cell-status="props">
@@ -120,6 +135,27 @@ watch(filter, async (newFilter) => {
   loading.value = false;
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 // const filteredWarehouses = computed(() => {
 //   if (!searchQuery.value.trim()) {
@@ -201,10 +237,10 @@ const warehouseColumns = [
     sortable: true,
   },
   {
-    name: "person_incharge",
+    name: "personIncharge",
     label: "Person In-charge",
     align: "left",
-    field: "person_incharge",
+    field: (row) => formatFullname(row),
   },
   {
     name: "phone",

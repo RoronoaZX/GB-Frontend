@@ -12,6 +12,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
     try {
       const response = await api.get("/api/warehouses");
       warehouses.value = response.data;
+      console.log("response", response.data);
     } catch (error) {
       Notify.create({
         type: "negative",
@@ -29,7 +30,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
   };
 
   const createWarehouses = async (data) => {
-    Loading.show();
+    // Loading.show();
     console.log("Data parameters being sent:", data);
     try {
       const response = await api.post("/api/warehouses", data);
@@ -40,7 +41,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
         type: "positive",
         message: "Warehouse created successfully",
         setTimeout: 1000,
-        position: "top",
+        // position: "top",
       });
     } catch (error) {
       console.error(
@@ -51,10 +52,8 @@ export const useWarehousesStore = defineStore("warehouses", () => {
         type: "negative",
         message: "Failed to create warehouse",
         setTimeout: 1000,
-        position: "top",
+        // position: "top",
       });
-    } finally {
-      Loading.hide();
     }
   };
 
@@ -70,14 +69,14 @@ export const useWarehousesStore = defineStore("warehouses", () => {
         type: "positive",
         message: "Warehouse updated successfully",
         setTimeout: 1000,
-        position: "top",
+        // position: "top",
       });
     } catch (error) {
       Notify.create({
-        tyoe: "negative",
+        type: "negative",
         message: "Failed to update warehouse",
         setTimeout: 1000,
-        position: "top",
+        // position: "top",
       });
     } finally {
       Loading.hide();
@@ -92,13 +91,13 @@ export const useWarehousesStore = defineStore("warehouses", () => {
       Notify.create({
         type: "positive",
         message: "Warehouse deleted successfully",
-        position: "top",
+        // position: "top",
       });
     } catch (error) {
       Notify.create({
         type: "negative",
         message: "Failed to delete warehouse",
-        position: "top",
+        // position: "top",
       });
     } finally {
       Loading.hide();

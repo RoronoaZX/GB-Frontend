@@ -1,9 +1,5 @@
 <template>
-  <div>
-    <q-card>
-      <h6>This is salary</h6>
-    </q-card>
-  </div>
+  <div></div>
 </template>
 
 <script setup></script>

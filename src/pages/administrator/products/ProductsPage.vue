@@ -3,7 +3,7 @@
     <q-card-section class="row justify-between">
       <div class="text-h6">
         <!-- <q-icon name="fa-solid fa-cake-candles" /> -->
-        🥖 Products
+        <!-- 🥖 Products -->
         <div class="q-gutter-x-sm">
           <q-badge label="Bread" class="text-white" color="brown-13" />
           <q-badge label="Selecta" class="text-white" color="red-6" />

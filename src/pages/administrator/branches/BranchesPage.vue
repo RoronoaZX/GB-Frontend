@@ -3,7 +3,7 @@
     <q-card-section class="row justify-between">
       <div class="text-h6 text-dark">
         <!-- <q-icon name="fa-solid fa-store" /> -->
-        🏪 Branches
+        <!-- 🏪 Branches -->
         <div class="q-gutter-x-sm">
           <q-badge outline label="Open" color="info" />
           <q-badge outline label="Open Soon" color="warning" />

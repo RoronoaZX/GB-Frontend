@@ -1,7 +1,7 @@
 <template>
-  <div align="right">
+  <div>
     <q-input
-      class="q-pb-lg q-pl-md"
+      class="q-pb-lg q-pl-sm"
       v-model="filter"
       outlined
       placeholder="Search"
@@ -41,9 +41,19 @@
       <template v-slot:body-cell-branch_name="props">
         <q-td key="name" :props="props">
           <a @click.prevent="goToBranch(props.row)" class="branch-link">
-            {{ props.row.name }}
+            {{ capitalizeFirstLetter(props.row.name) }}
             <!-- <span class="tooltip-text">Go to store</span> -->
           </a>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-warehouse="props">
+        <q-td :props="props">
+          {{ capitalizeFirstLetter(props.row.warehouse?.name) }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-location="props">
+        <q-td :props="props">
+          {{ capitalizeFirstLetter(props.row.location) }}
         </q-td>
       </template>
       <template v-slot:body-cell-status="props">
@@ -51,6 +61,16 @@
           <q-badge outline :color="getBadgeStatusColor(props.row.status)">
             {{ props.row.status }}
           </q-badge>
+        </q-td>
+      </template>
+      <!-- <template v-slot:body-cell-warehouse="props">
+        <q-td :props="props">
+          {{ formatFullname(props.row) }}
+        </q-td>
+      </template> -->
+      <template v-slot:body-cell-personIncharge="props">
+        <q-td :props="props">
+          {{ formatFullname(props.row.employees) }}
         </q-td>
       </template>
       <template v-slot:body-cell-action="props">
@@ -127,6 +147,27 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
 const branchesColumns = [
   {
     name: "branch_name",
@@ -140,7 +181,7 @@ const branchesColumns = [
     name: "warehouse",
     label: "Warehouse",
     align: "left",
-    field: (row) => row?.warehouse ?? "No warehouse ",
+    field: (row) => (row?.warehouse ? row.warehouse?.name : "No warehouse "),
     sortable: true,
   },
   {
@@ -153,7 +194,7 @@ const branchesColumns = [
     name: "personIncharge",
     label: "Person In-charge",
     align: "left",
-    field: "employee",
+    field: (row) => formatFullname(row),
   },
   {
     name: "phone",

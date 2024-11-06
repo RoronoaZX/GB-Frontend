@@ -63,6 +63,11 @@
   dependencies:
     tslib "^2.1.0"
 
+"@capacitor/device@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.npmjs.org/@capacitor/device/-/device-6.0.1.tgz"
+  integrity sha512-Tlz67DAO5GKb5YAfupXiENZxDww6mHnG9iKI+8D5SVF82VLpEv5r9qwKtiounuQB2y2HWiHV8tlOk7DqnLVUqQ==
+
 "@electron/asar@^3.2.1", "@electron/asar@^3.2.7":
   version "3.2.10"
   resolved "https://registry.npmjs.org/@electron/asar/-/asar-3.2.10.tgz"
@@ -3073,6 +3078,11 @@ node-gyp-build@^4.3.0:
   version "4.8.1"
   resolved "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.8.1.tgz"
   integrity sha512-OSs33Z9yWr148JZcbZd5WiAXhh/n9z8TxQcdMhIOlpN9AhWpLfvVFO73+m77bBABQMaY9XSvIa+qk0jlI7Gcaw==
+
+node-machine-id@^1.1.12:
+  version "1.1.12"
+  resolved "https://registry.npmjs.org/node-machine-id/-/node-machine-id-1.1.12.tgz"
+  integrity sha512-QNABxbrPa3qEIfrE6GOJ7BYIuignnJw7iQ2YPbc3Nla1HzRJjXzZOiikfF8m7eAMfichLt3M4VgLOetqgDmgGQ==
 
 node-releases@^2.0.18:
   version "2.0.18"

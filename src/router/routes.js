@@ -70,6 +70,10 @@ const routes = [
         path: "payroll",
         component: () => import("pages/administrator/payroll/PayrollPage.vue"),
       },
+      {
+        path: "devices",
+        component: () => import("pages/devices/DevicesPage.vue"),
+      },
     ],
   },
 

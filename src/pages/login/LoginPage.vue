@@ -1,4 +1,8 @@
 <template>
+  <!-- <div>
+    <q-btn @click="checkDevice"> Check Device UUID </q-btn>
+    <p v-if="uuid">Device UUID: {{ uuid }}</p>
+  </div> -->
   <q-card
     class="my-card q-pa-md q-ma-lg"
     style="
@@ -17,9 +21,17 @@
         <img src="../../assets/GB_LOGO.png" class="logo" />
       </div>
       <div class="text-caption text-grey-8 q-mb-sm">
-        Please log in to continue.
+        Please log in to continuesss.
       </div>
     </q-card-section>
+
+    <!-- <q-card-section>
+      <div v-if="machineId" class="q-mt-md">
+        <q-chip label="UUID" icon="fingerprint" />
+        <div class="text-body1 q-mt-sm">{{ machineId }}</div>
+      </div>
+      <div v-else class="q-mt-md text-caption">Fetching UUID...</div>
+    </q-card-section> -->
 
     <q-card-section class="q-mt-sm flex-grow-1">
       <q-form @submit="login">
@@ -66,14 +78,56 @@
         </div>
       </q-form>
     </q-card-section>
+
+    <!-- <CheckUUID /> -->
   </q-card>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
+// import { Device } from "@capacitor/device";
+
+// import CheckUUID from "./CheckUUID.vue";
+// const uuid = ref("");
+
+// const checkDevice = async () => {
+//   try {
+//     const info = await Device.getId();
+//     uuid.value = info;
+//     console.log("Device UUID:", uuid.value);
+//   } catch (error) {
+//     console.error("Error fetching device UUID:", error);
+//   }
+// };
+// Reactive variable to hold machine UUID
+// const machineId = ref(
+//   "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
+// );
+
+// Method to get UUID from Electron using node-machine-id
+// const getUUID = async () => {
+//   if (window.require) {
+//     const { machineId: getMachineId } = window.require("node-machine-id");
+
+//     try {
+//       // Fetch UUID
+//       machineId.value = await getMachineId();
+//       console.log("machineId", machineId.value);
+//     } catch (error) {
+//       console.error("Error fetching machine UUID:", error);
+//     }
+//   } else {
+//     console.warn("Electron not available.");
+//   }
+// };
+
+// Automatically fetch UUID when the component is mounted
+// onMounted(() => {
+//   getUUID();
+// });
 
 const isPwd = ref(true);
 const email = ref("johndoe@example.com");
@@ -85,6 +139,7 @@ const formIsValid = computed(() => email.value !== "" && password.value !== "");
 
 const quasar = useQuasar();
 const router = useRouter();
+const activeMenuItem = ref("");
 
 const login = async () => {
   Loading.show();
@@ -92,28 +147,43 @@ const login = async () => {
     const response = await api.post("/api/login", {
       email: email.value,
       password: password.value,
+      // uuid: machineId.value,
     });
+    localStorage.setItem("activeMenuItem", "dashboard");
     localStorage.setItem("token", response.data.token);
     localStorage.setItem("role", response.data.role);
-    Loading.hide();
-
-    Notify.create({
-      type: "positive",
-      message: response.data.message || "Login successful!",
-      position: "top",
-    });
 
     const role = response.data.role;
-    if (role === "Admin") {
-      await router.push("/admin/dashboard");
-    } else if (role === "Supervisor") {
-      await router.push("/supervisor/reports");
-    } else if (role === "Cashier") {
+    const storedActiveMenuItem = localStorage.getItem("activeMenuItem");
+    if (role === "Admin" || role === "Super Admin") {
+      let path;
+
+      // If a stored value is found in localStorage, set the activeMenuItem
+      if (storedActiveMenuItem) {
+        path = `/admin/${storedActiveMenuItem}`;
+        activeMenuItem.value = storedActiveMenuItem;
+      } else {
+        path = "/admin/dashboard";
+        localStorage.setItem("activeMenuItem", "dashboard");
+        activeMenuItem.value = "dashboard";
+      }
+
+      // Navigate to the stored path or new path
+      await router.push(path);
+      Notify.create({
+        type: "positive",
+        message: response.data.message || "Login successful!",
+        // position: "top",
+        setTimeout: 5000,
+      });
     } else if (role === "Baker") {
       await router.push("/branch/baker");
     } else if (role === "Cashier") {
       await router.push("/branch/sales_lady/products");
     }
+    // else if (role === "Supervisor") {
+    //   await router.push("/supervisor/reports");
+    // }
   } catch (error) {
     console.error("Error during login:", error);
     const errorDisplay =
@@ -122,9 +192,9 @@ const login = async () => {
     Notify.create({
       type: "negative",
       message: errorDisplay,
-      position: "top",
+      // position: "bottom",
     });
-
+  } finally {
     Loading.hide();
   }
 };

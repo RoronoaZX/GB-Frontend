@@ -10,11 +10,12 @@
       <template v-slot="{ item: report, index }">
         <q-card flat bordered class="q-gutter-sm my-card" :key="index">
           <q-card-section>
-            <div class="row justify-between">
+            <div class="row justify-between q-gutter-x-md">
               <div class="row items-center">
                 <q-icon name="assignment" color="primary" />
                 <div class="text-subtitle1 q-ml-sm">
-                  {{ report.recipe_name }} - {{ report.recipe_category }}
+                  {{ capitalizeFirstLetter(report.recipe_name) }} -
+                  {{ report.recipe_category }}
                 </div>
               </div>
               <div>
@@ -33,19 +34,19 @@
             <div class="content-section">
               <div class="q-mt-xs row justify-between">
                 <div>Kilo</div>
-                <div>{{ report.kilo }}</div>
+                <div>{{ report.kilo }} kgs</div>
               </div>
               <div class="q-mt-xs row justify-between">
                 <div>Short</div>
-                <div>{{ report.short }}</div>
+                <div>{{ report.short }} pcs</div>
               </div>
               <div class="q-mt-xs row justify-between">
                 <div>Over</div>
-                <div>{{ report.over }}</div>
+                <div>{{ report.over }} pcs</div>
               </div>
               <div class="q-mt-xs row justify-between">
                 <div>Actual Target</div>
-                <div>{{ report.actual_target }}</div>
+                <div>{{ report.actual_target }} pcs</div>
               </div>
 
               <q-expansion-item
@@ -114,6 +115,14 @@ const removeReports = (index) => {
   bakerReportStore.removeReport(index);
 };
 
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
 const saveReports = async () => {
   bakerReportStore.createReports();
 };
@@ -121,7 +130,7 @@ const saveReports = async () => {
 
 <style scoped>
 .my-card {
-  width: 300px;
+  width: auto;
   margin: 8px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

@@ -14,7 +14,7 @@
                     icon="print"
                     outline
                     class="user-button"
-                    @click="printPdf(report)"
+                    @click="openPrintDialog(report)"
                   />
                   <div>
                     <q-tooltip class="bg-blue-grey-6" :delay="200">
@@ -24,7 +24,7 @@
                 </div>
               </div>
               <div class="text-subtitle1 text-weight-regular">
-                <div>Name: {{ capitalizeName(report.user.name) }}</div>
+                <div>Name: {{ formatFullname(report.user.employee) }}</div>
                 <div>Date: {{ formatDate(report.created_at) }}</div>
                 <div>Time: {{ formatTimeFromDB(report.created_at) }}</div>
               </div>
@@ -49,7 +49,7 @@
     transition-hide="slide-down"
   >
     <div class="q-ma-sm">
-      <div class="q-ma-md" align="center">
+      <div class="q-ma-sm" align="center">
         <q-btn icon="close" flat dense round v-close-popup class="text-white">
           <q-tooltip>Close</q-tooltip>
         </q-btn>
@@ -109,6 +109,17 @@ const formatTimeFromDB = (dateString) => {
     hour12: true,
   };
   return dateObj.toLocaleTimeString(undefined, options);
+};
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
 const formatAmount = (price) => {
@@ -268,7 +279,7 @@ const generateDocDefinition = (report) => {
     creditReport.length > 0
       ? creditReport.map((creditData) => [
           {
-            text: creditData.credit_user_id.name,
+            text: formatFullname(creditData.credit_user_id),
             style: "body",
             alignment: "center",
           },
@@ -484,7 +495,7 @@ const generateDocDefinition = (report) => {
         columns: [
           {
             text: `Branch Name: ${report.branch.name}
-          Cashier: ${capitalizeName(report.user.name)}
+          Cashier: ${formatFullname(report.user.employee)}
           Date: ${formatDate(report.created_at)}\nTime: ${formatTimeFromDB(
               report.created_at
             )}\n`,

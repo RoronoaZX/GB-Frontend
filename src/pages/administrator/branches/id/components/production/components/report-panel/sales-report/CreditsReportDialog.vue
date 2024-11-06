@@ -64,9 +64,9 @@ const props = defineProps({
 });
 
 const creditReports = props.reports;
-console.log("creditReports total", creditReports);
+console.log("creditReports data", creditReports);
 
-props.reports.forEach((report, index) => {
+creditReports.forEach((report, index) => {
   console.log(`Report ${index}:`, report);
   console.log(
     `Credit Products for Report ${index}:`,
@@ -75,17 +75,40 @@ props.reports.forEach((report, index) => {
 });
 
 const filteredRows = computed(() => {
-  return props.reports.flatMap((report) => report.credit_products);
+  return creditReports.flatMap((report) => {
+    return report.credit_products.map((product) => {
+      // Parse pieces and price, calculate total_amount
+      const pieces = parseInt(product.pieces, 10) || 0;
+      const price = parseFloat(product.price) || 0;
+      const totalAmount = pieces * price;
+
+      // Return product with calculated total_amount added
+      return {
+        ...product,
+        total_amount: totalAmount,
+      };
+    });
+  });
 });
 console.log("All Credit Products:", filteredRows.value[0]);
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
+};
 
 const creditProductsColumn = [
   {
     name: "name",
     label: "Employee Name",
-    field: (row) => {
-      return row.credit_user_id.name || "N/A";
-    },
+    field: (row) => formatFullname(row.credit_user_id),
     align: "center",
   },
   {

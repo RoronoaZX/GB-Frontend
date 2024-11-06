@@ -1,7 +1,7 @@
 <template>
-  <div align="right">
+  <div align="left">
     <q-input
-      class="q-pb-lg q-pl-md"
+      class="q-pb-lg q-pl-sm"
       v-model="filter"
       outlined
       placeholder="Search"
@@ -44,7 +44,7 @@
       <template v-slot:body-cell-name="props">
         <q-td :props="props" class="cursor-pointer">
           <span
-            >{{ props.row.name }}
+            >{{ capitalizeFirstLetter(props.row.name) }}
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
               >Edit Recipe Name</q-tooltip
             >
@@ -56,6 +56,7 @@
             v-slot="scope"
           >
             <q-input
+              class="text-capitalize"
               v-model="scope.value"
               dense
               autofocus
@@ -72,7 +73,7 @@
           </q-badge>
         </q-td>
       </template>
-      <template v-slot:body-cell-bread_groups="props">
+      <!-- <template v-slot:body-cell-bread_groups="props">
         <q-td :props="props">
           <q-tooltip
             :offset="[0, 10]"
@@ -176,7 +177,7 @@
             />
           </q-popup-edit>
         </q-td>
-      </template>
+      </template> -->
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
@@ -219,85 +220,89 @@ const filteredRows = computed(() => {
   );
 });
 
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
-async function updateRecipe(data, val) {
-  try {
-    const response = await api.put("/api/update-target/" + data.id, {
-      target: parseInt(val),
-    });
+// async function updateRecipe(data, val) {
+//   try {
+//     const response = await api.put("/api/update-target/" + data.id, {
+//       target: parseInt(val),
+//     });
 
-    console.log("response", response);
-    if (response.status == 200) {
-      const i = recipes.value.findIndex((item) => item.id == data.id);
-      recipes.value[i] = val;
-    }
+//     console.log("response", response);
+//     if (response.status == 200) {
+//       const i = recipes.value.findIndex((item) => item.id == data.id);
+//       recipes.value[i] = val;
+//     }
 
-    Notify.create({
-      type: "positive",
-      message: "Recipe target edited successfully",
-      position: "top",
-    });
-  } catch (error) {
-    console.error("Error updating recipe target:", error);
-    Notify.create({
-      type: "negative",
-      message: "Failed to edit recipe target",
-      position: "top",
-    });
-  }
-}
+//     Notify.create({
+//       type: "positive",
+//       message: "Recipe target edited successfully",
+//       // position: "top",
+//     });
+//   } catch (error) {
+//     console.error("Error updating recipe target:", error);
+//     Notify.create({
+//       type: "negative",
+//       message: "Failed to edit recipe target",
+//       // position: "top",
+//     });
+//   }
+// }
 
-async function updateRecipeName(data, val) {
-  try {
-    const response = await api.put("/api/update-name/" + data.id, {
-      name: val,
-    });
-    if (response.status == 200) {
-      const i = recipes.value.findIndex((item) => item.id == data.id);
-      recipes.value[i] = val;
-    }
+// async function updateRecipeName(data, val) {
+//   try {
+//     const response = await api.put("/api/update-name/" + data.id, {
+//       name: val,
+//     });
+//     if (response.status == 200) {
+//       const i = recipes.value.findIndex((item) => item.id == data.id);
+//       recipes.value[i] = val;
+//     }
 
-    Notify.create({
-      type: "positive",
-      message: "Recipe name edited successfully",
-      position: "top",
-    });
-  } catch (error) {
-    console.error("Error updating recipe name:", error);
-    Notify.create({
-      type: "negative",
-      message: "Failed to edit recipe name",
-      position: "top",
-    });
-  }
-}
-async function updateRecipeStatus(data, val) {
-  try {
-    const response = await api.put("/api/update-status/" + data.id, {
-      status: val,
-    });
-    if (response.status == 200) {
-      const i = recipes.value.findIndex((item) => item.id == data.id);
-      recipes.value[i] = val;
-    }
+//     Notify.create({
+//       type: "positive",
+//       message: "Recipe name edited successfully",
+//       // position: "top",
+//     });
+//   } catch (error) {
+//     console.error("Error updating recipe name:", error);
+//     Notify.create({
+//       type: "negative",
+//       message: "Failed to edit recipe name",
+//       // position: "top",
+//     });
+//   }
+// }
+// async function updateRecipeStatus(data, val) {
+//   try {
+//     const response = await api.put("/api/update-status/" + data.id, {
+//       status: val,
+//     });
+//     if (response.status == 200) {
+//       const i = recipes.value.findIndex((item) => item.id == data.id);
+//       recipes.value[i] = val;
+//     }
 
-    Notify.create({
-      type: "positive",
-      message: "Recipe status change successfully",
-      position: "top",
-    });
-  } catch (error) {
-    console.error("Error updating recipe status:", error);
-    Notify.create({
-      type: "negative",
-      message: "Failed to change recipe status",
-      position: "top",
-    });
-  }
-}
+//     Notify.create({
+//       type: "positive",
+//       message: "Recipe status change successfully",
+//       // position: "top",
+//     });
+//   } catch (error) {
+//     console.error("Error updating recipe status:", error);
+//     Notify.create({
+//       type: "negative",
+//       message: "Failed to change recipe status",
+//       // position: "top",
+//     });
+//   }
+// }
 
 onMounted(async () => {
   await reloadTableData();
@@ -336,41 +341,41 @@ const recipeColumns = [
     format: (val) => `${val}`,
     sortable: true,
   },
-  {
-    name: "target",
-    label: "Target Pcs",
-    align: "left",
-    field: "target",
-    sortable: true,
-  },
+  // {
+  //   name: "target",
+  //   label: "Target Pcs",
+  //   align: "left",
+  //   field: "target",
+  //   sortable: true,
+  // },
   {
     name: "category",
+    align: "left",
     label: "Category",
-    align: "center",
     field: "category",
     sortable: true,
   },
-  {
-    name: "bread_groups",
-    label: "List of Bread",
-    align: "center",
-    field: "bread_groups",
-    sortable: true,
-  },
-  {
-    name: "ingredient_groups",
-    label: "List of Ingredients",
-    align: "center",
-    field: "ingredient_groups",
-    sortable: true,
-  },
-  {
-    name: "status",
-    label: "Status",
-    align: "center",
-    field: "status",
-    sortable: true,
-  },
+  // {
+  //   name: "bread_groups",
+  //   label: "List of Bread",
+  //   align: "center",
+  //   field: "bread_groups",
+  //   sortable: true,
+  // },
+  // {
+  //   name: "ingredient_groups",
+  //   label: "List of Ingredients",
+  //   align: "center",
+  //   field: "ingredient_groups",
+  //   sortable: true,
+  // },
+  // {
+  //   name: "status",
+  //   label: "Status",
+  //   align: "center",
+  //   field: "status",
+  //   sortable: true,
+  // },
   {
     name: "action",
     label: "Action",

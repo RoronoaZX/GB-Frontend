@@ -17,12 +17,12 @@ export const useRecipeStore = defineStore("recipes", () => {
       Loading.show();
       const response = await api.post("/api/recipes", data);
 
-      const newRecipe = {
-        ...response.data,
-        bread_groups: data.bread_groups || [],
-        ingredient_groups: data.ingredient_groups || [],
-      };
-      recipes.value.unshift(newRecipe);
+      // const newRecipe = {
+      //   ...response.data,
+      //   bread_groups: data.bread_groups || [],
+      //   ingredient_groups: data.ingredient_groups || [],
+      // };
+      recipes.value.unshift(response.data);
     } catch (error) {
       console.error("User Error message: ", error);
     } finally {
@@ -37,11 +37,11 @@ export const useRecipeStore = defineStore("recipes", () => {
       const response = await api.delete(`/api/recipes/${id}`);
       recipes.value = recipes.value.filter((recipe) => recipe.id !== id);
       Notify.create({
-        type: "negative",
+        type: "positive",
         icon: "warning",
         message: "Recipe succesfully deleted",
         timeout: 1000,
-        position: "top-right",
+        // position: "top-right",
       });
     } catch (error) {
       Notify.create({
