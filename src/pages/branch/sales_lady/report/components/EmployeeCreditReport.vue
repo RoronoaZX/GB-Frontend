@@ -88,7 +88,7 @@
                 placeholder="Search"
                 outlined
                 flat
-                debounce="1000"
+                debounce="500"
                 dense
                 style="width: 240px"
               >

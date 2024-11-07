@@ -54,22 +54,23 @@ export const useBranchesStore = defineStore("branches", () => {
     // Loading.show();
     try {
       const response = await api.post("/api/branches", data);
-      const warehouse = warehouses.value.find(
-        (item) => item.id === data.warehouse_id
-      );
-      const employee = employees.value.find(
-        (item) => item.id === data.employee_id
-      );
+      // const warehouse = warehouses.value.find(
+      //   (item) => item.id === data.warehouse_id
+      // );
+      // const employee = employees.value.find(
+      //   (item) => item.id === data.employee_id
+      // );
 
-      const newBranch = {
-        ...response.data,
-        warehouse: warehouse ? warehouse.name : "No Warehouse",
-        employee: employee
-          ? `${employee.firstname} ${employee.lastname}`
-          : "No Employee Assigned",
-      };
-      console.log("create branch", newBranch);
-      branches.value.unshift(newBranch);
+      // const newBranch = {
+      //   ...response.data,
+      //   warehouse: warehouse ? warehouse.name : "No Warehouse",
+      //   employee: employee
+      //     ? `${employee.firstname} ${employee.lastname}`
+      //     : "No Employee Assigned",
+      // };
+      console.log("create branch", response.data);
+      branches.value.unshift(response.data);
+      fetchBranches();
       Notify.create({
         type: "positive",
         message: "Branch created successfully",
@@ -77,6 +78,7 @@ export const useBranchesStore = defineStore("branches", () => {
         // position: "top",
       });
     } catch (error) {
+      console.log(error);
       Notify.create({
         type: "negative",
         icon: "error",

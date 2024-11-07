@@ -141,7 +141,10 @@ const bakersReportListColumns = [
     name: "name",
     label: "Reports Name",
     align: "center",
-    field: (row) => ({ name: row.recipe.name, category: row.recipe.category }),
+    field: (row) => ({
+      name: row.branch_recipe.recipe.name,
+      category: row.branch_recipe.recipe.category,
+    }),
     format: (val) => `${val.name} (${val.category})`,
     sortable: true,
   },

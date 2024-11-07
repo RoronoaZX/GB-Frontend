@@ -164,6 +164,13 @@
           </q-chip>
         </q-td>
       </template>
+      <template v-slot:body-cell-action="props">
+        <q-td :props="props">
+          <div class="row justify-center q-gutter-x-md">
+            <RecipeDelete :delete="props" />
+          </div>
+        </q-td>
+      </template>
     </q-table>
   </div>
 </template>
@@ -173,6 +180,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import RecipeCreate from "./RecipeCreate.vue";
 import { useRoute } from "vue-router";
 import { useBranchRecipeStore } from "src/stores/branch-recipe";
+import RecipeDelete from "./RecipeDelete.vue";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 const route = useRoute();
@@ -257,12 +265,12 @@ async function updateRecipe(data, val) {
 }
 async function updateRecipeStatus(data, val) {
   try {
-    const response = await api.put("/api/update-status/" + data.id, {
+    const response = await api.put("/api/branch-update-status/" + data.id, {
       status: val,
     });
     if (response.status == 200) {
-      const i = recipes.value.findIndex((item) => item.id == data.id);
-      recipes.value[i] = val;
+      const i = branchRecipes.value.findIndex((item) => item.id == data.id);
+      branchRecipes.value[i] = val;
     }
 
     Notify.create({
@@ -324,6 +332,12 @@ const branchRecipeColumns = [
     label: "List of Ingredients",
     align: "center",
     field: "ingredient_groups",
+  },
+  {
+    name: "action",
+    label: "Action",
+    align: "center",
+    sortable: true,
   },
 ];
 

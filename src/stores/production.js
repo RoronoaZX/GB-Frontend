@@ -12,10 +12,14 @@ export const useProductionStore = defineStore("productions", () => {
   };
 
   const fetchBranchProductions = async (branchId) => {
-    const response = await api.get(
-      `/api/branches/${branchId}/production-report`
-    );
-    productions.value = response.data;
+    try {
+      const response = await api.get(
+        `/api/branches/${branchId}/production-report`
+      );
+      productions.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return {

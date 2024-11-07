@@ -228,11 +228,13 @@ import { Notify } from "quasar";
 import { useBranchRecipeStore } from "src/stores/branch-recipe";
 
 const route = useRoute();
+const branchId = route.params.branch_id;
 const recipeStore = useRecipeStore();
 const recipesData = computed(() => recipeStore.recipes);
 const branchRecipeStore = useBranchRecipeStore();
 const breadProductStore = useProductsStore();
 const ingredientsStore = useRawMaterialsStore();
+const branchRecipeRows = computed(() => branchRecipeStore.branchRecipes);
 
 const dialog = ref(false);
 const openDialog = () => {
@@ -423,6 +425,7 @@ const save = async () => {
   };
   console.log("branchRecipe", newData);
   await branchRecipeStore.saveBranchRecipe(newData);
+  branchRecipeRows.value = await branchRecipeStore.fetchBranchRecipes(branchId);
   clearRecipeData();
   dialog.value = false;
 };

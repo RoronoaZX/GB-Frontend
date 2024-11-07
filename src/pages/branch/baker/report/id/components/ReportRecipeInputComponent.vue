@@ -148,7 +148,7 @@ const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
 // console.log("erw:", userData);
 const recipe = computed(() => bakerReportStore.recipes);
-// console.log("erwe:", recipe.value);
+console.log("erwe:", recipe.value);
 
 const recipeName = computed(() => {
   const name = recipe.value?.name ?? "Recipe Name";
@@ -167,12 +167,13 @@ const capitalizeFirstLetter = (location) => {
 const bakersReport = reactive({
   user_id: null,
   branch_id: null,
-  recipe_id: null,
+  branch_recipe_id: null,
   recipe_name: "",
   recipe_category: "",
   kilo: "",
   short: 0,
   over: 0,
+  target: 0,
   actual_target: 0,
   breads: [],
 });
@@ -210,20 +211,21 @@ const autoFillReport = () => {
   bakersReport.user_id = userData.value?.data.id || "";
   bakersReport.branch_id =
     userData.value?.data?.employee?.branch_employee.branch_id || "";
-  bakersReport.recipe_id = recipe.value?.id || "";
-  bakersReport.recipe_id = recipe.value?.id || "";
+  bakersReport.branch_recipe_id = recipe.value?.id || "";
   bakersReport.recipe_name = recipe.value?.name || "";
+  bakersReport.target = recipe.value?.target || "";
   bakersReport.recipe_category = recipe.value?.category || "";
   const reportData = {
     user_id: bakersReport.user_id,
     branch_id: bakersReport.branch_id,
-    recipe_id: bakersReport.recipe_id,
+    branch_recipe_id: bakersReport.branch_recipe_id,
     recipe_name: bakersReport.recipe_name,
     recipe_category: bakersReport.recipe_category,
     status: "pending",
     kilo: bakersReport.kilo,
     short: bakersReport.short,
     over: bakersReport.over,
+    target: bakersReport.target,
     actual_target: bakersReport.actual_target,
     breads: bakersReport.breads.map((bread) => ({
       bread_id: bread.id,
@@ -237,17 +239,21 @@ const autoFillReport = () => {
       unit: ingredient.unit,
     })),
   };
-  console.log("report dATA:", reportData);
+
+  console.log("reportssss dATA:", reportData);
   bakerReportStore.setReport(reportData);
   console.log("Report data set to store:", bakerReportStore.reports);
   resetReportForm();
 };
 
 const resetReportForm = () => {
+  recipe.value = "";
+  recipeName.value = "";
   bakersReport.recipe_name = "";
   bakersReport.kilo = "";
   bakersReport.short = 0;
   bakersReport.over = 0;
+  bakersReport.target = 0;
   bakersReport.actual_target = 0;
   bakersReport.breads =
     recipe.value?.bread_groups?.map((group) => ({

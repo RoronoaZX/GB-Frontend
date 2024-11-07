@@ -16,21 +16,21 @@
     <div v-if="searchQuery" class="custom-list z-top">
       <q-card>
         <q-list separator>
-          <q-item v-if="!recipes?.length"> No record found. </q-item>
+          <q-item v-if="!branhRecipes?.length"> No record found. </q-item>
           <template v-else>
             <q-item
-              @click="autoFillRecipe(recipe)"
-              v-for="recipe in recipes"
-              :key="recipe.id"
+              @click="autoFillRecipe(branchRecipe)"
+              v-for="branchRecipe in branhRecipes"
+              :key="branchRecipe.id"
               clickable
             >
               <q-item-section>
                 <q-item-label>{{
-                  capitalizeFirstLetter(recipe.name)
+                  capitalizeFirstLetter(branchRecipe?.name)
                 }}</q-item-label>
               </q-item-section>
               <q-item-section>
-                <q-item-label side>{{ recipe.category }}</q-item-label>
+                <q-item-label side>{{ branchRecipe?.category }}</q-item-label>
               </q-item-section>
             </q-item>
           </template>
@@ -42,21 +42,28 @@
 
 <script setup>
 import { ref, watch, computed, reactive } from "vue";
-import { useRecipeStore } from "src/stores/recipe";
+import { useBranchRecipeStore } from "src/stores/branch-recipe";
 import { useBakerReportsStore } from "src/stores/baker-report";
 
 const bakerReports = useBakerReportsStore();
 const searchQuery = ref("");
-const recipeStore = useRecipeStore();
-
-const recipes = computed(() => recipeStore.recipes);
-
+const bakerReportStore = useBakerReportsStore();
+const branchRecipeStore = useBranchRecipeStore();
+const userData = computed(() => bakerReportStore.user);
+console.log("erw:", userData.value);
+const branhRecipes = computed(() => branchRecipeStore.branchRecipe);
+const branch_id =
+  userData.value?.data?.employee?.branch_employee.branch_id || "";
+console.log("branch_id", branch_id);
 const search = async () => {
-  recipeStore.searchRecipe(searchQuery.value);
+  branchRecipeStore.searchBranchRecipe(searchQuery.value, branch_id);
+  console.log("searchQuery.value", searchQuery.value);
+  console.log("branch_id", branch_id);
 };
 // watch(searchQuery, (newQuery) => {
 //
 const autoFillRecipe = (recipe) => {
+  console.log("branch recipe", recipe);
   bakerReports.setRecipe(recipe);
   searchQuery.value = "";
 };
@@ -68,7 +75,7 @@ const capitalizeFirstLetter = (location) => {
     .join(" ");
 };
 
-console.log("recipes", recipes.value);
+console.log("recipessss", branhRecipes.value);
 </script>
 
 <style lang="scss" scoped></style>

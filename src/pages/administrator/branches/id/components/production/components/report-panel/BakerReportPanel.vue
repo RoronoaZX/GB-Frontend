@@ -58,9 +58,9 @@
               <div class="text-h6 row justify-between">
                 <div>
                   {{
-                    `${bakerReport.recipe?.name || "Unknown Recipe"} (${
-                      bakerReport.recipe_category || "Unknown Category"
-                    })`
+                    `${
+                      bakerReport.branch_recipe.recipe?.name || "Unknown Recipe"
+                    } (${bakerReport.recipe_category || "Unknown Category"})`
                   }}
                 </div>
                 <q-btn
@@ -315,8 +315,8 @@ const getBreadReports = (reportsData) => {
 
 const generateDocDefinition = (bakerReport) => {
   console.log("bakerReport", bakerReport);
-  const recipeName = `${bakerReport.recipe.name} (${bakerReport.recipe_category})`;
-  const target = bakerReport.recipe.target;
+  const recipeName = `${bakerReport.branch_recipe.recipe.name} (${bakerReport.recipe_category})`;
+  const target = bakerReport.branch_recipe.recipe.target;
   const actualTarget = bakerReport.actual_target;
   const kilo = bakerReport.kilo;
   const over = bakerReport.over;

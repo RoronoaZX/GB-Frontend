@@ -27,13 +27,23 @@
       <q-card-section class="report-info">
         <div class="invoice-header">
           <div><strong>Date:</strong> {{ formatDate(report.created_at) }}</div>
-          <div><strong>Branch:</strong> {{ report.branch.name }}</div>
+          <div>
+            <strong>Branch:</strong>
+            {{ capitalizeFirstLetter(report.branch.name) }}
+          </div>
         </div>
 
         <div class="invoice-body">
-          <div><strong>Baker:</strong> {{ report.user.name }}</div>
-          <div><strong>Recipe:</strong> {{ report.recipe.name }}</div>
-          <div><strong>Status:</strong> {{ report.status }}</div>
+          <div>
+            <strong>Baker:</strong> {{ formatFullname(report.user.employee) }}
+          </div>
+          <div>
+            <strong>Recipe:</strong>
+            {{ capitalizeFirstLetter(report.branch_recipe.recipe.name) }}
+          </div>
+          <div>
+            <strong>Status:</strong> {{ capitalizeFirstLetter(report.status) }}
+          </div>
           <div><strong>Kilo:</strong> {{ report.kilo }}</div>
           <div><strong>Over:</strong> {{ report.over }}</div>
           <div><strong>Short:</strong> {{ report.short }}</div>
@@ -121,6 +131,23 @@ const bakersReportDialog = ref(false);
 
 const openBakersReportsDialog = () => {
   bakersReportDialog.value = true;
+};
+
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
 };
 
 const formatDate = (dateTimeString) => {

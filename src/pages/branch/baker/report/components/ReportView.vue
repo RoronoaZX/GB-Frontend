@@ -14,7 +14,8 @@
     <q-card class="report-card">
       <q-card-section class="report-header">
         <div class="text-h6 text-weight-regular">
-          {{ report.recipe.name }} - {{ report.recipe_category }}
+          {{ capitalizeBranchFirstLetter(report.branch_recipe.recipe.name) }} -
+          {{ report.recipe_category }}
         </div>
         <q-btn
           class="close-btn"
@@ -40,7 +41,7 @@
               <div class="row q-gutter-x-sm">
                 <div class="text-subtitle2">Branch:</div>
                 <div class="text-body1 text-weight-light">
-                  {{ report.branch.name }}
+                  {{ capitalizeBranchFirstLetter(report.branch.name) }}
                 </div>
               </div>
               <div class="row q-gutter-x-sm">
@@ -171,6 +172,14 @@ const bakersReportDialog = ref(false);
 
 const capitalizeFirstLetterStatus = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
+
+const capitalizeBranchFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 const capitalizeFirstLetter = (fullName) => {

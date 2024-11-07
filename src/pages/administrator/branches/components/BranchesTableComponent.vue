@@ -181,7 +181,7 @@ const branchesColumns = [
     name: "warehouse",
     label: "Warehouse",
     align: "left",
-    field: (row) => (row?.warehouse ? row.warehouse?.name : "No warehouse "),
+    field: (row) => (row?.warehouse ? row.warehouse : "No warehouse "),
     sortable: true,
   },
   {

@@ -31,8 +31,8 @@
                   </div>
                 </div>
                 <div class="text-h6">
-                  {{ formatUserName(report.user.name) }} -
-                  {{ report.recipe.name }}
+                  {{ formatFullname(report.user.employee) }} -
+                  {{ capitalizeFirstLetter(report.branch_recipe.recipe.name) }}
                 </div>
                 <div>
                   <q-badge outlined :color="getBadgeStatusColor(report.status)">
@@ -85,6 +85,9 @@ const fetchReports = async (branchId) => {
   await bakerReportStore.fetchDoughReports(branchId);
   loadingSearchIcon.value = false;
 };
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
 
 // Watch for changes in filter
 watch(filter, async (newFilter) => {
@@ -100,14 +103,15 @@ const filteredRows = computed(() => {
   const filterText = filter.value.toLowerCase();
   return bakerReportStore.reports.filter(
     (row) =>
-      (row.recipe.name && row.recipe.name.toLowerCase().includes(filterText)) ||
+      (row.branch_recipe.recipe.name &&
+        row.branch_recipe.recipe.name.toLowerCase().includes(filterText)) ||
       (row.created_at &&
         quasarDate
           .formatDate(row.created_at, "MMMM D, YYYY")
           .toLowerCase()
           .includes(filterText)) ||
-      (row.recipe.category &&
-        row.recipe.category.toLowerCase().includes(filterText))
+      (row.branch_recipe.recipe.category &&
+        row.branch_recipe.recipe.category.toLowerCase().includes(filterText))
   );
 });
 
@@ -136,6 +140,19 @@ const formatUserName = (fullName) => {
   return formattedParts.join(" ");
 };
 
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
 const viewReport = (report) => {
   // Navigate to the detailed view of the report or handle as needed
   console.log("Viewing report:", report);
@@ -152,8 +169,5 @@ const getBadgeStatusColor = (status) => {
     default:
       return "grey";
   }
-};
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };
 </script>

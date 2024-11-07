@@ -46,6 +46,7 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
     },
     setReport(report) {
       const res = this.reports.push(report);
+      // this.recipes = [];
     },
     removeReport(index) {
       this.reports.splice(index, 1);
@@ -77,6 +78,9 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
       const response = await api.get(
         `/api/branch/${branchId}/bakerDoughReport`
       );
+      console.log("====================================");
+      console.log("response", response.data);
+      console.log("====================================");
       this.reports = response.data;
     },
 
@@ -102,7 +106,7 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
       try {
         const res = await api.post(`/api/confirm-initial-baker-report/${id}`);
         console.log("Confirming report with ID:", id);
-        await this.fetchDoughReports(); // Call the method as a function
+        this.fetchDoughReports(); // Call the method as a function
         return res.data; // Return the response data
       } catch (error) {
         console.error("Error confirming report:", error);

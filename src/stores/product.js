@@ -20,6 +20,9 @@ export const useProductsStore = defineStore("products", () => {
     try {
       const response = await api.get("/api/products");
       products.value = response.data;
+      console.log("====================================");
+      console.log("products.value ", products.value);
+      console.log("====================================");
     } catch (error) {
       Notify.create({
         type: "negative",
@@ -31,13 +34,29 @@ export const useProductsStore = defineStore("products", () => {
 
   const createProducts = async (data) => {
     Loading.show();
-    const response = await api.post("/api/products", data);
-    products.value.unshift(response.data);
-    Notify.create({
-      type: "positive",
-      message: "Product created successfully",
-    });
-    Loading.hide();
+    try {
+      const response = await api.post("/api/products", data);
+      console.log("data", response.data);
+      if (response.data.message === "Product saved successfully") {
+        const product = products.value.find((item) => item.id === data.id);
+        fetchProducts();
+        products.value.unshift(response.data);
+        Notify.create({
+          type: "positive",
+          message: "Product created successfully",
+        });
+      } else if (response.data.message === "The product already exists.") {
+        Notify.create({
+          type: "warning",
+          message: "The product already exists.",
+          position: "top",
+        });
+      }
+    } catch (error) {
+      console.log("erroe", error);
+    } finally {
+      Loading.hide();
+    }
   };
 
   const updateProducts = async (id, data) => {
