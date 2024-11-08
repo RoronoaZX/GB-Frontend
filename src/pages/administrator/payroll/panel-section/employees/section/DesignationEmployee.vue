@@ -149,6 +149,11 @@ import { useBranchesStore } from "src/stores/branch";
 import { useDesignationStore } from "src/stores/designation";
 import { onMounted, computed, reactive, ref } from "vue";
 
+const widthStyle = computed(() => {
+  const width = window.innerWidth;
+  return width > 1200 ? "500px" : width > 768 ? "80vw" : "95vw";
+});
+
 const designationDialog = ref(false);
 const designationStore = useDesignationStore();
 const employeeStore = useEmployeeStore();
@@ -259,7 +264,7 @@ const save = async () => {
 
 <style lang="scss" scoped>
 .user-card {
-  height: 40%;
+  height: 42%;
   border-radius: 15px;
   background: #fff;
   color: #333;

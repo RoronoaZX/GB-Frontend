@@ -1,10 +1,13 @@
 <template>
   <!-- justify-between -->
-  <div class="row q-gutter-md">
-    <div class="col-9">
+  <div class="row justify-between">
+    <!-- Table Section: Full width on mobile, 8/12 width on tablet, 9/12 width on desktop -->
+    <div class="col-12 col-md-9 col-lg-9 q-pa-sm">
       <TableSection />
     </div>
-    <div class="col-2 q-gutter-y-md">
+
+    <!-- Cards Section: Full width on mobile, 4/12 width on tablet, 3/12 width on desktop -->
+    <div class="col-12 col-md-3 col-lg-3 q-gutter-y-md q-pa-sm">
       <RegisterEmployee />
       <DesignationEmployee />
     </div>

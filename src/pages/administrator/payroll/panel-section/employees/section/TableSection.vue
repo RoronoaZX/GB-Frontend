@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <!-- max-width: 1000px -->
+  <div style="width: 100%">
     <q-table
       title="Employees"
       :rows="employeeRows"
@@ -7,9 +8,10 @@
       row-key="fullname"
       hide-bottom
       v-model:pagination="pagination"
-      style="height: 460px"
       class="custom-table"
+      style="max-width: 100%; height: 460px"
     >
+      <!-- style="height: 460px" -->
       <!-- width: 1000px; -->
       <template v-slot:top-right>
         <SearchEmployee />
