@@ -2,14 +2,13 @@
   <div>
     <q-input
       v-model="filter"
-      class="q-pb-lg q-pl-sm"
+      class="q-pb-lg q-pl-sm dynamic-width"
       outlined
       placeholder="Search"
       flat
       rounded
       dense
       debounce="100"
-      style="width: 500px; max-width: 1500px; min-width: 100px"
     >
       <template v-slot:append>
         <q-icon name="search" />
@@ -257,5 +256,28 @@ const getBadgeCategoryColor = (category) => {
 
 .my-sticky-dynamic tbody {
   scroll-margin-top: 48px;
+}
+.dynamic-width {
+  width: 100%; /* default width */
+  max-width: 1500px;
+  min-width: 300px; /* set a minimum width */
+}
+
+@media (max-width: 1200px) {
+  .dynamic-width {
+    max-width: 800px; /* smaller width for medium-sized screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .dynamic-width {
+    max-width: 500px; /* smaller width for tablets */
+  }
+}
+
+@media (max-width: 480px) {
+  .dynamic-width {
+    max-width: 200px; /* smaller width for mobile screens */
+  }
 }
 </style>
