@@ -191,7 +191,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         products_total_sales: this.totalSalesAmount,
         charges_amount: this.charges,
         over_total: this.overTotal,
-        credit_total: creditTotalAmount, // Use the calculated value here
+        credit_total: this.creditTotalAmount, // Use the calculated value here
       };
 
       console.log("Payload data:", payload);
@@ -213,9 +213,10 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.denominationTotal = 0;
         this.expensesTotalAmount = 0;
         this.productsTotalAmount = 0;
-        this.creditTotalAmount = 0;
-        this.creditExpensesTotal = 0;
+        // this.creditTotalAmount = 0;
+        // this.creditExpensesTotal = 0;
         this.charges = 0;
+        this.overTotal = 0;
 
         console.log("Sales Reports Data", salesReportData);
       } catch (error) {

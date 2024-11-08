@@ -7,9 +7,10 @@
       row-key="fullname"
       hide-bottom
       v-model:pagination="pagination"
-      style="width: 1000px; height: 460px"
+      style="height: 460px"
       class="custom-table"
     >
+      <!-- width: 1000px; -->
       <template v-slot:top-right>
         <SearchEmployee />
       </template>

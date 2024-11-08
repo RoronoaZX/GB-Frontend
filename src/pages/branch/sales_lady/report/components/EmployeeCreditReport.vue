@@ -7,7 +7,7 @@
       @click="openDialog"
     />
   </div>
-  <q-dialog v-model="dialog">
+  <q-dialog v-model="dialog" persistent>
     <q-card style="width: 450px">
       <q-card-section class="bg-gradient text-white">
         <div class="row justify-between">

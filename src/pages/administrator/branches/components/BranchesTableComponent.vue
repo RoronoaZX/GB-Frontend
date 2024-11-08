@@ -1,12 +1,11 @@
 <template>
   <div>
     <q-input
-      class="q-pb-lg q-pl-sm"
+      class="q-pb-lg q-pl-sm dynamic-width"
       v-model="filter"
       outlined
       placeholder="Search"
       debounced="1000"
-      style="width: 500px; max-width: 1500px; min-width: 100px"
       flat
       dense
       rounded
@@ -308,5 +307,29 @@ const goToBranch = async (branch) => {
 .branch-link:hover .tooltip-text {
   visibility: visible;
   opacity: 1;
+}
+
+.dynamic-width {
+  width: 100%; /* default width */
+  max-width: 1500px;
+  min-width: 300px; /* set a minimum width */
+}
+
+@media (max-width: 1200px) {
+  .dynamic-width {
+    max-width: 800px; /* smaller width for medium-sized screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .dynamic-width {
+    max-width: 500px; /* smaller width for tablets */
+  }
+}
+
+@media (max-width: 480px) {
+  .dynamic-width {
+    max-width: 200px; /* smaller width for mobile screens */
+  }
 }
 </style>

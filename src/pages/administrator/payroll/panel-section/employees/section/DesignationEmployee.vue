@@ -20,7 +20,7 @@
     backdrop-filter="blur(4px) saturate(150%)"
     position="right"
   >
-    <q-card style="width: 500px; max-width: 80vw">
+    <q-card style="width: 500px; max-width: 100vw">
       <q-card-section
         class="row items-center q-px-md q-py-sm bg-gradient text-white"
       >

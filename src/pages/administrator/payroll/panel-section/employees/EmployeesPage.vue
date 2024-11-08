@@ -1,6 +1,7 @@
 <template>
-  <div class="row justify-between">
-    <div class="col-10">
+  <!-- justify-between -->
+  <div class="row q-gutter-md">
+    <div class="col-9">
       <TableSection />
     </div>
     <div class="col-2 q-gutter-y-md">
