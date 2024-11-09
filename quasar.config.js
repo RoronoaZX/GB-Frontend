@@ -199,6 +199,11 @@ module.exports = configure(function (/* ctx */) {
         win: {
           target: ["nsis"], // Windows installer
         },
+        nsis: {
+          oneClick: false,
+          perMachine: true,
+          allowToChangeInstallationDirectory: true,
+        },
         mac: {
           target: ["dmg"], // macOS installer
         },
