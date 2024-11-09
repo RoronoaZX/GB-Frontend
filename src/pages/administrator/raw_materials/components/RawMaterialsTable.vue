@@ -239,13 +239,13 @@ const getRawMaterialBadgeColor = (availableStocks) => {
 
 .dynamic-width {
   width: 100%; /* default width */
-  max-width: 1500px;
+  max-width: 500px;
   min-width: 300px; /* set a minimum width */
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1500px) {
   .dynamic-width {
-    max-width: 800px; /* smaller width for medium-sized screens */
+    max-width: 500px; /* smaller width for medium-sized screens */
   }
 }
 

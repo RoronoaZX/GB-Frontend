@@ -11,7 +11,7 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev -m capacitor -T android",
     "build": "quasar build -m capacitor -T android -d",
-    "build:electron": "quasar build -m electron",
+    "build:electron": "quasar build -m electron -d",
     "build:web": "quasar build -m spa"
   },
   "dependencies": {

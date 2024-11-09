@@ -127,16 +127,16 @@ const menuItems = [
     toolbarDisplay: "🥖 Products",
     separator: true,
   },
-  {
-    name: "users",
-    icon: "fa-solid fa-users",
-    to: "/admin/users",
-    label: "Users",
-    toolbarDisplay: "👥 Roles and Permission",
-    separator: true,
-  },
   ...(role.value === "Super Admin"
     ? [
+        {
+          name: "users",
+          icon: "fa-solid fa-users",
+          to: "/admin/users",
+          label: "Users",
+          toolbarDisplay: "👥 Roles and Permission",
+          separator: true,
+        },
         {
           name: "devices",
           icon: "fa-solid fa-mobile",
