@@ -69,8 +69,8 @@ import DenominationReport from "./sales-report/DenominationReport.vue";
 import ExpensesReport from "./sales-report/ExpensesReport.vue";
 import CreditsReport from "./sales-report/CreditsReport.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import * as pdfFonts from "pdfmake/build/vfs_fontes";
+pdfMake.vfs = pdfFonts.default;
 
 // pdfMake.fonts = {
 //   Roboto: {

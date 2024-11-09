@@ -159,8 +159,8 @@ import { useEmployeeStore } from "stores/employee";
 import { useDTRStore } from "stores/dtr";
 import { date } from "quasar";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import * as pdfFonts from "pdfmake/build/vfs_fontes";
+pdfMake.vfs = pdfFonts.default;
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);

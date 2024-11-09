@@ -128,10 +128,11 @@ import axios, { api } from "src/boot/axios";
 // onMounted(() => {
 //   getUUID();
 // });
-
+// johndoe@example.com
+// password
 const isPwd = ref(true);
-const email = ref("johndoe@example.com");
-const password = ref("password");
+const email = ref("");
+const password = ref("");
 
 const loading = ref(false);
 

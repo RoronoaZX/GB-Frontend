@@ -94,9 +94,28 @@
         style="
           box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.1);
           border-radius: 12px;
-          background: linear-gradient(135deg, #f3f4f6, #e0e0e0);
+          background: linear-gradient(135deg, #2c3e50, #4ca1af);
         "
       >
+        <!-- --
+      background: linear-gradient(135deg, #434343, #4b79a1);
+ ---
+ background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); -
+background: linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b); fro btn
+background: linear-gradient(135deg, #333333, #dd1818); for btn
+background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); ---
+background: linear-gradient(135deg, #232526, #414345, #6b6b6b); btn
+background: linear-gradient(135deg, #232526, #414345, #737373);
+
+
+       -->
+
+        <!-- background: linear-gradient(135deg, #0052d4, #65c7f7, #9cecfb);
+background: linear-gradient(135deg, #b8c6db, #f5f7fa);
+background: linear-gradient(135deg, #fddb92, #d1fdff);
+background: linear-gradient(135deg, #e0eafc, #cfdef3);
+-->
+
         <q-card-section class="text-center q-pa-md" style="position: relative">
           <div>
             <q-avatar
@@ -132,12 +151,7 @@
             >
               {{ card.position }}
             </q-chip>
-            <q-chip
-              outline
-              square
-              color="deep-orange"
-              class="q-mt-sm elegant-chip"
-            >
+            <q-chip outline square color="cyan-12" class="q-mt-sm elegant-chip">
               Regular
             </q-chip>
           </div>
@@ -245,7 +259,7 @@ const cards = ref([
 .elegant-name {
   font-family: "Roboto", sans-serif;
   font-weight: 500;
-  color: #555;
+  color: #ffffff;
 }
 
 .elegant-chip {

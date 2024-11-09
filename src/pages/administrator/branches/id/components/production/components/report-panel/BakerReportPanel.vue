@@ -220,8 +220,8 @@
 import { ref } from "vue";
 import { date, useQuasar } from "quasar";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import * as pdfFonts from "pdfmake/build/vfs_fontes";
+pdfMake.vfs = pdfFonts.default;
 // import PrintReportDialog from "./PrintReportDialog.vue";
 
 const props = defineProps(["bakersReport"]);

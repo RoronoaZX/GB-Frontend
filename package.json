@@ -11,7 +11,7 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev -m capacitor -T android",
     "build": "quasar build -m capacitor -T android -d",
-    "build:electron": "quasar build -m electron -d",
+    "build:electron": "quasar build -m electron",
     "build:web": "quasar build -m spa"
   },
   "dependencies": {
@@ -38,6 +38,7 @@
     "@vue/devtools": "^6.6.3",
     "autoprefixer": "^10.4.2",
     "electron": "^31.3.1",
+    "electron-builder": "^25.1.8",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",

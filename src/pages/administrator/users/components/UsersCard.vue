@@ -122,7 +122,7 @@
                   <q-icon
                     name="edit"
                     size="sm"
-                    class="edit-icon text-primary"
+                    class="edit-icon text-light-green-13"
                   />
                 </div>
               </div>
@@ -139,8 +139,6 @@
                 <span>{{ user.address }}</span>
               </div>
             </q-card-section>
-
-            <q-separator />
 
             <!-- <q-card-actions class="q-pa-md text-center">
               <q-btn
@@ -366,7 +364,7 @@ const handleUserDialog = (user) => {
 .skeleton-card {
   height: 100%;
   border-radius: 15px;
-  background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+  background: linear-gradient(135deg, #232526, #414345, #737373);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   animation: shimmer 1.5s infinite linear;
 }
@@ -383,7 +381,7 @@ const handleUserDialog = (user) => {
 .user-card {
   height: 100%;
   border-radius: 15px;
-  background: #fff;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   color: #333;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -405,7 +403,7 @@ const handleUserDialog = (user) => {
 .elegant-name {
   font-family: "Roboto", sans-serif;
   font-weight: 500;
-  color: #555;
+  color: #ffffff;
 }
 
 .elegant-chip {
@@ -422,11 +420,11 @@ const handleUserDialog = (user) => {
 .elegant-detail {
   display: flex;
   align-items: center;
-  color: #777;
+  color: #ffffff;
 }
 
 .elegant-btn {
-  color: #007bff;
+  color: #00ffd5;
   border-color: #007bff;
   font-weight: 600;
 }
@@ -464,7 +462,7 @@ const handleUserDialog = (user) => {
 .email-text {
   font-size: 1rem;
   font-weight: 400;
-  color: #333;
+  color: #ffffff;
   margin-right: 8px;
 }
 

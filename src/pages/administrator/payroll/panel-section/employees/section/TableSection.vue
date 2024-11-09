@@ -256,8 +256,8 @@ import IDLogo from "../../../../../../assets/IDLogo.png";
 import GB_LOGO from "../../../../../../assets/GB_LOGO.png";
 import EmployeeEdit from "./EmployeeEdit.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import * as pdfFonts from "pdfmake/build/vfs_fontes";
+pdfMake.vfs = pdfFonts.default;
 
 const employmentStore = useEmploymentTypeStore();
 const employmentTypeOptions = ref([]);

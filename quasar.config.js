@@ -39,6 +39,7 @@ module.exports = configure(function (/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
+      // sourcemap: false,
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
         node: "node20",
@@ -169,7 +170,7 @@ module.exports = configure(function (/* ctx */) {
       // specify the debugging port to use for the Electron app when running in development mode
       inspectPort: 5858,
 
-      bundler: "packager", // 'packager' or 'builder'
+      bundler: "builder", // 'packager' or 'builder'
 
       packager: {
         // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
@@ -184,8 +185,26 @@ module.exports = configure(function (/* ctx */) {
 
       builder: {
         // https://www.electron.build/configuration/configuration
-
         appId: "app",
+        productName: "GB-Bakeshop IMS",
+        extraResources: [
+          {
+            from: "./node_modules/pdfmake/build/vfs_fonts.js",
+            to: "resources/vfs_fonts.js",
+          },
+        ],
+        directories: {
+          output: "dist/electron",
+        },
+        win: {
+          target: ["nsis"], // Windows installer
+        },
+        mac: {
+          target: ["dmg"], // macOS installer
+        },
+        linux: {
+          target: ["AppImage"], // Linux AppImage
+        },
       },
     },
 
