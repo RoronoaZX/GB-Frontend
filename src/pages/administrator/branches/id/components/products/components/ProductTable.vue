@@ -48,14 +48,23 @@
     >
       <template v-slot:body-cell-name="props">
         <q-td key="name" :props="props">
-          {{ capitalizeFirstLetter(props.row.product.name) }}
+          {{
+            props.row.product?.name
+              ? capitalizeFirstLetter(props.row.product.name)
+              : "No data available"
+          }}
         </q-td>
       </template>
+
       <template v-slot:body-cell-category="props">
         <q-td key="name" :props="props">
-          <q-badge :color="getBadgeCategoryColor(props.row.category)">
+          <q-badge
+            v-if="props.row.category"
+            :color="getBadgeCategoryColor(props.row.category)"
+          >
             {{ props.row.category }}
           </q-badge>
+          <span v-else>No data available</span>
         </q-td>
       </template>
       <template v-slot:body-cell-price="props">

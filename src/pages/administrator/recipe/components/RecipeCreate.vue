@@ -330,11 +330,6 @@ const saveRecipe = async () => {
     await recipeStore.createRecipe(recipe);
     loading.value = false;
     dialog.value = false;
-    Notify.create({
-      type: "positive",
-      message: "Recipe created successfully",
-      // position: "top",
-    });
     clearRecipeData();
     // await reloadTableData();
     recipeRows.value = await recipeStore.fetchRecipes();

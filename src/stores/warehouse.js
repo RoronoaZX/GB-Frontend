@@ -35,14 +35,23 @@ export const useWarehousesStore = defineStore("warehouses", () => {
     try {
       const response = await api.post("/api/warehouses", data);
       console.log("Response from backend:", response.data);
-
-      warehouses.value.unshift(response.data);
-      Notify.create({
-        type: "positive",
-        message: "Warehouse created successfully",
-        setTimeout: 1000,
-        // position: "top",
-      });
+      fetchWarehouses();
+      // if (response.data.message === "Warehouse save successfully") {
+      //   warehouses.value.unshift(response.data.warehouse);
+      //   Notify.create({
+      //     type: "positive",
+      //     message: "Warehouse created successfully",
+      //     setTimeout: 1000,
+      //     // position: "top",
+      //   });
+      // } else if (response.data.message === "Warehouse already exist") {
+      //   Notify.create({
+      //     type: "warning",
+      //     message: "Warehouse already exist",
+      //     setTimeout: 1000,
+      //     // position: "top",
+      //   });
+      // }
     } catch (error) {
       console.error(
         "Error creating warehouse:",

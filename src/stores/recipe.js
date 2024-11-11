@@ -22,9 +22,27 @@ export const useRecipeStore = defineStore("recipes", () => {
       //   bread_groups: data.bread_groups || [],
       //   ingredient_groups: data.ingredient_groups || [],
       // };
-      recipes.value.unshift(response.data);
+
+      if (response.data.message === "Recipe saved successfully") {
+        recipes.value.unshift(response.data.recipe);
+        Notify.create({
+          type: "positive",
+          message: "Recipe successfully created",
+          timeout: 1000,
+        });
+      } else if (response.data.message === "Recipe already exist") {
+        Notify.create({
+          type: "warning",
+          message: "Recipe already exists.",
+        });
+      }
     } catch (error) {
       console.error("User Error message: ", error);
+      Notify.create({
+        type: "negative",
+        message: "An error occurred while saving the recipe.",
+        // position: "top",
+      });
     } finally {
       Loading.hide();
     }

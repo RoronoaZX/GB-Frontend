@@ -38,8 +38,8 @@ export const useProductsStore = defineStore("products", () => {
       const response = await api.post("/api/products", data);
       console.log("data", response.data);
       if (response.data.message === "Product saved successfully") {
-        const product = products.value.find((item) => item.id === data.id);
         fetchProducts();
+        const product = products.value.find((item) => item.id === data.id);
         products.value.unshift(response.data);
         Notify.create({
           type: "positive",
@@ -49,7 +49,7 @@ export const useProductsStore = defineStore("products", () => {
         Notify.create({
           type: "warning",
           message: "The product already exists.",
-          position: "top",
+          // position: "top",
         });
       }
     } catch (error) {

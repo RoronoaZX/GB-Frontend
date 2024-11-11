@@ -26,16 +26,38 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
   const createRawMaterials = async (data) => {
     Loading.show();
 
-    const response = await api.post("/api/raw-materials", data);
-    rawMaterials.value.unshift(response.data);
-    Notify.create({
-      type: "positive",
-      message: "Raw Materials successfully created",
-      timeout: 1000,
-      // postion: "top",
-    });
+    try {
+      const response = await api.post("/api/raw-materials", data);
 
-    Loading.hide();
+      if (response.data.message === "Raw Materials saved successfully") {
+        // const rawMaterials = rawMaterials.value.find((item) =>item.id === data.id)
+        rawMaterials.value.unshift(response.data.rawMaterials);
+        Notify.create({
+          type: "positive",
+          message: "Raw Materials successfully created",
+          timeout: 1000,
+          // postion: "top",
+        });
+      } else if (
+        response.data.message ===
+        "The RawMaterials name or code already exists."
+      ) {
+        Notify.create({
+          type: "warning",
+          message: "The RawMaterials name or code already exists.",
+          // position: "top",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        type: "negative",
+        message: "An error occurred while saving the raw materials.",
+        // position: "top",
+      });
+    } finally {
+      Loading.hide();
+    }
   };
 
   const updateRawMaterials = async (id, data) => {
