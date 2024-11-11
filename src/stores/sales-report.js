@@ -4,6 +4,7 @@ import { api } from "src/boot/axios";
 
 export const useSalesReportsStore = defineStore("salesReports", {
   state: () => ({
+    salesReport: [],
     products: [],
     branchProducts: [],
     breadProducts: [],
@@ -171,6 +172,16 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.filterBreadproducts();
       this.filterSelectaproducts();
       this.filterSoftdrinksproducts();
+    },
+
+    async fetchSalesReports(branchId) {
+      try {
+        const response = await api.get(`/api/branch/${branchId}/salesReport`);
+        console.log("sales report", response.data);
+        this.salesReport = response.data;
+      } catch (error) {
+        console.log(error);
+      }
     },
 
     async submitSalesReports() {

@@ -354,6 +354,12 @@ const getBadgeStatusColor = (status) => {
 </script>
 
 <style lang="scss" scoped>
+.data-error {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .spinner-wrapper {
   min-height: 40vh; /* Minimum height of 50% viewport height */
   display: flex;

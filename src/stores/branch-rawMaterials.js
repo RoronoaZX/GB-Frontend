@@ -56,6 +56,7 @@ export const useBranchRawMaterialsStore = defineStore(
           });
         }
       } catch (error) {
+        console.log(error);
         Notify.create({
           type: "negative",
           message: "An error occurred while saving the branch product.",

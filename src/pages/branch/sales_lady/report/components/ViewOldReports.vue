@@ -10,7 +10,7 @@
     @click="openDialog"
   >
   </q-btn>
-  <q-dialog v-model="dialog">
+  <q-dialog v-model="dialog" maximized>
     <q-card>
       <q-card-section>
         <div class="row justify-between">
@@ -43,30 +43,55 @@
             </div>
           </div>
           <div>
-            <q-btn
-              padding="sm md"
-              size="sm"
-              flat
-              rounded
-              icon="close"
-              dense
-              v-close-popup
-            />
+            <!-- padding="sm md" -->
+            <q-btn size="md" outline rounded icon="close" dense v-close-popup />
           </div>
         </div>
       </q-card-section>
-      <q-table title="Treats" :rows="rows" :columns="columns" row-key="name" />
+      <div class="row q-pa-md justify-between">
+        <div>
+          <div>Date: November 11, 2024</div>
+          Cashier: Cashier C. Cashier
+        </div>
+        <div>Time: 08:00 PM</div>
+      </div>
+      <q-table title="" :rows="rows" :columns="columns" row-key="name" />
+
+      {{ salesReport }}
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { useSalesReportsStore } from "src/stores/sales-report";
+import { computed, onMounted, ref } from "vue";
+
+const salesReportStore = useSalesReportsStore();
+const salesReport = computed(() => salesReportStore.salesReport);
+const userData = computed(() => salesReportStore.user);
+const branchId =
+  userData.value?.data?.employee?.branch_employee?.branch_id || "";
+console.log("sales branch id", branchId);
+const loading = ref(true);
 
 const dialog = ref(false);
 
 const openDialog = () => {
   dialog.value = true;
+};
+
+onMounted(async () => {
+  console.log("Onmounted data", branchId);
+  if (branchId) {
+    await reloadTableData(branchId);
+  }
+});
+
+const reloadTableData = async (branchId) => {
+  console.log("branch data", branchId);
+  loading.value = true;
+  await salesReportStore.fetchSalesReports(branchId);
+  loading.value = false;
 };
 
 const columns = [
