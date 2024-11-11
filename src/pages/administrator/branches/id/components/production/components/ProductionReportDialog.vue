@@ -15,7 +15,11 @@
         style="background-color: #595a5a"
       >
         <div class="text-h6">
-          {{ `${reports.branch_name} ( ${reportLabel} Reports)` }}
+          {{
+            `${capitalizeFirstLetter(
+              reports.branch_name
+            )} ( ${reportLabel} Reports)`
+          }}
         </div>
         <q-space />
         <div class="row q-gutter-x-md">
@@ -87,6 +91,13 @@ const tab = ref("bakerReport");
 const maximizedToggle = ref(true);
 const dialog = ref(false);
 
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 const handleButtonClick = () => {
   emit("selectReport", props.reports);
   dialog.value = true;

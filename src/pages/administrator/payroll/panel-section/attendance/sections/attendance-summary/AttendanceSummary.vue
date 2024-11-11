@@ -27,13 +27,7 @@
                 @click="selectEmployee(employee)"
               >
                 <q-item-section>
-                  {{
-                    `${employee.firstname} ${
-                      employee.middlename
-                        ? employee.middlename.charAt(0) + "."
-                        : ""
-                    } ${employee.lastname}`
-                  }}
+                  {{ formatFullname(employee) }}
                 </q-item-section>
               </q-item>
             </template>
@@ -201,9 +195,7 @@ const search = async () => {
 
 const selectEmployee = async (employee) => {
   searchKeyword.value = "";
-  employeeName.value = `${employee.firstname} ${
-    employee.middlename ? employee.middlename.charAt(0) + "." : ""
-  } ${employee.lastname}`;
+  employeeName.value = formatFullname(employee);
   employeePosition.value = employee.position || "Unknown"; // Assuming position field exists in employee data
   employeeAge.value = calculateAge(employee.birthdate);
 
@@ -254,6 +246,19 @@ const formatDate = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
 };
 
 // Function to initialize the current 15-day range

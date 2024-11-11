@@ -29,6 +29,13 @@
           style="height: 350px"
           class="table-container sticky-header"
         >
+          <template v-slot:body-cell-productName="props">
+            <q-td :props="props">
+              <span>{{
+                `${capitalizeFirstLetter(props.row.product.name)}`
+              }}</span>
+            </q-td>
+          </template>
           <template v-slot:body-cell-price="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.price)}` }}</span>
@@ -91,6 +98,14 @@ const filteredRows = computed(() => {
   });
 });
 console.log("All Credit Products:", filteredRows.value[0]);
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const formatFullname = (row) => {
   const capitalize = (str) =>

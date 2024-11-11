@@ -8,7 +8,7 @@ export const useUsersStore = defineStore("users", () => {
   const user = ref([]);
 
   const fetchUsers = async () => {
-    if (users.value.length) return;
+    // if (users.value.length) return;
     try {
       const response = await api.get("/api/users");
       users.value = response.data;

@@ -86,7 +86,7 @@
                 </q-chip>
               </div>
             </q-card-section>
-            <q-separator />
+            <q-separator class="separator q-mx-md" />
             <q-card-section>
               <div class="q-mb-sm elegant-detail">
                 <q-icon name="mail" class="q-mr-sm" />
@@ -385,6 +385,11 @@ const handleUserDialog = (user) => {
   color: #333;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.separator {
+  // background: linear-gradient(135deg, #4facfe, #00f2fe); //Beach
+  background: linear-gradient(135deg, #1d976c, #93f9b9);
 }
 
 .user-card:hover {

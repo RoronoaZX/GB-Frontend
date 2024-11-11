@@ -24,6 +24,13 @@
           style="height: 350px"
           class="table-container sticky-header"
         >
+          <template v-slot:body-cell-name="props">
+            <q-td :props="props">
+              <span>{{
+                `${capitalizeFirstLetter(props.row.selecta.name)}`
+              }}</span>
+            </q-td>
+          </template>
           <template v-slot:body-cell-price="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.price)}` }}</span>
@@ -58,6 +65,14 @@ const props = defineProps(["reports"]);
 
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const breadReportColumns = [
   {

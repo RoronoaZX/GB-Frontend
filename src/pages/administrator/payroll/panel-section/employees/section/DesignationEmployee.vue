@@ -57,13 +57,7 @@
                       clickable
                     >
                       <q-item-section>
-                        {{
-                          `${employee.firstname} ${
-                            employee.middlename
-                              ? employee.middlename.charAt(0) + "."
-                              : ""
-                          } ${employee.lastname}`
-                        }}
+                        {{ formatFullname(employee) }}
                       </q-item-section>
                     </q-item>
                   </template>
@@ -218,13 +212,27 @@ const autoFillEmployee = (employee) => {
   console.log("Selected Employee:", employee);
 
   addDesignation.employee_id = employee.id;
-  addDesignation.employee_name = `${employee.firstname} ${
-    employee.middlename ? employee.middlename.charAt(0) + "." : ""
-  } ${employee.lastname}`;
+  addDesignation.employee_name = formatFullname(employee);
+  // `${employee.firstname} ${
+  //   employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  // } ${employee.lastname}`;
   addDesignation.position = employee.position;
   searchKeyword.value = "";
   // Log the filled designation data
   console.log("Filled Designation Data:", addDesignation);
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
 };
 
 const openDesignationDialog = () => {

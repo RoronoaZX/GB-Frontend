@@ -59,7 +59,9 @@
                 <div>
                   {{
                     `${
-                      bakerReport.branch_recipe.recipe?.name || "Unknown Recipe"
+                      capitalizeFirstLetter(
+                        bakerReport.branch_recipe.recipe?.name
+                      ) || "Unknown Recipe"
                     } (${bakerReport.recipe_category || "Unknown Category"})`
                   }}
                 </div>
@@ -236,12 +238,20 @@ const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMM. DD, YYYY");
 };
 
-const printPdf = (bakerReport) => {
-  const docDefinition = generateDocDefinition(bakerReport);
-
-  // Open the generated PDF in a new tab or download directly
-  pdfMake.createPdf(docDefinition).print();
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
+
+// const printPdf = (bakerReport) => {
+//   const docDefinition = generateDocDefinition(bakerReport);
+
+//   // Open the generated PDF in a new tab or download directly
+//   pdfMake.createPdf(docDefinition).print();
+// };
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
@@ -284,10 +294,6 @@ const getBadgeStatusColor = (status) => {
     default:
       return "grey";
   }
-};
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };
 
 const capitalizeName = (name) => {

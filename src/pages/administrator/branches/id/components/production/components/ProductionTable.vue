@@ -1,5 +1,5 @@
 <template>
-  <div align="right">
+  <div>
     <q-input
       v-model="filter"
       class="q-pb-lg q-pl-md"

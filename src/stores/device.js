@@ -26,8 +26,9 @@ export const useDeviceStore = defineStore("devices", () => {
     console.log("Data parameters being sent:", data);
     try {
       const response = await api.post("/api/device", data);
+      fetchDevices();
+      // devices.value.unshift(response.data);
 
-      devices.value.unshift(response.data);
       Notify.create({
         type: "positive",
         message: "Device created successfully",

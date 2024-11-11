@@ -46,6 +46,11 @@
       hide-bottom
       style="height: 350px"
     >
+      <template v-slot:body-cell-name="props">
+        <q-td key="name" :props="props">
+          {{ capitalizeFirstLetter(props.row.product.name) }}
+        </q-td>
+      </template>
       <template v-slot:body-cell-category="props">
         <q-td key="name" :props="props">
           <q-badge :color="getBadgeCategoryColor(props.row.category)">
@@ -149,6 +154,14 @@ const filteredRows = computed(() => {
     row.name.toLowerCase().includes(filter.value.toLowerCase())
   );
 });
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 onMounted(async () => {
   // console.log("props.branchId in onMounted:", branchId);

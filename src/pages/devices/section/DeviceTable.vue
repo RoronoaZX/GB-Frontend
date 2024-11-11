@@ -31,7 +31,7 @@
       flat
       style="height: 400px"
       :columns="deviceColumns"
-      :rows="filteredRows"
+      :rows="deviceRow"
       row-key="name"
       virtual-scroll
       v-model:pagination="pagination"

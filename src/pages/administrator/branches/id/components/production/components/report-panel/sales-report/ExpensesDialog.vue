@@ -29,6 +29,11 @@
           style="height: 350px"
           class="table-container sticky-header"
         >
+          <template v-slot:body-cell-name="props">
+            <q-td :props="props">
+              <span>{{ `${capitalizeFirstLetter(props.row.name)}` }}</span>
+            </q-td>
+          </template>
           <template v-slot:body-cell-amount="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.amount)}` }}</span>
@@ -73,6 +78,14 @@ const props = defineProps({
 
 const expensesReports = props.reports;
 console.log("Expenses total", props.total);
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const expensesReportColumn = [
   {

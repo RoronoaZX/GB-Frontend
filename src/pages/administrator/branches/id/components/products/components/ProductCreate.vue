@@ -52,7 +52,9 @@
                       clickable
                     >
                       <q-item-section>
-                        <q-item-label>{{ product.name }}</q-item-label>
+                        <q-item-label>{{
+                          capitalizeFirstLetter(product.name)
+                        }}</q-item-label>
                       </q-item-section>
                     </q-item>
                   </template>
@@ -167,6 +169,14 @@ const open_create_bread_dialog = () => {
 const dismiss = () => {
   clearForm();
   dialog.value = false;
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 const autoFillProduct = (data) => {

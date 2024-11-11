@@ -55,13 +55,7 @@
                           clickable
                         >
                           <q-item-section>
-                            {{
-                              `${employee.firstname} ${
-                                employee.middlename
-                                  ? employee.middlename.charAt(0) + "."
-                                  : ""
-                              } ${employee.lastname}`
-                            }}
+                            {{ formatFullname(employee) }}
                           </q-item-section>
                         </q-item>
                       </template>
@@ -212,6 +206,19 @@ const overtimeForm = reactive({
   timeIn: "",
   timeOut: "",
 });
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
 
 const save = async () => {
   const overtime_in = `${overtimeForm.dateIn} ${overtimeForm.timeIn}`;
