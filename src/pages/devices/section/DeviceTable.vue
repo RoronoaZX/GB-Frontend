@@ -209,7 +209,7 @@ const deviceColumns = [
 
 .dynamic-width {
   width: 100%; /* default width */
-  max-width: 1500px;
+  max-width: 500px;
   min-width: 300px; /* set a minimum width */
 }
 

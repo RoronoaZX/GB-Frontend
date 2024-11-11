@@ -22,6 +22,8 @@ function createWindow() {
   });
 
   // Load your app
+  mainWindow.maximize(); // Maximize the window when it is created
+  mainWindow.show(); // Show the window after maximizing
   mainWindow.loadURL(process.env.APP_URL);
 
   if (process.env.DEBUGGING) {
