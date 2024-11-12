@@ -282,6 +282,8 @@ const getBadgePositionColor = (role) => {
       return "red-6"; // Red
     case "Baker":
       return "brown"; // Warm Brown (closest match in Quasar)
+    case "Cake Maker":
+      return "brown-4"; // Warm Brown (closest match in Quasar)
     case "Cashier":
       return "green-5"; // Light Green
     case "Sales Clerk":

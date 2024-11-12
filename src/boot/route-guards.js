@@ -12,6 +12,7 @@ export default boot(async ({ router }) => {
   router.beforeEach(async (to, from, next) => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
+    // const uuid = localStorage.getItem("uuid");
     // console.log("Boot File - Role:", role);
     // console.log("Boot File - Token:", token);
     Loading.value = true;
@@ -27,6 +28,9 @@ export default boot(async ({ router }) => {
         const user = await api.get("/api/profile");
 
         console.log("user:", user.data);
+        const deviceData = user.data.device;
+        console.log("device:", deviceData);
+
         useBakersReport.setUser(user.data);
         useSalesReport.setUser(user.data);
         useSupervisor.setUser(user.data);
@@ -36,6 +40,8 @@ export default boot(async ({ router }) => {
             next("/admin/dashboard");
           } else if (role === "Baker") {
             next("/branch/baker");
+          } else if (role === "Cake Maker") {
+            next("/branch/cake_maker");
           } else if (role === "Cashier") {
             next("/branch/sales_lady/products");
           } else {

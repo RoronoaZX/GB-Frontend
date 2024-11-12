@@ -1,0 +1,9 @@
+
+.my-menu-link[data-v-62a13fb4] {
+  color: white;
+  background: #ef4444;
+}
+.account-card[data-v-62a13fb4] {
+  position: absolute;
+  z-index: 999; /* Ensure the card is above other elements */
+}

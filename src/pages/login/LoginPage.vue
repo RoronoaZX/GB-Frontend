@@ -78,16 +78,18 @@
         </div>
       </q-form>
     </q-card-section>
-
+    <!-- this is uuid {{ uuid }} -->
     <!-- <CheckUUID /> -->
   </q-card>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { Device } from "@capacitor/device";
 import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
+import { mdiEmailLock } from "@quasar/extras/mdi-v4";
 // import { Device } from "@capacitor/device";
 
 // import CheckUUID from "./CheckUUID.vue";
@@ -130,10 +132,34 @@ import axios, { api } from "src/boot/axios";
 // });
 // johndoe@example.com
 // password
-const isPwd = ref(true);
-const email = ref("");
-const password = ref("");
 
+const uuid = ref("");
+
+// Method to get UUID from Electron using node-machine-id
+// ===================================================//
+// Use this code for building electron and if you've develop this project to  mobile app comment this out //
+const getUUID = async () => {
+  if (window.require) {
+    const { machineId: getMachineId } = window.require("node-machine-id");
+
+    try {
+      // Fetch UUID
+      uuid.value = await getMachineId();
+    } catch (error) {
+      console.error("Error fetching machine UUID:", error);
+    }
+  } else {
+    console.warn("Electron not available.");
+  }
+};
+onMounted(() => {
+  getUUID();
+});
+
+const isPwd = ref(true);
+const email = ref("johndoe@example.com");
+const password = ref("password");
+// const uuid = ref("");
 const loading = ref(false);
 
 const formIsValid = computed(() => email.value !== "" && password.value !== "");
@@ -142,17 +168,45 @@ const quasar = useQuasar();
 const router = useRouter();
 const activeMenuItem = ref("");
 
+// ===================================================//
+// Use this code for building adroid app and if you've develop this project to  desktop app comment this out //
+// ===================================================//
+
+// const checkDevice = async () => {
+//   try {
+//     const id = await Device.getId();
+//     // const info = await Device.getInfo();
+//     uuid.value = id.identifier;
+//     //  {
+//     //   deviceInfo: info,
+//     //   id: id,
+//     // }; // Store the UUID in the reactive variable
+//     console.log("Device UUID:", uuid.value); // Log the UUID
+//   } catch (error) {
+//     console.error("Error fetching device UUID:", error);
+//   }
+// };
+
+// onMounted(() => {
+//   checkDevice();
+// });
+
 const login = async () => {
   Loading.show();
   try {
     const response = await api.post("/api/login", {
+      uuid: uuid.value,
       email: email.value,
       password: password.value,
       // uuid: machineId.value,
     });
+
+    console.log("user:", response.data);
     localStorage.setItem("activeMenuItem", "dashboard");
     localStorage.setItem("token", response.data.token);
     localStorage.setItem("role", response.data.role);
+    localStorage.setItem("uuid", response.data.device.uuid);
+    localStorage.setItem("branch_id", response.data.device.branch_id);
 
     const role = response.data.role;
     const storedActiveMenuItem = localStorage.getItem("activeMenuItem");
@@ -179,6 +233,8 @@ const login = async () => {
       });
     } else if (role === "Baker") {
       await router.push("/branch/baker");
+    } else if (role === "Cake Maker") {
+      await router.push("/branch/cake_maker");
     } else if (role === "Cashier") {
       await router.push("/branch/sales_lady/products");
     }

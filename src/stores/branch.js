@@ -15,6 +15,26 @@ export const useBranchesStore = defineStore("branches", () => {
   const warehouses = computed(() => warehousesStore.warehouses);
   console.log("warehouses", warehouses.value);
 
+  const search = async (keyword) => {
+    try {
+      console.log("Searching for branch with keyword:", keyword);
+
+      const response = await api.post(`/api/search-branch?keyword=${keyword}`);
+
+      console.log("Search branch:", response);
+
+      if (response && response.data && response.data.length > 0) {
+        console.log("Search Results:", response.data);
+        branch.value = response.data;
+      } else {
+        console.log("No employees found or empty response");
+        branch.value = [];
+      }
+    } catch (error) {
+      console.error("Error searching employee:", error);
+    }
+  };
+
   const fetchBranches = async () => {
     const response = await api.get("/api/branches");
     branches.value = response.data;
@@ -162,6 +182,7 @@ export const useBranchesStore = defineStore("branches", () => {
   return {
     branch,
     branches,
+    search,
     fetchBranches,
     createBranches,
     updateBranches,

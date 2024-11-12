@@ -223,7 +223,7 @@ const addNewWarehouseForm = reactive({
 
 //create warehouse
 const createWarehouse = async () => {
-  // console.log("awarehoouse data send", addNewWarehouseForm);
+  console.log("awarehoouse data send", addNewWarehouseForm);
   loading.value = true;
   const res = await warehousesStore.createWarehouses(addNewWarehouseForm);
   // console.log("redssdfs", res);

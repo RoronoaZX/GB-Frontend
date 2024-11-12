@@ -76,6 +76,46 @@
               ]"
             />
           </div>
+          <div class="q-mt-md q-animated q-animate-bounce">
+            <div>Designation Branch</div>
+            <q-input
+              v-model="searchKeyword"
+              @update:model-value="search"
+              outlined
+              dense
+              debounce="500"
+              @focus="showDropdown = true"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="grey" size="sm" />
+              </template>
+              <div
+                v-if="showDropdown && searchKeyword"
+                class="custom-list z-top"
+              >
+                <q-card>
+                  <q-list separator>
+                    <q-item v-if="!branches?.length">
+                      No Employee Record
+                    </q-item>
+                    <template v-else>
+                      <q-item
+                        @click="autoFillBranch(branch)"
+                        v-for="branch in branches"
+                        :key="branch.id"
+                        clickable
+                      >
+                        <q-item-section>
+                          {{ branch.name }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-card>
+              </div>
+            </q-input>
+          </div>
         </q-card-section>
         <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
           <q-btn
@@ -97,14 +137,42 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useDeviceStore } from "src/stores/device";
+import { useBranchesStore } from "src/stores/branch";
 
 const deviceStore = useDeviceStore();
+const branchStore = useBranchesStore();
+const branches = computed(() => branchStore.branch);
 const addDeviceDialog = ref(false);
 const loading = ref(false);
+const searchKeyword = ref("");
+const showDropdown = ref(false);
+const searchLoading = ref(false);
+
 const openAddDeviceDialog = () => {
   addDeviceDialog.value = true;
+};
+
+const search = async () => {
+  if (searchKeyword.value.trim()) {
+    // searchLoading.value = true;
+    await branchStore.search(searchKeyword.value);
+    // searchLoading.value = false;
+    // showDropdown.value = true;
+  }
+};
+
+const autoFillBranch = (branch) => {
+  console.log("selected branch:", branch);
+
+  deviceForm.branch_id = branch.id;
+  deviceForm.branch_name = branch.name;
+  searchKeyword.value = branch.name;
+
+  showDropdown.value = false;
+
+  console.log("Filled addNewBranchForm Data:", deviceForm);
 };
 
 const deviceForm = reactive({
@@ -112,9 +180,12 @@ const deviceForm = reactive({
   name: "",
   model: "",
   os_version: "",
+  branch_id: "",
+  branch_name: "",
 });
 
 const createDevice = async () => {
+  console.log("device sent:", deviceForm);
   loading.value = true;
   try {
     await deviceStore.createDevices(deviceForm);

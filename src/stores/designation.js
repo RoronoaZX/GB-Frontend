@@ -8,7 +8,7 @@ export const useDesignationStore = defineStore("designations", () => {
   const designations = ref([]);
 
   const createDesignation = async (data) => {
-    Loading.show();
+    // Loading.show();
     try {
       const response = await api.post("/api/branchEmployee", data);
       if (response && response.data) {
@@ -29,9 +29,10 @@ export const useDesignationStore = defineStore("designations", () => {
         message: `Failed to create employeesss`,
         setTimeout: 1000,
       });
-    } finally {
-      Loading.hide();
     }
+    // finally {
+    //   Loading.hide();
+    // }
   };
   return {
     designation,

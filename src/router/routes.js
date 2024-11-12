@@ -166,6 +166,32 @@ const routes = [
     ],
   },
   {
+    path: "/branch/cake_maker",
+    meta: { requiresAuth: true },
+    component: () => import("layouts/CakeMakerLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("pages/branch/cake_maker/cake/CakePage.vue"),
+      },
+      {
+        path: "raw_materials",
+        component: () =>
+          import("pages/branch/cake_maker/raw_materials/RawMaterialsPage.vue"),
+      },
+      {
+        path: "report",
+        component: () =>
+          import("pages/branch/cake_maker/report/ReportPage.vue"),
+      },
+      {
+        path: "create_report",
+        component: () =>
+          import("pages/branch/cake_maker/id/ReportCreateIdPage.vue"),
+      },
+    ],
+  },
+  {
     path: "/warehouse",
     component: () => import("layouts/WarehouseLayout.vue"),
     children: [

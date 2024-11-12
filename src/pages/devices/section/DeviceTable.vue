@@ -131,6 +131,12 @@ const deviceColumns = [
     field: "uuid",
   },
   {
+    name: "branch_name",
+    label: "Branch Name",
+    align: "center",
+    field: (row) => (row.branch ? row.branch.name : "N/A"),
+  },
+  {
     name: "action",
     label: "Action",
     align: "center",

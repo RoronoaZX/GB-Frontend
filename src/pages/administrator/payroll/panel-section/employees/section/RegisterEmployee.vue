@@ -167,6 +167,7 @@ const positionOptions = [
   "Lamesador",
   "Hornero",
   "Baker",
+  "Cake Maker",
   "Cashier",
   "Sales Clerk",
   "Utility",

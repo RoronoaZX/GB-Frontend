@@ -26,7 +26,7 @@
           <q-item-section avatar>
             <q-avatar icon="settings" size="xl" />
           </q-item-section>
-          <q-item-section>Settings</q-item-section>
+          <q-item-section>Setting</q-item-section>
         </q-item>
         <q-separator />
         <q-item clickable @click="signOut">
