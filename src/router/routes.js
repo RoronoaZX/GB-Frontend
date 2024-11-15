@@ -187,7 +187,7 @@ const routes = [
       {
         path: "create_report",
         component: () =>
-          import("pages/branch/cake_maker/id/ReportCreateIdPage.vue"),
+          import("pages/branch/cake_maker/report/id/ReportCreateIdPage.vue"),
       },
     ],
   },

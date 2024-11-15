@@ -6,8 +6,8 @@
     elevated
     icon="add_circle"
     label="Create Report"
+    to="/branch/cake_maker/create_report"
   />
-  <!-- to="/branch/cake_maker/create_report" -->
 </template>
 
 <script setup></script>

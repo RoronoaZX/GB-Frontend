@@ -78,7 +78,7 @@
         </div>
       </q-form>
     </q-card-section>
-    <!-- this is uuid {{ uuid }} -->
+    this is uuid {{ uuid }}
     <!-- <CheckUUID /> -->
   </q-card>
 </template>
@@ -89,7 +89,6 @@ import { Device } from "@capacitor/device";
 import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
-import { mdiEmailLock } from "@quasar/extras/mdi-v4";
 // import { Device } from "@capacitor/device";
 
 // import CheckUUID from "./CheckUUID.vue";
@@ -140,11 +139,12 @@ const uuid = ref("");
 // Use this code for building electron and if you've develop this project to  mobile app comment this out //
 const getUUID = async () => {
   if (window.require) {
-    const { machineId: getMachineId } = window.require("node-machine-id");
-
     try {
-      // Fetch UUID
-      uuid.value = await getMachineId();
+      // Import `node-machine-id` using `window.require`
+      const { machineId } = window.require("node-machine-id");
+
+      // Fetch UUID using `machineId` function
+      uuid.value = await machineId();
     } catch (error) {
       console.error("Error fetching machine UUID:", error);
     }
@@ -157,7 +157,7 @@ onMounted(() => {
 });
 
 const isPwd = ref(true);
-const email = ref("johndoe@example.com");
+const email = ref("cakemaker1@gmail.com");
 const password = ref("password");
 // const uuid = ref("");
 const loading = ref(false);
