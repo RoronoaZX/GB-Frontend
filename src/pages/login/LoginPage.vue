@@ -132,29 +132,29 @@ import axios, { api } from "src/boot/axios";
 // johndoe@example.com
 // password
 
-const uuid = ref("");
+const uuid = ref("946c1697d02c5951");
 
 // Method to get UUID from Electron using node-machine-id
 // ===================================================//
 // Use this code for building electron and if you've develop this project to  mobile app comment this out //
-const getUUID = async () => {
-  if (window.require) {
-    try {
-      // Import `node-machine-id` using `window.require`
-      const { machineId } = window.require("node-machine-id");
+// const getUUID = async () => {
+//   if (window.require) {
+//     try {
+//       // Import `node-machine-id` using `window.require`
+//       const { machineId } = window.require("node-machine-id");
 
-      // Fetch UUID using `machineId` function
-      uuid.value = await machineId();
-    } catch (error) {
-      console.error("Error fetching machine UUID:", error);
-    }
-  } else {
-    console.warn("Electron not available.");
-  }
-};
-onMounted(() => {
-  getUUID();
-});
+//       // Fetch UUID using `machineId` function
+//       uuid.value = await machineId();
+//     } catch (error) {
+//       console.error("Error fetching machine UUID:", error);
+//     }
+//   } else {
+//     console.warn("Electron not available.");
+//   }
+// };
+// onMounted(() => {
+//   getUUID();
+// });
 
 const isPwd = ref(true);
 const email = ref("cakemaker1@gmail.com");
@@ -234,7 +234,7 @@ const login = async () => {
     } else if (role === "Baker") {
       await router.push("/branch/baker");
     } else if (role === "Cake Maker") {
-      await router.push("/branch/cake_maker");
+      await router.push("/branch/cake_maker/raw_materials");
     } else if (role === "Cashier") {
       await router.push("/branch/sales_lady/products");
     }

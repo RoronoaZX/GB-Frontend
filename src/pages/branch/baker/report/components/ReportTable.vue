@@ -141,10 +141,19 @@ const bakersReportListColumns = [
     name: "name",
     label: "Reports Name",
     align: "center",
-    field: (row) => ({
-      name: row.branch_recipe.recipe.name,
-      category: row.branch_recipe.recipe.category,
-    }),
+    field: (row) => {
+      if (row.branch_recipe && row.branch_recipe.recipe) {
+        return {
+          name: row.branch_recipe.recipe.name,
+          category: row.branch_recipe.recipe.category,
+        };
+      } else {
+        return {
+          name: "N/A", // Fallback value for name
+          category: "N/A", // Fallback value for category
+        };
+      }
+    },
     format: (val) => `${val.name} (${val.category})`,
     sortable: true,
   },

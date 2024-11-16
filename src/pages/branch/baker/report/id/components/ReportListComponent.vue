@@ -98,6 +98,7 @@
       </template>
     </q-virtual-scroll>
   </div>
+  <!-- v-if="bakerReportStore.reports > 0" -->
   <div align="right">
     <q-btn color="red-6" icon="edit" label="Create" @click="saveReports" />
   </div>

@@ -3,6 +3,7 @@ import { api } from "./axios";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSupervisorStore } from "src/stores/supervisor";
+import { useCakeMakerReportStore } from "src/stores/cake-maker-report";
 // import { useLoadingBarStore } from "src/stores/loading";
 import { Loading } from "quasar";
 
@@ -24,16 +25,18 @@ export default boot(async ({ router }) => {
         const useBakersReport = useBakerReportsStore();
         const useSalesReport = useSalesReportsStore();
         const useSupervisor = useSupervisorStore();
+        const useCakeMakerReport = useCakeMakerReportStore();
 
         const user = await api.get("/api/profile");
 
-        console.log("user:", user.data);
+        console.log("userss:", user.data);
         const deviceData = user.data.device;
         console.log("device:", deviceData);
 
         useBakersReport.setUser(user.data);
         useSalesReport.setUser(user.data);
         useSupervisor.setUser(user.data);
+        useCakeMakerReport.setUser(user.data);
 
         if (to.path === "/") {
           if (role === "Admin") {
