@@ -119,6 +119,11 @@ const routes = [
           import("pages/branch/sales_lady/bakers_report/BakersReportPage.vue"),
       },
       {
+        path: "cake_report",
+        component: () =>
+          import("pages/branch/sales_lady/cake_report/CakeReportPage.vue"),
+      },
+      {
         path: "report",
         component: () =>
           import("pages/branch/sales_lady/report/ReportPage.vue"),

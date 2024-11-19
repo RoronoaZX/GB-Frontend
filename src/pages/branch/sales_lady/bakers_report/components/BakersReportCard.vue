@@ -115,6 +115,7 @@ const filteredRows = computed(() => {
   );
 });
 
+console.log("baekr reports", filteredRows.value);
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");
 };

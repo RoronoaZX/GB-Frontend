@@ -7,6 +7,7 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
   const cakeMakerReport = ref(null);
   const cakeMakerReports = ref([]);
   const user = ref({});
+  const pendingReports = ref([]);
 
   const setUser = (newUser) => {
     user.value = newUser;
@@ -33,6 +34,18 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
     cakeMakerReports.value = response.data;
   };
 
+  const fetchCakePendingReport = async (branchId) => {
+    try {
+      const response = await api.get(
+        `/api/branch/${branchId}/cakePendingReport`
+      );
+      console.log("response", response.data);
+      pendingReports.value = response.data;
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const createReports = async (data) => {
     console.log("cake maker reports", data);
     Loading.show();
@@ -54,14 +67,23 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
     }
   };
 
+  const confirmReports = async (id) => {
+    console.log("id to be edit", id);
+    const response = await api.post(`/api/branch/${id}/cakeConfirmedReport`);
+    fetchCakePendingReport();
+  };
+
   return {
     user,
     cakeMakerReport,
     cakeMakerReports,
+    pendingReports,
     setUser,
     clearData,
     createReports,
     fetchCakeReport,
+    fetchCakePendingReport,
+    confirmReports,
     // searchBranchRawMaterials,
   };
 });

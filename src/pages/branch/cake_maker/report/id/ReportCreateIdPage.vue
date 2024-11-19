@@ -14,13 +14,25 @@
     </q-card-section>
     <q-card-section>
       <!-- {{ branchId }} -->
+
       <div class="q-px-xl q-mx-xl">
-        <div class="row justify-between">
+        <div class="q-my-sm">
           <q-input
             v-model="cakeMakerReportForm.name"
             outlined
             dense
             label="Cake Name"
+          />
+        </div>
+        <div class="row justify-between">
+          <q-input
+            v-model="cakeMakerReportForm.price"
+            outlined
+            dense
+            label="Price"
+            mask="###,###.##"
+            reverse-fill-mask
+            input-class="text-right"
             style="width: 300px"
           />
           <q-input
@@ -32,16 +44,15 @@
             style="width: 100px"
           />
           <q-input
-            v-model="cakeMakerReportForm.price"
+            v-model="cakeMakerReportForm.pieces"
             outlined
             dense
-            label="Price"
-            mask="###,###.##"
-            reverse-fill-mask
-            input-class="text-right"
+            label="PCS"
+            type="number"
             style="width: 100px"
           />
         </div>
+
         <div>
           <div class="">
             <div class="row q-mt-md justify-between">
@@ -215,6 +226,7 @@ const clearCakeMakerReportForm = () => {
     (cakeMakerReportForm.user_id = ""),
     (cakeMakerReportForm.name = ""),
     (cakeMakerReportForm.layers = ""),
+    (cakeMakerReportForm.pieces = ""),
     (cakeMakerReportForm.price = "");
   rawMaterialsGroup.value = [];
   clearData();
@@ -304,6 +316,8 @@ const cakeMakerReportForm = reactive({
   user_id: user_id,
   name: "",
   layers: "",
+  pieces: "",
+  confirmation_status: "pending",
   price: "",
 });
 

@@ -196,6 +196,13 @@ const menuItems = [
     separator: true,
   },
   {
+    name: "cakeReport",
+    icon: "fact_check",
+    to: "/branch/sales_lady/cake_report",
+    label: "Cake Report",
+    separator: true,
+  },
+  {
     name: "rawMaterials",
     icon: "fact_check",
     to: "/branch/sales_lady/report",

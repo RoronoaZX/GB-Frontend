@@ -65,7 +65,7 @@
         <div class="row q-mt-sm item-start q-gutter-x-xl">
           <div class="row q-gutter-x-sm text-overline">
             <div>Kilo:</div>
-            <div>
+            <div class="text-weight-light">
               {{ report.kilo }}
             </div>
           </div>

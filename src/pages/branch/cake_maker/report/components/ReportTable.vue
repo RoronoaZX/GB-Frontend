@@ -27,12 +27,25 @@
       :rows-per-page-options="[0]"
       hide-bottom
     >
+      <template v-slot:body-cell-branchName="props">
+        <q-td :props="props">
+          {{ capitalizeFirstLetter(props.row.branch.name) }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-confirmation_status="props">
+        <q-td :props="props">
+          <q-badge
+            outlined
+            :color="getBadgeStatusColor(props.row.confirmation_status)"
+          >
+            {{ capitalizeFirstLetter(props.row.confirmation_status) }}
+          </q-badge>
+        </q-td>
+      </template>
       <template v-slot:body-cell-view="props">
         <q-td :props="props">
           <div>
-            <q-btn color="accent" icon="visibility" size="md" flat round dense>
-              <!-- @click="openBakersReportsDialog" -->
-            </q-btn>
+            <ViewReportTable :report="props.row" />
           </div>
         </q-td>
       </template>
@@ -44,6 +57,7 @@
 <script setup>
 import { useCakeMakerReportStore } from "src/stores/cake-maker-report";
 import { computed, onMounted } from "vue";
+import ViewReportTable from "./ViewReportTable.vue";
 import { date as quasarDate } from "quasar";
 
 const useCakeMakerReport = useCakeMakerReportStore();
@@ -93,12 +107,34 @@ const cakeReportColumns = [
     field: "name",
   },
   {
+    name: "confirmation_status",
+    label: "Status",
+    align: "center",
+    field: "confirmation_status",
+  },
+  {
     name: "view",
     label: "View",
     align: "center",
     field: "created_at",
   },
 ];
+
+const getBadgeStatusColor = (status) => {
+  switch (status) {
+    case "pending":
+      return "orange";
+    case "declined":
+      return "negative";
+    case "confirmed":
+      return "green";
+    default:
+      return "grey";
+  }
+};
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
 </script>
 
 <style lang="scss" scoped>
