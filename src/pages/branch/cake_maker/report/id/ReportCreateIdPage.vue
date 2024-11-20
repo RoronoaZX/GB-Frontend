@@ -43,14 +43,14 @@
             type="number"
             style="width: 100px"
           />
-          <q-input
+          <!-- <q-input
             v-model="cakeMakerReportForm.pieces"
             outlined
             dense
             label="PCS"
             type="number"
             style="width: 100px"
-          />
+          /> -->
         </div>
 
         <div>
@@ -316,7 +316,7 @@ const cakeMakerReportForm = reactive({
   user_id: user_id,
   name: "",
   layers: "",
-  pieces: "",
+  // pieces: "",
   confirmation_status: "pending",
   price: "",
 });

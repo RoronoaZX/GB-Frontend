@@ -68,10 +68,10 @@
             <div>Layer /s:</div>
             <div class="text-weight-light">{{ report.layers }}</div>
           </div>
-          <div class="row q-gutter-x-sm text-overline">
+          <!-- <div class="row q-gutter-x-sm text-overline">
             <div>Pcs:</div>
             <div class="text-weight-light">{{ report.pieces }}</div>
-          </div>
+          </div> -->
         </div>
         <div>
           <h6 class="text-center">Ingredients</h6>

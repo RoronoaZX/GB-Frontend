@@ -15,6 +15,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     breadReports: [],
     selectaReports: [],
     softdrinksReports: [],
+    cakeReports: [],
     expensesReports: [],
     employeeCreditReports: [],
     denominationReports: [],
@@ -43,6 +44,11 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
     removeSoftdrink(index) {
       this.softdrinksReports.splice(index, 1);
+      this.updateProductsTotalAmount();
+      this.calculateCharges(this.denominationTotal);
+    },
+    removeCake(index) {
+      this.cakeReports.splice(index, 1);
       this.updateProductsTotalAmount();
       this.calculateCharges(this.denominationTotal);
     },
@@ -102,6 +108,16 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.softdrinksReports.push(report);
       }
     },
+
+    updateCakeReport(report) {
+      const index = this.cakeReports.findIndex((r) => r.name === report.name);
+      if (index !== -1) {
+        this.cakeReports.splice(index, 1, report);
+      } else {
+        this.cakeReports.push(report);
+      }
+    },
+
     updateEmployeeCreditReports(report) {
       this.employeeCreditReports.push(report);
     },
@@ -128,7 +144,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
       const totalSalesAmount =
         this.breadTotalAmount +
         this.selectaTotalAmount +
-        this.softdrinksTotalAmount -
+        this.softdrinksTotalAmount +
+        this.cakeTotalAmount -
         this.creditExpensesTotal;
       if (rawTotalDenomination < totalSalesAmount) {
         this.charges = totalSalesAmount - rawTotalDenomination;
@@ -144,7 +161,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.productsTotalAmount =
         this.breadTotalAmount +
         this.selectaTotalAmount +
-        this.softdrinksTotalAmount;
+        this.softdrinksTotalAmount +
+        this.cakeTotalAmount;
     },
     updateExpensesTotalAmount() {
       this.expensesTotalAmount = this.expensesSumAmount;
@@ -194,6 +212,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
         softdrinksReports: this.softdrinksReports,
+        cakeReports: this.cakeReports,
         expensesReports: this.expensesReports,
         denominationReports: this.denominationReports,
         creditReports: this.employeeCreditReports,
@@ -221,9 +240,11 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.expensesReports = [];
         this.denominationReports = [];
         this.employeeCreditReports = [];
+        this.cakeReports = [];
         this.denominationTotal = 0;
         this.expensesTotalAmount = 0;
         this.productsTotalAmount = 0;
+        // this.cakeTotalAmount = 0;
         // this.creditTotalAmount = 0;
         // this.creditExpensesTotal = 0;
         this.charges = 0;
@@ -259,6 +280,11 @@ export const useSalesReportsStore = defineStore("salesReports", {
         0
       );
     },
+    cakeTotalAmount: (state) => {
+      return state.cakeReports
+        .filter((report) => report.sales_status === "sold")
+        .reduce((total, report) => total + Number(report.price), 0);
+    },
     expensesSumAmount: (state) => {
       return state.expensesReports.reduce(
         (total, report) => total + report.amount,
@@ -285,7 +311,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
       return (
         state.breadTotalAmount +
         state.selectaTotalAmount +
-        state.softdrinksTotalAmount
+        state.softdrinksTotalAmount +
+        state.cakeTotalAmount
       );
     },
   },

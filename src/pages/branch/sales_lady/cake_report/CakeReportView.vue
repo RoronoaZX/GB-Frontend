@@ -64,12 +64,12 @@
                 {{ report.layers }}
               </div>
             </div>
-            <div class="row q-gutter-x-sm text-overline">
+            <!-- <div class="row q-gutter-x-sm text-overline">
               <div>Pieces:</div>
               <div class="text-weight-light">
                 {{ report.pieces }}
               </div>
-            </div>
+            </div> -->
           </div>
         </q-card-section>
         <q-card-actions align="right">

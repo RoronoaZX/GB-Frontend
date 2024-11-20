@@ -8,6 +8,7 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
   const cakeMakerReports = ref([]);
   const user = ref({});
   const pendingReports = ref([]);
+  const onDisplayProducts = ref([]);
 
   const setUser = (newUser) => {
     user.value = newUser;
@@ -46,6 +47,15 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
     }
   };
 
+  const fetchOnDisplayProducts = async (branchId) => {
+    console.log("sdasdf", branchId);
+    const response = await api.get(
+      `/api/branch/${branchId}/getCakeOnDisplayProduct`
+    );
+    onDisplayProducts.value = response.data;
+    // console.log("reposne", onDisplayProducts.value);
+  };
+
   const createReports = async (data) => {
     console.log("cake maker reports", data);
     Loading.show();
@@ -78,11 +88,13 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
     cakeMakerReport,
     cakeMakerReports,
     pendingReports,
+    onDisplayProducts,
     setUser,
     clearData,
     createReports,
     fetchCakeReport,
     fetchCakePendingReport,
+    fetchOnDisplayProducts,
     confirmReports,
     // searchBranchRawMaterials,
   };

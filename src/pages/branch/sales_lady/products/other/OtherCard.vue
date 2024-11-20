@@ -1,5 +1,5 @@
 <template>
-  <div>This is other card page</div>
+  <div>This is other card passsaage</div>
 </template>
 
 <script setup></script>

@@ -1,7 +1,7 @@
 <template>
   <!-- <div class="text-h5 q-mb-md">Over All Total</div> -->
 
-  <div class="row q-gutter-sm justify-between">
+  <div class="row q-gutter-x-md q-gutter-y-md item-start">
     <div>
       <div class="text-weight-light">Bread Total Amount</div>
       <div>
@@ -31,6 +31,18 @@
       <div>
         <q-input
           v-model="softdrinksTotalFormatted"
+          readonly
+          outlined
+          dense
+          style="width: 150px"
+        />
+      </div>
+    </div>
+    <div>
+      <div class="text-weight-light">Cake Total Amount</div>
+      <div>
+        <q-input
+          v-model="cakeTotalFormatted"
           readonly
           outlined
           dense
@@ -114,7 +126,9 @@ const formatCurrency = (value) => {
     currency: "PHP",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  })
+    .format(value)
+    .replace("₱", "₱ ");
 };
 
 const salesReportsStore = useSalesReportsStore();
@@ -122,6 +136,7 @@ const salesReportsStore = useSalesReportsStore();
 const breadTotal = computed(() => salesReportsStore.breadTotalAmount);
 const selectaTotal = computed(() => salesReportsStore.selectaTotalAmount);
 const softdrinksTotal = computed(() => salesReportsStore.softdrinksTotalAmount);
+const cakeTotal = computed(() => salesReportsStore.cakeTotalAmount);
 const expensesTotal = computed(() => salesReportsStore.expensesSumAmount);
 const creditsTotal = computed(() => salesReportsStore.creditTotalAmount);
 const chargesTotal = computed(() => salesReportsStore.getCharges);
@@ -134,6 +149,7 @@ const totalSalesAmount = computed(() => {
     breadTotal.value +
     selectaTotal.value +
     softdrinksTotal.value +
+    cakeTotal.value +
     expensesTotal.value
   );
 });
@@ -145,6 +161,7 @@ const selectaTotalFormatted = computed(() =>
 const softdrinksTotalFormatted = computed(() =>
   formatCurrency(softdrinksTotal.value)
 );
+const cakeTotalFormatted = computed(() => formatCurrency(cakeTotal.value));
 const expensesTotalFormatted = computed(() =>
   formatCurrency(expensesTotal.value)
 );
