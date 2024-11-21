@@ -82,7 +82,7 @@ import { ref, reactive } from "vue";
 
 const productStore = useProductsStore();
 const props = defineProps(["edit"]);
-const category = ["Bread", "Selecta", "Softdrinks"];
+const category = ["Bread", "Selecta", "Softdrinks", "Others"];
 const dialog = ref(false);
 
 const editProductForm = reactive({

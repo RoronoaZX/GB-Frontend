@@ -35,6 +35,7 @@
         <SelectaReportField />
         <SoftdrinksReportField />
         <CakeReportField />
+        <OtherReportField />
       </div>
     </q-card-section>
   </q-card>
@@ -51,6 +52,7 @@ import ExpensesReportField from "./components/ExpensesReportField.vue";
 import EmployeeCreditReportField from "./components/EmployeeCreditReportField.vue";
 import ViewOldReports from "./components/ViewOldReports.vue";
 import CakeReportField from "./components/CakeReportField.vue";
+import OtherReportField from "./components/OtherReportField.vue";
 import { ref, reactive } from "vue";
 
 const dialog = ref(false);

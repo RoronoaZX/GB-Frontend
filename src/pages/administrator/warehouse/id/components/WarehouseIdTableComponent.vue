@@ -1,5 +1,6 @@
 <template>
   <div style="height: 300px; overflow: auto">
+    ssss
     <q-table
       flat
       :columns="warehouseTransactionListColumns"
@@ -15,7 +16,7 @@
       </template>
       <template v-slot:body-cell-action="props">
         <q-td class="q-gutter-x-md" :props="props">
-          <WarehouseIdViewComponent />
+          <!-- <WarehouseIdViewComponent /> -->
           <WarehouseIdEditComponent />
           <WarehouseIdDeleteComponent />
         </q-td>
@@ -25,7 +26,7 @@
 </template>
 
 <script setup>
-import WarehouseIdViewComponent from "./WarehouseIdViewComponent.vue";
+// import WarehouseIdViewComponent from "./WarehouseIdViewComponent.vue";
 import WarehouseIdEditComponent from "./WarehouseIdEditComponent.vue";
 import WarehouseIdDeleteComponent from "./WarehouseIdDeleteComponent.vue";
 

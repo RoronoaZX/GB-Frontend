@@ -14,7 +14,7 @@
           :filter="filter"
           :virtual-scroll-sticky-size-start="48"
           flat
-          :columns="breadReportColumns"
+          :columns="selectaReportColumn"
           :rows="filteredRows"
           row-key="name"
           virtual-scroll
@@ -74,7 +74,7 @@ const capitalizeFirstLetter = (location) => {
     .join(" ");
 };
 
-const breadReportColumns = [
+const selectaReportColumn = [
   {
     name: "name",
     label: "Selecta Name",

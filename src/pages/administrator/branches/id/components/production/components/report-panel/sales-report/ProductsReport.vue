@@ -5,14 +5,14 @@
         <div class="text-h6" align="center">Products Report</div>
       </q-card-section>
       <q-card-section>
-        <div class="q-gutter-md" align="center">
+        <div class="item-start q-gutter-md" align="center">
           <q-btn
             @click="handleBreadDialog(props.sales_Reports[0].bread_reports)"
             no-caps
             label="Bread Report"
             rounded
             color="brown"
-            style="width: 150px"
+            style="width: 130px"
             class="user-button"
           />
           <q-btn
@@ -21,7 +21,7 @@
             label="Selecta Report"
             rounded
             color="red-6"
-            style="width: 150px"
+            style="width: 130px"
             class="user-button"
           />
           <q-btn
@@ -41,7 +41,18 @@
             label="Cake Report"
             rounded
             color="teal"
-            style="width: 150px"
+            style="width: 130px"
+            class="user-button"
+          />
+          <q-btn
+            @click="
+              handleOtherProductDialog(productsReport[0].other_products_reports)
+            "
+            no-caps
+            label="Other Products Report"
+            rounded
+            color="blue-grey"
+            style="width: 180px"
             class="user-button"
           />
         </div>
@@ -63,6 +74,7 @@ import BreadReport from "./products/BreadReport.vue";
 import SelectaReport from "./products/SelectaReport.vue";
 import SoftdrinksReport from "./products/SoftdrinksReport.vue";
 import CakeReport from "./products/CakeReport.vue";
+import OtherProductReport from "./products/OtherProductsReport.vue";
 
 const props = defineProps(["sales_Reports"]);
 const productsReport = props.sales_Reports;
@@ -103,6 +115,14 @@ const handleSoftdrinksDialog = (dataReports) => {
 const handleCakeDialog = (dataReports) => {
   $q.dialog({
     component: CakeReport,
+    componentProps: {
+      reports: dataReports,
+    },
+  });
+};
+const handleOtherProductDialog = (dataReports) => {
+  $q.dialog({
+    component: OtherProductReport,
     componentProps: {
       reports: dataReports,
     },

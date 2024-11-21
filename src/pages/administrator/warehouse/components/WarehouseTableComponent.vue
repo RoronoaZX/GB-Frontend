@@ -72,7 +72,7 @@
           <div class="row justify-center q-gutter-x-md">
             <WarehouseEditComponent :edit="props" />
             <WarehouseDeleteComponent :delete="props" />
-            <WarehouseGotoComponent />
+            <!-- <WarehouseGotoComponent /> -->
           </div>
         </q-td>
       </template>
@@ -83,7 +83,7 @@
 <script setup>
 import WarehouseEditComponent from "./WarehouseEditComponent.vue";
 import WarehouseDeleteComponent from "./WarehouseDeleteComponent.vue";
-import WarehouseGotoComponent from "./WarehouseGotoComponent.vue";
+// import WarehouseGotoComponent from "./WarehouseGotoComponent.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useRouter } from "vue-router";

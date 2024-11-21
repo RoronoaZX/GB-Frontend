@@ -90,7 +90,7 @@ import { Notify } from "quasar";
 import { useProductsStore } from "src/stores/product";
 
 const productsStore = useProductsStore();
-const category = ["Bread", "Selecta", "Softdrinks"];
+const category = ["Bread", "Selecta", "Softdrinks", "Others"];
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;

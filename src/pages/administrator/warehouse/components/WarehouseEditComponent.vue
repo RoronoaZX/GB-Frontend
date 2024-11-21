@@ -116,61 +116,6 @@ const saveEditedWarehouse = async () => {
     console.error("Failed to update ingredients:", error);
   }
 };
-
-// const saveEditedWarehouse = async () => {
-//   try {
-//     const originalWarehouse = props.edit.row;
-//     const updatedWarehouse = {
-//       id: originalWarehouse.id,
-//       name: editWarehouseForm.name,
-//       location: editWarehouseForm.location,
-//       person_incharge: editWarehouseForm.person_incharge,
-//       phone: editWarehouseForm.phone,
-//       status: editWarehouseForm.status,
-//     };
-//     const changedFields = [];
-//     if (originalWarehouse.name !== updatedWarehouse.name) {
-//       changedFields.push(
-//         `Name: ${originalWarehouse.name} to ${updatedWarehouse.name}`
-//       );
-//     }
-//     if (originalWarehouse.location !== updatedWarehouse.location) {
-//       changedFields.push(
-//         `Location: ${originalWarehouse.location} to ${updatedWarehouse.location}`
-//       );
-//     }
-//     if (
-//       originalWarehouse.person_incharge !== updatedWarehouse.person_incharge
-//     ) {
-//       changedFields.push(
-//         `Person Incharge: ${originalWarehouse.person_incharge} to ${updatedWarehouse.person_incharge}`
-//       );
-//     }
-//     if (originalWarehouse.phone !== updatedWarehouse.phone) {
-//       changedFields.push(
-//         `Phone: ${originalWarehouse.phone} to ${updatedWarehouse.phone}`
-//       );
-//     }
-//     if (originalWarehouse.status !== updatedWarehouse.status) {
-//       changedFields.push(
-//         `Status: ${originalWarehouse.status} to ${updatedWarehouse.status}`
-//       );
-//     }
-//     await warehouseStore.update(props.edit.row.id, updatedWarehouse);
-//     Notify.create({
-//       type: "warning",
-//       icon: "check",
-//       message: ` Warehouse ${props.edit.row.name} updated successfully`,
-//       position: "top",
-//     });
-//     dialog.value = false;
-//     if (response.status === 2000) {
-//       console.log("Ingredient updated successfully:", response.data);
-//     } else {
-//       console.error("Failed to update ingredient:", response.error);
-//     }
-//   } catch (error) {}
-// };
 </script>
 
 <style scoped>

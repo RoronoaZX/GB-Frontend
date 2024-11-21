@@ -51,6 +51,18 @@
       </div>
     </div>
     <div>
+      <div class="text-weight-light">Other Products Total Amount</div>
+      <div>
+        <q-input
+          v-model="otherProductTotalFormatted"
+          readonly
+          outlined
+          dense
+          style="width: 200px"
+        />
+      </div>
+    </div>
+    <div>
       <div class="text-weight-light">Expenses Total Amount</div>
       <div>
         <q-input
@@ -137,6 +149,9 @@ const breadTotal = computed(() => salesReportsStore.breadTotalAmount);
 const selectaTotal = computed(() => salesReportsStore.selectaTotalAmount);
 const softdrinksTotal = computed(() => salesReportsStore.softdrinksTotalAmount);
 const cakeTotal = computed(() => salesReportsStore.cakeTotalAmount);
+const otherProductsTotal = computed(
+  () => salesReportsStore.otherProductsTotalAmount
+);
 const expensesTotal = computed(() => salesReportsStore.expensesSumAmount);
 const creditsTotal = computed(() => salesReportsStore.creditTotalAmount);
 const chargesTotal = computed(() => salesReportsStore.getCharges);
@@ -150,6 +165,7 @@ const totalSalesAmount = computed(() => {
     selectaTotal.value +
     softdrinksTotal.value +
     cakeTotal.value +
+    otherProductsTotal.value +
     expensesTotal.value
   );
 });
@@ -162,6 +178,9 @@ const softdrinksTotalFormatted = computed(() =>
   formatCurrency(softdrinksTotal.value)
 );
 const cakeTotalFormatted = computed(() => formatCurrency(cakeTotal.value));
+const otherProductTotalFormatted = computed(() =>
+  formatCurrency(otherProductsTotal.value)
+);
 const expensesTotalFormatted = computed(() =>
   formatCurrency(expensesTotal.value)
 );

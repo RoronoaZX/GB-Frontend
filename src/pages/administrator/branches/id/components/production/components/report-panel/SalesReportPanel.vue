@@ -16,6 +16,7 @@
                     class="user-button"
                     @click="openPrintDialog(report)"
                   />
+                  <!-- @click="printPdf(report)" -->
                   <div>
                     <q-tooltip class="bg-blue-grey-6" :delay="200">
                       Print Report
@@ -184,6 +185,21 @@ const generateDocDefinition = (report) => {
       data: report.softdrinks_reports || [],
       columns: [
         "softdrinks.name",
+        "beginnings",
+        "price",
+        "added_stocks",
+        "out",
+        "sold",
+        "remaining",
+        "sales",
+      ],
+      totals: ["sales"],
+    },
+    {
+      title: "Other Products Production",
+      data: report.other_products_reports || [],
+      columns: [
+        "other_products.name",
         "beginnings",
         "price",
         "added_stocks",

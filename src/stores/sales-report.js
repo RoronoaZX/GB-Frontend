@@ -11,12 +11,14 @@ export const useSalesReportsStore = defineStore("salesReports", {
     selectaProducts: [],
     softdrinksProducts: [],
     cakeProducts: [],
+    othersProducts: [],
     reports: [],
     user: {},
     breadReports: [],
     selectaReports: [],
     softdrinksReports: [],
     cakeReports: [],
+    otherProductsReports: [],
     expensesReports: [],
     employeeCreditReports: [],
     denominationReports: [],
@@ -53,6 +55,11 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.updateProductsTotalAmount();
       this.calculateCharges(this.denominationTotal);
     },
+    removeOtherProducts(index) {
+      this.otherProductsReports.splice(index, 1);
+      this.updateProductsTotalAmount();
+      this.calculateCharges(this.denominationTotal);
+    },
     removeEmployeeCreditReport(index) {
       this.employeeCreditReports.splice(index, 1);
       // this.updateEmployeeCreditReports();
@@ -76,6 +83,11 @@ export const useSalesReportsStore = defineStore("salesReports", {
     filterSoftdrinksproducts() {
       this.softdrinksProducts = this.branchProducts.filter(
         (product) => product.category === "Softdrinks"
+      );
+    },
+    filterOthersproducts() {
+      this.othersProducts = this.branchProducts.filter(
+        (product) => product.category === "Others"
       );
     },
 
@@ -109,6 +121,16 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.softdrinksReports.push(report);
       }
     },
+    updateSoftdrinksReport(report) {
+      const index = this.softdrinksReports.findIndex(
+        (r) => r.name === report.name
+      );
+      if (index !== -1) {
+        this.softdrinksReports.splice(index, 1, report);
+      } else {
+        this.softdrinksReports.push(report);
+      }
+    },
 
     updateCakeReport(report) {
       const index = this.cakeReports.findIndex((r) => r.name === report.name);
@@ -116,6 +138,17 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.cakeReports.splice(index, 1, report);
       } else {
         this.cakeReports.push(report);
+      }
+    },
+
+    updateOtherProductsReport(report) {
+      const index = this.otherProductsReports.findIndex(
+        (r) => r.name === report.name
+      );
+      if (index !== -1) {
+        this.otherProductsReports.splice(index, 1, report);
+      } else {
+        this.otherProductsReports.push(report);
       }
     },
 
@@ -163,7 +196,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.breadTotalAmount +
         this.selectaTotalAmount +
         this.softdrinksTotalAmount +
-        this.cakeTotalAmount;
+        this.cakeTotalAmount +
+        this.otherProductsTotalAmount;
     },
     updateExpensesTotalAmount() {
       this.expensesTotalAmount = this.expensesSumAmount;
@@ -191,6 +225,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.filterBreadproducts();
       this.filterSelectaproducts();
       this.filterSoftdrinksproducts();
+      this.filterOthersproducts();
     },
 
     async fetchSalesReports(branchId) {
@@ -213,6 +248,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
         softdrinksReports: this.softdrinksReports,
+        otherProductsReports: this.otherProductsReports,
         cakeReports: this.cakeReports,
         expensesReports: this.expensesReports,
         denominationReports: this.denominationReports,
@@ -238,6 +274,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.breadReports = [];
         this.selectaReports = [];
         this.softdrinksReports = [];
+        this.otherProductsReports = [];
         this.expensesReports = [];
         this.denominationReports = [];
         this.employeeCreditReports = [];
@@ -277,6 +314,12 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
     softdrinksTotalAmount: (state) => {
       return state.softdrinksReports.reduce(
+        (total, report) => total + report.sales,
+        0
+      );
+    },
+    otherProductsTotalAmount: (state) => {
+      return state.otherProductsReports.reduce(
         (total, report) => total + report.sales,
         0
       );
