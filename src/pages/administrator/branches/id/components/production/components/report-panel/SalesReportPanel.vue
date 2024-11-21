@@ -41,9 +41,9 @@
     </q-card-section>
   </q-card>
 
+  <!-- :backdrop-filter="backdropFilter" -->
   <q-dialog
     v-model="printDialog"
-    :backdrop-filter="backdropFilter"
     :maximized="maximizedToggle"
     transition-show="slide-up"
     transition-hide="slide-down"
@@ -194,6 +194,18 @@ const generateDocDefinition = (report) => {
       ],
       totals: ["sales"],
     },
+    {
+      title: "Cake Production",
+      data: report.cake_sales_reports || [],
+      columns: [
+        "cake_report.name",
+        "cake_report.user.employee",
+        "cake_report.layers",
+        "cake_report.price",
+        "cake_report.sales_status",
+      ],
+      totals: ["cake_report.price"],
+    },
   ];
 
   const expensesReport = report.expenses_reports || [];
@@ -240,22 +252,146 @@ const generateDocDefinition = (report) => {
   };
   const formatPrice = (price) => `₱${price.toFixed(2)}`;
 
+  // const generateTableBody = (data, columns, totals) => {
+  //   const totalRow = totals.reduce((acc, key) => {
+  //     acc[key] = data.reduce(
+  //       (sum, item) =>
+  //         sum + (parseFloat(item[key.split(".")[0]][key.split(".")[1]]) || 0),
+  //       0
+  //     );
+  //     return acc;
+  //   }, {});
+
+  //   return [
+  //     ...data.map((row) =>
+  //       columns.map((col) => {
+  //         // Check if column requires fullname formatting
+  //         if (col === "cake_report.user.employee" && row.cake_report.user) {
+  //           return {
+  //             text: formatFullname(row.cake_report.user.employee),
+  //             style: "body",
+  //             alignment: "center",
+  //           };
+  //         }
+
+  //         return {
+  //           text: col.includes(".")
+  //             ? col.split(".").reduce((obj, key) => obj && obj[key], row) || "-"
+  //             : row[col] || "-",
+  //           style: "body",
+  //           alignment: "center",
+  //         };
+  //       })
+  //     ),
+  //     [
+  //       {
+  //         text: "Overall Total",
+  //         colSpan: columns.length - totals.length,
+  //         style: "tableHeader",
+  //         alignment: "right",
+  //         color: "#020617",
+  //       },
+  //       ...Array(columns.length - totals.length - 1).fill({}),
+  //       ...totals.map((key) => ({
+  //         text: totalRow[key] ? totalRow[key].toFixed(2) : "0.00",
+  //         style: "tableHeader",
+  //         alignment: "center",
+  //         color: "#020617",
+  //       })),
+  //     ],
+  //   ];
+  // };
+
+  // const generateTableBody = (data, columns, totals) => {
+  //   const totalRow = totals.reduce((acc, key) => {
+  //     acc[key] = data.reduce((sum, item) => sum + (item[key] || 0), 0);
+  //     return acc;
+  //   }, {});
+
+  //   return [
+  //     ...data.map((item) =>
+  //       columns.map((col) => {
+  //         // Check if column is "cake_report.user.employee"
+  //         if (col === "cake_report.user.employee") {
+  //           // Apply formatFullname if the data exists
+  //           const employee = item.cake_report?.user?.employee;
+  //           return {
+  //             text: employee ? formatFullname(employee) : "No Employee",
+  //             style: "body",
+  //             alignment: "center",
+  //           };
+  //         }
+
+  //         // Default case for other columns
+  //         return {
+  //           text: col.includes(".")
+  //             ? col.split(".").reduce((obj, key) => obj && obj[key], item) ||
+  //               "-"
+  //             : item[col] || "-",
+  //           style: "body",
+  //           alignment: "center",
+  //         };
+  //       })
+  //     ),
+  //     [
+  //       {
+  //         text: "Overall Total",
+  //         colSpan: columns.length - totals.length,
+  //         style: "tableHeader",
+  //         alignment: "right",
+  //         color: "#020617",
+  //       },
+  //       ...Array(columns.length - totals.length - 1).fill({}),
+  //       ...totals.map((key) => ({
+  //         text: key === "sales" ? formatAmount(totalRow[key]) : totalRow[key],
+  //         style: "tableHeader",
+  //         alignment: "center",
+  //         color: "#020617",
+  //       })),
+  //     ],
+  //   ];
+  // };
+
   const generateTableBody = (data, columns, totals) => {
+    // Helper function to fetch nested values using dot notation
+    const getNestedValue = (obj, path) => {
+      return path.split(".").reduce((acc, key) => (acc ? acc[key] : 0), obj);
+    };
+
+    // Calculate totals for the specified fields
     const totalRow = totals.reduce((acc, key) => {
-      acc[key] = data.reduce((sum, item) => sum + (item[key] || 0), 0);
+      acc[key] = data.reduce(
+        (sum, item) => sum + parseFloat(getNestedValue(item, key)) || 0,
+        0
+      );
       return acc;
     }, {});
 
     return [
+      // Generate table body for data rows
       ...data.map((item) =>
-        columns.map((col) => ({
-          text: col.includes(".")
-            ? item[col.split(".")[0]][col.split(".")[1]]
-            : item[col],
-          style: "body",
-          alignment: "center",
-        }))
+        columns.map((col) => {
+          if (col === "cake_report.user.employee") {
+            // Format employee name if the column is for employee details
+            const employee = getNestedValue(item, "cake_report.user.employee");
+            return {
+              text: employee ? formatFullname(employee) : "No Employee",
+              style: "body",
+              alignment: "center",
+            };
+          }
+
+          // Default case for other columns
+          return {
+            text: col.includes(".")
+              ? getNestedValue(item, col) || "-"
+              : item[col] || "-",
+            style: "body",
+            alignment: "center",
+          };
+        })
       ),
+      // Add totals row
       [
         {
           text: "Overall Total",
@@ -266,7 +402,7 @@ const generateDocDefinition = (report) => {
         },
         ...Array(columns.length - totals.length - 1).fill({}),
         ...totals.map((key) => ({
-          text: key === "sales" ? formatAmount(totalRow[key]) : totalRow[key],
+          text: `₱ ${totalRow[key].toFixed(2)}`,
           style: "tableHeader",
           alignment: "center",
           color: "#020617",
@@ -274,6 +410,41 @@ const generateDocDefinition = (report) => {
       ],
     ];
   };
+
+  // const generateTableBody = (data, columns, totals) => {
+  //   const totalRow = totals.reduce((acc, key) => {
+  //     acc[key] = data.reduce((sum, item) => sum + (item[key] || 0), 0);
+  //     return acc;
+  //   }, {});
+
+  //   return [
+  //     ...data.map((item) =>
+  //       columns.map((col) => ({
+  //         text: col.includes(".")
+  //           ? item[col.split(".")[0]][col.split(".")[1]]
+  //           : item[col],
+  //         style: "body",
+  //         alignment: "center",
+  //       }))
+  //     ),
+  //     [
+  //       {
+  //         text: "Overall Total",
+  //         colSpan: columns.length - totals.length,
+  //         style: "tableHeader",
+  //         alignment: "right",
+  //         color: "#020617",
+  //       },
+  //       ...Array(columns.length - totals.length - 1).fill({}),
+  //       ...totals.map((key) => ({
+  //         text: key === "sales" ? formatAmount(totalRow[key]) : totalRow[key],
+  //         style: "tableHeader",
+  //         alignment: "center",
+  //         color: "#020617",
+  //       })),
+  //     ],
+  //   ];
+  // };
 
   const creditReportTableBody =
     creditReport.length > 0
@@ -695,6 +866,14 @@ const generateDocDefinition = (report) => {
     },
     pageMargins: [10, 10, 10, 10], // Reduced page margins for better fit
   };
+};
+
+const openPrintDialog = (report) => {
+  const docDefinition = generateDocDefinition(report);
+  pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
+    pdfUrl.value = dataUrl;
+    printDialog.value = true;
+  });
 };
 
 // const generateDocDefinition = (report) => {
@@ -1250,14 +1429,6 @@ const generateDocDefinition = (report) => {
 //     },
 //   };
 // };
-
-const openPrintDialog = (report) => {
-  const docDefinition = generateDocDefinition(report);
-  pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
-    pdfUrl.value = dataUrl;
-    printDialog.value = true;
-  });
-};
 </script>
 
 <style lang="scss" scoped>

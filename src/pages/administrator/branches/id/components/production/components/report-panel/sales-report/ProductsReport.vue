@@ -35,6 +35,15 @@
             style="width: 150px"
             class="user-button"
           />
+          <q-btn
+            @click="handleCakeDialog(productsReport[0].cake_sales_reports)"
+            no-caps
+            label="Cake Report"
+            rounded
+            color="teal"
+            style="width: 150px"
+            class="user-button"
+          />
         </div>
       </q-card-section>
       <q-card-section>
@@ -53,6 +62,7 @@ import ProductsReportDialog from "./products/ProductsReportDialog.vue";
 import BreadReport from "./products/BreadReport.vue";
 import SelectaReport from "./products/SelectaReport.vue";
 import SoftdrinksReport from "./products/SoftdrinksReport.vue";
+import CakeReport from "./products/CakeReport.vue";
 
 const props = defineProps(["sales_Reports"]);
 const productsReport = props.sales_Reports;
@@ -85,6 +95,14 @@ const handleSelectaDialog = (dataReports) => {
 const handleSoftdrinksDialog = (dataReports) => {
   $q.dialog({
     component: SoftdrinksReport,
+    componentProps: {
+      reports: dataReports,
+    },
+  });
+};
+const handleCakeDialog = (dataReports) => {
+  $q.dialog({
+    component: CakeReport,
     componentProps: {
       reports: dataReports,
     },

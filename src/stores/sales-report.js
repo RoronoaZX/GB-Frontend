@@ -10,6 +10,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     breadProducts: [],
     selectaProducts: [],
     softdrinksProducts: [],
+    cakeProducts: [],
     reports: [],
     user: {},
     breadReports: [],
