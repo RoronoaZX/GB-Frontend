@@ -89,73 +89,30 @@ import { Device } from "@capacitor/device";
 import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
-// import { Device } from "@capacitor/device";
 
-// import CheckUUID from "./CheckUUID.vue";
-// const uuid = ref("");
-
-// const checkDevice = async () => {
-//   try {
-//     const info = await Device.getId();
-//     uuid.value = info;
-//     console.log("Device UUID:", uuid.value);
-//   } catch (error) {
-//     console.error("Error fetching device UUID:", error);
-//   }
-// };
-// Reactive variable to hold machine UUID
-// const machineId = ref(
-//   "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
-// );
-
-// Method to get UUID from Electron using node-machine-id
-// const getUUID = async () => {
-//   if (window.require) {
-//     const { machineId: getMachineId } = window.require("node-machine-id");
-
-//     try {
-//       // Fetch UUID
-//       machineId.value = await getMachineId();
-//       console.log("machineId", machineId.value);
-//     } catch (error) {
-//       console.error("Error fetching machine UUID:", error);
-//     }
-//   } else {
-//     console.warn("Electron not available.");
-//   }
-// };
-
-// Automatically fetch UUID when the component is mounted
-// onMounted(() => {
-//   getUUID();
-// });
-// johndoe@example.com
-// password
-// 946c1697d02c5951
-
-const uuid = ref("b76baeef9c2aef9a");
+const uuid = ref("");
 
 // Method to get UUID from Electron using node-machine-id
 // ===================================================//
 // Use this code for building electron and if you've develop this project to  mobile app comment this out //
-// const getUUID = async () => {
-//   if (window.require) {
-//     try {
-//       // Import `node-machine-id` using `window.require`
-//       const { machineId } = window.require("node-machine-id");
+const getUUID = async () => {
+  if (window.require) {
+    try {
+      // Import `node-machine-id` using `window.require`
+      const { machineId } = window.require("node-machine-id");
 
-//       // Fetch UUID using `machineId` function
-//       uuid.value = await machineId();
-//     } catch (error) {
-//       console.error("Error fetching machine UUID:", error);
-//     }
-//   } else {
-//     console.warn("Electron not available.");
-//   }
-// };
-// onMounted(() => {
-//   getUUID();
-// });
+      // Fetch UUID using `machineId` function
+      uuid.value = await machineId();
+    } catch (error) {
+      console.error("Error fetching machine UUID:", error);
+    }
+  } else {
+    console.warn("Electron not available.");
+  }
+};
+onMounted(() => {
+  getUUID();
+});
 
 const isPwd = ref(true);
 const email = ref("cakemaker1@gmail.com");
@@ -170,7 +127,7 @@ const router = useRouter();
 const activeMenuItem = ref("");
 
 // ===================================================//
-// Use this code for building adroid app and if you've develop this project to  desktop app comment this out //
+// Use this code for building android app and if you've develop this project to  desktop app comment this out //
 // ===================================================//
 
 // const checkDevice = async () => {
