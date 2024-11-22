@@ -133,7 +133,7 @@ import axios, { api } from "src/boot/axios";
 // password
 // 946c1697d02c5951
 
-const uuid = ref("946c1697d02c5951");
+const uuid = ref("b76baeef9c2aef9a");
 
 // Method to get UUID from Electron using node-machine-id
 // ===================================================//

@@ -28,10 +28,6 @@
         </div>
       </q-card-section>
     </q-card>
-
-    <q-dialog v-model="dialog">
-      <q-card> This is dialog </q-card>
-    </q-dialog>
   </div>
 </template>
 

@@ -16,6 +16,7 @@
                     class="user-button"
                     @click="openPrintDialog(report)"
                   />
+                  <!-- @click="openPrintDialog(report)" -->
                   <!-- @click="printPdf(report)" -->
                   <div>
                     <q-tooltip class="bg-blue-grey-6" :delay="200">

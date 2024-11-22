@@ -138,6 +138,7 @@ const rawMaterialsStatusColumns = [
 ];
 
 const getRawMaterialBadgeColor = (row) => {
+  console.log("check total quantity", row.total_quantity);
   const totalQuantity = row.total_quantity;
   const unit = row.ingredients.unit;
   if (unit === "Grams" && totalQuantity < 1000) {
