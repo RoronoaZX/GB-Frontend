@@ -78,45 +78,47 @@
         </div>
       </q-form>
     </q-card-section>
-    this is uuid {{ uuid }}
+    <!-- this is uuid {{ uuid }} -->
     <!-- <CheckUUID /> -->
   </q-card>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { Device } from "@capacitor/device";
+// import { Device } from "@capacitor/device";
 import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
 
-const uuid = ref("");
+const uuid = ref(
+  "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
+);
 
 // Method to get UUID from Electron using node-machine-id
 // ===================================================//
 // Use this code for building electron and if you've develop this project to  mobile app comment this out //
-const getUUID = async () => {
-  if (window.require) {
-    try {
-      // Import `node-machine-id` using `window.require`
-      const { machineId } = window.require("node-machine-id");
+// const getUUID = async () => {
+//   if (window.require) {
+//     try {
+//       // Import `node-machine-id` using `window.require`
+//       const { machineId } = window.require("node-machine-id");
 
-      // Fetch UUID using `machineId` function
-      uuid.value = await machineId();
-    } catch (error) {
-      console.error("Error fetching machine UUID:", error);
-    }
-  } else {
-    console.warn("Electron not available.");
-  }
-};
-onMounted(() => {
-  getUUID();
-});
+//       // Fetch UUID using `machineId` function
+//       uuid.value = await machineId();
+//     } catch (error) {
+//       console.error("Error fetching machine UUID:", error);
+//     }
+//   } else {
+//     console.warn("Electron not available.");
+//   }
+// };
+// onMounted(() => {
+//   getUUID();
+// });
 
 const isPwd = ref(true);
-const email = ref("cakemaker1@gmail.com");
-const password = ref("password");
+const email = ref("");
+const password = ref("");
 // const uuid = ref("");
 const loading = ref(false);
 
@@ -148,6 +150,10 @@ const activeMenuItem = ref("");
 // onMounted(() => {
 //   checkDevice();
 // });
+
+// ===================================================//
+// Use this code for building android app and if you've develop this project to  desktop app comment this out //
+// ===================================================//
 
 const login = async () => {
   Loading.show();

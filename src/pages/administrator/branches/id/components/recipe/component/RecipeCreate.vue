@@ -179,13 +179,15 @@
             <div>
               <div align="center">Quantity</div>
               <q-input
-                v-model="selectedIngredients.quantity"
+                v-model.number="selectedIngredients.quantity"
                 outlined
-                mask="#####"
                 dense
+                type="number"
                 label="Quantity"
-                :suffix="selectedIngredients.name.unit || ''"
+                :suffix="selectedIngredients?.name?.unit || ''"
                 style="width: 115px"
+                hint="Enter the quantity as a decimal"
+                mask="##.##"
               />
             </div>
           </div>
