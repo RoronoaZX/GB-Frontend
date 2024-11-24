@@ -2,9 +2,9 @@ import { boot } from "quasar/wrappers";
 import axios from "axios";
 // http://localhost:8000
 // https://gb-bakeshop.store
-let url = "https://gb-bakeshop.store";
+let url = "http://localhost:8000";
 if (process.env.NODE_ENV === "production") {
-  url = "https://gb-bakeshop.store";
+  url = "https://gbs-minimart.store";
 }
 const api = axios.create({ baseURL: url });
 
