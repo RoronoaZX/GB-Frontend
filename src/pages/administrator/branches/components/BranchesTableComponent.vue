@@ -229,6 +229,7 @@ const getBadgeStatusColor = (status) => {
 };
 
 const goToBranch = async (branch) => {
+  console.log("brach", branch);
   Loading.show();
   try {
     await router.push({

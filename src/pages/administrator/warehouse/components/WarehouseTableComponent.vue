@@ -38,18 +38,19 @@
       :rows-per-page-options="[0]"
       hide-bottom
     >
-      <!-- <template>
+      <template v-slot:body-cell-name="props">
         <q-td key="name" :props="props">
-          <a @click.prevent="goToBranch(props.row)" class="warehouse-link">
-            {{ props.row.name }}
+          <a @click.prevent="goToWarehouse(props.row)" class="warehouse-link">
+            {{ capitalizeFirstLetter(props.row.name) }}
+            <!-- <span class="tooltip-text">Go to store</span> -->
           </a>
         </q-td>
-      </template> -->
-      <template v-slot:body-cell-name="props">
+      </template>
+      <!-- <template v-slot:body-cell-name="props">
         <q-td :props="props">
           {{ capitalizeFirstLetter(props.row.name) }}
         </q-td>
-      </template>
+      </template> -->
       <template v-slot:body-cell-location="props">
         <q-td :props="props">
           {{ capitalizeFirstLetter(props.row.location) }}
@@ -265,12 +266,16 @@ const getBadgeColor = (status) => {
   return status === "Open" ? "info" : "accent";
 };
 
-const goToWarehouse = async (branch) => {
+const goToWarehouse = async (warehouse) => {
+  console.log("waraehouse", warehouse);
   Loading.show();
   try {
     await router.push({
-      name: "BranchDetail",
-      params: { branch_id: branch.id },
+      name: "WarehouseDetail",
+      params: {
+        warehouse_id: warehouse.id,
+        warehouse_name: warehouse.name || "Unknown Warehouse",
+      },
     });
   } finally {
     Loading.hide();

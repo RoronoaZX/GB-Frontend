@@ -1,12 +1,29 @@
 import { defineStore } from "pinia";
 import { Loading, Notify } from "quasar";
 import { api } from "src/boot/axios";
+import ReportSearchComponent from "src/pages/branch/baker/report/id/components/ReportSearchComponent.vue";
 import { ref } from "vue";
 
 export const useWarehousesStore = defineStore("warehouses", () => {
   const warehouse = ref(null);
   const warehouses = ref([]);
+  const warehouseBranchReports = ref([]);
 
+  const fetchWarehouseByBranchID = async (warehouseId) => {
+    try {
+      const response = await api.get(
+        `/api/warehouse/${warehouseId}/warehouseBranchReports`
+      );
+      warehouseBranchReports.value = response.data;
+      console.log("reponsess waREHOUSE ", response.data);
+    } catch (error) {}
+  };
+
+  const fetchCertainWarehouse = async (warehouseId) => {
+    const response = await api.get(`/api/warehouse/${warehouseId}`);
+    warehouse.value = response.data;
+    console;
+  };
   const fetchWarehouses = async () => {
     // Loading.show();
     try {
@@ -116,10 +133,13 @@ export const useWarehousesStore = defineStore("warehouses", () => {
   return {
     warehouse,
     warehouses,
+    warehouseBranchReports,
     fetchWarehouses,
     createWarehouses,
     updateWarehouses,
     deleteWarehouse,
     fetchWarehouseWithEmployee,
+    fetchWarehouseByBranchID,
+    fetchCertainWarehouse,
   };
 });

@@ -1,6 +1,7 @@
 <template>
   <div style="height: 300px; overflow: auto">
-    ssss
+    ssss {{ warehouseID }}
+    {{ branchReports }}
     <q-table
       flat
       :columns="warehouseTransactionListColumns"
@@ -29,6 +30,41 @@
 // import WarehouseIdViewComponent from "./WarehouseIdViewComponent.vue";
 import WarehouseIdEditComponent from "./WarehouseIdEditComponent.vue";
 import WarehouseIdDeleteComponent from "./WarehouseIdDeleteComponent.vue";
+import { useWarehousesStore } from "src/stores/warehouse";
+import { useRoute, useRouter } from "vue-router";
+import { onMounted, computed, watch } from "vue";
+
+const route = useRoute();
+const router = useRouter();
+const warehouseStore = useWarehousesStore();
+const branchReports = computed(() => warehouseStore.warehouseBranchReports);
+// const warehouseID = route.params.warehouse_id;
+// const warehouseName = route.params.warehouse_name;
+
+const warehouseID = computed(() => route.params.warehouse_id || null);
+// const warehouseName = computed(
+//   () => route.params.warehouse_name || "Unknown Warehouse"
+// );
+
+// const getWarehouse = async () => {
+//   const warehouseId = warehouseID.value;
+//   console.log("wareg=house", warehouseId);
+
+//   await warehouseStore.fetchWarehouseByBranchID(warehouseId);
+// };
+// onMounted(() => {
+//   getWarehouse();
+// });
+
+watch(
+  warehouseID,
+  async (id) => {
+    if (id) {
+      await warehouseStore.fetchWarehouseByBranchID(id);
+    }
+  },
+  { immediate: true }
+);
 
 const warehouseTransactionListColumns = [
   {

@@ -8,7 +8,7 @@
         </div>
         <div>
           <q-icon name="factory" />
-          Warehouse 1
+          {{ warehouse.name }}
         </div>
       </div>
     </q-card-section>
@@ -18,16 +18,7 @@
         <!-- <WarehouseTransactionSearch /> -->
       </div>
     </q-card-section>
-    <!-- <div class="row q-mx-sm">
-            <div class="text-dark q-mt-xm q-mr-sm">Status Origin:</div>
-                        <div class="q-gutter-x-sm">
-                            <q-badge label="Processing" class="text-white"  color="blue"/>
-                            <q-badge label="To Recieved" class="text-white"  color="deep-orange-5"/>
-                            <q-badge label="Received" class="text-white"  color="green"/>
-                            <q-badge label="Transaction Failed" class="text-white"  color="negative"/>
-                            <q-badge label="Normal Transaction" class="text-white"  color="grey"/>
-                        </div>
-        </div> -->
+
     <q-card-section>
       <!-- <WarehouseTransactionTable /> -->
       <WarehouseIdTableComponent />
@@ -35,5 +26,31 @@
   </q-card>
 </template>
 <script setup>
+import { computed, watch } from "vue";
 import WarehouseIdTableComponent from "./components/WarehouseIdTableComponent.vue";
+import { useRoute } from "vue-router";
+import { useWarehousesStore } from "src/stores/warehouse";
+
+const route = useRoute();
+const warehouseStore = useWarehousesStore();
+const warehouse = computed(() => warehouseStore.warehouse);
+const warehouseId = computed(
+  () => route.params.warehouse_id || "Unknown Warehouse"
+);
+
+watch(
+  warehouseId,
+  async (id) => {
+    if (id) {
+      await warehouseStore.fetchCertainWarehouse(id);
+    }
+  },
+  {
+    immediate: true,
+  }
+);
+
+// const fetchWarehouse = async () => {
+//   await warehouseStore.fetchCertainWarehouse(warehouseId.value);
+// };
 </script>

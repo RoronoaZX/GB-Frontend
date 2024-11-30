@@ -51,6 +51,7 @@ const routes = [
         path: "warehouse/:warehouse_id",
         component: () =>
           import("pages/administrator/warehouse/id/WarehouseIdPage.vue"),
+        name: "WarehouseDetail",
       },
       {
         path: "products",
