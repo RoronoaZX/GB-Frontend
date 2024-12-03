@@ -201,6 +201,8 @@ const login = async () => {
       await router.push("/branch/cake_maker/raw_materials");
     } else if (role === "Cashier") {
       await router.push("/branch/sales_lady/products");
+    } else if (role === "Scaler") {
+      await router.push("/warehouse");
     }
     // else if (role === "Supervisor") {
     //   await router.push("/supervisor/reports");

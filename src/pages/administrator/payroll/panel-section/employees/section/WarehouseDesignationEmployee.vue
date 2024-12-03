@@ -5,12 +5,17 @@
     align="center"
   >
     <div class="q-mb-md text-center">
-      <q-icon name="add_business" size="60px" color="yellow-7" />
+      <q-icon
+        name="factory"
+        size="20px"
+        color="blue-grey-6
+"
+      />
     </div>
 
     <div class="text-center">
       <div class="text-subtitle1 text-weight-medium">
-        Add Employee Designations
+        Warehouse Designations
       </div>
     </div>
   </q-card>
@@ -20,7 +25,7 @@
     backdrop-filter="blur(4px) saturate(150%)"
     position="right"
   >
-    <q-card style="width: 500px; max-width: 100vw">
+    <q-card style="width: 600px; max-width: 100vw">
       <q-card-section
         class="row items-center q-px-md q-py-sm bg-gradient text-white"
       >
@@ -92,16 +97,16 @@
         <div class="row q-gutter-x-md">
           <div>
             <q-select
-              v-model="addDesignation.branch_name"
+              v-model="addDesignation.warehouse_name"
               outlined
               flat
               dense
               use-input
               clearable
               input-debounce="0"
-              :options="filterBranchOptions"
-              label="Branch"
-              @filter="filteredBranches"
+              :options="filterWarehouseOptions"
+              label="Warehouse"
+              @filter="filteredWarehouse"
               hide-dropdown-icon
               behavior="menu"
               style="width: 250px; max-width: 500px; min-width: 100px"
@@ -139,8 +144,8 @@
 
 <script setup>
 import { useEmployeeStore } from "src/stores/employee";
-import { useBranchesStore } from "src/stores/branch";
-import { useDesignationStore } from "src/stores/designation";
+import { useWarehousesStore } from "src/stores/warehouse";
+import { useWarehouseEmployeeStore } from "src/stores/warehouse-employee";
 import { onMounted, computed, reactive, ref } from "vue";
 
 const widthStyle = computed(() => {
@@ -149,13 +154,13 @@ const widthStyle = computed(() => {
 });
 
 const designationDialog = ref(false);
-const designationStore = useDesignationStore();
+const warehouseEmployee = useWarehouseEmployeeStore();
 const employeeStore = useEmployeeStore();
-const branchesStore = useBranchesStore();
-const branchOptions = ref([]);
+const warehouseStore = useWarehousesStore();
+const warehouseOptions = ref([]);
 const selectedBranch = ref([]);
 const searchKeyword = ref("");
-const filterBranchOptions = ref(branchOptions.value);
+const filterWarehouseOptions = ref(warehouseOptions.value);
 const loading = ref(false);
 const searchLoading = ref(false);
 
@@ -173,24 +178,24 @@ const valididateTime = (val) => {
   return timeRegex.test(val) || "Invalid time format";
 };
 
-const fetchBranchesData = async () => {
-  const branch = await branchesStore.fetchBranches();
-  branchOptions.value = branchesStore.branches.map((val) => ({
+const fetchWarehouse = async () => {
+  const warehouse = await warehouseStore.fetchWarehouses();
+  warehouseOptions.value = warehouseStore.warehouses.map((val) => ({
     label: val.name,
     value: val.id,
   }));
-  filterBranchOptions.value = branchOptions.value;
+  filterWarehouseOptions.value = warehouseOptions.value;
 };
 
-onMounted(fetchBranchesData);
+onMounted(fetchWarehouse);
 
-const filteredBranches = (val, update) => {
+const filteredWarehouse = (val, update) => {
   update(() => {
     const needle = val.toLowerCase();
-    filterBranchOptions.value =
+    filterWarehouseOptions.value =
       val === ""
-        ? branchOptions.value
-        : branchOptions.value.filter((v) =>
+        ? warehouseOptions.value
+        : warehouseOptions.value.filter((v) =>
             v.label.toLowerCase().includes(needle)
           );
   });
@@ -243,7 +248,7 @@ const addDesignation = reactive({
   employee_id: "",
   employee_name: "",
   position: "",
-  branch_name: "",
+  warehouse_name: "",
   time_shift: "",
 });
 
@@ -251,7 +256,7 @@ const clearDesignationForm = () => {
   addDesignation.employee_id = "";
   addDesignation.employee_name = "";
   addDesignation.position = "";
-  addDesignation.branch_name = "";
+  addDesignation.warehouse_name = "";
   addDesignation.time_shift = "";
 };
 
@@ -259,10 +264,10 @@ const save = async () => {
   loading.value = true;
   const designation = {
     ...addDesignation,
-    branch_id: addDesignation.branch_name.value,
+    warehouse_id: addDesignation.warehouse_name.value,
   };
 
-  await designationStore.createDesignation(designation);
+  await warehouseEmployee.createWarehouseEmployee(designation);
   console.log("Designation Data to Save:", designation);
   loading.value = false;
   clearDesignationForm();

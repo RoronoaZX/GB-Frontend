@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { Loading, Notify } from "quasar";
 import { api } from "src/boot/axios";
-import ReportSearchComponent from "src/pages/branch/baker/report/id/components/ReportSearchComponent.vue";
 import { ref } from "vue";
 
 export const useWarehousesStore = defineStore("warehouses", () => {
@@ -22,7 +21,6 @@ export const useWarehousesStore = defineStore("warehouses", () => {
   const fetchCertainWarehouse = async (warehouseId) => {
     const response = await api.get(`/api/warehouse/${warehouseId}`);
     warehouse.value = response.data;
-    console;
   };
   const fetchWarehouses = async () => {
     // Loading.show();
