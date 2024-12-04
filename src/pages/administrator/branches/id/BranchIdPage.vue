@@ -26,6 +26,7 @@
             <q-tab name="rawMaterials" label="Raw Materials" />
             <q-tab name="recipe" label="Recipe" />
             <q-tab name="production" label="Production" />
+            <q-tab name="transaction" label="Transactions" />
           </q-tabs>
         </div>
 
@@ -46,6 +47,10 @@
             <q-tab-panel name="production">
               <ProductionPage />
             </q-tab-panel>
+
+            <q-tab-panel name="transaction">
+              <TransactionPage />
+            </q-tab-panel>
           </q-tab-panels>
         </q-card>
       </div>
@@ -56,6 +61,7 @@
 import ProductPage from "./components/products/ProductPage.vue";
 import RawMaterialsPage from "./components/raw_materials/RawMaterialsPage.vue";
 import ProductionPage from "./components/production/ProductionPage.vue";
+import TransactionPage from "./components/transactions/TransactionPage.vue";
 import RecipePage from "./components/recipe/RecipePage.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";

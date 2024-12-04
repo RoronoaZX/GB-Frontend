@@ -206,7 +206,7 @@ watch(
 
 onMounted(async () => {
   const userData = salesReportsStore.user;
-  const branchId = userData?.data?.employee?.branch_employee.branch_id || "";
+  const branchId = userData?.employee?.branch_id || "";
   if (branchId) {
     await fetchProducts(branchId);
   }
@@ -234,7 +234,7 @@ const saveReport = () => {
   if (selectedItem.value) {
     const report = {
       user_id: userData?.data.id,
-      branch_id: userData?.data?.employee?.branch_employee?.branch_id || "",
+      branch_id: userData?.employee?.branch_id || "",
       product_id: selectedItem.value.product.id,
       name: selectedItem.value.product.name,
       total: selectedItem.value.total_quantity,

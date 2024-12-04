@@ -4,9 +4,9 @@
       <div>
         <SelectaSearch />
       </div>
-      <!-- <div>
-        <SelectaReportCreate />
-      </div> -->
+      <div>
+        <SelectaAddStocks />
+      </div>
     </div>
   </div>
   <div>
@@ -15,6 +15,7 @@
 </template>
 <script setup>
 import SelectaSearch from "../selecta/components/SelectaSearch.vue";
-import SelectaReportCreate from "../selecta/components/SelectaReportCreate.vue";
+import SelectaAddStocks from "../selecta/components/SelectaAddStocks.vue";
+// import SelectaReportCreate from "../selecta/components/SelectaReportCreate.vue";
 import SelectaCard from "../selecta/components/SelectaCard.vue";
 </script>
