@@ -1,20 +1,26 @@
 <template>
   <div>
-    <!-- <div class="text-h6"></div> -->
     <q-scroll-area style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <q-card>
+        <q-card v-for="(pending, index) in selectaProductsPending" :key="index">
           <q-card-section>
-            {{ selectaProductsPending }}
+            <!-- Display the Selecta product status and creation time -->
             <div class="row justify-between">
-              <div class="text-subtitle1">Dec 02, 2024</div>
-              <div class="text-subtitle1">03:00 PM</div>
-              <div class="text-subtitle1">Branch Name - Cashier 1</div>
+              <div class="text-subtitle1">
+                {{ formatDate(pending.created_at) }}
+              </div>
+              <div class="text-subtitle1">
+                {{ formatTime(pending.created_at) }}
+              </div>
+              <div class="text-subtitle1">
+                {{ pending.branch.name }} -
+                {{ formatFullname(pending.employee) }}
+              </div>
               <div>
                 <q-badge outlined> Pending </q-badge>
               </div>
               <div>
-                <TransactionView />
+                <TransactionView :report="pending" />
               </div>
             </div>
           </q-card-section>
@@ -29,19 +35,21 @@ import { useSelectaProductsStore } from "src/stores/selecta-product";
 import TransactionView from "./TransactionView.vue";
 import { useRoute } from "vue-router";
 import { date as quasarDate } from "quasar";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const route = useRoute();
 const selectaProductStore = useSelectaProductsStore();
 const selectaProductsPending = computed(
-  () => selectaProductStore.selectaProducts
+  () => selectaProductStore.pendingSelectaReports
 );
 
 const branchId = route.params.branch_id;
+const category = ref("pending");
 const fetchPendingSelectaStocks = async () => {
   try {
     const stocks = await selectaProductStore.fetchPendingSelectaStocks(
-      branchId
+      branchId,
+      category.value
     );
     console.log(selectaProductsPending.value);
   } catch (error) {

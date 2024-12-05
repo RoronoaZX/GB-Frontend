@@ -128,6 +128,7 @@ const openRemarkDialog = () => {
 const $q = useQuasar();
 const bakerReports = useBakerReportsStore();
 const bakersReportDialog = ref(false);
+const remark = ref("");
 
 const openBakersReportsDialog = () => {
   bakersReportDialog.value = true;

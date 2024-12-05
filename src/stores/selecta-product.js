@@ -5,13 +5,41 @@ import { ref } from "vue";
 export const useSelectaProductsStore = defineStore("selectaProduct", () => {
   const selectaProduct = ref(null);
   const selectaProducts = ref([]);
+  const pendingSelectaReports = ref([]);
+  const confirmedSelectaReports = ref([]);
 
-  const fetchPendingSelectaStocks = async (branchId) => {
+  const fetchPendingSelectaStocks = async (branchId, status) => {
+    console.log("branchId", branchId);
+    console.log("category", status);
+
     try {
       const response = await api.get(
-        `/api/selecta-added-stocks/${branchId}/pending-reports`
+        `/api/selecta-added-stocks/${branchId}/pending-reports`, // Include branchId in the URL
+        {
+          params: {
+            status: status, // Keep category in the query parameters
+          },
+        }
       );
-      selectaProducts.value = response.data;
+      pendingSelectaReports.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchConfirmedSelectaStocks = async (branchId, status) => {
+    console.log("branchId", branchId);
+    console.log("category", status);
+
+    try {
+      const response = await api.get(
+        `/api/selecta-added-stocks/${branchId}/confirmed-reports`, // Include branchId in the URL
+        {
+          params: {
+            status: status, // Keep category in the query parameters
+          },
+        }
+      );
+      confirmedSelectaReports.value = response.data;
     } catch (error) {
       console.log(error);
     }
@@ -31,7 +59,7 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
 
       selectaProducts.value = response.data;
 
-      console.log("fetch data", response.data);
+      console.log("fetch datasss", response.data);
     } catch (error) {
       console.error("Error fetching branch selecta products:", error);
       throw error; // Re-throw the error to handle it in the calling function if necessary
@@ -57,9 +85,19 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
   const createSelectaStocks = async (data) => {
     console.log(data);
     try {
-      const response = await api.post("/api/selecta-stocks-added", data);
+      const response = await api.post("/api/selecta-stocks-report", data);
 
       selectaProducts.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const confirmReport = async (id) => {
+    console.log("id", id);
+    try {
+      const response = await api.post(`/api/confirm-selecta-report/${id}`);
+      return response.data;
     } catch (error) {
       console.log(error);
     }
@@ -68,9 +106,13 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
   return {
     selectaProduct,
     selectaProducts,
+    pendingSelectaReports,
+    confirmedSelectaReports,
     searchSelectaProducts,
     createSelectaStocks,
     fetchPendingSelectaStocks,
     fetchBranchSelectaProduct,
+    confirmReport,
+    fetchConfirmedSelectaStocks,
   };
 });

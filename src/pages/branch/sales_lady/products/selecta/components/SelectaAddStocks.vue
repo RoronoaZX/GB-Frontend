@@ -42,7 +42,7 @@
               >
                 <q-item-section>
                   <q-item-label class="text-caption">{{
-                    selectaProduct.label
+                    capitalizeFirstLetter(selectaProduct.label)
                   }}</q-item-label>
                 </q-item-section>
                 <q-item-section class="text-caption"
@@ -146,6 +146,7 @@ import { Notify } from "quasar";
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 const branches_id = userData?.employee?.branch_id || "";
+const employee_id = userData?.employee?.employee_id || "";
 const selectaProductStore = useSelectaProductsStore();
 const selectaProductsData = computed(() => selectaProductStore.selectaProducts);
 const dialog = ref(false);
@@ -185,6 +186,7 @@ const fetchBranchSelecta = async () => {
         return {
           label: val.name,
           value: val.id,
+          price: val.price,
         };
       }
     );
@@ -223,12 +225,17 @@ const addSelectaStocks = () => {
 
   const foundObject = findObjectById(data, idToSearch);
   if (!foundObject) {
+    const selectedProduct = selectaProductsOptions.value.find(
+      (product) => product.value === idToSearch
+    );
+
     selectaProductsGroups.value = [
       ...data,
       {
         product_id: selectedSelectaProducts.name.value,
         label: selectedSelectaProducts.name.label,
         added_stocks: selectedSelectaProducts.added_stocks,
+        price: selectedProduct.price, // Add the product price here
       },
     ];
     clearData();
@@ -236,12 +243,42 @@ const addSelectaStocks = () => {
     Notify.create({
       type: "negative",
       icon: "warning",
-      message: "Ingredient already exist",
+      message: "Ingredient already exists",
       timeout: 2000,
     });
-    // al
   }
 };
+
+// const addSelectaStocks = () => {
+//   const data = selectaProductsGroups.value;
+
+//   function findObjectById(arr, id) {
+//     return arr.find((obj) => obj.product_id == id);
+//   }
+//   const idToSearch = selectedSelectaProducts.name.value;
+
+//   const foundObject = findObjectById(data, idToSearch);
+//   if (!foundObject) {
+//     selectaProductsGroups.value = [
+//       ...data,
+//       {
+//         product_id: selectedSelectaProducts.name.value,
+//         label: selectedSelectaProducts.name.label,
+//         added_stocks: selectedSelectaProducts.added_stocks,
+//         price: selectedProduct.price,
+//       },
+//     ];
+//     clearData();
+//   } else {
+//     Notify.create({
+//       type: "negative",
+//       icon: "warning",
+//       message: "Ingredient already exist",
+//       timeout: 2000,
+//     });
+//     // al
+//   }
+// };
 
 const removeSelectaProduct = (index) => {
   selectaProductsGroups.value.splice(index, 1);
@@ -285,16 +322,38 @@ const addSelectastocks = reactive({
 
 const save = async () => {
   try {
-    const { product_name, ...data } = addSelectastocks;
-    data.branches_id = userData?.employee?.branch_id || "";
-    data.status = "pending";
+    // Prepare the data to be sent
+    const data = {
+      branches_id: userData?.employee?.branch_id || "",
+      employee_id: userData?.employee?.employee_id || "",
+      status: "pending",
+      products: selectaProductsGroups.value, // Include the array
+    };
+
+    // Call the API to save the data
     await selectaProductStore.createSelectaStocks(data);
-    console.log("data to send", data);
-    // await reloadTableData(route.params.branch_id);
+
+    console.log("Data sent to backend:", data);
+
+    // Clear form and close dialog
     clearForm();
     dialog.value = false;
+
+    // Notify the user of success
+    Notify.create({
+      type: "positive",
+      message: "Selecta stocks successfully saved!",
+      timeout: 2000,
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error saving selecta stocks:", error);
+
+    // Notify the user of an error
+    Notify.create({
+      type: "negative",
+      message: "An error occurred while saving selecta stocks.",
+      timeout: 2000,
+    });
   }
 };
 </script>
