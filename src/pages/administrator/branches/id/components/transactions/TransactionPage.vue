@@ -23,6 +23,12 @@
         icon="calendar_month"
         label="Confirm Reports"
       />
+      <q-tab
+        class="text-white"
+        name="declineReports"
+        icon="calendar_month"
+        label="Decline Reports"
+      />
     </q-tabs>
   </div>
   <q-tab-panels v-model="tab" animated>
@@ -30,8 +36,11 @@
       <TransactionPendingCard />
     </q-tab-panel>
     <q-tab-panel name="confirmReports">
-      <div class="text-h4 q-mb-md">Movies</div>
       <TransactionConfirmedCard />
+      <!-- <EmployeeAttendanceButton align="right" /> -->
+    </q-tab-panel>
+    <q-tab-panel name="declineReports">
+      <TransactionDeclinedCard />
       <!-- <EmployeeAttendanceButton align="right" /> -->
     </q-tab-panel>
   </q-tab-panels>
@@ -41,6 +50,7 @@
 import { ref } from "vue";
 import TransactionPendingCard from "./components/pending-reports/TransactionPendingCard.vue";
 import TransactionConfirmedCard from "./components/confirm-reports/TransactionConfirmedCard.vue";
+import TransactionDeclinedCard from "./components/decline-reports/TransactionDeclinedCard.vue";
 
 const tab = ref("pendingReports");
 </script>

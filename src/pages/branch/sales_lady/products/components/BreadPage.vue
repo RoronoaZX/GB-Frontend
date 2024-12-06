@@ -2,7 +2,7 @@
   <div class="q-gutter-y-md">
     <div class="row justify-between">
       <div>
-        <BreadSearch />
+        <!-- <BreadSearch /> -->
       </div>
       <!-- <div>
         <BreadReportCreate />

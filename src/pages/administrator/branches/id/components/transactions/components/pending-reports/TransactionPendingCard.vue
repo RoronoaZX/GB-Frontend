@@ -17,7 +17,7 @@
                 {{ formatFullname(pending.employee) }}
               </div>
               <div>
-                <q-badge outlined> Pending </q-badge>
+                <q-badge color="yellow" outlined> Pending </q-badge>
               </div>
               <div>
                 <TransactionView :report="pending" />

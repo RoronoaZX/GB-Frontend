@@ -3,29 +3,27 @@
     <q-scroll-area style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
         <q-card
-          v-for="(confirmed, index) in selectaProductsConfirmed"
+          v-for="(decline, index) in selectedProductsDeclined"
           :key="index"
         >
           <q-card-section>
             <!-- Display the Selecta product status and creation time -->
             <div class="row justify-between">
               <div class="text-subtitle1">
-                {{ formatDate(confirmed.created_at) }}
+                {{ formatDate(decline.created_at) }}
               </div>
               <div class="text-subtitle1">
-                {{ formatTime(confirmed.created_at) }}
+                {{ formatTime(decline.created_at) }}
               </div>
               <div class="text-subtitle1">
-                {{ confirmed.branch.name }} -
-                {{ formatFullname(confirmed.employee) }}
+                {{ decline.branch.name }} -
+                {{ formatFullname(decline.employee) }}
               </div>
               <div>
-                <q-badge color="green" outlined>
-                  {{ confirmed.status }}
-                </q-badge>
+                <q-badge color="red" outlined> {{ decline.status }} </q-badge>
               </div>
               <div>
-                <TransactionView :report="confirmed" />
+                <TransactionView :report="decline" />
               </div>
             </div>
           </q-card-section>
@@ -44,27 +42,27 @@ import { computed, onMounted, ref } from "vue";
 
 const route = useRoute();
 const selectaProductStore = useSelectaProductsStore();
-const selectaProductsConfirmed = computed(
-  () => selectaProductStore.confirmedSelectaReports
+const selectedProductsDeclined = computed(
+  () => selectaProductStore.declinedSelectaReports
 );
 
 const branchId = route.params.branch_id;
-const category = ref("confirmed");
-const fetchConfirmedSelectaStocks = async () => {
+const category = ref("declined");
+const fetchDeclinedSelectaStocks = async () => {
   try {
-    const stocks = await selectaProductStore.fetchConfirmedSelectaStocks(
+    const stocks = await selectaProductStore.fetchDeclinedSelectaStocks(
       branchId,
       category.value
     );
-    console.log(selectaProductsConfirmed.value);
+    console.log("selectedProductsDeclined", selectedProductsDeclined.value);
   } catch (error) {
-    console.error("Error fetching confirmed stocks:", error);
+    console.error("Error fetching decline stocks:", error);
   }
 };
 
 onMounted(async () => {
   if (branchId) {
-    await fetchConfirmedSelectaStocks(branchId);
+    await fetchDeclinedSelectaStocks(branchId);
   }
 });
 

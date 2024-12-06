@@ -35,7 +35,7 @@
         </div>
         <div>
           Status:
-          <q-badge color="yellow" outlined> {{ report.status }} </q-badge>
+          <q-badge color="red" outlined> {{ report.status }} </q-badge>
         </div>
       </q-card-section>
       <q-card-section>
@@ -54,7 +54,7 @@
           class="table-container sticky-header"
         />
       </q-card-section>
-      <q-card-section class="report-actions q-gutter-sm" align="right">
+      <!-- <q-card-section class="report-actions q-gutter-sm" align="right">
         <q-btn
           color="negative"
           label="Decline"
@@ -67,11 +67,11 @@
           class="action-btn"
           @click="confirmReport"
         />
-      </q-card-section>
+      </q-card-section> -->
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="remarkDialog">
+  <!-- <q-dialog v-model="remarkDialog">
     <q-card>
       <q-card-section>
         <div class="text-h6">Decline Report</div>
@@ -91,26 +91,26 @@
 
       <q-card-actions align="right">
         <q-btn flat label="Cancel" color="primary" v-close-popup />
-        <q-btn flat label="Confirm" color="negative" @click="declineReport" />
+        <q-btn flat label="Confirm" color="negative" />
+
       </q-card-actions>
     </q-card>
-  </q-dialog>
+  </q-dialog> -->
 </template>
 
 <script setup>
 import { useSelectaProductsStore } from "src/stores/selecta-product";
 import { computed, ref } from "vue";
-import { useQuasar } from "quasar";
+import { date, useQuasar } from "quasar";
 
 const selectaProductStore = useSelectaProductsStore();
-const remark = ref(""); // Reactive variable for the remark input
 const remarkDialog = ref(false);
 const dialog = ref(false);
-const pagination = ref({
-  rowsPerPage: 0,
-});
+const openDialog = () => {
+  dialog.value = true;
+};
 
-const $q = useQuasar();
+// const $q = useQuasar();
 const props = defineProps({
   report: {
     type: Object,
@@ -118,50 +118,12 @@ const props = defineProps({
   },
 });
 
-const openDialog = () => {
-  dialog.value = true;
-};
-
-const openRemarkDialog = () => {
-  remarkDialog.value = true;
-};
-
-const declineReport = async () => {
-  if (!remark.value) {
-    $q.notify({ type: "negative", message: "Remark is required" });
-    return;
-  }
-
-  try {
-    const declinedReport = await selectaProductStore.declineReport(
-      props.report.id,
-      remark.value
-    );
-    console.log("Report declined:", declinedReport);
-    $q.notify({ type: "negative", message: "Report declined successfully" });
-    remarkDialog.value = false;
-    dialog.value = false;
-    remark.value = ""; // Reset remark after successful decline
-  } catch (error) {
-    console.error("Error declining report:", error);
-    $q.notify({ type: "negative", message: "Failed to decline report" });
-  }
-};
-
-const confirmReport = async () => {
-  try {
-    const confirmedReport = await selectaProductStore.confirmReport(
-      props.report.id
-    );
-    console.log("Report confirmed:", confirmedReport);
-    $q.notify({ type: "positive", message: "Report confirmed successfully" });
-    dialog.value = false;
-  } catch (error) {
-    console.error(error);
-  }
-};
+// const openRemarkDialog = () => {
+//   remarkDialog.value = true;
+// };
 
 const fiteredRows = computed(() => {
+  console.log("Filtered rows:", props.report || []);
   return props.report.selecta_added_stocks || [];
 });
 
@@ -178,24 +140,47 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`;
 };
 
+// const confirmReport = async () => {
+//   console.log("props.report.id", props.report.id);
+//   try {
+//     const confirmedReport = await selectaProductStore.confirmReport(
+//       props.report.id
+//     );
+//     console.log("Report confirmed:", confirmedReport);
+//     $q.notify({ type: "positive", message: "Report confirmed successfully" });
+//     dialog.value = false;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
 const transactionsColumns = [
   {
     name: "product_name",
     label: "Product Name",
-    field: (row) => row.product.name || "N/A",
+    field: (row) => {
+      console.log("Row data:", row); // Debug each row's data
+      return row.product.name || "N/A"; // Adjust this according to your data
+    },
     align: "left",
   },
   {
     name: "price",
     label: "Price",
     align: "center",
-    field: (row) => row.price || "N/A",
+    field: (row) => {
+      console.log("Row data:", row); // Debug each row's data
+      return row.price || "N/A"; // Adjust this according to your data
+    },
   },
   {
     name: "added_stocks",
     label: "Added Stocks",
     align: "center",
-    field: (row) => row.added_stocks || "N/A",
+    field: (row) => {
+      console.log("Row data:", row); // Debug each row's data
+      return row.added_stocks || "N/A"; // Adjust this according to your data
+    },
   },
 ];
 </script>

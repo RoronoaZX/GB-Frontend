@@ -1,6 +1,6 @@
 <template>
   <div class="q-mt-md">
-    <q-scroll-area style="height: 450px; max-width: 1500px">
+    <q-scroll-area style="height: calc(100vh - 150px); max-width: 1500px">
       <div class="row q-pa-lg q-gutter-sm q-gutter-y-md">
         <q-intersection
           v-for="(item, index) in selectaProducts"

@@ -7,6 +7,18 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
   const selectaProducts = ref([]);
   const pendingSelectaReports = ref([]);
   const confirmedSelectaReports = ref([]);
+  const declinedSelectaReports = ref([]);
+  const selectaProductReports = ref([]);
+
+  const fetchSelectaProductReports = async (branchId) => {
+    try {
+      const response = await api.get(`/api/selecta-added-stocks/${branchId}`);
+
+      selectaProductReports.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchPendingSelectaStocks = async (branchId, status) => {
     console.log("branchId", branchId);
@@ -40,6 +52,24 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
         }
       );
       confirmedSelectaReports.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchDeclinedSelectaStocks = async (branchId, status) => {
+    console.log("branchId", branchId);
+    console.log("category", status);
+
+    try {
+      const response = await api.get(
+        `/api/selecta-added-stocks/${branchId}/declined-reports`, // Include branchId in the URL
+        {
+          params: {
+            status: status, // Keep category in the query parameters
+          },
+        }
+      );
+      declinedSelectaReports.value = response.data;
     } catch (error) {
       console.log(error);
     }
@@ -102,17 +132,34 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
       console.log(error);
     }
   };
+  const declineReport = async (id, remark) => {
+    console.log("id", id);
+    console.log("remark", remark);
+    try {
+      const response = await api.post(`/api/reports/${id}/decline-reports`, {
+        remark,
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return {
     selectaProduct,
     selectaProducts,
     pendingSelectaReports,
     confirmedSelectaReports,
+    declinedSelectaReports,
+    selectaProductReports,
     searchSelectaProducts,
     createSelectaStocks,
     fetchPendingSelectaStocks,
     fetchBranchSelectaProduct,
     confirmReport,
     fetchConfirmedSelectaStocks,
+    fetchDeclinedSelectaStocks,
+    fetchSelectaProductReports,
+    declineReport,
   };
 });

@@ -33,6 +33,10 @@
           Branch:
           {{ report.branch.name }}
         </div>
+        <div>
+          Status:
+          <q-badge color="green" outlined> {{ report.status }} </q-badge>
+        </div>
       </q-card-section>
       <q-card-section>
         <q-table
