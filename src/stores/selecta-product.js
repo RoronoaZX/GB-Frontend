@@ -116,7 +116,7 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
     console.log(data);
     try {
       const response = await api.post("/api/selecta-stocks-report", data);
-
+      // await fetchSelectaProductReports();
       selectaProducts.value = response.data;
     } catch (error) {
       console.log(error);
@@ -127,6 +127,18 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
     console.log("id", id);
     try {
       const response = await api.post(`/api/confirm-selecta-report/${id}`);
+      if (response.status === 200) {
+        // Find the index of the report in the pendingSelectaReports array
+        const index = pendingSelectaReports.value.findIndex(
+          (report) => report.id === id
+        );
+
+        // If the report is found, remove it
+        if (index !== -1) {
+          pendingSelectaReports.value.splice(index, 1);
+        }
+      }
+
       return response.data;
     } catch (error) {
       console.log(error);
@@ -139,6 +151,18 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
       const response = await api.post(`/api/reports/${id}/decline-reports`, {
         remark,
       });
+      if (response.status === 200) {
+        // Find the index of the report in the pendingSelectaReports array
+        const index = pendingSelectaReports.value.findIndex(
+          (report) => report.id === id
+        );
+
+        // If the report is found, remove it
+        if (index !== -1) {
+          pendingSelectaReports.value.splice(index, 1);
+        }
+      }
+
       return response.data;
     } catch (error) {
       console.log(error);

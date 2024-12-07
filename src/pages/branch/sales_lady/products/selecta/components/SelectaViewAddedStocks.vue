@@ -11,6 +11,7 @@
     :maximized="maximizedToggle"
     transition-show="slide-up"
     transition-hide="slide-down"
+    @update:model-value="onDialogChange"
   >
     <q-card>
       <q-card-section class="bg-gradient text-white">
@@ -76,13 +77,28 @@ const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 const branches_id = userData?.employee?.branch_id || "";
 const dialog = ref(false);
-const openDialog = () => {
-  dialog.value = true;
+const openDialog = async () => {
+  try {
+    if (branches_id) {
+      await fetchSelectaProductReports(branches_id); // Fetch data before opening dialog
+    }
+    dialog.value = true; // Open the dialog after data is fetched
+  } catch (error) {
+    console.error("Error opening dialog:", error);
+  }
 };
+
 const pagination = ref({
   rowsPerPage: 0,
 });
 const maximizedToggle = ref(true);
+
+// const onDialogChange = async (value) => {
+//   if (value) {
+//     // Dialog is opening; fetch data
+//     await fetchSelectaProductReports(branches_id);
+//   }
+// };
 
 const fetchSelectaProductReports = async () => {
   try {
@@ -96,11 +112,11 @@ const fetchSelectaProductReports = async () => {
   }
 };
 
-onMounted(async () => {
-  if (branches_id) {
-    await fetchSelectaProductReports(branches_id);
-  }
-});
+// onMounted(async () => {
+//   if (branches_id) {
+//     await fetchSelectaProductReports(branches_id);
+//   }
+// });
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMMM DD, YYYY");
@@ -173,7 +189,7 @@ const getBadgeCategoryColor = (category) => {
     case "confirmed":
       return "green";
     case "pending":
-      return "yellow";
+      return "orange";
     default:
       return "grey";
   }
