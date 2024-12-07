@@ -49,9 +49,7 @@
           </template>
           <template v-slot:body-cell-action="props">
             <q-td :props="props">
-              <SelectaViewStockReport
-                :report="props.row.selecta_added_stocks"
-              />
+              <SelectaViewStockReport :report="props.row" />
             </q-td>
           </template>
         </q-table>

@@ -11,6 +11,10 @@
         </div>
       </q-card-section>
       <q-card-section>
+        <div>remarks: {{ report.remark ? report.remark : "N/A" }}</div>
+        <div>status: {{ report.status }}</div>
+      </q-card-section>
+      <q-card-section>
         <q-list dense separator class="box">
           <!-- Header row inside the q-list -->
           <q-item>
@@ -21,7 +25,10 @@
               <q-item-label class="text-overline">Added Stocks</q-item-label>
             </q-item-section>
           </q-item>
-          <q-item v-for="(selectaProduct, index) in report" :key="index">
+          <q-item
+            v-for="(selectaProduct, index) in report.selecta_added_stocks"
+            :key="index"
+          >
             <q-item-section>
               <q-item-label class="text-caption">{{
                 capitalizeFirstLetter(selectaProduct.product.name)
@@ -58,7 +65,7 @@ const openDialog = () => {
 
 const props = defineProps(["report"]);
 
-console.log(props.report);
+console.log("report", props.report);
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";
   return location

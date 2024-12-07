@@ -1,0 +1,1 @@
+import{Q as a}from"./QPage.036e8097.js";import{o as e,c as t,w as r,$ as o}from"./index.cf74f808.js";const p={__name:"AdministratorDashboardPage",setup(s){return(c,_)=>(e(),t(a,{padding:""},{default:r(()=>[o(" Dashboard Page ")]),_:1}))}};export{p as default};
