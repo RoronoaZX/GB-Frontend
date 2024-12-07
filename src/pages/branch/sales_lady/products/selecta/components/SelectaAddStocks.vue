@@ -337,6 +337,7 @@ const save = async () => {
 
     // Clear form and close dialog
     clearForm();
+    selectaProductsGroups.value = [];
     dialog.value = false;
 
     // Notify the user of success
