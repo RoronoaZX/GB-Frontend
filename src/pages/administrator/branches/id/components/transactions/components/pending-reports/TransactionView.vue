@@ -195,7 +195,8 @@ const transactionsColumns = [
     name: "added_stocks",
     label: "Added Stocks",
     align: "center",
-    field: (row) => row.added_stocks || "N/A",
+    // field: (row) => row.added_stocks || "N/A",
+    field: (row) => (row.added_stocks ? `${row.added_stocks} pcs` : "N/A"),
   },
 ];
 </script>

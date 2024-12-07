@@ -177,10 +177,11 @@ const transactionsColumns = [
     name: "added_stocks",
     label: "Added Stocks",
     align: "center",
-    field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
-      return row.added_stocks || "N/A"; // Adjust this according to your data
-    },
+    // field: (row) => {
+    //   console.log("Row data:", row); // Debug each row's data
+    //   return row.added_stocks || "N/A"; // Adjust this according to your data
+    // },
+    field: (row) => (row.added_stocks ? `${row.added_stocks} pcs` : "N/A"),
   },
 ];
 </script>
