@@ -4,6 +4,7 @@ import { useBakerReportsStore } from "src/stores/baker-report";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSupervisorStore } from "src/stores/supervisor";
 import { useCakeMakerReportStore } from "src/stores/cake-maker-report";
+import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
 // import { useLoadingBarStore } from "src/stores/loading";
 import { Loading } from "quasar";
 
@@ -26,6 +27,7 @@ export default boot(async ({ router }) => {
         const useSalesReport = useSalesReportsStore();
         const useSupervisor = useSupervisorStore();
         const useCakeMakerReport = useCakeMakerReportStore();
+        const useWarehouseRawMaterials = useWarehouseRawMaterialsStore();
 
         const user = await api.get("/api/profile");
 
@@ -37,6 +39,7 @@ export default boot(async ({ router }) => {
         useSalesReport.setUser(user.data);
         useSupervisor.setUser(user.data);
         useCakeMakerReport.setUser(user.data);
+        useWarehouseRawMaterials.setUser(user.data);
 
         if (to.path === "/") {
           if (role === "Admin") {

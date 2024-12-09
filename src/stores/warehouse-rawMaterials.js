@@ -10,7 +10,11 @@ export const useWarehouseRawMaterialsStore = defineStore(
     const warehouseRawMaterial = ref(null);
     const warehouseRawMaterials = ref([]);
     const warehouseId = ref([]);
+    const user = ref({});
 
+    const setUser = (newUser) => {
+      user.value = newUser;
+    };
     const rawMaterialsStore = useRawMaterialsStore();
     const rawMaterialsData = computed(() => rawMaterialsStore.rawMaterials);
 
@@ -21,7 +25,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
           `/api/warehouse/${warehouseId}/rawMaterials`
         );
 
-        // console.log()
+        console.log("response", response.data);
         warehouseRawMaterials.value = response.data;
       } catch (error) {
         console.log("error", error);
@@ -104,6 +108,8 @@ export const useWarehouseRawMaterialsStore = defineStore(
     };
 
     return {
+      setUser,
+      user,
       warehouseId,
       warehouseRawMaterial,
       warehouseRawMaterials,

@@ -28,55 +28,87 @@
       </q-card-section>
       <q-separator />
       <q-card-section>
-        <div class="row q-gutter-x-sm">
+        <div class="q-mt-md q-gutter-y-sm">
+          <!-- <div class="text-weight-meduim">Raw Materials List</div> -->
           <div>
-            <div class="q-my-sm">Raw Materials Name</div>
-            <q-select
-              v-model="selectedRawMaterials.name"
-              debounce="3000"
-              outlined
-              chips-color="primary"
-              :options="filterRawMaterialsOptions"
-              dense
-              label="Raw Materials"
-              behavior="menu"
-              use-input
-              hide-dropdown-icon
-              @filter="filterRawMaterials"
-              style="width: 320px; max-width: 350px; min-width: 20px"
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    No results
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
+            <q-list dense separator class="box">
+              <q-item>
+                <q-item-section>
+                  <q-item-label class="text-overline"
+                    >Raw Materials Name</q-item-label
+                  >
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-overline">Quantity</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <!-- Empty space for alignment with the delete button -->
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-for="(rawMaterials, index) in rawMaterialsGroups"
+                :key="index"
+              >
+                <q-item-section>
+                  <q-item-label class="text-caption">
+                    {{ capitalizeFirstLetter(rawMaterials.label) }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
           </div>
+        </div>
+      </q-card-section>
+      <q-card-section>
+        <div class="q-my-md">
+          <div class="q-my-sm">Raw Materials Name</div>
+          <q-select
+            v-model="selectedRawMaterials.name"
+            debounce="3000"
+            outlined
+            chips-color="primary"
+            :options="filterRawMaterialsOptions"
+            dense
+            label="Raw Materials"
+            behavior="menu"
+            use-input
+            :suffix="selectedRawMaterials.suffix"
+            hide-dropdown-icon
+            @filter="filterRawMaterials"
+          >
+            <!-- style="width: 320px; max-width: 350px; min-width: 20px" -->
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="row q-gutter-x-sm q-gutter-y-lg">
           <div>
-            <div class="q-my-sm">Amount</div>
+            <div class="q-my-sm" align="center">Amount</div>
             <q-input
               v-model="addSupplierForm.ingredientAmount"
               type="number"
               outlined
               dense
-              style="width: 80px; max-width: 150px; min-width: none"
+              style="width: 300px; max-width: 250px; min-width: none"
             />
           </div>
           <div>
-            <div class="q-my-sm">Unit</div>
+            <div class="q-my-sm" align="center">Unit</div>
             <q-select
               v-model="addSupplierForm.unit"
-              :options="ingredientsUnitOptions"
+              :options="unitOptions"
               outlined
+              behavior="menu"
               dense
-              style="width: 90px; max-width: 100px; min-width: none"
+              style="width: 300px; max-width: 250px; min-width: none"
             />
           </div>
-          <div class="q-mt-sm">
-            <q-btn size="sm" outline dense icon="add" color="purple" />
-          </div>
+        </div>
+        <div class="q-mt-sm">
+          <q-btn size="sm" outline dense icon="add" color="purple" />
         </div>
       </q-card-section>
       <q-separator />
@@ -89,56 +121,86 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+//i want to fetch the certain warehouse raw materials data
+
+import { ref, reactive, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
 
 const route = useRoute();
-const warehouseId = route.params.warehouse_id;
+const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
+const userData = computed(() => warehouseRawMaterialsStore.user);
+// const warehouseId = route.params.warehouse_id;
+console.log("userData", userData.value);
+const warehouseId = userData.value?.employee?.warehouse_id || "";
+console.log("warehouseId", warehouseId);
 const addIngredientsDialog = ref(false);
 const ingredientsUnitOptions = ["Grams", "Kgs", "Pcs"];
-const warehouseRawMaterials = useWarehouseRawMaterialsStore();
+
 const open_add_ingredients_dialog = () => {
   addIngredientsDialog.value = true;
 };
 const loading = ref(false);
-const rawMaterialsGroup = ref([]);
+const rawMaterialsGroups = ref([]);
 const rawMaterialsOptions = ref([]);
 
 const selectedRawMaterials = reactive({
   name: "",
   quantity: "",
+  suffix: "",
 });
+
+const unitOptions = [
+  { label: "Sack (25 kg each)", value: "sack" },
+  { label: "Kilo", value: "kilo" },
+  { label: "Gram", value: "gram" },
+];
 
 const filterRawMaterialsOptions = ref(rawMaterialsOptions.value);
 
-const fetchRawMaterialsData = async (warehouseId) => {
-  const rawMaterials = await warehouseRawMaterials.fetchWarehouseRawMaterials(
-    warehouseId
-  );
-  rawMaterialsOptions.value = warehouseRawMaterials.warehouseRawMaterials.map(
-    (val) => {
-      return {
-        label: val.name,
-        value: val.id,
-        unit: val.unit,
-      };
-    }
-  );
+const fetchWarehouseRawMaterials = async () => {
+  try {
+    const warehouse_id = warehouseId;
+    console.log("warehouse_id", warehouse_id);
+
+    const warehouseRawMaterials =
+      await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouse_id);
+    loading.value = false;
+    rawMaterialsOptions.value =
+      warehouseRawMaterialsStore.warehouseRawMaterials.map((val) => {
+        return {
+          label: val.name,
+          value: val.id,
+          suffix: val.unit,
+        };
+      });
+  } catch (error) {
+    console.error("Error fetching warehouse raw materials:", error);
+  }
 };
-fetchRawMaterialsData();
+fetchWarehouseRawMaterials();
 
 const filterRawMaterials = (val, update) => {
   update(() => {
     if (val === "") {
+      // When the input is empty, show all options
       filterRawMaterialsOptions.value = rawMaterialsOptions.value;
     } else {
       const needle = val.toLowerCase();
+      // Filter options based on the input value
       filterRawMaterialsOptions.value = rawMaterialsOptions.value.filter(
-        (v) => v.label.toLowerCase().indexOf(needle) > -1
+        (v) => v.label.toLowerCase().includes(needle) // Match label text
       );
     }
   });
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 const addSupplierForm = reactive({
@@ -149,3 +211,10 @@ const addSupplierForm = reactive({
   unit: null,
 });
 </script>
+
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+</style>
