@@ -10,15 +10,31 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
   const declinedSelectaReports = ref([]);
   const selectaProductReports = ref([]);
 
-  const fetchSelectaProductReports = async (branchId) => {
+  const fetchSelectaProductReports = async (branchId, page, rowsPerPage) => {
     try {
-      const response = await api.get(`/api/selecta-added-stocks/${branchId}`);
+      const response = await api.get(`/api/selecta-added-stocks/${branchId}`, {
+        params: {
+          page,
+          per_page: rowsPerPage, // pagination
+        },
+      });
 
-      selectaProductReports.value = response.data;
+      return response.data; // return the full response for use in the component
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching selecta product reports:", error);
+      throw error; // Propagate the error for handling in the component
     }
   };
+
+  // const fetchSelectaProductReports = async (branchId) => {
+  //   try {
+  //     const response = await api.get(`/api/selecta-added-stocks/${branchId}`);
+
+  //     selectaProductReports.value = response.data;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const fetchPendingSelectaStocks = async (branchId, status) => {
     console.log("branchId", branchId);

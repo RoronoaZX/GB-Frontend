@@ -72,8 +72,7 @@ const loadingSearchIcon = ref(false);
 const loading = ref(true);
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-const branchId =
-  userData.value?.data?.employee?.branch_employee.branch_id || "";
+const branchId = userData.value?.employee?.branch_id || "";
 const rawMaterialsRow = computed(() => bakerReportStore.rawmaterials);
 const showNoDataMessage = ref(false);
 
