@@ -267,7 +267,7 @@ const formatUserName = (user) => {
 const searchUsers = async () => {
   if (searchQuery.value) {
     employeeSearchLoading.value = true; // Set loading to true
-    const branchId = userData?.data?.employee?.branch_employee?.branch_id || "";
+    const branchId = userData?.employee?.branch_id || "";
     console.log("searchQuery.value", searchQuery.value);
     console.log("branchId", branchId);
     await employeeStore.searchEmployeeWithBranchID(searchQuery.value, branchId);
