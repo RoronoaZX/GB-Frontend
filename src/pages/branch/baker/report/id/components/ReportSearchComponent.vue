@@ -52,8 +52,7 @@ const branchRecipeStore = useBranchRecipeStore();
 const userData = computed(() => bakerReportStore.user);
 console.log("erw:", userData.value);
 const branhRecipes = computed(() => branchRecipeStore.branchRecipe);
-const branch_id =
-  userData.value?.data?.employee?.branch_employee.branch_id || "";
+const branch_id = userData.value?.employee?.branch_id || "";
 console.log("branch_id", branch_id);
 const search = async () => {
   branchRecipeStore.searchBranchRecipe(searchQuery.value, branch_id);

@@ -190,7 +190,7 @@ const menuItems = [
     name: "scallingSection",
     icon: "fa-solid fa-chart-pie",
     to: "/warehouse/scalling_section",
-    label: "Scalling Section",
+    label: "Scaling Section",
     separator: true,
   },
   {
