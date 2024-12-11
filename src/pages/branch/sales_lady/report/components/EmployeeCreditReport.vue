@@ -337,7 +337,7 @@ const autoFillUser = (user) => {
 const searchProducts = async () => {
   if (productSearch.value) {
     productSearchLoading.value = true; // Set loading to true
-    const branchId = userData?.data?.employee?.branch_employee?.branch_id || "";
+    const branchId = userData?.employee?.branch_id || "";
     const response = await salesReportsStore.searchBranchProducts(
       productSearch.value,
       branchId
@@ -439,13 +439,13 @@ const handleSubmit = () => {
   const formattedTotalAmount = parseFloat(creditForm.creditTotal);
   const employeeCreditReport = {
     user_id: userData?.data.id,
-    branch_id: userData?.data?.employee?.branch_employee?.branch_id || "",
+    branch_id: userData?.employee?.branch_id || "",
     credit_user_id: creditForm.credit_user_id,
     credit_user_name: creditForm.name,
     total_amount: formattedTotalAmount,
     credits: creditList.value.map((credit) => ({
       credit_user_id: credit.credit_user_id,
-      branch_id: userData?.data?.employee?.branch_employee?.branch_id || "",
+      branch_id: userData?.employee?.branch_id || "",
       productName: credit.productName,
       product_id: credit.product_id,
       price: credit.price,
