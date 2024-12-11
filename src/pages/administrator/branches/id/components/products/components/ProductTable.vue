@@ -92,6 +92,31 @@
           </q-popup-edit>
         </q-td>
       </template>
+      <template v-slot:body-cell-beginnings="props">
+        <q-td auto-width class="cursor-pointer text-center">
+          <span>
+            {{ props.row.beginnings ? props.row.beginnings : "Set Beginnings" }}
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
+              >Edit beginnings</q-tooltip
+            >
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updatedBeginnings(props.row, val)"
+            v-model="props.row.beginnings"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              mask="###"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
       <template v-slot:body-cell-total_quantity="props">
         <q-td auto-width class="cursor-pointer text-center">
           <span>
@@ -224,6 +249,30 @@ async function updatedPrice(data, val) {
     console.error("Error updating price:", error);
   }
 }
+async function updatedBeginnings(data, val) {
+  try {
+    const response = await api.put(
+      "/api/update-branch-products-beginnings/" + data.id,
+      {
+        beginnings: parseInt(val),
+      }
+    );
+    if (response.status === 200) {
+      const i = branchProducts.value.findIndex((item) => item.id == data.id);
+      branchProducts.value[i] = parseInt(val);
+
+      Notify.create({
+        type: "positive",
+        message: response.data.message,
+        timout: 1000,
+        position: "top",
+      });
+    }
+  } catch (error) {
+    console.error("Error updating price:", error);
+  }
+}
+
 async function updatedTotalQuantity(data, val) {
   try {
     const response = await api.put(
@@ -289,6 +338,14 @@ const productListColumns = [
     align: "center",
     label: "Price",
     field: (val) => formatPrice(val),
+    sortable: true,
+  },
+  {
+    name: "beginnings",
+    align: "center",
+    label: "Beginnings",
+    field: "beginnings",
+    format: (val) => `${val} pcs`,
     sortable: true,
   },
   {
