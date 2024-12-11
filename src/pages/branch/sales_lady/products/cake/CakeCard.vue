@@ -11,9 +11,21 @@
         >
           <q-card @click="clickme(item)" class="q-ma-sm my-card">
             <img src="https://cdn.quasar.dev/img/chicken-salad.jpg" />
-            <q-card-section>
-              <div class="text-h6">{{ capitalizeFirstLetter(item.name) }}</div>
-            </q-card-section>
+
+            <div
+              class="q-pa-sm"
+              :class="{
+                'text-h6': item.product.name.length <= 10,
+                'text-subtitle1':
+                  item.product.name.length > 10 &&
+                  item.product.name.length <= 20,
+                'text-caption text-weight-medium':
+                  item.product.name.length > 20,
+              }"
+            >
+              {{ capitalizeFirstLetter(item.name) }}
+            </div>
+
             <q-separator />
             <q-card-section>
               <div class="q-pa-xm row q-gutter-x-sm justify-between">

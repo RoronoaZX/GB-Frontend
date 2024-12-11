@@ -12,9 +12,20 @@
           <q-card @click="clickme(item)" class="q-ma-sm my-card">
             <!-- Using a static image URL for now -->
             <img src="https://cdn.quasar.dev/img/chicken-salad.jpg" />
-            <q-card-section>
-              <div class="text-h6">{{ item.product.name }}</div>
-            </q-card-section>
+
+            <div
+              class="q-pa-sm"
+              :class="{
+                'text-h6': item.product.name.length <= 10,
+                'text-subtitle1':
+                  item.product.name.length > 10 &&
+                  item.product.name.length <= 20,
+                'text-caption text-weight-medium':
+                  item.product.name.length > 20,
+              }"
+            >
+              {{ item.product.name }}
+            </div>
             <q-separator />
             <q-card-section class="text-subtitle2 text-weight-regular">
               <div class="q-pa-xm row q-gutter-x-sm justify-between">
