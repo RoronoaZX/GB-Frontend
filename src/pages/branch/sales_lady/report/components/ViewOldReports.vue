@@ -69,8 +69,7 @@ import { computed, onMounted, ref } from "vue";
 const salesReportStore = useSalesReportsStore();
 const salesReport = computed(() => salesReportStore.salesReport);
 const userData = computed(() => salesReportStore.user);
-const branchId =
-  userData.value?.data?.employee?.branch_employee?.branch_id || "";
+const branchId = userData.value?.employee?.branch_id || "";
 console.log("sales branch id", branchId);
 const loading = ref(true);
 
