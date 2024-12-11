@@ -23,7 +23,7 @@
                   item.product.name.length > 20,
               }"
             >
-              {{ item.product.name }}
+              {{ capitalizeFirstLetter(item.product.name) }}
             </div>
             <q-separator />
             <q-card-section class="text-subtitle2 text-weight-regular">
@@ -177,6 +177,14 @@ const formatCurrency = (value) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 const softdrinksSalesAmount = computed(() => {
