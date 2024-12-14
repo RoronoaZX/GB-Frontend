@@ -61,7 +61,7 @@
       <template v-slot:body-cell-target="props">
         <q-td auto-width class="cursor-pointer text-center">
           <span
-            >{{ props.row.target ? props.row.target : "Set Target" }}
+            >{{ formatNumber(props.row.target) }}
 
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
               >Edit Target</q-tooltip
@@ -79,7 +79,6 @@
               suffix="pcs"
               autofocus
               counter
-              mask="###"
               @keyup.enter="scope.set"
             />
           </q-popup-edit>
@@ -230,6 +229,15 @@ const reloadTableData = async (branchId) => {
   }
 };
 
+const formatNumber = (value) => {
+  if (!value && value !== 0) return "Set Target"; // Handle empty or null values
+  if (typeof value === "number" || !isNaN(value)) {
+    value = parseFloat(value); // Ensure the value is parsed as a number
+    return value % 1 === 0 ? value : parseFloat(value.toFixed(1)); // Use .1 precision for non-integers
+  }
+  return value; // Return as is for non-numeric input
+};
+
 // watch(filter, async (newFilter) => {
 //   loading.value = true
 //   await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -240,7 +248,7 @@ const reloadTableData = async (branchId) => {
 async function updateRecipe(data, val) {
   try {
     const response = await api.put("/api/update-target/" + data.id, {
-      target: parseInt(val),
+      target: parseFloat(val),
     });
 
     console.log("response", response);
@@ -313,7 +321,7 @@ const branchRecipeColumns = [
     name: "target",
     label: "Target",
     align: "center",
-    field: "target",
+    field: (row) => formatNumber(row.target),
   },
   {
     name: "status",

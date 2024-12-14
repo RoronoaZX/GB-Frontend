@@ -244,7 +244,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
       const payload = {
         user_id: this.user.id,
-        branch_id: this.user?.data?.employee?.branch_employee.branch_id,
+        branch_id: this.user?.employee?.branch_id,
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
         softdrinksReports: this.softdrinksReports,
