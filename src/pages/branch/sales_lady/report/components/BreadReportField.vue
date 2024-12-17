@@ -22,6 +22,12 @@
                 </q-item-label>
               </q-item-section>
               <q-item-section class="q-ma-sm q-gutter-sm" side>
+                <q-item-label>Bread Out</q-item-label>
+                <q-item-label caption>
+                  {{ bread.bread_out }}
+                </q-item-label>
+              </q-item-section>
+              <q-item-section class="q-ma-sm q-gutter-sm" side>
                 <q-item-label>Sold</q-item-label>
                 <q-item-label caption>
                   {{ bread.bread_sold }}
