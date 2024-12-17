@@ -106,17 +106,33 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
       try {
         const res = await api.post(`/api/confirm-initial-baker-report/${id}`);
         console.log("Confirming report with ID:", id);
-        this.fetchDoughReports(); // Call the method as a function
+        if (res.status === 200) {
+          const index = this.reports.findIndex((report) => report.id === id);
+
+          if (index !== -1) {
+            this.reports.splice(index, 1);
+          }
+        }
         return res.data; // Return the response data
       } catch (error) {
         console.error("Error confirming report:", error);
         throw error;
       }
     },
-    async declineReport(id) {
+    async declineReport(id, remark) {
       try {
-        await api.post(`/api/decline-initial-baker-report/${id}`);
-        this.fetchDoughReports;
+        const res = await api.post(`/api/decline-initial-baker-report/${id}`, {
+          remark,
+        });
+
+        if (res.status === 200) {
+          const index = this.reports.findIndex((report) => report.id === id);
+
+          if (index !== -1) {
+            this.reports.splice(index, 1);
+          }
+        }
+        return res.data;
       } catch (error) {
         console.error("Error declining report:", error);
       }

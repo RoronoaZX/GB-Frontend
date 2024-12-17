@@ -80,7 +80,35 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
   const confirmReports = async (id) => {
     console.log("id to be edit", id);
     const response = await api.post(`/api/branch/${id}/cakeConfirmedReport`);
-    fetchCakePendingReport();
+    if (response.status === 200) {
+      const index = pendingReports.value.findIndex(
+        (report) => report.id === id
+      );
+      if (index !== -1) {
+        pendingReports.value.splice(index, 1);
+      }
+    }
+    return response.data;
+  };
+
+  const declineReport = async (id) => {
+    try {
+      const response = await api.post(`/api/decline-cake-maker-report/${id}`, {
+        remark,
+      });
+      if (response.status === 200) {
+        const index = pendingReports.value.findIndex(
+          (report) => report.id === id
+        );
+
+        if (index !== -1) {
+          pendingReports.value.splice(index, 1);
+        }
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Error declining report:", error);
+    }
   };
 
   return {
@@ -96,6 +124,7 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
     fetchCakePendingReport,
     fetchOnDisplayProducts,
     confirmReports,
+    declineReport,
     // searchBranchRawMaterials,
   };
 });

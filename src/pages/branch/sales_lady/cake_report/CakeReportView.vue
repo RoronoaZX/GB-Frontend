@@ -10,77 +10,95 @@
   />
 
   <q-dialog v-model="dialog">
-    <div>
-      <q-card>
-        <q-card-section>
-          <div class="row justify-between">
-            <div class="text-h6">
-              {{ capitalizeFirstLetter(report.name) }}
-            </div>
-            <div>
-              <q-btn
-                class="close-btn"
-                color="grey-8"
-                flat
-                round
-                dense
-                icon="close"
-                @click="dialog = false"
-              />
-            </div>
+    <q-card style="width: 700px; max-width: 80vw">
+      <q-card-section>
+        <div class="row justify-between">
+          <div class="text-h6">
+            {{ capitalizeFirstLetter(report.name) }}
           </div>
-        </q-card-section>
-        <q-separator />
-        <q-card-section>
-          <div class="row q-gutter-x-sm">
-            <div class="text-subtitle2">Date:</div>
-            <div class="text-body1 text-weight-light">
-              {{ formatDate(report.created_at) }}
-            </div>
+          <div>
+            <q-btn
+              class="close-btn"
+              color="grey-8"
+              flat
+              round
+              dense
+              icon="close"
+              @click="dialog = false"
+            />
           </div>
-          <div class="row q-gutter-x-sm">
-            <div class="text-subtitle2">Branch:</div>
-            <div class="text-body1 text-weight-light">
-              {{ capitalizeFirstLetter(report?.branch?.name) || "No data" }}
-            </div>
+        </div>
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <div class="row q-gutter-x-sm">
+          <div class="text-subtitle2">Date:</div>
+          <div class="text-body1 text-weight-light">
+            {{ formatDate(report.created_at) }}
           </div>
-          <div class="row q-gutter-x-sm">
-            <div class="text-subtitle2">Cake Maker:</div>
-            <div class="text-body1 text-weight-light">
-              {{ formatFullname(report.user.employee) }}
-            </div>
+        </div>
+        <div class="row q-gutter-x-sm">
+          <div class="text-subtitle2">Branch:</div>
+          <div class="text-body1 text-weight-light">
+            {{ capitalizeFirstLetter(report?.branch?.name) || "No data" }}
           </div>
+        </div>
+        <div class="row q-gutter-x-sm">
+          <div class="text-subtitle2">Cake Maker:</div>
+          <div class="text-body1 text-weight-light">
+            {{ formatFullname(report.user.employee) }}
+          </div>
+        </div>
 
-          <div class="row q-mt-sm item-start q-gutter-x-xl">
-            <div class="row q-gutter-x-sm text-overline">
-              <div>Price:</div>
-              <div class="text-weight-light">
-                {{ formatPrice(report.price) }}
-              </div>
+        <div class="row q-mt-sm item-start q-gutter-x-xl">
+          <div class="row q-gutter-x-sm text-overline">
+            <div>Price:</div>
+            <div class="text-weight-light">
+              {{ formatPrice(report.price) }}
             </div>
-            <div class="row q-gutter-x-sm text-overline">
-              <div>Layer /s:</div>
-              <div class="text-weight-light">
-                {{ report.layers }}
-              </div>
+          </div>
+          <div class="row q-gutter-x-sm text-overline">
+            <div>Layer /s:</div>
+            <div class="text-weight-light">
+              {{ report.layers }}
             </div>
-            <!-- <div class="row q-gutter-x-sm text-overline">
+          </div>
+          <!-- <div class="row q-gutter-x-sm text-overline">
               <div>Pieces:</div>
               <div class="text-weight-light">
                 {{ report.pieces }}
               </div>
             </div> -->
-          </div>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn label="Decline" color="negative" @click="confirmReport" />
-          <q-btn label="Confirm" color="positive" @click="confirmReport" />
-        </q-card-actions>
-      </q-card>
-    </div>
-    <div>
-      <!-- <h6>{{ report.id }}</h6> -->
-    </div>
+        </div>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn label="Decline" color="negative" @click="openRemarkDialog" />
+        <q-btn label="Confirm" color="positive" @click="confirmReport" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog v-model="remarkDiaalog">
+    <q-card>
+      <q-card-section>
+        <div class="text-h6">Decline Report</div>
+      </q-card-section>
+      <q-card-section>
+        <q-input
+          v-model="remark"
+          placeholder="Enter your remark"
+          label="Remark"
+          type="textarea"
+          filled
+          lazy-rules
+          :rules="[(val) => !!val || 'Remark is required']"
+        />
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" v-close-popup />
+        <q-btn flat label="Confirm" color="negative" @click="declineReport" />
+      </q-card-actions>
+    </q-card>
   </q-dialog>
 </template>
 
@@ -98,8 +116,15 @@ const props = defineProps({
   },
 });
 
+const remark = ref("");
+const remarkDialog = ref(false);
+
 const openDialog = () => {
   dialog.value = true;
+};
+
+const openRemarkDialog = () => {
+  remarkDialog.value = true;
 };
 
 const formatFullname = (row) => {
@@ -148,6 +173,26 @@ const confirmReport = async () => {
       type: "negative",
       message: "Failed to confirm",
     });
+  }
+};
+const declineReport = async () => {
+  try {
+    if (!remark.value.trim()) {
+      Notify.create({
+        type: "warning",
+        message: "Remark cannot be empty",
+      });
+      return;
+    }
+    await useCakeMakerReport.declineReport(props.report.id, remark.value);
+    Notify.create({
+      type: "positive",
+      message: "Report declined successfully",
+    });
+    remarkDialog.value = false;
+    dialog.value = false;
+  } catch (error) {
+    console.log("Error decline report", error);
   }
 };
 </script>

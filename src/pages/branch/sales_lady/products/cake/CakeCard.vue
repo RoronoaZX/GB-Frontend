@@ -15,12 +15,10 @@
             <div
               class="q-pa-sm"
               :class="{
-                'text-h6': item.product.name.length <= 10,
+                'text-h6': item.name.length <= 10,
                 'text-caption text-weight-medium':
-                  item.product.name.length > 10 &&
-                  item.product.name.length <= 20,
-                'text-caption text-weight-medium':
-                  item.product.name.length > 20,
+                  item.name.length > 10 && item.name.length <= 20,
+                'text-caption text-weight-medium': item.name.length > 20,
               }"
             >
               {{ capitalizeFirstLetter(item.name) }}
