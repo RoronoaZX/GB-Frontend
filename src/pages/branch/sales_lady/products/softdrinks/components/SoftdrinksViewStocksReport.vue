@@ -5,7 +5,7 @@
   <q-dialog v-model="dialog">
     <q-card padding style="width: 700px; max-width: 80vw">
       <q-card-section class="bg-gradient text-white row justify-between">
-        <div class="text-h6">Selecta Products</div>
+        <div class="text-h6">Softdrinks Products</div>
         <div>
           <q-btn icon="close" flat dense round v-close-popup />
         </div>
@@ -16,7 +16,6 @@
       </q-card-section>
       <q-card-section>
         <q-list dense separator class="box">
-          <!-- Header row inside the q-list -->
           <q-item>
             <q-item-section>
               <q-item-label class="text-overline">Product Name</q-item-label>
@@ -26,31 +25,20 @@
             </q-item-section>
           </q-item>
           <q-item
-            v-for="(selectaProduct, index) in report.selecta_added_stocks"
+            v-for="(softdrinksProduct, index) in report.softdrinks_added_stocks"
             :key="index"
           >
             <q-item-section>
-              <q-item-label class="text-caption">{{
-                capitalizeFirstLetter(selectaProduct.product.name)
-              }}</q-item-label>
+              <q-item-label class="text-caption">
+                {{ capitalizeFirstLetter(softdrinksProduct.product.name) }}
+              </q-item-label>
             </q-item-section>
             <q-item-section class="text-caption" side>
-              {{ selectaProduct.added_stocks }} pcs
+              {{ softdrinksProduct.added_stocks }} pcs
             </q-item-section>
-            <!-- <q-item-section side>
-              <q-btn
-                @click="removeSelectaProduct(index)"
-                color="grey-10"
-                icon="backspace"
-                dense
-                flat
-                round
-              />
-            </q-item-section> -->
           </q-item>
         </q-list>
       </q-card-section>
-      <!-- {{ report }} -->
     </q-card>
   </q-dialog>
 </template>
@@ -93,10 +81,4 @@ const capitalizeFirstLetter = (location) => {
   color: transparent; /* Make text fill transparent */
   display: inline-block; /* Ensure proper display */
 }
-// .gradient-icon {
-//   background: linear-gradient(45deg, #ff6f00, #ffcc00); /* Gradient colors */
-//   -webkit-background-clip: text; /* For Safari and older WebKit-based browsers */
-//   background-clip: text; /* Standard property */
-//   color: transparent;
-// }
 </style>

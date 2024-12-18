@@ -17,7 +17,7 @@
       </q-card-section>
       <q-card-section>
         <div class="q-mt-md q-gutter-y-sm">
-          <div class="text-weight-meduim">Selecta List</div>
+          <!-- <div class="text-weight-meduim">Selecta List</div> -->
           <div>
             <q-list dense separator class="box">
               <!-- Header row inside the q-list -->
@@ -45,9 +45,11 @@
                     capitalizeFirstLetter(selectaProduct.label)
                   }}</q-item-label>
                 </q-item-section>
-                <q-item-section class="text-caption"
-                  >{{ selectaProduct.added_stocks }} pcs</q-item-section
-                >
+                <q-item-section>
+                  <q-item-label class="text-caption q-ml-md">
+                    {{ selectaProduct.added_stocks }} pcs
+                  </q-item-label>
+                </q-item-section>
                 <q-item-section side>
                   <q-btn
                     @click="removeSelectaProduct(index)"
@@ -77,7 +79,7 @@
                 behavior="menu"
                 use-input
                 hide-dropdown-icon
-                @filter="filterIngredients"
+                @filter="filterSelectaProducts"
                 style="width: 215px; max-width: 600px; min-width: 80px"
               >
                 <template v-slot:no-option>
@@ -202,7 +204,7 @@ const clearData = () => {
     (selectedSelectaProducts.added_stocks = "");
 };
 
-const filterIngredients = (val, update) => {
+const filterSelectaProducts = (val, update) => {
   update(() => {
     if (val === "") {
       filterSelectaProductsOptions.value = selectaProductsOptions.value;
@@ -243,7 +245,7 @@ const addSelectaStocks = () => {
     Notify.create({
       type: "negative",
       icon: "warning",
-      message: "Ingredient already exists",
+      message: "Product already exists",
       timeout: 2000,
     });
   }

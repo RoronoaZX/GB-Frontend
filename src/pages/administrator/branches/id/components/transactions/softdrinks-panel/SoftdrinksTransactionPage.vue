@@ -13,57 +13,45 @@
     >
       <q-tab
         class="text-white"
-        name="bread"
+        name="pendingReports"
         icon="event_available"
-        label="Bread"
+        label="Pending Reports"
       />
       <q-tab
         class="text-white"
-        name="selecta"
-        icon="event_available"
-        label="Selecta"
-      />
-      <q-tab
-        class="text-white"
-        name="softdrinks"
+        name="confirmReports"
         icon="calendar_month"
-        label="Softdrinks"
+        label="Confirm Reports"
       />
       <q-tab
         class="text-white"
-        name="cake"
+        name="declineReports"
         icon="calendar_month"
-        label="Cake"
-      />
-      <q-tab
-        class="text-white"
-        name="other"
-        icon="calendar_month"
-        label="Others"
+        label="Decline Reports"
       />
     </q-tabs>
   </div>
   <q-tab-panels v-model="tab" animated>
-    <q-tab-panel name="bread">
+    <q-tab-panel name="pendingReports">
+      <TransactionPendingCard />
+    </q-tab-panel>
+    <q-tab-panel name="confirmReports">
+      <TransactionConfirmedCard />
+    </q-tab-panel>
+    <q-tab-panel name="declineReports">
       <q-card>
-        <h1>Bread</h1>
+        <h1>Declined Cards</h1>
       </q-card>
-    </q-tab-panel>
-    <q-tab-panel name="selecta">
-      <SelectaTransactionPage />
-    </q-tab-panel>
-    <q-tab-panel name="softdrinks">
-      <SoftdrinksTransactionPage />
     </q-tab-panel>
   </q-tab-panels>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import SelectaTransactionPage from "./selecta-panel/SelectaTransactionPage.vue";
-import SoftdrinksTransactionPage from "./softdrinks-panel/SoftdrinksTransactionPage.vue";
+import TransactionPendingCard from "./pending-reports/TransactionPendingCard.vue";
+import TransactionConfirmedCard from "./confirm-reports/TransactionConfirmedCard.vue";
 
-const tab = ref("bread");
+const tab = ref("pendingReports");
 </script>
 
 <style lang="scss" scoped>

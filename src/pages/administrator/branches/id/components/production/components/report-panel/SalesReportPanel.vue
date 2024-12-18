@@ -374,7 +374,6 @@ const generateDocDefinition = (report) => {
     const getNestedValue = (obj, path) => {
       return path.split(".").reduce((acc, key) => (acc ? acc[key] : 0), obj);
     };
-
     // Calculate totals for the specified fields
     const totalRow = totals.reduce((acc, key) => {
       acc[key] = data.reduce(
@@ -584,6 +583,16 @@ const generateDocDefinition = (report) => {
     }, // Align total to the right
   ]);
 
+  // console.log(
+  //   "datadata",
+  //   productionTypes.map((res) => ({
+  //     ...res,
+  //     data: res.data.map((bread) => ({
+  //       ...bread,
+  //       total: bread.beginnings + bread.new_production,
+  //     })),
+  //   }))
+  // );
   const tables = productionTypes.map(({ title, data, columns, totals }) => ({
     stack: [
       { text: title, style: "subheader", alignment: "center" },
