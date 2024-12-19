@@ -177,13 +177,15 @@ export const useSoftdrinksProductStore = defineStore(
         });
         if (response.status === 200) {
           // Find the index of the report in the pendingSelectaReports array
-          const index = pendingSelectaReports.value.findIndex(
+          const index = pendingSoftdrinksReports.value.findIndex(
             (report) => report.id === id
           );
 
           // If the report is found, remove it
           if (index !== -1) {
-            pendingSelectaReports.value.splice(index, 1);
+            pendingSoftdrinksReports.value.splice(index, 1);
+
+            // await fetchPendingSoftdrinksStocks(branchId, "pending");
           }
         }
 

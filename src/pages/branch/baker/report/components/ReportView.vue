@@ -90,6 +90,111 @@
         </div>
         <q-separator class="q-my-md"></q-separator>
         <div class="row justify-between">
+          <div>
+            <div class="section-title" align="center">Ingredients</div>
+            <q-list dense separator class="q-pa-md box">
+              <q-item>
+                <q-item-section>
+                  <q-item-label class="text-overline">Code</q-item-label>
+                </q-item-section>
+                <q-item-section> </q-item-section>
+                <q-item-section> </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-overline">Quantity</q-item-label>
+                </q-item-section>
+                <q-item-section side> </q-item-section>
+              </q-item>
+
+              <q-item
+                v-for="(ingredient, index) in report.ingredient_bakers_reports"
+                :key="index"
+              >
+                <q-item-section>
+                  <q-item-label class="text-caption justify" align="center">
+                    {{ ingredient.ingredients.code }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section> </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption" align="center">
+                    {{ formatQuantity(ingredient.quantity) }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div
+            v-if="
+              report.bread_bakers_reports && report.bread_bakers_reports.length
+            "
+          >
+            <div class="section-title" align="center">Breads</div>
+            <q-list dense separator class="q-pa-md box">
+              <q-item>
+                <q-item-section>
+                  <q-item-label class="text-overline">Bread Name</q-item-label>
+                </q-item-section>
+                <q-item-section> </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-overline">Quantity</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-for="(bread, index) in report.bread_bakers_reports"
+                :key="index"
+              >
+                <q-item-section>
+                  <q-item-label class="text-caption" align="center">
+                    {{ bread.bread.name }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section> </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption" align="center">
+                    {{ bread.bread_production }} pcs
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div
+            v-if="
+              report.filling_bakers_reports &&
+              report.filling_bakers_reports.length
+            "
+          >
+            <div class="section-title" align="center">Fillings</div>
+            <q-list dense separator class="q-pa-md box">
+              <q-item>
+                <q-item-section>
+                  <q-item-label class="text-overline">Bread Name</q-item-label>
+                </q-item-section>
+                <q-item-section> </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-overline">Quantity</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-for="(filling, index) in report.filling_bakers_reports"
+                :key="index"
+              >
+                <q-item-section>
+                  <q-item-label class="text-caption" align="center">
+                    {{ filling.bread.name }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section> </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption" align="center">
+                    {{ filling.filling_production }} pcs
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+
+          <!-- </div> -->
+          <!--
           <div
             class="report-section"
             v-if="
@@ -97,7 +202,6 @@
               report.ingredient_bakers_reports.length
             "
           >
-            <div class="section-title" align="center">Ingredients</div>
             <ul>
               <div
                 v-for="ingredient in report.ingredient_bakers_reports"
@@ -112,9 +216,9 @@
                 </div>
               </div>
             </ul>
-          </div>
+          </div> -->
 
-          <div
+          <!-- <div
             class="report-section"
             v-if="
               report.bread_bakers_reports && report.bread_bakers_reports.length
@@ -129,9 +233,9 @@
                 </div>
               </div>
             </ul>
-          </div>
+          </div> -->
 
-          <div
+          <!-- <div
             class="report-section"
             v-if="
               report.filling_bakers_reports &&
@@ -148,9 +252,12 @@
                 - {{ filling.filling_production }} pcs
               </li>
             </ul>
-          </div>
+          </div> -->
         </div>
       </q-card-section>
+      <!-- <q-card-actions>
+        <q-btn>Edit</q-btn>
+      </q-card-actions> -->
     </q-card>
   </q-dialog>
 </template>
@@ -238,11 +345,15 @@ const formatQuantity = (quantity) => {
     const unit = kilos === 1 ? "kg" : "kgs";
     return `${kilos} ${unit}`;
   }
-  return `${quantity} grams`;
+  return `${quantity} g`;
 };
 </script>
 
 <style scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
 .report-dialog {
   max-width: 600px;
 }

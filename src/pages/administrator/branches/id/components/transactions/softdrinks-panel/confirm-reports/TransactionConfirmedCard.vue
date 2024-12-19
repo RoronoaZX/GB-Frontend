@@ -2,7 +2,42 @@
   <div>
     <q-scroll-area style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <q-card> </q-card>
+        <template v-if="softdrinksProductsConfirmed.length">
+          <q-card
+            v-for="(confirmed, index) in softdrinksProductsConfirmed"
+            :key="index"
+          >
+            <q-card-section>
+              <div class="row justify-between">
+                <div class="text-subtitle1">
+                  {{ formatDate(confirmed.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ formatTime(confirmed.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ confirmed.branch.name }} -
+                  {{ formatFullname(confirmed.employee) }}
+                </div>
+                <div>
+                  <q-badge color="green" outlined>
+                    {{ confirmed.status }}
+                  </q-badge>
+                </div>
+                <div>
+                  <TransactionView :report="confirmed" />
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </template>
+        <template v-else>
+          <!-- No data message -->
+          <div class="data-error">
+            <q-icon name="warning" color="warning" size="4em" />
+            <div class="q-ml-sm text-h6">No data available</div>
+          </div>
+        </template>
       </div>
     </q-scroll-area>
   </div>
@@ -10,6 +45,7 @@
 
 <script setup>
 import { useSoftdrinksProductStore } from "src/stores/softdrinks-products";
+import TransactionView from "./TransactionView.vue";
 import { useRoute } from "vue-router";
 import { date as quasarDate } from "quasar";
 import { computed, onMounted, ref } from "vue";
@@ -61,4 +97,11 @@ const formatFullname = (row) => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

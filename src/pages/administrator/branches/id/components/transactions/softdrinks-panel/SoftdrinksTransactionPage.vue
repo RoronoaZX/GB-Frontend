@@ -39,9 +39,7 @@
       <TransactionConfirmedCard />
     </q-tab-panel>
     <q-tab-panel name="declineReports">
-      <q-card>
-        <h1>Declined Cards</h1>
-      </q-card>
+      <TransactionDeclinedCard />
     </q-tab-panel>
   </q-tab-panels>
 </template>
@@ -50,6 +48,7 @@
 import { ref } from "vue";
 import TransactionPendingCard from "./pending-reports/TransactionPendingCard.vue";
 import TransactionConfirmedCard from "./confirm-reports/TransactionConfirmedCard.vue";
+import TransactionDeclinedCard from "./decline-reports/TransactionDeclinedCard.vue";
 
 const tab = ref("pendingReports");
 </script>

@@ -37,6 +37,7 @@
           Status:
           <q-badge color="red" outlined> {{ report.status }} </q-badge>
         </div>
+        <div class="q-mt-md">Remark: {{ report.remark }}</div>
       </q-card-section>
       <q-card-section>
         <q-table

@@ -40,7 +40,7 @@
       </q-card-section>
       <q-card-section>
         <q-table
-          :rows="fiteredRows"
+          :rows="filteredRows"
           :columns="transactionsColumns"
           row-key="id"
           flat
@@ -122,7 +122,7 @@ const openRemarkDialog = () => {
   remarkDialog.value = true;
 };
 
-const fiteredRows = computed(() => {
+const filteredRows = computed(() => {
   console.log("Filtered rows:", props.report || []);
   return props.report.selecta_added_stocks || [];
 });
@@ -140,19 +140,19 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`;
 };
 
-const confirmReport = async () => {
-  console.log("props.report.id", props.report.id);
-  try {
-    const confirmedReport = await selectaProductStore.confirmReport(
-      props.report.id
-    );
-    console.log("Report confirmed:", confirmedReport);
-    $q.notify({ type: "positive", message: "Report confirmed successfully" });
-    dialog.value = false;
-  } catch (error) {
-    console.log(error);
-  }
-};
+// const confirmReport = async () => {
+//   console.log("props.report.id", props.report.id);
+//   try {
+//     const confirmedReport = await selectaProductStore.confirmReport(
+//       props.report.id
+//     );
+//     console.log("Report confirmed:", confirmedReport);
+//     $q.notify({ type: "positive", message: "Report confirmed successfully" });
+//     dialog.value = false;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 const transactionsColumns = [
   {

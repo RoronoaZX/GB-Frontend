@@ -2,32 +2,41 @@
   <div>
     <q-scroll-area style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <q-card
-          v-for="(decline, index) in selectedProductsDeclined"
-          :key="index"
-        >
-          <q-card-section>
-            <!-- Display the Selecta product status and creation time -->
-            <div class="row justify-between">
-              <div class="text-subtitle1">
-                {{ formatDate(decline.created_at) }}
+        <template v-if="selectedProductsDeclined.length">
+          <q-card
+            v-for="(decline, index) in selectedProductsDeclined"
+            :key="index"
+          >
+            <q-card-section>
+              <!-- Display the Selecta product status and creation time -->
+              <div class="row justify-between">
+                <div class="text-subtitle1">
+                  {{ formatDate(decline.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ formatTime(decline.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ decline.branch.name }} -
+                  {{ formatFullname(decline.employee) }}
+                </div>
+                <div>
+                  <q-badge color="red" outlined> {{ decline.status }} </q-badge>
+                </div>
+                <div>
+                  <TransactionView :report="decline" />
+                </div>
               </div>
-              <div class="text-subtitle1">
-                {{ formatTime(decline.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ decline.branch.name }} -
-                {{ formatFullname(decline.employee) }}
-              </div>
-              <div>
-                <q-badge color="red" outlined> {{ decline.status }} </q-badge>
-              </div>
-              <div>
-                <TransactionView :report="decline" />
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
+            </q-card-section>
+          </q-card>
+        </template>
+        <template v-else>
+          <!-- No data message -->
+          <div class="data-error">
+            <q-icon name="warning" color="warning" size="4em" />
+            <div class="q-ml-sm text-h6">No data available</div>
+          </div>
+        </template>
       </div>
     </q-scroll-area>
   </div>
@@ -88,4 +97,11 @@ const formatFullname = (row) => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
