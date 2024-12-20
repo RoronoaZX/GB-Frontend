@@ -55,6 +55,14 @@
     <q-tab-panel name="softdrinks">
       <SoftdrinksTransactionPage />
     </q-tab-panel>
+    <q-tab-panel name="cake">
+      <q-card>
+        <h1>Cake</h1>
+      </q-card>
+    </q-tab-panel>
+    <q-tab-panel name="other">
+      <OtherTransactionPage />
+    </q-tab-panel>
   </q-tab-panels>
 </template>
 
@@ -62,6 +70,7 @@
 import { ref } from "vue";
 import SelectaTransactionPage from "./selecta-panel/SelectaTransactionPage.vue";
 import SoftdrinksTransactionPage from "./softdrinks-panel/SoftdrinksTransactionPage.vue";
+import OtherTransactionPage from "./other-panel/OtherTransactionPage.vue";
 
 const tab = ref("bread");
 </script>

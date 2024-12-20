@@ -1,9 +1,24 @@
 <template>
   <div class="q-mt-md">
+    <!-- Search Input -->
+    <!-- <q-input
+      outlined
+      dense
+      debounce="300"
+      v-model="filter"
+      placeholder="Search products..."
+      class="q-mb-md"
+    /> -->
     <q-scroll-area style="height: 700px; max-width: 1500px">
-      <div class="row q-pa-lg q-gutter-y-lg">
+      <div
+        v-if="!filteredBreadProducts || filteredBreadProducts.length === 0"
+        class="text-center q-pa-md"
+      >
+        No data available
+      </div>
+      <div v-else class="row q-pa-lg q-gutter-y-lg">
         <q-intersection
-          v-for="(item, index) in breadProducts"
+          v-for="(item, index) in filteredBreadProducts"
           :key="index"
           once
           transition="scale"
@@ -160,6 +175,12 @@ console.log("userdat", userData);
 const selectedItem = ref(null);
 const dialog = ref(false);
 
+// const filter = ref(""); // Filter input
+// Props
+const filter = defineProps({
+  filter: String,
+});
+
 const clickme = (item) => {
   selectedItem.value = item;
   dialog.value = true;
@@ -240,6 +261,13 @@ const breadProducts = computed(() => salesReportsStore.breadProducts);
 watch(breadProducts, (newVal) => {
   // console.log("breadProducts updated:", newVal);
 });
+
+const filteredBreadProducts = computed(
+  () =>
+    breadProducts.value?.filter((item) =>
+      item.product.name.toLowerCase().includes(filter.filter.toLowerCase())
+    ) || []
+);
 
 const closeDialog = () => {
   selectedItem.value = null;

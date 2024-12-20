@@ -1,9 +1,17 @@
 <template>
   <div class="q-mt-md">
     <q-scroll-area style="height: 450px; max-width: 1500px">
-      <div class="row q-pa-lg q-gutter-sm q-gutter-y-md">
+      <div
+        v-if="
+          !filteredSoftdrinksProducts || filteredSoftdrinksProducts.length === 0
+        "
+        class="text-center q-pa-md"
+      >
+        No data available
+      </div>
+      <div v-else class="row q-pa-lg q-gutter-sm q-gutter-y-md">
         <q-intersection
-          v-for="(item, index) in softdrinksProducts"
+          v-for="(item, index) in filteredSoftdrinksProducts"
           :key="index"
           once
           transition="scale"
@@ -158,6 +166,11 @@ const userData = salesReportsStore.user;
 const selectedItem = ref(null);
 const dialog = ref(false);
 
+// Props
+const filter = defineProps({
+  filter: String,
+});
+
 const clickme = (item) => {
   selectedItem.value = item;
   dialog.value = true;
@@ -238,6 +251,13 @@ const softdrinksProducts = computed(() => salesReportsStore.softdrinksProducts);
 watch(softdrinksProducts, (newVal) => {
   // console.log("softdrinksProducts updated:", newVal);
 });
+
+const filteredSoftdrinksProducts = computed(
+  () =>
+    softdrinksProducts.value?.filter((item) =>
+      item.product.name.toLowerCase().includes(filter.filter.toLowerCase())
+    ) || []
+);
 
 const closeDialog = () => {
   selectedItem.value = null;

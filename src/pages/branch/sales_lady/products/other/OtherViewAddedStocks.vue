@@ -5,18 +5,16 @@
     label="Stocks Reports"
     @click="openDialog"
   />
-
   <q-dialog
     v-model="dialog"
     :maximized="maximizedToggle"
     transition-show="slide-up"
     transition-hide="slide-down"
   >
-    <!-- @update:model-value="onDialogChange" -->
     <q-card>
       <q-card-section class="bg-gradient text-white">
         <div class="row justify-between">
-          <div class="text-h6">Selecta Stocks Reports</div>
+          <div class="text-h6">Other Products Stocks Reports</div>
           <div>
             <q-btn icon="close" flat dense round v-close-popup />
           </div>
@@ -25,13 +23,13 @@
       <q-card-section>
         <q-table
           :rows="rows"
-          :columns="selectaReport"
+          :columns="otherProductReport"
           row-key="id"
           flat
           bordered
           dense
           :pagination="pagination.page"
-          @request="fetchSelectaProductReports"
+          @request="fetchOtherProductReports"
         >
           <template v-slot:body-cell-employee="props">
             <q-td :props="props">
@@ -47,7 +45,8 @@
           </template>
           <template v-slot:body-cell-action="props">
             <q-td :props="props">
-              <SelectaViewStockReport :report="props.row" />
+              <!--  -->
+              <OtherViewStockReport :report="props.row" />
             </q-td>
           </template>
           <template>
@@ -55,7 +54,7 @@
               v-model="pagination.page"
               :max="maxPages"
               :max-pages="maxPages"
-              @update:model-value="fetchSelectaProductReports"
+              @update:model-value="fetchOtherProductReports"
             >
             </q-pagination>
           </template>
@@ -66,34 +65,31 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import OtherViewStockReport from "./OtherViewStockReport.vue";
+import { useOtherProductStore } from "src/stores/other-product";
 import { useSalesReportsStore } from "src/stores/sales-report";
-import { useSelectaProductsStore } from "src/stores/selecta-product";
-import SelectaViewStockReport from "./SelectaViewStockReport.vue";
+import { computed, ref, watch } from "vue";
 import { date } from "quasar";
 
-const selectaProductStore = useSelectaProductsStore();
-const selectaStocksReport = computed(
-  () => selectaProductStore.selectaProductReports
-);
-const selecta_added_stocks = selectaStocksReport.value.selecta_added_stocks;
+const otherProductStore = useOtherProductStore();
+const otherStocksReport = computed(() => otherProductStore.otherProductReports);
 
-const salesReportsStore = useSalesReportsStore();
-const userData = salesReportsStore.user;
+const salesReportStore = useSalesReportsStore();
+const userData = salesReportStore.user;
 const branches_id = userData?.employee?.branch_id || "";
-const dialog = ref(false);
+const dialog = ref([false]);
 const rows = ref([]);
 const openDialog = async () => {
   try {
     if (branches_id) {
-      await fetchSelectaProductReports(branches_id); // Fetch data before opening dialog
+      await fetchOtherProductReports(branches_id); // Fetch data before opening dialog
     }
-    dialog.value = true; // Open the dialog after data is fetched
+
+    dialog.value = true;
   } catch (error) {
     console.error("Error opening dialog:", error);
   }
 };
-
 const pagination = ref({
   page: 1,
   rowsPerPage: 10, // Matches Laravel's perPage
@@ -103,44 +99,28 @@ const pagination = ref({
 const maxPages = ref(1);
 const maximizedToggle = ref(true);
 
-// const onDialogChange = async (value) => {
-//   if (value) {
-//     // Dialog is opening; fetch data
-//     await fetchSelectaProductReports(branches_id);
-//   }
-// };
-
-const fetchSelectaProductReports = async () => {
-  // loading.value = true;
-
+const fetchOtherProductReports = async () => {
   try {
     const { page, rowsPerPage, sortBy, descending } = pagination.value;
 
     // Call the store function with the necessary parameters
-    const stocks = await selectaProductStore.fetchSelectaProductReports(
+    const stocks = await otherProductStore.fetchOtherProductReports(
       branches_id, // Branch ID
       page, // Current page
       rowsPerPage, // Items per page
       sortBy, // Sorting field
       descending // Sort direction
     );
-
     // Update the rows and maxPages based on the response
     rows.value = stocks.data; // Set the rows data
     maxPages.value = stocks.last_page; // Set the total number of pages
   } catch (error) {
     console.error("Error fetching selecta product reports:", error);
   }
-  // finally {
-  //   loading.value = false;
-  // }
 };
 
-// onMounted(async () => {
-//   if (branches_id) {
-//     await fetchSelectaProductReports(branches_id);
-//   }
-// });
+watch(() => pagination.value.page, fetchOtherProductReports);
+watch(() => pagination.value.rowsPerPage, fetchOtherProductReports);
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMMM DD, YYYY");
@@ -169,11 +149,28 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
-// const filteredRows = computed(() => {
-//   if (!filter)
-// })
+const getBadgeCategoryColor = (category) => {
+  switch (category) {
+    case "declined":
+      return "red";
+    case "confirmed":
+      return "green";
+    case "pending":
+      return "orange";
+    default:
+      return "grey";
+  }
+};
 
-const selectaReport = [
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const otherProductReport = [
   {
     name: "date",
     align: "center",
@@ -205,29 +202,6 @@ const selectaReport = [
     field: "action",
   },
 ];
-
-const getBadgeCategoryColor = (category) => {
-  switch (category) {
-    case "declined":
-      return "red";
-    case "confirmed":
-      return "green";
-    case "pending":
-      return "orange";
-    default:
-      return "grey";
-  }
-};
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-watch(() => pagination.value.page, fetchSelectaProductReports);
-watch(() => pagination.value.rowsPerPage, fetchSelectaProductReports);
 </script>
 
 <style lang="scss" scoped>

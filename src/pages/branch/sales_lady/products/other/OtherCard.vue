@@ -1,9 +1,17 @@
 <template>
   <div class="q-mt-md">
     <q-scroll-area style="height: 700px; max-width: 1500px">
-      <div class="row q-pa-lg q-gutter-y-lg">
-        <q-itersection
-          v-for="(item, index) in othersProducts"
+      <div
+        v-if="
+          !filteredSoftdrinksProducts || filteredSoftdrinksProducts.length === 0
+        "
+        class="text-center q-pa-md"
+      >
+        No data available
+      </div>
+      <div v-else class="row q-pa-lg q-gutter-y-lg">
+        <q-intersection
+          v-for="(item, index) in filteredSoftdrinksProducts"
           :key="index"
           once
           transition="scale"
@@ -39,7 +47,7 @@
             </q-card-section>
           </q-card>
           <!-- {{ item }} -->
-        </q-itersection>
+        </q-intersection>
       </div>
     </q-scroll-area>
   </div>
@@ -160,6 +168,11 @@ console.log("userdata for branch", userData);
 const selectedItem = ref(null);
 const dialog = ref(false);
 
+// Props
+const filter = defineProps({
+  filter: String,
+});
+
 const clickme = (item) => {
   selectedItem.value = item;
   dialog.value = true;
@@ -242,6 +255,13 @@ onMounted(async () => {
 const fetchProducts = async (branchId) => {
   const res = await salesReportsStore.fetchBranchProducts(branchId);
 };
+
+const filteredSoftdrinksProducts = computed(
+  () =>
+    othersProducts.value?.filter((item) =>
+      item.product.name.toLowerCase().includes(filter.filter.toLowerCase())
+    ) || []
+);
 
 const closeDialog = () => {
   selectedItem.value = null;
