@@ -25,7 +25,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
           `/api/warehouse/${warehouseId}/rawMaterials`
         );
 
-        console.log("response", response.data);
+        console.log("responsesss", response.data);
         warehouseRawMaterials.value = response.data;
       } catch (error) {
         console.log("error", error);
@@ -98,6 +98,20 @@ export const useWarehouseRawMaterialsStore = defineStore(
       }
     };
 
+    const warehouseAddSupply = async (data) => {
+      console.log("data, ", data);
+      try {
+        const response = await api.post(
+          `/api/warehouseRawMaterials-add-supply`,
+          data
+        );
+        warehouseRawMaterials.value = response.data;
+        console.log("warehouseRawMaterials save", warehouseRawMaterials);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     const deleteWarehouseRawMaterials = async (id) => {
       const response = await api.delete(
         `/api/warehouse-raw-materials-report/${id}`
@@ -117,6 +131,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
       fetchWarehouseRawMaterials,
       deleteWarehouseRawMaterials,
       searchWarehouseRawMaterials,
+      warehouseAddSupply,
     };
   }
 );

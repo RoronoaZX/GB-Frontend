@@ -41,8 +41,11 @@
                 <q-item-section>
                   <q-item-label class="text-overline">Quantity</q-item-label>
                 </q-item-section>
+                <!-- <q-item-section>
+                  <q-item-label class="text-overline">Unit</q-item-label>
+                </q-item-section> -->
                 <q-item-section side>
-                  <!-- Empty space for alignment with the delete button -->
+                  <!-- for the remove button -->
                 </q-item-section>
               </q-item>
               <q-item
@@ -53,6 +56,21 @@
                   <q-item-label class="text-caption">
                     {{ capitalizeFirstLetter(rawMaterials.label) }}
                   </q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption justify-between">
+                    {{ rawMaterials.quantity }} {{ rawMaterials.unit.value }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn
+                    @click="removeIngredient(index)"
+                    color="grey-10"
+                    icon="backspace"
+                    dense
+                    flat
+                    round
+                  />
                 </q-item-section>
               </q-item>
             </q-list>
@@ -88,7 +106,7 @@
           <div>
             <div class="q-my-sm" align="center">Amount</div>
             <q-input
-              v-model="addSupplierForm.ingredientAmount"
+              v-model="selectedRawMaterials.quantity"
               type="number"
               outlined
               dense
@@ -98,7 +116,7 @@
           <div>
             <div class="q-my-sm" align="center">Unit</div>
             <q-select
-              v-model="addSupplierForm.unit"
+              v-model="selectedRawMaterials.unit"
               :options="unitOptions"
               outlined
               behavior="menu"
@@ -107,21 +125,30 @@
             />
           </div>
         </div>
-        <div class="q-mt-sm">
-          <q-btn size="sm" outline dense icon="add" color="purple" />
-        </div>
+        <form @keyup.enter.prevent="addRawMaterials">
+          <div class="q-mt-sm">
+            <q-btn
+              size="sm"
+              outline
+              dense
+              icon="add"
+              color="purple"
+              @click="addRawMaterials"
+            />
+          </div>
+        </form>
       </q-card-section>
       <q-separator />
       <q-card-actions class="row q-ma-md" align="right">
         <q-btn class="glossy" color="grey-9" label="Cancel" v-close-popup />
-        <q-btn class="glossy" color="teal" label="Create" />
+        <q-btn class="glossy" color="teal" label="Create" @click="save" />
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-//i want to fetch the certain warehouse raw materials data
+//i fetching certain warehouse raw materials data
 
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
@@ -134,6 +161,8 @@ const userData = computed(() => warehouseRawMaterialsStore.user);
 console.log("userData", userData.value);
 const warehouseId = userData.value?.employee?.warehouse_id || "";
 console.log("warehouseId", warehouseId);
+const employeeId = userData.value?.employee?.employee_id || "";
+console.log("employeeId", employeeId);
 const addIngredientsDialog = ref(false);
 const ingredientsUnitOptions = ["Grams", "Kgs", "Pcs"];
 
@@ -147,13 +176,14 @@ const rawMaterialsOptions = ref([]);
 const selectedRawMaterials = reactive({
   name: "",
   quantity: "",
-  suffix: "",
+  unit: "",
 });
 
 const unitOptions = [
   { label: "Sack (25 kg each)", value: "sack" },
   { label: "Kilo", value: "kilo" },
   { label: "Gram", value: "gram" },
+  { label: "Pieces", value: "pcs" },
 ];
 
 const filterRawMaterialsOptions = ref(rawMaterialsOptions.value);
@@ -169,16 +199,23 @@ const fetchWarehouseRawMaterials = async () => {
     rawMaterialsOptions.value =
       warehouseRawMaterialsStore.warehouseRawMaterials.map((val) => {
         return {
-          label: val.name,
-          value: val.id,
-          suffix: val.unit,
+          label: val.raw_materials.name,
+          value: val.raw_materials.id,
+          suffix: val.raw_materials.unit,
         };
       });
+    console.log("rawMaterialsOptions", rawMaterialsOptions.value);
   } catch (error) {
     console.error("Error fetching warehouse raw materials:", error);
   }
 };
 fetchWarehouseRawMaterials();
+
+const clearData = () => {
+  (selectedRawMaterials.name = ""),
+    (selectedRawMaterials.quantity = ""),
+    (selectedRawMaterials.unit = "");
+};
 
 const filterRawMaterials = (val, update) => {
   update(() => {
@@ -189,10 +226,39 @@ const filterRawMaterials = (val, update) => {
       const needle = val.toLowerCase();
       // Filter options based on the input value
       filterRawMaterialsOptions.value = rawMaterialsOptions.value.filter(
-        (v) => v.label.toLowerCase().includes(needle) // Match label text
+        (v) => v.label.toLowerCase().includes(needle) > -1 // Match label text
       );
     }
   });
+};
+
+const addRawMaterials = () => {
+  console.log("clickckck");
+  const data = rawMaterialsGroups.value;
+
+  function findObjectById(arr, id) {
+    return arr.find((obj) => obj.raw_material_id == id);
+  }
+  const idToSearch = selectedRawMaterials.name.value;
+
+  const foundObject = findObjectById(data, idToSearch);
+
+  if (!foundObject) {
+    rawMaterialsGroups.value = [
+      ...data,
+      {
+        raw_material_id: selectedRawMaterials.name.value,
+        label: selectedRawMaterials.name.label,
+        quantity: selectedRawMaterials.quantity,
+        unit: selectedRawMaterials.unit,
+      },
+    ];
+    clearData();
+  }
+};
+
+const removeIngredient = (index) => {
+  rawMaterialsGroups.value.splice(index, 1);
 };
 
 const capitalizeFirstLetter = (location) => {
@@ -206,10 +272,56 @@ const capitalizeFirstLetter = (location) => {
 const addSupplierForm = reactive({
   companyName: "",
   supplierName: "",
-  ingredientName: "",
-  ingredientAmount: "",
-  unit: null,
 });
+
+const clearAddSupplierForm = () => {
+  addSupplierForm.companyName = "";
+  addSupplierForm.supplierName = "";
+};
+
+const convertToGrams = (rawMaterials) => {
+  return rawMaterials.map((item) => {
+    let convertedQuantity = item.quantity;
+
+    if (item.unit.value === "sack") {
+      // 1 sack = 25 kg = 25,000 grams
+      convertedQuantity = item.quantity * 25000;
+    } else if (item.unit.value === "kilo") {
+      // 1 kg = 1,000 grams
+      convertedQuantity = item.quantity * 1000;
+    } else if (item.unit.value === "gram") {
+      // Already in grams, no conversion needed
+      convertedQuantity = item.quantity;
+    }
+
+    // Other units like pieces can remain unchanged
+    return {
+      ...item,
+      convertedQuantity, // Add converted quantity for clarity
+      unit: { ...item.unit, value: "gram" }, // Update unit to grams
+    };
+  });
+};
+
+const save = async () => {
+  const rawMaterialsConverted = convertToGrams(rawMaterialsGroups.value);
+
+  const newData = {
+    employee_id: employeeId,
+    warehouse_id: warehouseId,
+    supplier_company_name: addSupplierForm.companyName,
+    supplier_name: addSupplierForm.supplierName,
+    raw_materials: rawMaterialsConverted.map((item) => ({
+      raw_material_id: item.raw_material_id,
+      quantity: item.convertedQuantity, // Use the converted quantity
+      unit: item.unit.value, // Always save as grams
+    })),
+  };
+
+  await warehouseRawMaterialsStore.warehouseAddSupply(newData);
+  clearData();
+  clearAddSupplierForm();
+};
 </script>
 
 <style lang="scss" scoped>

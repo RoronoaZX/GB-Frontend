@@ -135,7 +135,7 @@ const reloadTableData = async (warehouseId) => {
     if (!warehouseRawMaterialsRows.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Branch Raw Materials", warehouseRawMaterialsRows.value);
+    console.log("Warehouse Raw Materials", warehouseRawMaterialsRows.value);
   } catch (error) {
     console.log("Error fetching branch product:", error);
     showNoDataMessage.value = true;
@@ -180,6 +180,7 @@ watch(filter, async (newFilter) => {
 const getRawMaterialBadgeColor = (row) => {
   const totalQuantity = row.total_quantity;
   const unit = row.raw_materials.unit;
+  console.log("unit test", unit);
   if (unit === "Grams" && totalQuantity < 1000) {
     return "bg-red";
   }

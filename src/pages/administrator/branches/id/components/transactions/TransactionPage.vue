@@ -11,36 +11,11 @@
       align="justify"
       class="gradient-btn"
     >
-      <q-tab
-        class="text-white"
-        name="bread"
-        icon="event_available"
-        label="Bread"
-      />
-      <q-tab
-        class="text-white"
-        name="selecta"
-        icon="event_available"
-        label="Selecta"
-      />
-      <q-tab
-        class="text-white"
-        name="softdrinks"
-        icon="calendar_month"
-        label="Softdrinks"
-      />
-      <q-tab
-        class="text-white"
-        name="cake"
-        icon="calendar_month"
-        label="Cake"
-      />
-      <q-tab
-        class="text-white"
-        name="other"
-        icon="calendar_month"
-        label="Others"
-      />
+      <q-tab class="text-white" name="bread" label="🍞Bread" />
+      <q-tab class="text-white" name="selecta" label="🍦Selecta" />
+      <q-tab class="text-white" name="softdrinks" label="🥤Softdrinks" />
+      <q-tab class="text-white" name="cake" label="🍰Cake" />
+      <q-tab class="text-white" name="other" label="⭐Others" />
     </q-tabs>
   </div>
   <q-tab-panels v-model="tab" animated>

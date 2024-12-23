@@ -2,32 +2,28 @@
   <div class="q-gutter-y-sm">
     <q-tabs
       v-model="tab"
-      active-color="light-green-13"
-      indicator-color="light-green-13"
+      :indicator-color="currentIndicatorColor"
       narrow-indicator
       no-caps
       inline-label
       dense
       align="justify"
-      class="gradient-btn"
     >
+      <!-- class="gradient-btn" -->
       <q-tab
-        class="text-white"
+        class="text-dark"
         name="pendingReports"
-        icon="event_available"
-        label="Pending Reports"
+        label="🟡Pending Reports"
       />
       <q-tab
-        class="text-white"
+        class="text-dark"
         name="confirmReports"
-        icon="calendar_month"
-        label="Confirm Reports"
+        label="🟢Confirm Reports"
       />
       <q-tab
-        class="text-white"
+        class="text-dark"
         name="declineReports"
-        icon="calendar_month"
-        label="Decline Reports"
+        label="🛑Decline Reports"
       />
     </q-tabs>
   </div>
@@ -45,12 +41,25 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import TransactionPendingCard from "./pending-reports/TransactionPendingCard.vue";
 import TransactionConfirmedCard from "./confirm-reports/TransactionConfirmedCard.vue";
 import TransactionDeclinedCard from "./decline-reports/TransactionDeclinedCard.vue";
 
 const tab = ref("pendingReports");
+
+const currentIndicatorColor = computed(() => {
+  switch (tab.value) {
+    case "pendingReports":
+      return "warning"; // Color for pending reports
+    case "confirmReports":
+      return "green-13"; // Color for confirm reports
+    case "declineReports":
+      return "red-6"; // Color for decline reports
+    default:
+      return "light-green-13"; // Fallback color
+  }
+});
 </script>
 
 <style lang="scss" scoped>
