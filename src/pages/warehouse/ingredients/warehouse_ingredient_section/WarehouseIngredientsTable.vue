@@ -75,6 +75,7 @@ onMounted(async () => {
 const reloadTableData = async (warehouseId) => {
   console.log("Fetching raw materials for warehouse ID:", warehouseId);
   try {
+    loading.value = true;
     const response =
       await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
     warehouseRawMaterialsRows.value = response;

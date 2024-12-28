@@ -50,6 +50,12 @@
                   {{ formatFullname(report.user.employee) }}
                 </div>
               </div>
+              <div class="row q-gutter-x-sm">
+                <div class="text-subtitle2">Remarks:</div>
+                <div class="text-body1 text-weight-light">
+                  {{ report.remark ? report.remark : "N/A" }}
+                </div>
+              </div>
             </div>
           </div>
           <div>

@@ -10,6 +10,10 @@ export const useWarehouseRawMaterialsStore = defineStore(
     const warehouseRawMaterial = ref(null);
     const warehouseRawMaterials = ref([]);
     const warehouseId = ref([]);
+    const branch = ref([]);
+    const branchRawMaterials = ref([]);
+    const branchRecipe = ref([]);
+    const warehouseRawMaterialsReport = ref([]);
     const user = ref({});
 
     const setUser = (newUser) => {
@@ -17,6 +21,16 @@ export const useWarehouseRawMaterialsStore = defineStore(
     };
     const rawMaterialsStore = useRawMaterialsStore();
     const rawMaterialsData = computed(() => rawMaterialsStore.rawMaterials);
+
+    const setReport = (report) => {
+      console.log("report", report);
+      warehouseRawMaterialsReport.value.push(report);
+      branchRecipe.value = [];
+    };
+
+    const removeReport = (index) => {
+      warehouseRawMaterialsReport.value.splice(index, 1);
+    };
 
     const fetchWarehouseRawMaterials = async (warehouseId) => {
       console.log("warehouseId", warehouseId);
@@ -32,6 +46,27 @@ export const useWarehouseRawMaterialsStore = defineStore(
       }
     };
 
+    const fetchBranchUnderWarehouse = async (warehouseId) => {
+      try {
+        const response = await api.get(`/api/warehouse/${warehouseId}/branch`);
+        console.log("responsesss", response.data);
+        branch.value = response.data;
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    const fetchBranchRawMaterials = async (branchId) => {
+      console.log("branchIdss", branchId);
+      try {
+        const response = await api.get(`/api/branch/${branchId}/rawMaterials`);
+        console.log("responsesss", response.data);
+        branchRawMaterials.value = response.data;
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
     const searchWarehouseRawMaterials = async (searchKeyWord, warehouseId) => {
       const response = await api.post(`/api/search-warehouse-rawMaterials`, {
         keyword: searchKeyWord,
@@ -39,6 +74,17 @@ export const useWarehouseRawMaterialsStore = defineStore(
       });
 
       warehouseRawMaterials.value = response.data;
+    };
+
+    const searchBranchRecipe = async (searchQuery, branchId) => {
+      const response = await api.get(`/api/branch-recipe-search`, {
+        params: {
+          keyword: searchQuery,
+          branch_id: branchId,
+        },
+      });
+      branchRecipe.value = response.data;
+      console.log("branch recipe", response.data);
     };
 
     const createWarehouseRawMaterials = async (data) => {
@@ -123,15 +169,24 @@ export const useWarehouseRawMaterialsStore = defineStore(
 
     return {
       setUser,
+      setReport,
+      removeReport,
       user,
+      branch,
       warehouseId,
+      branchRecipe,
+      branchRawMaterials,
       warehouseRawMaterial,
       warehouseRawMaterials,
+      warehouseRawMaterialsReport,
       createWarehouseRawMaterials,
       fetchWarehouseRawMaterials,
       deleteWarehouseRawMaterials,
       searchWarehouseRawMaterials,
       warehouseAddSupply,
+      fetchBranchUnderWarehouse,
+      fetchBranchRawMaterials,
+      searchBranchRecipe,
     };
   }
 );

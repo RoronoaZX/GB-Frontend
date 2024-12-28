@@ -15,11 +15,11 @@
           </div>
         </div>
       </q-card-section>
-      <q-card-section>
+      <!-- <q-card-section>
         <div class="row">
           <BakersReportSearch />
         </div>
-      </q-card-section>
+      </q-card-section> -->
       <q-card-section>
         <div>
           <ReportSearch />

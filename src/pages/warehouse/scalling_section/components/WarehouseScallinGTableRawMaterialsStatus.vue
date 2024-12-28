@@ -12,6 +12,7 @@
   </q-btn>
   <q-dialog v-model="brancheStatusDialog" full-width>
     <!-- style="width: 1000px; max-width: 90vw;" -->
+    <!-- {{ props.branch }} -->
     <q-card class="my-card">
       <q-card-section
         class="row justify-between"
@@ -19,106 +20,138 @@
       >
         <div class="text-h6 text-white">
           <q-icon name="fa-solid fa-store" />
-          Branch 1
+          {{ props.branch.name }}
         </div>
         <div class="text-white">
           <q-btn flat round dense icon="close" v-close-popup />
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="text-h6 q-ml-lg">Raw Materials Status</div>
-        <div class="q-pa-lg card-grid">
-          <q-card
-            bordered
-            dense
-            v-for="card in cards"
-            :key="card.id"
-            class="card"
-          >
-            <q-card-section>
-              <div>{{ card.title }}</div>
-            </q-card-section>
-            <q-separator />
-            <q-card-section>
-              <div class="row justify-between">
-                <div class="text-h6">
-                  <strong>{{ card.description }}</strong>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
+        <q-table
+          :rows="branchRawMaterialsRows"
+          :columns="rawMaterialsColumns"
+          class="table-container sticky-header"
+          flat
+          dense
+          virtual-scroll
+          v-model:pagination="pagination"
+          :rows-per-page-options="[0]"
+          hide-bottom
+          style="height: 340px"
+        >
+          <template v-slot:body-cell-total_quantity="props">
+            <q-td :props="props">
+              <q-badge
+                square
+                class="text-white cursor-pointer"
+                :class="getRawMaterialBadgeColor(props.row)"
+              >
+                {{ formatTotalQuantity(props.row) }}
+                <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+                  <div class="text-white">Edit Available Stocks</div>
+                </q-tooltip>
+              </q-badge>
+            </q-td>
+          </template>
+        </q-table>
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
+
+const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
+const branchRawMaterialsRows = computed(
+  () => warehouseRawMaterialsStore.branchRawMaterials
+);
+const props = defineProps({
+  branch: Object,
+});
+const pagination = ref({
+  rowsPerPage: 0,
+});
+console.log("branch", props.branch);
+const branchId = props.branch.id;
+
+const reloadBranchRawMaterials = async (branchId) => {
+  const response = await warehouseRawMaterialsStore.fetchBranchRawMaterials(
+    branchId
+  );
+  console.log("response.value", response);
+  branchRawMaterialsRows.value = response;
+  console.log("branchRawMaterialsRowssss", branchRawMaterialsRows.value);
+};
 
 const brancheStatusDialog = ref();
 
 const open_branch_status_dialog = () => {
+  reloadBranchRawMaterials(branchId);
   brancheStatusDialog.value = true;
 };
 
-const searchTerm = ref("");
+const getRawMaterialBadgeColor = (row) => {
+  const totalQuantity = row.total_quantity;
+  const unit = row.ingredients.unit;
+  if (unit === "Grams" && totalQuantity < 1000) {
+    return "bg-red";
+  }
 
-// const filterCards = computed(() => {
-//     return cards.filter(card =>{
-//         return card.title.toLowerCase().includes(searchTerm.value.toLowerCase()) || card.description.toLowerCase().includes(searchTerm.value.toLowerCase)
-//     })
-// })
+  let stockValue;
+  if (totalQuantity >= 1000) {
+    stockValue = totalQuantity / 1000;
+  } else {
+    stockValue = totalQuantity;
+  }
 
-const cards = [
+  if (stockValue < 5) {
+    if (stockValue <= 2) {
+      return "bg-red";
+    } else if (stockValue <= 3) {
+      return "bg-warning";
+    } else {
+      return "bg-warning";
+    }
+  } else {
+    return "bg-positive";
+  }
+};
+
+const formatTotalQuantity = (row) => {
+  const totalQuantity = row.total_quantity;
+  const unit = row.ingredients.unit;
+
+  if (totalQuantity > 1000) {
+    const totalQuantityKilo = (totalQuantity / 1000).toFixed(2);
+    if (totalQuantityKilo.endsWith(".00")) {
+      return `${Math.round(totalQuantity / 1000)} kilos`;
+    } else {
+      return `${totalQuantityKilo} kilos`;
+    }
+  } else if (totalQuantity > 1) {
+    return `${totalQuantity} ${unit}`;
+  } else {
+    return `${totalQuantity} ${unit}`;
+  }
+};
+
+const rawMaterialsColumns = [
   {
-    id: 1,
-    title: "Bread Group 1",
-    description: "20kg",
+    name: "name",
+    required: true,
+    label: "Name",
+    align: "left",
+    field: (row) => row.ingredients.name,
+    format: (val) => `${val}`,
   },
   {
-    id: 2,
-    title: "Bread Group 2",
-    description: "40kg",
-  },
-  {
-    id: 3,
-    title: "Bread Group 3",
-    description: "50kg",
-  },
-  {
-    id: 4,
-    title: "Bread Group 4",
-    description: "10kg",
-  },
-  {
-    id: 5,
-    title: "Bread Group 5",
-    description: "30kg",
-  },
-  {
-    id: 6,
-    title: "Bread Group 6",
-    description: "70kg",
-  },
-  {
-    id: 7,
-    title: "Bread Group 7",
-    description: "30kg",
-  },
-  {
-    id: 8,
-    title: "Bread Group 8 ",
-    description: "70kg",
-  },
-  {
-    id: 9,
-    title: "Bread Group 9",
-    description: "30kg",
-  },
-  {
-    id: 10,
-    title: "Bread Group 10 ",
-    description: "70kg",
+    name: "total_quantity",
+    required: true,
+    label: "Available Stocks",
+    align: "left",
+    field: (row) => row.total_quantity,
+    format: (val) => `${val}`,
   },
 ];
 </script>
@@ -132,5 +165,13 @@ const cards = [
 
 .card {
   max-width: 100%;
+}
+.table-container {
+  max-height: 400px; /* Adjust as needed */
+  overflow: hidden;
+}
+
+.q-table-container {
+  overflow: hidden !important; /* Target the container generated by q-table */
 }
 </style>

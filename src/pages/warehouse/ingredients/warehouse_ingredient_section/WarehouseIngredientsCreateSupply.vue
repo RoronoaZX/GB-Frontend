@@ -164,7 +164,9 @@ console.log("warehouseId", warehouseId);
 const employeeId = userData.value?.employee?.employee_id || "";
 console.log("employeeId", employeeId);
 const addIngredientsDialog = ref(false);
-const ingredientsUnitOptions = ["Grams", "Kgs", "Pcs"];
+const warehouseRawMaterialsRows = computed(
+  () => warehouseRawMaterialsStore.warehouseRawMaterials
+);
 
 const open_add_ingredients_dialog = () => {
   addIngredientsDialog.value = true;
@@ -277,6 +279,7 @@ const addSupplierForm = reactive({
 const clearAddSupplierForm = () => {
   addSupplierForm.companyName = "";
   addSupplierForm.supplierName = "";
+  rawMaterialsGroups.value = [];
 };
 
 const convertToGrams = (rawMaterials) => {
@@ -319,8 +322,11 @@ const save = async () => {
   };
 
   await warehouseRawMaterialsStore.warehouseAddSupply(newData);
+  warehouseRawMaterialsRows.value =
+    await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
   clearData();
   clearAddSupplierForm();
+  addIngredientsDialog.value = false;
 };
 </script>
 

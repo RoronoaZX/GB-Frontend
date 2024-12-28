@@ -1,7 +1,7 @@
 <template>
   <q-card flat>
     <q-card-section>
-      <div class="text-h6">Scalling Section</div>
+      <div class="text-h6">Scaling Section</div>
     </q-card-section>
     <q-card-section>
       <div>
