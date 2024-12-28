@@ -4,10 +4,12 @@
     rounded
     outlined
     dense
-    flat
+    debounce="300"
     placeholder="Search..."
-    style="width: 500px; max-width: 1500px; min-width: 100px"
+    class="q-mb-md"
+    @update:model-value="emitSearch"
   >
+    <!-- style="width: 500px; max-width: 1500px; min-width: 100px" -->
     <template v-slot:prepend>
       <div>
         <q-icon name="search" />
@@ -18,6 +20,13 @@
 
 <script setup>
 import { ref } from "vue";
-
+// Local search term
 const searchEngine = ref("");
+const emit = defineEmits(["update-search"]);
+
+// Emit search term to parent
+const emitSearch = () => {
+  console.log("Emitting search term:", searchEngine.value); // Log emitted value
+  emit("update-search", searchEngine.value);
+};
 </script>

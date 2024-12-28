@@ -144,6 +144,27 @@ export const useWarehouseRawMaterialsStore = defineStore(
       }
     };
 
+    const saveWarehouseRawMaterialsReport = async () => {
+      try {
+        console.log(
+          "warehouseRawMaterialsReport",
+          warehouseRawMaterialsReport.value
+        );
+
+        const response = await api.post(`/api/warehouse-rawMaterials-report`, {
+          reports: warehouseRawMaterialsReport.value,
+        });
+        console.log("Report saved successfully:", response.data);
+      } catch (error) {
+        if (error.response && error.response.data) {
+          console.error("Error response:", error.response.data);
+          // Display error messages in the UI if necessary
+        } else {
+          console.error("Unexpected error:", error);
+        }
+      }
+    };
+
     const warehouseAddSupply = async (data) => {
       console.log("data, ", data);
       try {
@@ -187,6 +208,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
       fetchBranchUnderWarehouse,
       fetchBranchRawMaterials,
       searchBranchRecipe,
+      saveWarehouseRawMaterialsReport,
     };
   }
 );

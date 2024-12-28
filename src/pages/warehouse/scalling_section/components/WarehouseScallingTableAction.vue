@@ -133,7 +133,9 @@
                     </q-item-section>
                     <q-item-section> </q-item-section>
                     <q-item-section side>
-                      <q-item-label>{{ ingredient.quantity }}</q-item-label>
+                      <q-item-label>{{
+                        formatQuantity(ingredient.quantity)
+                      }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -148,7 +150,12 @@
       <q-separator />
       <q-card-actions class="row q-ma-md" align="right">
         <q-btn class="glossy" color="grey-9" label="Cancel" v-close-popup />
-        <q-btn class="glossy" color="teal" label="Create" />
+        <q-btn
+          class="glossy"
+          color="teal"
+          label="Create"
+          @click="saveToDataBase"
+        />
         <!-- @click="addScaleIngredientsToStore" -->
       </q-card-actions>
     </q-card>
@@ -160,6 +167,12 @@ import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials
 import RawMaterialsCard from "./RawMaterialsCard.vue";
 
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
+const userData = computed(() => warehouseRawMaterialsStore.user);
+console.log("userData", userData.value);
+const employee_id = userData.value?.data?.employee_id || "";
+console.log("employee_id", employee_id);
+const warehouse_id = userData.value?.employee?.warehouse_id || "";
+console.log("warehouse_id", warehouse_id);
 const branchRecipe = computed(() => warehouseRawMaterialsStore.branchRecipe);
 const ingredientsGroup = ref([]);
 const recipeName = ref("");
@@ -170,7 +183,7 @@ const props = defineProps({
 });
 const branch_id = props.branch.id;
 const maximizedToggle = ref(true);
-console.log("branch", props.branch);
+console.log("branchsss", props.branch);
 
 const search = async () => {
   console.log("searchQuery.value", searchQuery.value);
@@ -209,14 +222,30 @@ const scaledIngredientsGroup = computed(() => {
   }));
 });
 
+const formatQuantity = (quantity) => {
+  const num = Number(quantity); // Convert to a number
+
+  if (num >= 1000) {
+    // Convert to kilograms if quantity is >= 1000 grams
+    const kilos = num / 1000;
+    return `${kilos % 1 === 0 ? kilos.toFixed(0) : kilos.toFixed(2)} kgs`;
+  } else {
+    // format as grams
+    return `${num % 1 === 0 ? num.toFixed(0) : num.toFixed(2)} g`;
+  }
+};
+
 const addScaleIngredientsToStore = async () => {
   const scaledIngredients = {
+    warehouse_id,
+    employee_id,
     branch_id,
     kilo: addScaleForm.kilo,
     recipe_id: recipe_id.value,
     recipeName: recipeName.value,
     recipe_category: recipe_category.value,
     ingredients: scaledIngredientsGroup.value,
+    status: "pending",
   };
   await warehouseRawMaterialsStore.setReport(scaledIngredients);
   console.log("scaledIngredients", scaledIngredients);
@@ -225,6 +254,10 @@ const addScaleIngredientsToStore = async () => {
   recipeName.value = "";
   recipe_category.value = "";
   ingredientsGroup.value = [];
+};
+
+const saveToDataBase = async () => {
+  await warehouseRawMaterialsStore.saveWarehouseRawMaterialsReport();
 };
 </script>
 

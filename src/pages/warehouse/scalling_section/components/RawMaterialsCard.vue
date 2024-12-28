@@ -44,23 +44,21 @@
               label="Ingredients"
               dense
             >
-              <ul class="q-pl-md">
-                <li
-                  v-for="(ingredient, ingredientIndex) in report.ingredients"
-                  :key="'ingredient-' + ingredientIndex"
-                  class="q-my-sm"
-                >
-                  <div class="row justify-between">
-                    <div>
-                      {{ ingredient.ingredient_name }}
-                    </div>
-                    <div>
-                      {{ ingredient.quantity }}
-                      {{ ingredient.unit }}
-                    </div>
-                  </div>
-                </li>
-              </ul>
+              <q-item
+                v-for="(ingredient, ingredientIndex) in report.ingredients"
+                :key="'ingedient-' + ingredientIndex"
+              >
+                <q-item-section>
+                  <q-item-label>{{ ingredient.ingredient_name }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <!-- <div>{{ ingredient.quantity }}</div>
+                   -->
+                  <q-item-label>{{
+                    formatQuantity(ingredient.quantity)
+                  }}</q-item-label>
+                </q-item-section>
+              </q-item>
             </q-expansion-item>
           </q-card-section>
         </q-card>
@@ -80,6 +78,19 @@ const warehouseRawMaterialsReport = computed(
 
 const removeReports = (index) => {
   warehouseRawMaterialsStore.removeReport(index);
+};
+
+const formatQuantity = (quantity) => {
+  const num = Number(quantity); // Convert to a number
+
+  if (num >= 1000) {
+    // Convert to kilograms if quantity is >= 1000 grams
+    const kilos = num / 1000;
+    return `${kilos % 1 === 0 ? kilos.toFixed(0) : kilos.toFixed(2)} Kgs`;
+  } else {
+    // format as grams
+    return `${num % 1 === 0 ? num.toFixed(0) : num.toFixed(2)} g`;
+  }
 };
 
 const capitalizeFirstLetter = (location) => {
