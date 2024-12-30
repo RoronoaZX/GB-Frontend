@@ -114,53 +114,26 @@
       </template>
       <template v-slot:body-cell-bread_groups="props">
         <q-td :props="props">
-          <q-tooltip
-            :offset="[0, 10]"
-            :delay="600"
-            class="bg-info text-dark text-subtitle1"
+          <q-btn
+            no-caps
+            @click="handleRecipeBreadGroupsDialog(props.row)"
+            :label="`${props.row.bread_groups.length} breads`"
+            rounded
+            color="brown"
           >
-            <div
-              class="q-pb-sm text-center text-h6 text-weight-bold text-subtitle2"
-            >
-              Breads List
-            </div>
-            <q-separator class="q-mb-md" color="yellow" />
-            <div v-for="bread in props.row.bread_groups" :key="bread">
-              {{ bread }}
-            </div>
-          </q-tooltip>
-          <q-chip square outline color="red-6" class="text-white">
-            {{ props.row.bread_groups.length }} breads
-          </q-chip>
+          </q-btn>
         </q-td>
       </template>
       <template v-slot:body-cell-ingredient_groups="props">
         <q-td :props="props">
-          <q-tooltip
-            :delay="600"
-            class="bg-info text-dark text-subtitle1"
-            style="width: 300px"
+          <q-btn
+            no-caps
+            @click="handleRecipeIngredientGroupsDialog(props.row)"
+            :label="`${props.row.ingredient_groups.length} ingredients`"
+            rounded
+            color="purple"
           >
-            <div
-              class="q-pb-sm text-center text-h6 text-weight-bold text-subtitle2"
-            >
-              Ingredients List
-            </div>
-            <q-separator class="q-mb-md" color="yellow" />
-            <div
-              class="row justify-between"
-              v-for="ingredient in props.row.ingredient_groups"
-              :key="ingredient.ingredient_name"
-            >
-              <div>
-                {{ ingredient.ingredient_name }}
-              </div>
-              <div>{{ ingredient.quantity }} {{ ingredient.unit }}</div>
-            </div>
-          </q-tooltip>
-          <q-chip square outline color="purple-6" class="text-white">
-            {{ props.row.ingredient_groups.length }} ingredients
-          </q-chip>
+          </q-btn>
         </q-td>
       </template>
       <template v-slot:body-cell-action="props">
@@ -180,8 +153,10 @@ import RecipeCreate from "./RecipeCreate.vue";
 import { useRoute } from "vue-router";
 import { useBranchRecipeStore } from "src/stores/branch-recipe";
 import RecipeDelete from "./RecipeDelete.vue";
+import RecipeBreadGroups from "./RecipeBreadGroups.vue";
+import RecipeIngredientGroups from "./RecipeIngredientGroups.vue";
 import { api } from "src/boot/axios";
-import { Notify } from "quasar";
+import { Notify, useQuasar } from "quasar";
 const route = useRoute();
 
 const branchId = route.params.branch_id;
@@ -348,6 +323,27 @@ const branchRecipeColumns = [
     sortable: true,
   },
 ];
+
+const $q = useQuasar();
+
+const handleRecipeBreadGroupsDialog = (breadGroups) => {
+  console.log("Bread Groups:", breadGroups);
+  $q.dialog({
+    component: RecipeBreadGroups,
+    componentProps: {
+      breadGroups: breadGroups,
+    },
+  });
+};
+const handleRecipeIngredientGroupsDialog = (ingredientGroups) => {
+  console.log("Ingredients Groups:", ingredientGroups);
+  $q.dialog({
+    component: RecipeIngredientGroups,
+    componentProps: {
+      ingredientGroups: ingredientGroups,
+    },
+  });
+};
 
 const getBadgeStatusColor = (status) => {
   switch (status) {

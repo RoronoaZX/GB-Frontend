@@ -6,10 +6,26 @@ import { ref } from "vue";
 export const useBranchRecipeStore = defineStore("branchRecipe", () => {
   const branchRecipe = ref(null);
   const branchRecipes = ref([]);
+  const ingredients = ref([]);
 
   const fetchBranchRecipes = async (branchId) => {
     const response = await api.get(`/api/branches/${branchId}/recipes`);
     branchRecipes.value = response.data;
+  };
+
+  const fetchBranchRawMaterials = async (category, branchId) => {
+    console.log("fetchBranchRawMaterials", category, branchId);
+    try {
+      const response = await api.get(`/api/branch/${branchId}/ingredients`, {
+        params: {
+          category: category,
+        },
+      });
+      console.log("ingredients", response.data);
+      ingredients.value = response.data;
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const saveBranchRecipe = async (data) => {
@@ -87,9 +103,11 @@ export const useBranchRecipeStore = defineStore("branchRecipe", () => {
   return {
     branchRecipe,
     branchRecipes,
+    ingredients,
     saveBranchRecipe,
     fetchBranchRecipes,
     deleteRecipe,
     searchBranchRecipe,
+    fetchBranchRawMaterials,
   };
 });

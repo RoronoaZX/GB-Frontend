@@ -91,8 +91,8 @@ const reloadTableData = async (warehouseId) => {
   }
 };
 const getRawMaterialBadgeColor = (row) => {
-  const totalQuantity = row.total_quantity;
-  const unit = row.raw_materials.unit || "grams"; // Default to "grams" if no unit is provided
+  const totalQuantity = row?.total_quantity?.value || 0;
+  const unit = row?.raw_materials?.unit || "grams"; // Default to "grams" if no unit is provided
 
   // Determine the display unit
   let displayUnit = "grams"; // Default unit
@@ -134,8 +134,8 @@ const getRawMaterialBadgeColor = (row) => {
 };
 
 const formatTotalQuantity = (row) => {
-  const totalQuantity = row.total_quantity;
-  const unit = row.unit || "units"; // Assuming `row.unit` contains the original unit (defaulting to 'units' if not present)
+  const totalQuantity = row?.total_quantity || 0;
+  const unit = row?.unit || "units"; // Assuming `row.unit` contains the original unit (defaulting to 'units' if not present)
 
   console.log("totalQuantity:", totalQuantity);
   console.log("unit:", unit);
@@ -166,7 +166,7 @@ const rawMaterialsColumns = [
     name: "name",
     label: "Ingredients Name",
     align: "center",
-    field: (row) => row.raw_materials.name,
+    field: (row) => row?.raw_materials?.name || "N/A",
     format: (val) => `${val}`,
     sortable: true,
   },

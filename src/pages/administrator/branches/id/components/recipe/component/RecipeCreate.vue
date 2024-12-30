@@ -237,7 +237,7 @@ const recipeStore = useRecipeStore();
 const recipesData = computed(() => recipeStore.recipes);
 const branchRecipeStore = useBranchRecipeStore();
 const breadProductStore = useProductsStore();
-const ingredientsStore = useRawMaterialsStore();
+const ingredientsStore = useBranchRecipeStore();
 const branchRecipeRows = computed(() => branchRecipeStore.branchRecipes);
 
 const dialog = ref(false);
@@ -309,13 +309,17 @@ const fetchBreadsData = async () => {
 fetchBreadsData();
 
 const fetchIngredientsData = async () => {
-  const ingredient = await ingredientsStore.fetchIngredients("Ingredients");
+  const category = "Ingredients";
+  const ingredient = await ingredientsStore.fetchBranchRawMaterials(
+    category,
+    branchId
+  );
   loading.value = false;
   ingredientOptions.value = ingredientsStore.ingredients.map((val) => {
     return {
-      label: val.name,
-      value: val.id,
-      unit: val.unit,
+      label: val.raw_material_name,
+      value: val.raw_material_id,
+      unit: val.ingredient_unit,
     };
   });
 };
