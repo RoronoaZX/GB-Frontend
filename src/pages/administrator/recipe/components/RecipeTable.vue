@@ -254,30 +254,30 @@ const capitalizeFirstLetter = (location) => {
 //   }
 // }
 
-// async function updateRecipeName(data, val) {
-//   try {
-//     const response = await api.put("/api/update-name/" + data.id, {
-//       name: val,
-//     });
-//     if (response.status == 200) {
-//       const i = recipes.value.findIndex((item) => item.id == data.id);
-//       recipes.value[i] = val;
-//     }
+async function updateRecipeName(data, val) {
+  try {
+    const response = await api.put("/api/update-name/" + data.id, {
+      name: val,
+    });
+    if (response.status == 200) {
+      const i = recipes.value.findIndex((item) => item.id == data.id);
+      recipes.value[i] = val;
+    }
 
-//     Notify.create({
-//       type: "positive",
-//       message: "Recipe name edited successfully",
-//       // position: "top",
-//     });
-//   } catch (error) {
-//     console.error("Error updating recipe name:", error);
-//     Notify.create({
-//       type: "negative",
-//       message: "Failed to edit recipe name",
-//       // position: "top",
-//     });
-//   }
-// }
+    Notify.create({
+      type: "positive",
+      message: "Recipe name edited successfully",
+      // position: "top",
+    });
+  } catch (error) {
+    console.error("Error updating recipe name:", error);
+    Notify.create({
+      type: "negative",
+      message: "Failed to edit recipe name",
+      // position: "top",
+    });
+  }
+}
 // async function updateRecipeStatus(data, val) {
 //   try {
 //     const response = await api.put("/api/update-status/" + data.id, {
