@@ -86,6 +86,7 @@
             suffix=" / 1kg"
             type="number"
             label="Target Pcs"
+            mask="##.##"
           />
           <!-- :rules="[
               (val) => (val && val.length > 0) || 'Target piece/s is required',

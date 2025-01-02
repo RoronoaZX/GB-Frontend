@@ -1,0 +1,1 @@
+import{_ as e}from"./plugin-vue_export-helper.21dcd24c.js";import{o,a2 as r}from"./index.a9c3aa84.js";const a={};function t(c,s){return o(),r("div",null,"this is employee page")}var l=e(a,[["render",t]]);export{l as default};

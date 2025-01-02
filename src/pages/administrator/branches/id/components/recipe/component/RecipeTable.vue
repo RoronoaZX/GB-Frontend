@@ -61,7 +61,7 @@
       <template v-slot:body-cell-target="props">
         <q-td auto-width class="cursor-pointer text-center">
           <span
-            >{{ formatNumber(props.row.target) }}
+            >{{ formatTarget(props.row.target) }}
 
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
               >Edit Target</q-tooltip
@@ -204,6 +204,13 @@ const reloadTableData = async (branchId) => {
   }
 };
 
+const formatTarget = (target) => {
+  // Ensure the target is a number and default to 0 if undefined or null
+  const numericTarget = Number(target) || 0;
+
+  // Use parseFloat to remove trailing zeros if the value is decimal
+  return parseFloat(numericTarget.toFixed(3)).toString();
+};
 const formatNumber = (value) => {
   if (!value && value !== 0) return "Set Target"; // Handle empty or null values
   if (typeof value === "number" || !isNaN(value)) {
