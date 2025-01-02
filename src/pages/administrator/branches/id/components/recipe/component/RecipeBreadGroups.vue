@@ -22,7 +22,7 @@
       </q-card-section>
       <q-card-section>
         <div v-for="(bread, index) in breadGroups.bread_groups" :key="index">
-          <div class="row">{{ bread }}</div>
+          <div class="row" align="center">{{ bread }}</div>
         </div>
       </q-card-section>
     </q-card>
