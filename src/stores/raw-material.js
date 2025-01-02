@@ -24,11 +24,12 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
   };
 
   const createRawMaterials = async (data) => {
-    Loading.show();
+    // Loading.show();
+    console.log("Data", data);
 
     try {
       const response = await api.post("/api/raw-materials", data);
-
+      console.log("RawMaterials", response.data.rawMaterials);
       if (response.data.message === "Raw Materials saved successfully") {
         // const rawMaterials = rawMaterials.value.find((item) =>item.id === data.id)
         rawMaterials.value.unshift(response.data.rawMaterials);
@@ -36,8 +37,12 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
           type: "positive",
           message: "Raw Materials successfully created",
           timeout: 1000,
-          // postion: "top",
         });
+
+        //delayong hidong the loading spinner
+        // setTimeout(() => {
+        //   Loading.hide();
+        // }, 1000);
       } else if (
         response.data.message ===
         "The RawMaterials name or code already exists."
@@ -47,16 +52,27 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
           message: "The RawMaterials name or code already exists.",
           // position: "top",
         });
+
+        //delaying hiding the loading spinner
+
+        // setTimeout(() => {
+        //   Loading.hide();
+        // }, 1000);
       }
+      return response;
     } catch (error) {
-      console.log(error);
+      console.log("error", error);
       Notify.create({
         type: "negative",
         message: "An error occurred while saving the raw materials.",
         // position: "top",
       });
-    } finally {
-      Loading.hide();
+
+      //delayong hidong the loading spinner
+
+      // setTimeout(() => {
+      //   Loading.hide();
+      // }, 1000);
     }
   };
 
@@ -81,7 +97,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
   };
 
   const deleteRawMaterials = async (id) => {
-    Loading.show();
+    // Loading.show();
     const response = await api.delete(`/api/raw-materials/${id}`);
     rawMaterials.value = rawMaterials.value.filter(
       (rawMaterial) => rawMaterial.id !== id
@@ -92,7 +108,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
       message: `Raw Materials successfully deleted`,
       timeout: 1000,
     });
-    Loading.hide();
+    // Loading.hide();
   };
 
   const fetchIngredients = async (category) => {

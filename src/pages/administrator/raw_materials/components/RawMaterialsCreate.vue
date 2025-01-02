@@ -129,11 +129,17 @@ const addRawMaterialsForm = reactive({
 const create = async () => {
   loading.value = true;
   try {
-    await rawMaterialStore.createRawMaterials(addRawMaterialsForm);
+    const response = await rawMaterialStore.createRawMaterials(
+      addRawMaterialsForm
+    );
+    console.log(response);
+
     createRawMaterialsDialog.value = false;
     resetCreateRawMaterials();
   } catch (error) {
     console.error(error);
+    loading.value = false;
+    createRawMaterialsDialog.value = true;
   } finally {
     loading.value = false;
   }
