@@ -111,7 +111,7 @@
               dense
               autofocus
               counter
-              mask="###"
+              mask="#####"
               @keyup.enter="scope.set"
             />
           </q-popup-edit>
@@ -140,7 +140,7 @@
               dense
               autofocus
               counter
-              mask="###"
+              mask="#####"
               @keyup.enter="scope.set"
             />
           </q-popup-edit>
