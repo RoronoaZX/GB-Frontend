@@ -143,4 +143,9 @@ const formatQuantity = (ingredient) => {
 .bg-backgroud {
   background: linear-gradient(to right, #4b0082, #800080, #9932cc, #d8bfd8);
 }
+
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
 </style>

@@ -85,7 +85,7 @@
             <div>
               <q-input
                 v-model="productSearch"
-                placeholder="Search"
+                placeholder="Search Product"
                 outlined
                 flat
                 debounce="500"
@@ -390,6 +390,7 @@ const addCreditToList = () => {
     pieces: creditForm.pieces,
     totalAmount: totalAmount,
   });
+  console.log("creditList", creditList.value);
   clearProduct();
 };
 
@@ -450,6 +451,7 @@ const handleSubmit = () => {
       product_id: credit.product_id,
       price: credit.price,
       pieces: credit.pieces,
+      totalAmount: credit.totalAmount,
     })),
   };
 
