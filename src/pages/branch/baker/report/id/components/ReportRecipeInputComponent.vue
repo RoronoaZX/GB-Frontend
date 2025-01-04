@@ -75,17 +75,23 @@
       </div>
       <div class="q-mt-md q-gutter-md">
         <div v-if="bakersReport.breads.length">
-          <div v-for="(bread, index) in bakersReport.breads" :key="bread.id">
-            <div>{{ bread.bread_name }}</div>
+          <div
+            v-for="(bread, index) in bakersReport.breads"
+            :key="bread.id"
+            class="q-my-md"
+          >
             <div>
-              <q-input
-                outlined
-                v-model="bakersReport.breads[index].value"
-                dense
-                type="number"
-                placeholder="Pcs"
-                style="width: 210px; max-width: 300px; min-width: 50px"
-              />
+              <div>{{ bread.bread_name }}</div>
+              <div>
+                <q-input
+                  outlined
+                  v-model="bakersReport.breads[index].value"
+                  dense
+                  type="number"
+                  placeholder="Pcs"
+                  style="width: 210px; max-width: 300px; min-width: 50px"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -123,7 +129,7 @@
                 </q-item-section>
                 <q-item-section side class="text-right">
                   <div class="ingredient-quantity">
-                    {{ ingredient.multipliedQuantity.toFixed(2) }}
+                    {{ ingredient.multipliedQuantity }}
                   </div>
                 </q-item-section>
                 <q-item-section side class="text-right">
@@ -170,7 +176,7 @@ const bakersReport = reactive({
   branch_recipe_id: null,
   recipe_name: "",
   recipe_category: "",
-  kilo: "",
+  kilo: 0,
   short: 0,
   over: 0,
   target: 0,
@@ -265,12 +271,17 @@ const resetReportForm = () => {
 const multipliedIngredients = computed(() => {
   const kilo = parseInt(bakersReport.kilo) || 1;
   return (recipe.value?.ingredients || []).map((ingredient) => {
-    const quantity = parseInt(ingredient.quantity);
+    const quantity = parseFloat(ingredient.quantity);
     const multipliedQuantity =
       !isNaN(kilo) && !isNaN(quantity) ? kilo * quantity : 0;
+    const formattedQuantity =
+      multipliedQuantity % 1 === 0
+        ? multipliedQuantity // Integer: display without decimal
+        : parseFloat(multipliedQuantity.toFixed(1)); // Float: one decimal place
+    console.log("formattedQuantity", formattedQuantity);
     return {
       ...ingredient,
-      multipliedQuantity,
+      multipliedQuantity: formattedQuantity,
     };
   });
 });
@@ -294,7 +305,9 @@ watch(
 watch(
   () => bakersReport.breads.map((bread) => bread.value),
   calculateShortAndOver,
-  { deep: true }
+  {
+    deep: true,
+  }
 );
 
 watch(

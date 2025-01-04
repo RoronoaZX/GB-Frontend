@@ -11,7 +11,7 @@
     />
   </div>
   <div>
-    <q-dialog v-model="dialog">
+    <q-dialog v-model="dialog" persistent>
       <q-card>
         <q-card-section>
           <div align="right">

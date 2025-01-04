@@ -50,12 +50,16 @@
     </q-scroll-area>
   </div>
   <div>
-    <q-dialog v-model="dialog">
+    <q-dialog v-model="dialog" persistent>
       <q-card class="my-card q-pa-md" style="width: 700px; max-width: 80vw">
         <q-card-section>
           <div class="row justify-between">
             <div class="text-h6">
-              {{ selectedItem ? selectedItem.product.name : "" }}
+              {{
+                capitalizeFirstLetter(
+                  selectedItem ? selectedItem.product.name : ""
+                )
+              }}
             </div>
             <div>
               <q-btn round dense flat icon="close" @click="closeDialog" />
