@@ -215,7 +215,7 @@ const calculateShortAndOver = () => {
 
 const autoFillReport = () => {
   bakersReport.user_id = userData.value?.data.id || "";
-  bakersReport.branch_id = userData.value?.employee?.branch_id || "";
+  bakersReport.branch_id = userData.value?.device?.branch_id || "";
   bakersReport.branch_recipe_id = recipe.value?.id || "";
   bakersReport.recipe_name = recipe.value?.name || "";
   bakersReport.target = recipe.value?.target || "";

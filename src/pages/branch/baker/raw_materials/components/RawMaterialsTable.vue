@@ -72,7 +72,9 @@ const loadingSearchIcon = ref(false);
 const loading = ref(true);
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-const branchId = userData.value?.employee?.branch_id || "";
+console.log("userData in RawMaterialsTable:", userData.value);
+const branchId = userData.value?.device?.branch_id || "";
+console.log("branchId in RawMaterialsTable:", branchId);
 const rawMaterialsRow = computed(() => bakerReportStore.rawmaterials);
 const showNoDataMessage = ref(false);
 

@@ -90,9 +90,8 @@ import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
 
-const uuid = ref(
-  "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
-);
+const uuid = ref("b76baeef9c2aef9a");
+// const uuid = ref("946c1697d02c5951");
 
 // Method to get UUID from Electron using node-machine-id
 // ===================================================//
@@ -165,7 +164,7 @@ const login = async () => {
       // uuid: machineId.value,
     });
 
-    console.log("user:", response.data);
+    console.log("user123:", response.data);
     localStorage.setItem("activeMenuItem", "dashboard");
     localStorage.setItem("token", response.data.token);
     localStorage.setItem("role", response.data.role);

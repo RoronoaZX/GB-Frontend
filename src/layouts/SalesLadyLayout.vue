@@ -2,75 +2,85 @@
   <div class="q-pa-md">
     <q-layout view="hHh Lpr lff">
       <q-header elevated class="bg-white">
-        <q-toolbar>
-          <q-btn
-            color="red-6"
-            flat
-            @click="drawer = !drawer"
-            round
-            dense
-            icon="menu"
-          />
-          <q-toolbar-title class="py-md">
-            <img
-              src="../assets/GB_LOGO.png"
-              style="width: 50px; height: 40px"
-            />
-          </q-toolbar-title>
-
-          <div class="q-gutter-sm row items-center no-wrap">
-            <q-btn round dense flat icon="message" v-if="$q.screen.gt.sm">
-              <q-tooltip>Messages</q-tooltip>
-            </q-btn>
-            <q-btn round dense flat color="grey-10" icon="notifications">
-              <q-badge color="red" class="text-white" floating> 2 </q-badge>
-              <q-tooltip>Notifications</q-tooltip>
-            </q-btn>
-            <q-btn round flat>
-              <q-avatar size="26px">
-                <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
-              </q-avatar>
-              <q-menu>
-                <div class="row no-wrap q-pa-md">
-                  <div class="column">
-                    <div class="text-h6 q-mb-md">Settings</div>
-                    <q-list>
-                      <q-separator />
-                      <q-item clickable>
-                        <q-item-section>Account</q-item-section>
-                      </q-item>
-                      <q-separator />
-                      <q-item clickable>
-                        <q-item-section>Help &amp; Feedback</q-item-section>
-                      </q-item>
-                    </q-list>
-                    <!-- <q-toggle v-model="mobileData" label="Use Mobile Data" />
+        <q-toolbar class="row">
+          <div class="col-4">
+            <div class="row">
+              <q-btn
+                color="red-6"
+                flat
+                @click="drawer = !drawer"
+                round
+                dense
+                icon="menu"
+              />
+              <q-toolbar-title class="py-md">
+                <img
+                  src="../assets/GB_LOGO.png"
+                  style="width: 50px; height: 40px"
+                />
+              </q-toolbar-title>
+            </div>
+          </div>
+          <div class="col-4 d-flex justify-center" align="center">
+            <div class="text-black mx-2 text-h6">
+              {{ userData?.device?.branch?.name || "Undefined" }}
+            </div>
+          </div>
+          <div class="col-4" align="right">
+            <div>
+              <q-btn round dense flat icon="message" v-if="$q.screen.gt.sm">
+                <q-tooltip>Messages</q-tooltip>
+              </q-btn>
+              <q-btn round dense flat color="grey-10" icon="notifications">
+                <q-badge color="red" class="text-white" floating> 2 </q-badge>
+                <q-tooltip>Notifications</q-tooltip>
+              </q-btn>
+              <q-btn round flat>
+                <q-avatar size="26px">
+                  <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+                </q-avatar>
+                <q-menu>
+                  <div class="row no-wrap q-pa-md">
+                    <div class="column">
+                      <div class="text-h6 q-mb-md">Settings</div>
+                      <q-list>
+                        <q-separator />
+                        <q-item clickable>
+                          <q-item-section>Account</q-item-section>
+                        </q-item>
+                        <q-separator />
+                        <q-item clickable>
+                          <q-item-section>Help &amp; Feedback</q-item-section>
+                        </q-item>
+                      </q-list>
+                      <!-- <q-toggle v-model="mobileData" label="Use Mobile Data" />
                     <q-toggle v-model="bluetooth" label="Bluetooth" /> -->
-                  </div>
-
-                  <q-separator vertical inset class="q-mx-lg" />
-
-                  <div class="column items-center">
-                    <q-avatar size="72px">
-                      <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
-                    </q-avatar>
-
-                    <div class="text-subtitle1 q-mt-md q-mb-xs">
-                      {{ formattedUserName }}
                     </div>
 
-                    <q-btn
-                      color="primary"
-                      label="Logout"
-                      push
-                      size="sm"
-                      @click="signOut"
-                      v-close-popup
-                    />
+                    <q-separator vertical inset class="q-mx-lg" />
+
+                    <div class="column items-center">
+                      <q-avatar size="72px">
+                        <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+                      </q-avatar>
+
+                      <div class="text-subtitle1 q-mt-md q-mb-xs">
+                        {{ formattedUserName }}
+                      </div>
+
+                      <q-btn
+                        color="primary"
+                        label="Logout"
+                        push
+                        size="sm"
+                        @click="signOut"
+                        v-close-popup
+                      />
+                    </div>
                   </div>
-                </div>
-              </q-menu>
-            </q-btn>
+                </q-menu>
+              </q-btn>
+            </div>
           </div>
         </q-toolbar>
       </q-header>
@@ -126,8 +136,12 @@
 import { ref, onMounted, computed } from "vue";
 import { LocalStorage, useQuasar } from "quasar";
 import { useRouter } from "vue-router";
+import { useSalesReportsStore } from "src/stores/sales-report";
 import { api } from "src/boot/axios";
 
+const salesReportsStore = useSalesReportsStore();
+const userData = computed(() => salesReportsStore.user);
+console.log("sales data for header", userData.value);
 const user = ref({});
 const drawer = ref(false);
 const activeMenuItem = ref("0");
@@ -135,14 +149,14 @@ const quasar = useQuasar();
 const router = useRouter();
 const loading = ref(false);
 
-onMounted(async () => {
-  try {
-    const response = await api.get("/api/profile");
-    user.value = response.data;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
-});
+// onMounted(async () => {
+//   try {
+//     const response = await api.get("/api/profile");
+//     user.value = response.data;
+//   } catch (error) {
+//     console.error("Error fetching user data:", error);
+//   }
+// });
 
 const formattedUserName = computed(() => {
   if (user.value && user.value.data && user.value.data.name) {
