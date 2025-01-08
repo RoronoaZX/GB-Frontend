@@ -75,6 +75,12 @@ const pagination = ref({
 const bakerReportStore = useBakerReportsStore();
 const bakerReportRow = computed(() => bakerReportStore.reportToView);
 const userData = computed(() => bakerReportStore.user);
+
+// im using user id for fetching reports
+// instead of employee id for the reason
+// that the user id is the one that is being
+// used in the backend and database
+
 const userId = userData.value?.data.id || "";
 const filter = ref("");
 const loading = ref(true);
@@ -91,6 +97,10 @@ watch(filter, async (newFilter) => {
 
 onMounted(async () => {
   console.log("props.branchId in onMounted:", userId);
+  // im using user id for fetching reports
+  // instead of employee id for the reason
+  // that the user id is the one that is being
+  // used in the backend and database
   if (userId) {
     await reloadTableData(userId);
   }

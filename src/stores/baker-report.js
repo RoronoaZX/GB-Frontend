@@ -99,6 +99,11 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
         this.reports = [];
       } catch (error) {
         console.error("Error saving report:", error);
+        Notify.create({
+          type: "negative",
+          message: "Report error send",
+          timeout: 1000,
+        });
       }
     },
 

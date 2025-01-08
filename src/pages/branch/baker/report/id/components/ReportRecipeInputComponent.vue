@@ -235,7 +235,7 @@ const autoFillReport = () => {
     breads: bakersReport.breads.map((bread) => ({
       bread_id: bread.id,
       bread_name: bread.bread_name,
-      bread_production: parseInt(bread.value, 10),
+      bread_production: parseInt(bread.value, 10) || 0,
     })),
     ingredients: multipliedIngredients.value.map((ingredient) => ({
       ingredients_id: ingredient.raw_materials_id,

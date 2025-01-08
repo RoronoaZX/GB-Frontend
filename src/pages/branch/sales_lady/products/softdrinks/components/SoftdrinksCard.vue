@@ -167,6 +167,9 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
+console.log("userData", userData);
+const branchId = userData?.device?.branch_id || "";
+console.log("branchId", branchId);
 const selectedItem = ref(null);
 const dialog = ref(false);
 
@@ -240,8 +243,8 @@ watch(
 );
 
 onMounted(async () => {
-  const userData = salesReportsStore.user;
-  const branchId = userData?.employee?.branch_id || "";
+  // const userData = salesReportsStore.user;
+  // const branchId = userData?.employee?.branch_id || "";
   if (branchId) {
     await fetchProducts(branchId);
   }
@@ -276,7 +279,7 @@ const saveReport = () => {
   if (selectedItem.value) {
     const report = {
       user_id: userData?.data.id,
-      branch_id: userData?.employee?.branch_id || "",
+      branch_id: branchId || userData?.device?.branch_id,
       product_id: selectedItem.value.product.id,
       name: selectedItem.value.product.name,
       total: selectedItem.value.total_quantity,
@@ -288,8 +291,9 @@ const saveReport = () => {
       price: selectedItem.value.price,
       sales: softdrinksSalesAmount.value,
     };
-    salesReportsStore.updateSoftdrinksReport(report);
-    closeDialog();
+    console.log("report", report);
+    // salesReportsStore.updateSoftdrinksReport(report);
+    // closeDialog();
   }
 };
 </script>
