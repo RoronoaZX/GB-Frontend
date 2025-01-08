@@ -292,8 +292,8 @@ const saveReport = () => {
       sales: softdrinksSalesAmount.value,
     };
     console.log("report", report);
-    // salesReportsStore.updateSoftdrinksReport(report);
-    // closeDialog();
+    salesReportsStore.updateSoftdrinksReport(report);
+    closeDialog();
   }
 };
 </script>

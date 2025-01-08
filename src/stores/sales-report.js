@@ -121,16 +121,16 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.softdrinksReports.push(report);
       }
     },
-    updateSoftdrinksReport(report) {
-      const index = this.softdrinksReports.findIndex(
-        (r) => r.name === report.name
-      );
-      if (index !== -1) {
-        this.softdrinksReports.splice(index, 1, report);
-      } else {
-        this.softdrinksReports.push(report);
-      }
-    },
+    // updateSoftdrinksReport(report) {
+    //   const index = this.softdrinksReports.findIndex(
+    //     (r) => r.name === report.name
+    //   );
+    //   if (index !== -1) {
+    //     this.softdrinksReports.splice(index, 1, report);
+    //   } else {
+    //     this.softdrinksReports.push(report);
+    //   }
+    // },
 
     updateCakeReport(report) {
       const index = this.cakeReports.findIndex((r) => r.name === report.name);
@@ -179,8 +179,10 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.breadTotalAmount +
         this.selectaTotalAmount +
         this.softdrinksTotalAmount +
+        this.otherProductsTotalAmount +
         this.cakeTotalAmount -
         this.creditExpensesTotal;
+      console.log("Total Sales Amount:", totalSalesAmount);
       if (rawTotalDenomination < totalSalesAmount) {
         this.charges = totalSalesAmount - rawTotalDenomination;
         this.overTotal = 0;
@@ -188,9 +190,10 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.charges = 0;
         this.overTotal = rawTotalDenomination - totalSalesAmount;
       }
-      console.log("Charges:", this.charges);
-      console.log("Charges:", this.overTotal);
+      console.log("Chargessss:", this.charges);
+      console.log("Charges total:", this.overTotal);
     },
+
     updateProductsTotalAmount() {
       this.productsTotalAmount =
         this.breadTotalAmount +
@@ -243,8 +246,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
       const creditTotalAmount = this.creditTotalAmount;
 
       const payload = {
-        user_id: this.user.id,
-        branch_id: this.user?.employee?.branch_id,
+        user_id: this.user.data.id,
+        branch_id: this.user?.device?.branch_id,
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
         softdrinksReports: this.softdrinksReports,
@@ -356,6 +359,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         state.breadTotalAmount +
         state.selectaTotalAmount +
         state.softdrinksTotalAmount +
+        state.otherProductsTotalAmount +
         state.cakeTotalAmount
       );
     },

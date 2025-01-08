@@ -56,14 +56,14 @@ import { useRouter } from "vue-router";
 const user = ref({});
 const loading = ref(false);
 const router = useRouter();
-// onMounted(async () => {
-//   try {
-//     const response = await api.get("/api/profile");
-//     user.value = response.data;
-//   } catch (error) {
-//     console.error("Error fetching user data:", error);
-//   }
-// });
+onMounted(async () => {
+  try {
+    const response = await api.get("/api/profile");
+    user.value = response.data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+});
 
 const signOut = () => {
   loading.value = true;

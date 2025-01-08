@@ -102,6 +102,7 @@ const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
+console.log("userdatasss", userData);
 const dialog = ref(false);
 // const searchQuery = ref("");
 // const showUserCard = ref(true);
@@ -153,7 +154,7 @@ const handleSubmit = () => {
   const expenseReport = {
     ...expensesForm,
     user_id: userData?.data.id,
-    branch_id: userData?.employee?.branch_id || "",
+    branch_id: userData?.device?.branch_id,
     amount: amountAsNumber,
   };
 

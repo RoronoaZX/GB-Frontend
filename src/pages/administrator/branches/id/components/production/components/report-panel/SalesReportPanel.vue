@@ -660,6 +660,14 @@ const generateDocDefinition = (report) => {
           },
         ],
         [
+          { text: "Total Credits", style: "tableHeader", alignment: "left" },
+          {
+            text: formatAmount(creditTotal),
+            style: "tableData",
+            alignment: "center",
+          },
+        ],
+        [
           { text: "Over Cash", style: "tableHeader", alignment: "left" },
           {
             text: formatAmount(report.over_total),

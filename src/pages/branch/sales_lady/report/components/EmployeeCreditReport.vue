@@ -246,6 +246,7 @@ const productSearchData = computed(() => salesReportsStore.products);
 console.log("products search", productSearchData.value);
 const userData = salesReportsStore.user;
 console.log("userdata", userData);
+const branchId = userData?.device?.branch_id || "";
 const dialog = ref(false);
 const searchQuery = ref("");
 const productSearch = ref("");
@@ -267,7 +268,7 @@ const formatUserName = (user) => {
 const searchUsers = async () => {
   if (searchQuery.value) {
     employeeSearchLoading.value = true; // Set loading to true
-    const branchId = userData?.employee?.branch_id || "";
+    // const branchId = branchId;
     console.log("searchQuery.value", searchQuery.value);
     console.log("branchId", branchId);
     await employeeStore.searchEmployeeWithBranchID(searchQuery.value, branchId);
@@ -337,7 +338,7 @@ const autoFillUser = (user) => {
 const searchProducts = async () => {
   if (productSearch.value) {
     productSearchLoading.value = true; // Set loading to true
-    const branchId = userData?.employee?.branch_id || "";
+    // const branchId = userData?.employee?.branch_id || "";
     const response = await salesReportsStore.searchBranchProducts(
       productSearch.value,
       branchId
@@ -440,7 +441,7 @@ const handleSubmit = () => {
   const formattedTotalAmount = parseFloat(creditForm.creditTotal);
   const employeeCreditReport = {
     user_id: userData?.data.id,
-    branch_id: userData?.employee?.branch_id || "",
+    branch_id: branchId || userData?.device?.branch_id || "",
     credit_user_id: creditForm.credit_user_id,
     credit_user_name: creditForm.name,
     total_amount: formattedTotalAmount,
