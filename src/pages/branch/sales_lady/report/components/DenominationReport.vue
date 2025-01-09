@@ -261,5 +261,6 @@ const handleSubmit = () => {
 <style lang="scss" scoped>
 .bg-gradient {
   background: linear-gradient(135deg, #1d2423, #0981dd);
+  // #0981dd
 }
 </style>

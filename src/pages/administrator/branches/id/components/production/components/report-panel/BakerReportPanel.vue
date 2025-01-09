@@ -238,6 +238,14 @@ const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMM. DD, YYYY");
 };
 
+const formatTarget = (target) => {
+  // Ensure the target is a number and default to 0 if undefined or null
+  const numericTarget = Number(target) || 0;
+
+  // Use parseFloat to remove trailing zeros if the value is decimal
+  return parseFloat(numericTarget.toFixed(3)).toString();
+};
+
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";
   return location
@@ -321,12 +329,14 @@ const getBreadReports = (reportsData) => {
 
 const generateDocDefinition = (bakerReport) => {
   console.log("bakerReport", bakerReport);
-  const recipeName = `${bakerReport.branch_recipe.recipe.name} (${bakerReport.recipe_category})`;
-  const target = bakerReport.branch_recipe.recipe.target;
-  const actualTarget = bakerReport.actual_target;
-  const kilo = bakerReport.kilo;
-  const over = bakerReport.over;
-  const short = bakerReport.short;
+  const recipeName = `${
+    bakerReport?.branch_recipe?.recipe?.name ?? "Unkown Recipe"
+  } (${bakerReport?.recipe_category ?? "Unkown Category"})`;
+  const target = bakerReport?.branch_recipe?.target ?? 0;
+  const actualTarget = bakerReport?.actual_target ?? 0;
+  const kilo = bakerReport?.kilo ?? 0;
+  const over = bakerReport?.over ?? 0;
+  const short = bakerReport?.short ?? 0;
 
   const summaryTable = {
     table: {
@@ -343,7 +353,7 @@ const generateDocDefinition = (bakerReport) => {
         [
           { text: "Target per Kilo", style: "tableHeader", alignment: "left" },
           {
-            text: `${target} pcs`,
+            text: `${formatTarget(target)} pcs`,
             style: "tableHeader",
             alignment: "center",
           },
