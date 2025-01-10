@@ -65,11 +65,11 @@
                           <q-item-section>
                             <q-item-label>
                               {{
-                                `${user.employee.firstname} ${
-                                  user.employee.middlename
-                                    ? user.employee.middlename.charAt(0) + "."
+                                `${user?.firstname} ${
+                                  user?.middlename
+                                    ? user?.middlename.charAt(0) + "."
                                     : ""
-                                } ${user.employee.lastname}`
+                                } ${user?.lastname}`
                               }}
                             </q-item-label>
                           </q-item-section>
@@ -240,7 +240,7 @@ import { ref, reactive, computed, watch } from "vue";
 const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
 const employeeStore = useEmployeeStore();
-const employees = computed(() => employeeStore.branchEmployees);
+const employees = computed(() => employeeStore.employees);
 const salesReportsStore = useSalesReportsStore();
 const productSearchData = computed(() => salesReportsStore.products);
 console.log("products search", productSearchData.value);
@@ -270,8 +270,8 @@ const searchUsers = async () => {
     employeeSearchLoading.value = true; // Set loading to true
     // const branchId = branchId;
     console.log("searchQuery.value", searchQuery.value);
-    console.log("branchId", branchId);
-    await employeeStore.searchEmployeeWithBranchID(searchQuery.value, branchId);
+    // console.log("branchId", branchId);
+    await employeeStore.searchEmployee(searchQuery.value);
     // console.log("response user",);
 
     employeeSearchLoading.value = false;
@@ -324,13 +324,13 @@ const isDropdownVisible = computed(() => {
 
 const autoFillUser = (user) => {
   console.log("credit", user);
-  searchQuery.value = `${user.employee.firstname} ${
-    user.employee.middlename ? user.employee.middlename.charAt(0) + "." : ""
-  } ${user.employee.lastname}`;
-  creditForm.credit_user_id = user.employee.id;
-  creditForm.name = `${user.employee.firstname} ${
-    user.employee.middlename ? user.employee.middlename.charAt(0) + "." : ""
-  } ${user.employee.lastname}`;
+  searchQuery.value = `${user.firstname} ${
+    user.middlename ? user.middlename.charAt(0) + "." : ""
+  } ${user.lastname}`;
+  creditForm.credit_user_id = user.id;
+  creditForm.name = `${user.firstname} ${
+    user.middlename ? user.middlename.charAt(0) + "." : ""
+  } ${user.lastname}`;
   userSelected = true; // Set flag when user is selected
   showUserCard.value = false;
 };
