@@ -65,9 +65,11 @@
                           <q-item-section>
                             <q-item-label>
                               {{
-                                `${user?.firstname} ${
+                                `
+                                  ${user?.firstname} ${
                                   user?.middlename
-                                    ? user?.middlename.charAt(0) + "."
+                                    ? user?.middlename.charAt(0).toUpperCase() +
+                                      "."
                                     : ""
                                 } ${user?.lastname}`
                               }}

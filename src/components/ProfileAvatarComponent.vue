@@ -18,7 +18,7 @@
           </q-item-section>
           <q-item-section>
             <div class="q-text-truncate text-primary">
-              {{ formattedUserName }}
+              {{ formatFullname(user.data.employee) }}
             </div>
           </q-item-section>
         </q-item>
@@ -51,19 +51,14 @@
 <script setup>
 import { api } from "src/boot/axios";
 import { ref, onMounted, computed } from "vue";
+import { useUsersStore } from "src/stores/user";
 import { useRouter } from "vue-router";
 
-const user = ref({});
+const usersStore = useUsersStore();
+const user = computed(() => usersStore.userData);
+console.log("usertDatass", user.value);
 const loading = ref(false);
 const router = useRouter();
-onMounted(async () => {
-  try {
-    const response = await api.get("/api/profile");
-    user.value = response.data;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
-});
 
 const signOut = () => {
   loading.value = true;
@@ -74,6 +69,26 @@ const signOut = () => {
     loading.value = false;
     router.push("/");
   }, 1000);
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str
+      ? str
+          .split(" ")
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(" ")
+      : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
 const formattedUserName = computed(() => {

@@ -6,6 +6,12 @@ import { ref } from "vue";
 export const useUsersStore = defineStore("users", () => {
   const users = ref([]);
   const user = ref([]);
+  const userData = ref({});
+
+  const setUser = (newUser) => {
+    userData.value = newUser;
+    console.log("userData.valuesss", userData.value);
+  };
 
   const fetchUsers = async () => {
     // if (users.value.length) return;
@@ -182,6 +188,8 @@ export const useUsersStore = defineStore("users", () => {
   return {
     user,
     users,
+    userData,
+    setUser,
     fetchUsers,
     registerUser,
     searchUser,
