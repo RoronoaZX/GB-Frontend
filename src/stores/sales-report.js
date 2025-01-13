@@ -233,7 +233,9 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
     async fetchSalesReports(branchId) {
       try {
-        const response = await api.get(`/api/branch/${branchId}/salesReport`);
+        const response = await api.get(
+          `/api/branches/${branchId}/branch-sales-report`
+        );
         console.log("sales report", response.data);
         this.salesReport = response.data;
       } catch (error) {

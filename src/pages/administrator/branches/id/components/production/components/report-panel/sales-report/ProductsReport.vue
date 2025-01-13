@@ -57,12 +57,12 @@
           />
         </div>
       </q-card-section>
-      <q-card-section>
+      <!-- <q-card-section>
         <div class="text-weight-regular text-subtitle1">
           Total sales:
           {{ formatPrice(productsReport[0].products_total_sales) }}
         </div>
-      </q-card-section>
+      </q-card-section> -->
     </q-card>
   </div>
 </template>

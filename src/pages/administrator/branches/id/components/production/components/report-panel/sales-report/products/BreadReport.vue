@@ -10,6 +10,22 @@
         </div>
       </q-card-section>
       <q-card-section>
+        <q-input
+          class="q-pb-lg q-pl-sm dynamic-width"
+          v-model="filter"
+          outlined
+          placeholder="Search"
+          debounce="1000"
+          flat
+          dense
+          rounded
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </q-card-section>
+      <q-card-section>
         <q-table
           :filter="filter"
           :virtual-scroll-sticky-size-start="48"
@@ -56,13 +72,13 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["reports"]);
-
+const filter = ref("");
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
 
@@ -122,7 +138,7 @@ const breadReportColumns = [
     name: "total",
     label: "Bread Total (PCS)",
     field: "total",
-    format: (val) => `${val}`,
+    field: (row) => (row.remaining || 0) + (row.new_production || 0),
   },
   {
     name: "sales",
@@ -140,8 +156,20 @@ const formatPrice = (price) => {
 
 // Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {
-  console.log("Filtered rows:", props.reports || []);
-  return props.reports || [];
+  if (!filter.value || !filter.value.trim()) {
+    // If there's no filter, return all rows
+    return props.reports || [];
+  }
+
+  const search = filter.value.trim().toLowerCase(); // Normalize the filter input
+  return (props.reports || []).filter((row) => {
+    // Perform filtering on relevant fields
+    return (
+      row.bread.name.toLowerCase().includes(search) || // Bread name
+      row.price.toString().includes(search) || // Price
+      row.sales.toString().includes(search) // Sales
+    );
+  });
 });
 
 // Calculate the overall total sales with number conversion

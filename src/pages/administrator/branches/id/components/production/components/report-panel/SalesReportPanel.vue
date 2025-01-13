@@ -153,7 +153,11 @@ const generateDocDefinition = (report) => {
   const productionTypes = [
     {
       title: "Bread Production",
-      data: report.bread_reports || [],
+      data: (report.bread_reports || []).map((item) => ({
+        ...item,
+        total: (item.new_production || 0) + (item.beginnings || 0),
+        sales: (item.price || 0) * (item.bread_sold || 0),
+      })),
       columns: [
         "bread.name",
         "beginnings",
@@ -162,6 +166,23 @@ const generateDocDefinition = (report) => {
         "bread_out",
         "bread_sold",
         "total",
+        "remaining",
+        "sales",
+      ],
+      totals: ["sales"],
+    },
+    {
+      title: "Selecta Production",
+      data: (report.selecta_reports || []).map((item) => ({
+        ...item,
+        sales: (item.price || 0) * item.sold,
+      })),
+      columns: [
+        "selecta.name",
+        "beginnings",
+        "price",
+        "out",
+        "sold",
         "remaining",
         "sales",
       ],
@@ -183,7 +204,10 @@ const generateDocDefinition = (report) => {
     },
     {
       title: "Softdrinks Production",
-      data: report.softdrinks_reports || [],
+      data: (report.softdrinks_reports || []).map((item) => ({
+        ...item,
+        sales: (item.price || 0) * (item.sold || 0),
+      })),
       columns: [
         "softdrinks.name",
         "beginnings",
@@ -198,7 +222,10 @@ const generateDocDefinition = (report) => {
     },
     {
       title: "Other Products Production",
-      data: report.other_products_reports || [],
+      data: (report.other_products_reports || []).map((item) => ({
+        ...item,
+        sales: (item.price || 0) * (item.sold || 0),
+      })),
       columns: [
         "other_products.name",
         "beginnings",
@@ -227,10 +254,9 @@ const generateDocDefinition = (report) => {
 
   const expensesReport = report.expenses_reports || [];
   const creditReport = allCreditProducts.value || [];
-  const creditTotal = report.credit_total;
   const denomination = report.denomination_reports[0] || [];
   const denominationTotal = report.denomination_total;
-  const expensesTotal = report.expenses_total;
+  // const expensesTotal = report.expenses_total;
   const totalProductSales = report.products_total_sales;
   const chargesAmount = report.charges_amount;
   const overAmount = report.over_total;
@@ -462,73 +488,100 @@ const generateDocDefinition = (report) => {
   //   ];
   // };
 
+  let creditTotal = 0; // Initialize total sum
+
   const creditReportTableBody =
     creditReport.length > 0
-      ? creditReport.map((creditData) => [
-          {
-            text: formatFullname(creditData.credit_user_id),
-            style: "body",
-            alignment: "center",
-          },
-          {
-            text: creditData.product.name,
-            style: "body",
-            alignment: "center",
-          },
-          {
-            text: creditData.pieces,
-            style: "body",
-            alignment: "center",
-          },
-          {
-            text: creditData.price,
-            style: "body",
-            alignment: "center",
-          },
-          {
-            text: creditData.total_amount,
-            style: "body",
-            alignment: "center",
-          },
-        ])
+      ? creditReport.map((creditData) => {
+          // Dynamically calculate total amount for each row
+          const totalAmount =
+            (creditData.price || 0) * (creditData.pieces || 0);
+
+          // Add to the running total
+          creditTotal += totalAmount;
+
+          return [
+            {
+              text: formatFullname(creditData.credit_user_id),
+              style: "body",
+              alignment: "center",
+            },
+            {
+              text: creditData.product.name,
+              style: "body",
+              alignment: "center",
+            },
+            {
+              text: creditData.pieces,
+              style: "body",
+              alignment: "center",
+            },
+            {
+              text: formatAmount(creditData.price), // Format price consistently
+              style: "body",
+              alignment: "center",
+            },
+            {
+              text: formatAmount(totalAmount), // Format total amount
+              style: "body",
+              alignment: "center",
+            },
+          ];
+        })
       : [[{ text: "No data available", colSpan: 5, alignment: "center" }]];
+
+  // Add the totals row
   creditReportTableBody.push([
     {
       text: "Total",
       style: "bodyBold",
       alignment: "right",
-      colSpan: 3,
+      colSpan: 3, // Total label spans the first three columns
     },
-    {},
+    {}, // Empty cell to match colspan
     {},
     {
-      text: `${formatAmount(creditTotal)}`,
+      text: formatAmount(creditTotal), // Dynamically calculate and format the total amount
       style: "bodyBold",
       alignment: "center",
-      colSpan: 2,
+      colSpan: 2, // Total amount spans the last two columns
     },
-    {},
+    {}, // Empty cell to match colspan
   ]);
+
+  let expensesTotal = 0; // Initialize the total variable
 
   const expensesReportTableBody =
     expensesReport.length > 0
-      ? expensesReport.map((expensesData) => [
-          {
-            text: expensesData.name,
-            style: "body",
-            alignment: "center",
-          },
-          {
-            text: expensesData.description,
-            style: "body",
-            alignment: "center",
-          },
-          {
-            text: `${formatAmount(expensesData.amount)}`,
-            style: "body",
-            alignment: "center",
-          },
-        ])
+      ? expensesReport.map((expensesData) => {
+          // Remove any non-numeric characters (like commas or currency symbols) and parse as float
+          const amount = parseFloat(
+            expensesData.amount.replace(/[^0-9.-]+/g, "")
+          );
+
+          // Check if the parsed amount is a valid number
+          if (!isNaN(amount)) {
+            expensesTotal += amount; // Only add valid numbers to the total
+          }
+
+          return [
+            {
+              text: expensesData.name,
+              style: "body",
+              alignment: "center",
+            },
+            {
+              text: expensesData.description,
+              style: "body",
+              alignment: "center",
+            },
+            {
+              text: `${formatAmount(amount)}`, // Format the amount for display
+              style: "body",
+              alignment: "center",
+            },
+          ];
+        })
       : [[{ text: "No data available", colSpan: 3, alignment: "center" }]];
 
   expensesReportTableBody.push([
@@ -536,16 +589,14 @@ const generateDocDefinition = (report) => {
       text: "Total",
       style: "bodyBold",
       alignment: "right",
-      colSpan: 2,
-      // color: "#3b0764",
+      colSpan: 2, // Total label spans the first two columns
     },
-    {},
+    {}, // Empty cell to match colspan
     {
-      text: `${formatAmount(expensesTotal)}`,
+      text: `${formatAmount(expensesTotal)}`, // Format the total amount
       style: "bodyBold",
       alignment: "center",
-      // color: "#3b0764",
-    }, // Align total to the right
+    },
   ]);
 
   const denominationReportTableBody = denominationReport.bills.map(

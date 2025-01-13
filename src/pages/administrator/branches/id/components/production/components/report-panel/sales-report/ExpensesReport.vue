@@ -21,12 +21,12 @@
           />
         </div>
       </q-card-section>
-      <q-card-section>
+      <!-- <q-card-section>
         <div class="text-weight-regular text-subtitle1">
           Total Expenses :
           {{ formatPrice(props.sales_Reports[0].expenses_total) }}
         </div>
-      </q-card-section>
+      </q-card-section> -->
     </q-card>
   </div>
 </template>
