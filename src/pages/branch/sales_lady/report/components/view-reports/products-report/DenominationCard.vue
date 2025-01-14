@@ -2,7 +2,7 @@
   <div
     v-if="denominationReports !== 'No report' && denominationReports.length > 0"
   >
-    <q-card>
+    <q-card flat dense class="box">
       <q-card-section class="text-h6 text-weight-regular">
         Denomination
       </q-card-section>
@@ -30,7 +30,7 @@
     </q-card>
     <div class="row justify-end q-mt-md">
       <div class="text-h6">
-        Overall Total Denomination: {{ formatPrice(overallTotal) }}
+        Denomination Total: {{ formatPrice(overallTotal) }}
       </div>
     </div>
   </div>
@@ -73,4 +73,9 @@ const overallTotal = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+</style>
