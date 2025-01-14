@@ -1,8 +1,7 @@
 <template>
-  <div>
+  <div v-if="creditsReports !== 'No report' && creditsReports.length > 0">
     <!-- Check if creditsReports is "No report" or an empty array -->
     <q-table
-      v-if="creditsReports !== 'No report' && creditsReports.length > 0"
       flat
       bordered
       title="Credits"
@@ -22,40 +21,42 @@
           }}</span>
         </q-td>
       </template>
-      <template v-slot:body-cell-price="props">
-        <q-td :props="props">
-          <span>{{ `${formatPrice(props.row.price)}` }}</span>
-        </q-td>
-      </template>
+
       <template v-slot:body-cell-total_amount="props">
         <q-td :props="props">
           <span>{{ `${formatAmount(props.row.total_amount)}` }}</span>
         </q-td>
       </template>
+      <template v-slot:body-cell-view="props">
+        <q-td :props="props">
+          <ViewCreditsReport
+            :creditsReportList="props.row?.credit_products || []"
+          />
+        </q-td>
+      </template>
 
       <!-- Add a footer row for the overall total sales -->
-      <!-- <template v-slot:footer>
+      <template v-slot:footer>
         <q-tr>
           <q-td colspan="6" class="text-right">Overall Total Sales:</q-td>
           <q-td>{{ formatPrice(overallTotal || 0) }}</q-td>
         </q-tr>
-      </template> -->
+      </template>
     </q-table>
-
-    <!-- If creditsReports is "No report", display the message instead of the table -->
-    <div v-else>
-      <p>No Credits reports available.</p>
+    <div class="row justify-end q-mt-md">
+      <div class="text-h6">
+        Credits Total: {{ formatPrice(overallTotal || "0") }}
+      </div>
     </div>
   </div>
-  <div class="row justify-end q-mt-md">
-    <div class="text-h6">
-      Credits Total Sales: {{ formatPrice(overallTotal || "0") }}
-    </div>
+  <!-- If creditsReports is "No report", display the message instead of the table -->
+  <div align="center" v-else>
+    <p>No Credits reports available.</p>
   </div>
-  <!-- {{ creditsReports }} -->
 </template>
 
 <script setup>
+import ViewCreditsReport from "./ViewCreditsReport.vue";
 const props = defineProps(["creditsReports"]);
 
 console.log("creditsReports Data:", props.creditsReports);
@@ -81,7 +82,7 @@ const capitalizeFirstLetter = (location) => {
 // Check if creditsReports is an array before using reduce
 const overallTotal = Array.isArray(props.creditsReports)
   ? props.creditsReports.reduce((total, report) => {
-      const sales = parseFloat(report.sales); // Ensure sales is treated as a number
+      const sales = parseFloat(report.total_amount); // Ensure sales is treated as a number
       if (!isNaN(sales)) {
         return total + sales; // Add sales to total if it's a valid number
       }
@@ -115,30 +116,17 @@ const creditProductsColumn = [
     field: (row) => formatFullname(row.credit_user_id),
     align: "center",
   },
-  {
-    name: "productName",
-    label: "Product Name",
-    field: (row) => {
-      return row.product.name || "N/A";
-    },
-    align: "center",
-  },
-  {
-    name: "pieces",
-    label: "Pieces",
-    field: "pieces",
-    align: "center",
-  },
-  {
-    name: "price",
-    label: "Price",
-    field: "price",
-    align: "center",
-  },
+
   {
     name: "total_amount",
     label: "Total Amount",
     field: "total_amount",
+    align: "center",
+  },
+  {
+    name: "view",
+    label: "View Credits",
+    field: "view",
     align: "center",
   },
 ];

@@ -1,7 +1,6 @@
 <template>
-  <div>
+  <div v-if="selectaReports !== 'No report' && selectaReports.length > 0">
     <q-table
-      v-if="selectaReports !== 'No report' && selectaReports.length > 0"
       flat
       bordered
       title="Selecta"
@@ -24,15 +23,15 @@
         </q-td>
       </template>
     </q-table>
-    <!-- If breadReports is "No report", display the message instead of the table -->
-    <div v-else>
-      <p>No selecta reports available yet.</p>
+    <div class="row justify-end q-mt-md">
+      <div class="text-h6">
+        Selecta Total Sales: {{ formatPrice(overallTotal || "0") }}
+      </div>
     </div>
   </div>
-  <div class="row justify-end q-mt-md">
-    <div class="text-h6">
-      Selecta Total Sales: {{ formatPrice(overallTotal || "0") }}
-    </div>
+  <!-- If breadReports is "No report", display the message instead of the table -->
+  <div align="center" v-else>
+    <p>No Selecta reports available yet.</p>
   </div>
 </template>
 
@@ -52,8 +51,8 @@ const formatPrice = (price) => {
 };
 
 // Check if breadReports is an array before using reduce
-const overallTotal = Array.isArray(props.breadReports)
-  ? props.breadReports.reduce((total, report) => {
+const overallTotal = Array.isArray(props.selectaReports)
+  ? props.selectaReports.reduce((total, report) => {
       const sales = parseFloat(report.sales); // Ensure sales is treated as a number
       if (!isNaN(sales)) {
         return total + sales; // Add sales to total if it's a valid number

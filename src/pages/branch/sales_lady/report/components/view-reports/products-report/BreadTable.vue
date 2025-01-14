@@ -1,8 +1,7 @@
 <template>
-  <div>
+  <div v-if="breadReports !== 'No report' && breadReports.length > 0">
     <!-- Check if breadReports is "No report" or an empty array -->
     <q-table
-      v-if="breadReports !== 'No report' && breadReports.length > 0"
       flat
       bordered
       title="Breads"
@@ -32,16 +31,15 @@
         </q-tr>
       </template> -->
     </q-table>
-
-    <!-- If breadReports is "No report", display the message instead of the table -->
-    <div v-else>
-      <p>No bread reports available.</p>
+    <div class="row justify-end q-mt-md">
+      <div class="text-h6">
+        Bread Total Sales: {{ formatPrice(overallTotal || "0") }}
+      </div>
     </div>
   </div>
-  <div class="row justify-end q-mt-md">
-    <div class="text-h6">
-      Bread Total Sales: {{ formatPrice(overallTotal || "0") }}
-    </div>
+  <!-- If breadReports is "No report", display the message instead of the table -->
+  <div align="center" v-else>
+    <p>No Bread reports available.</p>
   </div>
 </template>
 

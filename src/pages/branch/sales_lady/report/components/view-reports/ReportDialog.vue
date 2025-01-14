@@ -64,6 +64,14 @@
       <q-card-section>
         <CreditsReportsTable :creditsReports="creditsReports || 'No Report'" />
       </q-card-section>
+      <q-card-section>
+        <ExpensesTable :expensesReports="expensesReports || 'No Report'" />
+      </q-card-section>
+      <q-card-section>
+        <DenominationCard
+          :denominationReports="denominationReports || 'No Report'"
+        />
+      </q-card-section>
     </q-card>
   </q-dialog>
 </template>
@@ -77,6 +85,8 @@ import SelectaTable from "./products-report/SelectaTable.vue";
 import SoftdrinksTable from "./products-report/SoftdrinksTable.vue";
 import OtherProductsTable from "./products-report/OtherProductsTable.vue";
 import CreditsReportsTable from "./products-report/CreditsReportsTable.vue";
+import ExpensesTable from "./products-report/ExpensesTable.vue";
+import DenominationCard from "./products-report/DenominationCard.vue";
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
@@ -87,8 +97,11 @@ const selectaReports = props.reports[0]?.selecta_reports || "No report";
 const softdrinksReports = props.reports[0]?.softdrinks_reports || "No report";
 const otherProductsReport =
   props.reports[0]?.other_products_reports || "No report";
+const expensesReports = props.reports[0]?.expenses_reports || "No report";
 const creditsReports = props.reports[0]?.credit_reports || "No report";
-console.log("breaaadd", breadReports);
+const denominationReports =
+  props.reports[0]?.denomination_reports || "No report";
+console.log("denominationReportsssss", denominationReports);
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
 

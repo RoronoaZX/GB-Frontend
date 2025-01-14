@@ -1,10 +1,9 @@
 <template>
-  <div>
+  <div
+    v-if="otherProductsReport !== 'No report' && otherProductsReport.length > 0"
+  >
     <!-- Check if breadReports is "No report" or an empty array -->
     <q-table
-      v-if="
-        otherProductsReport !== 'No report' && otherProductsReport.length > 0
-      "
       flat
       bordered
       title="Other Products"
@@ -29,16 +28,15 @@
         </q-td>
       </template>
     </q-table>
-
-    <!-- If breadReports is "No report", display the message instead of the table -->
-    <div v-else>
-      <p>No Other Products reports available.</p>
+    <div class="row justify-end q-mt-md">
+      <div class="text-h6">
+        Other Products Total Sales: {{ formatPrice(overallTotal || "0") }}
+      </div>
     </div>
   </div>
-  <div class="row justify-end q-mt-md">
-    <div class="text-h6">
-      Other Products Total Sales: {{ formatPrice(overallTotal || "0") }}
-    </div>
+  <!-- If breadReports is "No report", display the message instead of the table -->
+  <div align="center" v-else>
+    <p>No Other Products reports available.</p>
   </div>
 </template>
 
@@ -58,8 +56,8 @@ const formatPrice = (price) => {
 };
 
 // Check if breadReports is an array before using reduce
-const overallTotal = Array.isArray(props.breadReports)
-  ? props.breadReports.reduce((total, report) => {
+const overallTotal = Array.isArray(props.otherProductsReport)
+  ? props.otherProductsReport.reduce((total, report) => {
       const sales = parseFloat(report.sales); // Ensure sales is treated as a number
       if (!isNaN(sales)) {
         return total + sales; // Add sales to total if it's a valid number
