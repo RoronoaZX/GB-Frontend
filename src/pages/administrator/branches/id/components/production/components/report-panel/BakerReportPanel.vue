@@ -42,7 +42,63 @@
         </div>
       </div>
       <q-card-section>
-        <div class="row q-gutter-md">
+        <q-table
+          class="table-container sticky-header2"
+          :columns="BakerReportsColumns"
+          :rows="reportsData"
+          row-key="name"
+          :header-class="'custom-header'"
+        >
+          <template v-slot:body-cell-combined_bakers_reports="props">
+            <q-td :props="props">
+              <q-btn
+                class="gradient-icon"
+                flat
+                rounded
+                @click="
+                  handleBreadDialog(
+                    props.row.combined_bakers_reports,
+                    props.row.branch_recipe
+                  )
+                "
+              >
+                <q-icon name="visibility" class="gradient-icon" />
+                <q-tooltip class="gradient-tooltip">View Breads</q-tooltip>
+              </q-btn>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-status="props">
+            <q-td :props="props">
+              <q-badge
+                align="middle"
+                :color="getBadgeStatusColor(props.row.status)"
+              >
+                {{ capitalizeFirstLetter(props.row.status) }}
+              </q-badge>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-ingredients_reports="props">
+            <q-td :props="props">
+              <q-btn class="gradient-icon2" flat rounded>
+                <q-icon name="visibility" class="gradient-icon2" />
+              </q-btn>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-action="props">
+            <q-td :props="props">
+              <q-btn
+                round
+                dense
+                size="md"
+                flat
+                @click="openPrintDialog(props.row)"
+              >
+                <q-icon name="print" class="gradient-icon3" />
+              </q-btn>
+            </q-td>
+          </template>
+        </q-table>
+        <!-- <div class="row q-gutter-md">
           <div
             v-for="(bakerReport, index) in reportsData"
             :key="index"
@@ -193,7 +249,7 @@
               </q-card-section>
             </q-card>
           </div>
-        </div>
+        </div> -->
       </q-card-section>
     </q-card>
 
@@ -221,6 +277,7 @@
 <script setup>
 import { ref } from "vue";
 import { date, useQuasar } from "quasar";
+import BreadView from "./baker-report/BreadView.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
 pdfMake.vfs = pdfFonts.default;
@@ -233,6 +290,16 @@ const maximizedToggle = ref(true);
 const printDialog = ref(false);
 
 const pdfUrl = ref("");
+const $q = useQuasar();
+const handleBreadDialog = (breadProduction, branchRecipe) => {
+  $q.dialog({
+    component: BreadView,
+    componentProps: {
+      breadProduction: breadProduction,
+      branchRecipe: branchRecipe,
+    },
+  });
+};
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMM. DD, YYYY");
@@ -326,6 +393,88 @@ const getBreadReports = (reportsData) => {
     return [];
   }
 };
+
+const BakerReportsColumns = [
+  {
+    name: "recipe_name",
+    align: "center",
+    label: "Recipe Name",
+    field: (row) => {
+      if (row.branch_recipe && row.branch_recipe.recipe) {
+        return {
+          name: row.branch_recipe.recipe.name,
+          category: row.branch_recipe.recipe.category,
+        };
+      } else {
+        return {
+          name: "N/A", // Fallback value for name
+          category: "N/A", // Fallback value for category
+        };
+      }
+    },
+    format: (val) => `${capitalizeName(val.name)} (${val.category})`,
+    sortable: true,
+  },
+  {
+    name: "created_at",
+    align: "center",
+    label: "Time",
+    field: "created_at",
+    format: (val) => formatTimeFromDB(val),
+  },
+  {
+    name: "kilo",
+    align: "center",
+    label: "Kilo / s",
+    field: "kilo",
+    format: (val) => `${val}`,
+  },
+  {
+    name: "actual_target",
+    align: "center",
+    label: "Actual Target",
+    field: "actual_target",
+    format: (val) => `${val}`,
+  },
+  {
+    name: "over",
+    align: "center",
+    label: "Over",
+    field: "over",
+    format: (val) => `${val}`,
+  },
+  {
+    name: "short",
+    align: "center",
+    label: "Short",
+    field: "short",
+    format: (val) => `${val}`,
+  },
+  {
+    name: "status",
+    align: "center",
+    label: "Status",
+    field: "status",
+  },
+  {
+    name: "combined_bakers_reports",
+    align: "center",
+    label: "Breads",
+    field: "combined_bakers_reports",
+  },
+  {
+    name: "ingredients_reports",
+    align: "center",
+    label: "Ingredients",
+    field: "ingredients_reports",
+  },
+  {
+    name: "action",
+    align: "center",
+    label: "Action",
+    field: "action",
+  },
+];
 
 const generateDocDefinition = (bakerReport) => {
   console.log("bakerReport", bakerReport);
@@ -578,5 +727,52 @@ const openPrintDialog = (bakerReport) => {
 .user-button:hover {
   transform: translateY(-5px);
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.table-container {
+  max-height: 400px; /* Adjust as needed */
+  overflow: hidden;
+}
+
+.q-table-container {
+  overflow: hidden !important; /* Target the container generated by q-table */
+}
+
+.custom-header {
+  background: linear-gradient(to right, #800080, #ee82ee); /* Purple gradient */
+  color: white; /* Text color for better contrast */
+}
+
+.gradient-tooltip {
+  background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
+  color: white; /* Ensure text is visible */
+  border-radius: 4px; /* Optional: Rounded corners for a smoother look */
+  padding: 8px; /* Optional: Add padding for better spacing */
+  font-size: 14px; /* Optional: Adjust font size if needed */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow for a polished look */
+}
+.gradient-icon {
+  font-size: 24px; /* Adjust size as needed */
+  background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
+  -webkit-background-clip: text; /* For compatibility */
+  background-clip: text;
+  color: transparent; /* Make text fill transparent */
+  display: inline-block; /* Ensure proper display */
+}
+.gradient-icon2 {
+  font-size: 24px; /* Adjust size as needed */
+  background: linear-gradient(135deg, #2c3e50, #f443d7); /* Gradient colors */
+  -webkit-background-clip: text; /* For compatibility */
+  background-clip: text;
+  color: transparent; /* Make text fill transparent */
+  display: inline-block; /* Ensure proper display */
+}
+.gradient-icon3 {
+  font-size: 24px; /* Adjust size as needed */
+  background: linear-gradient(135deg, #2c3e50, #2c3e50); /* Gradient colors */
+  -webkit-background-clip: text; /* For compatibility */
+  background-clip: text;
+  color: transparent; /* Make text fill transparent */
+  display: inline-block; /* Ensure proper display */
 }
 </style>
