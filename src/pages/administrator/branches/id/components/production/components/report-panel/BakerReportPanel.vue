@@ -48,6 +48,11 @@
           :rows="reportsData"
           row-key="name"
           :header-class="'custom-header'"
+          virtual-scroll
+          :virtual-scroll-item-size="48"
+          :virtual-scroll-sticky-size-start="48"
+          :pagination="pagination"
+          :rows-per-page-options="[0]"
         >
           <template v-slot:body-cell-status="props">
             <q-td :props="props">
@@ -184,6 +189,9 @@ console.log("Bakers Report", props.bakersReport);
 const maximizedToggle = ref(true);
 const printDialog = ref(false);
 const showing = ref(false);
+const pagination = ref({
+  rowsPerPage: 0,
+});
 
 const pdfUrl = ref("");
 const $q = useQuasar();
