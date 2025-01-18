@@ -95,173 +95,54 @@
               </q-btn>
             </q-td>
           </template>
+          <!-- Action Menu -->
           <template v-slot:body-cell-action="props">
             <q-td :props="props">
               <q-btn
-                round
                 dense
-                size="md"
                 flat
-                @click="openPrintDialog(props.row)"
+                round
+                icon="more_vert"
+                aria-label="Action Menu"
+                @click="toggleMenu(props.row)"
+              />
+              <q-menu
+                v-model="props.row.menu"
+                anchor="bottom right"
+                self="top right"
+                transition-show="jump-down"
+                transition-hide="jump-up"
               >
-                <q-icon name="print" class="gradient-icon3" />
-                <q-tooltip class="gradient-tooltip">Print</q-tooltip>
-              </q-btn>
+                <q-list style="min-width: 100px">
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="openPrintDialog(props.row)"
+                  >
+                    <q-item-section avatar>
+                      <q-icon name="print" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Print</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="handleBakerReportEditDialog(props.row)"
+                  >
+                    <q-item-section avatar>
+                      <q-icon name="edit" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Edit</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
             </q-td>
           </template>
         </q-table>
-        <!-- <div class="row q-gutter-md">
-          <div
-            v-for="(bakerReport, index) in reportsData"
-            :key="index"
-            class="row q-gutter-sm"
-          >
-            <q-card
-              flat
-              dense
-              bordered
-              class="q-pa-md q-my-sm user-card"
-              style="width: 675px; max-width: 1500px"
-            >
-              <div class="text-h6 row justify-between">
-                <div>
-                  {{
-                    `${
-                      capitalizeFirstLetter(
-                        bakerReport.branch_recipe.recipe?.name
-                      ) || "Unknown Recipe"
-                    } (${bakerReport.recipe_category || "Unknown Category"})`
-                  }}
-                </div>
-                <q-btn
-                  padding="xs md"
-                  label="Print"
-                  icon="print"
-                  outline
-                  @click="openPrintDialog(bakerReport)"
-                  class="user-button"
-                ></q-btn>
-              </div>
-              <div>Time: {{ formatTimeFromDB(bakerReport.created_at) }}</div>
-              <div>
-                Status:
-                <q-badge
-                  align="middle"
-                  :color="getBadgeStatusColor(bakerReport.status)"
-                >
-                  {{ capitalizeFirstLetter(bakerReport.status) }}
-                </q-badge>
-              </div>
-              <q-card-section>
-                <div
-                  class="row items-start q-gutter-x-md text-overline elegant-text"
-                >
-                  <div class="row q-gutter-x-sm q-gutter-y-xm">
-                    Actual Target:
-                    <div>
-                      <q-badge outline align="middle" color="teal">
-                        {{ `${bakerReport?.actual_target || "No target"} pcs` }}
-                      </q-badge>
-                    </div>
-                  </div>
-                  <div class="row q-gutter-x-sm q-gutter-y-xm">
-                    Kilo:
-                    <div>
-                      <q-badge outline align="middle" color="teal">
-                        {{ `${bakerReport?.kilo || "No Kilo"} kgs` }}
-                      </q-badge>
-                    </div>
-                  </div>
-                  <div class="row q-gutter-x-sm">
-                    Over:
-                    <div>
-                      <q-badge outline align="middle" color="teal">
-                        {{ `${bakerReport.over} pcs` }}
-                      </q-badge>
-                    </div>
-                  </div>
-                  <div class="row q-gutter-x-sm">
-                    Short:
-                    <div>
-                      <q-badge outline align="middle" color="teal">
-                        {{ `${bakerReport.short} pcs` }}
-                      </q-badge>
-                    </div>
-                  </div>
-                </div>
-              </q-card-section>
-              <q-card-section>
-                <div class="row">
-                  <div class="col-6">
-                    <div class="text-subtitle1" align="center">Ingredients</div>
-                    <div class="row justify-center q-gutter-x-lg q-pa-lg">
-                      <div>
-                        <div
-                          v-for="(
-                            ingredient, index
-                          ) in bakerReport.ingredient_bakers_reports || []"
-                          :key="index"
-                          class="row justify-between q-gutter-y-lg q-gutter-x-xl text-weight-light"
-                        >
-                          <div>
-                            {{
-                              ingredient?.ingredients?.name ||
-                              "Unknown Ingredient"
-                            }}
-                          </div>
-                          <div class="row items-start">
-                            {{
-                              `${ingredient?.quantity || "Unknown Quantity"} ${
-                                ingredient?.ingredients?.unit || ""
-                              }`
-                            }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="text-subtitle1" align="center">Bread</div>
-                    <div class="row justify-center q-gutter-x-lg q-pa-lg">
-                      <div>
-                        <div
-                          v-for="(breadReport, index) in getBreadReports(
-                            bakerReport
-                          )"
-                          :key="index"
-                          class="row justify-between q-gutter-y-lg q-gutter-x-xl text-weight-light"
-                        >
-                          <div>
-                            {{ breadReport?.bread?.name || "Unknown Bread" }}
-                          </div>
-                          <div>
-                            <div
-                              v-if="bakerReport.recipe_category === 'Filling'"
-                            >
-                              {{
-                                `${breadReport?.filling_production || "0"} pcs`
-                              }}
-                            </div>
-                            <div
-                              v-else-if="
-                                bakerReport.recipe_category === 'Dough'
-                              "
-                            >
-                              {{ `${breadReport?.bread_new_production} pcs` }}
-                            </div>
-                            <div v-else>
-                              {{ "0 pcs" }}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </q-card-section>
-            </q-card>
-          </div>
-        </div> -->
       </q-card-section>
     </q-card>
 
@@ -293,6 +174,7 @@ import BreadView from "./baker-report/BreadView.vue";
 import IngredientsView from "./baker-report/IngredientsView.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import EditBakersReport from "./baker-report/EditBakersReport.vue";
 pdfMake.vfs = pdfFonts.default;
 // import PrintReportDialog from "./PrintReportDialog.vue";
 
@@ -301,6 +183,7 @@ const reportsData = props.bakersReport;
 console.log("Bakers Report", props.bakersReport);
 const maximizedToggle = ref(true);
 const printDialog = ref(false);
+const showing = ref(false);
 
 const pdfUrl = ref("");
 const $q = useQuasar();
@@ -320,6 +203,15 @@ const handleIngredientsDialog = (ingredientProduction, branchRecipe) => {
     componentProps: {
       ingredientProduction: ingredientProduction,
       branchRecipe: branchRecipe,
+    },
+  });
+};
+
+const handleBakerReportEditDialog = (bakerReports) => {
+  $q.dialog({
+    component: EditBakersReport,
+    componentProps: {
+      bakerReports: bakerReports,
     },
   });
 };
@@ -463,8 +355,8 @@ const BakerReportsColumns = [
     name: "actual_target",
     align: "center",
     label: "Actual Target",
-    field: "actual_target",
-    format: (val) => `${val}`,
+    field: (row) => row.target * row.kilo,
+    format: (val) => `${Math.ceil(val)}`,
   },
   {
     name: "over",
