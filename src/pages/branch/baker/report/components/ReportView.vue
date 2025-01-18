@@ -72,7 +72,7 @@
           <div class="row q-gutter-x-sm text-overline">
             <div>Kilo:</div>
             <div class="text-weight-light">
-              {{ report.kilo }}
+              {{ formatKilo(report.kilo) }}
             </div>
           </div>
           <div class="row q-gutter-x-sm text-overline">
@@ -352,6 +352,13 @@ const formatQuantity = (quantity) => {
     return `${kilos} ${unit}`;
   }
   return `${quantity} g`;
+};
+const formatKilo = (target) => {
+  // Ensure the target is a number and default to 0 if undefined or null
+  const numericTarget = Number(target) || 0;
+
+  // Use parseFloat to remove trailing zeros if the value is decimal
+  return parseFloat(numericTarget.toFixed(3)).toString();
 };
 </script>
 

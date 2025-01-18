@@ -188,30 +188,129 @@ const updateActualTarget = () => {
   const kilo = parseFloat(bakersReport.kilo);
   const target = parseFloat(recipe.value?.target);
   if (!isNaN(kilo) && !isNaN(target)) {
-    bakersReport.actual_target = kilo * target;
+    const calculatedTarget = kilo * target;
+    bakersReport.actual_target = Math.ceil(calculatedTarget);
   } else {
     bakersReport.actual_target = 0;
   }
 };
+
+// const calculateShortAndOver = () => {
+//   const totalBreadPcs = bakersReport.breads.reduce(
+//     (total, bread) => total + (parseFloat(bread.value) || 0),
+//     0
+//   );
+//   const difference = totalBreadPcs - bakersReport.actual_target;
+
+//   if (difference > 0) {
+//     bakersReport.over = difference;
+//     bakersReport.short = 0;
+//   } else if (difference < 0) {
+//     bakersReport.short = Math.abs(difference);
+//     bakersReport.over = 0;
+//   } else {
+//     bakersReport.short = 0;
+//     bakersReport.over = 0;
+//   }
+// };
 
 const calculateShortAndOver = () => {
   const totalBreadPcs = bakersReport.breads.reduce(
     (total, bread) => total + (parseFloat(bread.value) || 0),
     0
   );
-  const difference = totalBreadPcs - bakersReport.actual_target;
 
-  if (difference > 0) {
-    bakersReport.over = difference;
+  const actualTarget = bakersReport.actual_target;
+
+  // Adjust short and over based on comparison with actual_target
+  if (totalBreadPcs === actualTarget) {
     bakersReport.short = 0;
-  } else if (difference < 0) {
-    bakersReport.short = Math.abs(difference);
     bakersReport.over = 0;
-  } else {
+  } else if (totalBreadPcs > actualTarget) {
+    bakersReport.over = totalBreadPcs - actualTarget;
     bakersReport.short = 0;
+  } else if (totalBreadPcs < actualTarget) {
+    bakersReport.short = actualTarget - totalBreadPcs;
     bakersReport.over = 0;
   }
 };
+
+// const calculateShortAndOver = () => {
+//   if (!bakersReport.kilo) {
+//     // If kilo is not provided, reset short and actual_target to 0
+//     bakersReport.actual_target = 0;
+//     bakersReport.short = 0;
+//     bakersReport.over = 0;
+//     return;
+//   }
+
+//   const totalBreadPcs = bakersReport.breads.reduce(
+//     (total, bread) => total + (parseFloat(bread.value) || 0),
+//     0
+//   );
+
+//   const calculatedTarget =
+//     parseFloat(bakersReport.kilo) * parseFloat(recipe.value?.target || 0); // Original target
+//   bakersReport.actual_target = Math.ceil(calculatedTarget); // Display rounded target
+
+//   // Set initial display for short field to match actual_target
+//   if (totalBreadPcs === 0) {
+//     bakersReport.short = bakersReport.actual_target;
+//     bakersReport.over = 0;
+//     return;
+//   }
+
+//   // Calculate short and over dynamically
+//   if (
+//     totalBreadPcs === bakersReport.actual_target ||
+//     totalBreadPcs === Math.floor(calculatedTarget)
+//   ) {
+//     bakersReport.short = 0;
+//     bakersReport.over = 0;
+//   } else if (totalBreadPcs > bakersReport.actual_target) {
+//     bakersReport.over = totalBreadPcs - bakersReport.actual_target;
+//     bakersReport.short = 0;
+//   } else if (totalBreadPcs < Math.floor(calculatedTarget)) {
+//     bakersReport.short = Math.floor(calculatedTarget) - totalBreadPcs;
+//     bakersReport.over = 0;
+//   } else {
+//     bakersReport.short = bakersReport.actual_target - totalBreadPcs;
+//     bakersReport.over = 0;
+//   }
+// };
+
+// const calculateShortAndOver = () => {
+//   const totalBreadPcs = bakersReport.breads.reduce(
+//     (total, bread) => total + (parseFloat(bread.value) || 0),
+//     0
+//   );
+
+//   const originalTarget =
+//     parseFloat(bakersReport.kilo) * parseFloat(recipe.value?.target || 0); // Original unrounded target
+//   const roundedTarget = Math.ceil(originalTarget); // Rounded target
+
+//   // Check if totalBreadPcs is within acceptable range (original or rounded target)
+//   if (
+//     totalBreadPcs === roundedTarget ||
+//     totalBreadPcs === Math.floor(originalTarget)
+//   ) {
+//     // If it matches either the rounded or floor of the original, no short or over
+//     bakersReport.short = 0;
+//     bakersReport.over = 0;
+//   } else if (totalBreadPcs > roundedTarget) {
+//     // Overproduction
+//     bakersReport.over = totalBreadPcs - roundedTarget;
+//     bakersReport.short = 0;
+//   } else if (totalBreadPcs < Math.floor(originalTarget)) {
+//     // Underproduction based on floor
+//     bakersReport.short = Math.floor(originalTarget) - totalBreadPcs;
+//     bakersReport.over = 0;
+//   } else {
+//     // Underproduction based on rounded target
+//     bakersReport.short = roundedTarget - totalBreadPcs;
+//     bakersReport.over = 0;
+//   }
+// };
 
 const autoFillReport = () => {
   bakersReport.user_id = userData.value?.data.id || "";
@@ -269,16 +368,17 @@ const resetReportForm = () => {
 };
 
 const multipliedIngredients = computed(() => {
-  const kilo = parseInt(bakersReport.kilo) || 1;
+  const kilo = parseFloat(bakersReport.kilo) || 0; // Use parseFloat for decimal support
   return (recipe.value?.ingredients || []).map((ingredient) => {
-    const quantity = parseFloat(ingredient.quantity);
-    const multipliedQuantity =
-      !isNaN(kilo) && !isNaN(quantity) ? kilo * quantity : 0;
+    const quantity = parseFloat(ingredient.quantity) || 0; // Ensure quantity is parsed as a float
+    const multipliedQuantity = kilo * quantity;
+
+    // Format the multiplied quantity
     const formattedQuantity =
       multipliedQuantity % 1 === 0
         ? multipliedQuantity // Integer: display without decimal
-        : parseFloat(multipliedQuantity.toFixed(1)); // Float: one decimal place
-    console.log("formattedQuantity", formattedQuantity);
+        : parseFloat(multipliedQuantity.toFixed(2)); // Float: two decimal places
+
     return {
       ...ingredient,
       multipliedQuantity: formattedQuantity,

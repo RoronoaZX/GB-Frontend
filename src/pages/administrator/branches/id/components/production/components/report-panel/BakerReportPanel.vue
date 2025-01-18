@@ -49,6 +49,16 @@
           row-key="name"
           :header-class="'custom-header'"
         >
+          <template v-slot:body-cell-status="props">
+            <q-td :props="props">
+              <q-badge
+                align="middle"
+                :color="getBadgeStatusColor(props.row.status)"
+              >
+                {{ capitalizeFirstLetter(props.row.status) }}
+              </q-badge>
+            </q-td>
+          </template>
           <template v-slot:body-cell-combined_bakers_reports="props">
             <q-td :props="props">
               <q-btn
@@ -67,20 +77,21 @@
               </q-btn>
             </q-td>
           </template>
-          <template v-slot:body-cell-status="props">
-            <q-td :props="props">
-              <q-badge
-                align="middle"
-                :color="getBadgeStatusColor(props.row.status)"
-              >
-                {{ capitalizeFirstLetter(props.row.status) }}
-              </q-badge>
-            </q-td>
-          </template>
           <template v-slot:body-cell-ingredients_reports="props">
             <q-td :props="props">
-              <q-btn class="gradient-icon2" flat rounded>
+              <q-btn
+                class="gradient-icon2"
+                flat
+                rounded
+                @click="
+                  handleIngredientsDialog(
+                    props.row.ingredient_bakers_reports,
+                    props.row.branch_recipe
+                  )
+                "
+              >
                 <q-icon name="visibility" class="gradient-icon2" />
+                <q-tooltip class="gradient-tooltip">View Ingredients</q-tooltip>
               </q-btn>
             </q-td>
           </template>
@@ -94,6 +105,7 @@
                 @click="openPrintDialog(props.row)"
               >
                 <q-icon name="print" class="gradient-icon3" />
+                <q-tooltip class="gradient-tooltip">Print</q-tooltip>
               </q-btn>
             </q-td>
           </template>
@@ -278,6 +290,7 @@
 import { ref } from "vue";
 import { date, useQuasar } from "quasar";
 import BreadView from "./baker-report/BreadView.vue";
+import IngredientsView from "./baker-report/IngredientsView.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
 pdfMake.vfs = pdfFonts.default;
@@ -301,11 +314,28 @@ const handleBreadDialog = (breadProduction, branchRecipe) => {
   });
 };
 
+const handleIngredientsDialog = (ingredientProduction, branchRecipe) => {
+  $q.dialog({
+    component: IngredientsView,
+    componentProps: {
+      ingredientProduction: ingredientProduction,
+      branchRecipe: branchRecipe,
+    },
+  });
+};
+
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMM. DD, YYYY");
 };
 
 const formatTarget = (target) => {
+  // Ensure the target is a number and default to 0 if undefined or null
+  const numericTarget = Number(target) || 0;
+
+  // Use parseFloat to remove trailing zeros if the value is decimal
+  return parseFloat(numericTarget.toFixed(3)).toString();
+};
+const formatKilo = (target) => {
   // Ensure the target is a number and default to 0 if undefined or null
   const numericTarget = Number(target) || 0;
 
@@ -427,7 +457,7 @@ const BakerReportsColumns = [
     align: "center",
     label: "Kilo / s",
     field: "kilo",
-    format: (val) => `${val}`,
+    format: (val) => `${formatKilo(val)}`,
   },
   {
     name: "actual_target",
@@ -753,7 +783,9 @@ const openPrintDialog = (bakerReport) => {
 }
 .gradient-icon {
   font-size: 24px; /* Adjust size as needed */
-  background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
+  // background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
+  background: linear-gradient(to right, #a0522d, #ff8833);
+  // background: linear-gradient(to right, #6a320a, #a0522d, #d2691e, #f2be90);
   -webkit-background-clip: text; /* For compatibility */
   background-clip: text;
   color: transparent; /* Make text fill transparent */

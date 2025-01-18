@@ -1,15 +1,16 @@
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
-        <div class="row justify-between">
-          <div class="text-h6">
-            {{
-              `${capitalizeFirstLetter(branchRecipe?.recipe?.name)} - ${
-                branchRecipe?.recipe?.category
-              }`
-            }}
-          </div>
+      <q-card-section class="row bg-backgroud text-h6">
+        <div class="text-h6 text-white">
+          {{
+            `${capitalizeFirstLetter(branchRecipe?.recipe?.name)} - ${
+              branchRecipe?.recipe?.category
+            }`
+          }}
+        </div>
+        <q-space />
+        <div>
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
           </q-btn>
@@ -17,7 +18,7 @@
       </q-card-section>
       <q-table :rows="breadProduction" :columns="BreadReportsColumns">
       </q-table>
-      {{ reports }}
+      <!-- {{ reports }} -->
     </q-card>
   </q-dialog>
 </template>
@@ -30,7 +31,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["breadProduction", "branchRecipe"]);
-console.log("breadReportsaaasss", props.reports);
+console.log("breadReportsaaasss", props.breadProduction);
 
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";
@@ -44,11 +45,12 @@ const BreadReportsColumns = [
   {
     name: "bread_name",
     label: "Bread Name",
-    align: "center",
+    align: "left",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
       return row.bread.name || "N/A"; // Adjust this according to your data
     },
+    format: (val) => capitalizeFirstLetter(val),
   },
   {
     name: "production",
@@ -68,9 +70,13 @@ const BreadReportsColumns = [
   font-size: 14px; /* Optional: Adjust font size if needed */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Subtle shadow for a polished look */
 }
+.bg-backgroud {
+  background: linear-gradient(to right, #8b4513, #a0522d, #d2691e, #f4a460);
+}
 .gradient-icon {
   font-size: 24px; /* Adjust size as needed */
-  background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
+  background: linear-gradient(to right, #8b4513, #a0522d, #d2691e, #f4a460);
+  // background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
   -webkit-background-clip: text; /* For compatibility */
   background-clip: text;
   color: transparent; /* Make text fill transparent */
