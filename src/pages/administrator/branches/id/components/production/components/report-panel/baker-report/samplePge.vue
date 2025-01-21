@@ -16,7 +16,7 @@
           </q-btn>
         </div>
       </q-card-section>
-      sales_report_id:{{ sales_report_id }}
+
       <q-card-section class="row q-gutter-x-xl">
         <!-- Left Section -->
         <div>
@@ -145,28 +145,16 @@
           </q-list>
         </div>
       </q-card-section>
-      <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
-        <q-btn class="glossy" color="grey-9" label="Dismiss" v-close-popup />
-        <q-btn
-          class="glossy"
-          color="teal"
-          label="Save"
-          @click="saveEditedBakerReport"
-        />
-      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { Notify, useDialogPluginComponent } from "quasar";
+import { useDialogPluginComponent } from "quasar";
 import { reactive, watch, computed } from "vue";
-import { useProductionStore } from "stores/production";
 
-const productionStore = useProductionStore();
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
-const props = defineProps(["bakerReports", "sales_report_id"]);
-console.log("bakers report", props.bakerReports);
+const props = defineProps(["bakerReports"]);
 
 const editBakerReport = reactive({
   target: 0,
@@ -257,7 +245,7 @@ watch(
   (newVal) => {
     if (newVal) {
       editBakerReport.target = formatTarget(newVal.target) || 0;
-      editBakerReport.actual_target = newVal.actual_target || 0;
+      editBakerReport.actual_target = formatTarget(newVal.actual_target) || 0;
       editBakerReport.short = newVal.short || 0;
       editBakerReport.over = newVal.over || 0;
       editBakerReport.kilo = formatKilo(newVal.kilo) || 0;
@@ -271,10 +259,7 @@ watch(
   () => {
     const newKilo = parseFloat(editBakerReport.kilo) || 1;
     const target = parseFloat(editBakerReport.target) || 0;
-    const newActualTarget = target * newKilo;
-
-    // Round the actual target value up using Math.ceil
-    editBakerReport.actual_target = formatTarget(Math.ceil(newActualTarget));
+    editBakerReport.actual_target = (target * newKilo).toFixed(3);
     calculateOverAndShort();
   }
 );
@@ -283,85 +268,4 @@ watch(
   () => totalBreadProduction.value,
   () => calculateOverAndShort()
 );
-const saveEditedBakerReport = async () => {
-  const reportId = props.bakerReports.id;
-  const reportCategory =
-    props.bakerReports?.branch_recipe?.recipe?.category || null;
-  const status = props.bakerReports.status;
-  const sales_report_id = props?.sales_report_id || null;
-
-  const dataToSave = {
-    initial_bakerreports_id: reportId,
-    sales_report_id: sales_report_id,
-    category: reportCategory,
-    target: editBakerReport.target,
-    actual_target: editBakerReport.actual_target,
-    short: editBakerReport.short,
-    over: editBakerReport.over,
-    status: status,
-    kilo: editBakerReport.kilo,
-    combined_bakers_reports: props.bakerReports.combined_bakers_reports.map(
-      (bread) => ({
-        bread_id: bread.bread.id, // Assuming bread has an id
-        bread_production: bread.bread_production,
-      })
-    ),
-    recalculated_ingredients: recalculatedIngredients.value.map(
-      (ingredient) => ({
-        ingredients_id: ingredient.ingredients.id, // Assuming ingredient has an id
-        quantity: ingredient.quantity,
-        unit: ingredient.unit,
-      })
-    ),
-  };
-
-  console.log("Edited Bakers Report", dataToSave);
-  console.log("Edited Bakers Report", reportId);
-
-  try {
-    await productionStore.updateBakerReport(reportId, dataToSave);
-    // Success notification
-    Notify.create({
-      type: "positive",
-      message: "Baker report updated successfully!",
-      position: "top",
-    });
-    onDialogHide();
-  } catch (error) {
-    console.error("Error updating baker report:", error);
-    // Failure notification
-    Notify.create({
-      type: "negative",
-      message: "Failed to update baker report. Please try again.",
-      position: "top",
-    });
-  }
-};
 </script>
-
-<style lang="scss" scoped>
-.box {
-  border: 1px dashed grey;
-  border-radius: 10px;
-}
-.bg-backgroud {
-  // Sunset Glow
-  // background: linear-gradient(135deg, #ff7e5f, #feb47b);
-  // Ocean Breeze
-  // background: linear-gradient(135deg, #00c6ff, #0072ff);
-  // Lush Greenery
-  // background: linear-gradient(135deg, #56ab2f, #a8e063);
-  //  Royal Purple
-  // background: linear-gradient(135deg, #654ea3, #eaafc8);
-  // Peachy Pink
-  background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
-  // Deep Space
-  // background: linear-gradient(135deg, #434343, #000000);
-  // Blue Lagoon
-  // background: linear-gradient(135deg, #43cea2, #185a9d);
-  // Soft Lavender
-  // background: linear-gradient(135deg, #c471ed, #f64f59);
-  // Golden Hour
-  // background: linear-gradient(135deg, #ff9966, #ff5e62);
-}
-</style>

@@ -52,11 +52,11 @@
               <span>{{ `${formatPrice(props.row.price)}` }}</span>
             </q-td>
           </template>
-          <template v-slot:body-cell-sales="props">
+          <!-- <template v-slot:body-cell-sales="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.sales)}` }}</span>
             </q-td>
-          </template>
+          </template> -->
         </q-table>
       </q-card-section>
       <q-card-section>
@@ -128,12 +128,7 @@ const breadReportColumns = [
     field: "bread_out",
     format: (val) => `${val}`,
   },
-  {
-    name: "breadSold",
-    label: "Bread Sold (PCS)",
-    field: "bread_sold",
-    format: (val) => `${val}`,
-  },
+
   {
     name: "total",
     label: "Bread Total (PCS)",
@@ -141,9 +136,25 @@ const breadReportColumns = [
     field: (row) => (row.remaining || 0) + (row.new_production || 0),
   },
   {
+    name: "breadSold",
+    label: "Bread Sold (PCS)",
+    field: (row) => {
+      const total = (row.beginnings || 0) + (row.new_production || 0);
+      const totalBreadDifference = (row.remaining || 0) + (row.bread_out || 0);
+      return total - totalBreadDifference;
+    },
+    format: (val) => `${val}`,
+  },
+  {
     name: "sales",
     label: "Total Sales",
-    field: "sales",
+    field: (row) => {
+      const total = (row.beginnings || 0) + (row.new_production || 0);
+      const totalBreadDifference = (row.remaining || 0) + (row.bread_out || 0);
+      const breadSold = total - totalBreadDifference;
+      return breadSold * (row.price || 0);
+    },
+    format: (val) => `${formatPrice(val)}`, // Formats sales to 2 decimal places
   },
 ];
 
@@ -172,13 +183,18 @@ const filteredRows = computed(() => {
   });
 });
 
-// Calculate the overall total sales with number conversion
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    const salesAmount = parseFloat(row.sales) || 0;
+    // Dynamically calculate the sales value using the field function
+    const totalValue = (row.beginnings || 0) + (row.new_production || 0);
+    const totalBreadDifference = (row.remaining || 0) + (row.bread_out || 0);
+    const breadSold = totalValue - totalBreadDifference;
+    const salesAmount = breadSold * (row.price || 0);
+
     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
     return total + salesAmount;
   }, 0);
+
   console.log("Overall Total Sales computed as:", total);
   return total;
 });

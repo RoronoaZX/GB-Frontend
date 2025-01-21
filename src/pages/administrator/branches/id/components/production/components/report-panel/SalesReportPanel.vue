@@ -153,11 +153,20 @@ const generateDocDefinition = (report) => {
   const productionTypes = [
     {
       title: "Bread Production",
-      data: (report.bread_reports || []).map((item) => ({
-        ...item,
-        total: (item.new_production || 0) + (item.beginnings || 0),
-        sales: (item.price || 0) * (item.bread_sold || 0),
-      })),
+      data: (report.bread_reports || []).map((item) => {
+        const total = (item.new_production || 0) + (item.beginnings || 0);
+        const totalBreadDifference =
+          (item.remaining || 0) + (item.bread_out || 0);
+        const breadSold = total - totalBreadDifference;
+        const sales = (item.price || 0) * breadSold;
+
+        return {
+          ...item,
+          total,
+          bread_sold: breadSold,
+          sales,
+        };
+      }),
       columns: [
         "bread.name",
         "beginnings",
@@ -173,24 +182,22 @@ const generateDocDefinition = (report) => {
     },
     {
       title: "Selecta Production",
-      data: (report.selecta_reports || []).map((item) => ({
-        ...item,
-        sales: (item.price || 0) * item.sold,
-      })),
-      columns: [
-        "selecta.name",
-        "beginnings",
-        "price",
-        "out",
-        "sold",
-        "remaining",
-        "sales",
-      ],
-      totals: ["sales"],
-    },
-    {
-      title: "Selecta Production",
-      data: report.selecta_reports || [],
+      data: (report.selecta_reports || []).map((item) => {
+        const beginnings = item.beginnings || 0;
+        const total = (item.remaining || 0) + (item.out || 0);
+        const selectaSold = beginnings - total;
+        const sales = (item.price || 0) * selectaSold;
+        return {
+          ...item,
+          total,
+          sold: selectaSold,
+          sales,
+        };
+      }),
+      // data: (report.selecta_reports || []).map((item) => {
+      //   const total = (item.remaining || 0) + (item.out || 0),
+      //   sales: (item.price || 0) * item.sold,
+      // }),
       columns: [
         "selecta.name",
         "beginnings",
@@ -257,7 +264,7 @@ const generateDocDefinition = (report) => {
   const denomination = report.denomination_reports[0] || [];
   const denominationTotal = report.denomination_total;
   // const expensesTotal = report.expenses_total;
-  const totalProductSales = report.products_total_sales;
+  // const totalProductSales = report.products_total_sales;
   const chargesAmount = report.charges_amount;
   const overAmount = report.over_total;
 
@@ -294,106 +301,6 @@ const generateDocDefinition = (report) => {
     ],
   };
   const formatPrice = (price) => `₱${price.toFixed(2)}`;
-
-  // const generateTableBody = (data, columns, totals) => {
-  //   const totalRow = totals.reduce((acc, key) => {
-  //     acc[key] = data.reduce(
-  //       (sum, item) =>
-  //         sum + (parseFloat(item[key.split(".")[0]][key.split(".")[1]]) || 0),
-  //       0
-  //     );
-  //     return acc;
-  //   }, {});
-
-  //   return [
-  //     ...data.map((row) =>
-  //       columns.map((col) => {
-  //         // Check if column requires fullname formatting
-  //         if (col === "cake_report.user.employee" && row.cake_report.user) {
-  //           return {
-  //             text: formatFullname(row.cake_report.user.employee),
-  //             style: "body",
-  //             alignment: "center",
-  //           };
-  //         }
-
-  //         return {
-  //           text: col.includes(".")
-  //             ? col.split(".").reduce((obj, key) => obj && obj[key], row) || "-"
-  //             : row[col] || "-",
-  //           style: "body",
-  //           alignment: "center",
-  //         };
-  //       })
-  //     ),
-  //     [
-  //       {
-  //         text: "Overall Total",
-  //         colSpan: columns.length - totals.length,
-  //         style: "tableHeader",
-  //         alignment: "right",
-  //         color: "#020617",
-  //       },
-  //       ...Array(columns.length - totals.length - 1).fill({}),
-  //       ...totals.map((key) => ({
-  //         text: totalRow[key] ? totalRow[key].toFixed(2) : "0.00",
-  //         style: "tableHeader",
-  //         alignment: "center",
-  //         color: "#020617",
-  //       })),
-  //     ],
-  //   ];
-  // };
-
-  // const generateTableBody = (data, columns, totals) => {
-  //   const totalRow = totals.reduce((acc, key) => {
-  //     acc[key] = data.reduce((sum, item) => sum + (item[key] || 0), 0);
-  //     return acc;
-  //   }, {});
-
-  //   return [
-  //     ...data.map((item) =>
-  //       columns.map((col) => {
-  //         // Check if column is "cake_report.user.employee"
-  //         if (col === "cake_report.user.employee") {
-  //           // Apply formatFullname if the data exists
-  //           const employee = item.cake_report?.user?.employee;
-  //           return {
-  //             text: employee ? formatFullname(employee) : "No Employee",
-  //             style: "body",
-  //             alignment: "center",
-  //           };
-  //         }
-
-  //         // Default case for other columns
-  //         return {
-  //           text: col.includes(".")
-  //             ? col.split(".").reduce((obj, key) => obj && obj[key], item) ||
-  //               "-"
-  //             : item[col] || "-",
-  //           style: "body",
-  //           alignment: "center",
-  //         };
-  //       })
-  //     ),
-  //     [
-  //       {
-  //         text: "Overall Total",
-  //         colSpan: columns.length - totals.length,
-  //         style: "tableHeader",
-  //         alignment: "right",
-  //         color: "#020617",
-  //       },
-  //       ...Array(columns.length - totals.length - 1).fill({}),
-  //       ...totals.map((key) => ({
-  //         text: key === "sales" ? formatAmount(totalRow[key]) : totalRow[key],
-  //         style: "tableHeader",
-  //         alignment: "center",
-  //         color: "#020617",
-  //       })),
-  //     ],
-  //   ];
-  // };
 
   const generateTableBody = (data, columns, totals) => {
     // Helper function to fetch nested values using dot notation
@@ -452,41 +359,6 @@ const generateDocDefinition = (report) => {
       ],
     ];
   };
-
-  // const generateTableBody = (data, columns, totals) => {
-  //   const totalRow = totals.reduce((acc, key) => {
-  //     acc[key] = data.reduce((sum, item) => sum + (item[key] || 0), 0);
-  //     return acc;
-  //   }, {});
-
-  //   return [
-  //     ...data.map((item) =>
-  //       columns.map((col) => ({
-  //         text: col.includes(".")
-  //           ? item[col.split(".")[0]][col.split(".")[1]]
-  //           : item[col],
-  //         style: "body",
-  //         alignment: "center",
-  //       }))
-  //     ),
-  //     [
-  //       {
-  //         text: "Overall Total",
-  //         colSpan: columns.length - totals.length,
-  //         style: "tableHeader",
-  //         alignment: "right",
-  //         color: "#020617",
-  //       },
-  //       ...Array(columns.length - totals.length - 1).fill({}),
-  //       ...totals.map((key) => ({
-  //         text: key === "sales" ? formatAmount(totalRow[key]) : totalRow[key],
-  //         style: "tableHeader",
-  //         alignment: "center",
-  //         color: "#020617",
-  //       })),
-  //     ],
-  //   ];
-  // };
 
   let creditTotal = 0; // Initialize total sum
 
@@ -674,6 +546,15 @@ const generateDocDefinition = (report) => {
     ],
   }));
 
+  // Calculate Total Product Sales Amount
+  const totalProductSales = productionTypes.reduce((total, productionType) => {
+    const typeTotal = productionType.data.reduce(
+      (sum, item) => sum + (item.sales || 0),
+      0
+    );
+    return total + typeTotal;
+  }, 0);
+
   const summaryTable = {
     table: {
       widths: ["50%", "50%"],
@@ -697,7 +578,7 @@ const generateDocDefinition = (report) => {
             alignment: "left",
           },
           {
-            text: formatAmount(report.products_total_sales),
+            text: formatAmount(totalProductSales),
             style: "tableData",
             alignment: "center",
           },

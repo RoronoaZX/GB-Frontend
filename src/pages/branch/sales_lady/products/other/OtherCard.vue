@@ -289,7 +289,7 @@ const saveReport = async () => {
       sold: othersProductsReport.otherProductSold,
       out: othersProductsReport.otherProductOut,
       added_stocks: selectedItem.value.new_production,
-      beginnings: selectedItem.value.beginnings,
+      beginnings: selectedItem.value.total_quantity,
       remaining: othersProductsReport.remainnings,
       price: selectedItem.value.price,
       sales: otherProductSalesAmount.value,

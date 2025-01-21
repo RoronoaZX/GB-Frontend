@@ -40,6 +40,8 @@
             )}`
           }}
         </div>
+
+        <!-- Sales Report ID: {{ sales_report_id }} -->
       </div>
       <q-card-section>
         <q-table
@@ -134,7 +136,9 @@
                   <q-item
                     clickable
                     v-close-popup
-                    @click="handleBakerReportEditDialog(props.row)"
+                    @click="
+                      handleBakerReportEditDialog(props.row, sales_report_id)
+                    "
                   >
                     <q-item-section avatar>
                       <q-icon name="edit" />
@@ -183,7 +187,7 @@ import EditBakersReport from "./baker-report/EditBakersReport.vue";
 pdfMake.vfs = pdfFonts.default;
 // import PrintReportDialog from "./PrintReportDialog.vue";
 
-const props = defineProps(["bakersReport"]);
+const props = defineProps(["bakersReport", "sales_report_id"]);
 const reportsData = props.bakersReport;
 console.log("Bakers Report", props.bakersReport);
 const maximizedToggle = ref(true);
@@ -215,11 +219,12 @@ const handleIngredientsDialog = (ingredientProduction, branchRecipe) => {
   });
 };
 
-const handleBakerReportEditDialog = (bakerReports) => {
+const handleBakerReportEditDialog = (bakerReports, salesReportID) => {
   $q.dialog({
     component: EditBakersReport,
     componentProps: {
       bakerReports: bakerReports,
+      sales_report_id: salesReportID,
     },
   });
 };
@@ -448,7 +453,7 @@ const generateDocDefinition = (bakerReport) => {
         [
           { text: "Kilo", style: "tableHeader", alignment: "left" },
           {
-            text: `${kilo} kg/s`,
+            text: `${formatKilo(kilo)} kg/s`,
             style: "tableHeader",
             alignment: "center",
           },

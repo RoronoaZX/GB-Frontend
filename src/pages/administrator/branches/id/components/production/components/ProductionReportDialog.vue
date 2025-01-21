@@ -59,7 +59,10 @@
             style="background-color: #f7f8fc"
           >
             <q-tab-panel name="bakerReport">
-              <BakerReportPanel :bakersReport="bakerReports" />
+              <BakerReportPanel
+                :bakersReport="bakerReports"
+                :sales_report_id="sales_report_id"
+              />
             </q-tab-panel>
             <q-tab-panel name="salesReport">
               <SalesReportPanel :salesReport="salesReports" />
@@ -84,6 +87,8 @@ const props = defineProps(["reports", "reportLabel"]);
 console.log("production report", props.reports);
 const bakerReports = props.reports.baker_reports;
 const salesReports = props.reports.sales_reports;
+const sales_report_id = props.reports.sales_reports_id;
+console.log("sales_report_id", sales_report_id);
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
 

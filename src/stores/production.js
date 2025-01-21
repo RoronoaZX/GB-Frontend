@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { Loading, Notify } from "quasar";
 import { api } from "src/boot/axios";
 import { ref } from "vue";
 
@@ -22,10 +23,29 @@ export const useProductionStore = defineStore("productions", () => {
     }
   };
 
+  const updateBakerReport = async (id, data) => {
+    console.log("data in store", data);
+    console.log("data in store", id);
+    Loading.show();
+    try {
+      // Make sure the URL matches your Laravel route's endpoint
+      const response = await api.put(
+        `api/update/branch-baker-report/${id}`,
+        data
+      );
+      console.log(response.data); // Log the response if needed
+    } catch (error) {
+      console.error("Error updating baker report:", error);
+    } finally {
+      Loading.hide();
+    }
+  };
+
   return {
     productions,
     production,
     fetchAllProduction,
     fetchBranchProductions,
+    updateBakerReport,
   };
 });
