@@ -156,14 +156,15 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.employeeCreditReports.push(report);
     },
     updateExpensesReport(report) {
-      const index = this.expensesReports.findIndex(
-        (r) => r.name === report.name
-      );
-      if (index !== -1) {
-        this.expensesReports.splice(index, 1, report);
-      } else {
-        this.expensesReports.push(report);
-      }
+      this.expensesReports.push(report);
+      // const index = this.expensesReports.findIndex(
+      //   (r) => r.name === report.name
+      // );
+      // if (index !== -1) {
+      //   this.expensesReports.splice(index, 1, report);
+      // } else {
+      //   this.expensesReports.push(report);
+      // }
     },
 
     getDenominationData(report) {

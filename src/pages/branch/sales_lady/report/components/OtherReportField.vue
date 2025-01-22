@@ -65,7 +65,7 @@
         <q-item-section>
           <q-item-label class="text-caption" align="center">
             <span>
-              {{ otherProduct.product_sold }}
+              {{ otherProduct.sold }}
             </span>
           </q-item-label>
         </q-item-section>
