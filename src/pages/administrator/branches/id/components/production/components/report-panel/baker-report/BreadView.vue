@@ -16,8 +16,41 @@
           </q-btn>
         </div>
       </q-card-section>
-      <q-table :rows="breadProduction" :columns="BreadReportsColumns">
-      </q-table>
+      <q-card-section>
+        <div class="text-h6" align="center">Bread List</div>
+      </q-card-section>
+      <q-card-section>
+        <q-list dense separator class="box">
+          <q-item>
+            <q-item-section>
+              <q-item-label class="text-overline">Bread Name</q-item-label>
+            </q-item-section>
+
+            <q-item-section side>
+              <q-item-label class="text-overline text-center"
+                >Pieces</q-item-label
+              >
+            </q-item-section>
+            <!-- <q-item-section>
+                  <q-item-label class="text-overline">Unit</q-item-label>
+                </q-item-section> -->
+          </q-item>
+          <q-item v-for="(breads, index) in breadProduction" :key="index">
+            <q-item-section>
+              <q-item-label class="text-caption">
+                {{ capitalizeFirstLetter(breads?.bread?.name) }}
+              </q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-item-label class="text-caption text-center">
+                {{ `${breads?.bread_production} ` }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card-section>
+      <!-- <q-table :rows="breadProduction" :columns="BreadReportsColumns">
+      </q-table> -->
       <!-- {{ reports }} -->
     </q-card>
   </q-dialog>
@@ -41,24 +74,24 @@ const capitalizeFirstLetter = (location) => {
     .join(" ");
 };
 
-const BreadReportsColumns = [
-  {
-    name: "bread_name",
-    label: "Bread Name",
-    align: "left",
-    field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
-      return row.bread.name || "N/A"; // Adjust this according to your data
-    },
-    format: (val) => capitalizeFirstLetter(val),
-  },
-  {
-    name: "production",
-    label: "Production",
-    align: "center",
-    field: (row) => row.bread_production || row.filling_production || "0",
-  },
-];
+// const BreadReportsColumns = [
+//   {
+//     name: "bread_name",
+//     label: "Bread Name",
+//     align: "left",
+//     field: (row) => {
+//       console.log("Row data:", row); // Debug each row's data
+//       return row.bread.name || "N/A"; // Adjust this according to your data
+//     },
+//     format: (val) => capitalizeFirstLetter(val),
+//   },
+//   {
+//     name: "production",
+//     label: "Production",
+//     align: "center",
+//     field: (row) => row.bread_production || row.filling_production || "0",
+//   },
+// ];
 </script>
 
 <style lang="scss" scoped>
@@ -81,5 +114,9 @@ const BreadReportsColumns = [
   background-clip: text;
   color: transparent; /* Make text fill transparent */
   display: inline-block; /* Ensure proper display */
+}
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
 }
 </style>

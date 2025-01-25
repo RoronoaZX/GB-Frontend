@@ -154,11 +154,18 @@ const generateDocDefinition = (report) => {
     {
       title: "Bread Production",
       data: (report.bread_reports || []).map((item) => {
-        const total = (item.new_production || 0) + (item.beginnings || 0);
-        const totalBreadDifference =
-          (item.remaining || 0) + (item.bread_out || 0);
+        // Ensure all numeric fields are properly converted to numbers
+        const beginnings = Number(item.beginnings) || 0;
+        const newProduction = Number(item.new_production) || 0;
+        const remaining = Number(item.remaining) || 0;
+        const breadOut = Number(item.bread_out) || 0;
+        const price = Number(item.price) || 0;
+
+        // Calculate total, bread sold, and sales
+        const total = beginnings + newProduction;
+        const totalBreadDifference = remaining + breadOut;
         const breadSold = total - totalBreadDifference;
-        const sales = (item.price || 0) * breadSold;
+        const sales = breadSold * price;
 
         return {
           ...item,
@@ -180,6 +187,7 @@ const generateDocDefinition = (report) => {
       ],
       totals: ["sales"],
     },
+
     {
       title: "Selecta Production",
       data: (report.selecta_reports || []).map((item) => {

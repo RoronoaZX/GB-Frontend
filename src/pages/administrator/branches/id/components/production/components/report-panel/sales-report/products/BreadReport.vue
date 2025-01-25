@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { useDialogPluginComponent } from "quasar";
+import { format, useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
 import { computed, ref } from "vue";
 
@@ -269,16 +269,25 @@ const breadReportColumns = [
   {
     name: "total",
     label: "Bread Total (PCS)",
-    field: "total",
-    field: (row) => (row.beginnings || 0) + (row.new_production || 0),
+    field: (row) => {
+      // Ensure values are converted to numbers before summing
+      return (Number(row.beginnings) || 0) + (Number(row.new_production) || 0);
+    },
   },
   {
     name: "breadSold",
     label: "Bread Sold (PCS)",
     field: (row) => {
-      const total = (row.beginnings || 0) + (row.new_production || 0);
-      const totalBreadDifference = (row.remaining || 0) + (row.bread_out || 0);
-      return total - totalBreadDifference;
+      // Ensure all values are treated as numbers
+      const beginnings = Number(row.beginnings) || 0;
+      const newProduction = Number(row.new_production) || 0;
+      const remaining = Number(row.remaining) || 0;
+      const breadOut = Number(row.bread_out) || 0;
+
+      const total = beginnings + newProduction;
+      const totalBreadDifference = remaining + breadOut;
+
+      return total - totalBreadDifference; // Calculate bread sold
     },
     format: (val) => `${val}`,
   },
@@ -286,10 +295,18 @@ const breadReportColumns = [
     name: "sales",
     label: "Total Sales",
     field: (row) => {
-      const total = (row.beginnings || 0) + (row.new_production || 0);
-      const totalBreadDifference = (row.remaining || 0) + (row.bread_out || 0);
+      // Ensure all values are treated as numbers
+      const beginnings = Number(row.beginnings) || 0;
+      const newProduction = Number(row.new_production) || 0;
+      const remaining = Number(row.remaining) || 0;
+      const breadOut = Number(row.bread_out) || 0;
+      const price = Number(row.price) || 0;
+
+      const total = beginnings + newProduction;
+      const totalBreadDifference = remaining + breadOut;
       const breadSold = total - totalBreadDifference;
-      return breadSold * (row.price || 0);
+
+      return breadSold * price; // Calculate total sales
     },
     format: (val) => `${formatPrice(val)}`, // Formats sales to 2 decimal places
   },
@@ -322,11 +339,17 @@ const filteredRows = computed(() => {
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    // Dynamically calculate the sales value using the field function
-    const totalValue = (row.beginnings || 0) + (row.new_production || 0);
-    const totalBreadDifference = (row.remaining || 0) + (row.bread_out || 0);
+    // Ensure all values are treated as numbers
+    const beginnings = Number(row.beginnings) || 0;
+    const newProduction = Number(row.new_production) || 0;
+    const remaining = Number(row.remaining) || 0;
+    const breadOut = Number(row.bread_out) || 0;
+    const price = Number(row.price) || 0;
+
+    const totalValue = beginnings + newProduction;
+    const totalBreadDifference = remaining + breadOut;
     const breadSold = totalValue - totalBreadDifference;
-    const salesAmount = breadSold * (row.price || 0);
+    const salesAmount = breadSold * price;
 
     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
     return total + salesAmount;
