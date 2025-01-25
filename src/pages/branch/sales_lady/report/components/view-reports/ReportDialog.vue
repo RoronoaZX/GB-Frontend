@@ -98,21 +98,15 @@ console.log("props sales report", props.reports[0]);
 // Determine the active report (use reports[0] or fall back to reports[1])
 const currentReport = props.reports[0] || props.reports[1] || null;
 
-const breadReports =
-  props.reports[0]?.bread_reports || props.reports[1] || "No report";
-const selectaReports =
-  props.reports[0]?.selecta_reports || props.reports[1] || "No report";
-const softdrinksReports =
-  props.reports[0]?.softdrinks_reports || props.reports[1] || "No report";
+// Handle report-specific data
+const breadReports = currentReport?.bread_reports || "No report";
+const selectaReports = currentReport?.selecta_reports || "No report";
+const softdrinksReports = currentReport?.softdrinks_reports || "No report";
 const otherProductsReport =
-  props.reports[0]?.other_products_reports || props.reports[1] || "No report";
-const expensesReports =
-  props.reports[0]?.expenses_reports || props.reports[1] || "No report";
-const creditsReports =
-  props.reports[0]?.credit_reports || props.reports[1] || "No report";
-const denominationReports =
-  props.reports[0]?.denomination_reports || props.reports[1] || "No report";
-console.log("denominationReportsssss", denominationReports);
+  currentReport?.other_products_reports || "No report";
+const expensesReports = currentReport?.expenses_reports || "No report";
+const creditsReports = currentReport?.credit_reports || "No report";
+const denominationReports = currentReport?.denomination_reports || "No report";
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
 
