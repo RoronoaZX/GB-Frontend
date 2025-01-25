@@ -35,16 +35,18 @@
         <div class="text-subtitle1 text-weight-regular">
           <div>
             Name:
-            {{ formatFullname(reports[0]?.user?.employee || "No Report") }}
+            {{ formatFullname(currentReport?.user?.employee || "No Report") }}
           </div>
           <div>
-            Date: {{ formatDate(reports[0]?.created_at || "No report") }}
+            Date: {{ formatDate(currentReport?.created_at || "No report") }}
           </div>
           <div>
-            Time: {{ formatTimeFromDB(reports[0]?.created_at || "No report") }}
+            Time:
+            {{ formatTimeFromDB(currentReport?.created_at || "No report") }}
           </div>
         </div>
       </q-card-section>
+
       <q-card-section>
         <BreadTable :breadReports="breadReports || 'No Report'" />
       </q-card-section>
@@ -96,15 +98,20 @@ console.log("props sales report", props.reports[0]);
 // Determine the active report (use reports[0] or fall back to reports[1])
 const currentReport = props.reports[0] || props.reports[1] || null;
 
-const breadReports = props.reports[0]?.bread_reports || "No report";
-const selectaReports = props.reports[0]?.selecta_reports || "No report";
-const softdrinksReports = props.reports[0]?.softdrinks_reports || "No report";
+const breadReports =
+  props.reports[0]?.bread_reports || props.reports[1] || "No report";
+const selectaReports =
+  props.reports[0]?.selecta_reports || props.reports[1] || "No report";
+const softdrinksReports =
+  props.reports[0]?.softdrinks_reports || props.reports[1] || "No report";
 const otherProductsReport =
-  props.reports[0]?.other_products_reports || "No report";
-const expensesReports = props.reports[0]?.expenses_reports || "No report";
-const creditsReports = props.reports[0]?.credit_reports || "No report";
+  props.reports[0]?.other_products_reports || props.reports[1] || "No report";
+const expensesReports =
+  props.reports[0]?.expenses_reports || props.reports[1] || "No report";
+const creditsReports =
+  props.reports[0]?.credit_reports || props.reports[1] || "No report";
 const denominationReports =
-  props.reports[0]?.denomination_reports || "No report";
+  props.reports[0]?.denomination_reports || props.reports[1] || "No report";
 console.log("denominationReportsssss", denominationReports);
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
