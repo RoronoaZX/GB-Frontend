@@ -17,7 +17,7 @@
         <div class="text-h6">
           {{
             `${capitalizeFirstLetter(
-              reports[0]?.branch?.name || " No Report in this Branch"
+              currentReport?.branch?.name || "No Report in this Branch"
             )} ( ${reportLabel} Report)`
           }}
         </div>
@@ -92,6 +92,10 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 
 const props = defineProps(["reports", "reportLabel"]);
 console.log("props sales report", props.reports[0]);
+
+// Determine the active report (use reports[0] or fall back to reports[1])
+const currentReport = props.reports[0] || props.reports[1] || null;
+
 const breadReports = props.reports[0]?.bread_reports || "No report";
 const selectaReports = props.reports[0]?.selecta_reports || "No report";
 const softdrinksReports = props.reports[0]?.softdrinks_reports || "No report";
