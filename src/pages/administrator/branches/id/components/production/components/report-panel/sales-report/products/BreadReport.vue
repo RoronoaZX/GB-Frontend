@@ -50,6 +50,81 @@
           <template v-slot:body-cell-price="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.price)}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedPrice(props.row, val)"
+                v-model="props.row.price"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-beginnings="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.beginnings}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedBeginnings(props.row, val)"
+                v-model="props.row.beginnings"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-remaining="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.remaining}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedRemaining(props.row, val)"
+                v-model="props.row.remaining"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-bread_out="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.bread_out}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedBreadOut(props.row, val)"
+                v-model="props.row.bread_out"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
             </q-td>
           </template>
           <!-- <template v-slot:body-cell-sales="props">
@@ -72,6 +147,7 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
+import { api } from "src/boot/axios";
 import { computed, ref } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
@@ -88,6 +164,67 @@ const capitalizeFirstLetter = (location) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+};
+
+const updatedPrice = async (data, val) => {
+  console.log("update data of the price", data);
+  console.log("update val of the price", val);
+  try {
+    const response = await api.put(
+      "/api/update-bread-sales-price-report/" + data.id,
+      {
+        price: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updatedBeginnings = async (data, val) => {
+  console.log("update data of the beginnings", data);
+  console.log("update val of the beginnings", val);
+  try {
+    const response = await api.put(
+      "/api/update-bread-sales-beginnings-report/" + data.id,
+      {
+        beginnings: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updatedRemaining = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
+  try {
+    const response = await api.put(
+      "/api/update-bread-sales-remaining-report/" + data.id,
+      {
+        remaining: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updatedBreadOut = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
+  try {
+    const response = await api.put(
+      "/api/update-bread-sales-breadOut-report/" + data.id,
+      {
+        bread_out: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const breadReportColumns = [
@@ -111,7 +248,7 @@ const breadReportColumns = [
     format: (val) => `${val}`,
   },
   {
-    name: "newProduction",
+    name: "new_production",
     label: "New Production (PCS)",
     field: "new_production",
     format: (val) => `${val}`,
@@ -123,7 +260,7 @@ const breadReportColumns = [
     format: (val) => `${val}`,
   },
   {
-    name: "breadOut",
+    name: "bread_out",
     label: "Bread Out (PCS)",
     field: "bread_out",
     format: (val) => `${val}`,
@@ -133,7 +270,7 @@ const breadReportColumns = [
     name: "total",
     label: "Bread Total (PCS)",
     field: "total",
-    field: (row) => (row.remaining || 0) + (row.new_production || 0),
+    field: (row) => (row.beginnings || 0) + (row.new_production || 0),
   },
   {
     name: "breadSold",

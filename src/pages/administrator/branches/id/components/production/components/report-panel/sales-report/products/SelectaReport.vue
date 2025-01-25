@@ -34,6 +34,21 @@
           <template v-slot:body-cell-price="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.price)}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedPrice(props.row, val)"
+                v-model="props.row.price"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
             </q-td>
           </template>
           <template v-slot:body-cell-sales="props">
@@ -56,6 +71,7 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
+import { api } from "src/boot/axios";
 import { computed } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
@@ -72,6 +88,22 @@ const capitalizeFirstLetter = (location) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+};
+
+const updatedPrice = async (data, val) => {
+  console.log("update data of the price", data);
+  console.log("update val of the price", val);
+
+  try {
+    const response = await api.put(
+      "/api/update-selecta-sales-price-report/" + data.id,
+      {
+        price: parseInt(val),
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const selectaReportColumn = [
@@ -107,15 +139,36 @@ const selectaReportColumn = [
     format: (val) => `${val}`,
   },
   {
+    name: "added_stocks",
+    label: "Added Stocks (PCS)",
+    field: "added_stocks",
+    format: (val) => `${val}`,
+  },
+  {
+    name: "total_selecta",
+    label: "Total Stocks (PCS)",
+    field: (row) => (row.beginnings || 0) + (row.added_stocks || 0),
+    format: (val) => `${val}`,
+  },
+  {
     name: "sold",
     label: "Selecta Sold (PCS)",
-    field: "sold",
+    field: (row) => {
+      const totalSelecta = (row.beginnings || 0) + (row.added_stocks || 0);
+      const totalSelectaDifference = (row.remaining || 0) + (row.out || 0);
+      return totalSelecta - totalSelectaDifference;
+    },
     format: (val) => `${val}`,
   },
   {
     name: "sales",
     label: "Total Sales",
-    field: "sales",
+    field: (row) => {
+      const totalSelecta = (row.beginnings || 0) + (row.added_stocks || 0);
+      const totalSelectaDifference = (row.remaining || 0) + (row.out || 0);
+      const selectaSold = totalSelecta - totalSelectaDifference;
+      return selectaSold * (row.price || 0);
+    },
   },
 ];
 

@@ -24,8 +24,8 @@ export const useProductionStore = defineStore("productions", () => {
   };
 
   const updateBakerReport = async (id, data) => {
-    console.log("data in store", data);
-    console.log("data in store", id);
+    console.log("baker reports data in store", data);
+    console.log("baker reports id data in store", id);
     Loading.show();
     try {
       // Make sure the URL matches your Laravel route's endpoint
@@ -40,6 +40,10 @@ export const useProductionStore = defineStore("productions", () => {
       Loading.hide();
     }
   };
+
+  // const updateBreadPrice = async () => {
+
+  // }
 
   return {
     productions,
