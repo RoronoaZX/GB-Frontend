@@ -51,11 +51,93 @@
               </q-popup-edit>
             </q-td>
           </template>
-          <template v-slot:body-cell-sales="props">
+          <template v-slot:body-cell-beginnings="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.beginnings}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedBeginnings(props.row, val)"
+                v-model="props.row.beginnings"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-remaining="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.remaining}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedRemaining(props.row, val)"
+                v-model="props.row.remaining"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-out="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.out}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedSelectaOut(props.row, val)"
+                v-model="props.row.out"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-added_stocks="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.added_stocks}` }}</span>
+              <q-popup-edit
+                @update:model-value="
+                  (val) => updatedAddedStocks(props.row, val)
+                "
+                v-model="props.row.added_stocks"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <!-- <template v-slot:body-cell-sales="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.sales)}` }}</span>
             </q-td>
-          </template>
+          </template> -->
         </q-table>
       </q-card-section>
       <q-card-section>
@@ -72,6 +154,7 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
+
 import { computed } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
@@ -101,6 +184,68 @@ const updatedPrice = async (data, val) => {
         price: parseInt(val),
       }
     );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updatedBeginnings = async (data, val) => {
+  console.log("update data of the beginnings", data);
+  console.log("update val of the beginnings", val);
+  try {
+    const response = await api.put(
+      "/api/update-selecta-sales-beginnings-report/" + data.id,
+      {
+        beginnings: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updatedRemaining = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
+  try {
+    const response = await api.put(
+      "/api/update-selecta-sales-remaining-report/" + data.id,
+      {
+        remaining: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updatedSelectaOut = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
+  try {
+    const response = await api.put(
+      "/api/update-selecta-sales-selctaOut-report/" + data.id,
+      {
+        out: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updatedAddedStocks = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
+  try {
+    const response = await api.put(
+      "/api/update-selecta-sales-addedstocks-report/" + data.id,
+      {
+        added_stocks: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
   } catch (error) {
     console.error(error);
   }
@@ -147,15 +292,23 @@ const selectaReportColumn = [
   {
     name: "total_selecta",
     label: "Total Stocks (PCS)",
-    field: (row) => (row.beginnings || 0) + (row.added_stocks || 0),
+    field: (row) => {
+      const totalSelecta =
+        Number(row.beginnings || 0) + Number(row.added_stocks || 0);
+      return totalSelecta;
+    },
     format: (val) => `${val}`,
   },
   {
     name: "sold",
     label: "Selecta Sold (PCS)",
     field: (row) => {
-      const totalSelecta = (row.beginnings || 0) + (row.added_stocks || 0);
-      const totalSelectaDifference = (row.remaining || 0) + (row.out || 0);
+      const beginnings = Number(row.beginnings || 0);
+      const newStocks = Number(row.added_stocks || 0);
+      const selectaOut = Number(row.out || 0);
+      const remaining = Number(row.remaining || 0);
+      const totalSelecta = beginnings + newStocks;
+      const totalSelectaDifference = remaining + selectaOut;
       return totalSelecta - totalSelectaDifference;
     },
     format: (val) => `${val}`,
@@ -164,11 +317,18 @@ const selectaReportColumn = [
     name: "sales",
     label: "Total Sales",
     field: (row) => {
-      const totalSelecta = (row.beginnings || 0) + (row.added_stocks || 0);
-      const totalSelectaDifference = (row.remaining || 0) + (row.out || 0);
+      const beginnings = Number(row.beginnings || 0);
+      const newStocks = Number(row.added_stocks || 0);
+      const selectaOut = Number(row.out || 0);
+      const remaining = Number(row.remaining || 0);
+      const price = Number(row.price || 0);
+
+      const totalSelecta = beginnings + newStocks;
+      const totalSelectaDifference = remaining + selectaOut;
       const selectaSold = totalSelecta - totalSelectaDifference;
-      return selectaSold * (row.price || 0);
+      return selectaSold * price;
     },
+    format: (val) => `${formatPrice(val)}`,
   },
 ];
 
@@ -187,7 +347,16 @@ const filteredRows = computed(() => {
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    const salesAmount = parseFloat(row.sales) || 0;
+    const beginnings = `${row.beginnings}` || 0;
+    const addedStocks = `${row.added_stocks}` || 0;
+    const selectaOut = `${row.out}` || 0;
+    const remaining = `${row.remaining}` || 0;
+
+    const totalSelecta = parseInt(beginnings) + parseInt(addedStocks);
+    const totalSelectaDifference = parseInt(remaining) + parseInt(selectaOut);
+    const selectaSold = totalSelecta - totalSelectaDifference;
+    const salesAmount = selectaSold * (row.price || 0);
+
     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
     return total + salesAmount;
   }, 0);

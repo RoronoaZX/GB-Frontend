@@ -32,30 +32,79 @@
           <template v-slot:body-cell-name="props">
             <q-td :props="props">
               <span>{{ `${capitalizeFirstLetter(props.row.name)}` }}</span>
+              <!-- Popup for editing the amount -->
+              <q-popup-edit
+                @update:model-value="(val) => updateName(props.row, val)"
+                v-model="props.row.name"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  class="text-capitalize"
+                  v-model="scope.value"
+                  dense
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-description="props">
+            <q-td :props="props">
+              <span>{{
+                `${capitalizeFirstLetter(props.row.description)}`
+              }}</span>
+              <!-- Popup for editing the amount -->
+              <q-popup-edit
+                @update:model-value="(val) => updateDescription(props.row, val)"
+                v-model="props.row.description"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  class="text-capitalize"
+                  v-model="scope.value"
+                  dense
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
             </q-td>
           </template>
           <template v-slot:body-cell-amount="props">
             <q-td :props="props">
-              <span>{{ `${formatPrice(props.row.amount)}` }}</span>
+              <!-- Display the formatted amount -->
+              <span>{{ formatPrice(props.row.amount) }}</span>
+
+              <!-- Popup for editing the amount -->
+              <q-popup-edit
+                @update:model-value="
+                  (val) => updateAmount(props.row, parseFloat(val))
+                "
+                v-model="props.row.amount"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model.number="scope.value"
+                  dense
+                  type="number"
+                  mask="##0.00"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
             </q-td>
           </template>
         </q-table>
-
-        <!-- <div v-for="(expenses, index) in expensesReports" :key="index">
-          <div>Name: {{ expenses.name }}</div>
-          <div>
-            Description:
-            {{ expenses.description }}
-          </div>
-          <div>Amount: {{ expenses.amount }}</div>
-        </div> -->
-
-        <!-- {{ reports }} -->
       </q-card-section>
       <q-card-section>
         <div class="row justify-end q-mt-md">
           <div class="text-h6">
-            Overall Total Expenses: {{ formatPrice(total || "0") }}
+            Overall Total Expenses: {{ formatPrice(overallTotal || "0") }}
           </div>
         </div>
       </q-card-section>
@@ -65,6 +114,7 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
+import { api } from "src/boot/axios";
 import { computed } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
@@ -85,6 +135,56 @@ const capitalizeFirstLetter = (location) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+};
+
+const updateName = async (data, val) => {
+  console.log("update data of the updateName", data);
+  console.log("update val of the updateName", val);
+
+  try {
+    const response = await api.put(
+      "/api/update-expenses-sales-name-report/" + data.id,
+      {
+        name: val,
+      }
+    );
+    console.log("Updated expenses amount response:", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updateDescription = async (data, val) => {
+  console.log("update data of the description", data);
+  console.log("update val of the description", val);
+
+  try {
+    const response = await api.put(
+      "/api/update-expenses-sales-description-report/" + data.id,
+      {
+        description: val,
+      }
+    );
+    console.log("Updated expenses amount response:", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updateAmount = async (data, val) => {
+  console.log("update data of the amount", data);
+  console.log("update val of the amount", val);
+
+  try {
+    const response = await api.put(
+      "/api/update-expenses-sales-amount-report/" + data.id,
+      {
+        amount: parseFloat(val),
+      }
+    );
+    console.log("Updated expenses amount response:", response.data);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const expensesReportColumn = [
@@ -125,6 +225,14 @@ const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`
   console.log("Filtered rows:", props.reports || []);
   return props.reports || [];
+});
+
+const overallTotal = computed(() => {
+  const total = filteredRows.value.reduce((total, row) => {
+    const amount = parseFloat(row.amount) || 0; // Ensure proper parsing and handle non-numeric values
+    return total + amount;
+  }, 0); // Provide an initial value for reduce
+  return total;
 });
 
 console.log("Expenses:", filteredRows.value);

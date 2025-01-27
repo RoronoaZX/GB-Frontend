@@ -27,36 +27,31 @@
             <div>25 cents: {{ denominationReports.twentyFiveCents }}</div>
           </div>
         </div>
-        <!-- {{ reports }} -->
       </q-card-section>
       <q-card-section>
         <div class="row justify-end q-mt-md">
           <div class="text-h6">
-            Overall Total Denomination: {{ formatPrice(total || "0") }}
+            Overall Total Denomination: {{ formatPrice(totalDenomination) }}
           </div>
         </div>
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
-
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 import { computed } from "vue";
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps({
   reports: Array,
   total: Number,
 });
-console.log("Denomination Props", props.reports);
-const denominationReports = props.reports[0];
 
-// Log to verify the structure of props.reports
-console.log("Reports data structure:", props.reports);
+const denominationReports = props.reports[0] || {};
 
+// Function to format the price in PHP currency
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -64,14 +59,25 @@ const formatPrice = (price) => {
   }).format(price);
 };
 
-// Replace this with your actual filtered rows logic
-const filteredRows = computed(() => {
-  // Assuming `breads` is an array in `reports`
-  console.log("Filtered rows:", props.reports || []);
-  return props.reports || [];
+// Compute total denomination dynamically based on the count of bills and coins
+const totalDenomination = computed(() => {
+  const denominations = {
+    oneThousandBills: 1000,
+    fiveHundredBills: 500,
+    twoHundredBills: 200,
+    oneHundredBills: 100,
+    fiftyBills: 50,
+    twentyBills: 20,
+    twentyCoins: 20,
+    tenCoins: 10,
+    fiveCoins: 5,
+    oneCoins: 1,
+    twentyFiveCents: 0.25, // Cent values as fractions
+  };
+
+  // Calculate total dynamically by summing the value of each denomination multiplied by its count
+  return Object.keys(denominations).reduce((sum, key) => {
+    return sum + (denominationReports[key] || 0) * denominations[key];
+  }, 0);
 });
-
-console.log("Filtered Rows:", filteredRows.value);
 </script>
-
-<style scoped></style>

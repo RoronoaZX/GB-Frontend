@@ -51,7 +51,7 @@
       <q-card-section>
         <div class="row justify-end q-mt-md">
           <div class="text-h6">
-            Overall Credits Total: {{ formatPrice(total || "0") }}
+            Overall Total Expenses: {{ formatPrice(overallTotal || "0") }}
           </div>
         </div>
       </q-card-section>
@@ -169,6 +169,14 @@ const formatAmount = (total_amount) => {
     currency: "PHP",
   }).format(total_amount);
 };
+
+const overallTotal = computed(() => {
+  const total = filteredRows.value.reduce((total, row) => {
+    const amount = parseFloat(row.total_amount) || 0; // Ensure proper parsing and handle non-numeric values
+    return total + amount;
+  }, 0); // Provide an initial value for reduce
+  return total;
+});
 
 // console.log("Expenses:", filteredRows.value);
 </script>

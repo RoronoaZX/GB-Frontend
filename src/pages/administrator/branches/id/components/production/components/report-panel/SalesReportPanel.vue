@@ -191,10 +191,18 @@ const generateDocDefinition = (report) => {
     {
       title: "Selecta Production",
       data: (report.selecta_reports || []).map((item) => {
-        const beginnings = item.beginnings || 0;
-        const total = (item.remaining || 0) + (item.out || 0);
-        const selectaSold = beginnings - total;
-        const sales = (item.price || 0) * selectaSold;
+        // Ensure all numeric fields are properly converted to numbers
+        const beginnings = Number(item.beginnings || 0);
+        const newStocks = Number(item.added_stocks || 0);
+        const selectaOut = Number(item.out || 0);
+        const remaining = Number(item.remaining || 0);
+        const price = Number(item.price || 0);
+
+        // Calculate total, selecta sold, and sales
+        const total = beginnings + newStocks;
+        const totalSelectaDifference = remaining + selectaOut;
+        const selectaSold = total - totalSelectaDifference;
+        const sales = selectaSold * price;
         return {
           ...item,
           total,
@@ -210,6 +218,7 @@ const generateDocDefinition = (report) => {
         "selecta.name",
         "beginnings",
         "price",
+        "added_stocks",
         "out",
         "sold",
         "remaining",
@@ -219,10 +228,26 @@ const generateDocDefinition = (report) => {
     },
     {
       title: "Softdrinks Production",
-      data: (report.softdrinks_reports || []).map((item) => ({
-        ...item,
-        sales: (item.price || 0) * (item.sold || 0),
-      })),
+      data: (report.softdrinks_reports || []).map((item) => {
+        // Ensure all numeric fields are properly converted to numbers
+        const beginnings = Number(item.beginnings || 0);
+        const addedStocks = Number(item.added_stocks || 0);
+        const out = Number(item.out || 0);
+        const remaining = Number(item.remaining || 0);
+        const price = Number(item.price || 0);
+
+        // Calculate total, softdrinks sold, and sales
+        const total = beginnings + addedStocks;
+        const totalSoftdrinksDifference = remaining + out;
+        const softdrinksSold = total - totalSoftdrinksDifference;
+        const sales = softdrinksSold * price;
+        return {
+          ...item,
+          total,
+          sold: softdrinksSold,
+          sales,
+        };
+      }),
       columns: [
         "softdrinks.name",
         "beginnings",
@@ -237,10 +262,26 @@ const generateDocDefinition = (report) => {
     },
     {
       title: "Other Products Production",
-      data: (report.other_products_reports || []).map((item) => ({
-        ...item,
-        sales: (item.price || 0) * (item.sold || 0),
-      })),
+      data: (report.other_products_reports || []).map((item) => {
+        // Ensure all numeric fields are properly converted to numbers
+        const beginnings = Number(item.beginnings || 0);
+        const addedStocks = Number(item.added_stocks || 0);
+        const out = Number(item.out || 0);
+        const remaining = Number(item.remaining || 0);
+        const price = Number(item.price || 0);
+
+        // Calculate total, other products sold, and sales
+        const total = beginnings + addedStocks;
+        const totalOtherProductsDifference = remaining + out;
+        const otherProductsSold = total - totalOtherProductsDifference;
+        const sales = otherProductsSold * price;
+        return {
+          ...item,
+          total,
+          sold: otherProductsSold,
+          sales,
+        };
+      }),
       columns: [
         "other_products.name",
         "beginnings",
@@ -281,33 +322,63 @@ const generateDocDefinition = (report) => {
       {
         name: "One Thousand",
         pcs: denomination.oneThousandBills || 0,
+        value: (denomination.oneThousandBills || 0) * 1000,
       },
       {
         name: "Five Hundred",
         pcs: denomination.fiveHundredBills || 0,
+        value: (denomination.fiveHundredBills || 0) * 500,
       },
       {
         name: "Two Hundred",
         pcs: denomination.twoHundredBills || 0,
+        value: (denomination.twoHundredBills || 0) * 200,
       },
       {
         name: "One Hundred",
         pcs: denomination.oneHundredBills || 0,
+        value: (denomination.oneHundredBills || 0) * 100,
       },
-      { name: "Fifty", pcs: denomination.fiftyBills || 0 },
-      { name: "Twenty", pcs: denomination.twentyBills || 0 },
+      {
+        name: "Fifty",
+        pcs: denomination.fiftyBills || 0,
+        value: (denomination.fiftyBills || 0) * 50,
+      },
+      {
+        name: "Twenty",
+        pcs: denomination.twentyBills || 0,
+        value: (denomination.twentyBills || 0) * 20,
+      },
     ],
     coins: [
-      { name: "Twenty", pcs: denomination.twentyCoins || 0 },
-      { name: "Ten", pcs: denomination.tenCoins || 0 },
-      { name: "Five", pcs: denomination.fiveCoins || 0 },
-      { name: "One", pcs: denomination.oneCoins || 0 },
+      {
+        name: "Twenty",
+        pcs: denomination.twentyCoins || 0,
+        value: (denomination.twentyCoins || 0) * 20,
+      },
+      {
+        name: "Ten",
+        pcs: denomination.tenCoins || 0,
+        value: (denomination.tenCoins || 0) * 10,
+      },
+      {
+        name: "Five",
+        pcs: denomination.fiveCoins || 0,
+        value: (denomination.fiveCoins || 0) * 5,
+      },
+      {
+        name: "One",
+        pcs: denomination.oneCoins || 0,
+        value: (denomination.oneCoins || 0) * 1,
+      },
       {
         name: "Twenty Five Cents",
         pcs: denomination.twentyFiveCents || 0,
+        value: (denomination.twentyFiveCents || 0) * 0.25,
       },
     ],
   };
+
   const formatPrice = (price) => `₱${price.toFixed(2)}`;
 
   const generateTableBody = (data, columns, totals) => {
@@ -563,6 +634,11 @@ const generateDocDefinition = (report) => {
     return total + typeTotal;
   }, 0);
 
+  // Calculate the total denomination value
+  const totalDenomination =
+    denominationReport.bills.reduce((sum, bill) => sum + bill.value, 0) +
+    denominationReport.coins.reduce((sum, coin) => sum + coin.value, 0);
+
   const summaryTable = {
     table: {
       widths: ["50%", "50%"],
@@ -574,7 +650,7 @@ const generateDocDefinition = (report) => {
             alignment: "left",
           },
           {
-            text: formatAmount(denominationTotal),
+            text: formatAmount(totalDenomination),
             style: "tableData",
             alignment: "center",
           },

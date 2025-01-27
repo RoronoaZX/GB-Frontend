@@ -34,13 +34,112 @@
           <template v-slot:body-cell-price="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.price)}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedPrice(props.row, val)"
+                v-model="props.row.price"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
             </q-td>
           </template>
-          <template v-slot:body-cell-sales="props">
+          <template v-slot:body-cell-beginnings="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.beginnings}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedBeginnings(props.row, val)"
+                v-model="props.row.beginnings"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-remaining="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.remaining}` }}</span>
+              <q-popup-edit
+                @update:model-value="(val) => updatedRemaining(props.row, val)"
+                v-model="props.row.remaining"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-out="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.out}` }}</span>
+              <q-popup-edit
+                @update:model-value="
+                  (val) => updatedSoftdrinksOut(props.row, val)
+                "
+                v-model="props.row.out"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <template v-slot:body-cell-added_stocks="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.added_stocks}` }}</span>
+              <q-popup-edit
+                @update:model-value="
+                  (val) => updatedAddedStocks(props.row, val)
+                "
+                v-model="props.row.added_stocks"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
+          <!-- <template v-slot:body-cell-sales="props">
             <q-td :props="props">
               <span>{{ `${formatPrice(props.row.sales)}` }}</span>
             </q-td>
-          </template>
+          </template> -->
         </q-table>
       </q-card-section>
       <q-card-section>
@@ -56,6 +155,7 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
+import { api } from "src/boot/axios";
 import { computed } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
@@ -72,6 +172,86 @@ const capitalizeFirstLetter = (location) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+};
+
+const updatedPrice = async (data, val) => {
+  console.log("update data of the price", data);
+  console.log("update val of the price", val);
+
+  try {
+    const response = await api.put(
+      "/api/update-softdrinks-sales-price-report/" + data.id,
+      {
+        price: parseInt(val),
+      }
+    );
+    console.log("Updated price response:", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updatedBeginnings = async (data, val) => {
+  console.log("update data of the beginnings", data);
+  console.log("update val of the beginnings", val);
+  try {
+    const response = await api.put(
+      "/api/update-softdrinks-sales-beginnings-report/" + data.id,
+      {
+        beginnings: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updatedRemaining = async (data, val) => {
+  console.log("update data of the updatedRemaining", data);
+  console.log("update val of the updatedRemaining", val);
+  try {
+    const response = await api.put(
+      "/api/update-softdrinks-sales-remaining-report/" + data.id,
+      {
+        remaining: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updatedSoftdrinksOut = async (data, val) => {
+  console.log("update data of the updatedRemaining", data);
+  console.log("update val of the updatedRemaining", val);
+  try {
+    const response = await api.put(
+      "/api/update-softdrinks-sales-out-report/" + data.id,
+      {
+        out: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updatedAddedStocks = async (data, val) => {
+  console.log("update data of the addedstocks", data);
+  console.log("update val of the addedstocks", val);
+  try {
+    const response = await api.put(
+      "/api/update-softdrinks-sales-addedstocks-report/" + data.id,
+      {
+        added_stocks: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const breadReportColumns = [
@@ -107,15 +287,53 @@ const breadReportColumns = [
     format: (val) => `${val}`,
   },
   {
+    name: "added_stocks",
+    label: "Added Stocks (PCS)",
+    field: "added_stocks",
+    format: (val) => `${val}`,
+  },
+  {
+    name: "total_softdrinks",
+    label: "Total Stocks (PCS)",
+    field: (row) => {
+      const totalSoftdrinks =
+        Number(row.beginnings || 0) + Number(row.added_stocks || 0);
+      return totalSoftdrinks;
+    },
+    format: (val) => `${val}`,
+  },
+  {
     name: "sold",
     label: "Softdrinks Sold (PCS)",
-    field: "sold",
+    field: (row) => {
+      const beginnings = Number(row.beginnings || 0);
+      const addedStocks = Number(row.added_stocks || 0);
+      const out = Number(row.out || 0);
+      const remaining = Number(row.remaining || 0);
+      const totalSoftdrinks = beginnings + addedStocks;
+      const totalSoftdrinksDiff = remaining + out;
+      const sold = totalSoftdrinks - totalSoftdrinksDiff;
+      return sold;
+    },
     format: (val) => `${val}`,
   },
   {
     name: "sales",
     label: "Total Sales",
-    field: "sales",
+    field: (row) => {
+      const beginnings = Number(row.beginnings || 0);
+      const addedStocks = Number(row.added_stocks || 0);
+      const out = Number(row.out || 0);
+      const remaining = Number(row.remaining || 0);
+      const price = Number(row.price || 0);
+
+      const totalSoftdrinks = beginnings + addedStocks;
+      const totalSoftdrinksDiff = remaining + out;
+      const sold = totalSoftdrinks - totalSoftdrinksDiff;
+
+      return sold * price;
+    },
+    format: (val) => `${formatPrice(val)}`,
   },
 ];
 
@@ -134,11 +352,19 @@ const filteredRows = computed(() => {
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    const salesAmount = parseFloat(row.sales) || 0;
+    const beginnings = Number(row.beginnings || 0);
+    const addedStocks = Number(row.added_stocks || 0);
+    const out = Number(row.out || 0);
+    const remaining = Number(row.remaining || 0);
+
+    const totalSoftdrinks = beginnings + addedStocks;
+    const totalSoftdrinksDiff = remaining + out;
+    const sold = totalSoftdrinks - totalSoftdrinksDiff;
+    const salesAmount = sold * (row.price || 0);
     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
     return total + salesAmount;
   }, 0);
-  console.log("Overall Total Sales computed as:", total);
+  console.log("Overall Total:", total);
   return total;
 });
 
