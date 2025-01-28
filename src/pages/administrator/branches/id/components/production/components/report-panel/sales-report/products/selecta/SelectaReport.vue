@@ -1,12 +1,45 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card style="width: 870px; max-width: 80vw">
-      <q-card-section style="background-color: #9c27b0">
+  <q-dialog
+    ref="dialogRef"
+    @hide="onDialogHide"
+    v-model="dialog"
+    :maximized="maximizedToggle"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
+    <q-card>
+      <q-card-section style="background-color: #f44336">
         <div class="row justify-between text-white">
-          <div class="text-h6">Softdrinks Report</div>
+          <div class="text-h6">Selecta Report</div>
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
           </q-btn>
+        </div>
+      </q-card-section>
+      <q-card-section class="row justify-between">
+        <div>
+          <q-input
+            class="q-pb-lg q-pl-sm dynamic-width"
+            v-model="filter"
+            outlined
+            placeholder="Search"
+            debounce="1000"
+            flat
+            dense
+            rounded
+            style="width: 500px"
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
+        <div>
+          <AddingSelectaReport
+            :sales_Reports="props.reports"
+            :sales_report_id="sales_report_id"
+            :user="props.user"
+          />
         </div>
       </q-card-section>
       <q-card-section>
@@ -14,7 +47,7 @@
           :filter="filter"
           :virtual-scroll-sticky-size-start="48"
           flat
-          :columns="breadReportColumns"
+          :columns="selectaReportColumn"
           :rows="filteredRows"
           row-key="name"
           virtual-scroll
@@ -27,7 +60,7 @@
           <template v-slot:body-cell-name="props">
             <q-td :props="props">
               <span>{{
-                `${capitalizeFirstLetter(props.row.softdrinks.name)}`
+                `${capitalizeFirstLetter(props.row.selecta.name)}`
               }}</span>
             </q-td>
           </template>
@@ -95,9 +128,7 @@
             <q-td :props="props">
               <span>{{ `${props.row.out}` }}</span>
               <q-popup-edit
-                @update:model-value="
-                  (val) => updatedSoftdrinksOut(props.row, val)
-                "
+                @update:model-value="(val) => updatedSelectaOut(props.row, val)"
                 v-model="props.row.out"
                 auto-save
                 v-slot="scope"
@@ -155,13 +186,17 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
+import AddingSelectaReport from "./AddingSelectaReport.vue";
 import { api } from "src/boot/axios";
-import { computed } from "vue";
+
+import { ref, computed } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-const props = defineProps(["reports"]);
+const dialog = ref(false);
+const maximizedToggle = ref(true);
+const props = defineProps(["reports", "sales_report_id", "user"]);
 
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
@@ -180,12 +215,11 @@ const updatedPrice = async (data, val) => {
 
   try {
     const response = await api.put(
-      "/api/update-softdrinks-sales-price-report/" + data.id,
+      "/api/update-selecta-sales-price-report/" + data.id,
       {
         price: parseInt(val),
       }
     );
-    console.log("Updated price response:", response.data);
   } catch (error) {
     console.error(error);
   }
@@ -196,7 +230,7 @@ const updatedBeginnings = async (data, val) => {
   console.log("update val of the beginnings", val);
   try {
     const response = await api.put(
-      "/api/update-softdrinks-sales-beginnings-report/" + data.id,
+      "/api/update-selecta-sales-beginnings-report/" + data.id,
       {
         beginnings: parseInt(val),
       }
@@ -208,11 +242,11 @@ const updatedBeginnings = async (data, val) => {
 };
 
 const updatedRemaining = async (data, val) => {
-  console.log("update data of the updatedRemaining", data);
-  console.log("update val of the updatedRemaining", val);
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
   try {
     const response = await api.put(
-      "/api/update-softdrinks-sales-remaining-report/" + data.id,
+      "/api/update-selecta-sales-remaining-report/" + data.id,
       {
         remaining: parseInt(val),
       }
@@ -222,13 +256,12 @@ const updatedRemaining = async (data, val) => {
     console.error(error);
   }
 };
-
-const updatedSoftdrinksOut = async (data, val) => {
-  console.log("update data of the updatedRemaining", data);
-  console.log("update val of the updatedRemaining", val);
+const updatedSelectaOut = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
   try {
     const response = await api.put(
-      "/api/update-softdrinks-sales-out-report/" + data.id,
+      "/api/update-selecta-sales-selctaOut-report/" + data.id,
       {
         out: parseInt(val),
       }
@@ -239,11 +272,11 @@ const updatedSoftdrinksOut = async (data, val) => {
   }
 };
 const updatedAddedStocks = async (data, val) => {
-  console.log("update data of the addedstocks", data);
-  console.log("update val of the addedstocks", val);
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
   try {
     const response = await api.put(
-      "/api/update-softdrinks-sales-addedstocks-report/" + data.id,
+      "/api/update-selecta-sales-addedstocks-report/" + data.id,
       {
         added_stocks: parseInt(val),
       }
@@ -254,13 +287,13 @@ const updatedAddedStocks = async (data, val) => {
   }
 };
 
-const breadReportColumns = [
+const selectaReportColumn = [
   {
     name: "name",
-    label: "Softdrinks Name",
+    label: "Selecta Name",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
-      return row.softdrinks.name || "N/A"; // Adjust this according to your data
+      return row.selecta.name || "N/A"; // Adjust this according to your data
     },
   },
   {
@@ -282,7 +315,7 @@ const breadReportColumns = [
   },
   {
     name: "out",
-    label: "Softdrinks Out (PCS)",
+    label: "Selecta Out (PCS)",
     field: "out",
     format: (val) => `${val}`,
   },
@@ -293,27 +326,26 @@ const breadReportColumns = [
     format: (val) => `${val}`,
   },
   {
-    name: "total_softdrinks",
+    name: "total_selecta",
     label: "Total Stocks (PCS)",
     field: (row) => {
-      const totalSoftdrinks =
+      const totalSelecta =
         Number(row.beginnings || 0) + Number(row.added_stocks || 0);
-      return totalSoftdrinks;
+      return totalSelecta;
     },
     format: (val) => `${val}`,
   },
   {
     name: "sold",
-    label: "Softdrinks Sold (PCS)",
+    label: "Selecta Sold (PCS)",
     field: (row) => {
       const beginnings = Number(row.beginnings || 0);
-      const addedStocks = Number(row.added_stocks || 0);
-      const out = Number(row.out || 0);
+      const newStocks = Number(row.added_stocks || 0);
+      const selectaOut = Number(row.out || 0);
       const remaining = Number(row.remaining || 0);
-      const totalSoftdrinks = beginnings + addedStocks;
-      const totalSoftdrinksDiff = remaining + out;
-      const sold = totalSoftdrinks - totalSoftdrinksDiff;
-      return sold;
+      const totalSelecta = beginnings + newStocks;
+      const totalSelectaDifference = remaining + selectaOut;
+      return totalSelecta - totalSelectaDifference;
     },
     format: (val) => `${val}`,
   },
@@ -322,16 +354,15 @@ const breadReportColumns = [
     label: "Total Sales",
     field: (row) => {
       const beginnings = Number(row.beginnings || 0);
-      const addedStocks = Number(row.added_stocks || 0);
-      const out = Number(row.out || 0);
+      const newStocks = Number(row.added_stocks || 0);
+      const selectaOut = Number(row.out || 0);
       const remaining = Number(row.remaining || 0);
       const price = Number(row.price || 0);
 
-      const totalSoftdrinks = beginnings + addedStocks;
-      const totalSoftdrinksDiff = remaining + out;
-      const sold = totalSoftdrinks - totalSoftdrinksDiff;
-
-      return sold * price;
+      const totalSelecta = beginnings + newStocks;
+      const totalSelectaDifference = remaining + selectaOut;
+      const selectaSold = totalSelecta - totalSelectaDifference;
+      return selectaSold * price;
     },
     format: (val) => `${formatPrice(val)}`,
   },
@@ -352,19 +383,20 @@ const filteredRows = computed(() => {
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    const beginnings = Number(row.beginnings || 0);
-    const addedStocks = Number(row.added_stocks || 0);
-    const out = Number(row.out || 0);
-    const remaining = Number(row.remaining || 0);
+    const beginnings = `${row.beginnings}` || 0;
+    const addedStocks = `${row.added_stocks}` || 0;
+    const selectaOut = `${row.out}` || 0;
+    const remaining = `${row.remaining}` || 0;
 
-    const totalSoftdrinks = beginnings + addedStocks;
-    const totalSoftdrinksDiff = remaining + out;
-    const sold = totalSoftdrinks - totalSoftdrinksDiff;
-    const salesAmount = sold * (row.price || 0);
+    const totalSelecta = parseInt(beginnings) + parseInt(addedStocks);
+    const totalSelectaDifference = parseInt(remaining) + parseInt(selectaOut);
+    const selectaSold = totalSelecta - totalSelectaDifference;
+    const salesAmount = selectaSold * (row.price || 0);
+
     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
     return total + salesAmount;
   }, 0);
-  console.log("Overall Total:", total);
+  console.log("Overall Total Sales computed as:", total);
   return total;
 });
 

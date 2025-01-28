@@ -41,6 +41,99 @@ export const useProductionStore = defineStore("productions", () => {
     }
   };
 
+  const addBreadProduction = async (data) => {
+    console.log("Bread Production Data:", data);
+    Loading.show();
+    try {
+      const response = await api.post(
+        "/api/branch-add-bread-production-report",
+        data
+      );
+      console.log(response.data);
+      Notify.create({
+        message: "Bread Production Report Added Successfully",
+        color: "positive",
+      });
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        message: "Error adding Bread Production Report",
+        color: "negative",
+      });
+    } finally {
+      Loading.hide();
+    }
+  };
+  const addSelectaProduction = async (data) => {
+    console.log("Selecta Production Data:", data);
+    Loading.show();
+    try {
+      const response = await api.post(
+        "/api/branch-add-selecta-production-report",
+        data
+      );
+      console.log(response.data);
+      Notify.create({
+        message: "Bread Production Report Added Successfully",
+        color: "positive",
+      });
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        message: "Error adding Bread Production Report",
+        color: "negative",
+      });
+    } finally {
+      Loading.hide();
+    }
+  };
+  const addSoftdrinksProduction = async (data) => {
+    console.log("Softdrinks Production Data:", data);
+    Loading.show();
+    try {
+      const response = await api.post(
+        "/api/branch-add-softdrinks-production-report",
+        data
+      );
+      console.log(response.data);
+      Notify.create({
+        message: "Softdrinks Production Report Added Successfully",
+        color: "positive",
+      });
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        message: "Error adding Bread Production Report",
+        color: "negative",
+      });
+    } finally {
+      Loading.hide();
+    }
+  };
+  const addOtherProductProduction = async (data) => {
+    console.log("Softdrinks Production Data:", data);
+    Loading.show();
+    try {
+      const response = await api.post(
+        "/api/branch-add-other-production-report",
+        data
+      );
+      console.log(response.data);
+      Notify.create({
+        message: "Softdrinks Production Report Added Successfully",
+        color: "positive",
+      });
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        message: "Error adding Bread Production Report",
+        color: "negative",
+      });
+    } finally {
+      Loading.hide();
+    }
+  };
+
   // const updateBreadPrice = async () => {
 
   // }
@@ -51,5 +144,9 @@ export const useProductionStore = defineStore("productions", () => {
     fetchAllProduction,
     fetchBranchProductions,
     updateBakerReport,
+    addBreadProduction,
+    addSelectaProduction,
+    addSoftdrinksProduction,
+    addOtherProductProduction,
   };
 });

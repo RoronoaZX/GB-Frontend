@@ -7,6 +7,7 @@
             <q-card-section>
               <div class="row justify-between">
                 <div class="text-h6">Sales Report</div>
+
                 <div align="right">
                   <q-btn
                     padding="xs md"

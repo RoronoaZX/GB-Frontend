@@ -18,6 +18,26 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     branchProducts.value = response.data;
   };
 
+  // New Search Function
+  const searchBranchProducts = async ({ branches_id, query, category }) => {
+    console.log("Branch ID:", branches_id);
+    console.log("Query:", query);
+    console.log("Category:", category);
+
+    try {
+      const response = await api.post("/api/search-branch-products", {
+        branches_id,
+        query,
+        category,
+      });
+
+      branchProducts.value = response.data;
+      console.log("Branch Products:", response.data);
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
+
   const createBranchProducts = async (data) => {
     Loading.show();
     try {
@@ -88,5 +108,6 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     createBranchProducts,
     updateBranchProductPrice,
     deleteBranchProducts,
+    searchBranchProducts,
   };
 });

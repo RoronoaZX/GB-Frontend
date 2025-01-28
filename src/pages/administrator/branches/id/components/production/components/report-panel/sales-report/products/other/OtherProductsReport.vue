@@ -1,13 +1,46 @@
 <template>
   <div>
-    <q-dialog ref="dialogRef" @hide="onDialogHide">
-      <q-card style="width: 870px; max-width: 80vw">
+    <q-dialog
+      ref="dialogRef"
+      @hide="onDialogHide"
+      v-model="dialog"
+      :maximized="maximizedToggle"
+      transition-show="slide-up"
+      transition-hide="slide-down"
+    >
+      <q-card>
         <q-card-section style="background-color: #607d8b">
           <div class="row justify-between text-white">
             <div class="text-h6">Other Products Report</div>
             <q-btn icon="close" flat dense round v-close-popup>
               <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
             </q-btn>
+          </div>
+        </q-card-section>
+        <q-card-section class="row justify-between">
+          <div>
+            <q-input
+              class="q-pb-lg q-pl-sm dynamic-width"
+              v-model="filter"
+              outlined
+              placeholder="Search"
+              debounce="1000"
+              flat
+              dense
+              rounded
+              style="width: 500px"
+            >
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </div>
+          <div>
+            <AddingOtherReport
+              :sales_Reports="props.reports"
+              :sales_report_id="sales_report_id"
+              :user="props.user"
+            />
           </div>
         </q-card-section>
         <q-card-section>
@@ -157,12 +190,15 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
-import { computed } from "vue";
+import { ref, computed } from "vue";
+import AddingOtherReport from "./AddingOtherReport.vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-const props = defineProps(["reports"]);
+const dialog = ref(false);
+const maximizedToggle = ref(true);
+const props = defineProps(["reports", "sales_report_id", "user"]);
 
 const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`

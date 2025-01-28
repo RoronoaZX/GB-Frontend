@@ -7,7 +7,13 @@
       <q-card-section>
         <div class="item-start q-gutter-md" align="center">
           <q-btn
-            @click="handleBreadDialog(props.sales_Reports[0].bread_reports)"
+            @click="
+              handleBreadDialog(
+                props.sales_Reports[0].bread_reports,
+                props.sales_Reports[0].id,
+                props.sales_Reports[0].user
+              )
+            "
             no-caps
             label="Bread Report"
             rounded
@@ -16,7 +22,13 @@
             class="user-button"
           />
           <q-btn
-            @click="handleSelectaDialog(productsReport[0].selecta_reports)"
+            @click="
+              handleSelectaDialog(
+                props.sales_Reports[0].selecta_reports,
+                props.sales_Reports[0].id,
+                props.sales_Reports[0].user
+              )
+            "
             no-caps
             label="Selecta Report"
             rounded
@@ -26,7 +38,11 @@
           />
           <q-btn
             @click="
-              handleSoftdrinksDialog(productsReport[0].softdrinks_reports)
+              handleSoftdrinksDialog(
+                props.sales_Reports[0].softdrinks_reports,
+                props.sales_Reports[0].id,
+                props.sales_Reports[0].user
+              )
             "
             no-caps
             label="Softdrinks Report"
@@ -36,7 +52,13 @@
             class="user-button"
           />
           <q-btn
-            @click="handleCakeDialog(productsReport[0].cake_sales_reports)"
+            @click="
+              handleCakeDialog(
+                props.sales_Reports[0].cake_sales_reports,
+                props.sales_Reports[0].id,
+                props.sales_Reports[0].user
+              )
+            "
             no-caps
             label="Cake Report"
             rounded
@@ -46,7 +68,11 @@
           />
           <q-btn
             @click="
-              handleOtherProductDialog(productsReport[0].other_products_reports)
+              handleOtherProductDialog(
+                props.sales_Reports[0].other_products_reports,
+                props.sales_Reports[0].id,
+                props.sales_Reports[0].user
+              )
             "
             no-caps
             label="Other Products Report"
@@ -70,15 +96,16 @@
 <script setup>
 import { useQuasar } from "quasar";
 import ProductsReportDialog from "./products/ProductsReportDialog.vue";
-import BreadReport from "./products/BreadReport.vue";
-import SelectaReport from "./products/SelectaReport.vue";
-import SoftdrinksReport from "./products/SoftdrinksReport.vue";
+import BreadReport from "./products/bread/BreadReport.vue";
+import SelectaReport from "./products/selecta/SelectaReport.vue";
+import SoftdrinksReport from "./products/softdrinks/SoftdrinksReport.vue";
 import CakeReport from "./products/CakeReport.vue";
-import OtherProductReport from "./products/OtherProductsReport.vue";
+import OtherProductReport from "./products/other/OtherProductsReport.vue";
 
 const props = defineProps(["sales_Reports"]);
-const productsReport = props.sales_Reports;
-console.log("sales report2", props);
+const productsReportsss = props.sales_Reports;
+
+console.log("sales report2sss", productsReportsss);
 const $q = useQuasar();
 
 const formatPrice = (price) => {
@@ -88,43 +115,53 @@ const formatPrice = (price) => {
   }).format(price);
 };
 
-const handleBreadDialog = (dataReports) => {
+const handleBreadDialog = (dataReports, sales_report_id, user) => {
   $q.dialog({
     component: BreadReport,
     componentProps: {
       reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
     },
   });
 };
-const handleSelectaDialog = (dataReports) => {
+const handleSelectaDialog = (dataReports, sales_report_id, user) => {
   $q.dialog({
     component: SelectaReport,
     componentProps: {
       reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
     },
   });
 };
-const handleSoftdrinksDialog = (dataReports) => {
+const handleSoftdrinksDialog = (dataReports, sales_report_id, user) => {
   $q.dialog({
     component: SoftdrinksReport,
     componentProps: {
       reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
     },
   });
 };
-const handleCakeDialog = (dataReports) => {
+const handleCakeDialog = (dataReports, sales_report_id, user) => {
   $q.dialog({
     component: CakeReport,
     componentProps: {
       reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
     },
   });
 };
-const handleOtherProductDialog = (dataReports) => {
+const handleOtherProductDialog = (dataReports, sales_report_id, user) => {
   $q.dialog({
     component: OtherProductReport,
     componentProps: {
       reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
     },
   });
 };

@@ -16,7 +16,7 @@
           </q-btn>
         </div>
       </q-card-section>
-      sales_report_id:{{ sales_report_id }}
+      <!-- sales_report_id:{{ sales_report_id }} -->
       <q-card-section class="row q-gutter-x-xl">
         <!-- Left Section -->
         <div>

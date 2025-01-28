@@ -117,7 +117,7 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
     console.log(query);
     console.log(category);
     try {
-      const response = await api.post("/api/search-selecta-products", {
+      const response = await api.post("/api/search-products", {
         branches_id,
         query,
         category,
