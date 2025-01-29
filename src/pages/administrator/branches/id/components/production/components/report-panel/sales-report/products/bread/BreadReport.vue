@@ -175,6 +175,9 @@ const dialog = ref(false);
 const maximizedToggle = ref(true);
 const props = defineProps(["reports", "sales_report_id", "user"]);
 const filter = ref("");
+const pagination = ref({
+  rowsPerPage: 0,
+});
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
 console.log("Reports data sales_report_id:", props.sales_report_id);

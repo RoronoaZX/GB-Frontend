@@ -199,6 +199,10 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const dialog = ref(false);
 const maximizedToggle = ref(true);
 const props = defineProps(["reports", "sales_report_id", "user"]);
+const filter = ref("");
+const pagination = ref({
+  rowsPerPage: 0,
+});
 
 const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`
