@@ -20,12 +20,14 @@
     <q-card style="width: 600px; max-width: 80vw">
       {{ user.name }}
       <q-card-section class="row items-center bg-backgroud q-px-md q-py-sm">
-        <div class="text-h6 q-pa-md text-white">Add Other Products</div>
+        <div class="text-h6 text-white">Add Other Products</div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
-      <q-card-section class="text-h6" align="center">
-        {{ formatFullname(user.employee) }}
+      <q-card-section>
+        <div class="text-subtitle1 text-weight-medium">
+          Cashier: {{ formatFullname(user.employee) }}
+        </div>
       </q-card-section>
       <q-card-section class="q-ma-md q-gutter-y-sm">
         <div class="q-mb-lg">
@@ -46,7 +48,9 @@
             <div v-if="searchQuery" class="custom-list z-top">
               <q-card>
                 <q-list separator>
-                  <q-item v-if="!branchProduct?.length"> No record found. </q-item>
+                  <q-item v-if="!branchProduct?.length">
+                    No record found.
+                  </q-item>
                   <template v-else>
                     <q-item
                       @click="autoFillProduct(products)"
@@ -68,15 +72,30 @@
         </div>
         <div>
           <div>Product Name</div>
-          <q-input v-model="addOtherProductReport.product_name" readonly dense outlined />
+          <q-input
+            v-model="addOtherProductReport.product_name"
+            readonly
+            dense
+            outlined
+          />
         </div>
         <div>
           <div>Category</div>
-          <q-input v-model="addOtherProductReport.category" readonly dense outlined />
+          <q-input
+            v-model="addOtherProductReport.category"
+            readonly
+            dense
+            outlined
+          />
         </div>
         <div>
           <div>Price</div>
-          <q-input v-model="addOtherProductReport.price" readonly dense outlined />
+          <q-input
+            v-model="addOtherProductReport.price"
+            readonly
+            dense
+            outlined
+          />
         </div>
         <div class="row justify-between q-mt-md q-gutter-md">
           <div>
@@ -215,7 +234,9 @@ const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename ? capitalize(row.middlename).charAt(0) + "." : "";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
 
   return `${firstname} ${middlename} ${lastname}`.trim();
@@ -294,7 +315,8 @@ watch(
   ],
   ([totalQuantity, remaining, breadOut]) => {
     addOtherProductReport.sold =
-      parseInt(totalQuantity || 0) - (parseInt(remaining || 0) + parseInt(breadOut || 0));
+      parseInt(totalQuantity || 0) -
+      (parseInt(remaining || 0) + parseInt(breadOut || 0));
   }
 );
 
@@ -302,7 +324,8 @@ watch(
 watch(
   () => [addOtherProductReport.sold, addOtherProductReport.price],
   ([breadSold, price]) => {
-    addOtherProductReport.sales = parseInt(breadSold || 0) * parseFloat(price || 0);
+    addOtherProductReport.sales =
+      parseInt(breadSold || 0) * parseFloat(price || 0);
   }
 );
 

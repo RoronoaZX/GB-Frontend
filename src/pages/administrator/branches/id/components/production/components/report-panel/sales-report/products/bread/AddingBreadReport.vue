@@ -18,15 +18,14 @@
     backdrop-filter="blur(4px) saturate(150%)"
   >
     <q-card style="width: 600px; max-width: 80vw">
-      {{ user.name }}
       <q-card-section class="row items-center bg-backgroud">
-        <div class="text-h6 q-pa-md text-white">Bread</div>
+        <div class="text-h6 text-white">Bread</div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
       <q-card-section>
-        <div class="text-h6" align="center">
-          {{ formatFullname(user.employee) }}
+        <div class="text-subtitle1 text-weight-medium">
+          Cashier: {{ formatFullname(user.employee) }}
         </div>
       </q-card-section>
       <q-card-section class="q-gutter-y-sm">
@@ -79,18 +78,45 @@
             outlined
           />
         </div>
-        <div>
-          <div>Category</div>
-          <q-input
-            v-model="addbreadProduction.category"
-            readonly
-            dense
-            outlined
-          />
-        </div>
-        <div>
-          <div>Price</div>
-          <q-input v-model="addbreadProduction.price" readonly dense outlined />
+        <div class="row justify-between q-mt-md q-gutter-md">
+          <!-- <div>
+            <div>Product ID</div>
+            <q-input
+              v-model="addbreadProduction.product_id"
+              readonly
+              dense
+              outlined
+            />
+          </div>
+          <div>
+            <div>Branch ID</div>
+            <q-input
+              v-model="addbreadProduction.branch_id"
+              readonly
+              dense
+              outlined
+            />
+          </div> -->
+          <div>
+            <div>Category</div>
+            <q-input
+              v-model="addbreadProduction.category"
+              readonly
+              dense
+              outlined
+              style="width: 250px"
+            />
+          </div>
+          <div>
+            <div>Price</div>
+            <q-input
+              v-model="addbreadProduction.price"
+              readonly
+              dense
+              outlined
+              style="width: 250px"
+            />
+          </div>
         </div>
         <div class="row justify-between q-mt-md q-gutter-md">
           <div>
@@ -372,7 +398,7 @@ const handleSubmit = async () => {
 
 <style lang="scss" scoped>
 .bg-backgroud {
-  background: linear-gradient(to right, #8b4513, #d2b48c);
+  background: linear-gradient(to right, #795548, #ffd7c9);
 }
 
 .custom-list {
