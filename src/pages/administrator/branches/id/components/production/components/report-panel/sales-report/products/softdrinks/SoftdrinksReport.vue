@@ -54,7 +54,7 @@
           v-model:pagination="pagination"
           :rows-per-page-options="[0]"
           hide-bottom
-          style="height: 350px"
+          style="height: 500px"
           class="table-container sticky-header"
         >
           <template v-slot:body-cell-name="props">
