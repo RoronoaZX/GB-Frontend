@@ -78,7 +78,7 @@
           <div>Price</div>
           <q-input v-model="addSelectaReport.price" readonly dense outlined />
         </div>
-        <div class="row justify-between">
+        <div class="row justify-between q-mt-md q-gutter-md">
           <div>
             <div>Beginnings</div>
             <q-input
