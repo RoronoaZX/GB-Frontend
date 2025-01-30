@@ -286,7 +286,7 @@ const saveReport = () => {
       added_stocks: selectedItem.value.new_production,
       sold: softdrinksProductsReport.softdrinksSold,
       out: softdrinksProductsReport.softdrinksOut,
-      beginnings: selectedItem.value.total_quantity,
+      beginnings: selectedItem.value.beginnings,
       remaining: softdrinksProductsReport.remainnings,
       price: selectedItem.value.price,
       sales: softdrinksSalesAmount.value,

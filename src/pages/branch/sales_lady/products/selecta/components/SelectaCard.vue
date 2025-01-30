@@ -206,6 +206,7 @@ const capitalizeFirstLetter = (location) => {
 
 const selectaSalesAmount = computed(() => {
   if (selectedItem.value) {
+    console.log("selectedItem", selectedItem.value);
     return selectaProductReport.selectaSold * selectedItem.value.price;
   }
   return 0;
@@ -284,7 +285,7 @@ const saveReport = () => {
       added_stocks: selectedItem.value.new_production,
       sold: selectaProductReport.selectaSold,
       out: selectaProductReport.selectaOut,
-      beginnings: selectedItem.value.total_quantity,
+      beginnings: selectedItem.value.beginnings,
       remaining: selectaProductReport.selectaRemainings,
       price: selectedItem.value.price,
       sales: selectaSalesAmount.value,

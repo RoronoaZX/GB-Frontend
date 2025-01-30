@@ -218,6 +218,7 @@ const capitalizeFirstLetter = (location) => {
 
 const calculateBreadSold = () => {
   if (selectedItem.value) {
+    console.log("selectedItem", selectedItem.value);
     const totalQuantity = parseInt(selectedItem.value.total_quantity) || 0;
     const remainings = parseInt(breadProductsReport.remainnings) || 0;
     const breadOut = parseInt(breadProductsReport.breadOut) || 0;
