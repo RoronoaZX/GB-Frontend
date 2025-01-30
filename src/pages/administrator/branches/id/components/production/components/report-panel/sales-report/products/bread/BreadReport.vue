@@ -104,6 +104,28 @@
               </q-popup-edit>
             </q-td>
           </template>
+          <template v-slot:body-cell-new_production="props">
+            <q-td :props="props">
+              <span>{{ `${props.row.new_production}` }}</span>
+              <q-popup-edit
+                @update:model-value="
+                  (val) => updatedNewProduction(props.row, val)
+                "
+                v-model="props.row.new_production"
+                auto-save
+                v-slot="scope"
+              >
+                <q-input
+                  v-model="scope.value"
+                  dense
+                  mask="#####"
+                  autofocus
+                  counter
+                  @keyup.enter="scope.set"
+                />
+              </q-popup-edit>
+            </q-td>
+          </template>
           <template v-slot:body-cell-remaining="props">
             <q-td :props="props">
               <span>{{ `${props.row.remaining}` }}</span>
@@ -213,6 +235,21 @@ const updatedBeginnings = async (data, val) => {
       "/api/update-bread-sales-beginnings-report/" + data.id,
       {
         beginnings: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const updatedNewProduction = async (data, val) => {
+  console.log("update data of the NewProduction", data);
+  console.log("update val of the NewProduction", val);
+  try {
+    const response = await api.put(
+      "/api/update-bread-sales-newProduction-report/" + data.id,
+      {
+        new_production: parseInt(val),
       }
     );
     console.log("reponse", response.data);
