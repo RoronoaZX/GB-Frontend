@@ -290,6 +290,7 @@ const saveReport = () => {
       remaining: softdrinksProductsReport.remainnings,
       price: selectedItem.value.price,
       sales: softdrinksSalesAmount.value,
+      new_production: 0,
     };
     console.log("report", report);
     salesReportsStore.updateSoftdrinksReport(report);

@@ -293,6 +293,7 @@ const saveReport = async () => {
       remaining: othersProductsReport.remainnings,
       price: selectedItem.value.price,
       sales: otherProductSalesAmount.value,
+      new_production: 0,
     };
 
     console.log("report", report);

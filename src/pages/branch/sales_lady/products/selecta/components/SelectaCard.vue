@@ -289,6 +289,7 @@ const saveReport = () => {
       remaining: selectaProductReport.selectaRemainings,
       price: selectedItem.value.price,
       sales: selectaSalesAmount.value,
+      new_production: 0,
     };
     console.log("report", report);
     salesReportsStore.updateSelectaReport(report);
