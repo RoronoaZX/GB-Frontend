@@ -10,7 +10,7 @@
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev -m capacitor -T android",
-    "build": "quasar build -m capacitor -T android -d",
+    "build:mobile": "quasar build -m capacitor -T android -d",
     "build:electron": "quasar build -m electron",
     "build:web": "quasar build -m spa"
   },

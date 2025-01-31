@@ -301,7 +301,8 @@ const saveReport = () => {
       remaining: breadProductsReport.remainnings,
       price: selectedItem.value.price,
       sales: breadSalesAmount.value,
-      new_production: 0,
+      new_production: selectedItem.value.new_production,
+      branch_new_production: 0,
     };
     console.log("report", report);
     salesReportsStore.updateBreadReport(report);
