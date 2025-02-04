@@ -104,9 +104,15 @@
         icon="add"
         label="Report"
         class="text-purple"
+        :loading="isLoading"
         @click="autoFillReport"
-      />
+      >
+        <template v-slot:isLoading>
+          <q-spinner size="20px" />
+        </template>
+      </q-btn>
     </div>
+
     <div>
       <div class="text-h6 q-mt-sm" align="center">Ingredients List</div>
       <div class="q-mt-lg">
@@ -149,10 +155,12 @@
 <script setup>
 import { computed, ref, reactive, watch } from "vue";
 import { useBakerReportsStore } from "src/stores/baker-report";
+import { is, Loading, Notify } from "quasar";
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
 // console.log("erw:", userData);
+const isLoading = ref(false);
 const recipe = computed(() => bakerReportStore.recipes);
 console.log("erwe:", recipe.value);
 
@@ -235,121 +243,6 @@ const calculateShortAndOver = () => {
   }
 };
 
-// const calculateShortAndOver = () => {
-//   if (!bakersReport.kilo) {
-//     // If kilo is not provided, reset short and actual_target to 0
-//     bakersReport.actual_target = 0;
-//     bakersReport.short = 0;
-//     bakersReport.over = 0;
-//     return;
-//   }
-
-//   const totalBreadPcs = bakersReport.breads.reduce(
-//     (total, bread) => total + (parseFloat(bread.value) || 0),
-//     0
-//   );
-
-//   const calculatedTarget =
-//     parseFloat(bakersReport.kilo) * parseFloat(recipe.value?.target || 0); // Original target
-//   bakersReport.actual_target = Math.ceil(calculatedTarget); // Display rounded target
-
-//   // Set initial display for short field to match actual_target
-//   if (totalBreadPcs === 0) {
-//     bakersReport.short = bakersReport.actual_target;
-//     bakersReport.over = 0;
-//     return;
-//   }
-
-//   // Calculate short and over dynamically
-//   if (
-//     totalBreadPcs === bakersReport.actual_target ||
-//     totalBreadPcs === Math.floor(calculatedTarget)
-//   ) {
-//     bakersReport.short = 0;
-//     bakersReport.over = 0;
-//   } else if (totalBreadPcs > bakersReport.actual_target) {
-//     bakersReport.over = totalBreadPcs - bakersReport.actual_target;
-//     bakersReport.short = 0;
-//   } else if (totalBreadPcs < Math.floor(calculatedTarget)) {
-//     bakersReport.short = Math.floor(calculatedTarget) - totalBreadPcs;
-//     bakersReport.over = 0;
-//   } else {
-//     bakersReport.short = bakersReport.actual_target - totalBreadPcs;
-//     bakersReport.over = 0;
-//   }
-// };
-
-// const calculateShortAndOver = () => {
-//   const totalBreadPcs = bakersReport.breads.reduce(
-//     (total, bread) => total + (parseFloat(bread.value) || 0),
-//     0
-//   );
-
-//   const originalTarget =
-//     parseFloat(bakersReport.kilo) * parseFloat(recipe.value?.target || 0); // Original unrounded target
-//   const roundedTarget = Math.ceil(originalTarget); // Rounded target
-
-//   // Check if totalBreadPcs is within acceptable range (original or rounded target)
-//   if (
-//     totalBreadPcs === roundedTarget ||
-//     totalBreadPcs === Math.floor(originalTarget)
-//   ) {
-//     // If it matches either the rounded or floor of the original, no short or over
-//     bakersReport.short = 0;
-//     bakersReport.over = 0;
-//   } else if (totalBreadPcs > roundedTarget) {
-//     // Overproduction
-//     bakersReport.over = totalBreadPcs - roundedTarget;
-//     bakersReport.short = 0;
-//   } else if (totalBreadPcs < Math.floor(originalTarget)) {
-//     // Underproduction based on floor
-//     bakersReport.short = Math.floor(originalTarget) - totalBreadPcs;
-//     bakersReport.over = 0;
-//   } else {
-//     // Underproduction based on rounded target
-//     bakersReport.short = roundedTarget - totalBreadPcs;
-//     bakersReport.over = 0;
-//   }
-// };
-
-const autoFillReport = () => {
-  bakersReport.user_id = userData.value?.data.id || "";
-  bakersReport.branch_id = userData.value?.device?.branch_id || "";
-  bakersReport.branch_recipe_id = recipe.value?.id || "";
-  bakersReport.recipe_name = recipe.value?.name || "";
-  bakersReport.target = recipe.value?.target || "";
-  bakersReport.recipe_category = recipe.value?.category || "";
-  const reportData = {
-    user_id: bakersReport.user_id,
-    branch_id: bakersReport.branch_id,
-    branch_recipe_id: bakersReport.branch_recipe_id,
-    recipe_name: bakersReport.recipe_name,
-    recipe_category: bakersReport.recipe_category,
-    status: "pending",
-    kilo: bakersReport.kilo,
-    short: bakersReport.short,
-    over: bakersReport.over,
-    target: bakersReport.target,
-    actual_target: bakersReport.actual_target,
-    breads: bakersReport.breads.map((bread) => ({
-      bread_id: bread.id,
-      bread_name: bread.bread_name,
-      bread_production: parseInt(bread.value, 10) || 0,
-    })),
-    ingredients: multipliedIngredients.value.map((ingredient) => ({
-      ingredients_id: ingredient.raw_materials_id,
-      code: ingredient.code,
-      quantity: ingredient.multipliedQuantity,
-      unit: ingredient.unit,
-    })),
-  };
-
-  console.log("reportssss dATA:", reportData);
-  bakerReportStore.setReport(reportData);
-  console.log("Report data set to store:", bakerReportStore.reports);
-  resetReportForm();
-};
-
 const resetReportForm = () => {
   recipe.value = "";
   recipeName.value = "";
@@ -365,6 +258,69 @@ const resetReportForm = () => {
       bread_name: group.bread_name,
       value: "", // Initialize value as an empty string
     })) || [];
+};
+
+const autoFillReport = () => {
+  console.log("Report datasss:", bakersReport);
+
+  isLoading.value = true;
+  setTimeout(async () => {
+    try {
+      // const startTime = Date.now(); // Capture the start time
+      bakersReport.user_id = userData.value?.data.id || "";
+      bakersReport.branch_id = userData.value?.device?.branch_id || "";
+      bakersReport.branch_recipe_id = recipe.value?.id || "";
+      bakersReport.recipe_name = recipe.value?.name || "";
+      bakersReport.target = recipe.value?.target || "";
+      bakersReport.recipe_category = recipe.value?.category || "";
+      const reportData = {
+        user_id: bakersReport.user_id,
+        branch_id: bakersReport.branch_id,
+        branch_recipe_id: bakersReport.branch_recipe_id,
+        recipe_name: bakersReport.recipe_name,
+        recipe_category: bakersReport.recipe_category,
+        status: "pending",
+        kilo: bakersReport.kilo,
+        short: bakersReport.short,
+        over: bakersReport.over,
+        target: bakersReport.target,
+        actual_target: bakersReport.actual_target,
+        breads: bakersReport.breads.map((bread) => ({
+          bread_id: bread.id,
+          bread_name: bread.bread_name,
+          bread_production: parseInt(bread.value, 10) || 0,
+        })),
+        ingredients: multipliedIngredients.value.map((ingredient) => ({
+          ingredients_id: ingredient.raw_materials_id,
+          code: ingredient.code,
+          quantity: ingredient.multipliedQuantity,
+          unit: ingredient.unit,
+        })),
+      };
+      console.log("reportssss dATA:", reportData);
+      bakerReportStore.setReport(reportData);
+
+      // const elapsedTime = Date.now() - startTime;
+      // const remainingTime = Math.max(5000 - elapsedTime, 0); // Ensure at least 1 second
+
+      // setTimeout(() => {
+      //   isLoading.value = false; // Stop loading after 1 second
+      // }, remainingTime);
+      console.log("Report data set to store:", bakerReportStore.reports);
+      Notify.create({
+        message: `${recipeName.value} added to list`,
+        type: "positive",
+        position: "center",
+        timeout: 500,
+      });
+      resetReportForm();
+      bakerReportStore.recipes = {};
+    } catch (error) {
+      console.error("Error generating report:", error);
+    } finally {
+      isLoading.value = false;
+    }
+  }, 1000);
 };
 
 const multipliedIngredients = computed(() => {
@@ -413,12 +369,14 @@ watch(
 watch(
   () => recipe.value?.bread_groups,
   () => {
-    bakersReport.breads =
-      recipe.value?.bread_groups.map((group) => ({
-        id: group.product_id,
-        bread_name: group.bread_name,
-        value: "",
-      })) || [];
+    bakersReport.breads = Array.isArray(recipe.value?.bread_groups)
+      ? recipe.value.bread_groups.map((group) => ({
+          id: group.product_id,
+          bread_name: group.bread_name,
+          value: "",
+        }))
+      : []; // If undefined or not an array, fallback to an empty array
+
     calculateShortAndOver();
   }
 );

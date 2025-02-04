@@ -641,7 +641,8 @@ const generateDocDefinition = (report) => {
     denominationReport.coins.reduce((sum, coin) => sum + coin.value, 0);
 
   // Calculate expected cash
-  const expectedCash = totalProductSales - (expensesTotal + creditTotal);
+  const sum = expensesTotal + creditTotal;
+  const expectedCash = totalProductSales - sum;
 
   // Determine Over Cash or Charges
   let overTotal = 0;

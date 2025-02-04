@@ -1,33 +1,5 @@
-// import { defineStore } from "pinia";
-// import { reactive } from "vue";
-
-// export const useBakerReportsStore = defineStore("bakerReports", async () => {
-//   const recipes = reactive({
-//     name: "",
-//     targetPcs: "",
-//     actualTarget: "",
-//     short: "",
-//     over: "",
-//     kilo: "",
-//     breads: [],
-//   });
-
-//   const setRecipe = async (recipeData) => {
-//     recipes = {
-//       ...recipes,
-//       ...recipeData,
-//       breads: recipeData.bread || [],
-//     };
-//   };
-
-//   return {
-//     recipes,
-//     setRecipe,
-//   };
-// });
-
 import { defineStore } from "pinia";
-import { Notify } from "quasar";
+import { Loading, Notify } from "quasar";
 import { api } from "src/boot/axios";
 
 export const useBakerReportsStore = defineStore("bakerReportsStore", {
@@ -46,6 +18,7 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
     },
     setReport(report) {
       const res = this.reports.push(report);
+
       // this.recipes = [];
     },
     removeReport(index) {
@@ -87,6 +60,8 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
     async createReports() {
       try {
         console.log("data to send:", this.reports);
+
+        Loading.show();
         const response = await api.post("api/initial-baker-report", {
           reports: this.reports,
         });
@@ -101,9 +76,11 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
         console.error("Error saving report:", error);
         Notify.create({
           type: "negative",
-          message: "Report error send",
+          message: "Error sending report",
           timeout: 1000,
         });
+      } finally {
+        Loading.hide();
       }
     },
 

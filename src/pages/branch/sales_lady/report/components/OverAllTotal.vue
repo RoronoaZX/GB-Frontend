@@ -129,6 +129,7 @@
 </template>
 
 <script setup>
+import { Loading } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { ref, computed } from "vue";
 
@@ -199,9 +200,12 @@ const chargesTotalFormatted = computed(() =>
 
 const handleSubmit = async () => {
   try {
+    Loading.show();
     await salesReportsStore.submitSalesReports();
   } catch (error) {
     console.error("Error submitting data:", error);
+  } finally {
+    Loading.hide();
   }
 };
 </script>

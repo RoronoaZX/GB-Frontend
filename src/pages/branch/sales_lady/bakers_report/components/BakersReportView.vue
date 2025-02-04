@@ -109,7 +109,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
-import { date, useQuasar } from "quasar";
+import { date, Loading, useQuasar } from "quasar";
 import { useBakerReportsStore } from "src/stores/baker-report";
 
 const props = defineProps({
@@ -163,16 +163,20 @@ const filteredBreads = computed(() => {
 
 const confirmReport = async () => {
   try {
+    Loading.show();
     const confirmedReport = await bakerReports.confirmReport(props.report.id);
     console.log("Report confirmed:", confirmedReport);
     $q.notify({ type: "positive", message: "Report confirmed successfully" });
     bakersReportDialog.value = false;
   } catch (error) {
     $q.notify({ type: "negative", message: "Failed to confirm report" });
+  } finally {
+    Loading.hide();
   }
 };
 const declineReport = async () => {
   try {
+    Loading.show();
     if (!remark.value.trim()) {
       $q.notify({ type: "negative", message: "Remark cannot be empty" });
       return;
@@ -184,6 +188,8 @@ const declineReport = async () => {
     remarkDialog.value = false;
   } catch (error) {
     $q.notify({ type: "negative", message: "Failed to decline report" });
+  } finally {
+    Loading.hide();
   }
 };
 </script>

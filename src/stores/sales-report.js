@@ -154,9 +154,13 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
     updateEmployeeCreditReports(report) {
       this.employeeCreditReports.push(report);
+      this.updateExpensesTotalAmount();
+      this.calculateCharges(this.denominationTotal); // Ensure charges update
     },
     updateExpensesReport(report) {
       this.expensesReports.push(report);
+      this.updateExpensesTotalAmount();
+      this.calculateCharges(this.denominationTotal); // Ensure charges update
       // const index = this.expensesReports.findIndex(
       //   (r) => r.name === report.name
       // );
