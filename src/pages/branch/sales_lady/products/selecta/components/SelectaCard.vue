@@ -66,7 +66,7 @@
         <q-card-section>
           <div class="q-mb-lg row justify-between">
             <div>
-              <div class="text-weight-light">Remainnings</div>
+              <div class="text-weight-light">Remainings</div>
               <q-input
                 v-model="selectaProductReport.selectaRemainings"
                 dense
@@ -76,6 +76,10 @@
                 suffix="pcs"
                 placeholder="0"
                 style="width: 260px; max-width: 300px; min-width: 50px"
+                :rules="[(val) => !!val || 'Remainnings is required']"
+                :error="!!errors.selectaRemainings"
+                :error-message="errors.selectaRemainings"
+                @update:model-value="clearError('selectaRemainings')"
               />
             </div>
             <div>
@@ -89,6 +93,10 @@
                 suffix="pcs"
                 placeholder="0"
                 style="width: 260px; max-width: 300px; min-width: 50px"
+                :rules="[(val) => !!val || 'Selecta out is required']"
+                :error="!!errors.selectaOut"
+                :error-message="errors.selectaOut"
+                @update:model-value="clearError('selectaOut')"
               />
             </div>
           </div>
@@ -159,6 +167,7 @@
 </template>
 
 <script setup>
+import { Notify } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 
@@ -169,6 +178,7 @@ const branchId = userData?.device?.branch_id || "";
 console.log("branchId", branchId);
 const selectedItem = ref(null);
 const dialog = ref(false);
+const loading = ref(false);
 
 // Props
 const filter = defineProps({
@@ -182,10 +192,41 @@ const clickme = (item) => {
 
 const selectaProductReport = reactive({
   selectaSold: 0,
-  selectaRemainings: 0,
+  selectaRemainings: "",
   selectaBeginnings: 0,
-  selectaOut: 0,
+  selectaOut: "",
 });
+
+const errors = ref({
+  selectaRemainings: "",
+  selectaOut: "",
+});
+
+const clearError = (field) => {
+  errors.value[field] = ""; // Clear error when user types
+};
+
+const validateFields = () => {
+  // Reset errors
+  errors.value.selectaRemainings = "";
+  errors.value.selectaOut = "";
+
+  let isValid = true;
+
+  // Check if remaining is empty
+  if (!selectaProductReport.selectaRemainings) {
+    errors.value.selectaRemainings = "Remaining is required";
+    isValid = false;
+  }
+
+  // Check if bread out is empty
+  if (!selectaProductReport.selectaOut) {
+    errors.value.selectaOut = "Selecta Out is required";
+    isValid = false;
+  }
+
+  return isValid;
+};
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {
@@ -267,34 +308,42 @@ const filteredSelectaProducts = computed(
 const closeDialog = () => {
   selectedItem.value = null;
   selectaProductReport.selectaSold = 0;
-  selectaProductReport.selectaRemainings = 0;
+  selectaProductReport.selectaRemainings = "";
   selectaProductReport.selectaBeginnings = 0;
-  selectaProductReport.selectaOut = 0;
+  selectaProductReport.selectaOut = "";
   dialog.value = false;
 };
 
 const saveReport = () => {
   // console.log("clickckckk");
-  if (selectedItem.value) {
-    const report = {
-      user_id: userData?.data.id,
-      branch_id: branchId || userData?.device?.branch_id,
-      product_id: selectedItem.value.product.id,
-      name: selectedItem.value.product.name,
-      total: selectedItem.value.total_quantity,
-      added_stocks: selectedItem.value.new_production,
-      sold: selectaProductReport.selectaSold,
-      out: selectaProductReport.selectaOut,
-      beginnings: selectedItem.value.beginnings,
-      remaining: selectaProductReport.selectaRemainings,
-      price: selectedItem.value.price,
-      sales: selectaSalesAmount.value,
-      new_production: 0,
-    };
-    console.log("report", report);
-    salesReportsStore.updateSelectaReport(report);
-    closeDialog();
+
+  if (!validateFields()) {
+    return; // Prevent submission if fields are empty
   }
+
+  const report = {
+    user_id: userData?.data.id,
+    branch_id: branchId || userData?.device?.branch_id,
+    product_id: selectedItem.value.product.id,
+    name: selectedItem.value.product.name,
+    total: selectedItem.value.total_quantity,
+    added_stocks: selectedItem.value.new_production,
+    sold: selectaProductReport.selectaSold,
+    out: selectaProductReport.selectaOut,
+    beginnings: selectedItem.value.beginnings,
+    remaining: selectaProductReport.selectaRemainings,
+    price: selectedItem.value.price,
+    sales: selectaSalesAmount.value,
+    new_production: 0,
+  };
+  console.log("report", report);
+  salesReportsStore.updateSelectaReport(report);
+  Notify.create({
+    message: "Product added successfully",
+    color: "positive",
+    position: "top",
+  });
+  closeDialog();
 };
 </script>
 

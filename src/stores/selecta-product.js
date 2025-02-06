@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { Loading } from "quasar";
 import { api } from "src/boot/axios";
 import { ref } from "vue";
 
@@ -141,6 +142,7 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
 
   const confirmReport = async (id) => {
     console.log("id", id);
+    Loading.show();
     try {
       const response = await api.post(`/api/confirm-selecta-report/${id}`);
       if (response.status === 200) {
@@ -158,15 +160,20 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
       return response.data;
     } catch (error) {
       console.log(error);
+    } finally {
+      Loading.hide();
     }
   };
   const declineReport = async (id, remark) => {
     console.log("id", id);
     console.log("remark", remark);
     try {
-      const response = await api.post(`/api/reports/${id}/decline-reports`, {
-        remark,
-      });
+      const response = await api.post(
+        `/api/reports/${id}/decline-selecta-reports`,
+        {
+          remark,
+        }
+      );
       if (response.status === 200) {
         // Find the index of the report in the pendingSelectaReports array
         const index = pendingSelectaReports.value.findIndex(

@@ -69,7 +69,7 @@
         <q-card-section>
           <div class="q-mb-lg row justify-between">
             <div>
-              <div class="text-weight-light">Remainnings</div>
+              <div class="text-weight-light">Remainings</div>
               <q-input
                 v-model="softdrinksProductsReport.remainnings"
                 dense
@@ -79,6 +79,10 @@
                 suffix="pcs"
                 placeholder="0"
                 style="width: 260px; max-width: 300px; min-width: 50px"
+                :rules="[(val) => !!val || 'Softdrinks out is required']"
+                :error="!!errors.remainnings"
+                :error-message="errors.remainnings"
+                @update:model-value="clearError('remainnings')"
               />
             </div>
             <div>
@@ -92,6 +96,10 @@
                 suffix="pcs"
                 placeholder="0"
                 style="width: 260px; max-width: 300px; min-width: 50px"
+                :rules="[(val) => !!val || 'Softdrinks out is required']"
+                :error="!!errors.softdrinksOut"
+                :error-message="errors.softdrinksOut"
+                @update:model-value="clearError('softdrinksOut')"
               />
             </div>
           </div>
@@ -162,6 +170,7 @@
 </template>
 
 <script setup>
+import { Notify } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 
@@ -172,7 +181,7 @@ const branchId = userData?.device?.branch_id || "";
 console.log("branchId", branchId);
 const selectedItem = ref(null);
 const dialog = ref(false);
-
+const loading = ref(false);
 // Props
 const filter = defineProps({
   filter: String,
@@ -185,10 +194,41 @@ const clickme = (item) => {
 
 const softdrinksProductsReport = reactive({
   softdrinksSold: 0,
-  remainnings: 0,
+  remainnings: "",
   beginnings: 0,
-  softdrinksOut: 0,
+  softdrinksOut: "",
 });
+
+const errors = ref({
+  remainnings: "",
+  softdrinksOut: "",
+});
+
+const clearError = (field) => {
+  errors.value[field] = ""; // Clear error when user types
+};
+
+const validateFields = () => {
+  // Reset errors
+  errors.value.remainnings = "";
+  errors.value.softdrinksOut = "";
+
+  let isValid = true;
+
+  // Check if remaining is empty
+  if (!softdrinksProductsReport.remainnings) {
+    errors.value.remainnings = "Remaining is required";
+    isValid = false;
+  }
+
+  // Check if bread out is empty
+  if (!softdrinksProductsReport.softdrinksOut) {
+    errors.value.softdrinksOut = "Softdrinks Out is required";
+    isValid = false;
+  }
+
+  return isValid;
+};
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {
@@ -269,33 +309,40 @@ const filteredSoftdrinksProducts = computed(
 const closeDialog = () => {
   selectedItem.value = null;
   softdrinksProductsReport.softdrinksSold = 0;
-  softdrinksProductsReport.remainnings = 0;
+  softdrinksProductsReport.remainnings = "";
   softdrinksProductsReport.beginnings = 0;
-  softdrinksProductsReport.softdrinksOut = 0;
+  softdrinksProductsReport.softdrinksOut = "";
   dialog.value = false;
 };
 
 const saveReport = () => {
-  if (selectedItem.value) {
-    const report = {
-      user_id: userData?.data.id,
-      branch_id: branchId || userData?.device?.branch_id,
-      product_id: selectedItem.value.product.id,
-      name: selectedItem.value.product.name,
-      total: selectedItem.value.total_quantity,
-      added_stocks: selectedItem.value.new_production,
-      sold: softdrinksProductsReport.softdrinksSold,
-      out: softdrinksProductsReport.softdrinksOut,
-      beginnings: selectedItem.value.beginnings,
-      remaining: softdrinksProductsReport.remainnings,
-      price: selectedItem.value.price,
-      sales: softdrinksSalesAmount.value,
-      new_production: 0,
-    };
-    console.log("report", report);
-    salesReportsStore.updateSoftdrinksReport(report);
-    closeDialog();
+  if (!validateFields()) {
+    return; // Prevent submission if fields are empty
   }
+
+  const report = {
+    user_id: userData?.data.id,
+    branch_id: branchId || userData?.device?.branch_id,
+    product_id: selectedItem.value.product.id,
+    name: selectedItem.value.product.name,
+    total: selectedItem.value.total_quantity,
+    added_stocks: selectedItem.value.new_production,
+    sold: softdrinksProductsReport.softdrinksSold,
+    out: softdrinksProductsReport.softdrinksOut,
+    beginnings: selectedItem.value.beginnings,
+    remaining: softdrinksProductsReport.remainnings,
+    price: selectedItem.value.price,
+    sales: softdrinksSalesAmount.value,
+    new_production: 0,
+  };
+  console.log("report", report);
+  salesReportsStore.updateSoftdrinksReport(report);
+  Notify.create({
+    message: "Product added successfully",
+    color: "positive",
+    position: "top",
+  });
+  closeDialog();
 };
 </script>
 

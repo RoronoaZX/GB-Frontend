@@ -139,9 +139,12 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
     console.log("remark", remark);
 
     try {
-      const response = await api.post(`/api/reports/${id}/decline-reports`, {
-        remark,
-      });
+      const response = await api.post(
+        `/api/reports/${id}/decline-otherstocks-reports`,
+        {
+          remark,
+        }
+      );
       if (response.status === 200) {
         // Find the index of the report in the pendingOtherReports array
         const index = pendingOtherReports.value.findIndex(
@@ -154,7 +157,9 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
         }
       }
       return response.data;
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return {

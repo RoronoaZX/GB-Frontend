@@ -129,6 +129,7 @@
           label="Create"
           @click="save"
           :disable="!isFormValid"
+          :loading="loading"
         />
       </q-card-actions>
     </q-card>
@@ -285,6 +286,7 @@ const dismiss = () => {
 const save = async () => {
   try {
     // Prepare the data to be sent
+    loading.value = true;
     const data = {
       branches_id: userData?.employee?.branch_id || "",
       employee_id: userData?.employee?.employee_id || "",
@@ -317,6 +319,8 @@ const save = async () => {
       message: "An error occurred while saving selecta stocks.",
       timeout: 2000,
     });
+  } finally {
+    loading.value = false;
   }
 };
 </script>

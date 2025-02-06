@@ -172,9 +172,12 @@ export const useSoftdrinksProductStore = defineStore(
       console.log("id", id);
       console.log("remark", remark);
       try {
-        const response = await api.post(`/api/reports/${id}/decline-reports`, {
-          remark,
-        });
+        const response = await api.post(
+          `/api/reports/${id}/decline-softdrinks-reports`,
+          {
+            remark,
+          }
+        );
         if (response.status === 200) {
           // Find the index of the report in the pendingSelectaReports array
           const index = pendingSoftdrinksReports.value.findIndex(

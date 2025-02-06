@@ -77,7 +77,7 @@
         <q-card-section>
           <div class="q-mb-lg row justify-between">
             <div>
-              <div class="text-weight-light">Remainnings</div>
+              <div class="text-weight-light">Remainings</div>
               <q-input
                 v-model="breadProductsReport.remainnings"
                 dense
@@ -87,6 +87,12 @@
                 placeholder="0"
                 type="number"
                 style="width: 260px; max-width: 300px; min-width: 50px"
+                :rules="[(val) => !!val || 'Remainnings is required']"
+                :error="!!errors.remainnings"
+                :error-message="
+                  errors.remainnings ? 'Remainings is required' : ''
+                "
+                @update:model-value="clearError('remainnings')"
               />
             </div>
             <div>
@@ -100,6 +106,10 @@
                 suffix="pcs"
                 placeholder="0"
                 style="width: 260px; max-width: 300px; min-width: 50px"
+                :rules="[(val) => !!val || 'Bread out is required']"
+                :error="!!errors.breadOut"
+                :error-message="errors.breadOut"
+                @update:model-value="clearError('breadOut')"
               />
             </div>
           </div>
@@ -161,7 +171,12 @@
         </q-card-section>
         <q-card-section>
           <div align="right">
-            <q-btn color="red-6" label="Ok" @click="saveReport" />
+            <q-btn
+              color="red-6"
+              label="Ok"
+              :loading="loading"
+              @click="saveReport"
+            />
           </div>
         </q-card-section>
       </q-card>
@@ -170,6 +185,7 @@
 </template>
 
 <script setup>
+import { Notify } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 
@@ -180,7 +196,7 @@ const branchId = userData?.device?.branch_id || "";
 console.log("branchId", branchId);
 const selectedItem = ref(null);
 const dialog = ref(false);
-
+const loading = ref(false);
 // const filter = ref(""); // Filter input
 // Props
 const filter = defineProps({
@@ -194,10 +210,52 @@ const clickme = (item) => {
 
 const breadProductsReport = reactive({
   breadSold: 0,
-  remainnings: 0,
+  remainnings: "",
   beginnings: 0,
-  breadOut: 0,
+  breadOut: "",
 });
+const errors = ref({
+  remainnings: "",
+  breadOut: "",
+});
+
+const clearError = (field) => {
+  errors.value[field] = ""; // Clear error when user types
+};
+
+const validateFields = () => {
+  // Reset errors
+  errors.value.remainnings = "";
+  errors.value.breadOut = "";
+
+  let isValid = true;
+
+  // Check if remaining is empty
+  if (!breadProductsReport.remainnings) {
+    errors.value.remainnings = "Remaining is required";
+    isValid = false;
+  }
+
+  // Check if bread out is empty
+  if (!breadProductsReport.breadOut) {
+    errors.value.breadOut = "Bread Out is required";
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+// const errors = ref({
+//   breadOut: false,
+//   remainnings: false,
+// });
+
+// const validateFields = () => {
+//   errors.value.breadOut = !breadProductsReport.breadOut;
+//   errors.value.remainnings = !breadProductsReport.remainnings;
+
+//   return !errors.value.breadOut && !errors.value.remainnings;
+// };
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {
@@ -279,35 +337,44 @@ const filteredBreadProducts = computed(
 const closeDialog = () => {
   selectedItem.value = null;
   breadProductsReport.breadSold = 0;
-  breadProductsReport.remainnings = 0;
+  breadProductsReport.remainnings = "";
   breadProductsReport.beginnings = 0;
-  breadProductsReport.breadOut = 0;
+  breadProductsReport.breadOut = "";
   dialog.value = false;
 };
 
 const saveReport = () => {
   // console.log("clickckckk");
-  if (selectedItem.value) {
-    const report = {
-      user_id: userData?.data.id,
-      branch_id: branchId || userData?.device?.branch_id,
-      product_id: selectedItem.value.product.id,
-      name: selectedItem.value.product.name,
-      total: selectedItem.value.total_quantity,
-      new_production: selectedItem.value.new_production,
-      bread_sold: breadProductsReport.breadSold,
-      bread_out: breadProductsReport.breadOut,
-      beginnings: selectedItem.value.beginnings,
-      remaining: breadProductsReport.remainnings,
-      price: selectedItem.value.price,
-      sales: breadSalesAmount.value,
-      new_production: selectedItem.value.new_production,
-      branch_new_production: 0,
-    };
-    console.log("report", report);
-    salesReportsStore.updateBreadReport(report);
-    closeDialog();
+
+  if (!validateFields()) {
+    return; // Prevent submission if fields are empty
   }
+
+  const report = {
+    user_id: userData?.data.id,
+    branch_id: branchId || userData?.device?.branch_id,
+    product_id: selectedItem.value.product.id,
+    name: selectedItem.value.product.name,
+    total: selectedItem.value.total_quantity,
+    new_production: selectedItem.value.new_production,
+    bread_sold: breadProductsReport.breadSold,
+    bread_out: breadProductsReport.breadOut,
+    beginnings: selectedItem.value.beginnings,
+    remaining: breadProductsReport.remainnings,
+    price: selectedItem.value.price,
+    sales: breadSalesAmount.value,
+    new_production: selectedItem.value.new_production,
+    branch_new_production: 0,
+  };
+  console.log("report", report);
+
+  salesReportsStore.updateBreadReport(report);
+  Notify.create({
+    message: "Product added successfully",
+    color: "positive",
+    position: "top",
+  });
+  closeDialog();
 };
 </script>
 
