@@ -63,9 +63,7 @@
           <span
             >{{ formatTarget(props.row.target) }}
 
-            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
-              >Edit Target</q-tooltip
-            >
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">Edit Target</q-tooltip>
           </span>
           <q-popup-edit
             @update:model-value="(val) => updateRecipe(props.row, val)"
@@ -88,9 +86,7 @@
         <q-td :props="props">
           <q-badge outline :color="getBadgeStatusColor(props.row.status)">
             {{ capitalizeFirstLetter(props.row.status) }}
-            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
-              >Change Status</q-tooltip
-            >
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">Change Status</q-tooltip>
           </q-badge>
           <q-popup-edit
             @update:model-value="(val) => updateRecipeStatus(props.row, val)"

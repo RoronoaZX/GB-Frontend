@@ -1,38 +1,109 @@
 <template>
+  <div class="text-h6" align="center">Other Product List</div>
   <div
     v-if="otherProductsReport !== 'No report' && otherProductsReport.length > 0"
   >
-    <!-- Check if breadReports is "No report" or an empty array -->
-    <q-table
-      flat
-      bordered
-      title="Other Products"
-      :rows="otherProductsReport"
-      :columns="otherProductsReportColumn"
-      row-key="id"
-      :virtual-scroll-sticky-size-start="48"
-      :loading="otherProductsReport.length === 0"
-      no-data-label="No bread reports available"
-      dense
-    >
-      <!-- hide-header
-      hide-bottom -->
-      <template v-slot:body-cell-price="props">
-        <q-td :props="props">
-          {{ formatPrice(props.row.price) }}
-        </q-td>
-      </template>
-      <template v-slot:body-cell-sales="props">
-        <q-td :props="props">
-          {{ formatPrice(props.row.sales) }}
-        </q-td>
-      </template>
-    </q-table>
-    <div class="row justify-end q-mt-md">
-      <div class="text-h6">
-        Other Products Total Sales: {{ formatPrice(overallTotal || "0") }}
+    <q-list dense separator class="box">
+      <q-item>
+        <q-item-section>
+          <q-item-label class="text-overline">Product Name</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center">Price</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center"
+            >Beginnings</q-item-label
+          >
+        </q-item-section>
+        <q-item-section class="text-center" align="center">
+          <q-item-label class="text-overline q-ma-sm text-center"
+            >Added Stocks</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center"
+            >Remaining</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center">Out</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center"
+            >Product Total</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center"
+            >Product Sold</q-item-label
+          >
+        </q-item-section>
+
+        <q-item-section side>
+          <q-item-label class="text-overline text-center"
+            >Total Sales</q-item-label
+          >
+        </q-item-section>
+      </q-item>
+      <!-- <div v-if="breadReports !== 'No report' && breadReports.length > 0"> -->
+      <q-item
+        v-for="(product, index) in otherProductsReport"
+        :key="index"
+        class="text-center"
+      >
+        <q-item-section>
+          <q-item-label class="text-caption">
+            {{ capitalizeFirstLetter(product?.other_products?.name || "N/A") }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section class="text-center">
+          <q-item-label class="text-caption text-center">
+            {{ formatPrice(product?.price || "N/A") }}
+            <!-- `${breads?.price} ` -->
+          </q-item-label>
+        </q-item-section>
+        <q-item-section class="text-center">
+          <q-item-label class="text-caption text-center">
+            {{ product?.beginnings || 0 }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section class="text-center">
+          <q-item-label class="text-caption text-center">
+            {{ product?.added_stocks || 0 }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section class="text-caption text-center">
+          <q-item-label>
+            {{ product?.remaining || 0 }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-caption text-center">
+            {{ product?.out || 0 }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-caption text-center">
+            {{ productTotal(product) }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-caption text-center">
+            {{ productSoldTotal(product) }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-caption text-center">
+            {{ totalSales(product) }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <div class="row justify-end q-mx-md">
+        <div class="text-subtitle1">Total Sales: {{ overallTotal || "0" }}</div>
       </div>
-    </div>
+      <!-- </div> -->
+    </q-list>
   </div>
   <!-- If breadReports is "No report", display the message instead of the table -->
   <div align="center" v-else>
@@ -41,6 +112,8 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
+
 const props = defineProps(["otherProductsReport"]);
 
 console.log("otherProductsReport Data:", props.otherProductsReport);
@@ -54,60 +127,37 @@ const formatPrice = (price) => {
     currency: "PHP",
   }).format(price);
 };
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const productTotal = (product) => {
+  return product?.added_stocks + product?.beginnings;
+};
+
+const productSoldTotal = (product) => {
+  const total = productTotal(product) - product?.remaining;
+  return total;
+};
+
+const totalSales = (product) => {
+  const total = productSoldTotal(product) * product?.price;
+  return formatPrice(total);
+};
 
 // Check if breadReports is an array before using reduce
-const overallTotal = Array.isArray(props.otherProductsReport)
-  ? props.otherProductsReport.reduce((total, report) => {
-      const sales = parseFloat(report.sales); // Ensure sales is treated as a number
-      if (!isNaN(sales)) {
-        return total + sales; // Add sales to total if it's a valid number
-      }
-      return total; // Skip invalid sales values
-    }, 0)
-  : 0; // Default to 0 if breadReports is not an array
+const overallTotal = computed(() => {
+  if (!Array.isArray(props.otherProductsReport)) return formatPrice(0);
 
-const otherProductsReportColumn = [
-  {
-    name: "name",
-    label: "Product Name",
-    field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
-      return row.other_products.name || "N/A";
-    },
-  },
-  {
-    name: "price",
-    label: "Price",
-    field: "price",
-  },
-  {
-    name: "beginnings",
-    label: "Beginnings (PCS)",
-    field: "beginnings",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "remaining",
-    label: "Remaining (PCS)",
-    field: "remaining",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "out",
-    label: "Product Out (PCS)",
-    field: "out",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "sold",
-    label: "Product Sold (PCS)",
-    field: "sold",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "sales",
-    label: "Total Sales",
-    field: "sales",
-  },
-];
+  const total = props.otherProductsReport.reduce((sum, products) => {
+    const sales = productSoldTotal(products) * products?.price;
+    return !isNaN(sales) ? sum + sales : sum;
+  }, 0);
+
+  return formatPrice(total);
+});
 </script>

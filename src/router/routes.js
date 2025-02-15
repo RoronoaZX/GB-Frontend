@@ -157,6 +157,10 @@ const routes = [
           import("pages/branch/baker/transaction/TransactionPage.vue"),
       },
       {
+        path: "premix",
+        component: () => import("pages/branch/baker/premix/PremixPage.vue"),
+      },
+      {
         path: "report",
         component: () => import("pages/branch/baker/report/ReportPage.vue"),
       },

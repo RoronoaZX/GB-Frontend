@@ -25,6 +25,7 @@
             <q-tab name="products" label="Products" />
             <q-tab name="rawMaterials" label="Raw Materials" />
             <q-tab name="recipe" label="Recipe" />
+            <q-tab name="premix" label="Premix" />
             <q-tab name="production" label="Production" />
             <q-tab name="transaction" label="Transactions" />
           </q-tabs>
@@ -42,6 +43,10 @@
 
             <q-tab-panel name="recipe">
               <RecipePage />
+            </q-tab-panel>
+
+            <q-tab-panel name="premix">
+              <PremixPage />
             </q-tab-panel>
 
             <q-tab-panel name="production">
@@ -63,6 +68,8 @@ import RawMaterialsPage from "./components/raw_materials/RawMaterialsPage.vue";
 import ProductionPage from "./components/production/ProductionPage.vue";
 import TransactionPage from "./components/transactions/TransactionPage.vue";
 import RecipePage from "./components/recipe/RecipePage.vue";
+import PremixPage from "./components/premix/PremixPage.vue";
+
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api } from "src/boot/axios";

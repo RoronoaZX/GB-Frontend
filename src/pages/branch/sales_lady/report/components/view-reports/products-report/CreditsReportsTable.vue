@@ -1,53 +1,51 @@
 <template>
+  <div class="text-h6" align="center">Credit List</div>
   <div v-if="creditsReports !== 'No report' && creditsReports.length > 0">
-    <!-- Check if creditsReports is "No report" or an empty array -->
-    <q-table
-      flat
-      bordered
-      title="Credits"
-      :rows="creditsReports"
-      :columns="creditProductsColumn"
-      row-key="id"
-      :loading="creditsReports.length === 0"
-      no-data-label="No bread reports available"
-      dense
-    >
-      <template v-slot:body-cell-productName="props">
-        <q-td :props="props">
-          <span>{{
-            `${capitalizeFirstLetter(
-              props.row?.product?.name || "Not applicable"
-            )}`
-          }}</span>
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-total_amount="props">
-        <q-td :props="props">
-          <span>{{ `${formatAmount(props.row.total_amount)}` }}</span>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-view="props">
-        <q-td :props="props">
-          <ViewCreditsReport
-            :creditsReportList="props.row?.credit_products || []"
-          />
-        </q-td>
-      </template>
-
-      <!-- Add a footer row for the overall total sales -->
-      <template v-slot:footer>
-        <q-tr>
-          <q-td colspan="6" class="text-right">Overall Total Sales:</q-td>
-          <q-td>{{ formatPrice(overallTotal || 0) }}</q-td>
-        </q-tr>
-      </template>
-    </q-table>
-    <div class="row justify-end q-mt-md">
-      <div class="text-h6">
-        Credits Total: {{ formatPrice(overallTotal || "0") }}
+    <q-list dense separator class="box">
+      <q-item>
+        <q-item-section class="text-center">
+          <q-item-label class="text-overline">Employee Name</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center"
+            >Total Amount</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline text-center">Action</q-item-label>
+        </q-item-section>
+      </q-item>
+      <!-- <div v-if="breadReports !== 'No report' && breadReports.length > 0"> -->
+      <q-item
+        v-for="(credits, index) in creditsReports"
+        :key="index"
+        class="text-center"
+      >
+        <q-item-section>
+          <q-item-label class="text-caption">
+            {{ formatFullname(credits?.credit_user_id || "N/A") }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-caption text-center">
+            {{ formatPrice(credits?.total_amount || 0) }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-caption text-center">
+            <ViewCreditsReport
+              :creditsReportList="credits?.credit_products || []"
+            />
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <div class="row justify-end q-mx-md">
+        <div class="text-subtitle1">
+          Total : {{ formatPrice(overallTotal || "0") }}
+        </div>
       </div>
-    </div>
+      <!-- </div> -->
+    </q-list>
   </div>
   <!-- If creditsReports is "No report", display the message instead of the table -->
   <div align="center" v-else>

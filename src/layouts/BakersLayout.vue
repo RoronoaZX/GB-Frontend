@@ -222,13 +222,13 @@ const menuItems = [
     label: "Transaction",
     separator: true,
   },
-  // {
-  //   name: "expences",
-  //   icon: "wysiwyg",
-  //   to: "/branch/expences",
-  //   label: "Expences",
-  //   separator: true,
-  // },
+  {
+    name: "premix",
+    icon: "scale",
+    to: "/branch/baker/premix",
+    label: "Premix",
+    separator: true,
+  },
   {
     name: "report",
     icon: "fact_check",
