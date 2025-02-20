@@ -53,7 +53,7 @@
                     </q-avatar>
 
                     <div class="text-subtitle1 q-mt-md q-mb-xs">
-                      {{ formattedUserName }}
+                      {{ formatFullname(userData.data.employee) }}
                     </div>
 
                     <q-btn
@@ -124,41 +124,64 @@
 import { ref, onMounted, computed } from "vue";
 import { LocalStorage, useQuasar } from "quasar";
 import { useRouter } from "vue-router";
+import { useWarehousesStore } from "src/stores/warehouse";
 import { api } from "src/boot/axios";
 
 const drawer = ref(false);
 const activeMenuItem = ref("0");
-const user = ref({});
+const warehouseStore = useWarehousesStore();
+const userData = computed(() => warehouseStore.user);
+console.log("employee", userData.value);
 const quasar = useQuasar();
 const loading = ref(false);
 const router = useRouter();
 
-onMounted(async () => {
-  try {
-    const response = await api.get("/api/profile");
-    user.value = response.data;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
-});
+// onMounted(async () => {
+//   try {
+//     const response = await api.get("/api/profile");
+//     user.value = response.data;
+//   } catch (error) {
+//     console.error("Error fetching user data:", error);
+//   }
+// });
 
-const formattedUserName = computed(() => {
-  if (user.value && user.value.data && user.value.data.name) {
-    const fullName = user.value.data.name;
-    const parts = fullName.split(" ");
-    const formattedparts = parts.map((part) => {
-      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
-    });
-    if (formattedparts.length > 1) {
-      const middleIndex = Math.floor(formattedparts.length / 2);
-      formattedparts[middleIndex] =
-        formattedparts[middleIndex].charAt(0).toUpperCase() + ".";
-    }
-    return formattedparts.join(" ");
-  } else {
-    return "";
-  }
-});
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str
+      ? str
+          .split(" ")
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(" ")
+      : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
+};
+
+// const formattedUserName = computed(() => {
+//   if (user.value && user.value.data && user.value.data.name) {
+//     const fullName = user.value.data.name;
+//     const parts = fullName.split(" ");
+//     const formattedparts = parts.map((part) => {
+//       return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+//     });
+//     if (formattedparts.length > 1) {
+//       const middleIndex = Math.floor(formattedparts.length / 2);
+//       formattedparts[middleIndex] =
+//         formattedparts[middleIndex].charAt(0).toUpperCase() + ".";
+//     }
+//     return formattedparts.join(" ");
+//   } else {
+//     return "";
+//   }
+// });
 
 const signOut = () => {
   loading.value = true;

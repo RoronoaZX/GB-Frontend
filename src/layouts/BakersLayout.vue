@@ -24,7 +24,10 @@
           <div class="col-4 d-flex justify-center" align="center">
             <div class="text-black mx-2 text-h6">
               <!-- sss -->
-              <div>{{ userData?.device?.branch?.name || "Undefined" }}</div>
+              <div>
+                <!-- {{ userData?.device }} -->
+                {{ userData?.device?.reference?.name || "Undefined" }}
+              </div>
             </div>
           </div>
           <div class="col-4" align="right">

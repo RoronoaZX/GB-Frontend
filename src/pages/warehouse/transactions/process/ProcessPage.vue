@@ -1,0 +1,102 @@
+<template>
+  <div>
+    <q-scroll-area style="height: 450px; max-width: 1500px">
+      <div class="q-gutter-md q-ma-md">
+        <template v-if="processPremixData.length">
+          <q-card v-for="(process, index) in processPremixData" :key="index">
+            <q-card-section class="q-gutter-sm">
+              <div class="row justify-between">
+                <div class="text-h6">
+                  {{ process.name }}
+                </div>
+                <div class="row q-gutter-x-md">
+                  <div class="text-subtitle1">Confirmed By:</div>
+                  <div class="text-overline text-weight-bold">
+                    {{ formatFullname(process.history[0].employee) }}
+                  </div>
+                </div>
+              </div>
+              <div class="row justify-between">
+                <div class="text-subtitle1">
+                  {{ formatDate(process.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ formatTime(process.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ process.branch_premix.branch_recipe.branch.name }} -
+                  {{ formatFullname(process.employee) }}
+                </div>
+                <div>
+                  <q-badge color="primary" outlined>
+                    {{ process.status }}
+                  </q-badge>
+                </div>
+                <div>
+                  <TransactionView :report="process" />
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </template>
+        <template v-else>
+          <div class="data-error">
+            <q-icon name="warning" color="warning" size="4em" />
+            <div class="q-ml-sm text-h6">No data available</div>
+          </div>
+        </template>
+      </div>
+    </q-scroll-area>
+  </div>
+</template>
+
+<script setup>
+import { useWarehousesStore } from "src/stores/warehouse";
+import { usePremixStore } from "src/stores/premix";
+import { date as quasarDate } from "quasar";
+import { computed, onMounted, ref } from "vue";
+import TransactionView from "./TransactionView.vue";
+
+const warehouseStore = useWarehousesStore();
+const userData = computed(() => warehouseStore.user);
+const warehouseId = userData.value.device.reference_id;
+console.log("warehouseId", warehouseId);
+const premixStore = usePremixStore();
+const processPremixData = computed(() => premixStore.processPremixData);
+console.log("processPremixData", processPremixData.value);
+const status = ref("process");
+// const premix = computed(() => premixStore.pendingPremixData);
+
+onMounted(async () => {
+  if (warehouseId) {
+    await fetchProcessPremix(warehouseId);
+  }
+});
+
+const formatDate = (dateString) => {
+  return quasarDate.formatDate(dateString, "MMMM D, YYYY");
+};
+
+const formatTime = (timeString) => {
+  return quasarDate.formatDate(timeString, "hh:mm A");
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
+const fetchProcessPremix = async () => {
+  await premixStore.fetchProcessPremix(warehouseId, status.value);
+};
+</script>
+
+<style lang="scss" scoped></style>

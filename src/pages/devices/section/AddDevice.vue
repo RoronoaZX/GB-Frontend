@@ -76,11 +76,34 @@
               ]"
             />
           </div>
-          <div class="q-mt-md q-animated q-animate-bounce">
+          <div class="q-gutter-x-lg">
+            <q-checkbox
+              keep-color
+              v-model="selectedOption"
+              label="Branch"
+              color="red"
+              :true-value="'branch'"
+              :false-value="null"
+              indeterminate-value="false"
+            />
+            <q-checkbox
+              keep-color
+              v-model="selectedOption"
+              label="Warehouse"
+              color="blue-grey-10"
+              :true-value="'warehouse'"
+              :false-value="null"
+              indeterminate-value="false"
+            />
+          </div>
+          <div
+            v-if="selectedOption === 'branch'"
+            class="q-mt-md q-animated q-animate-bounce"
+          >
             <div>Designation Branch</div>
             <q-input
-              v-model="searchKeyword"
-              @update:model-value="search"
+              v-model="searchBranchKeyword"
+              @update:model-value="searchBranch"
               outlined
               dense
               debounce="500"
@@ -91,14 +114,12 @@
                 <q-spinner v-else color="grey" size="sm" />
               </template>
               <div
-                v-if="showDropdown && searchKeyword"
+                v-if="showDropdown && searchBranchKeyword"
                 class="custom-list z-top"
               >
                 <q-card>
                   <q-list separator>
-                    <q-item v-if="!branches?.length">
-                      No Employee Record
-                    </q-item>
+                    <q-item v-if="!branches?.length">No Employee Record</q-item>
                     <template v-else>
                       <q-item
                         @click="autoFillBranch(branch)"
@@ -108,6 +129,49 @@
                       >
                         <q-item-section>
                           {{ branch.name }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-card>
+              </div>
+            </q-input>
+          </div>
+          <div
+            v-if="selectedOption === 'warehouse'"
+            class="q-mt-md q-animated q-animate-bounce"
+          >
+            <div>Warehouse</div>
+            <q-input
+              v-model="searchWarehouseKeyword"
+              @update:model-value="searchWarehouse"
+              outlined
+              dense
+              debounce="500"
+              @focus="showDropdown = true"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="grey" size="sm" />
+              </template>
+              <div
+                v-if="showDropdown && searchWarehouseKeyword"
+                class="custom-list z-top"
+              >
+                <q-card>
+                  <q-list separator>
+                    <q-item v-if="!warehouses?.length"
+                      >No Warehouse Record</q-item
+                    >
+                    <template v-else>
+                      <q-item
+                        v-for="warehouse in warehouses"
+                        :key="warehouse.id"
+                        @click="autoFillWarehouse(warehouse)"
+                        clickable
+                      >
+                        <q-item-section>
+                          {{ warehouse.name }}
                         </q-item-section>
                       </q-item>
                     </template>
@@ -137,27 +201,37 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import { useDeviceStore } from "src/stores/device";
 import { useBranchesStore } from "src/stores/branch";
+import { useWarehousesStore } from "src/stores/warehouse";
 
 const deviceStore = useDeviceStore();
 const branchStore = useBranchesStore();
 const branches = computed(() => branchStore.branch);
+const warehouseStore = useWarehousesStore();
+const warehouses = computed(() => warehouseStore.warehouse);
+console.log("warehouse", warehouses.value);
 const addDeviceDialog = ref(false);
 const loading = ref(false);
-const searchKeyword = ref("");
+const searchBranchKeyword = ref("");
+const searchWarehouseKeyword = ref("");
 const showDropdown = ref(false);
 const searchLoading = ref(false);
+const selectedOption = ref(null);
+
+watch(selectedOption, (newValue) => {
+  deviceForm.designation = newValue;
+});
 
 const openAddDeviceDialog = () => {
   addDeviceDialog.value = true;
 };
 
-const search = async () => {
-  if (searchKeyword.value.trim()) {
+const searchBranch = async () => {
+  if (searchBranchKeyword.value.trim()) {
     // searchLoading.value = true;
-    await branchStore.search(searchKeyword.value);
+    await branchStore.search(searchBranchKeyword.value);
     // searchLoading.value = false;
     // showDropdown.value = true;
   }
@@ -166,9 +240,29 @@ const search = async () => {
 const autoFillBranch = (branch) => {
   console.log("selected branch:", branch);
 
-  deviceForm.branch_id = branch.id;
-  deviceForm.branch_name = branch.name;
-  searchKeyword.value = branch.name;
+  deviceForm.reference_id = branch.id;
+
+  searchBranchKeyword.value = branch.name;
+
+  showDropdown.value = false;
+
+  console.log("Filled addNewBranchForm Data:", deviceForm);
+};
+const searchWarehouse = async () => {
+  if (searchWarehouseKeyword.value.trim()) {
+    // searchLoading.value = true;
+    await warehouseStore.search(searchWarehouseKeyword.value);
+    // searchLoading.value = false;
+    // showDropdown.value = true;
+  }
+};
+
+const autoFillWarehouse = (warehouse) => {
+  console.log("selected branch:", warehouse);
+
+  deviceForm.reference_id = warehouse.id;
+
+  searchWarehouseKeyword.value = warehouse.name;
 
   showDropdown.value = false;
 
@@ -180,22 +274,22 @@ const deviceForm = reactive({
   name: "",
   model: "",
   os_version: "",
-  branch_id: "",
-  branch_name: "",
+  reference_id: "",
+  designation: "",
 });
 
 const createDevice = async () => {
   console.log("device sent:", deviceForm);
-  loading.value = true;
-  try {
-    await deviceStore.createDevices(deviceForm);
-    addDeviceDialog.value = false;
-    resetDeviceForm();
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-  }
+  // loading.value = true;
+  // try {
+  //   await deviceStore.createDevices(deviceForm);
+  //   addDeviceDialog.value = false;
+  //   resetDeviceForm();
+  // } catch (error) {
+  //   console.log(error);
+  // } finally {
+  //   loading.value = false;
+  // }
 };
 
 const resetDeviceForm = () => {

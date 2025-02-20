@@ -7,6 +7,24 @@ export const useWarehousesStore = defineStore("warehouses", () => {
   const warehouse = ref(null);
   const warehouses = ref([]);
   const warehouseBranchReports = ref([]);
+  const user = ref({});
+
+  const setUser = (newUser) => {
+    user.value = newUser;
+  };
+
+  const search = async (keyword) => {
+    try {
+      console.log("Searching for warehouse with keyword:", keyword);
+      const response = await api.post(`/api/search-warehouse`, {
+        keyword,
+      });
+      console.log("warehouse reposnse", response.data);
+      warehouse.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchWarehouseByBranchID = async (warehouseId) => {
     try {
@@ -129,6 +147,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
   };
 
   return {
+    user,
     warehouse,
     warehouses,
     warehouseBranchReports,
@@ -139,5 +158,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
     fetchWarehouseWithEmployee,
     fetchWarehouseByBranchID,
     fetchCertainWarehouse,
+    search,
+    setUser,
   };
 });

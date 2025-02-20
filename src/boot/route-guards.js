@@ -95,6 +95,7 @@ import { boot } from "quasar/wrappers";
 import { api } from "./axios";
 import { useUsersStore } from "src/stores/user";
 import { useBakerReportsStore } from "src/stores/baker-report";
+import { useWarehousesStore } from "src/stores/warehouse";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSupervisorStore } from "src/stores/supervisor";
 import { useCakeMakerReportStore } from "src/stores/cake-maker-report";
@@ -126,6 +127,7 @@ export default boot(async ({ router }) => {
         // Set user data to stores
         useUsersStore().setUser(user.data);
         useBakerReportsStore().setUser(user.data);
+        useWarehousesStore().setUser(user.data);
         useSalesReportsStore().setUser(user.data);
         useSupervisorStore().setUser(user.data);
         useCakeMakerReportStore().setUser(user.data);

@@ -90,8 +90,11 @@ import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
 
-const uuid = ref("b76baeef9c2aef9a");
-// const uuid = ref("946c1697d02c5951");
+const uuid = ref(
+  "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
+); //forscaller
+// const uuid = ref("b76baeef9c2aef9a"); //  branch id 6
+// const uuid = ref("946c1697d02c5951"); ;
 
 // Method to get UUID from Electron using node-machine-id
 // ===================================================//
@@ -169,7 +172,16 @@ const login = async () => {
     localStorage.setItem("token", response.data.token);
     localStorage.setItem("role", response.data.role);
     localStorage.setItem("uuid", response.data.device.uuid);
-    localStorage.setItem("branch_id", response.data.device.branch_id);
+    localStorage.setItem("reference_id", response.data.device.reference_id);
+
+    const device = response.data.device;
+
+    // Determine the correct key based on designation
+    const storageKey =
+      device.designation === "branch" ? "branch_id" : "warehouse_id";
+
+    // Store the reference_id with the correct key
+    localStorage.setItem(storageKey, device.reference_id);
 
     const role = response.data.role;
     const storedActiveMenuItem = localStorage.getItem("activeMenuItem");

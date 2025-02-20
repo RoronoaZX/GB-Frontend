@@ -1,0 +1,94 @@
+<template>
+  <div>
+    <q-scroll-area style="height: 450px; max-width: 1500px">
+      <div class="q-gutter-md q-ma-md">
+        <template v-if="premix.length">
+          <q-card v-for="(pending, index) in premix" :key="index">
+            <q-card-section class="q-gutter-sm">
+              <div class="text-h6">
+                {{ pending.name }}
+              </div>
+              <div class="row justify-between">
+                <div class="text-subtitle1">
+                  {{ formatDate(pending.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ formatTime(pending.created_at) }}
+                </div>
+                <div class="text-subtitle1">
+                  {{ pending.branch_premix.branch_recipe.branch.name }} -
+                  {{ formatFullname(pending.employee) }}
+                </div>
+
+                <div>
+                  <q-badge color="yellow" outlined> Pending </q-badge>
+                </div>
+                <div>
+                  <TransactionView :report="pending" />
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </template>
+        <template v-else>
+          <!-- No data message -->
+          <div class="data-error">
+            <q-icon name="warning" color="warning" size="4em" />
+            <div class="q-ml-sm text-h6">No data available</div>
+          </div>
+        </template>
+      </div>
+    </q-scroll-area>
+  </div>
+</template>
+
+<script setup>
+import { useWarehousesStore } from "src/stores/warehouse";
+import { usePremixStore } from "src/stores/premix";
+import { date as quasarDate } from "quasar";
+import { computed, onMounted, ref } from "vue";
+import TransactionView from "./TransactionView.vue";
+
+const warehouseStore = useWarehousesStore();
+const userData = computed(() => warehouseStore.user);
+console.log("userdata", userData.value);
+const premixStore = usePremixStore();
+const premix = computed(() => premixStore.pendingPremixData);
+
+const warehouseId = userData.value.device.reference_id;
+console.log("warehouseId", warehouseId);
+const status = ref("pending");
+
+onMounted(async () => {
+  if (warehouseId) {
+    await fetchPendingPremix(warehouseId);
+  }
+});
+
+const formatDate = (dateString) => {
+  return quasarDate.formatDate(dateString, "MMMM D, YYYY");
+};
+
+const formatTime = (timeString) => {
+  return quasarDate.formatDate(timeString, "hh:mm A");
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
+const fetchPendingPremix = async () => {
+  await premixStore.fetchPendingPremix(warehouseId, status.value);
+};
+</script>
+
+<style lang="scss" scoped></style>
