@@ -17,8 +17,13 @@
         </template>
       </q-input>
     </div>
-    <div class="q-my-sm">
-      <RawMaterialsCreate />
+    <div class="row q-gutter-x-sm">
+      <div>
+        <RawMaterialsCreate />
+      </div>
+      <div>
+        <RawMaterialsCreateAll />
+      </div>
     </div>
   </div>
   <div class="spinner-wrapper" v-if="loading">
@@ -94,6 +99,7 @@ import { useRoute } from "vue-router";
 import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
+import RawMaterialsCreateAll from "./RawMaterialsCreateAll.vue";
 
 const route = useRoute();
 const warehouseId = route.params.warehouse_id;
@@ -206,22 +212,35 @@ const getRawMaterialBadgeColor = (row) => {
 };
 
 const formatTotalQuantity = (row) => {
-  const totalQuantity = row.total_quantity;
-  const unit = row.raw_materials.unit;
+  const totalQuantity = Number(row?.total_quantity) || 0; // Ensure it's a valid number
+  const unit = row?.raw_materials?.unit || "units"; // Default unit
 
+  console.log("totalQuantity:", totalQuantity);
+  console.log("unit:", unit);
+
+  const formatNumber = (value) => {
+    const num = Number(value); // Ensure conversion
+    return Number.isInteger(num) ? num : num.toFixed(2);
+  };
+
+  // Convert to kilos if total quantity exceeds 1000
   if (totalQuantity > 1000) {
-    const totalQuantityKilo = (totalQuantity / 1000).toFixed(2);
-    if (totalQuantityKilo.endsWith(".00")) {
-      return `${Math.round(totalQuantity / 1000)} kilos`;
-    } else {
-      return `${totalQuantityKilo} kilos`;
+    const totalQuantityKilo = totalQuantity / 1000;
+
+    // If kilos are 25 or above, change unit to sacks
+    if (totalQuantityKilo >= 25) {
+      const sacks = totalQuantityKilo / 25;
+      return `${formatNumber(sacks)} sacks`;
     }
-  } else if (totalQuantity > 1) {
-    return `${totalQuantity} ${unit}`;
-  } else {
-    return `${totalQuantity} ${unit}`;
+
+    // Return in kilos otherwise
+    return `${formatNumber(totalQuantityKilo)} kilos`;
   }
+
+  // Return with unit
+  return `${formatNumber(totalQuantity)} ${unit}`;
 };
+
 const rawMaterialsColumns = [
   {
     name: "code",

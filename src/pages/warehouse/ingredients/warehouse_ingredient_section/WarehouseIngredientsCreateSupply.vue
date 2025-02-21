@@ -104,7 +104,7 @@
         </div>
         <div class="row q-gutter-x-sm q-gutter-y-lg">
           <div>
-            <div class="q-my-sm" align="center">Amount</div>
+            <div class="q-my-sm" align="center">Quantity</div>
             <q-input
               v-model="selectedRawMaterials.quantity"
               type="number"

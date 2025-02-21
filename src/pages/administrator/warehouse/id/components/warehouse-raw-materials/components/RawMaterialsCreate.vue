@@ -1,23 +1,17 @@
 <template>
   <q-btn
-    outline
-    class="text-dark q-pa-sm"
-    dense
-    elevated
+    class="bg-gradient text-white q-pa-sm"
     icon="add_circle"
-    label="Create Warehouse Raw Material"
+    label="Create One"
     @click="open_create_bread_dialog"
-    style="background: #f43f5e"
   />
+  <!-- style="background: #f43f5e" -->
   <q-dialog v-model="dialog" persistent>
     <q-card
       class="my-card"
       style="width: 400px; max-width: 500px; min-width: 100px"
     >
-      <q-card-section
-        class="row items-center text-white"
-        style="background-color: #ef4444"
-      >
+      <q-card-section class="row items-center text-white bg-gradient">
         <div class="text-h6">Create Warehouse Raw Materials</div>
         <q-space />
         <q-btn icon="close" flat dense round v-close-popup />
@@ -189,3 +183,9 @@ const save = async () => {
   }
 };
 </script>
+<style lang="scss" scoped>
+.bg-gradient {
+  // background: linear-gradient(45deg, #4caf50, #8bc34a);
+  background: linear-gradient(45deg, #ff5722, #ff9800);
+}
+</style>

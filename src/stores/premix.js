@@ -9,6 +9,7 @@ export const usePremixStore = defineStore("premix", () => {
   const confirmPremixData = ref([]);
   const declinePremixData = ref([]);
   const processPremixData = ref([]);
+  const completedPremixData = ref([]);
 
   const fetchPendingPremix = async (warehouseId, status) => {
     console.log("warehouseId", warehouseId);
@@ -61,6 +62,27 @@ export const usePremixStore = defineStore("premix", () => {
       const process = await api.post(`/api/process-premix`, data);
       console.log("process", process.data);
       processPremixData.value = process.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchCompletedPremix = async (warehouseId) => {
+    console.log("warehouseId", warehouseId);
+    // console.log("status", status);
+
+    const completed = await api.get(`/api/get-completed-premix/${warehouseId}`);
+    console.log("process.data", completed.data);
+    completedPremixData.value = completed.data;
+  };
+
+  const completedPremix = async (data) => {
+    console.log("data completed premix", data);
+
+    try {
+      const completed = await api.post(`/api/completed-premix`, data);
+      console.log("process", process.data);
+      completedPremixData.value = completed.data;
     } catch (error) {
       console.log(error);
     }
@@ -132,6 +154,7 @@ export const usePremixStore = defineStore("premix", () => {
     confirmPremixData,
     declinePremixData,
     processPremixData,
+    completedPremixData,
     savePremix,
     fetchBranchPremix,
     searchPremix,
@@ -143,5 +166,7 @@ export const usePremixStore = defineStore("premix", () => {
     fetchDeclinePremix,
     processPremix,
     fetchProcessPremix,
+    completedPremix,
+    fetchCompletedPremix,
   };
 });

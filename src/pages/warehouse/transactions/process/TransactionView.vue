@@ -40,35 +40,85 @@
       <q-card-section>
         <div class="text-h6" align="center">Premix</div>
       </q-card-section>
-      <q-card-section>
-        <q-list dense separator class="box">
-          <q-item>
-            <q-item-section>
-              <q-item-label class="text-overline">Premix Name</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-item-label class="text-overline"
-                >Request Quantity / kgs</q-item-label
+      <q-card-section class="q-gutter-y-md">
+        <div>
+          <q-list dense separator class="box">
+            <q-item>
+              <q-item-section>
+                <q-item-label class="text-overline">Premix Name</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-item-label class="text-overline"
+                  >Request Quantity / kgs</q-item-label
+                >
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label class="text-h6">
+                  {{ report.name }}
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-item-label class="text-h6">
+                  {{ formatRequestQuantity(report.quantity) }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+        <div>
+          <div>
+            <div class="text-h6" align="center">Ingredients List</div>
+            <q-list dense separator class="box">
+              <q-item>
+                <q-item-section>
+                  <q-item-label class="text-overline"> Code</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-overline"> Name</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label class="text-overline">Quantity</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-for="(ingredients, index) in computedIngredients"
+                :key="index"
               >
-            </q-item-section>
-          </q-item>
-          <q-item>
-            <q-item-section>
-              <q-item-label class="text-h6">
-                {{ report.name }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-item-label class="text-h6">
-                {{ report.quantity }}
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
+                <q-item-section>
+                  <q-item-label class="text-subtitle1">
+                    {{ ingredients.ingredient.code }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-subtitle1" align="left">
+                    {{ ingredients.ingredient.name }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label class="text-subtitle1">
+                    {{
+                      formatQuantity(
+                        ingredients.quantity * props.report.quantity,
+                        ingredients.ingredient.unit
+                      )
+                    }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+        </div>
       </q-card-section>
       <q-card-section class="report-actions q-gutter-sm" align="right">
         <q-btn flat label="Cancel" color="primary" v-close-popup />
-        <q-btn color="cyan-7" label="Completed" class="action-btn" />
+        <q-btn
+          color="cyan-7"
+          label="Completed"
+          class="action-btn"
+          @click="completedPremix"
+        />
         <!-- @click="confirmReport" -->
       </q-card-section>
     </q-card>
@@ -95,12 +145,14 @@ const props = defineProps({
 
 console.log("report", props.report);
 
-// const branchPremixId = props.report.branch_premix_id;
-
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
 };
+
+const ingredientsData =
+  props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
+console.log("ingrdientsData", ingredientsData);
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
@@ -113,6 +165,86 @@ const formatFullname = (row) => {
   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
 
   return `${firstname} ${middlename} ${lastname}`;
+};
+
+const formatRequestQuantity = (quantity) => {
+  const num = Number(quantity); // Convert to number
+  if (isNaN(num)) return ""; // Handle invalid values
+
+  if (num % 1 === 0) {
+    return num.toString(); // Whole numbers (remove decimals)
+  }
+  return num.toString(); // Keep decimals as is
+};
+
+const formatQuantity = (quantity, unit) => {
+  if (unit === "Pcs") {
+    return `${quantity} pcs`; // Keep as is for pieces
+  }
+
+  if (unit === "Grams") {
+    if (quantity >= 1000) {
+      let kg = quantity / 1000;
+      let formattedKg =
+        kg % 1 === 0 ? kg.toString() : kg.toString().replace(/^0+/, "");
+      return `${formattedKg} kgs`;
+    }
+    return `${quantity} g`;
+  }
+
+  return `${quantity} ${unit}`; // Default case if unit is different
+};
+
+const computedIngredients = computed(() =>
+  ingredientsData.map((ingredient) => {
+    const totalQuantity =
+      parseFloat(ingredient.quantity) * parseFloat(props.report.quantity);
+    return {
+      ...ingredient,
+      totalQuantity,
+      formattedQuantity: formatQuantity(
+        totalQuantity,
+        ingredient.ingredient.unit
+      ),
+    };
+  })
+);
+
+console.log("computedIngredients", computedIngredients.value);
+
+const completedPremix = async () => {
+  try {
+    const payload = {
+      request_premixes_id: props.report.id,
+      branch_premix_id: props.report.branch_premix_id,
+      employee_id: warehouseEmployeeId,
+      status: "completed",
+      quantity: props.report.quantity,
+      warehouse_id: props.report.warehouse_id,
+      notes: "Completed Premix",
+      ingredients: computedIngredients.value.map((ingredient) => ({
+        ingredient_id: ingredient.ingredient.id,
+        quantity: ingredient.totalQuantity,
+        unit: ingredient.ingredient.unit,
+      })),
+    };
+
+    const completedReport = await premixStore.completedPremix(payload);
+    console.log("Report Process:", completedReport);
+
+    Notify.create({
+      type: "positive",
+      message: "Premix completed to process successfully",
+    });
+
+    dialog.value = false;
+  } catch (error) {
+    console.error(error);
+    Notify.create({
+      type: "negative",
+      message: "An error occurred while processing the premix.",
+    });
+  }
 };
 </script>
 

@@ -144,6 +144,59 @@ export const useWarehouseRawMaterialsStore = defineStore(
       }
     };
 
+    const createMultipleWarehouseRawMaterials = async (materials) => {
+      try {
+        const response = await api.post(
+          "/api/warehouse/raw-materials/bulk-create",
+          {
+            materials,
+          }
+        );
+        if (
+          response.data.message === "Warehouse Raw Materials saved successfully"
+        ) {
+          const rawMaterials = rawMaterialsData.value.find(
+            (item) => item.id === data.raw_material_id
+          );
+
+          const newRawMaterials = {
+            ...response.data,
+            raw_materials: rawMaterials
+              ? rawMaterials
+              : { name: "No Name", code: "Unknown" },
+            total_quantity: data.total_quantity,
+          };
+
+          console.log("newRawMaterials", newRawMaterials);
+
+          warehouseRawMaterials.value.unshift(newRawMaterials);
+          Notify.create({
+            type: "positive",
+            message: "Warehouse Raw Materials saved successfully",
+            position: "top",
+          });
+        } else if (
+          response.data.message ===
+          "The RawMaterials already exists in this branch."
+        ) {
+          Notify.create({
+            type: "warning",
+            message: "The Raw Materials already exists in this branch.",
+            position: "top",
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        Notify.create({
+          type: "negative",
+          message: "An error occurred while saving the branch product.",
+          position: "top",
+        });
+      } finally {
+        Loading.hide();
+      }
+    };
+
     const saveWarehouseRawMaterialsReport = async () => {
       try {
         console.log(
@@ -209,6 +262,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
       fetchBranchRawMaterials,
       searchBranchRecipe,
       saveWarehouseRawMaterialsReport,
+      createMultipleWarehouseRawMaterials,
     };
   }
 );

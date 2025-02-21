@@ -59,7 +59,7 @@
               </q-item-section>
               <q-item-section side>
                 <q-item-label class="text-h6">
-                  {{ report.quantity }}
+                  {{ formatRequestQuantity(report.quantity) }}
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -92,7 +92,12 @@
               </q-item-section>
               <q-item-section side>
                 <q-item-label class="text-subtitle1">
-                  {{ ingredients.quantity * report.quantity }}
+                  {{
+                    formatQuantity(
+                      ingredients.quantity * report.quantity,
+                      ingredients.ingredient.unit
+                    )
+                  }}
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -135,6 +140,34 @@ const props = defineProps({
     required: true,
   },
 });
+
+const formatRequestQuantity = (quantity) => {
+  const num = Number(quantity); // Convert to number
+  if (isNaN(num)) return ""; // Handle invalid values
+
+  if (num % 1 === 0) {
+    return num.toString(); // Whole numbers (remove decimals)
+  }
+  return num.toString(); // Keep decimals as is
+};
+
+const formatQuantity = (quantity, unit) => {
+  if (unit === "Pcs") {
+    return `${quantity} pcs`; // Keep as is for pieces
+  }
+
+  if (unit === "Grams") {
+    if (quantity >= 1000) {
+      let kg = quantity / 1000;
+      let formattedKg =
+        kg % 1 === 0 ? kg.toString() : kg.toString().replace(/^0+/, "");
+      return `${formattedKg} kgs`;
+    }
+    return `${quantity} g`;
+  }
+
+  return `${quantity} ${unit}`; // Default case if unit is different
+};
 
 const ingrdientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";

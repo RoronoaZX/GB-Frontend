@@ -10,7 +10,7 @@
                   {{ process.name }}
                 </div>
                 <div class="row q-gutter-x-md">
-                  <div class="text-subtitle1">Confirmed By:</div>
+                  <div class="text-subtitle1">Process By:</div>
                   <div class="text-overline text-weight-bold">
                     {{ formatFullname(process.history[0].employee) }}
                   </div>
