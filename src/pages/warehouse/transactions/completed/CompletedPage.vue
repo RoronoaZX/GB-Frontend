@@ -1,55 +1,50 @@
 <template>
-  <div>
-    <q-scroll-area style="height: 450px; max-width: 1500px">
+  <div class="spinner-wrapper" v-if="loading">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="completedPremixData.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
+    <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <template v-if="completedPremixData.length">
-          <q-card
-            v-for="(completed, index) in completedPremixData"
-            :key="index"
-          >
-            <q-card-section class="q-gutter-sm">
-              <div class="row justify-between">
-                <div class="text-h6">
-                  {{ completed.name }}
-                </div>
-                <div class="row q-gutter-x-md">
-                  <div class="text-subtitle1">Completed By:</div>
-                  <div class="text-overline text-weight-bold">
-                    {{ formatFullname(completed.history[0].employee) }}
-                  </div>
+        <q-card v-for="(completed, index) in completedPremixData" :key="index">
+          <q-card-section class="q-gutter-sm">
+            <div class="row justify-between">
+              <div class="text-h6">
+                {{ completed.name }}
+              </div>
+              <div class="row q-gutter-x-md">
+                <div class="text-subtitle1">Completed By:</div>
+                <div class="text-overline text-weight-bold">
+                  {{ formatFullname(completed.history[0].employee) }}
                 </div>
               </div>
-              <div class="row justify-between">
-                <div class="text-subtitle1">
-                  {{ formatDate(completed.created_at) }}
-                </div>
-                <div class="text-subtitle1">
-                  {{ formatTime(completed.created_at) }}
-                </div>
-                <div class="text-subtitle1">
-                  {{ completed.branch_premix.branch_recipe.branch.name }} -
-                  {{ formatFullname(completed.employee) }}
-                </div>
+            </div>
+            <div class="row justify-between">
+              <div class="text-subtitle1">
+                {{ formatDate(completed.created_at) }}
+              </div>
+              <div class="text-subtitle1">
+                {{ formatTime(completed.created_at) }}
+              </div>
+              <div class="text-subtitle1">
+                {{ completed.branch_premix.branch_recipe.branch.name }} -
+                {{ formatFullname(completed.employee) }}
+              </div>
 
-                <div>
-                  <q-badge color="dark" outlined>
-                    {{ completed.status }}
-                  </q-badge>
-                </div>
-                <div>
-                  <TransactionView :report="completed" />
-                </div>
+              <div>
+                <q-badge color="dark" outlined>
+                  {{ completed.status }}
+                </q-badge>
               </div>
-            </q-card-section>
-          </q-card>
-        </template>
-        <template v-else>
-          <!-- No data message -->
-          <div class="data-error">
-            <q-icon name="warning" color="warning" size="4em" />
-            <div class="q-ml-sm text-h6">No data available</div>
-          </div>
-        </template>
+              <div>
+                <TransactionView :report="completed" />
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
       </div>
     </q-scroll-area>
   </div>
@@ -70,6 +65,8 @@ const premixStore = usePremixStore();
 const completedPremixData = computed(() => premixStore.completedPremixData);
 console.log("completedPremixData", completedPremixData.value);
 const status = ref("completed");
+const loading = ref(true);
+const showNoDataMessage = ref(false);
 
 onMounted(async () => {
   if (warehouseId) {
@@ -99,8 +96,32 @@ const formatFullname = (row) => {
 };
 
 const fetchCompletedPremix = async () => {
-  await premixStore.fetchCompletedPremix(warehouseId, status.value);
+  try {
+    loading.value = true;
+    await premixStore.fetchCompletedPremix(warehouseId, status.value);
+    if (!completedPremixData.value.length) {
+      showNoDataMessage.value = true;
+    }
+  } catch (error) {
+    showNoDataMessage.value = true;
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.spinner-wrapper {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.data-error {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

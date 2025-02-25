@@ -3,34 +3,43 @@
     <q-spinner-dots size="50px" color="primary" />
   </div>
   <div v-else>
-    <div v-if="premix.length === 0" class="data-error">
+    <div v-if="receivePremixData.length === 0" class="data-error">
       <q-icon name="warning" color="warning" size="4em" />
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <q-card v-for="(pending, index) in premix" :key="index">
+        <q-card v-for="(receive, index) in receivePremixData" :key="index">
           <q-card-section class="q-gutter-sm">
-            <div class="text-h6">
-              {{ pending.name }}
+            <div class="row justify-between">
+              <div class="text-h6">
+                {{ receive.name }}
+              </div>
+              <div class="row q-gutter-x-md">
+                <div class="text-subtitle1">Received By:</div>
+                <div class="text-overline text-weight-bold">
+                  {{ formatFullname(receive.history[0].employee) }}
+                </div>
+              </div>
             </div>
             <div class="row justify-between">
               <div class="text-subtitle1">
-                {{ formatDate(pending.created_at) }}
+                {{ formatDate(receive.created_at) }}
               </div>
               <div class="text-subtitle1">
-                {{ formatTime(pending.created_at) }}
+                {{ formatTime(receive.created_at) }}
               </div>
               <div class="text-subtitle1">
-                {{ pending.branch_premix.branch_recipe.branch.name }} -
-                {{ formatFullname(pending.employee) }}
-              </div>
-
-              <div>
-                <q-badge color="yellow" outlined> Pending </q-badge>
+                {{ receive.branch_premix.branch_recipe.branch.name }} -
+                {{ formatFullname(receive.employee) }}
               </div>
               <div>
-                <TransactionView :report="pending" />
+                <q-badge color="green" outlined>
+                  {{ receive.status }}
+                </q-badge>
+              </div>
+              <div>
+                <TransactionView :report="receive" />
               </div>
             </div>
           </q-card-section>
@@ -49,20 +58,20 @@ import TransactionView from "./TransactionView.vue";
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
-const premixStore = usePremixStore();
-const premix = computed(() => premixStore.pendingPremixData);
-
 const warehouseId = userData.value.device.reference_id;
 console.log("warehouseId", warehouseId);
-const status = ref("pending");
+const premixStore = usePremixStore();
+const receivePremixData = computed(() => premixStore.receivePremixData);
+console.log("receivePremixData", receivePremixData.value);
+const status = ref("process");
 const loading = ref(true);
 const showNoDataMessage = ref(false);
 
 onMounted(async () => {
   if (warehouseId) {
-    await fetchPendingPremix(warehouseId);
+    await fetchReceivePremix(warehouseId);
   }
+  console.log("receivePremixData", receivePremixData.value);
 });
 
 const formatDate = (dateString) => {
@@ -86,11 +95,11 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`;
 };
 
-const fetchPendingPremix = async () => {
+const fetchReceivePremix = async () => {
   try {
     loading.value = true;
-    await premixStore.fetchPendingPremix(warehouseId, status.value);
-    if (!premix.value.length) {
+    await premixStore.fetchReceivePremix(warehouseId, status.value);
+    if (!receivePremixData.value.length) {
       showNoDataMessage.value = true;
     }
   } catch (error) {

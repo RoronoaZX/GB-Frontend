@@ -34,7 +34,7 @@
         </div>
         <div>
           Status:
-          <q-badge color="primary" outlined> {{ report.status }} </q-badge>
+          <q-badge color="green" outlined> {{ report.status }} </q-badge>
         </div>
       </q-card-section>
       <q-card-section>
@@ -111,16 +111,6 @@
           </div>
         </div>
       </q-card-section>
-      <q-card-section class="report-actions q-gutter-sm" align="right">
-        <q-btn flat label="Cancel" color="primary" v-close-popup />
-        <q-btn
-          color="cyan-7"
-          label="Completed"
-          class="action-btn"
-          @click="completedPremix"
-        />
-        <!-- @click="confirmReport" -->
-      </q-card-section>
     </q-card>
   </q-dialog>
 </template>
@@ -129,22 +119,14 @@
 import { ref, computed } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
-import { Notify } from "quasar";
 
-const warehouseStore = useWarehousesStore();
-const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
-const warehouseEmployeeId = userData.value.data.employee_id;
-const premixStore = usePremixStore();
 const props = defineProps({
   report: {
     type: Object,
     required: true,
   },
 });
-
 console.log("report", props.report);
-
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
@@ -209,44 +191,6 @@ const computedIngredients = computed(() =>
     };
   })
 );
-
-console.log("computedIngredients", computedIngredients.value);
-
-const completedPremix = async () => {
-  try {
-    const payload = {
-      id: props.report.id,
-      request_premixes_id: props.report.id,
-      branch_premix_id: props.report.branch_premix_id,
-      employee_id: warehouseEmployeeId,
-      status: "completed",
-      quantity: props.report.quantity,
-      warehouse_id: props.report.warehouse_id,
-      notes: "Completed Premix",
-      ingredients: computedIngredients.value.map((ingredient) => ({
-        ingredient_id: ingredient.ingredient.id,
-        quantity: ingredient.totalQuantity,
-        unit: ingredient.ingredient.unit,
-      })),
-    };
-
-    const completedReport = await premixStore.completedPremix(payload);
-    console.log("Report Process:", completedReport);
-
-    Notify.create({
-      type: "positive",
-      message: "Premix completed to process successfully",
-    });
-
-    dialog.value = false;
-  } catch (error) {
-    console.error(error);
-    Notify.create({
-      type: "negative",
-      message: "An error occurred while processing the premix.",
-    });
-  }
-};
 </script>
 
 <style lang="scss" scoped></style>

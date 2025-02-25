@@ -158,6 +158,7 @@ const formatFullname = (row) => {
 const confirmReport = async () => {
   try {
     const payload = {
+      id: props.report.id,
       request_premixes_id: props.report.id,
       branch_premix_id: props.report.branch_premix_id,
       employee_id: warehouseEmployeeId,
@@ -180,6 +181,7 @@ const confirmReport = async () => {
 
 const declineReports = async () => {
   const payload = {
+    id: props.report.id,
     request_premixes_id: props.report.id,
     branch_premix_id: props.report.branch_premix_id,
     employee_id: warehouseEmployeeId,

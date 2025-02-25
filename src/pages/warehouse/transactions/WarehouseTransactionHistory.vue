@@ -1,5 +1,5 @@
 <template>
-  <q-card flats>
+  <q-card flat>
     <q-card-section class="text-h6"> Transaction History </q-card-section>
     <q-separator />
     <div class="q-gutter-y-sm">
@@ -71,19 +71,13 @@
         <CompletedPage />
       </q-tab-panel>
       <q-tab-panel name="toDeliverReports">
-        <q-card>
-          <h1>To Deliver Premix</h1>
-        </q-card>
+        <ToDeliverPage />
       </q-tab-panel>
       <q-tab-panel name="toReceiveReports">
-        <q-card>
-          <h1>To Receive Premix</h1>
-        </q-card>
+        <ToReceivePage />
       </q-tab-panel>
       <q-tab-panel name="receive">
-        <q-card>
-          <h1>Receive Premix</h1>
-        </q-card>
+        <ReceivedPage />
       </q-tab-panel>
     </q-tab-panels>
   </q-card>
@@ -96,6 +90,9 @@ import ConfirmPage from "./confirm/ConfirmPage.vue";
 import DeclinedPage from "./decline/DeclinePage.vue";
 import ProcessPage from "./process/ProcessPage.vue";
 import CompletedPage from "./completed/CompletedPage.vue";
+import ToDeliverPage from "./to-deliver/ToDeliverPage.vue";
+import ToReceivePage from "./to-receive/ToReceivePage.vue";
+import ReceivedPage from "./received/ReceivedPage.vue";
 
 const tab = ref("pendingReports");
 const currentIndicatorColor = computed(() => {

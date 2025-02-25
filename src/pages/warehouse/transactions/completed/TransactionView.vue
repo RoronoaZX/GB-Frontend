@@ -110,10 +110,10 @@
         <q-card-section class="report-actions q-gutter-sm" align="right">
           <q-btn flat label="Cancel" color="negative" v-close-popup />
           <q-btn
-            color="primary"
-            label="Process"
+            color="dark"
+            label="TO-Deliver"
             class="action-btn"
-            @click="processPremix"
+            @click="toDeliverPremix"
           />
         </q-card-section>
       </q-card>
@@ -189,6 +189,30 @@ const formatFullname = (row) => {
   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
 
   return `${firstname} ${middlename} ${lastname}`;
+};
+
+const toDeliverPremix = async () => {
+  try {
+    const payload = {
+      id: props.report.id,
+      request_premixes_id: props.report.id,
+      branch_premix_id: props.report.branch_premix_id,
+      employee_id: warehouseEmployeeId,
+      status: "to deliver",
+      quantity: props.report.quantity,
+      warehouse_id: props.report.warehouse_id,
+      notes: "To-Deliver Premix",
+    };
+    const toDeliverReport = await premixStore.toDeliverPremix(payload);
+    console.log("Report To Deliver:", toDeliverReport);
+    Notify.create({
+      type: "positive",
+      message: "Premix To Deliver to process successfully",
+    });
+    dialog.value = false;
+  } catch (error) {
+    console.error(error);
+  }
 };
 </script>
 

@@ -34,7 +34,7 @@
         </div>
         <div>
           Status:
-          <q-badge color="green" outlined> {{ report.status }} </q-badge>
+          <q-badge color="amber-10" outlined> {{ report.status }} </q-badge>
         </div>
       </q-card-section>
       <q-card-section class="q-gutter-y-md">
@@ -104,7 +104,7 @@
           </q-list>
         </div>
       </q-card-section>
-      <q-card-section class="report-actions q-gutter-sm" align="right">
+      <!-- <q-card-section class="report-actions q-gutter-sm" align="right">
         <q-btn flat label="Cancel" color="negative" v-close-popup />
         <q-btn
           color="primary"
@@ -112,7 +112,7 @@
           class="action-btn"
           @click="processPremix"
         />
-      </q-card-section>
+      </q-card-section> -->
     </q-card>
   </q-dialog>
 </template>
@@ -185,30 +185,6 @@ const formatFullname = (row) => {
   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
 
   return `${firstname} ${middlename} ${lastname}`;
-};
-
-const processPremix = async () => {
-  try {
-    const payload = {
-      id: props.report.id,
-      request_premixes_id: props.report.id,
-      branch_premix_id: props.report.branch_premix_id,
-      employee_id: warehouseEmployeeId,
-      status: "process",
-      quantity: props.report.quantity,
-      warehouse_id: props.report.warehouse_id,
-      notes: "Process Premix",
-    };
-    const processedReport = await premixStore.processPremix(payload);
-    console.log("Report Process:", processedReport);
-    Notify.create({
-      type: "positive",
-      message: "Premix proceed to process successfully",
-    });
-    dialog.value = false;
-  } catch (error) {
-    console.error(error);
-  }
 };
 </script>
 

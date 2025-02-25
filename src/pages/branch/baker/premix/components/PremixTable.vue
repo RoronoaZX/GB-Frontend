@@ -20,26 +20,59 @@
       :filter="filter"
       flat
       :columns="transactionListColumns"
-      :rows="ransactionListRow"
+      :rows="premixDatas"
       row-key="name"
     >
-      <!-- <template v-slot:body-cell-view="props">
+      <template v-slot:body-cell-status="props">
+        <q-td :props="props">
+          <q-badge outlined :color="getBadgeStatusColor(props.row.status)">
+            {{ capitalizeFirstLetter(props.row.status) }}
+          </q-badge>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-view="props">
         <q-td :props="props">
           <div>
-            <TransactionView />
+            <TransactionView
+              :report="props.row"
+              @update-history="updateReportHistory"
+            />
           </div>
         </q-td>
-      </template> -->
+      </template>
     </q-table>
   </div>
 </template>
 
 <script setup>
-// import TransactionView from "./TransactionView.vue";
-import { ref, watch } from "vue";
+import { computed, reactive, ref, watch, onMounted } from "vue";
+import { useBakerReportsStore } from "src/stores/baker-report";
+import { usePremixStore } from "src/stores/premix";
+import { date as quasarDate } from "quasar";
+import TransactionView from "./TransactionView.vue";
+// import { useRequestPremixStore } from "src/stores/request-premix";
+
+const bakerReportStore = useBakerReportsStore();
+const userData = computed(() => bakerReportStore.user);
+console.log("userData in RawMaterialsTable:", userData.value);
+const branchId = userData.value?.device?.reference_id || "";
+console.log("branchId in PremixPage:", branchId);
+const premixStore = usePremixStore();
+const premixDatas = computed(() => premixStore.branchPremix);
 
 const filter = ref("");
 const loadingSearchIcon = ref(true);
+
+onMounted(async () => {
+  if (branchId) {
+    await fetchRequestBranchPremix(branchId);
+  }
+  console.log("premixdatas", premixDatas.value);
+});
+
+const fetchRequestBranchPremix = async () => {
+  await premixStore.fetchRequestBranchPremix(branchId);
+};
 
 watch(filter, () => {
   loadingSearchIcon.value = true;
@@ -47,6 +80,36 @@ watch(filter, () => {
     loadingSearchIcon.value = false;
   });
 });
+const formatDate = (dateString) => {
+  return quasarDate.formatDate(dateString, "MMMM D, YYYY - hh:mm A");
+};
+
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
+
+const getBadgeStatusColor = (status) => {
+  switch (status) {
+    case "pending":
+      return "warning";
+    case "declined":
+      return "red-6";
+    case "confirmed":
+      return "green";
+    case "process":
+      return "primary";
+    case "completed":
+      return "dark";
+    case "to deliver":
+      return "brown-9";
+    case "to receive":
+      return "amber-10";
+    case "receive":
+      return "green";
+    default:
+      return "grey";
+  }
+};
 
 const transactionListColumns = [
   {
@@ -61,7 +124,15 @@ const transactionListColumns = [
     name: "date",
     align: "center",
     label: "Date",
-    field: "date",
+    field: "created_at",
+    format: (val) => formatDate(val),
+    sortable: true,
+  },
+  {
+    name: "status",
+    align: "center",
+    label: "Status",
+    field: "status",
     sortable: true,
   },
   {
@@ -70,24 +141,6 @@ const transactionListColumns = [
     label: "View",
     field: "view",
     sortable: true,
-  },
-];
-const ransactionListRow = [
-  {
-    name: "Transactions 1",
-    date: "4/4/24",
-  },
-  {
-    name: "Transactions 2",
-    date: "4/4/24",
-  },
-  {
-    name: "Transactions 3",
-    date: "4/4/24",
-  },
-  {
-    name: "Transactions 4",
-    date: "4/4/24",
   },
 ];
 </script>

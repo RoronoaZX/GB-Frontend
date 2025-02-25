@@ -218,7 +218,7 @@ const isFormValid = computed(() => {
 });
 
 const addPremixToList = () => {
-  premixList.value.push({
+  const premix = premixList.value.push({
     branch_premix_id: addBranchPremixRecipe.branch_premix_id,
     warehouse_id: addBranchPremixRecipe.warehouse_id,
     employee_id: addBranchPremixRecipe.employee_id,
@@ -227,6 +227,8 @@ const addPremixToList = () => {
     quantity: addBranchPremixRecipe.quantity,
     status: addBranchPremixRecipe.status,
   });
+  console.log("premix", premix);
+
   clearForm();
 };
 
@@ -254,6 +256,9 @@ const addBranchPremixRecipe = reactive({
 const save = async () => {
   console.log("data send premix", premixList.value);
   await requestPremixStore.saveRequestPremix(premixList.value);
+  clearForm();
+  premixList.value = [];
+  dialog.value = false;
 };
 </script>
 

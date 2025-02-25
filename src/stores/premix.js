@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { Loading } from "quasar";
 import { api } from "src/boot/axios";
 import { ref } from "vue";
 
@@ -10,6 +11,21 @@ export const usePremixStore = defineStore("premix", () => {
   const declinePremixData = ref([]);
   const processPremixData = ref([]);
   const completedPremixData = ref([]);
+  const toDeliverPremixData = ref([]);
+  const toReceivePremixData = ref([]);
+  const receivePremixData = ref([]);
+  const branchPremix = ref([]);
+
+  const fetchRequestBranchPremix = async (branchId) => {
+    try {
+      const response = await api.get(
+        `/api/get-request-branch-premix/${branchId}`
+      );
+      branchPremix.value = response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const fetchPendingPremix = async (warehouseId, status) => {
     console.log("warehouseId", warehouseId);
@@ -30,20 +46,50 @@ export const usePremixStore = defineStore("premix", () => {
   const fetchConfirmPremix = async (warehouseId) => {
     console.log("warehouseId", warehouseId);
     // console.log("status", status);
+    // Loading.show();
 
-    const confirmed = await api.get(`/api/get-confirm-premix/${warehouseId}`);
-    console.log("confirmed.data", confirmed.data);
-    confirmPremixData.value = confirmed.data;
+    try {
+      const confirmed = await api.get(`/api/get-confirm-premix/${warehouseId}`);
+      console.log("confirmed.data", confirmed.data);
+      // if (response.status === 200) {
+      //   // Find the index of the report in the pendingSelectaReports array
+      //   const index = confirmPremixData.value.findIndex(
+      //     (report) => report.id === id
+      //   );
+      //   // If the report is found, remove it
+      //   if (index !== -1) {
+      //     pendingSelectaReports.value.splice(index, 1);
+      //   }
+      // }
+      confirmPremixData.value = confirmed.data;
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const confirmPremix = async (data) => {
     console.log("confirmdata", data);
+    Loading.show();
     try {
       const confirm = await api.post(`/api/confirm-premix`, data);
       console.log("confirm", confirm.data);
-      confirmPremixData.value = confirm.data;
+      if (confirm.status === 200) {
+        const id = data.id;
+        // Find the index of the report in the pendingSelectaReports array
+        const index = pendingPremixData.value.findIndex(
+          (report) => report.id === id
+        );
+
+        // If the report is found, remove it
+        if (index !== -1) {
+          pendingPremixData.value.splice(index, 1);
+        }
+      }
+      return confirm.data;
     } catch (error) {
       console.log(error);
+    } finally {
+      Loading.hide();
     }
   };
 
@@ -58,12 +104,29 @@ export const usePremixStore = defineStore("premix", () => {
 
   const processPremix = async (data) => {
     console.log("process data", data);
+    Loading.show();
     try {
       const process = await api.post(`/api/process-premix`, data);
+      console.log("process.data.premix_history.status", process.status);
+      if (process.status === 200) {
+        const id = data.id;
+        const index = confirmPremixData.value.findIndex(
+          (report) => report.id === id
+        );
+
+        console.log("index", index);
+
+        if (index !== -1) {
+          confirmPremixData.value.splice(index, 1);
+        }
+      }
+
       console.log("process", process.data);
-      processPremixData.value = process.data;
+      return process.data;
     } catch (error) {
       console.log(error);
+    } finally {
+      Loading.hide();
     }
   };
 
@@ -81,8 +144,90 @@ export const usePremixStore = defineStore("premix", () => {
 
     try {
       const completed = await api.post(`/api/completed-premix`, data);
-      console.log("process", process.data);
-      completedPremixData.value = completed.data;
+      if (completed.status === 200) {
+        const id = data.id;
+        const index = processPremixData.value.findIndex(
+          (report) => report.id === id
+        );
+
+        console.log("index", index);
+
+        if (index !== -1) {
+          processPremixData.value.splice(index, 1);
+        }
+      }
+
+      console.log("completed", completed.data);
+      return completed.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchToDeliverPremix = async (warehouseId) => {
+    console.log("warehouseId", warehouseId);
+    // console.log("status", status);
+
+    const toDeliver = await api.get(
+      `/api/get-to-deliver-premix/${warehouseId}`
+    );
+    console.log("TO Deliver data", toDeliver.data);
+    toDeliverPremixData.value = toDeliver.data;
+  };
+
+  const toDeliverPremix = async (data) => {
+    console.log("data completed premix", data);
+
+    try {
+      const toDeliver = await api.post(`/api/to-deliver-premix`, data);
+
+      if (toDeliver.status === 200) {
+        const id = data.id;
+        const index = completedPremixData.value.findIndex(
+          (report) => report.id === id
+        );
+
+        if (index !== -1) {
+          completedPremixData.value.splice(index, 1);
+        }
+      }
+
+      console.log("toDeliver", toDeliver.data);
+      toDeliverPremixData.value = toDeliver.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchToReceivePremix = async (warehouseId) => {
+    console.log("warehouseId", warehouseId);
+    // console.log("status", status);
+
+    const toReceive = await api.get(
+      `/api/get-to-receive-premix/${warehouseId}`
+    );
+    console.log("TO receive data", toReceive.data);
+    toReceivePremixData.value = toReceive.data;
+  };
+
+  const toReceivePremix = async (data) => {
+    console.log("data receive premix", data);
+
+    try {
+      const toReceive = await api.post(`/api/to-receive-premix`, data);
+
+      if (toReceive.status === 200) {
+        const id = data.id;
+        const index = toDeliverPremixData.value.findIndex(
+          (report) => report.id === id
+        );
+
+        if (index !== -1) {
+          toDeliverPremixData.value.splice(index, 1);
+        }
+      }
+      console.log("toReceive", toReceive.data);
+      toReceivePremixData.value = toReceive.data;
     } catch (error) {
       console.log(error);
     }
@@ -101,6 +246,16 @@ export const usePremixStore = defineStore("premix", () => {
     console.log("declineData", data);
     try {
       const decline = await api.post(`/api/decline-premix`, data);
+
+      if (decline.status === 200) {
+        const id = data.id;
+        const index = pendingPremixData.value.findIndex(
+          (report) => report.id === id
+        );
+        if (index !== -1) {
+          pendingPremixData.value.splice(index, 1);
+        }
+      }
       console.log("decline Reports", decline.data);
       declinePremixData.value = decline.data;
     } catch (error) {
@@ -130,6 +285,26 @@ export const usePremixStore = defineStore("premix", () => {
     }
   };
 
+  const receivePremix = async (data) => {
+    console.log("data to be received", data);
+    try {
+      const response = await api.post(`/api/receive-premix`, data);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchReceivePremix = async (warehouseId) => {
+    // console.log("data to be received", data);
+    try {
+      const response = await api.get(`/api/get-receive-premix/${warehouseId}`);
+      // return response.data;
+      receivePremixData.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const savePremix = async (data) => {
     console.log("data from store", data);
 
@@ -155,6 +330,10 @@ export const usePremixStore = defineStore("premix", () => {
     declinePremixData,
     processPremixData,
     completedPremixData,
+    toDeliverPremixData,
+    toReceivePremixData,
+    receivePremixData,
+    branchPremix,
     savePremix,
     fetchBranchPremix,
     searchPremix,
@@ -168,5 +347,12 @@ export const usePremixStore = defineStore("premix", () => {
     fetchProcessPremix,
     completedPremix,
     fetchCompletedPremix,
+    toDeliverPremix,
+    fetchToDeliverPremix,
+    toReceivePremix,
+    fetchToReceivePremix,
+    fetchRequestBranchPremix,
+    receivePremix,
+    fetchReceivePremix,
   };
 });

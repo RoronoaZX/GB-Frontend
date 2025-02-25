@@ -10,6 +10,7 @@
       @click="openDialog"
     />
   </div>
+
   <q-dialog v-model="dialog">
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section>
@@ -34,7 +35,7 @@
         </div>
         <div>
           Status:
-          <q-badge color="green" outlined> {{ report.status }} </q-badge>
+          <q-badge color="brown-9" outlined> {{ report.status }} </q-badge>
         </div>
       </q-card-section>
       <q-card-section class="q-gutter-y-md">
@@ -107,10 +108,10 @@
       <q-card-section class="report-actions q-gutter-sm" align="right">
         <q-btn flat label="Cancel" color="negative" v-close-popup />
         <q-btn
-          color="primary"
-          label="Process"
+          color="brown-9"
+          label="TO Receive"
           class="action-btn"
-          @click="processPremix"
+          @click="toReceivePremix"
         />
       </q-card-section>
     </q-card>
@@ -140,6 +141,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+console.log("props report", props.report);
 
 const formatRequestQuantity = (quantity) => {
   const num = Number(quantity); // Convert to number
@@ -187,23 +190,23 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`;
 };
 
-const processPremix = async () => {
+const toReceivePremix = async () => {
   try {
     const payload = {
       id: props.report.id,
       request_premixes_id: props.report.id,
       branch_premix_id: props.report.branch_premix_id,
       employee_id: warehouseEmployeeId,
-      status: "process",
+      status: "to receive",
       quantity: props.report.quantity,
       warehouse_id: props.report.warehouse_id,
-      notes: "Process Premix",
+      notes: "To Receive Premix",
     };
-    const processedReport = await premixStore.processPremix(payload);
-    console.log("Report Process:", processedReport);
+    const toReceiveReport = await premixStore.toReceivePremix(payload);
+    console.log("Report Process:", toReceiveReport);
     Notify.create({
       type: "positive",
-      message: "Premix proceed to process successfully",
+      message: "Premix to receive to process successfully",
     });
     dialog.value = false;
   } catch (error) {
