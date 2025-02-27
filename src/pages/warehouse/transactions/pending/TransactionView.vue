@@ -34,7 +34,7 @@
         </div>
         <div>
           Status:
-          <q-badge color="yellow" outlined> {{ report.status }} </q-badge>
+          <q-badge color="warning" outlined> {{ report.status }} </q-badge>
         </div>
       </q-card-section>
       <q-card-section>

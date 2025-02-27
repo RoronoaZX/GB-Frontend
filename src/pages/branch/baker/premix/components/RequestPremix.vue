@@ -255,7 +255,7 @@ const addBranchPremixRecipe = reactive({
 
 const save = async () => {
   console.log("data send premix", premixList.value);
-  await requestPremixStore.saveRequestPremix(premixList.value);
+  await premixStore.saveRequestPremix(premixList.value);
   clearForm();
   premixList.value = [];
   dialog.value = false;

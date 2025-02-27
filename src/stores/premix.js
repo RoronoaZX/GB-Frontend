@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { Loading } from "quasar";
+import { Loading, Notify } from "quasar";
 import { api } from "src/boot/axios";
 import { ref } from "vue";
 
@@ -322,6 +322,29 @@ export const usePremixStore = defineStore("premix", () => {
     // const response = await api.post()
   };
 
+  const saveRequestPremix = async (data) => {
+    console.log("data request oremix", data);
+    Loading.show();
+    try {
+      const response = await api.post("/api/request-premix", {
+        requests: data,
+      });
+      console.log("response", response.data);
+      Notify.create({
+        type: "positive",
+        message: "Request Premix successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      Notify.create({
+        type: "negative",
+        message: "Request Premix Error",
+      });
+    } finally {
+      Loading.hide();
+    }
+  };
+
   return {
     premix,
     premixes,
@@ -354,5 +377,6 @@ export const usePremixStore = defineStore("premix", () => {
     fetchRequestBranchPremix,
     receivePremix,
     fetchReceivePremix,
+    saveRequestPremix,
   };
 });

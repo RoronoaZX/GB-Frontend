@@ -179,6 +179,10 @@ const formatFullname = (row) => {
     row.middlename ? capitalize(row.middlename).charAt(0) + "." : ""
   } ${capitalize(row.lastname || "No Lastname")}`;
 };
+const capitalizeFirstLetter = (string) => {
+  if (!string) return "";
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
 
 const statusSteps = [
   { label: "Pending", value: "pending" },
@@ -188,7 +192,7 @@ const statusSteps = [
   { label: "Completed", value: "completed" },
   { label: "To Deliver", value: "to deliver" },
   { label: "To Receive", value: "to receive" },
-  { label: "Received", value: "receive" },
+  { label: "Received", value: "received" },
 ];
 
 const filteredSteps = computed(() => {
@@ -198,11 +202,27 @@ const filteredSteps = computed(() => {
   );
 });
 
+// const getStepCaption = (status) => {
+//   const historyEntry = props.report.history.find((h) => h.status === status);
+//   return historyEntry
+//     ? `${capitalizeFirstLetter(historyEntry.status)} by: ${formatFullname(
+//         historyEntry.employee
+//       )}`
+//     : "No handler";
+// };
 const getStepCaption = (status) => {
   const historyEntry = props.report.history.find((h) => h.status === status);
-  return historyEntry
-    ? `Handled by: ${formatFullname(historyEntry.employee)}`
-    : "No handler";
+
+  if (!historyEntry) return "No handler";
+
+  if (status === "received") {
+    return `Received by: ${formatFullname(historyEntry.employee)}`;
+  }
+
+  if (status === "pending") {
+    return `Requested by: ${formatFullname(historyEntry.employee)}`;
+  }
+  return `Handled by: ${formatFullname(historyEntry.employee)}`;
 };
 
 const formatRequestQuantity = (quantity) => {
@@ -274,7 +294,7 @@ const getStatusColor = (status) =>
     completed: "dark",
     "to deliver": "brown-9",
     "to receive": "amber-10",
-    receive: "green",
+    received: "secondary",
   }[status] || "grey");
 
 const confirmReceived = async () => {

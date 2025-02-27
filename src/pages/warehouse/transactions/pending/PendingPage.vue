@@ -27,7 +27,7 @@
               </div>
 
               <div>
-                <q-badge color="yellow" outlined> Pending </q-badge>
+                <q-badge color="warning" outlined> Pending </q-badge>
               </div>
               <div>
                 <TransactionView :report="pending" />

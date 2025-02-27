@@ -104,8 +104,8 @@ const getBadgeStatusColor = (status) => {
       return "brown-9";
     case "to receive":
       return "amber-10";
-    case "receive":
-      return "green";
+    case "received":
+      return "secondary";
     default:
       return "grey";
   }
