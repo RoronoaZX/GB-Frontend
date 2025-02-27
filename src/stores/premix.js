@@ -316,13 +316,6 @@ export const usePremixStore = defineStore("premix", () => {
       console.error(error);
     }
   };
-
-  // const requestPremix = async (data) => {
-  //   console.log("Request Premix", data);
-  //   const response = await api.post(`/api/branch-premix`, data);
-  //   console.log("response", response.data);
-  // };
-
   const saveRequestPremix = async (data) => {
     console.log("data request oremix", data);
     Loading.show();
