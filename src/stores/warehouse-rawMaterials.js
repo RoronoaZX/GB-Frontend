@@ -155,21 +155,24 @@ export const useWarehouseRawMaterialsStore = defineStore(
         if (
           response.data.message === "Warehouse Raw Materials saved successfully"
         ) {
-          const rawMaterials = rawMaterialsData.value.find(
-            (item) => item.id === data.raw_material_id
-          );
+          const rawMaterials = materials.map((material) => {
+            const rawMaterial = rawMaterialsData.value.find(
+              (item) => item.id === material.raw_material_id
+            );
 
-          const newRawMaterials = {
-            ...response.data,
-            raw_materials: rawMaterials
-              ? rawMaterials
-              : { name: "No Name", code: "Unknown" },
-            total_quantity: data.total_quantity,
-          };
+            return {
+              ...material,
+              raw_materials: rawMaterial
+                ? rawMaterial
+                : { name: "No Name", code: "Unknown" },
+              total_quantity: material.total_quantity,
+            };
+          });
 
-          console.log("newRawMaterials", newRawMaterials);
+          console.log("newRawMaterials", ...rawMaterials);
 
-          warehouseRawMaterials.value.unshift(newRawMaterials);
+          warehouseRawMaterials.value.unshift(...rawMaterials);
+
           Notify.create({
             type: "positive",
             message: "Warehouse Raw Materials saved successfully",

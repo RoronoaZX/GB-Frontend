@@ -93,30 +93,40 @@ import axios, { api } from "src/boot/axios";
 // const uuid = ref(
 //   "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
 // ); //forscaller
-// const uuid = ref("b76baeef9c2aef9a"); //  branch id 6
-const uuid = ref("");
+const uuid = ref("b76baeef9c2aef9a"); //  branch id 6
+// const uuid = ref("");
 
 // Method to get UUID from Electron using node-machine-id
 // ===================================================//
-// Use this code for building electron and if you've develop this project to  mobile app comment this out //
-const getUUID = async () => {
-  if (window.require) {
-    try {
-      // Import `node-machine-id` using `window.require`
-      const { machineId } = window.require("node-machine-id");
+// Use this code for building electron and //
+// if you've develop this project to  mobile app //
+// comment this out //
+// ===================================================//
 
-      // Fetch UUID using `machineId` function
-      uuid.value = await machineId();
-    } catch (error) {
-      console.error("Error fetching machine UUID:", error);
-    }
-  } else {
-    console.warn("Electron not available.");
-  }
-};
-onMounted(() => {
-  getUUID();
-});
+// const getUUID = async () => {
+//   if (window.require) {
+//     try {
+//       // Import `node-machine-id` using `window.require`
+//       const { machineId } = window.require("node-machine-id");
+
+//       // Fetch UUID using `machineId` function
+//       uuid.value = await machineId();
+//     } catch (error) {
+//       console.error("Error fetching machine UUID:", error);
+//     }
+//   } else {
+//     console.warn("Electron not available.");
+//   }
+// };
+// onMounted(() => {
+//   getUUID();
+// });
+
+// ===================================================//
+// Use this code for building electron and //
+// if you've develop this project to  mobile app //
+// comment this out //
+// ===================================================//
 
 const isPwd = ref(true);
 const email = ref("");
@@ -131,7 +141,9 @@ const router = useRouter();
 const activeMenuItem = ref("");
 
 // ===================================================//
-// Use this code for building android app and if you've develop this project to  desktop app comment this out //
+// Use this code for building android app and //
+// if you've develop this project to  desktop app //
+// comment this out //
 // ===================================================//
 
 // const checkDevice = async () => {
@@ -154,7 +166,9 @@ const activeMenuItem = ref("");
 // });
 
 // ===================================================//
-// Use this code for building android app and if you've develop this project to  desktop app comment this out //
+// Use this code for building android app //
+// and if you've develop this project to  desktop app //
+// comment this out //
 // ===================================================//
 
 const login = async () => {
