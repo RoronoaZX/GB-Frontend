@@ -90,6 +90,8 @@ export const useBranchRecipeStore = defineStore("branchRecipe", () => {
   };
 
   const searchBranchRecipe = async (searchQuery, branchId) => {
+    console.log("searchBranchRecipe", searchQuery, branchId);
+
     const response = await api.get(`/api/branch-recipe-search`, {
       params: {
         keyword: searchQuery,

@@ -175,7 +175,7 @@ const addBranchPremixRecipe = reactive({
 
 const save = async () => {
   console.log(addBranchPremixRecipe);
-  await premixStore.requestPremix(addBranchPremixRecipe);
+  await premixStore.savePremix(addBranchPremixRecipe);
 };
 </script>
 
