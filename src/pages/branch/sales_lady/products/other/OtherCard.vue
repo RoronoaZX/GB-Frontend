@@ -178,7 +178,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 console.log("userdata for branch", userData);
-const branchId = userData?.device?.branch_id || "";
+const branchId = userData?.device?.reference_id || "";
 console.log("branchId", branchId);
 const selectedItem = ref(null);
 const dialog = ref(false);

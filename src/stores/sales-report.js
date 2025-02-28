@@ -228,6 +228,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     async fetchBranchProducts(branchId) {
+      console.log("Branch ID", branchId);
       const response = await api.get(`/api/branches/${branchId}/products`);
       this.branchProducts = response.data;
       this.filterBreadproducts();
@@ -254,7 +255,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
       const payload = {
         user_id: this.user.data.id,
-        branch_id: this.user?.device?.branch_id,
+        branch_id: this.user?.device?.reference_id,
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
         softdrinksReports: this.softdrinksReports,

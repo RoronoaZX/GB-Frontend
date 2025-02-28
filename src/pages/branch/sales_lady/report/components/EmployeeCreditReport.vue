@@ -248,7 +248,7 @@ const productSearchData = computed(() => salesReportsStore.products);
 console.log("products search", productSearchData.value);
 const userData = salesReportsStore.user;
 console.log("userdata", userData);
-const branchId = userData?.device?.branch_id || "";
+const branchId = userData?.device?.reference_id || "";
 const dialog = ref(false);
 const searchQuery = ref("");
 const productSearch = ref("");
@@ -443,7 +443,7 @@ const handleSubmit = () => {
   const formattedTotalAmount = parseFloat(creditForm.creditTotal);
   const employeeCreditReport = {
     user_id: userData?.data.id,
-    branch_id: branchId || userData?.device?.branch_id || "",
+    branch_id: branchId || userData?.device?.reference_id || "",
     credit_user_id: creditForm.credit_user_id,
     credit_user_name: creditForm.name,
     total_amount: formattedTotalAmount,

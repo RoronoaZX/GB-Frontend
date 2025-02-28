@@ -154,7 +154,7 @@ const handleSubmit = () => {
   const expenseReport = {
     ...expensesForm,
     user_id: userData?.data.id,
-    branch_id: userData?.device?.branch_id,
+    branch_id: userData?.device?.reference_id,
     amount: amountAsNumber,
   };
 

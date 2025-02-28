@@ -27,6 +27,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
   };
 
   const fetchWarehouseByBranchID = async (warehouseId) => {
+    console.log("warehouseId", warehouseId);
     try {
       const response = await api.get(
         `/api/warehouse/${warehouseId}/warehouseBranchReports`

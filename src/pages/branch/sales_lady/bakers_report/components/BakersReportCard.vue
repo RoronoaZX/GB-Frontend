@@ -65,7 +65,7 @@ import ReportView from "./BakersReportView.vue";
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-const branchId = userData.value?.device?.branch_id || "";
+const branchId = userData.value?.device?.reference_id || "";
 const filter = ref("");
 const loadingSearchIcon = ref(false);
 const showNoDataMessage = ref(false);

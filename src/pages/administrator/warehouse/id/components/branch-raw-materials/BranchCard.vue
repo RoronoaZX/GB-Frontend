@@ -1,74 +1,3 @@
-<!-- <template>
-  <div class="q-pa-md elegant-container">
-
-    <div v-if="loading" class="skeleton-wrapper row q-col-gutter-md">
-      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-for="n in 8" :key="n">
-        <q-card class="user-card skeleton-card">
-          <q-skeleton height="200px" class="q-mb-md" />
-          <q-card-section class="text-center">
-            <q-skeleton type="text" width="60%" class="q-mt-lg" />
-            <q-skeleton type="text" width="40%" class="q-mt-sm" />
-          </q-card-section>
-        </q-card>
-      </div>
-    </div>
-
-    <div v-else-if="showNoDataMessage" class="data-error">
-      <q-icon name="error" size="50px" color="negative" />
-      <div>No data available</div>
-    </div>
-
-    <div v-else class="q-pa-md row q-col-gutter-md">
-      <div
-        v-for="branchReport in branchReports"
-        :key="branchReport.branch_id"
-        class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
-      >
-        <q-card class="user-card" @click="openDialog(branchReport)">
-          <img src="https://cdn.quasar.dev/img/mountains.jpg" />
-          <q-card-section class="text-center">
-            <div class="q-mt-lg">
-              <div
-                class="text-h6 text-weight-medium elegant-name text-capitalize"
-              >
-                {{ branchReport.branch_name }}
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-    </div>
-
-
-    <q-dialog v-model="dialogOpen" persistent>
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">{{ selectedBranch.branch_name }}</div>
-          <div class="text-subtitle2">Branch Reports:</div>
-        </q-card-section>
-        <q-card-section>
-          <q-list bordered>
-            <q-item
-              v-for="(report, index) in selectedBranch.reports"
-              :key="index"
-            >
-              <q-item-section>{{ report }}</q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            label="Close"
-            color="primary"
-            @click="dialogOpen = false"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-  </div>
-</template> -->
-
 <template>
   <div class="q-pa-md elegant-container">
     <!-- Skeleton loading -->
@@ -97,7 +26,7 @@
         :key="branchReport.branch_id"
         class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
       >
-        <q-card class="user-card" @click="openDialog(branchReport)">
+        <q-card class="user-card" @click="handleBranchDialog(branchReport)">
           <img src="https://cdn.quasar.dev/img/mountains.jpg" />
           <q-card-section class="text-center">
             <div class="q-mt-lg">
@@ -111,9 +40,8 @@
         </q-card>
       </div>
     </div>
-
     <!-- Dialog -->
-    <q-dialog v-model="dialogOpen" persistent>
+    <!-- <q-dialog v-model="dialogOpen" persistent>
       <q-card>
         <q-card-section>
           <div>
@@ -165,36 +93,44 @@
             </template>
           </q-table>
         </q-card-section>
-        <!-- <q-card-actions align="right">
-          <q-btn
-            flat
-            label="Close"
-            color="primary"
-            @click="dialogOpen = false"
-          />
-        </q-card-actions> -->
       </q-card>
-    </q-dialog>
+    </q-dialog> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+import { useQuasar } from "quasar";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useRoute } from "vue-router";
+import DialogPage from "./components/DialogPage.vue";
 
 const route = useRoute();
 const warehouseStore = useWarehousesStore();
+const $q = useQuasar();
 
 const branchReports = computed(() => warehouseStore.warehouseBranchReports);
 const loading = ref(false);
 const warehouseID = computed(() => route.params.warehouse_id || null);
 const showNoDataMessage = ref(false);
 
-// Dialog state
-const dialogOpen = ref(false);
-const selectedBranch = ref({ reports: [] });
+const props = defineProps(["branchRawMaterialsReport"]);
 
+const handleBranchDialog = (branchReport) => {
+  $q.dialog({
+    component: DialogPage,
+    componentProps: {
+      branchReport: branchReport,
+      // dialogOpen: dialogOpen,
+      // selectedBranch: branchReport,
+      // tableColumns: tableColumns,
+      getRawMaterialBadgeColor,
+      getBadgeCategoryColor,
+      formatTotalQuantity,
+      capitalizeFirstLetter,
+    },
+  });
+};
 const getRawMaterialBadgeColor = (row) => {
   const totalQuantity = row.quantity;
   const unit = row.raw_material.unit;
@@ -258,41 +194,6 @@ const formatTotalQuantity = (row) => {
   }
 };
 
-// Table columns for the reports
-const tableColumns = ref([
-  // { name: "id", label: "ID", align: "left", field: "id" },
-  {
-    name: "raw_material",
-    label: "Raw Materials Name",
-    align: "left",
-    field: (row) => row.raw_material?.name || "No record",
-  },
-  {
-    name: "code",
-    label: "Code",
-    align: "left",
-    field: (row) => row.raw_material?.code || "No record",
-  },
-  {
-    name: "category",
-    label: "Category",
-    align: "left",
-    field: (row) => row.raw_material?.category || "No record",
-  },
-  {
-    name: "total_quantity",
-    label: "Available Stocks",
-    align: "center",
-    field: "total_quantity",
-  },
-]);
-
-// Open dialog and set data
-const openDialog = (branchReport) => {
-  selectedBranch.value = branchReport;
-  dialogOpen.value = true;
-};
-
 // Fetch branch reports
 watch(
   warehouseID,
@@ -313,49 +214,5 @@ watch(
   { immediate: true }
 );
 </script>
-
-<!-- <script setup>
-import { ref, onMounted, computed, watch } from "vue";
-import { useWarehousesStore } from "src/stores/warehouse";
-import { useRoute } from "vue-router";
-
-const route = useRoute();
-const warehouseStore = useWarehousesStore();
-
-const branchReports = computed(() => warehouseStore.warehouseBranchReports);
-const loading = ref(false);
-const warehouseID = computed(() => route.params.warehouse_id || null);
-const showNoDataMessage = ref(false);
-
-// Dialog state
-const dialogOpen = ref(false);
-const selectedBranch = ref({});
-
-// Open dialog and set data
-const openDialog = (branchReport) => {
-  selectedBranch.value = branchReport;
-  dialogOpen.value = true;
-};
-
-// Fetch branch reports
-watch(
-  warehouseID,
-  async (id) => {
-    if (id) {
-      try {
-        loading.value = true;
-        await warehouseStore.fetchWarehouseByBranchID(id);
-        showNoDataMessage.value = branchReports.value.length === 0;
-      } catch (error) {
-        console.error("Error fetching warehouse data:", error);
-        showNoDataMessage.value = true;
-      } finally {
-        loading.value = false;
-      }
-    }
-  },
-  { immediate: true }
-);
-</script> -->
 
 <style lang="scss" scoped></style>

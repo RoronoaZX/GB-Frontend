@@ -45,7 +45,7 @@
             </q-tab-panel>
 
             <q-tab-panel name="transactions">
-              <q-card> This is transactions </q-card>
+              <TransactionWarehouse />
             </q-tab-panel>
 
             <!-- <q-tab-panel name="recipe">
@@ -68,6 +68,7 @@ import BranchCard from "./components/branch-raw-materials/BranchCard.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { api } from "src/boot/axios";
+import TransactionWarehouse from "./components/transaction-raw-materials/TransactionsWarehouse.vue";
 
 const route = useRoute();
 const router = useRouter();

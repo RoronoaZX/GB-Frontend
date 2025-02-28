@@ -191,9 +191,9 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-console.log("userdat", userData);
-const branchId = userData?.device?.branch_id || "";
-console.log("branchId", branchId);
+console.log("userdataa", userData);
+const branchId = userData.device?.reference_id || "0";
+console.log("branchIdsss", branchId);
 const selectedItem = ref(null);
 const dialog = ref(false);
 const loading = ref(false);
@@ -352,7 +352,7 @@ const saveReport = () => {
 
   const report = {
     user_id: userData?.data.id,
-    branch_id: branchId || userData?.device?.branch_id,
+    branch_id: branchId || userData.device?.reference_id,
     product_id: selectedItem.value.product.id,
     name: selectedItem.value.product.name,
     total: selectedItem.value.total_quantity,

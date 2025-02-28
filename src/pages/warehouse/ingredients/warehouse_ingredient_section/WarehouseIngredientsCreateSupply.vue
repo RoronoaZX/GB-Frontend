@@ -90,10 +90,10 @@
             label="Raw Materials"
             behavior="menu"
             use-input
-            :suffix="selectedRawMaterials.suffix"
             hide-dropdown-icon
             @filter="filterRawMaterials"
           >
+            <!-- :suffix="selectedRawMaterials.suffix" -->
             <!-- style="width: 320px; max-width: 350px; min-width: 20px" -->
             <template v-slot:no-option>
               <q-item>
@@ -102,7 +102,7 @@
             </template>
           </q-select>
         </div>
-        <div class="row q-gutter-x-sm q-gutter-y-lg">
+        <div class="row q-gutter-y-lg justify-between">
           <div>
             <div class="q-my-sm" align="center">Quantity</div>
             <q-input
@@ -121,14 +121,14 @@
               outlined
               behavior="menu"
               dense
-              style="width: 300px; max-width: 250px; min-width: none"
+              style="width: 350px; max-width: 250px; min-width: none"
             />
           </div>
         </div>
         <form @keyup.enter.prevent="addRawMaterials">
-          <div class="q-mt-sm">
+          <div class="q-mt-sm" align="right">
             <q-btn
-              size="sm"
+              padding="sm lg"
               outline
               dense
               icon="add"
@@ -139,9 +139,15 @@
         </form>
       </q-card-section>
       <q-separator />
-      <q-card-actions class="row q-ma-md" align="right">
+      <q-card-actions class="row q-ma-md q-mt-xl" align="left">
         <q-btn class="glossy" color="grey-9" label="Cancel" v-close-popup />
-        <q-btn class="glossy" color="teal" label="Create" @click="save" />
+        <q-btn
+          class="glossy"
+          color="teal"
+          label="Create"
+          @click="save"
+          :disable="!isFormValid"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -179,6 +185,10 @@ const selectedRawMaterials = reactive({
   name: "",
   quantity: "",
   unit: "",
+});
+
+const isFormValid = computed(() => {
+  return rawMaterialsGroups.value.length > 0;
 });
 
 const unitOptions = [
@@ -228,7 +238,7 @@ const filterRawMaterials = (val, update) => {
       const needle = val.toLowerCase();
       // Filter options based on the input value
       filterRawMaterialsOptions.value = rawMaterialsOptions.value.filter(
-        (v) => v.label.toLowerCase().includes(needle) > -1 // Match label text
+        (v) => v.label.toLowerCase().includes(needle) // Corrected condition
       );
     }
   });
