@@ -187,6 +187,7 @@ const employeeId = userData.value?.data?.employee_id || "";
 console.log("warehouseId in PremixPage:", warehouseId);
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.premixes);
+const premixDatasFetch = computed(() => premixStore.branchEmployeePremix);
 console.log("premixdatas", premixDatas.value);
 const requestPremixStore = useRequestPremixStore();
 
@@ -256,6 +257,7 @@ const addBranchPremixRecipe = reactive({
 const save = async () => {
   console.log("data send premix", premixList.value);
   await premixStore.saveRequestPremix(premixList.value);
+  await premixStore.fetchRequestBranchEmployeePremix(branchId, employeeId);
   clearForm();
   premixList.value = [];
   dialog.value = false;

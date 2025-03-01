@@ -55,6 +55,7 @@ const route = useRoute();
 const warehouseID = computed(() => route.params.warehouse_id || null);
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.branchPremix);
+console.log("premixDatas", premixDatas.value);
 
 const filter = ref("");
 const loadingSearchIcon = ref(true);

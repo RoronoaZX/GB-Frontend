@@ -37,9 +37,21 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
       this.rawmaterials = response.data;
     },
 
-    async fetchBakerReport(userId) {
-      const response = await api.get(`/api/branch/${userId}/bakerReport`);
-      this.reportToView = response.data;
+    async fetchBakerReport(userId, page, rowsNumber) {
+      try {
+        const response = await api.get(`/api/branch/${userId}/bakerReport`, {
+          params: {
+            page,
+            per_page: rowsNumber,
+          },
+        });
+
+        // Update the store/state with paginated response data
+        // this.reportToView = response.data.data;
+        return response.data; // Return the full response for use in the component
+      } catch (error) {
+        console.error("Error fetching baker reports:", error);
+      }
     },
 
     async fetchAllReports() {

@@ -21,7 +21,7 @@
         <img src="../../assets/GB_LOGO.png" class="logo" />
       </div>
       <div class="text-caption text-grey-8 q-mb-sm">
-        Please log in to continuesss.
+        Please log in to continue.
       </div>
     </q-card-section>
 

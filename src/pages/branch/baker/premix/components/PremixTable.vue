@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <!-- <div>
     <q-input
       rounded
       outlined
@@ -14,14 +14,19 @@
         <q-icon v-else :thickness="2" color="teal" size="1em" />
       </template>
     </q-input>
-  </div>
+  </div> -->
   <div>
+    <!-- :filter="filter" -->
     <q-table
-      :filter="filter"
       flat
       :columns="transactionListColumns"
-      :rows="premixDatas"
-      row-key="name"
+      :rows="rows"
+      row-key="id"
+      bordered
+      dense
+      v-model="pagination"
+      :pagination="pagination.rowsPerPage"
+      :rows-per-page-options="[10]"
     >
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
@@ -41,11 +46,53 @@
         </q-td>
       </template>
     </q-table>
+    <!-- Pagination -->
+    <div class="q-pa-lg flex flex-center">
+      <q-pagination
+        v-model="pagination.page"
+        color="purple"
+        :max="maxPages"
+        :max-pages="maxPages"
+        boundary-numbers
+        @update:model-value="reloadTableData(userId)"
+      />
+      <!-- <q-pagination
+          v-model="pagination.page"
+          color="purple"
+          :max="maxPages"
+          direction-links
+          boundary-links
+          icon-first="skip_previous"
+          icon-last="skip_next"
+          icon-prev="fast_rewind"
+          icon-next="fast_forward"
+          @update:model-value="reloadTableData(userId)"
+        /> -->
+      <!-- direction-links
+          boundary-links
+          icon-first="skip_previous"
+          icon-last="skip_next"
+          icon-prev="fast_rewind"
+          icon-next="fast_forward" -->
+    </div>
+
+    <!-- Loading Indicator -->
+    <div v-if="loading" class="loading-overlay row justify-center items-center">
+      <q-spinner size="50px" />
+    </div>
+
+    <!-- No Data Message -->
+    <div
+      v-if="showNoDataMessage"
+      class="q-pa-md q-gutter-md row justify-center"
+    >
+      <q-banner class="bg-grey-1" dense> No data available </q-banner>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch, onMounted } from "vue";
+import { computed, reactive, ref, watch, onMounted, watchEffect } from "vue";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { usePremixStore } from "src/stores/premix";
 import { date as quasarDate } from "quasar";
@@ -58,21 +105,62 @@ console.log("userData in RawMaterialsTable:", userData.value);
 const branchId = userData.value?.device?.reference_id || "";
 console.log("branchId in PremixPage:", branchId);
 const premixStore = usePremixStore();
-const premixDatas = computed(() => premixStore.branchPremix);
+const premixDatas = computed(() => premixStore.branchEmployeePremix);
+const employeeId = userData.value?.data?.employee_id || "";
+console.log("employeeId in PremixPagess:", employeeId);
 
 const filter = ref("");
 const loadingSearchIcon = ref(true);
+const loading = ref(true);
+const showNoDataMessage = ref(false);
+const rows = ref([]);
+
+const maxPages = ref(1);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 10,
+  sortBy: "id",
+  descending: false,
+});
 
 onMounted(async () => {
-  if (branchId) {
-    await fetchRequestBranchPremix(branchId);
+  if ((branchId, employeeId)) {
+    await fetchRequestBranchEmployeePremix(branchId, employeeId);
   }
   console.log("premixdatas", premixDatas.value);
 });
 
-const fetchRequestBranchPremix = async () => {
-  await premixStore.fetchRequestBranchPremix(branchId);
+const fetchRequestBranchEmployeePremix = async () => {
+  loading.value = true;
+  try {
+    const { page, rowsNumber, rowsPerPage, sortBy, descending } =
+      pagination.value;
+    const premix = await premixStore.fetchRequestBranchEmployeePremix(
+      branchId,
+      employeeId,
+      page,
+      rowsNumber,
+      rowsPerPage,
+      sortBy,
+      descending
+    );
+    rows.value = premix.data;
+    maxPages.value = premix.last_page;
+    pagination.value.rowsPerPage = premix.per_page || 10;
+    showNoDataMessage.value = rows.value.length === 0;
+  } catch (error) {
+    console.error("Error fetching premix report:", error);
+  }
+  loading.value = false;
 };
+
+// Auto-fetch data when pagination changes
+watchEffect(() => {
+  if ((branchId, employeeId)) {
+    fetchRequestBranchEmployeePremix();
+  }
+});
 
 watch(filter, () => {
   loadingSearchIcon.value = true;
@@ -144,3 +232,14 @@ const transactionListColumns = [
   },
 ];
 </script>
+<style scoped>
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1;
+}
+</style>

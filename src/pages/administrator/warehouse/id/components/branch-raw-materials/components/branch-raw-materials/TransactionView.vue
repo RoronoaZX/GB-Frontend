@@ -162,11 +162,16 @@ const employeeId = userData.value?.data?.employee_id || "";
 console.log("employeeId in PremixPage:", employeeId);
 // console.log("warehouseId in PremixPage:", warehouseId);
 const premixStore = usePremixStore();
-
+const premixDatas = computed(() => premixStore.branchPremix);
 const $q = useQuasar();
 const dialog = ref(false);
 const loading = ref(false);
 const props = defineProps({ report: { type: Object, required: true } });
+
+console.log("props", props.report);
+
+const branchId = props.report.branch_premix.branch_id;
+console.log("branchId", branchId);
 const emit = defineEmits(["update-history"]);
 
 const openDialog = () => {
@@ -316,6 +321,7 @@ const confirmReceived = async () => {
   };
   console.log("payload", payload);
   await premixStore.receivePremix(payload);
+  await premixStore.fetchRequestBranchPremix(branchId);
   dialog.value = false;
 };
 </script>

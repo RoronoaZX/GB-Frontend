@@ -268,7 +268,7 @@ const autoFillReport = () => {
     try {
       // const startTime = Date.now(); // Capture the start time
       bakersReport.user_id = userData.value?.data.id || "";
-      bakersReport.branch_id = userData.value?.device?.branch_id || "";
+      bakersReport.branch_id = userData.value?.device?.reference_id || "";
       bakersReport.branch_recipe_id = recipe.value?.id || "";
       bakersReport.recipe_name = recipe.value?.name || "";
       bakersReport.target = recipe.value?.target || "";

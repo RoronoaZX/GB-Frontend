@@ -15,6 +15,7 @@ export const usePremixStore = defineStore("premix", () => {
   const toReceivePremixData = ref([]);
   const receivePremixData = ref([]);
   const branchPremix = ref([]);
+  const branchEmployeePremix = ref([]);
 
   const fetchRequestBranchPremix = async (branchId) => {
     try {
@@ -22,6 +23,28 @@ export const usePremixStore = defineStore("premix", () => {
         `/api/get-request-branch-premix/${branchId}`
       );
       branchPremix.value = response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const fetchRequestBranchEmployeePremix = async (
+    branchId,
+    employeeId,
+    page,
+    rowsNumber
+  ) => {
+    try {
+      const response = await api.get(
+        `/api/get-request-branch-employee-premix/${branchId}/${employeeId}`,
+        {
+          params: {
+            page,
+            per_page: rowsNumber,
+          },
+        }
+      );
+      // branchEmployeePremix.value = response.data;
+      return response.data;
     } catch (error) {
       console.error(error);
     }
@@ -96,10 +119,13 @@ export const usePremixStore = defineStore("premix", () => {
   const fetchProcessPremix = async (warehouseId) => {
     console.log("warehouseId", warehouseId);
     // console.log("status", status);
-
-    const process = await api.get(`/api/get-process-premix/${warehouseId}`);
-    console.log("process.data", process.data);
-    processPremixData.value = process.data;
+    try {
+      const process = await api.get(`/api/get-process-premix/${warehouseId}`);
+      console.log("process.data", process.data);
+      processPremixData.value = process.data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const processPremix = async (data) => {
@@ -142,6 +168,7 @@ export const usePremixStore = defineStore("premix", () => {
   const completedPremix = async (data) => {
     console.log("data completed premix", data);
 
+    Loading.show();
     try {
       const completed = await api.post(`/api/completed-premix`, data);
       if (completed.status === 200) {
@@ -161,6 +188,8 @@ export const usePremixStore = defineStore("premix", () => {
       return completed.data;
     } catch (error) {
       console.log(error);
+    } finally {
+      Loading.hide();
     }
   };
 
@@ -178,6 +207,7 @@ export const usePremixStore = defineStore("premix", () => {
   const toDeliverPremix = async (data) => {
     console.log("data completed premix", data);
 
+    Loading.show();
     try {
       const toDeliver = await api.post(`/api/to-deliver-premix`, data);
 
@@ -196,6 +226,8 @@ export const usePremixStore = defineStore("premix", () => {
       toDeliverPremixData.value = toDeliver.data;
     } catch (error) {
       console.log(error);
+    } finally {
+      Loading.hide();
     }
   };
 
@@ -213,6 +245,7 @@ export const usePremixStore = defineStore("premix", () => {
   const toReceivePremix = async (data) => {
     console.log("data receive premix", data);
 
+    Loading.show();
     try {
       const toReceive = await api.post(`/api/to-receive-premix`, data);
 
@@ -230,6 +263,8 @@ export const usePremixStore = defineStore("premix", () => {
       toReceivePremixData.value = toReceive.data;
     } catch (error) {
       console.log(error);
+    } finally {
+      Loading.hide();
     }
   };
 
@@ -287,13 +322,31 @@ export const usePremixStore = defineStore("premix", () => {
 
   const receivePremix = async (data) => {
     console.log("data to be received", data);
+    Loading.show();
     try {
       const response = await api.post(`/api/receive-premix`, data);
-      return response.data;
+      console.log("response to recieve", response.data);
+      // return response.data;
+      if (response.message === "Branch raw materials updated successfully") {
+        const id = response.data.receivePremixes.request_premixes_id;
+        const status = response.data.receivePremixes.status;
+        // Find the index of the report in the pendingSelectaReports array
+        const index = branchPremix.value.findIndex(
+          (report) => report.id === id
+        );
+        // If the report is found, change the status to received
+        if (index !== -1) {
+          branchPremix.value[index].status === status;
+        }
+      }
+      // branchPremix.value = response.data;
     } catch (error) {
       console.log(error);
+    } finally {
+      Loading.hide();
     }
   };
+
   const fetchReceivePremix = async (warehouseId) => {
     // console.log("data to be received", data);
     try {
@@ -308,12 +361,15 @@ export const usePremixStore = defineStore("premix", () => {
   const savePremix = async (data) => {
     console.log("data from store", data);
 
+    Loading.show();
     try {
       const response = await api.post("/api/branch-premix", data);
 
       premixes.value = response.data;
     } catch (error) {
       console.error(error);
+    } finally {
+      Loading.hide();
     }
   };
   const saveRequestPremix = async (data) => {
@@ -351,6 +407,7 @@ export const usePremixStore = defineStore("premix", () => {
     toReceivePremixData,
     receivePremixData,
     branchPremix,
+    branchEmployeePremix,
     savePremix,
     fetchBranchPremix,
     searchPremix,
@@ -372,5 +429,6 @@ export const usePremixStore = defineStore("premix", () => {
     receivePremix,
     fetchReceivePremix,
     saveRequestPremix,
+    fetchRequestBranchEmployeePremix,
   };
 });

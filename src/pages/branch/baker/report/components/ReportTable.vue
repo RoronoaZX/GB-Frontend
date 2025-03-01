@@ -1,6 +1,6 @@
 <template>
   <div class="q-mt-sm q-gutter-md">
-    <div>
+    <!-- <div>
       <q-input
         rounded
         outlined
@@ -15,22 +15,39 @@
           <q-spinner v-else />
         </template>
       </q-input>
-    </div>
+    </div> -->
     <div class="table-container">
-      <q-table
-        class="sticky-header"
-        :filter="filter"
+      <!-- :filter="filter"
         flat
         :columns="bakersReportListColumns"
         :rows="filteredRows"
-        row-key="name"
+        row-key="id"
         :virtual-scroll-sticky-size-start="48"
         virtual-scroll
         v-model:pagination="pagination"
         :rows-per-page-options="[0]"
-        hide-bottom
-        style="height: 900px; max-height: 1000px; min-height: none"
+        hide-bottom -->
+      <!-- class="sticky-header" -->
+      <!-- :pagination="pagination.page" -->
+      <q-table
+        :rows="rows"
+        :columns="bakersReportListColumns"
+        row-key="id"
+        flat
+        bordered
+        dense
+        v-model="pagination"
+        :pagination="pagination.rowsPerPage"
+        :rows-per-page-options="[10]"
+        @request="reloadTableData(userId)"
       >
+        <!-- style="height: 900px; max-height: 1000px; min-height: none" -->
+        <template v-slot:body-cell-name="props">
+          <q-td key="name" :props="props">
+            {{ capitalizeFirstLetter(props.row.name) }}
+            <!-- <span class="tooltip-text">Go to store</span> -->
+          </q-td>
+        </template>
         <template v-slot:body-cell-status="props">
           <q-td key="name" :props="props">
             <q-badge outlined :color="getBadgeStatusColor(props.row.status)">
@@ -46,12 +63,45 @@
           </q-td>
         </template>
       </q-table>
+      <!-- Pagination -->
+      <div class="q-pa-lg flex flex-center">
+        <q-pagination
+          v-model="pagination.page"
+          color="purple"
+          :max="maxPages"
+          :max-pages="maxPages"
+          boundary-numbers
+          @update:model-value="reloadTableData(userId)"
+        />
+        <!-- <q-pagination
+          v-model="pagination.page"
+          color="purple"
+          :max="maxPages"
+          direction-links
+          boundary-links
+          icon-first="skip_previous"
+          icon-last="skip_next"
+          icon-prev="fast_rewind"
+          icon-next="fast_forward"
+          @update:model-value="reloadTableData(userId)"
+        /> -->
+        <!-- direction-links
+          boundary-links
+          icon-first="skip_previous"
+          icon-last="skip_next"
+          icon-prev="fast_rewind"
+          icon-next="fast_forward" -->
+      </div>
+
+      <!-- Loading Indicator -->
       <div
         v-if="loading"
         class="loading-overlay row justify-center items-center"
       >
         <q-spinner size="50px" />
       </div>
+
+      <!-- No Data Message -->
       <div
         v-if="showNoDataMessage"
         class="q-pa-md q-gutter-md row justify-center"
@@ -65,12 +115,8 @@
 <script setup>
 import { useBakerReportsStore } from "src/stores/baker-report";
 import ReportView from "./ReportView.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { date as quasarDate } from "quasar";
-
-const pagination = ref({
-  rowsPerPage: 0,
-});
 
 const bakerReportStore = useBakerReportsStore();
 const bakerReportRow = computed(() => bakerReportStore.reportToView);
@@ -87,51 +133,58 @@ const loading = ref(true);
 const loadingSearchIcon = ref(false);
 const showNoDataMessage = ref(false);
 
-watch(filter, async (newFilter) => {
-  loadingSearchIcon.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  loadingSearchIcon.value = false;
-  showNoDataMessage.value = !loading.value && filteredRows.value.length === 0;
-  console.log("Filtered Rows:", filteredRows.value);
+const rows = ref([]);
+
+const maxPages = ref(1);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 10,
+  sortBy: "id",
+  descending: false,
 });
 
-onMounted(async () => {
-  console.log("props.branchId in onMounted:", userId);
-  // im using user id for fetching reports
-  // instead of employee id for the reason
-  // that the user id is the one that is being
-  // used in the backend and database
-  if (userId) {
-    await reloadTableData(userId);
-  }
-});
+// onMounted(async () => {
+//   console.log("props.branchId in onMounted:", userId);
+//   // im using user id for fetching reports
+//   // instead of employee id for the reason
+//   // that the user id is the one that is being
+//   // used in the backend and database
+//   if (userId) {
+//     await reloadTableData(userId);
+//   }
+// });
 
-const reloadTableData = async (userId) => {
+// Fetch Data Function
+const reloadTableData = async () => {
   loading.value = true;
-  await bakerReportStore.fetchBakerReport(userId);
+  try {
+    const { page, rowsNumber, rowsPerPage, sortBy, descending } =
+      pagination.value;
+    const bakerReportData = await bakerReportStore.fetchBakerReport(
+      userId,
+      page,
+      rowsNumber,
+      rowsPerPage,
+      sortBy,
+      descending
+    );
+
+    rows.value = bakerReportData.data;
+    maxPages.value = bakerReportData.last_page;
+    pagination.value.rowsPerPage = bakerReportData.per_page || 10;
+    showNoDataMessage.value = rows.value.length === 0;
+  } catch (error) {
+    console.error("Error fetching baker report:", error);
+  }
   loading.value = false;
 };
 
-const filteredRows = computed(() => {
-  if (!filter.value) {
-    return bakerReportRow.value;
+// Auto-fetch data when pagination changes
+watchEffect(() => {
+  if (userId) {
+    reloadTableData();
   }
-  const filterText = filter.value.toLowerCase();
-  return bakerReportRow.value.filter(
-    (row) =>
-      (row.name && row.name.toLowerCase().includes(filterText)) ||
-      (row.created_at &&
-        quasarDate
-          .formatDate(row.created_at, "MMMM D, YYYY")
-          .toLowerCase()
-          .includes(filterText)) ||
-      (row.recipe &&
-        row.recipe.name &&
-        row.recipe.name.toLowerCase().includes(filterText)) ||
-      (row.recipe &&
-        row.recipe.category &&
-        row.recipe.category.toLowerCase().includes(filterText))
-  );
 });
 
 const formatDate = (dateString) => {
