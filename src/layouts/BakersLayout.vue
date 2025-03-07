@@ -218,13 +218,13 @@ const menuItems = [
     label: "Raw Materials",
     separator: true,
   },
-  {
-    name: "transaction",
-    icon: "fa-solid fa-cake-candles",
-    to: "/branch/baker/transaction",
-    label: "Transaction",
-    separator: true,
-  },
+  // {
+  //   name: "transaction",
+  //   icon: "fa-solid fa-cake-candles",
+  //   to: "/branch/baker/transaction",
+  //   label: "Transaction",
+  //   separator: true,
+  // },
   {
     name: "premix",
     icon: "scale",

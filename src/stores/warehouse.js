@@ -104,10 +104,11 @@ export const useWarehousesStore = defineStore("warehouses", () => {
     Loading.show();
     try {
       const response = await api.put(`/api/warehouses/${id}`, data);
-      const index = warehouses.value.findIndex((item) => item.id === id);
-      if (index !== -1) {
-        warehouses.value[index] = response.data;
-      }
+      fetchWarehouses();
+      // const index = warehouses.value.findIndex((item) => item.id === id);
+      // if (index !== -1) {
+      //   warehouses.value[index] = response.data;
+      // }
       Notify.create({
         type: "positive",
         message: "Warehouse updated successfully",

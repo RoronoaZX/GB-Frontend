@@ -43,7 +43,53 @@
         </div>
         <div class="q-mt-md q-animated q-animate-bounce">
           <div>Person In-charge</div>
-          <q-input v-model="editWarehouseForm.person_incharge" outlined dense />
+          <div>
+            <q-input
+              v-model="searchKeyword"
+              label="Search Employee"
+              outlined
+              dense
+              @update:model-value="search"
+              debounce="500"
+              placeholder="Enter name or position"
+              @focus="showDropdown = true"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="grey" size="sm" />
+              </template>
+              <div
+                v-if="showDropdown && searchKeyword"
+                class="custom-list z-top"
+              >
+                <q-card>
+                  <q-list separator>
+                    <q-item v-if="!employees?.length">
+                      No Employee Record
+                    </q-item>
+                    <template v-else>
+                      <q-item
+                        @click="autoFillEmployee(employee)"
+                        v-for="employee in employees"
+                        :key="employee.id"
+                        clickable
+                      >
+                        <q-item-section>
+                          {{
+                            `${employee.firstname} ${
+                              employee.middlename
+                                ? employee.middlename.charAt(0) + "."
+                                : ""
+                            } ${employee.lastname}`
+                          }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-card>
+              </div>
+            </q-input>
+          </div>
         </div>
         <div class="row q-gutter-x-sm q-mt-md">
           <div class="col-6 q-animated q-animate-bounce">
@@ -86,31 +132,117 @@
 <script setup>
 import { Notify } from "quasar";
 import { useWarehousesStore } from "src/stores/warehouse";
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
+import { useEmployeeStore } from "src/stores/employee";
 
+const employeeStore = useEmployeeStore();
 const warehouseStore = useWarehousesStore();
+const employees = computed(() => employeeStore.employee);
+
 const dialog = ref(false);
 
 const statusOptions = ["Open", "Closed"];
 const props = defineProps(["edit"]);
+let editRow = props.edit.row;
+const searchKeyword = ref(null);
+const searchLoading = ref(false);
+const showDropdown = ref(false);
+
+const search = async () => {
+  if (searchKeyword.value.trim()) {
+    searchLoading.value = true;
+    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    searchLoading.value = false;
+    showDropdown.value = true;
+  }
+};
+
+const autoFillEmployee = (employee) => {
+  // Log the selected employee data
+  console.log("Selected Employee:", employee);
+
+  editWarehouseForm.employee_id = employee.id;
+  editWarehouseForm.employee_name = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+  searchKeyword.value = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+
+  showDropdown.value = false;
+  // Log the filled designation data
+  console.log("Filled editBranchesForm Data:", editWarehouseForm);
+  // setTimeout(() => {
+  //   searchKeyword.value = null;
+  // }, 0);
+};
 
 const editWarehouseForm = reactive({
   name: "",
   location: "",
   person_incharge: "",
+  employee_id: "",
+  employee_name: "",
   phone: "",
   status: null,
 });
 
 const openEditForm = () => {
-  Object.assign(editWarehouseForm, props.edit.row);
+  // Object.assign(editWarehouseForm, props.edit.row);
+  console.log("Edit Row Data:", editRow);
+  showDropdown.value = false;
+  editWarehouseForm.name = editRow.name;
+  editWarehouseForm.location = editRow.location;
+  editWarehouseForm.employee_id = editRow.employee_id;
+  editWarehouseForm.employee_name = editRow.employees
+    ? formatFullname(editRow.employees)
+    : "No Person in Charge";
+  searchKeyword.value = editRow.employees
+    ? formatFullname(editRow.employees)
+    : "No Person in Charge";
+  editWarehouseForm.warehouse_id = editRow?.warehouse_id
+    ? editRow.warehouse_id
+    : editRow?.warehouse?.id
+    ? editRow?.warehouse?.id
+    : "";
+  editWarehouseForm.phone = editRow.phone;
+  editWarehouseForm.status = editRow.status;
   dialog.value = true;
+  console.log("Edit Data:", editWarehouseForm);
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
+const clearForm = () => {
+  editWarehouseForm.name = "";
+  editWarehouseForm.location = "";
+  editWarehouseForm.person_incharge = "";
+  editWarehouseForm.employee_id = "";
+  editWarehouseForm.employee_name = "";
+  editWarehouseForm.phone = "";
+  editWarehouseForm.status = null;
+  searchKeyword.value = null;
+  showDropdown.value = false;
 };
 
 const saveEditedWarehouse = async () => {
+  console.log("editRow.id", editRow.id);
+  console.log("updatedWarehouse", editWarehouseForm);
   try {
-    const updatedWarehouse = { ...props.edit.row, ...editWarehouseForm };
-    await warehouseStore.updateWarehouses(props.edit.row.id, updatedWarehouse);
+    // const updatedWarehouse = { ...props.edit.row, ...editWarehouseForm };
+    await warehouseStore.updateWarehouses(props.edit.row.id, editWarehouseForm);
+    clearForm();
     dialog.value = false;
   } catch (error) {
     console.error("Failed to update ingredients:", error);

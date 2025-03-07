@@ -125,8 +125,16 @@ const transactionListColumns = [
   {
     name: "date",
     align: "center",
-    label: "Date",
+    label: "Created Date",
     field: "created_at",
+    format: (val) => formatDate(val),
+    sortable: true,
+  },
+  {
+    name: "updated_at",
+    align: "center",
+    label: "Updated Date",
+    field: "updated_at",
     format: (val) => formatDate(val),
     sortable: true,
   },

@@ -18,7 +18,7 @@
               <div class="row q-gutter-x-md">
                 <div class="text-subtitle1">Received By:</div>
                 <div class="text-overline text-weight-bold">
-                  {{ formatFullname(receive.history[0].employee) }}
+                  {{ formatFullname(receive?.history[0]?.employee || "Undefined") }}
                 </div>
               </div>
             </div>
@@ -87,9 +87,7 @@ const formatFullname = (row) => {
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
+  const middlename = row.middlename ? capitalize(row.middlename).charAt(0) + "." : "";
   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
 
   return `${firstname} ${middlename} ${lastname}`;

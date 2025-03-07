@@ -360,6 +360,7 @@ export const usePremixStore = defineStore("premix", () => {
 
   const savePremix = async (data) => {
     console.log("data from store", data);
+    console.log("data from store branch id", data.branch_id);
 
     Loading.show();
     try {
@@ -372,14 +373,21 @@ export const usePremixStore = defineStore("premix", () => {
       Loading.hide();
     }
   };
-  const saveRequestPremix = async (data) => {
+  const saveRequestPremix = async (data, branchId, employeeId) => {
     console.log("data request oremix", data);
+    console.log("data request branchId", branchId);
+    console.log("data request employeeId", employeeId);
+
+    const page = 10;
+    const per_page = 10;
+
     Loading.show();
     try {
       const response = await api.post("/api/request-premix", {
         requests: data,
       });
       console.log("response", response.data);
+      fetchRequestBranchEmployeePremix(branchId, employeeId, page, per_page);
       Notify.create({
         type: "positive",
         message: "Request Premix successfully",

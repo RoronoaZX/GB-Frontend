@@ -169,6 +169,7 @@ import { computed, reactive, ref } from "vue";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { usePremixStore } from "src/stores/premix";
 import { useRequestPremixStore } from "src/stores/request-premix";
+import { Notify } from "quasar";
 
 const dialog = ref(false);
 
@@ -255,12 +256,34 @@ const addBranchPremixRecipe = reactive({
 });
 
 const save = async () => {
-  console.log("data send premix", premixList.value);
-  await premixStore.saveRequestPremix(premixList.value);
-  await premixStore.fetchRequestBranchEmployeePremix(branchId, employeeId);
-  clearForm();
-  premixList.value = [];
-  dialog.value = false;
+  try {
+    console.log("Data sent for premix request:", premixList.value);
+
+    // Save the premix request
+    await premixStore.saveRequestPremix(premixList.value, branchId, employeeId);
+
+    // Fetch updated premix data for the branch and employee
+    // await premixStore.fetchRequestBranchEmployeePremix(branchId, employeeId);
+
+    // Show success notification
+    Notify.create({
+      type: "positive",
+      message: "Premix request saved successfully!",
+    });
+
+    // Clear form and reset state
+    clearForm();
+    premixList.value = [];
+    dialog.value = false;
+  } catch (error) {
+    console.error("Failed to save premix request:", error);
+
+    // Show error notification
+    Notify.create({
+      type: "negative",
+      message: "Failed to save premix request. Please try again.",
+    });
+  }
 };
 </script>
 

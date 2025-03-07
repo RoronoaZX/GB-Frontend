@@ -27,6 +27,7 @@
           />
         </div>
       </q-card-section>
+      {{ report.id }}
       <q-card-section>
         <div>Baker: {{ formatFullname(report.employee) }}</div>
         <div>
@@ -166,6 +167,7 @@ const $q = useQuasar();
 const dialog = ref(false);
 const loading = ref(false);
 const props = defineProps({ report: { type: Object, required: true } });
+console.log("props in TransactionView:", props.report);
 const emit = defineEmits(["update-history"]);
 
 const openDialog = () => {
@@ -303,7 +305,7 @@ const confirmReceived = async () => {
     branch_premix_id: props.report.branch_premix_id,
     branch_id: props.report.branch_premix.branch_id,
     employee_id: employeeId,
-    status: "receive",
+    status: "received",
     notes: "Received Premix",
     quantity: props.report.quantity,
     warehouse_id: props.report.warehouse_id,

@@ -42,12 +42,12 @@
         @request="reloadTableData(userId)"
       >
         <!-- style="height: 900px; max-height: 1000px; min-height: none" -->
-        <template v-slot:body-cell-name="props">
+        <!-- <template v-slot:body-cell-name="props">
           <q-td key="name" :props="props">
-            {{ capitalizeFirstLetter(props.row.name) }}
-            <!-- <span class="tooltip-text">Go to store</span> -->
+            {{ props.row.name }}
+
           </q-td>
-        </template>
+        </template> -->
         <template v-slot:body-cell-status="props">
           <q-td key="name" :props="props">
             <q-badge outlined :color="getBadgeStatusColor(props.row.status)">
