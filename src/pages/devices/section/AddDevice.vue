@@ -21,9 +21,7 @@
           box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
         "
       >
-        <q-card-section
-          class="row items-center q-px-md q-py-sm bg-gradient text-white"
-        >
+        <q-card-section class="row items-center q-px-md q-py-sm bg-gradient text-white">
           <div class="text-h5 q-mr-md">📱 Add Device</div>
           <q-space />
           <q-btn icon="close" flat dense round v-close-popup />
@@ -36,9 +34,7 @@
               v-model="deviceForm.uuid"
               outlined
               dense
-              :rules="[
-                (val) => (val && val.length > 0) || 'Device UUID is required',
-              ]"
+              :rules="[(val) => (val && val.length > 0) || 'Device UUID is required']"
             />
           </div>
           <div class="q-mt-md q-animated q-animate-bounce">
@@ -48,9 +44,7 @@
               v-model="deviceForm.name"
               outlined
               dense
-              :rules="[
-                (val) => (val && val.length > 0) || 'Device Name is required',
-              ]"
+              :rules="[(val) => (val && val.length > 0) || 'Device Name is required']"
             />
           </div>
           <div class="q-mt-md q-animated q-animate-bounce">
@@ -59,9 +53,7 @@
               v-model="deviceForm.model"
               outlined
               dense
-              :rules="[
-                (val) => (val && val.length > 0) || 'Device Model is required',
-              ]"
+              :rules="[(val) => (val && val.length > 0) || 'Device Model is required']"
             />
           </div>
           <div class="q-mt-md q-animated q-animate-bounce">
@@ -71,8 +63,7 @@
               outlined
               dense
               :rules="[
-                (val) =>
-                  (val && val.length > 0) || 'Device OS Version is required',
+                (val) => (val && val.length > 0) || 'Device OS Version is required',
               ]"
             />
           </div>
@@ -113,10 +104,7 @@
                 <q-icon v-if="!searchLoading" name="search" />
                 <q-spinner v-else color="grey" size="sm" />
               </template>
-              <div
-                v-if="showDropdown && searchBranchKeyword"
-                class="custom-list z-top"
-              >
+              <div v-if="showDropdown && searchBranchKeyword" class="custom-list z-top">
                 <q-card>
                   <q-list separator>
                     <q-item v-if="!branches?.length">No Employee Record</q-item>
@@ -160,9 +148,7 @@
               >
                 <q-card>
                   <q-list separator>
-                    <q-item v-if="!warehouses?.length"
-                      >No Warehouse Record</q-item
-                    >
+                    <q-item v-if="!warehouses?.length">No Warehouse Record</q-item>
                     <template v-else>
                       <q-item
                         v-for="warehouse in warehouses"
@@ -280,16 +266,16 @@ const deviceForm = reactive({
 
 const createDevice = async () => {
   console.log("device sent:", deviceForm);
-  // loading.value = true;
-  // try {
-  //   await deviceStore.createDevices(deviceForm);
-  //   addDeviceDialog.value = false;
-  //   resetDeviceForm();
-  // } catch (error) {
-  //   console.log(error);
-  // } finally {
-  //   loading.value = false;
-  // }
+  loading.value = true;
+  try {
+    await deviceStore.createDevices(deviceForm);
+    addDeviceDialog.value = false;
+    resetDeviceForm();
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const resetDeviceForm = () => {
