@@ -83,7 +83,7 @@ watch(filter, () => {
   });
 });
 const formatDate = (dateString) => {
-  return quasarDate.formatDate(dateString, "MMMM D, YYYY - hh:mm A");
+  return quasarDate.formatDate(dateString, "MMM D, YYYY - hh:mm A");
 };
 
 const capitalizeFirstLetter = (string) => {

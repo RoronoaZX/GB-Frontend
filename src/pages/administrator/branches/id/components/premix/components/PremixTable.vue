@@ -48,7 +48,7 @@ import { useRoute } from "vue-router";
 
 const premixStore = usePremixStore();
 const premixRows = computed(() => premixStore.premixes);
-
+console.log("premixRows", premixRows.value);
 const route = useRoute();
 const branchId = route.params.branch_id;
 const loading = ref(false);

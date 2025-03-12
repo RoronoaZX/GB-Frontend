@@ -17,18 +17,6 @@
       </q-input>
     </div> -->
     <div class="table-container">
-      <!-- :filter="filter"
-        flat
-        :columns="bakersReportListColumns"
-        :rows="filteredRows"
-        row-key="id"
-        :virtual-scroll-sticky-size-start="48"
-        virtual-scroll
-        v-model:pagination="pagination"
-        :rows-per-page-options="[0]"
-        hide-bottom -->
-      <!-- class="sticky-header" -->
-      <!-- :pagination="pagination.page" -->
       <q-table
         :rows="rows"
         :columns="bakersReportListColumns"
@@ -37,17 +25,10 @@
         bordered
         dense
         v-model="pagination"
-        :pagination="pagination.rowsPerPage"
+        :pagination="pagination"
         :rows-per-page-options="[10]"
         @request="reloadTableData(userId)"
       >
-        <!-- style="height: 900px; max-height: 1000px; min-height: none" -->
-        <!-- <template v-slot:body-cell-name="props">
-          <q-td key="name" :props="props">
-            {{ props.row.name }}
-
-          </q-td>
-        </template> -->
         <template v-slot:body-cell-status="props">
           <q-td key="name" :props="props">
             <q-badge outlined :color="getBadgeStatusColor(props.row.status)">
@@ -69,28 +50,10 @@
           v-model="pagination.page"
           color="purple"
           :max="maxPages"
-          :max-pages="maxPages"
+          :max-pages="5"
           boundary-numbers
           @update:model-value="reloadTableData(userId)"
         />
-        <!-- <q-pagination
-          v-model="pagination.page"
-          color="purple"
-          :max="maxPages"
-          direction-links
-          boundary-links
-          icon-first="skip_previous"
-          icon-last="skip_next"
-          icon-prev="fast_rewind"
-          icon-next="fast_forward"
-          @update:model-value="reloadTableData(userId)"
-        /> -->
-        <!-- direction-links
-          boundary-links
-          icon-first="skip_previous"
-          icon-last="skip_next"
-          icon-prev="fast_rewind"
-          icon-next="fast_forward" -->
       </div>
 
       <!-- Loading Indicator -->
@@ -143,17 +106,6 @@ const pagination = ref({
   sortBy: "id",
   descending: false,
 });
-
-// onMounted(async () => {
-//   console.log("props.branchId in onMounted:", userId);
-//   // im using user id for fetching reports
-//   // instead of employee id for the reason
-//   // that the user id is the one that is being
-//   // used in the backend and database
-//   if (userId) {
-//     await reloadTableData(userId);
-//   }
-// });
 
 // Fetch Data Function
 const reloadTableData = async () => {

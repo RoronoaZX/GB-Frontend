@@ -26,9 +26,9 @@
           <q-space />
           <q-btn icon="close" flat dense round v-close-popup />
         </q-card-section>
-        <!-- <q-separator class="separator-gradient" /> -->
+
         <q-card-section class="q-px-xl q-pt-none q-pb-lg">
-          <div class="q-mt-lg q-animated q-animate-bounce">
+          <div class="q-mt-lg">
             <div>UUID</div>
             <q-input
               v-model="deviceForm.uuid"
@@ -37,7 +37,7 @@
               :rules="[(val) => (val && val.length > 0) || 'Device UUID is required']"
             />
           </div>
-          <div class="q-mt-md q-animated q-animate-bounce">
+          <div class="q-mt-md">
             <div>Name</div>
             <q-input
               class="text-capitalize"
@@ -47,7 +47,7 @@
               :rules="[(val) => (val && val.length > 0) || 'Device Name is required']"
             />
           </div>
-          <div class="q-mt-md q-animated q-animate-bounce">
+          <div class="q-mt-md">
             <div>Model</div>
             <q-input
               v-model="deviceForm.model"
@@ -56,7 +56,7 @@
               :rules="[(val) => (val && val.length > 0) || 'Device Model is required']"
             />
           </div>
-          <div class="q-mt-md q-animated q-animate-bounce">
+          <div class="q-mt-md">
             <div>OS Version</div>
             <q-input
               v-model="deviceForm.os_version"
@@ -67,6 +67,7 @@
               ]"
             />
           </div>
+
           <div class="q-gutter-x-lg">
             <q-checkbox
               keep-color
@@ -75,7 +76,6 @@
               color="red"
               :true-value="'branch'"
               :false-value="null"
-              indeterminate-value="false"
             />
             <q-checkbox
               keep-color
@@ -84,13 +84,10 @@
               color="blue-grey-10"
               :true-value="'warehouse'"
               :false-value="null"
-              indeterminate-value="false"
             />
           </div>
-          <div
-            v-if="selectedOption === 'branch'"
-            class="q-mt-md q-animated q-animate-bounce"
-          >
+
+          <div v-if="selectedOption === 'branch'" class="q-mt-md">
             <div>Designation Branch</div>
             <q-input
               v-model="searchBranchKeyword"
@@ -107,28 +104,22 @@
               <div v-if="showDropdown && searchBranchKeyword" class="custom-list z-top">
                 <q-card>
                   <q-list separator>
-                    <q-item v-if="!branches?.length">No Employee Record</q-item>
-                    <template v-else>
-                      <q-item
-                        @click="autoFillBranch(branch)"
-                        v-for="branch in branches"
-                        :key="branch.id"
-                        clickable
-                      >
-                        <q-item-section>
-                          {{ branch.name }}
-                        </q-item-section>
-                      </q-item>
-                    </template>
+                    <q-item v-if="!branches?.length">No Branch Record</q-item>
+                    <q-item
+                      v-for="branch in branches"
+                      :key="branch.id"
+                      clickable
+                      @click="autoFillBranch(branch)"
+                    >
+                      <q-item-section>{{ branch.name }}</q-item-section>
+                    </q-item>
                   </q-list>
                 </q-card>
               </div>
             </q-input>
           </div>
-          <div
-            v-if="selectedOption === 'warehouse'"
-            class="q-mt-md q-animated q-animate-bounce"
-          >
+
+          <div v-if="selectedOption === 'warehouse'" class="q-mt-md">
             <div>Warehouse</div>
             <q-input
               v-model="searchWarehouseKeyword"
@@ -149,24 +140,21 @@
                 <q-card>
                   <q-list separator>
                     <q-item v-if="!warehouses?.length">No Warehouse Record</q-item>
-                    <template v-else>
-                      <q-item
-                        v-for="warehouse in warehouses"
-                        :key="warehouse.id"
-                        @click="autoFillWarehouse(warehouse)"
-                        clickable
-                      >
-                        <q-item-section>
-                          {{ warehouse.name }}
-                        </q-item-section>
-                      </q-item>
-                    </template>
+                    <q-item
+                      v-for="warehouse in warehouses"
+                      :key="warehouse.id"
+                      @click="autoFillWarehouse(warehouse)"
+                      clickable
+                    >
+                      <q-item-section>{{ warehouse.name }}</q-item-section>
+                    </q-item>
                   </q-list>
                 </q-card>
               </div>
             </q-input>
           </div>
         </q-card-section>
+
         <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
           <q-btn
             class="btn-cancel glossy"
@@ -194,10 +182,11 @@ import { useWarehousesStore } from "src/stores/warehouse";
 
 const deviceStore = useDeviceStore();
 const branchStore = useBranchesStore();
-const branches = computed(() => branchStore.branch);
 const warehouseStore = useWarehousesStore();
+
+const branches = computed(() => branchStore.branch);
 const warehouses = computed(() => warehouseStore.warehouse);
-console.log("warehouse", warehouses.value);
+
 const addDeviceDialog = ref(false);
 const loading = ref(false);
 const searchBranchKeyword = ref("");
@@ -205,55 +194,6 @@ const searchWarehouseKeyword = ref("");
 const showDropdown = ref(false);
 const searchLoading = ref(false);
 const selectedOption = ref(null);
-
-watch(selectedOption, (newValue) => {
-  deviceForm.designation = newValue;
-});
-
-const openAddDeviceDialog = () => {
-  addDeviceDialog.value = true;
-};
-
-const searchBranch = async () => {
-  if (searchBranchKeyword.value.trim()) {
-    // searchLoading.value = true;
-    await branchStore.search(searchBranchKeyword.value);
-    // searchLoading.value = false;
-    // showDropdown.value = true;
-  }
-};
-
-const autoFillBranch = (branch) => {
-  console.log("selected branch:", branch);
-
-  deviceForm.reference_id = branch.id;
-
-  searchBranchKeyword.value = branch.name;
-
-  showDropdown.value = false;
-
-  console.log("Filled addNewBranchForm Data:", deviceForm);
-};
-const searchWarehouse = async () => {
-  if (searchWarehouseKeyword.value.trim()) {
-    // searchLoading.value = true;
-    await warehouseStore.search(searchWarehouseKeyword.value);
-    // searchLoading.value = false;
-    // showDropdown.value = true;
-  }
-};
-
-const autoFillWarehouse = (warehouse) => {
-  console.log("selected branch:", warehouse);
-
-  deviceForm.reference_id = warehouse.id;
-
-  searchWarehouseKeyword.value = warehouse.name;
-
-  showDropdown.value = false;
-
-  console.log("Filled addNewBranchForm Data:", deviceForm);
-};
 
 const deviceForm = reactive({
   uuid: "",
@@ -264,13 +204,47 @@ const deviceForm = reactive({
   designation: "",
 });
 
+// Ensure designation updates properly
+watch(selectedOption, (newValue) => {
+  deviceForm.designation = newValue;
+});
+
+const openAddDeviceDialog = () => {
+  addDeviceDialog.value = true;
+};
+
+const searchBranch = async () => {
+  if (searchBranchKeyword.value.trim()) {
+    await branchStore.search(searchBranchKeyword.value);
+  }
+};
+
+const autoFillBranch = (branch) => {
+  deviceForm.reference_id = branch.id;
+  searchBranchKeyword.value = branch.name;
+  showDropdown.value = false;
+};
+
+const searchWarehouse = async () => {
+  if (searchWarehouseKeyword.value.trim()) {
+    await warehouseStore.search(searchWarehouseKeyword.value);
+  }
+};
+
+const autoFillWarehouse = (warehouse) => {
+  deviceForm.reference_id = warehouse.id;
+  searchWarehouseKeyword.value = warehouse.name;
+  showDropdown.value = false;
+};
+
 const createDevice = async () => {
-  console.log("device sent:", deviceForm);
-  loading.value = true;
+  console.log("deviceForm", deviceForm);
   try {
-    await deviceStore.createDevices(deviceForm);
+    loading.value = true;
+    const response = await deviceStore.createDevices(deviceForm);
+    console.log("reponse", response);
     addDeviceDialog.value = false;
-    resetDeviceForm();
+    // resetDeviceForm();
   } catch (error) {
     console.log(error);
   } finally {
@@ -279,10 +253,14 @@ const createDevice = async () => {
 };
 
 const resetDeviceForm = () => {
-  deviceForm.uuid = "";
-  deviceForm.name = "";
-  deviceForm.model = "";
-  deviceForm.os_version = "";
+  Object.assign(deviceForm, {
+    uuid: "",
+    name: "",
+    model: "",
+    os_version: "",
+    reference_id: "",
+    designation: "",
+  });
 };
 </script>
 

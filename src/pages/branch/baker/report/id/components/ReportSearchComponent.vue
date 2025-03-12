@@ -77,4 +77,15 @@ const capitalizeFirstLetter = (location) => {
 console.log("recipessss", branhRecipes.value);
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+// .custom-list {
+//   position: absolute;
+//   width: 100%;
+//   background-color: white;
+//   max-height: 300px;
+//   overflow-y: auto;
+//   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+//   border-radius: 8px;
+//   margin-top: 4px;
+// }
+</style>

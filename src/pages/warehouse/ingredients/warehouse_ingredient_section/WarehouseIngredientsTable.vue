@@ -6,7 +6,7 @@
       dense
       debounce="300"
       v-model="filter"
-      placeholder="Searchsss"
+      placeholder="Search"
       style="width: 500px; max-width: 1500px; min-width: 100px"
     >
       <template v-slot:append>
@@ -40,11 +40,7 @@
     >
       <template v-slot:body-cell-availableStocks="props">
         <q-td :props="props">
-          <q-chip
-            square
-            class="text-white"
-            :class="getRawMaterialBadgeColor(props.row)"
-          >
+          <q-chip square class="text-white" :class="getRawMaterialBadgeColor(props.row)">
             <!-- :class="getRawMaterialBadgeColor(props.row.total_quantity)" -->
             {{ formatTotalQuantity(props.row) }}
             <!-- formatTotalQuantity -->
@@ -61,7 +57,8 @@ import { computed, onMounted, ref, watch } from "vue";
 
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 const userData = computed(() => warehouseRawMaterialsStore.user);
-const warehouseId = userData.value?.employee?.warehouse_id || "";
+console.log("userData", userData.value);
+const warehouseId = userData.value?.device?.reference_id || "";
 const warehouseRawMaterialsRows = computed(
   () => warehouseRawMaterialsStore.warehouseRawMaterials
 );
@@ -110,8 +107,9 @@ const reloadTableData = async (warehouseId) => {
   console.log("Fetching raw materials for warehouse ID:", warehouseId);
   try {
     loading.value = true;
-    const response =
-      await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
+    const response = await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(
+      warehouseId
+    );
     warehouseRawMaterialsRows.value = response;
     if (!warehouseRawMaterialsRows.value.length) {
       showNoDataMessage.value = true;

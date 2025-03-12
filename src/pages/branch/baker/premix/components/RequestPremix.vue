@@ -38,35 +38,33 @@
             <div>
               <q-icon name="search" />
             </div>
-            <div v-if="searchQuery" class="custom-list z-top">
-              <q-card>
-                <q-list separator>
-                  <q-item v-if="!premixDatas?.length">
-                    No record found.
-                  </q-item>
-                  <template v-else>
-                    <q-item
-                      v-for="premixData in premixDatas"
-                      :key="premixData.id"
-                      @click="autofillPremix(premixData)"
-                      clickable
-                    >
-                      <q-item-section>
-                        <q-item-label>{{
-                          capitalizeFirstLetter(premixData?.name)
-                        }}</q-item-label>
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label side>{{
-                          premixData?.category
-                        }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </template>
-                </q-list>
-              </q-card>
-            </div>
           </template>
+          <div v-if="searchQuery" class="custom-list z-top">
+            <q-card>
+              <q-list separator>
+                <q-item v-if="!premixDatas?.length"> No record found. </q-item>
+                <template v-else>
+                  <q-item
+                    v-for="premixData in premixDatas"
+                    :key="premixData.id"
+                    @click="autofillPremix(premixData)"
+                    clickable
+                  >
+                    <q-item-section>
+                      <q-item-label>{{
+                        capitalizeFirstLetter(premixData?.name)
+                      }}</q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label side>{{
+                        premixData?.category
+                      }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-list>
+            </q-card>
+          </div>
         </q-input>
       </div>
 

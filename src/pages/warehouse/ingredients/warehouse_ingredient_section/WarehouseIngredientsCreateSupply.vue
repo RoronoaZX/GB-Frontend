@@ -159,6 +159,7 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
+import { Loading, Notify } from "quasar";
 
 const route = useRoute();
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
@@ -318,25 +319,39 @@ const convertToGrams = (rawMaterials) => {
 
 const save = async () => {
   const rawMaterialsConverted = convertToGrams(rawMaterialsGroups.value);
+  try {
+    Loading.show();
+    const newData = {
+      employee_id: employeeId,
+      warehouse_id: warehouseId,
+      supplier_company_name: addSupplierForm.companyName,
+      supplier_name: addSupplierForm.supplierName,
+      raw_materials: rawMaterialsConverted.map((item) => ({
+        raw_material_id: item.raw_material_id,
+        quantity: item.convertedQuantity, // Use the converted quantity
+        unit: item.unit.value, // Always save as grams
+      })),
+    };
 
-  const newData = {
-    employee_id: employeeId,
-    warehouse_id: warehouseId,
-    supplier_company_name: addSupplierForm.companyName,
-    supplier_name: addSupplierForm.supplierName,
-    raw_materials: rawMaterialsConverted.map((item) => ({
-      raw_material_id: item.raw_material_id,
-      quantity: item.convertedQuantity, // Use the converted quantity
-      unit: item.unit.value, // Always save as grams
-    })),
-  };
-
-  await warehouseRawMaterialsStore.warehouseAddSupply(newData);
-  warehouseRawMaterialsRows.value =
-    await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
-  clearData();
-  clearAddSupplierForm();
-  addIngredientsDialog.value = false;
+    await warehouseRawMaterialsStore.warehouseAddSupply(newData);
+    warehouseRawMaterialsRows.value =
+      await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
+    clearData();
+    clearAddSupplierForm();
+    addIngredientsDialog.value = false;
+    Notify.create({
+      message: "Supply added successfully",
+      color: "positive",
+    });
+  } catch (error) {
+    Notify.create({
+      message: "Error adding supply",
+      color: "negative",
+    });
+    console.error("Error adding supply:", error);
+  } finally {
+    Loading.hide();
+  }
 };
 </script>
 

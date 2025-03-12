@@ -52,7 +52,7 @@ const loadingSearchIcon = ref(false);
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 const userData = computed(() => warehouseRawMaterialsStore.user);
 console.log("userData", userData.value);
-const warehouseId = userData.value?.employee?.warehouse_id || "";
+const warehouseId = userData.value?.device?.reference_id || "";
 console.log("warehouseId", warehouseId);
 const branchUnderWarehouseRows = computed(
   () => warehouseRawMaterialsStore.branch

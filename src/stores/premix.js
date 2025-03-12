@@ -27,6 +27,11 @@ export const usePremixStore = defineStore("premix", () => {
       console.error(error);
     }
   };
+
+  const fetchWarehousePremix = async (warehouseId) => {
+    console.log("warehouseId", warehouseId);
+  };
+
   const fetchRequestBranchEmployeePremix = async (
     branchId,
     employeeId,
@@ -438,5 +443,6 @@ export const usePremixStore = defineStore("premix", () => {
     fetchReceivePremix,
     saveRequestPremix,
     fetchRequestBranchEmployeePremix,
+    fetchWarehousePremix,
   };
 });

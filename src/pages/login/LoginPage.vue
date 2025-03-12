@@ -20,7 +20,9 @@
       <div class="text-h5 text-red-6 q-mb-sm">
         <img src="../../assets/GB_LOGO.png" class="logo" />
       </div>
-      <div class="text-caption text-grey-8 q-mb-sm">Please log in to continue.</div>
+      <div class="text-caption text-grey-8 q-mb-sm">
+        Please log in to continue.
+      </div>
     </q-card-section>
 
     <!-- <q-card-section>
@@ -83,17 +85,18 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-// import { Device } from "@capacitor/device";
+//uncomment this if you are using electron
+import { Device } from "@capacitor/device";
 import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
 
-const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); //forscaller
 // const uuid = ref(
-//   "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
-// ); //SA
+//   "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
+// ); //forscaller
+// const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); //SA
 // 631cee3486ce71af // null
-// b76baeef9c2aef9a // branch id 6 endrina
+const uuid = ref("b76baeef9c2aef9a"); // branch id 6 endrina
 //91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c// super admin
 // const uuid = ref("f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"); laptop
 
@@ -192,7 +195,8 @@ const login = async () => {
     const device = response.data.device;
 
     // Determine the correct key based on designation
-    const storageKey = device.designation === "branch" ? "branch_id" : "warehouse_id";
+    const storageKey =
+      device.designation === "branch" ? "branch_id" : "warehouse_id";
 
     // Store the reference_id with the correct key
     localStorage.setItem(storageKey, device.reference_id);
@@ -235,7 +239,8 @@ const login = async () => {
   } catch (error) {
     console.error("Error during login:", error);
     const errorDisplay =
-      error.response?.data?.message || "Login failed. Incorrect email & password.";
+      error.response?.data?.message ||
+      "Login failed. Incorrect email & password.";
     Notify.create({
       type: "negative",
       message: errorDisplay,
