@@ -160,6 +160,9 @@ const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
 console.log("userData in RawMaterialsTable:", userData.value);
 const employeeId = userData.value?.data?.employee_id || "";
+const branchId = userData.value?.device?.reference_id || "";
+console.log("employeeId in PremixPage:", employeeId);
+console.log("branchId in PremixPage:", branchId);
 // console.log("warehouseId in PremixPage:", warehouseId);
 const premixStore = usePremixStore();
 
@@ -317,6 +320,8 @@ const confirmReceived = async () => {
   };
   console.log("payload", payload);
   await premixStore.receivePremix(payload);
+
+  await fetchRequestBranchEmployeePremix(branchId, employeeId);
   dialog.value = false;
 };
 </script>

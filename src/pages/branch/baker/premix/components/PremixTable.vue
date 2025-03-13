@@ -56,24 +56,6 @@
         boundary-numbers
         @update:model-value="reloadTableData(userId)"
       />
-      <!-- <q-pagination
-          v-model="pagination.page"
-          color="purple"
-          :max="maxPages"
-          direction-links
-          boundary-links
-          icon-first="skip_previous"
-          icon-last="skip_next"
-          icon-prev="fast_rewind"
-          icon-next="fast_forward"
-          @update:model-value="reloadTableData(userId)"
-        /> -->
-      <!-- direction-links
-          boundary-links
-          icon-first="skip_previous"
-          icon-last="skip_next"
-          icon-prev="fast_rewind"
-          icon-next="fast_forward" -->
     </div>
 
     <!-- Loading Indicator -->
