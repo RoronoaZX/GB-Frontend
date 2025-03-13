@@ -138,8 +138,14 @@ const breadTotal = (breads) => {
   return breads?.new_production + breads?.beginnings;
 };
 
+const breadDeduction = (breads) => {
+  return breads?.bread_out + breads?.remaining;
+};
+console.log(breadDeduction);
+
 const breadSoldTotal = (breads) => {
-  const total = breadTotal(breads) - breads?.remaining;
+  const total = breadTotal(breads) - breadDeduction(breads);
+  console.log("Total Sold:", total);
   return total;
 };
 
@@ -159,6 +165,7 @@ const overallTotal = computed(() => {
 
   return formatPrice(total);
 });
+console.log("Overall Total Sales:", overallTotal.value);
 const breadReportColumns = [
   {
     name: "name",

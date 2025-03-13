@@ -139,8 +139,12 @@ const productTotal = (product) => {
   return product?.added_stocks + product?.beginnings;
 };
 
+const productDiff = (product) => {
+  return product?.out + product?.remaining;
+};
+
 const productSoldTotal = (product) => {
-  const total = productTotal(product) - product?.remaining;
+  const total = productTotal(product) - productDiff(product);
   return total;
 };
 
