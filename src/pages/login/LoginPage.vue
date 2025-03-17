@@ -230,7 +230,7 @@ const login = async () => {
       await router.push("/branch/baker");
     } else if (role === "Cake Maker") {
       await router.push("/branch/cake_maker/raw_materials");
-    } else if (role === "Cashier") {
+    } else if (role === "Cashier" || role === "Sales Clerk") {
       await router.push("/branch/sales_lady/products");
     } else if (role === "Scaler") {
       await router.push("/warehouse");

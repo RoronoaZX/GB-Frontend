@@ -36,6 +36,60 @@
       hide-bottom
       style="height: 350px"
     >
+      <template v-slot:body-cell-status="props">
+        <q-td :props="props">
+          <q-badge outline :color="getBadgeStatusColor(props.row.status)">
+            <!-- :label="props.row.status" -->
+            {{ capitalizeFirstLetter(props.row.status) }}
+          </q-badge>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-available_stocks="props">
+        <q-td :props="props" class="cursor-pointer">
+          <span>
+            <template v-if="Number(props.row.available_stocks) >= 1">
+              <q-badge outline class="text-positive">
+                {{
+                  Number(props.row.available_stocks) % 1 === 0
+                    ? Number(props.row.available_stocks)
+                    : Number(props.row.available_stocks)
+                        .toFixed(2)
+                        .replace(/\.?0+$/, "")
+                }}
+                kgs</q-badge
+              >
+            </template>
+            <template v-else>
+              <q-badge outline class="text-red-6">
+                {{ (Number(props.row.available_stocks) * 1000).toFixed(0) }}
+                grams</q-badge
+              >
+            </template>
+            <!-- {{
+              Number(props.row.available_stocks) >= 1
+                ? Number(props.row.available_stocks) + " kgs"
+                : (Number(props.row.available_stocks) * 1000).toString() +
+                  " grams"
+            }} -->
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updateAvailableStocks(props.row, val)"
+            v-model.number="props.row.available_stocks"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              type="number"
+              step="0.01"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
     </q-table>
   </div>
 </template>
@@ -83,6 +137,28 @@ const reloadTableData = async (branchId) => {
     console.log(error);
   } finally {
     loading.value = false;
+  }
+};
+
+const updateAvailableStocks = async (data, val) => {
+  console.log("data", data.id);
+  console.log("val", val);
+  // const response = await premixStore.updateAvailableStocks(data.id, val);
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const getBadgeStatusColor = (status) => {
+  if (status === "active") {
+    return "teal-5";
+  } else if (status === "inactive") {
+    return "negative";
   }
 };
 const branchPremixColumns = [

@@ -69,12 +69,32 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
       this.reports = response.data;
     },
 
+    async adminBakerCreateReports(data) {
+      console.log("data admin send", data);
+      try {
+        console.log("data admin to send:", this.reports);
+        const response = await api.post("/api/admin-create-baker-report", {
+          reports: data,
+        });
+        Notify.create({
+          type: "positive",
+          message: "Report successfully send",
+          timeout: 1000,
+        });
+
+        // console.log("Reports to be saved:", this.reports);
+        this.reports = [];
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async createReports() {
       try {
         console.log("data to send:", this.reports);
 
         Loading.show();
-        const response = await api.post("api/initial-baker-report", {
+        const response = await api.post("/api/initial-baker-report", {
           reports: this.reports,
         });
         Notify.create({

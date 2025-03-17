@@ -1,20 +1,26 @@
 <template>
-  <div>
-    <q-input
-      v-model="filter"
-      class="q-pb-lg q-pl-md"
-      outlined
-      placeholder="Search"
-      flat
-      rounded
-      dense
-      debounce="100"
-      style="width: 500px; max-width: 1500px; min-width: 100px"
-    >
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
+  <div class="row justify-between">
+    <div>
+      <q-input
+        v-model="filter"
+        class="q-pb-lg q-pl-md"
+        outlined
+        placeholder="Search"
+        flat
+        rounded
+        dense
+        debounce="100"
+        style="width: 500px; max-width: 1500px; min-width: 100px"
+      >
+        <template v-slot:append>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </div>
+    <div class="row q-gutter-md">
+      <AddBakerReport />
+      <AddSalesReport />
+    </div>
   </div>
   <div class="spinner-wrapper" v-if="loading">
     <q-spinner-dots size="50px" color="primary" />
@@ -75,6 +81,8 @@ import { ref, watch, onMounted, computed, reactive } from "vue";
 import { date, useQuasar } from "quasar";
 import { useProductionStore } from "src/stores/production";
 import { useRoute } from "vue-router";
+import AddBakerReport from "./add_baker_report/AddBakerReport.vue";
+import AddSalesReport from "./AddSalesReport.vue";
 
 const route = useRoute();
 const tab = ref("bakerReport");
