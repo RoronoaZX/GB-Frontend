@@ -5,7 +5,7 @@
     debounce="1000"
     outlined
     rounded
-    placeholder="Search product"
+    placeholder="Search Recipe"
     dense
   >
     <template v-slot:append>

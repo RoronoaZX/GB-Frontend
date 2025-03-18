@@ -82,7 +82,7 @@ import { date, useQuasar } from "quasar";
 import { useProductionStore } from "src/stores/production";
 import { useRoute } from "vue-router";
 import AddBakerReport from "./add_baker_report/AddBakerReport.vue";
-import AddSalesReport from "./AddSalesReport.vue";
+import AddSalesReport from "./add_sales_report/AddSalesReport.vue";
 
 const route = useRoute();
 const tab = ref("bakerReport");

@@ -7,12 +7,11 @@
       dense
       elevated
       icon="add_circle"
-      label="Create Baker Report"
-      color="purple"
+      label="Create Sales Report"
+      color="orange"
       @click="openDialog"
     ></q-btn>
   </div>
-
   <q-dialog
     v-model="dialog"
     :maximized="maximizedToggle"
@@ -22,9 +21,9 @@
     <q-card style="background-color: #f7f8fc">
       <q-card-section
         class="row items-center text-white"
-        style="background-color: #9c27b0"
+        style="background-color: #ff9800"
       >
-        <div class="text-h6">Baker Report</div>
+        <div class="text-h6">Sales Report</div>
         <q-space />
         <div class="row q-gutter-x-md">
           <div>
@@ -36,7 +35,6 @@
       </q-card-section>
       <q-card-section class="row q-gutter-lg">
         <div>
-          <!-- @update:model-value="searchUsers" -->
           <q-input
             v-model="searchQuery"
             outlined
@@ -93,36 +91,41 @@
         <q-radio
           keep-color
           v-model="reportTime"
-          val="03:00 PM"
+          val="08:00 PM"
           label="AM"
           color="cyan"
         />
         <q-radio
           keep-color
           v-model="reportTime"
-          val="03:00 AM"
+          val="04:00 AM"
           label="PM"
           color="deep-orange"
         />
       </q-card-section>
-      <q-card-section>
-        <ReportSearch />
+      <q-card-section class="row q-gutter-sm q-pa-md">
+        <ProductPage :user="userId" />
+        <ExpensesPage />
+        <CreditPage />
+        <DenominationPage />
       </q-card-section>
       <q-card-section>
-        <RecipeInput />
+        <OverAllTotal />
       </q-card-section>
       <q-card-section>
-        <ReportList />
+        <BreadReportField />
       </q-card-section>
       <q-card-section>
-        <div align="right">
-          <q-btn
-            color="red-6"
-            icon="edit"
-            label="Create"
-            @click="saveReports"
-          />
-        </div>
+        <SelectaReportField />
+      </q-card-section>
+      <q-card-section>
+        <SoftdrinksReportField />
+      </q-card-section>
+      <q-card-section>
+        <CakeReportField />
+      </q-card-section>
+      <q-card-section>
+        <OtherReportField />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -131,37 +134,40 @@
 <script setup>
 import { ref, watch, computed } from "vue";
 import { useUsersStore } from "src/stores/user";
-import { useBakerReportsStore } from "src/stores/baker-report";
-import ReportSearch from "./components/ReportSearch.vue";
-import RecipeInput from "./components/RecipeInput.vue";
-import ReportList from "./components/ReportList.vue";
+import ProductPage from "./components/products/ProductPage.vue";
+import DenominationPage from "./components/denomination/DenominationPage.vue";
+import ExpensesPage from "./components/expenses/ExpensesPage.vue";
+import CreditPage from "./components/credit/CreditPage.vue";
+import BreadReportField from "./components/report_field/BreadReportField.vue";
+import SelectaReportField from "./components/report_field/SelectaReportField.vue";
+import SoftdrinksReportField from "./components/report_field/SoftdrinksReportField.vue";
+import CakeReportField from "./components/report_field/CakeReportField.vue";
+import OtherReportField from "./components/report_field/OtherReportField.vue";
+import OverAllTotal from "./components/total_sales/OverAllTotal.vue";
 
 const userStore = useUsersStore();
 const users = computed(() => userStore.users);
 console.log("userdatasssss  ", users.value);
-const bakerReportStore = useBakerReportsStore();
 const dialog = ref(false);
 const maximizedToggle = ref(true);
-const employeeSearchLoading = ref(false);
-const searchKeyword = ref("");
+const reportTime = ref(false);
+const reportDate = ref("");
 let userSelected = false;
+const employeeSearchLoading = ref(false);
 const showUserCard = ref(false);
 const searchQuery = ref("");
 const userId = ref();
 
-const reportTime = ref(false);
-const reportDate = ref("");
-
-const openDialog = () => (dialog.value = true);
+const openDialog = () => {
+  dialog.value = true;
+};
 
 const searchUsers = async () => {
   if (searchQuery.value) {
-    employeeSearchLoading.value = true; // Set loading to true
-    // const branchId = branchId;
+    employeeSearchLoading.value = true;
     console.log("searchQuery.value", searchQuery.value);
-    // console.log("branchId", branchId);
+
     await userStore.searchUser(searchQuery.value);
-    // console.log("response user",);
 
     employeeSearchLoading.value = false;
     showUserCard.value = true;
@@ -173,52 +179,33 @@ const isDropdownVisible = computed(() => {
 });
 
 const formattedUserName = (user) => {
-  if (!user) return ""; // Return an empty string if user is undefined
+  if (!user) return "";
 
   const { firstname, middlename, lastname } = user;
 
-  // Split first name if it has multiple words
   const formattedFirstName = firstname
     .split(" ")
     .map((name) => name.charAt(0).toUpperCase() + name.slice(1))
     .join(" ");
-
   const middleInitial = middlename
     ? `${middlename.charAt(0).toUpperCase()}.`
     : "";
   const lastInitial = lastname.charAt(0).toUpperCase();
-
-  return `${formattedFirstName} ${middleInitial} ${lastInitial}${lastname.slice(
+  return `${formattedFirstName} ${middleInitial} ${lastInitial} ${lastname.slice(
     1
   )}`;
 };
 
 const autoFillUser = (user) => {
-  console.log("Baker Reports", user);
+  console.log("Sales Reports", user);
   searchQuery.value = `${user.firstname} ${
     user.middlename ? user.middlename.charAt(0) + "." : ""
   } ${user.lastname}`;
   userId.value = user.id;
-  // console.log("userId", userId.value);
-  // creditForm.name = `${user.firstname} ${
-  //   user.middlename ? user.middlename.charAt(0) + "." : ""
-  // } ${user.lastname}`;
-  userSelected = true; // Set flag when user is selected
+
+  userSelected = true;
   showUserCard.value = false;
 };
-
-// const formatFullname = (row) => {
-//   const capitalize = (str) =>
-//     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-//   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-//   const middlename = row.middlename
-//     ? capitalize(row.middlename).charAt(0) + "."
-//     : "";
-//   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-//   return `${firstname} ${middlename} ${lastname}`;
-// };
 
 watch(searchQuery, (newQuery) => {
   if (newQuery.length > 2 && !userSelected) {
@@ -226,39 +213,26 @@ watch(searchQuery, (newQuery) => {
   } else {
     showUserCard.value = false;
   }
-  userSelected = false; // Reset flag
+  userSelected = false;
 });
-
-const getCreatedAt = () => {
-  if (!reportDate.value || !reportTime.value) return null;
-
-  // Format like: 2025-03-17 08:00 PM
-  const rawDateTime = `${reportDate.value} ${reportTime.value}`;
-
-  // Convert to a proper datetime string (24hr format)
-  const dateObj = new Date(rawDateTime);
-  const formatted = dateObj.toISOString().slice(0, 19).replace("T", " ");
-
-  return formatted;
-};
-
-const saveReports = async () => {
-  const createdAt = getCreatedAt();
-  if (!createdAt) {
-    console.error("Invalid date or time selected");
-    return;
-  }
-
-  // Add `createdAt` to each report object
-  const reportsWithTimestamp = bakerReportStore.reports.map((report) => ({
-    ...report,
-    created_at: createdAt,
-    user_id: userId.value,
-  }));
-  console.log("reportsWithTimestamp", reportsWithTimestamp);
-  // Send the modified reports to the Pinia action
-  await bakerReportStore.adminBakerCreateReports(reportsWithTimestamp);
-};
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.user-card {
+  height: 100%;
+  border-radius: 15px;
+  background: #fff;
+  color: #333;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-button {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+</style>
