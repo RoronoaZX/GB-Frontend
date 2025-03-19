@@ -28,15 +28,15 @@
       class="table-container elegant-container sticky-header"
       :virtual-scroll-sticky-size-start="48"
       flat
-      style="height: 400px"
+      style="height: 500px"
       :columns="branchesColumns"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
     >
+      <!-- virtual-scroll -->
       <template v-slot:body-cell-branch_name="props">
         <q-td key="name" :props="props">
           <a @click.prevent="goToBranch(props.row)" class="branch-link">
@@ -254,6 +254,10 @@ const goToBranch = async (branch) => {
   right: 0;
   bottom: 0;
   left: 0;
+}
+.table-container {
+  max-height: 500px; /* Adjust as needed */
+  overflow: hidden;
 }
 .spinner-wrapper {
   min-height: 40vh;

@@ -29,15 +29,15 @@
       :filter="filter"
       :virtual-scroll-sticky-size-start="48"
       flat
-      style="height: 400px"
+      style="height: 500px"
       :columns="productsColumn"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
     >
+      <!-- virtual-scroll -->
       <template v-slot:body-cell-name="props">
         <q-td key="name" :props="props">
           {{ capitalizeFirstLetter(props.row.name) }}
@@ -231,6 +231,12 @@ const getBadgeCategoryColor = (category) => {
   justify-content: center;
   align-items: center;
 }
+
+.table-container {
+  max-height: 500px; /* Adjust as needed */
+  overflow: hidden;
+}
+
 .my-sticky-dynamic {
   height: 410px;
 }

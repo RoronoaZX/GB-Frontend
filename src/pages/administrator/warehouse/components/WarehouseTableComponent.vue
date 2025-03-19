@@ -29,15 +29,15 @@
       :filter="filter"
       :virtual-scroll-sticky-size-start="48"
       flat
-      style="height: 400px"
+      style="height: 500px"
       :columns="warehouseColumns"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
     >
+      <!-- virtual-scroll -->
       <template v-slot:body-cell-name="props">
         <q-td key="name" :props="props">
           <a @click.prevent="goToWarehouse(props.row)" class="warehouse-link">
@@ -294,6 +294,10 @@ const goToWarehouse = async (warehouse) => {
   right: 0;
   bottom: 0;
   left: 0;
+}
+.table-container {
+  max-height: 500px; /* Adjust as needed */
+  overflow: hidden;
 }
 .spinner-wrapper {
   min-height: 40vh; /* Minimum height of 50% viewport height */

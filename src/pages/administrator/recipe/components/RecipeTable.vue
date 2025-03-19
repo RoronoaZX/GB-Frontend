@@ -25,6 +25,7 @@
       <q-icon name="warning" color="warning" size="4em" />
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
+    <!-- virtual-scroll -->
     <q-table
       v-else
       class="table-container elegant-container sticky-header"
@@ -34,11 +35,10 @@
       :columns="recipeColumns"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
-      style="height: 400px"
+      style="height: 500px"
     >
       <template v-slot:body-cell-name="props">
         <q-td :props="props" class="cursor-pointer">
@@ -431,7 +431,7 @@ const getBadgeStatusColor = (status) => {
   align-items: center;
 }
 .table-container {
-  max-height: 400px; /* Adjust as needed */
+  max-height: 500px; /* Adjust as needed */
   overflow: hidden;
 }
 
