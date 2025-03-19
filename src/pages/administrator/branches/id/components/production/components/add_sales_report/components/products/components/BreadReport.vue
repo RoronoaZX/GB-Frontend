@@ -62,7 +62,7 @@
           </q-input>
         </div>
       </q-card-section>
-      {{ userData }}
+      <!-- {{ userData }} -->
       <q-card-section>
         <div>
           <div>Product Name</div>
@@ -148,7 +148,7 @@
             />
           </div>
           <div>
-            <div>Breadssss Sold</div>
+            <div>Bread Sold</div>
             <q-input
               v-model="addbreadProduction.bread_sold"
               mask="#####"
@@ -178,6 +178,7 @@
             class="q-pa-sm"
             size="md"
             @click="handleSubmit"
+            :loading="loading"
           />
         </div>
       </q-card-section>
@@ -190,7 +191,7 @@ import { ref, computed, reactive, watch } from "vue";
 import { useBranchProductsStore } from "src/stores/branch-product";
 import { useRoute } from "vue-router";
 import { useSalesReportsStore } from "src/stores/sales-report";
-import { Notify } from "quasar";
+import { Loading, Notify } from "quasar";
 
 const salesReportsStore = useSalesReportsStore();
 const route = useRoute();
@@ -199,7 +200,7 @@ const branchProduct = computed(() => branchProductsStore.branchProducts);
 const dialog = ref(false);
 const branch_id = route.params.branch_id;
 const searchQuery = ref("");
-
+const loading = ref(false);
 const props = defineProps(["userData"]);
 const openDialog = () => {
   dialog.value = true;
@@ -241,6 +242,7 @@ const addbreadProduction = reactive({
   name: "",
   product_id: "",
   product_name: "",
+  category: "",
   price: 0,
   beginnings: 0,
   remaining: 0,
@@ -251,6 +253,21 @@ const addbreadProduction = reactive({
   sales: 0,
   branches_id: route.params.branch_id,
 });
+
+const clearData = () => {
+  addbreadProduction.name = "";
+  addbreadProduction.product_id = "";
+  addbreadProduction.product_name = "";
+  addbreadProduction.category = "";
+  addbreadProduction.price = "";
+  addbreadProduction.beginnings = "";
+  addbreadProduction.remaining = "";
+  addbreadProduction.new_production = "";
+  addbreadProduction.bread_out = "";
+  addbreadProduction.bread_sold = "";
+  addbreadProduction.total = "";
+  addbreadProduction.sales = "";
+};
 
 // Computed property to format sales as currency
 const formattedSales = computed(() => {
@@ -313,6 +330,7 @@ const handleSubmit = async () => {
     //   return;
     // }
     // Prepare the request payload
+    loading.value = true;
     const payload = {
       user_id: props.userData,
       branch_id: addbreadProduction.branch_id,
@@ -330,13 +348,20 @@ const handleSubmit = async () => {
     };
     console.log("payload", payload);
     // await productionStore.addBreadProduction(payload);
+
     salesReportsStore.updateBreadReport(payload);
+
     Notify.create({
       message: "Product added successfully",
       color: "positive",
       position: "top",
     });
-  } catch (error) {}
+    clearData();
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 

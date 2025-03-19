@@ -228,6 +228,7 @@ const addSelectaReport = reactive({
   name: "",
   product_id: "",
   product_name: "",
+  category: "",
   price: 0,
   beginnings: 0,
   remaining: 0,
@@ -238,6 +239,21 @@ const addSelectaReport = reactive({
   sales: 0,
   branches_id: route.params.branch_id,
 });
+
+const clearData = () => {
+  addSelectaReport.name = "";
+  addSelectaReport.product_id = "";
+  addSelectaReport.product_name = "";
+  addSelectaReport.category = "";
+  addSelectaReport.price = "";
+  addSelectaReport.beginnings = "";
+  addSelectaReport.remaining = "";
+  addSelectaReport.added_stocks = "";
+  addSelectaReport.out = "";
+  addSelectaReport.sold = "";
+  addSelectaReport.total = "";
+  addSelectaReport.sales = "";
+};
 
 // Computed property to format sales as currency
 const formattedSales = computed(() => {
@@ -305,6 +321,7 @@ const handleSubmit = async () => {
     color: "positive",
     position: "top",
   });
+  clearData();
   // await productionStore.addSelectaProduction(payload);
 };
 </script>

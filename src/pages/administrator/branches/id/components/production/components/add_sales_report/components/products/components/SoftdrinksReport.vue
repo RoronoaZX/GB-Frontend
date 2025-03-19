@@ -234,6 +234,7 @@ const addSoftdrinksReport = reactive({
   name: "",
   product_id: "",
   product_name: "",
+  category: "",
   price: 0,
   beginnings: 0,
   remaining: 0,
@@ -244,6 +245,21 @@ const addSoftdrinksReport = reactive({
   sales: 0,
   branches_id: route.params.branch_id,
 });
+
+const clearData = () => {
+  addSoftdrinksReport.name = "";
+  addSoftdrinksReport.product_id = "";
+  addSoftdrinksReport.product_name = "";
+  addSoftdrinksReport.category = "";
+  addSoftdrinksReport.price = "";
+  addSoftdrinksReport.beginnings = "";
+  addSoftdrinksReport.remaining = "";
+  addSoftdrinksReport.added_stocks = "";
+  addSoftdrinksReport.out = "";
+  addSoftdrinksReport.sold = "";
+  addSoftdrinksReport.total = "";
+  addSoftdrinksReport.sales = "";
+};
 
 // Computed property to format sales as currency
 const formattedSales = computed(() => {
@@ -312,6 +328,8 @@ const handleSubmit = async () => {
     color: "positive",
     position: "top",
   });
+
+  clearData();
 };
 </script>
 

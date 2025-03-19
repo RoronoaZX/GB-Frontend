@@ -233,6 +233,7 @@ const addOtherProductReport = reactive({
   name: "",
   product_id: "",
   product_name: "",
+  category: "",
   price: 0,
   beginnings: 0,
   remaining: 0,
@@ -243,6 +244,21 @@ const addOtherProductReport = reactive({
   sales: 0,
   branches_id: route.params.branch_id,
 });
+
+const clearData = () => {
+  addOtherProductReport.name = "";
+  addOtherProductReport.product_id = "";
+  addOtherProductReport.product_name = "";
+  addOtherProductReport.category = "";
+  addOtherProductReport.price = "";
+  addOtherProductReport.beginnings = "";
+  addOtherProductReport.remaining = "";
+  addOtherProductReport.added_stocks = "";
+  addOtherProductReport.out = "";
+  addOtherProductReport.sold = "";
+  addOtherProductReport.total = "";
+  addOtherProductReport.sales = "";
+};
 
 // Computed property to format sales as currency
 const formattedSales = computed(() => {
@@ -311,6 +327,7 @@ const handleSubmit = async () => {
     color: "positive",
     position: "top",
   });
+  clearData();
 };
 </script>
 
