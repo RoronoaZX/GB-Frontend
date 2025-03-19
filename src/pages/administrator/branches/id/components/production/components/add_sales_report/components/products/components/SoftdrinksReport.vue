@@ -303,6 +303,7 @@ const handleSubmit = async () => {
     out: addSoftdrinksReport.out,
     sold: addSoftdrinksReport.sold,
     sales: addSoftdrinksReport.sales,
+    new_production: addSoftdrinksReport.added_stocks,
   };
   console.log("Softdrinks", payload);
   salesReportsStore.updateSoftdrinksReport(payload);

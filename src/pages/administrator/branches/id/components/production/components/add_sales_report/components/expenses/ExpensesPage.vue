@@ -7,20 +7,117 @@
         style="width: 150px"
         color="light-blue-6"
         class="user-button"
+        @click="openDialog"
       />
-      <!-- @click="
-              handleExpensesDialog(
-                props.sales_Reports[0].expenses_reports,
-                props.sales_Reports[0].user.employee,
-                props.sales_Reports[0].id,
-                props.sales_Reports[0].user_id
-              )
-            " -->
+      <q-dialog v-model="dialog">
+        <q-card style="width: 450px">
+          <q-card-section class="bg-gradient text-white">
+            <div class="row justify-between">
+              <div class="text-h6">Expenses</div>
+              <div>
+                <q-btn flat round dense icon="close" v-close-popup />
+              </div>
+            </div>
+          </q-card-section>
+          <q-card-section class="q-gutter-y-sm">
+            <div class="row q-gutter-x-md">
+              <div>
+                <q-input
+                  v-model="expensesForm.name"
+                  outlined
+                  dense
+                  style="width: 300px"
+                  placeholder="Name"
+                />
+              </div>
+              <div>
+                <q-input
+                  v-model="expensesForm.amount"
+                  reverse-fill-mask
+                  outlined
+                  type="number"
+                  dense
+                  style="width: 100px"
+                  label="Amount"
+                />
+              </div>
+            </div>
+            <div>
+              <q-input
+                v-model="expensesForm.description"
+                placeholder="Description"
+                outlined
+                autogrow
+                style="width: 415px"
+              />
+            </div>
+            <div class="" align="right">
+              <q-btn
+                outline
+                dense
+                icon="add"
+                label="Add To List"
+                class="q-pa-sm"
+                size="sm"
+                @click="handleSubmit"
+              />
+            </div>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref, reactive } from "vue";
+import { useRoute } from "vue-router";
+import { useSalesReportsStore } from "src/stores/sales-report";
+import { Notify } from "quasar";
+
+const salesReportsStore = useSalesReportsStore();
+const route = useRoute();
+const branch_id = route.params.branch_id;
+
+const props = defineProps(["user"]);
+const dialog = ref(false);
+const openDialog = () => {
+  dialog.value = true;
+};
+
+const expensesForm = reactive({
+  user_expense_id: "",
+  name: "",
+  amount: 0,
+  description: "",
+});
+
+const clearForm = () => {
+  expensesForm.user_expense_id = "";
+  (expensesForm.name = ""), (expensesForm.amount = "");
+  expensesForm.description = "";
+};
+
+const handleSubmit = () => {
+  const amountAsNumber = parseFloat(expensesForm.amount.replace(",", "."));
+
+  const expensesReport = {
+    ...expensesForm,
+    user_id: props.user,
+    branch_id: branch_id,
+    amount: amountAsNumber,
+  };
+  console.log("expenses from admin", expensesReport);
+  salesReportsStore.updateExpensesReport(expensesReport);
+  Notify.create({
+    type: "positive",
+    message: "Expenses Submitted",
+    timeout: 1000,
+  });
+
+  clearForm();
+};
+</script>
 
 <style lang="scss" scoped>
 .user-card {
@@ -39,5 +136,9 @@
 .user-button:hover {
   transform: translateY(-5px);
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, #1d2423, #00796b);
 }
 </style>

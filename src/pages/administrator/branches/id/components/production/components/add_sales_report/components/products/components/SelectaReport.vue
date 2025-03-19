@@ -296,6 +296,7 @@ const handleSubmit = async () => {
     out: addSelectaReport.out,
     sold: addSelectaReport.sold,
     sales: addSelectaReport.sales,
+    new_production: addSelectaReport.added_stocks,
   };
   console.log("Selecta", payload);
   salesReportsStore.updateSelectaReport(payload);

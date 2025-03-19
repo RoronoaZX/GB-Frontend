@@ -113,19 +113,6 @@
       </div>
     </div>
   </div>
-
-  <div class="q-my-md" align="right">
-    <q-btn
-      padding="sm md"
-      color="red-6"
-      dense
-      rounded
-      label="Submit"
-      @click="handleSubmit"
-    >
-      <q-icon class="q-mx-sm" left name="send" />
-    </q-btn>
-  </div>
 </template>
 
 <script setup>
@@ -197,17 +184,6 @@ const denominationTotalFormatted = computed(() =>
 const chargesTotalFormatted = computed(() =>
   formatCurrency(chargesTotal.value)
 );
-
-const handleSubmit = async () => {
-  try {
-    Loading.show();
-    await salesReportsStore.submitSalesReports();
-  } catch (error) {
-    console.error("Error submitting data:", error);
-  } finally {
-    Loading.hide();
-  }
-};
 </script>
 
 <style lang="scss" scoped>

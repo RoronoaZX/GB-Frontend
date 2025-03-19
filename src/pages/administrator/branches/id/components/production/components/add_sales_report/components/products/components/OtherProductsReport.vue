@@ -302,6 +302,7 @@ const handleSubmit = async () => {
     out: addOtherProductReport.out,
     sold: addOtherProductReport.sold,
     sales: addOtherProductReport.sales,
+    new_production: addOtherProductReport.added_stocks,
   };
   console.log("payload", payload);
   salesReportsStore.updateOtherProductsReport(payload);

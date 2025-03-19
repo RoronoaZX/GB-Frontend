@@ -249,6 +249,74 @@ export const useSalesReportsStore = defineStore("salesReports", {
       }
     },
 
+    async adminSubmitReports(data) {
+      console.log("data.data", data);
+      console.log("data.user_id", data.user_id);
+      console.log("data.branch_id", data.branch_id);
+      console.log("data.created_at", data.created_at);
+
+      // Calculate creditTotalAmount outside the payload
+      const creditTotalAmount = this.creditTotalAmount;
+
+      const payload = {
+        user_id: data.user_id,
+        branch_id: data.branch_id,
+        created_at: data.created_at,
+        breadReports: this.breadReports,
+        selectaReports: this.selectaReports,
+        softdrinksReports: this.softdrinksReports,
+        otherProductsReports: this.otherProductsReports,
+        cakeReports: this.cakeReports,
+        expensesReports: this.expensesReports,
+        denominationReports: this.denominationReports,
+        creditReports: this.employeeCreditReports,
+        denomination_total: this.denominationTotal,
+        expenses_total: this.expensesSumAmount,
+        products_total_sales: this.totalSalesAmount,
+        charges_amount: this.charges,
+        over_total: this.overTotal,
+        credit_total: this.creditTotalAmount, // Use the calculated value here
+      };
+
+      console.log("Payload data:", payload);
+
+      try {
+        const salesReportData = await api.post(
+          "/api/admin-sales-report",
+          payload
+        );
+        Notify.create({
+          type: "positive",
+          message: "Report submitted successfully",
+        });
+
+        this.breadReports = [];
+        this.selectaReports = [];
+        this.softdrinksReports = [];
+        this.otherProductsReports = [];
+        this.expensesReports = [];
+        this.denominationReports = [];
+        this.employeeCreditReports = [];
+        this.cakeReports = [];
+        this.denominationTotal = 0;
+        this.expensesTotalAmount = 0;
+        this.productsTotalAmount = 0;
+        // this.cakeTotalAmount = 0;
+        // this.creditTotalAmount = 0;
+        // this.creditExpensesTotal = 0;
+        this.charges = 0;
+        this.overTotal = 0;
+
+        console.log("Sales Reports Data", salesReportData);
+      } catch (error) {
+        console.error("Error submitting data:", error);
+        Notify.create({
+          type: "negative",
+          message: "Error submitting report",
+        });
+      }
+    },
+
     async submitSalesReports() {
       // Calculate creditTotalAmount outside the payload
       const creditTotalAmount = this.creditTotalAmount;

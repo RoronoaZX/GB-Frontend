@@ -105,12 +105,32 @@
       </q-card-section>
       <q-card-section class="row q-gutter-sm q-pa-md">
         <ProductPage :user="userId" />
-        <ExpensesPage />
-        <CreditPage />
+        <ExpensesPage :user="userId" />
+        <CreditPage :user="userId" />
         <DenominationPage />
       </q-card-section>
       <q-card-section>
         <OverAllTotal />
+      </q-card-section>
+      <q-card-section>
+        <div class="q-my-md" align="right">
+          <q-btn
+            padding="sm md"
+            color="red-6"
+            dense
+            rounded
+            label="Submit"
+            @click="handleSubmit"
+          >
+            <q-icon class="q-mx-sm" left name="send" />
+          </q-btn>
+        </div>
+      </q-card-section>
+      <q-card-section>
+        <CreditReportField />
+      </q-card-section>
+      <q-card-section>
+        <ExpensesReportField />
       </q-card-section>
       <q-card-section>
         <BreadReportField />
@@ -134,6 +154,7 @@
 <script setup>
 import { ref, watch, computed } from "vue";
 import { useUsersStore } from "src/stores/user";
+import { useSalesReportsStore } from "src/stores/sales-report";
 import ProductPage from "./components/products/ProductPage.vue";
 import DenominationPage from "./components/denomination/DenominationPage.vue";
 import ExpensesPage from "./components/expenses/ExpensesPage.vue";
@@ -144,9 +165,17 @@ import SoftdrinksReportField from "./components/report_field/SoftdrinksReportFie
 import CakeReportField from "./components/report_field/CakeReportField.vue";
 import OtherReportField from "./components/report_field/OtherReportField.vue";
 import OverAllTotal from "./components/total_sales/OverAllTotal.vue";
+import ExpensesReportField from "./components/report_field/ExpensesReportField.vue";
+import CreditReportField from "./components/report_field/CreditReportField.vue";
+import { Loading } from "quasar";
+import { useRoute } from "vue-router";
 
+const salesReportsStore = useSalesReportsStore();
 const userStore = useUsersStore();
+const route = useRoute();
+const branch_id = route.params.branch_id;
 const users = computed(() => userStore.users);
+
 console.log("userdatasssss  ", users.value);
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -215,6 +244,40 @@ watch(searchQuery, (newQuery) => {
   }
   userSelected = false;
 });
+
+const getCreatedAt = () => {
+  if (!reportDate.value || !reportTime.value) return null;
+
+  // Format like: 2025-03-17 08:00 PM
+  const rawDateTime = `${reportDate.value} ${reportTime.value}`;
+
+  // Convert to a proper datetime string (24hr format)
+  const dateObj = new Date(rawDateTime);
+  const formatted = dateObj.toISOString().slice(0, 19).replace("T", " ");
+
+  return formatted;
+};
+
+const handleSubmit = async () => {
+  const createdAt = getCreatedAt();
+  if (!createdAt) {
+    console.error("Invalid date or time selected");
+    return;
+  }
+  try {
+    Loading.show();
+    const salesData = {
+      user_id: userId.value,
+      branch_id: branch_id,
+      created_at: createdAt,
+    };
+    await salesReportsStore.adminSubmitReports(salesData);
+  } catch (error) {
+    console.error("Error submitting data:", error);
+  } finally {
+    Loading.hide();
+  }
+};
 </script>
 
 <style lang="scss" scoped>
