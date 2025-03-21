@@ -41,6 +41,28 @@
           <q-badge outline :color="getBadgeStatusColor(props.row.status)">
             <!-- :label="props.row.status" -->
             {{ capitalizeFirstLetter(props.row.status) }}
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Change Status
+            </q-tooltip>
+            <q-popup-edit
+              @update:model-value="(val) => updatePremixStatus(props.row, val)"
+              v-model="props.row.status"
+              auto-save
+              v-slot="scope"
+            >
+              <span>{{ props.row.name }}</span>
+              <q-select
+                v-model="scope.value"
+                dense
+                label="status"
+                autofocus
+                :options="status"
+                counter
+                mask="###"
+                @keyup.enter="scope.set"
+              >
+              </q-select>
+            </q-popup-edit>
           </q-badge>
         </q-td>
       </template>
@@ -98,7 +120,9 @@
 import { computed, onMounted, ref } from "vue";
 import PremixCreate from "./PremixCreate.vue";
 import { usePremixStore } from "/src/stores/premix";
+import { api } from "src/boot/axios";
 import { useRoute } from "vue-router";
+import { Notify } from "quasar";
 
 const premixStore = usePremixStore();
 const premixRows = computed(() => premixStore.premixes);
@@ -111,6 +135,8 @@ const showNoDataMessage = ref(false);
 const pagination = ref({
   rowsPerPage: 0,
 });
+const status = ["inactive", "active"];
+const branchPremix = ref([]);
 
 const filteredRows = computed(() => {
   if (!filter.value) {
@@ -144,6 +170,33 @@ const updateAvailableStocks = async (data, val) => {
   console.log("data", data.id);
   console.log("val", val);
   // const response = await premixStore.updateAvailableStocks(data.id, val);
+};
+
+const updatePremixStatus = async (data, val) => {
+  try {
+    const response = await api.put(
+      "/api/branch-premix-update-status/" + data.id,
+      {
+        status: val,
+      }
+    );
+    if (response.status == 200) {
+      const i = branchPremix.value.findIndex((item) => item.id == data.id);
+      branchPremix.value[i] = val;
+    }
+    Notify.create({
+      type: "positive",
+      message: "Recipe target edited successfully",
+      // position: "top",
+    });
+  } catch (error) {
+    console.error("Error updating recipe target:", error);
+    Notify.create({
+      type: "negative",
+      message: "Failed to edit recipe target",
+      // position: "top",
+    });
+  }
 };
 
 const capitalizeFirstLetter = (location) => {

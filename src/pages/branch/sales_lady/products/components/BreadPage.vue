@@ -4,6 +4,14 @@
       <div>
         <BreadSearch @update-search="updateSearchTerm" />
       </div>
+      <div class="row q-gutter-md">
+        <div>
+          <SendBreadToOtherBranch />
+        </div>
+        <div>
+          <BreadAddedView />
+        </div>
+      </div>
       <!-- <div>
         <BreadReportCreate />
       </div> -->
@@ -18,6 +26,8 @@ import { ref } from "vue";
 import BreadCard from "../bread/components/BreadCard.vue";
 // import BreadReportCreate from "../bread/components/BreadReportCreate.vue";
 import BreadSearch from "./SearchEngine.vue";
+import SendBreadToOtherBranch from "../bread/components/SendBreadToOtherBranch.vue";
+import BreadAddedView from "../bread/components/BreadAddedView.vue";
 
 // Search term state
 const filter = ref("");

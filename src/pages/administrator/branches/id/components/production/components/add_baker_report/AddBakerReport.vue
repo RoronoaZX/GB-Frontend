@@ -121,6 +121,7 @@
             icon="edit"
             label="Create"
             @click="saveReports"
+            :loading="loading"
           />
         </div>
       </q-card-section>
@@ -148,6 +149,7 @@ let userSelected = false;
 const showUserCard = ref(false);
 const searchQuery = ref("");
 const userId = ref();
+const loading = ref(false);
 
 const reportTime = ref(false);
 const reportDate = ref("");
@@ -250,14 +252,21 @@ const saveReports = async () => {
   }
 
   // Add `createdAt` to each report object
-  const reportsWithTimestamp = bakerReportStore.reports.map((report) => ({
-    ...report,
-    created_at: createdAt,
-    user_id: userId.value,
-  }));
-  console.log("reportsWithTimestamp", reportsWithTimestamp);
-  // Send the modified reports to the Pinia action
-  await bakerReportStore.adminBakerCreateReports(reportsWithTimestamp);
+  try {
+    loading.value = true;
+    const reportsWithTimestamp = bakerReportStore.reports.map((report) => ({
+      ...report,
+      created_at: createdAt,
+      user_id: userId.value,
+    }));
+    console.log("reportsWithTimestamp", reportsWithTimestamp);
+    // Send the modified reports to the Pinia action
+    await bakerReportStore.adminBakerCreateReports(reportsWithTimestamp);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 

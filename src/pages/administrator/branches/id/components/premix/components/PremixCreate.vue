@@ -31,7 +31,7 @@
             debounce="1000"
             outlined
             rounded
-            placeholder="Search product"
+            placeholder="Search premix"
             dense
           >
             <template v-slot:append>
