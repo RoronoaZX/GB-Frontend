@@ -167,7 +167,7 @@
 </template>
 
 <script setup>
-import { Notify } from "quasar";
+import { Notify, QSpinnerIos, Loading } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 
@@ -321,6 +321,14 @@ const saveReport = () => {
     return; // Prevent submission if fields are empty
   }
 
+  Loading.show({
+    spinner: QSpinnerIos,
+    message: `${capitalizeFirstLetter(
+      selectedItem.value.product.name
+    )} putting to the list...`,
+    messageColor: "white",
+  });
+
   const report = {
     user_id: userData?.data.id,
     branch_id: branchId || userData?.device?.branch_id,
@@ -343,7 +351,11 @@ const saveReport = () => {
     color: "positive",
     position: "top",
   });
-  closeDialog();
+
+  setTimeout(() => {
+    Loading.hide();
+    closeDialog();
+  }, 500);
 };
 </script>
 

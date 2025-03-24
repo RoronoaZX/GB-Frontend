@@ -102,6 +102,7 @@
             outline
             dense
             @click="addBreadStocks"
+            :loading="loading"
           >
           </q-btn>
         </div>
@@ -268,33 +269,40 @@ const filterBreadProducts = (val, update) => {
   });
 };
 
-const addBreadStocks = () => {
-  const data = breadProductGroups.value;
+const addBreadStocks = async () => {
+  loading.value = true;
+  try {
+    const data = breadProductGroups.value;
 
-  const findObjectById = (arr, id) => {
-    return arr.find((obj) => obj.product_id == id);
-  };
+    const findObjectById = (arr, id) => {
+      return arr.find((obj) => obj.product_id == id);
+    };
 
-  const idToSearch = selectedBreadProducts.name.value;
+    const idToSearch = selectedBreadProducts.name.value;
 
-  const foundObject = findObjectById(data, idToSearch);
-  if (!foundObject) {
-    const selectedProduct = breadProductOptions.value.find(
-      (product) => product.value === idToSearch
-    );
-    console.log("selected product", selectedProduct);
-    breadProductGroups.value = [
-      ...data,
-      {
-        product_id: selectedBreadProducts.name.value,
-        label: selectedBreadProducts.name.label,
-        quantity: selectedBreadProducts.quantity,
-        price: selectedProduct.price,
-      },
-    ];
-    console.log("breadProductGroups.value", breadProductGroups.value);
+    const foundObject = findObjectById(data, idToSearch);
+    if (!foundObject) {
+      const selectedProduct = breadProductOptions.value.find(
+        (product) => product.value === idToSearch
+      );
+      console.log("selected product", selectedProduct);
+      breadProductGroups.value = [
+        ...data,
+        {
+          product_id: selectedBreadProducts.name.value,
+          label: selectedBreadProducts.name.label,
+          quantity: selectedBreadProducts.quantity,
+          price: selectedProduct.price,
+        },
+      ];
+      console.log("breadProductGroups.value", breadProductGroups.value);
+    }
+    clearBreadAndQuantityInput();
+  } catch (error) {
+    console.error("Error adding bread stocks:", error);
+  } finally {
+    loading.value = false;
   }
-  clearBreadAndQuantityInput();
 };
 
 const removeBreadProductToList = (index) => {

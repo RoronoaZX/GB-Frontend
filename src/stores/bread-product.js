@@ -24,6 +24,28 @@ export const useBreadProductStore = defineStore("bread", () => {
     }
   };
 
+  const fetchSendBreadToBranch = async (branchId, page, rowsPerPage) => {
+    console.log("branchid", branchId);
+    console.log("page", page);
+    console.log("rowsPerPage", rowsPerPage);
+    try {
+      const response = await api.get(
+        `/api/fetch-send-bread-to-branch/${branchId}`,
+        {
+          params: {
+            page,
+            per_page: rowsPerPage,
+          },
+        }
+      );
+      // breads.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching send product to branch", error);
+      throw error;
+    }
+  };
+
   const sendBreadToBranch = async (data) => {
     console.log("data in the store", data);
     try {
@@ -34,10 +56,22 @@ export const useBreadProductStore = defineStore("bread", () => {
     }
   };
 
+  const recievedBread = async (data) => {
+    console.log("data in the store in the bread", data);
+    try {
+      const response = await api.post("/api/received-branch-bread", data);
+      bread.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     bread,
     breads,
     fetchBranchBread,
     sendBreadToBranch,
+    fetchSendBreadToBranch,
+    recievedBread,
   };
 });
