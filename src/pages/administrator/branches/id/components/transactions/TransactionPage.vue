@@ -20,9 +20,7 @@
   </div>
   <q-tab-panels v-model="tab" animated>
     <q-tab-panel name="bread">
-      <q-card>
-        <h1>Bread</h1>
-      </q-card>
+      <BreadTransactionPage />
     </q-tab-panel>
     <q-tab-panel name="selecta">
       <SelectaTransactionPage />
@@ -43,6 +41,7 @@
 
 <script setup>
 import { ref } from "vue";
+import BreadTransactionPage from "./bread-panel/BreadTransactionPage.vue";
 import SelectaTransactionPage from "./selecta-panel/SelectaTransactionPage.vue";
 import SoftdrinksTransactionPage from "./softdrinks-panel/SoftdrinksTransactionPage.vue";
 import OtherTransactionPage from "./other-panel/OtherTransactionPage.vue";

@@ -454,7 +454,9 @@ const generateDocDefinition = (report) => {
 
           return [
             {
-              text: formatFullname(creditData.credit_user_id),
+              text: creditData.credit_user_id
+                ? formatFullname(creditData.credit_user_id)
+                : "No Employee",
               style: "body",
               alignment: "center",
             },
@@ -729,8 +731,12 @@ const generateDocDefinition = (report) => {
       {
         columns: [
           {
-            text: `Branch Name: ${report.branch.name}
-          Cashier: ${formatFullname(report.user.employee)}
+            text: `Branch Name: ${report.branch?.name || "No Name"}
+          Cashier: ${
+            report.user?.employee
+              ? formatFullname(report.user.employee)
+              : "No Name"
+          }
           Date: ${formatDate(report.created_at)}\nTime: ${formatTimeFromDB(
               report.created_at
             )}\n`,

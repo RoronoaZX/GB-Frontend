@@ -5,6 +5,7 @@ import { ref } from "vue";
 export const useBreadProductStore = defineStore("bread", () => {
   const bread = ref(null);
   const breads = ref([]);
+  const pendingBreads = ref([]);
 
   const fetchBranchBread = async (branchesId, category) => {
     console.log("branch IDsss", branchesId);
@@ -19,6 +20,24 @@ export const useBreadProductStore = defineStore("bread", () => {
       });
       console.log("bread responsesss", response.data);
       breads.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchPendingBreadsReport = async (branchId, page, perPage) => {
+    console.log("branch IDsss", branchId);
+    try {
+      const response = await api.get(`/api/fetch-pending-send-branch-bread`, {
+        params: {
+          branch_id: branchId,
+          // page: page,
+          // per_page: perPage,
+        },
+      });
+      console.log("bread responsesss", response.data);
+      pendingBreads.value = response.data;
+      // return response.data;
     } catch (error) {
       console.log(error);
     }
@@ -69,9 +88,11 @@ export const useBreadProductStore = defineStore("bread", () => {
   return {
     bread,
     breads,
+    pendingBreads,
     fetchBranchBread,
     sendBreadToBranch,
     fetchSendBreadToBranch,
     recievedBread,
+    fetchPendingBreadsReport,
   };
 });
