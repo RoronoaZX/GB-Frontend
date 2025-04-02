@@ -30,7 +30,7 @@
       </div>
       <div class="q-mt-md q-gutter-y-md">
         <EmployeeCreditReportField />
-        <ExpensesReportField />
+        <WithOutReceiptExpensesReportField />
         <BreadReportField />
         <SelectaReportField />
         <SoftdrinksReportField />
@@ -48,7 +48,7 @@ import OverAllTotal from "./components/OverAllTotal.vue";
 import SoftdrinksReportField from "./components/SoftdrinksReportField.vue";
 import SelectaReportField from "./components/SelectaReportField.vue";
 import BreadReportField from "./components/BreadReportField.vue";
-import ExpensesReportField from "./components/ExpensesReportField.vue";
+import WithOutReceiptExpensesReportField from "./components/WithOutReceiptExpensesReportField.vue";
 import EmployeeCreditReportField from "./components/EmployeeCreditReportField.vue";
 import ViewOldReports from "./components/view-reports/ViewOldReports.vue";
 import CakeReportField from "./components/CakeReportField.vue";

@@ -13,7 +13,7 @@
       <q-card-section style="background-color: #03a9f4">
         <div class="row justify-between text-white">
           <div class="text-h6">Credits Report</div>
-          {{ salesReportId }}{{ userId }}
+          <!-- {{ salesReportId }}{{ userId }} -->
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
           </q-btn>

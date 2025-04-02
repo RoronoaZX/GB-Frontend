@@ -19,7 +19,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     softdrinksReports: [],
     cakeReports: [],
     otherProductsReports: [],
-    expensesReports: [],
+    withReceiptExpensesReports: [],
+    withOutReceiptExpensesReport: [],
     employeeCreditReports: [],
     denominationReports: [],
     productsTotalAmount: 0,
@@ -64,8 +65,13 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.employeeCreditReports.splice(index, 1);
       // this.updateEmployeeCreditReports();
     },
+    removeWithReceiptExpenses(index) {
+      this.withOutReceiptExpensesReport.splice(index, 1);
+      this.updateProductsTotalAmount();
+      this.calculateCharges(this.denominationTotal);
+    },
     removeExpenses(index) {
-      this.expensesReports.splice(index, 1);
+      this.withOutReceiptExpensesReport.splice(index, 1);
       this.updateProductsTotalAmount();
       this.calculateCharges(this.denominationTotal);
     },
@@ -157,17 +163,24 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.updateExpensesTotalAmount();
       this.calculateCharges(this.denominationTotal); // Ensure charges update
     },
-    updateExpensesReport(report) {
-      this.expensesReports.push(report);
+
+    updateWithReceiptExpensesReport(report) {
+      console.log("report to with receipt data expense in store", report);
+      this.withReceiptExpensesReports.push(report);
+      this.updateExpensesTotalAmount();
+    },
+
+    updateWithOutReceiptExpensesReport(report) {
+      this.withOutReceiptExpensesReport.push(report);
       this.updateExpensesTotalAmount();
       this.calculateCharges(this.denominationTotal); // Ensure charges update
-      // const index = this.expensesReports.findIndex(
+      // const index = this.withOutReceiptExpensesReport.findIndex(
       //   (r) => r.name === report.name
       // );
       // if (index !== -1) {
-      //   this.expensesReports.splice(index, 1, report);
+      //   this.withOutReceiptExpensesReport.splice(index, 1, report);
       // } else {
-      //   this.expensesReports.push(report);
+      //   this.withOutReceiptExpensesReport.push(report);
       // }
     },
 
@@ -267,7 +280,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         softdrinksReports: this.softdrinksReports,
         otherProductsReports: this.otherProductsReports,
         cakeReports: this.cakeReports,
-        expensesReports: this.expensesReports,
+        withOutReceiptExpensesReport: this.withOutReceiptExpensesReport,
         denominationReports: this.denominationReports,
         creditReports: this.employeeCreditReports,
         denomination_total: this.denominationTotal,
@@ -294,7 +307,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.selectaReports = [];
         this.softdrinksReports = [];
         this.otherProductsReports = [];
-        this.expensesReports = [];
+        this.withOutReceiptExpensesReport = [];
         this.denominationReports = [];
         this.employeeCreditReports = [];
         this.cakeReports = [];
@@ -329,7 +342,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         softdrinksReports: this.softdrinksReports,
         otherProductsReports: this.otherProductsReports,
         cakeReports: this.cakeReports,
-        expensesReports: this.expensesReports,
+        withOutReceiptExpensesReport: this.withOutReceiptExpensesReport,
         denominationReports: this.denominationReports,
         creditReports: this.employeeCreditReports,
         denomination_total: this.denominationTotal,
@@ -354,7 +367,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.selectaReports = [];
         this.softdrinksReports = [];
         this.otherProductsReports = [];
-        this.expensesReports = [];
+        this.withOutReceiptExpensesReport = [];
         this.denominationReports = [];
         this.employeeCreditReports = [];
         this.cakeReports = [];
@@ -409,7 +422,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         .reduce((total, report) => total + Number(report.price), 0);
     },
     expensesSumAmount: (state) => {
-      return state.expensesReports.reduce(
+      return state.withOutReceiptExpensesReport.reduce(
         (total, report) => total + report.amount,
         0
       );
