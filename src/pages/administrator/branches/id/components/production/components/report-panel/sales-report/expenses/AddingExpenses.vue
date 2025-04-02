@@ -176,55 +176,30 @@ import { useExpensesStore } from "src/stores/expenses";
 import { ref, reactive, computed } from "vue";
 
 const expensesStore = useExpensesStore();
-const props = defineProps(["reports", "user", "sales_report_id", "user_id"]);
-console.log("Expenses Data", props.reports);
-console.log("Expenses User", props.user);
-console.log("Expenses Sales Report ID", props.sales_report_id);
-const sales_report_id = props.sales_report_id;
-const branch_id = props.reports[0].branch_id;
-const user_id = props.user_id;
-console.log("user_id", user_id);
-console.log("branch_id", branch_id);
-// const user_id = props.user.employee.id;
-const userDataStore = useUsersStore();
-const userDataSearch = computed(() => userDataStore.users);
-const salesReportsStore = useSalesReportsStore();
-const userData = salesReportsStore.user;
-console.log("userdatasss", userData);
+const props = defineProps({
+  reports: {
+    type: Array,
+    default: () => [],
+  },
+  user: {
+    type: Object,
+    default: () => ({}),
+  },
+  sales_report_id: {
+    type: [String, Number],
+    default: null,
+  },
+  user_id: {
+    type: [String, Number],
+    default: null,
+  },
+});
+
+const sales_report_id = props.sales_report_id || "N/A"; // Fallback if undefined
+const branch_id = (props.reports[0] && props.reports[0].branch_id) || "Unknown"; // Fallback if reports is empty
+const user_id = props.user_id || "Unknown"; // Fallback if undefined
 const dialog = ref(false);
 const expensesList = ref([]);
-
-const addExpensesToList = () => {
-  expensesList.value.push({
-    user_expense_id: expensesForm.user_expense_id,
-    name: expensesForm.name,
-    amount: expensesForm.amount,
-    description: expensesForm.description,
-  });
-  console.log("expensesList", expensesList.value);
-  clearExpenses();
-};
-
-const clearExpenses = () => {
-  expensesForm.user_expense_id = "";
-  expensesForm.name = "";
-  expensesForm.amount = "";
-  expensesForm.description = "";
-};
-// const searchQuery = ref("");
-// const showUserCard = ref(true);
-
-// const searchUsers = async () => {
-//   if (searchQuery.value) {
-//     const branchId = userData?.data?.branch_employee?.branch_id || "";
-//     await userDataStore.searchUserWithID(searchQuery.value, branchId);
-//     showUserCard.value = true;
-//   }
-// };
-
-const isDropdownVisible = computed(() => {
-  return searchQuery.value && userDataSearch.value.length > 0;
-});
 
 const expensesForm = reactive({
   user_expense_id: "",
@@ -233,35 +208,40 @@ const expensesForm = reactive({
   description: "",
 });
 
+const addExpensesToList = () => {
+  if (expensesForm.name && expensesForm.amount && expensesForm.description) {
+    expensesList.value.push({
+      user_expense_id: expensesForm.user_expense_id,
+      name: expensesForm.name,
+      amount: expensesForm.amount,
+      description: expensesForm.description,
+    });
+    clearExpenses();
+  } else {
+    Notify.create({
+      type: "negative",
+      message: "Please fill all fields before adding.",
+      timeout: 2000,
+    });
+  }
+};
+
+const clearExpenses = () => {
+  expensesForm.user_expense_id = "";
+  expensesForm.name = "";
+  expensesForm.amount = 0;
+  expensesForm.description = "";
+};
+
 const removeExpenses = (index) => {
   expensesList.value.splice(index, 1);
 };
-
-// const autoFillUser = (user) => {
-//   searchQuery.value = user.name;
-//   expensesForm.name = user.name;
-//   expensesForm.user_expense_id = user.id;
-//   showUserCard.value = false;
-// };
 
 const openDialog = () => {
   dialog.value = true;
 };
 
-const closeBtn = () => {
-  dialog.value = false;
-};
-
-const clear = () => {
-  expensesForm.expense_user_id = "";
-  expensesForm.name = "";
-  expensesForm.amount = "";
-  expensesForm.description = "";
-};
-
 const handleSubmit = async () => {
-  // const amountAsNumber = parseFloat(expensesForm.amount.replace(",", "."));
-
   const expenseReport = {
     sales_report_id: sales_report_id,
     branch_id: branch_id,
@@ -272,16 +252,128 @@ const handleSubmit = async () => {
       description: expense.description,
     })),
   };
-  console.log("expenseReport", expenseReport);
   await expensesStore.addingExpense(expenseReport);
   Notify.create({
     type: "positive",
     message: "Expenses Submitted",
     timeout: 1000,
   });
-
-  clear();
+  clearExpenses();
 };
+
+// import { Notify } from "quasar";
+// import { useSalesReportsStore } from "src/stores/sales-report";
+// import { useUsersStore } from "src/stores/user";
+// import { useExpensesStore } from "src/stores/expenses";
+// import { ref, reactive, computed } from "vue";
+
+// const expensesStore = useExpensesStore();
+// const props = defineProps(["reports", "user", "sales_report_id", "user_id"]);
+// console.log("Expenses Data", props.reports);
+// console.log("Expenses User", props.user);
+// console.log("Expenses Sales Report ID", props.sales_report_id);
+// const sales_report_id = props.sales_report_id;
+// const branch_id = props.reports[0].branch_id;
+// const user_id = props.user_id;
+// console.log("user_id", user_id);
+// console.log("branch_id", branch_id);
+// // const user_id = props.user.employee.id;
+// const userDataStore = useUsersStore();
+// const userDataSearch = computed(() => userDataStore.users);
+// const salesReportsStore = useSalesReportsStore();
+// const userData = salesReportsStore.user;
+// console.log("userdatasss", userData);
+// const dialog = ref(false);
+// const expensesList = ref([]);
+
+// const addExpensesToList = () => {
+//   expensesList.value.push({
+//     user_expense_id: expensesForm.user_expense_id,
+//     name: expensesForm.name,
+//     amount: expensesForm.amount,
+//     description: expensesForm.description,
+//   });
+//   console.log("expensesList", expensesList.value);
+//   clearExpenses();
+// };
+
+// const clearExpenses = () => {
+//   expensesForm.user_expense_id = "";
+//   expensesForm.name = "";
+//   expensesForm.amount = "";
+//   expensesForm.description = "";
+// };
+// // const searchQuery = ref("");
+// // const showUserCard = ref(true);
+
+// // const searchUsers = async () => {
+// //   if (searchQuery.value) {
+// //     const branchId = userData?.data?.branch_employee?.branch_id || "";
+// //     await userDataStore.searchUserWithID(searchQuery.value, branchId);
+// //     showUserCard.value = true;
+// //   }
+// // };
+
+// const isDropdownVisible = computed(() => {
+//   return searchQuery.value && userDataSearch.value.length > 0;
+// });
+
+// const expensesForm = reactive({
+//   user_expense_id: "",
+//   name: "",
+//   amount: 0,
+//   description: "",
+// });
+
+// const removeExpenses = (index) => {
+//   expensesList.value.splice(index, 1);
+// };
+
+// // const autoFillUser = (user) => {
+// //   searchQuery.value = user.name;
+// //   expensesForm.name = user.name;
+// //   expensesForm.user_expense_id = user.id;
+// //   showUserCard.value = false;
+// // };
+
+// const openDialog = () => {
+//   dialog.value = true;
+// };
+
+// const closeBtn = () => {
+//   dialog.value = false;
+// };
+
+// const clear = () => {
+//   expensesForm.expense_user_id = "";
+//   expensesForm.name = "";
+//   expensesForm.amount = "";
+//   expensesForm.description = "";
+// };
+
+// const handleSubmit = async () => {
+//   // const amountAsNumber = parseFloat(expensesForm.amount.replace(",", "."));
+
+//   const expenseReport = {
+//     sales_report_id: sales_report_id,
+//     branch_id: branch_id,
+//     user_id: user_id,
+//     expenses: expensesList.value.map((expense) => ({
+//       name: expense.name,
+//       amount: expense.amount,
+//       description: expense.description,
+//     })),
+//   };
+//   console.log("expenseReport", expenseReport);
+//   await expensesStore.addingExpense(expenseReport);
+//   Notify.create({
+//     type: "positive",
+//     message: "Expenses Submitted",
+//     timeout: 1000,
+//   });
+
+//   clear();
+// };
 </script>
 
 <style lang="scss" scoped>

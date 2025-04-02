@@ -87,7 +87,7 @@ const reloadTableData = async () => {
     if (!deviceRow.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("device fetch:", response);
+    console.log("device fetch:", deviceRow.value);
   } catch (error) {
     console.log("error fetching device", error);
     showNoDataMessage.value = true;
@@ -131,10 +131,11 @@ const deviceColumns = [
     field: "uuid",
   },
   {
-    name: "branch_name",
-    label: "Branch Name",
+    name: "designation",
+    label: "Designation",
     align: "center",
-    field: (row) => (row.branch ? row.branch.name : "N/A"),
+    field: (row) =>
+      row.branch ? row.branch.name : row.warehouse ? row.warehouse.name : "N/A",
   },
   {
     name: "action",

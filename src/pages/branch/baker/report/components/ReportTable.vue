@@ -1,21 +1,23 @@
 <template>
   <div class="q-mt-sm q-gutter-md">
-    <!-- <div>
-      <q-input
+    <div>
+      <!-- <q-input
         rounded
         outlined
         dense
         debounce="300"
         v-model="filter"
+        @update:model-value="test"
         placeholder="Search"
         style="width: 500px; max-width: 1500px; min-width: 100px"
       >
-        <template v-slot:append>
+      </q-input> -->
+      <!-- v-model="filter" -->
+      <!-- <template v-slot:append>
           <q-icon v-if="!loadingSearchIcon" name="search" />
           <q-spinner v-else />
-        </template>
-      </q-input>
-    </div> -->
+        </template> -->
+    </div>
     <div class="table-container">
       <q-table
         :rows="rows"
@@ -80,6 +82,8 @@ import { useBakerReportsStore } from "src/stores/baker-report";
 import ReportView from "./ReportView.vue";
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { date as quasarDate } from "quasar";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 const bakerReportStore = useBakerReportsStore();
 const bakerReportRow = computed(() => bakerReportStore.reportToView);
@@ -106,6 +110,10 @@ const pagination = ref({
   sortBy: "id",
   descending: false,
 });
+// const test = (value) => {
+//   console.log("test", value);
+//   router.push("?search=" + value);
+// };
 
 // Fetch Data Function
 const reloadTableData = async () => {

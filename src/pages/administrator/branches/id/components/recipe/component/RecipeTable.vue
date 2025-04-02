@@ -42,7 +42,7 @@
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
-      style="height: 350px"
+      style="height: 450px"
     >
       <template v-slot:body-cell-name="props">
         <q-td :props="props">
@@ -63,7 +63,9 @@
           <span
             >{{ formatTarget(props.row.target) }}
 
-            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">Edit Target</q-tooltip>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
+              >Edit Target</q-tooltip
+            >
           </span>
           <q-popup-edit
             @update:model-value="(val) => updateRecipe(props.row, val)"
@@ -86,7 +88,9 @@
         <q-td :props="props">
           <q-badge outline :color="getBadgeStatusColor(props.row.status)">
             {{ capitalizeFirstLetter(props.row.status) }}
-            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">Change Status</q-tooltip>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
+              >Change Status</q-tooltip
+            >
           </q-badge>
           <q-popup-edit
             @update:model-value="(val) => updateRecipeStatus(props.row, val)"
@@ -113,7 +117,9 @@
           <q-btn
             no-caps
             @click="handleRecipeBreadGroupsDialog(props.row)"
-            :label="`${props.row.bread_groups.length} breads`"
+            :label="`${props.row.bread_groups.length} ${
+              props.row.bread_groups.length === 1 ? 'bread' : 'breads'
+            }`"
             rounded
             color="brown"
           >
@@ -125,7 +131,11 @@
           <q-btn
             no-caps
             @click="handleRecipeIngredientGroupsDialog(props.row)"
-            :label="`${props.row.ingredient_groups.length} ingredients`"
+            :label="`${props.row.ingredient_groups.length} ${
+              props.row.ingredient_groups.length === 1
+                ? 'ingredient'
+                : 'ingredients'
+            } `"
             rounded
             color="purple"
           >
@@ -372,5 +382,10 @@ const getBadgeStatusColor = (status) => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.table-container {
+  max-height: 450px; /* Adjust as needed */
+  overflow: hidden;
 }
 </style>

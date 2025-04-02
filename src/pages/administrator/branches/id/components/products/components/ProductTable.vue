@@ -40,11 +40,10 @@
       :columns="productListColumns"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
-      style="height: 350px"
+      style="height: 450px"
     >
       <template v-slot:body-cell-name="props">
         <q-td key="name" :props="props">
@@ -95,7 +94,7 @@
       <template v-slot:body-cell-beginnings="props">
         <q-td auto-width class="cursor-pointer text-center">
           <span>
-            {{ props.row.beginnings ? props.row.beginnings : "Set Beginnings" }}
+            {{ props.row.beginnings ? props.row.beginnings : 0 }}
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
               >Edit beginnings</q-tooltip
             >
@@ -117,14 +116,35 @@
           </q-popup-edit>
         </q-td>
       </template>
+      <template v-slot:body-cell-new_production="props">
+        <q-td auto-width class="cursor-pointer text-center">
+          <span>
+            {{ props.row.new_production ? props.row.new_production : 0 }}
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit new production
+            </q-tooltip>
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updateNewProduction(props.row, val)"
+            v-model="props.row.new_production"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofucos
+              counter
+              mask="#####"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
       <template v-slot:body-cell-total_quantity="props">
         <q-td auto-width class="cursor-pointer text-center">
           <span>
-            {{
-              props.row.total_quantity
-                ? props.row.total_quantity
-                : "Set Quantity"
-            }}
+            {{ props.row.total_quantity ? props.row.total_quantity : 0 }}
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
               >Edit quantity</q-tooltip
             >
@@ -174,9 +194,16 @@ const filter = ref("");
 const loading = ref(true);
 const branchProducts = ref([]);
 const showNoDataMessage = ref(false);
+const rows = ref([]);
 const pagination = ref({
+  sortBy: "desc",
+  descending: false,
+  page: 1,
   rowsPerPage: 0,
+  rowsnumber: 0,
 });
+
+//the origina
 const branchProductRows = computed(() => branchProductStore.branchProducts);
 console.log("branchssdfrer", branchProductRows.value);
 
@@ -249,6 +276,37 @@ async function updatedPrice(data, val) {
     console.error("Error updating price:", error);
   }
 }
+
+async function updateNewProduction(data, val) {
+  try {
+    const response = await api.put(
+      "/api/update-branch-products-new-production/" + data.id,
+      {
+        new_production: parseInt(val),
+      }
+    );
+    if (response.status === 200) {
+      const i = branchProducts.value.findIndex((item) => item.id == data.id);
+      branchProducts.value[i] = parseInt(val);
+
+      Notify.create({
+        type: "positive",
+        message: response.data.message,
+        timout: 1000,
+        position: "top",
+      });
+    }
+  } catch (error) {
+    console.error("Error updating price:", error);
+    // Notify.create({
+    //   type: "negative",
+    //   message: response.data.message,
+    //   timout: 1000,
+    //   position: "top",
+    // });
+  }
+}
+
 async function updatedBeginnings(data, val) {
   try {
     const response = await api.put(
@@ -349,6 +407,14 @@ const productListColumns = [
     sortable: true,
   },
   {
+    name: "new_production",
+    align: "center",
+    label: "New Production",
+    field: "new_production",
+    format: (val) => `${val} pcs`,
+    sortable: true,
+  },
+  {
     name: "total_quantity",
     align: "center",
     label: "Quantity",
@@ -392,7 +458,7 @@ const productListColumns = [
   align-items: center;
 }
 .table-container {
-  max-height: 400px; /* Adjust as needed */
+  max-height: 450px; /* Adjust as needed */
   overflow: hidden;
 }
 

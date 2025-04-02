@@ -4,14 +4,7 @@
       <div class="row justify-between">
         <div class="text-h6">Baker Report</div>
         <!-- <div align="right">
-          <q-btn
-            padding="xs md"
-            label="Print"
-            icon="print"
-            outline
-            @click="openPrintDialog"
-            class="user-button"
-          />
+          <AddingBakerReportRecipe :reportsData="reportsData" />
           <div>
             <q-tooltip class="bg-blue-grey-6" :delay="200">
               Print Report
@@ -184,6 +177,7 @@ import IngredientsView from "./baker-report/IngredientsView.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
 import EditBakersReport from "./baker-report/EditBakersReport.vue";
+// import AddingBakerReportRecipe from "./AddingBakerReportRecipe.vue";
 pdfMake.vfs = pdfFonts.default;
 // import PrintReportDialog from "./PrintReportDialog.vue";
 
@@ -412,7 +406,7 @@ const BakerReportsColumns = [
 ];
 
 const generateDocDefinition = (bakerReport) => {
-  console.log("bakerReport", bakerReport);
+  console.log("bakerReport in print", bakerReport);
   const recipeName = `${
     bakerReport?.branch_recipe?.recipe?.name ?? "Unkown Recipe"
   } (${bakerReport?.recipe_category ?? "Unkown Category"})`;
@@ -496,9 +490,9 @@ const generateDocDefinition = (bakerReport) => {
                 Baker: ${formatFullname(
                   bakerReport?.user?.employee || "Unknown Baker Name"
                 )}
-                Recipe: ${bakerReport.recipe?.name || "Unknown Recipe"} (${
-              bakerReport.recipe_category || "Unknown Category"
-            })
+                Recipe: ${capitalizeFirstLetter(
+                  bakerReport.branch_recipe?.recipe?.name || "Unknown Recipe"
+                )} (${bakerReport.recipe_category || "Unknown Category"})
              `,
             width: "80%", // Adjust width if necessary
             margin: [0, 0, 0, 10],

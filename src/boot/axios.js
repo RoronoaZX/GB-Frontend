@@ -4,7 +4,7 @@ import axios from "axios";
 // https://gb-bakeshop.store
 let url = "http://localhost:8000";
 if (process.env.NODE_ENV === "production") {
-  url = "https://gbs-minimart.store";
+  url = "gbebakeshop.com";
 }
 const api = axios.create({ baseURL: url });
 

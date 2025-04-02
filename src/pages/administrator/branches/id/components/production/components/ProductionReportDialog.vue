@@ -84,8 +84,9 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["reports", "reportLabel"]);
-console.log("production report", props.reports);
+console.log("production report sss", props.reports);
 const bakerReports = props.reports.baker_reports;
+console.log("bakerReportsssss", bakerReports);
 const salesReports = props.reports.sales_reports;
 const sales_report_id = props.reports.sales_reports_id;
 console.log("sales_report_id", sales_report_id);

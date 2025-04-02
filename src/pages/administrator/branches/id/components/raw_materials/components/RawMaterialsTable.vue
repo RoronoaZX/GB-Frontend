@@ -33,16 +33,14 @@
       v-else
       class="table-container sticky-header"
       :filter="filter"
-      :virtual-scroll-sticky-size-start="48"
       flat
       :columns="ingredientsColumns"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
-      style="height: 340px"
+      style="height: 420px"
     >
       <!-- <template v-slot:body-cell-unit="props">
         <q-td key="name" :props="props">
@@ -291,7 +289,7 @@ const ingredientsColumns = [
   align-items: center;
 }
 .table-container {
-  max-height: 400px; /* Adjust as needed */
+  max-height: 450px; /* Adjust as needed */
   overflow: hidden;
 }
 

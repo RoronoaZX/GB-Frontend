@@ -93,7 +93,7 @@ const printPdf = (report) => {
 
 const props = defineProps(["salesReport"]);
 const reportsData = props.salesReport;
-console.log("reportsData", props.salesReport);
+console.log("reportsDatasssss", props.salesReport);
 
 const maximizedToggle = ref(true);
 const printDialog = ref(false);

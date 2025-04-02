@@ -16,6 +16,7 @@
     <q-card style="width: 450px">
       <q-card-section class="row bg-gradient text-white">
         <div class="text-h6 text-white">Credits</div>
+        {{ saleReportId }} {{ userId }}
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
@@ -242,8 +243,29 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useUsersStore } from "src/stores/user";
 import { ref, reactive, computed, watch } from "vue";
 
-const props = defineProps(["reports", "user"]);
-const employee_credits_id = props.reports[0].id;
+// const props = defineProps(["reports", "user"]);
+const props = defineProps({
+  reports: {
+    type: Array,
+    default: () => [],
+  },
+  user: {
+    type: Object,
+    default: () => ({}),
+  },
+  saleReportId: {
+    type: [String, Number],
+    default: null,
+  },
+  userId: {
+    type: [String, Number],
+    default: null,
+  },
+});
+const sales_report_id = props.saleReportId;
+const userId = props.userId;
+
+const employee_credits_id = props.reports[0]?.id || "";
 
 const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
@@ -255,7 +277,7 @@ const productSearchData = computed(() => salesReportsStore.products);
 console.log("products search", productSearchData.value);
 const userData = salesReportsStore.user;
 console.log("userdata", userData);
-const branchId = userData?.device?.branch_id || "";
+const branchId = userData?.device?.reference_id || "";
 const dialog = ref(false);
 const searchQuery = ref("");
 const productSearch = ref("");
@@ -375,6 +397,17 @@ const autoFillProduct = (product) => {
 const productCreditTotalAmount = ref("");
 const creditList = ref([]);
 
+// const calculateProductCreditTotalAmount = () => {
+//   const price = parseFloat(creditForm.price) || 0;
+//   const pieces = parseInt(creditForm.pieces) || 0;
+
+//   if (price && pieces) {
+//     productCreditTotalAmount.value = (price * pieces).toFixed(2);
+//   } else {
+//     productCreditTotalAmount.value = "0.00";
+//   }
+// };
+
 const calculateProductCreditTotalAmount = () => {
   const price = parseFloat(creditForm.price);
   const pieces = parseInt(creditForm.pieces);
@@ -449,6 +482,9 @@ watch(productCreditTotalAmount, (newVal) => {
 const handleSubmit = async () => {
   // const formattedTotalAmount = parseFloat(creditForm.creditTotal);
   const employeeCreditReport = {
+    sales_report_id: sales_report_id,
+    user_id: userId,
+    branch_id: branchId,
     employee_credits_id: employee_credits_id,
     credits: creditList.value.map((credit) => ({
       credit_user_id: credit.credit_user_id,
@@ -461,8 +497,21 @@ const handleSubmit = async () => {
     })),
   };
 
-  await creditsStore.addingCredits(employeeCreditReport);
-  console.log("employeeCreditReport:", employeeCreditReport);
+  if (employee_credits_id) {
+    // If `employee_credits_id` exists, update existing record
+    await creditsStore.addingCredits(employeeCreditReport);
+    console.log(
+      "Updating existing employee credit record:",
+      employeeCreditReport
+    );
+  } else {
+    // If `employee_credits_id` does not exist, create a new one
+    await creditsStore.savingCredits(employeeCreditReport);
+    console.log("Creating new employee credit record:", employeeCreditReport);
+  }
+
+  // await creditsStore.addingCredits(employeeCreditReport);
+  // console.log("employeeCreditReport:", employeeCreditReport);
 
   dialog.value = false;
   clear();

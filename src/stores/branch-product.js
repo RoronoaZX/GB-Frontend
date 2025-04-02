@@ -8,6 +8,8 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
   const branchProduct = ref(null);
   const branchProducts = ref([]);
   const branchId = ref([]);
+  const sampleFetchPagination = ref([]);
+  const totalFetch = ref(0);
 
   const productsStore = useProductsStore();
   const products = computed(() => productsStore.products);
@@ -16,6 +18,29 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
   const fetchBranchProducts = async (branchId) => {
     const response = await api.get(`/api/branches/${branchId}/products`);
     branchProducts.value = response.data;
+  };
+
+  // sample testing funciton for pagination
+
+  const sampleFetchPaginationProducts = async ({
+    page,
+    rowsPerPage,
+    branchId,
+  }) => {
+    console.log("Page:", page);
+    console.log("RowsPerPage:", rowsPerPage);
+    console.log("Branch ID:", branchId);
+    try {
+      const response = await api.get(
+        `/api/sample-fetch-pagination-branch-products?page=${page}&rowsPerPage=${rowsPerPage}&branchId=${branchId}`
+      );
+      sampleFetchPagination.value = response.data.data;
+      console.log("Sample Fetch Pagination:", response.data.data);
+      totalFetch.value = response.data.total;
+      console.log("Total Fetch:", response.data.total);
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
   // New Search Function
@@ -104,10 +129,13 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     branchId,
     branchProduct,
     branchProducts,
+    sampleFetchPagination,
+    totalFetch,
     fetchBranchProducts,
     createBranchProducts,
     updateBranchProductPrice,
     deleteBranchProducts,
     searchBranchProducts,
+    sampleFetchPaginationProducts,
   };
 });

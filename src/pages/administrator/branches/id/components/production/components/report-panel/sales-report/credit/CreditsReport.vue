@@ -15,7 +15,9 @@
             @click="
               handleCreditsDialog(
                 props.sales_Reports[0].credit_reports,
-                props.sales_Reports[0].user.employee
+                props.sales_Reports[0].user.employee,
+                props.sales_Reports[0].id,
+                props.sales_Reports[0].user_id
               )
             "
           />
@@ -39,7 +41,7 @@ import { useQuasar } from "quasar";
 import CreditsReportDialog from "./CreditsReportDialog.vue";
 
 const props = defineProps(["sales_Reports"]);
-console.log("sales_Reports to send in credits", props.sales_Reports);
+console.log("sales_Reports to send in creditsss", props.sales_Reports);
 
 const $q = useQuasar();
 const formatPrice = (price) => {
@@ -49,12 +51,14 @@ const formatPrice = (price) => {
   }).format(price);
 };
 
-const handleCreditsDialog = (dataReports, userData) => {
+const handleCreditsDialog = (dataReports, userData, salesReportId, userId) => {
   $q.dialog({
     component: CreditsReportDialog,
     componentProps: {
       reports: dataReports,
       user: userData,
+      salesReportId: salesReportId,
+      userId: userId,
     },
   });
 };

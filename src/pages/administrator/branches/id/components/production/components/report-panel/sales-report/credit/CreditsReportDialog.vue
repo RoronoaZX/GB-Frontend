@@ -13,6 +13,7 @@
       <q-card-section style="background-color: #03a9f4">
         <div class="row justify-between text-white">
           <div class="text-h6">Credits Report</div>
+          {{ salesReportId }}{{ userId }}
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
           </q-btn>
@@ -37,7 +38,12 @@
           </q-input>
         </div>
         <div>
-          <AddingCredit :reports="creditReports" :user="props.user" />
+          <AddingCredit
+            :reports="creditReports"
+            :user="props.user"
+            :userId="userId"
+            :saleReportId="salesReportId"
+          />
         </div>
       </q-card-section>
       <q-card-section>
@@ -96,46 +102,56 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const dialog = ref(false);
 const maximizedToggle = ref(true);
 const props = defineProps({
-  reports: Array,
-  user: Object,
+  reports: {
+    type: Array,
+    default: () => [], // Default to empty array if reports are not provided
+  },
+  user: {
+    type: Object,
+    default: () => ({}), // Default to empty object if user is not provided
+  },
+  salesReportId: {
+    type: Number,
+    default: null, // Default to null if salesReportId is not provided
+  },
+  userId: {
+    type: Number,
+    default: null, // Default to null if userId is not provided
+  },
 });
+
+console.log("Credit Reports:", props.reports);
+console.log("User Data:", props.user);
+console.log("Sales Report ID:", props.salesReportId);
+console.log("User ID:", props.userId);
 const filter = ref("");
 const pagination = ref({
   rowsPerPage: 0,
 });
 
 const creditReports = props.reports;
-console.log("creditReports data testing", creditReports);
-const employee_credits_id = creditReports[0].id;
-console.log("employee_credits_id", employee_credits_id);
 const user = props.user;
-console.log("user data testing", props.user);
 
-creditReports.forEach((report, index) => {
-  console.log(`Report ${index}:`, report);
-  console.log(
-    `Credit Products for Report ${index}:`,
-    report.credit_products.total_amount
-  );
-});
+if (!creditReports.length) {
+  console.warn("No credit reports provided!");
+}
 
 const filteredRows = computed(() => {
   return creditReports.flatMap((report) => {
-    return report.credit_products.map((product) => {
-      // Parse pieces and price, calculate total_amount
-      const pieces = parseInt(product.pieces, 10) || 0;
-      const price = parseFloat(product.price) || 0;
-      const totalAmount = pieces * price;
+    return (
+      report.credit_products?.map((product) => {
+        const pieces = parseInt(product.pieces, 10) || 0;
+        const price = parseFloat(product.price) || 0;
+        const totalAmount = pieces * price;
 
-      // Return product with calculated total_amount added
-      return {
-        ...product,
-        total_amount: totalAmount,
-      };
-    });
+        return {
+          ...product,
+          total_amount: totalAmount,
+        };
+      }) || []
+    ); // Ensure fallback to empty array if credit_products is missing
   });
 });
-console.log("All Credit Products:", filteredRows.value[0]);
 
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";
@@ -168,7 +184,7 @@ const creditProductsColumn = [
     name: "productName",
     label: "Product Name",
     field: (row) => {
-      return row.product.name || "N/A";
+      return row.product?.name || "N/A"; // Ensure fallback if product.name is missing
     },
     align: "center",
   },
@@ -192,15 +208,13 @@ const creditProductsColumn = [
   },
 ];
 
-// Log to verify the structure of props.reports
-console.log("Reports data structure:", props.reports);
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "PHP",
   }).format(price);
 };
+
 const formatAmount = (total_amount) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -210,11 +224,141 @@ const formatAmount = (total_amount) => {
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    const amount = parseFloat(row.total_amount) || 0; // Ensure proper parsing and handle non-numeric values
+    const amount = parseFloat(row.total_amount) || 0; // Ensure proper parsing
     return total + amount;
-  }, 0); // Provide an initial value for reduce
+  }, 0);
   return total;
 });
+
+// import AddingCredit from "./AddingCredit.vue";
+// import { useDialogPluginComponent } from "quasar";
+// import { ref, computed } from "vue";
+
+// const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+//   useDialogPluginComponent();
+
+// const dialog = ref(false);
+// const maximizedToggle = ref(true);
+// const props = defineProps({
+//   reports: Array,
+//   user: Object,
+// });
+// const filter = ref("");
+// const pagination = ref({
+//   rowsPerPage: 0,
+// });
+
+// const creditReports = props.reports;
+// console.log("creditReports data testing", creditReports);
+// const employee_credits_id = creditReports[0].id;
+// console.log("employee_credits_id", employee_credits_id);
+// const user = props.user;
+// console.log("user data testing", props.user);
+
+// creditReports.forEach((report, index) => {
+//   console.log(`Report ${index}:`, report);
+//   console.log(
+//     `Credit Products for Report ${index}:`,
+//     report.credit_products.total_amount
+//   );
+// });
+
+// const filteredRows = computed(() => {
+//   return creditReports.flatMap((report) => {
+//     return report.credit_products.map((product) => {
+//       // Parse pieces and price, calculate total_amount
+//       const pieces = parseInt(product.pieces, 10) || 0;
+//       const price = parseFloat(product.price) || 0;
+//       const totalAmount = pieces * price;
+
+//       // Return product with calculated total_amount added
+//       return {
+//         ...product,
+//         total_amount: totalAmount,
+//       };
+//     });
+//   });
+// });
+// console.log("All Credit Products:", filteredRows.value[0]);
+
+// const capitalizeFirstLetter = (location) => {
+//   if (!location) return "";
+//   return location
+//     .split(" ")
+//     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+//     .join(" ");
+// };
+
+// const formatFullname = (row) => {
+//   const capitalize = (str) =>
+//     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+//   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+//   const middlename = row.middlename
+//     ? capitalize(row.middlename).charAt(0) + "."
+//     : "";
+//   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+//   return `${firstname} ${middlename} ${lastname}`.trim();
+// };
+
+// const creditProductsColumn = [
+//   {
+//     name: "name",
+//     label: "Employee Name",
+//     field: (row) => formatFullname(row.credit_user_id),
+//     align: "center",
+//   },
+//   {
+//     name: "productName",
+//     label: "Product Name",
+//     field: (row) => {
+//       return row.product.name || "N/A";
+//     },
+//     align: "center",
+//   },
+//   {
+//     name: "pieces",
+//     label: "Pieces",
+//     field: "pieces",
+//     align: "center",
+//   },
+//   {
+//     name: "price",
+//     label: "Price",
+//     field: "price",
+//     align: "center",
+//   },
+//   {
+//     name: "total_amount",
+//     label: "Total Amount",
+//     field: "total_amount",
+//     align: "center",
+//   },
+// ];
+
+// // Log to verify the structure of props.reports
+// console.log("Reports data structure:", props.reports);
+
+// const formatPrice = (price) => {
+//   return new Intl.NumberFormat("en-US", {
+//     style: "currency",
+//     currency: "PHP",
+//   }).format(price);
+// };
+// const formatAmount = (total_amount) => {
+//   return new Intl.NumberFormat("en-US", {
+//     style: "currency",
+//     currency: "PHP",
+//   }).format(total_amount);
+// };
+
+// const overallTotal = computed(() => {
+//   const total = filteredRows.value.reduce((total, row) => {
+//     const amount = parseFloat(row.total_amount) || 0; // Ensure proper parsing and handle non-numeric values
+//     return total + amount;
+//   }, 0); // Provide an initial value for reduce
+//   return total;
+// });
 
 // console.log("Expenses:", filteredRows.value);
 </script>

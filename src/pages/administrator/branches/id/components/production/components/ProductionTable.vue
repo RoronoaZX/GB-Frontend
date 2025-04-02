@@ -34,13 +34,11 @@
       v-else
       class="table-container sticky-header"
       :filter="filter"
-      :virtual-scroll-sticky-size-start="48"
       flat
-      style="height: 400px"
+      style="height: 450px"
       :columns="productsColumn"
       :rows="filteredRows"
       row-key="reportDate"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
@@ -98,6 +96,7 @@ const pagination = ref({
 const productionStore = useProductionStore();
 const filter = ref("");
 const productionRows = computed(() => productionStore.productions);
+console.log("productionRows:", productionRows.value); // Log the computed production rows
 const isLoading = ref(true);
 const loading = ref(true);
 const showNoDataMessage = ref(false);

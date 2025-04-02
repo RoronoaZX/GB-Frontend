@@ -39,12 +39,15 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
 
     async fetchBakerReport(userId, page, rowsNumber) {
       try {
-        const response = await api.get(`/api/branch/${userId}/bakerReport`, {
-          params: {
-            page,
-            per_page: rowsNumber,
-          },
-        });
+        const response = await api.get(
+          `/api/branch/${userId}/bakerReport` + window.location.search,
+          {
+            params: {
+              page,
+              per_page: rowsNumber,
+            },
+          }
+        );
 
         // Update the store/state with paginated response data
         // this.reportToView = response.data.data;
@@ -67,6 +70,41 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
       console.log("response", response.data);
       console.log("====================================");
       this.reports = response.data;
+    },
+
+    async adminAddRecipebakerReport(data) {
+      console.log("data admin send RecipebakerReport adding ", data);
+      try {
+        const response = await api.post(
+          "/api/admin-create-admin-insert-recipe-baker-report",
+          {
+            reports: data,
+          }
+        );
+        Notify.create({
+          type: "positive",
+          message: "Report successfully send",
+          timeout: 1000,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+      // try {
+      //   console.log("data admin to send:", this.recipes);
+      //   const response = await api.post("/api/admin-create-baker-report", {
+      //     recipes: data,
+      //   });
+      //   Notify.create({
+      //     type: "positive",
+      //     message: "Recipe successfully send",
+      //     timeout: 1000,
+      //   });
+
+      //   // console.log("Reports to be saved:", this.reports);
+      //   this.recipes = [];
+      // } catch (error) {
+      //   console.log(error);
+      // }
     },
 
     async adminBakerCreateReports(data) {
