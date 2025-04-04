@@ -22,7 +22,7 @@
       <div>
         <q-input
           label="Receipt No."
-          v-model="vatData.receiptNo"
+          v-model="vatData.receipt_no"
           type="number"
           outlined
           dense
@@ -35,7 +35,7 @@
       </div>
       <div>
         <q-input
-          v-model="vatData.tinNo"
+          v-model="vatData.tin_no"
           type="number"
           label="TIN No."
           outlined
@@ -85,35 +85,13 @@
         style="width: 490px"
         class="text-uppercase"
       />
-      <!-- <div>
-        <q-btn
-          outline
-          dense
-          icon="add"
-          label="Add To List"
-          class="q-pa-sm"
-          size="sm"
-          :style="{
-            color: radioBtnVATIndicator
-              ? radioBtnVATIndicator === 'Non-VAT'
-                ? 'red'
-                : 'teal'
-              : 'dark',
-          }"
-          @click="handleSubmit"
-        />
-      </div> -->
-      <!-- :rules="[(val) => !!val || 'Address is required']"
-        :error="!!errors.address"
-        :error-message="errors.address"
-        @update:model-value="clearError('address')" -->
     </div>
     <div class="q-mr-lg" align="right">
       <q-btn
         outline
         dense
-        icon="add"
-        label="Add To List"
+        icon="send"
+        label="save"
         class="q-pa-sm"
         size="sm"
         :style="{
@@ -132,19 +110,25 @@
 <script setup>
 import { reactive, ref, watch, computed } from "vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
+import { useDeliveryReceiptStore } from "src/stores/delivery-report";
 import { useUsersStore } from "src/stores/user";
 import { Notify } from "quasar";
 
 const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
 const salesReportsStore = useSalesReportsStore();
+const deliveryReceiptStore = useDeliveryReceiptStore();
 const userData = salesReportsStore.user;
 console.log("userdatasss", userData);
+// const userId = userData?.data?.id || "";
+// console.log("userId", userId);
+// const branchId = userData?.device?.reference_id || "";
+// console.log("branchId", branchId);
 
 const radioBtnVATIndicator = ref(""); // Default selection
 const vatData = reactive({
-  receiptNo: "",
-  tinNo: "",
+  receipt_no: "",
+  tin_no: "",
   description: "",
   amount: "",
   address: "",
@@ -153,63 +137,12 @@ const vatData = reactive({
 
 const clear = () => {
   radioBtnVATIndicator.value = "";
-  vatData.receiptNo = "";
-  vatData.tinNo = "";
+  vatData.receipt_no = "";
+  vatData.tin_no = "";
   vatData.description = "";
   vatData.amount = "";
   vatData.address = "";
 };
-
-// const errors = ref({
-//   radioBtnVATIndicator: "",
-//   receiptNo: "",
-//   tinNo: "",
-//   description: "",
-//   amount: "",
-//   address: "",
-// });
-
-// const clearError = (field) => {
-//   errors.value[field] = "";
-// };
-
-// const validateFields = () => {
-//   if (!submitted.value) return true;
-//   errors.value = {
-//     radioBtnVATIndicator: "",
-//     receiptNo: "",
-//     tinNo: "",
-//     description: "",
-//     amount: "",
-//     address: "",
-//   };
-//   let isValid = true;
-//   if (!radioBtnVATIndicator.value) {
-//     errors.value.radioBtnVATIndicator = "Please select VAT or Non-VAT";
-//     isValid = false;
-//   }
-//   if (!vatData.receiptNo) {
-//     errors.value.receiptNo = "Receipt No. is required";
-//     isValid = false;
-//   }
-//   if (!vatData.tinNo) {
-//     errors.value.tinNo = "TIN No. is required";
-//     isValid = false;
-//   }
-//   if (!vatData.description) {
-//     errors.value.description = "Description is required";
-//     isValid = false;
-//   }
-//   if (!vatData.amount) {
-//     errors.value.amount = "Amount is required";
-//     isValid = false;
-//   }
-//   if (!vatData.address) {
-//     errors.value.address = "Address is required";
-//     isValid = false;
-//   }
-//   return isValid;
-// };
 
 const handleSubmit = () => {
   // submitted.value = true; // Mark as submitted
@@ -226,21 +159,31 @@ const handleSubmit = () => {
     radioBtnVATIndicator: radioBtnVATIndicator.value,
     amount: amountAsNumber,
   });
+  try {
+    const data = {
+      ...vatData,
+      user_id: userData?.data.id,
+      branch_id: userData?.device?.reference_id,
+      category: radioBtnVATIndicator.value,
+    };
+    // salesReportsStore.updateWithReceiptExpensesReport(data);
+    console.log("data", data);
+    deliveryReceiptStore.saveDeliveryReceipt(data);
+    Notify.create({
+      type: "positive",
+      message: `${radioBtnVATIndicator.value} expenses receipt added successfully`,
+      timeout: 2000,
+    });
 
-  const data = {
-    ...vatData,
-    user_id: userData?.data.id,
-    branch_id: userData?.device?.reference_id,
-    radioBtnVATIndicator: radioBtnVATIndicator.value,
-  };
-  salesReportsStore.updateWithReceiptExpensesReport(data);
-  Notify.create({
-    type: "positive",
-    message: `${radioBtnVATIndicator.value} expenses receipt added successfully`,
-    timeout: 2000,
-  });
-
-  clear();
+    clear();
+  } catch (error) {
+    console.error("Error saving data:", error);
+    Notify.create({
+      type: "negative",
+      message: "Failed to save data. Please try again.",
+      timeout: 2000,
+    });
+  }
 };
 
 // // Watch for changes in radio button selection and alert the value

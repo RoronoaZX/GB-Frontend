@@ -28,6 +28,11 @@ const routes = [
           import("pages/administrator/raw_materials/RawMaterialsPage.vue"),
       },
       {
+        path: "bir_reports",
+        component: () =>
+          import("pages/administrator/bir-reports/BirReportsPage.vue"),
+      },
+      {
         path: "recipe",
         component: () => import("pages/administrator/recipe/RecipePage.vue"),
       },

@@ -66,7 +66,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       // this.updateEmployeeCreditReports();
     },
     removeWithReceiptExpenses(index) {
-      this.withOutReceiptExpensesReport.splice(index, 1);
+      this.withReceiptExpensesReports.splice(index, 1);
       this.updateProductsTotalAmount();
       this.calculateCharges(this.denominationTotal);
     },

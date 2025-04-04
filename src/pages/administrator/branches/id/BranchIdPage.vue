@@ -28,6 +28,7 @@
             <q-tab name="premix" label="Premix" />
             <q-tab name="production" label="Production" />
             <q-tab name="transaction" label="Transactions" />
+            <q-tab name="bir-report" label="BIR Report" />
           </q-tabs>
         </div>
 
@@ -56,6 +57,9 @@
             <q-tab-panel name="transaction">
               <TransactionPage />
             </q-tab-panel>
+            <q-tab-panel name="bir-report">
+              <BirReportsPage />
+            </q-tab-panel>
           </q-tab-panels>
         </q-card>
       </div>
@@ -69,6 +73,7 @@ import ProductionPage from "./components/production/ProductionPage.vue";
 import TransactionPage from "./components/transactions/TransactionPage.vue";
 import RecipePage from "./components/recipe/RecipePage.vue";
 import PremixPage from "./components/premix/PremixPage.vue";
+import BirReportsPage from "./components/bir-reports/BirReportsPage.vue";
 
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";

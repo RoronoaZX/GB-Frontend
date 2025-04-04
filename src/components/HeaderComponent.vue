@@ -96,6 +96,14 @@ const menuItems = [
     separator: true,
   },
   {
+    name: "bir_reports",
+    icon: "fa-solid fa-file-invoice",
+    to: "/admin/bir_reports",
+    label: "BIR Reports",
+    toolbarDisplay: "📈 BIR Reports",
+    separator: true,
+  },
+  {
     name: "recipe",
     icon: "description",
     to: "/admin/recipe",

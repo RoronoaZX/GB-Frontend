@@ -8,7 +8,7 @@
     />
   </div>
   <q-dialog v-model="dialog">
-    <q-card style="width: 700px">
+    <q-card style="width: 450px">
       <q-card-section class="bg-gradient text-white">
         <div class="row justify-between">
           <div class="text-h6">Expenses</div>
@@ -18,7 +18,7 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <q-tabs
+        <!-- <q-tabs
           v-model="tab"
           dense
           class="bg-grey-2 text-grey-7 tabs-as-cards"
@@ -29,15 +29,17 @@
           <q-tab name="with_out_receipt" label="W/out receipt" />
           <q-tab name="with_receipt" label="W/ Receipt" />
         </q-tabs>
-        <q-separator />
-        <q-tab-panels v-model="tab" animated>
+        <q-separator /> -->
+        <WithOutReceiptExpenses />
+
+        <!-- <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="with_out_receipt">
-            <WithOutReceiptExpenses />
+
           </q-tab-panel>
           <q-tab-panel name="with_receipt">
             <WithReceiptExpenses />
           </q-tab-panel>
-        </q-tab-panels>
+        </q-tab-panels> -->
       </q-card-section>
       <!-- <q-card-section>
         <div class="q-gutter-y-md">
@@ -50,7 +52,6 @@
                 style="width: 300px"
                 placeholder="Name"
               >
-
               </q-input>
             </div>
             <div>

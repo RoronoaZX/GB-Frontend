@@ -18,19 +18,26 @@
         <div>
           <ExpensesReport />
         </div>
+        <!-- <div>
+          <DeliveryReceiptReport />
+        </div> -->
         <div>
           <EmployeeCreditReport />
         </div>
         <div>
           <DenominationReport />
         </div>
+        <div>
+          <DeliveryReceiptReport />
+        </div>
       </div>
       <div class="q-mt-md">
         <OverAllTotal />
       </div>
       <div class="q-mt-md q-gutter-y-md">
-        <EmployeeCreditReportField />
+        <!-- <WithReceiptExpensesReport /> -->
         <WithOutReceiptExpensesReportField />
+        <EmployeeCreditReportField />
         <BreadReportField />
         <SelectaReportField />
         <SoftdrinksReportField />
@@ -49,11 +56,13 @@ import SoftdrinksReportField from "./components/SoftdrinksReportField.vue";
 import SelectaReportField from "./components/SelectaReportField.vue";
 import BreadReportField from "./components/BreadReportField.vue";
 import WithOutReceiptExpensesReportField from "./components/WithOutReceiptExpensesReportField.vue";
+import WithReceiptExpensesReport from "./components/WithReceiptExpensesReport.vue";
 import EmployeeCreditReportField from "./components/EmployeeCreditReportField.vue";
 import ViewOldReports from "./components/view-reports/ViewOldReports.vue";
 import CakeReportField from "./components/CakeReportField.vue";
 import OtherReportField from "./components/OtherReportField.vue";
 import { ref, reactive } from "vue";
+import DeliveryReceiptReport from "./components/receipt-report/DeliveryReceiptReport.vue";
 
 const dialog = ref(false);
 const openDialog = () => {

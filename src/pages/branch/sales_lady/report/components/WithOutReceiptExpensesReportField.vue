@@ -1,8 +1,6 @@
 <template>
   <div class="q-pa-xm">
-    <div class="text-subtitle2 text-weight-light">
-      W/Out Receipt Expenses Report
-    </div>
+    <div class="text-subtitle2 text-weight-light">Expenses Report</div>
     <q-list dense separator class="box">
       <q-item>
         <q-item-section align="center">
@@ -10,6 +8,9 @@
         </q-item-section>
         <q-item-section align="center">
           <q-item-label> Description </q-item-label>
+        </q-item-section>
+        <q-item-section align="center">
+          <q-item-label> Category </q-item-label>
         </q-item-section>
         <q-item-section align="center">
           <q-item-label> Amount </q-item-label>
@@ -35,6 +36,16 @@
             <span>
               {{ expenses.description }}
             </span>
+          </q-item-label>
+        </q-item-section>
+        <q-item-section align="center">
+          <q-item-label>
+            <q-badge
+              outline
+              :label="capitalizeFirstLetter(expenses.category)"
+              :color="getCategoryColor(expenses.category)"
+              text-color="white"
+            />
           </q-item-label>
         </q-item-section>
         <q-item-section align="center">
@@ -132,6 +143,20 @@ const formatCurrency = (value) => {
 
 const removeExpenses = (index) => {
   salesReportsStore.removeExpenses(index);
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const getCategoryColor = (value) => {
+  if (value === "normal") return "blue";
+  if (value === "premium") return "purple";
+  return "grey"; // default fallback
 };
 </script>
 

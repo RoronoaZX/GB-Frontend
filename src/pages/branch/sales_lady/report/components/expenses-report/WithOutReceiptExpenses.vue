@@ -1,6 +1,24 @@
 <template>
   <div class="q-gutter-y-md">
     <div class="row q-gutter-x-md">
+      <div class="q-gutter-x-xl" align="center">
+        <q-radio
+          keep-color
+          v-model="radioBtnVATIndicator"
+          size="lg"
+          val="normal"
+          label="Normal"
+          color="primary"
+        />
+        <q-radio
+          keep-color
+          v-model="radioBtnVATIndicator"
+          size="lg"
+          val="premium"
+          label="Premium"
+          color="purple-12"
+        />
+      </div>
       <div>
         <q-input
           v-model="expensesForm.name"
@@ -82,6 +100,7 @@ const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 console.log("userdatasss", userData);
 const dialog = ref(false);
+const radioBtnVATIndicator = ref("");
 const tab = ref("ordinary");
 // const searchQuery = ref("");
 // const showUserCard = ref(true);
@@ -135,6 +154,7 @@ const handleSubmit = () => {
     user_id: userData?.data.id,
     branch_id: userData?.device?.reference_id,
     amount: amountAsNumber,
+    category: radioBtnVATIndicator.value,
   };
 
   salesReportsStore.updateWithOutReceiptExpensesReport(expenseReport);
