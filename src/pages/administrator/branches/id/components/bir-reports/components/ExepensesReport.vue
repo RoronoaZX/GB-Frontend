@@ -67,7 +67,6 @@
     </q-table>
   </div>
 </template>
-
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useBirReportsStore } from "src/stores/bir-reports";
@@ -77,7 +76,7 @@ import { date } from "quasar";
 import * as XLSX from "xlsx";
 
 const birReportsStore = useBirReportsStore();
-const birReports = computed(() => birReportsStore.NonVatReports);
+const birReports = computed(() => birReportsStore.expensesReport);
 const route = useRoute();
 const branchId = route.params.branch_id;
 console.log("branchId", branchId);
@@ -154,14 +153,14 @@ const formatDateToCustomString = (dateString) => {
 const formattedStart = formatDateToCustomString(startDate.value);
 console.log("formattedStart", formattedStart);
 
-const fetchNonVatBirReports = async (branchId) => {
+const fetchExpensesReport = async (branchId) => {
   console.log("branchId", branchId);
   console.log("startDate", startDate.value);
   console.log("endDate", endDate.value);
 
   try {
     // if (branchId)
-    await birReportsStore.fetchNonVatBirReports(
+    await birReportsStore.fetchExpensesReport(
       branchId,
       startDate.value,
       endDate.value
@@ -173,7 +172,7 @@ const fetchNonVatBirReports = async (branchId) => {
 
 // onMounted(() => {
 //   if (branchId) {
-//     fetchNonVatBirReports(branchId);
+//     fetchExpensesReport(branchId);
 //   }
 // });
 
@@ -199,7 +198,7 @@ const onPrev = () => {
   endDate.value = newEndDate;
 
   if (branchId) {
-    fetchNonVatBirReports(branchId);
+    fetchExpensesReport(branchId);
   }
 };
 
@@ -207,7 +206,7 @@ const onPrev = () => {
 const onCurrent = () => {
   initializeDateRange();
   if (branchId) {
-    fetchNonVatBirReports(branchId);
+    fetchExpensesReport(branchId);
   }
 };
 
@@ -221,7 +220,7 @@ const onNext = () => {
   startDate.value = newStartDate;
   endDate.value = newEndDate;
   if (branchId) {
-    fetchNonVatBirReports(branchId);
+    fetchExpensesReport(branchId);
   }
 };
 
@@ -231,9 +230,10 @@ initializeDateRange();
 onMounted(() => {
   initializeDateRange(); // ensure date is always the current month
   if (branchId) {
-    fetchNonVatBirReports(branchId); // fetch the current month data
+    fetchExpensesReport(branchId); // fetch the current month data
   }
 });
+
 const branchBirReports = [
   {
     name: "date",
@@ -243,30 +243,10 @@ const branchBirReports = [
     format: formatDate,
   },
   {
-    name: "receipt_no",
-    label: "Receipt No.",
-    align: "center",
-    field: (row) => row.receipt_no,
-  },
-  {
     name: "description",
     label: "Description",
     align: "center",
     field: (row) => row.description,
-    format: (val) => val.toUpperCase(),
-  },
-  {
-    name: "address",
-    label: "Address",
-    align: "center",
-    field: (row) => row.address,
-    format: (val) => val.toUpperCase(),
-  },
-  {
-    name: "tin_no",
-    label: "TIN No.",
-    align: "center",
-    field: (row) => row.tin_no,
   },
   {
     name: "amount",
@@ -274,30 +254,8 @@ const branchBirReports = [
     align: "center",
     field: (row) => formatPrice(row.amount),
   },
-  {
-    name: "purchase",
-    label: "Purchase",
-    align: "center",
-    field: (row) => formatPrice((row.amount / 1.12).toFixed(2)),
-  },
-  {
-    name: "input_tax",
-    label: "Input Tax",
-    align: "center",
-    field: (row) => formatPrice(((row.amount / 1.12) * 0.12).toFixed(2)),
-  },
-  // format: (val) => `$${val.toFixed(2)}`,
 ];
 
-// const companyInfo = {
-//   name: "GB BAKESHOP",
-//   tin: "277-391-942-000",
-//   owner: "CLEMENTE GUERRERO",
-//   address: "V. GUSTILO ST., BRGY. III, SAN CARLOS CITY, NEG. OCC.",
-//   reportType: "PURCHASES",
-//   reportMonth: "MARCH 2025",
-// };
-// Function to extract month and year from startDate
 const getMonthAndYear = (dateString) => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "Invalid Date"; // Check if the date is valid
@@ -310,83 +268,148 @@ const getMonthAndYear = (dateString) => {
 // Usage
 const monthAndYear = computed(() => getMonthAndYear(startDate.value));
 
+// const downloadExcel = () => {
+//   const workbook = XLSX.utils.book_new();
+
+//   // Define styles
+//   const boldCenterStyle = {
+//     font: { bold: true },
+//     alignment: { horizontal: "center" },
+//   };
+//   const centerAlignStyle = { alignment: { horizontal: "center" } };
+
+//   // Sheet data
+//   const sheetData = [
+//     [{ v: branchData.value[0].name, s: boldCenterStyle }], // Bold Center
+//     [{ v: branchData.value[0].location, s: centerAlignStyle }],
+//     [""], // Empty row
+//     [{ v: branchData.value.reportType, s: boldCenterStyle }],
+//     [
+//       {
+//         v: `AS FOR THE MONTH OF: ${monthAndYear.value}`,
+//         s: boldCenterStyle,
+//       },
+//     ],
+//     [""], // Empty row
+//     [
+//       { v: "DATE", s: boldCenterStyle },
+
+//       { v: "DESCRIPTION", s: boldCenterStyle },
+//       { v: "GROSS", s: boldCenterStyle },
+//       ,
+//     ],
+//   ];
+
+//   // Append data dynamically
+//   birReports.value.forEach((row) => {
+//     sheetData.push([
+//       { v: formatDate(row.created_at), s: centerAlignStyle },
+//       { v: row.description.toUpperCase() },
+//       { v: row.amount, s: centerAlignStyle },
+//       // { v: row.receipt_no, s: centerAlignStyle },
+//       // { v: row.address.toUpperCase() },
+//       // { v: row.tin_no, s: centerAlignStyle },
+//       // { v: (row.amount / 1.12).toFixed(2), s: centerAlignStyle },
+//       // { v: ((row.amount / 1.12) * 0.12).toFixed(2), s: centerAlignStyle },
+//     ]);
+//   });
+
+//   // Create worksheet with styles
+//   const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+//   // Set column widths
+//   worksheet["!cols"] = [
+//     { wch: 12 }, // DATE
+//     { wch: 30 }, // DESCRIPTION
+//     { wch: 12 }, // GROSS
+//     // { wch: 12 }, // RECEIPT NO.
+//     // { wch: 35 }, // ADDRESS
+//     // { wch: 18 }, // TIN NUMBER
+//     // { wch: 12 }, // PURCHASE
+//     // { wch: 12 }, // INPUT TAX
+//   ];
+
+//   // Apply styles
+//   Object.keys(worksheet).forEach((cell) => {
+//     if (worksheet[cell].s) {
+//       worksheet[cell].s = worksheet[cell].s;
+//     }
+//   });
+
+//   // Append worksheet & export
+//   XLSX.utils.book_append_sheet(workbook, worksheet, "BIR Report");
+//   XLSX.writeFile(workbook, `EXPENSES_BIR_Report_${monthAndYear.value}.xlsx`);
+// };
+
 const downloadExcel = () => {
   const workbook = XLSX.utils.book_new();
 
   // Define styles
   const boldCenterStyle = {
     font: { bold: true },
-    alignment: { horizontal: "center" },
+    alignment: { horizontal: "center", vertical: "center" },
   };
-  const centerAlignStyle = { alignment: { horizontal: "center" } };
+  const centerAlignStyle = {
+    alignment: { horizontal: "center", vertical: "center" },
+  };
+
+  const headerStyle = {
+    font: { bold: true },
+    alignment: { horizontal: "center", vertical: "center" },
+    border: {
+      top: { style: "thin", color: { rgb: "000000" } },
+      bottom: { style: "thin", color: { rgb: "000000" } },
+      left: { style: "thin", color: { rgb: "000000" } },
+      right: { style: "thin", color: { rgb: "000000" } },
+    },
+    fill: {
+      fgColor: { rgb: "D9D9D9" }, // Light gray background
+    },
+  };
 
   // Sheet data
   const sheetData = [
-    [{ v: branchData.value[0].name, s: boldCenterStyle }], // Bold Center
+    [{ v: branchData.value[0].name, s: boldCenterStyle }],
     [{ v: branchData.value[0].location, s: centerAlignStyle }],
-    [""], // Empty row
+    [""],
     [{ v: branchData.value.reportType, s: boldCenterStyle }],
+    [{ v: `AS FOR THE MONTH OF: ${monthAndYear.value}`, s: boldCenterStyle }],
+    [""],
     [
-      {
-        v: `AS FOR THE MONTH OF: ${monthAndYear.value}`,
-        s: boldCenterStyle,
-      },
-    ],
-    [""], // Empty row
-    [
-      { v: "DATE", s: boldCenterStyle },
-      { v: "RECEIPT NO.", s: boldCenterStyle },
-      { v: "DESCRIPTION", s: boldCenterStyle },
-      { v: "ADDRESS", s: boldCenterStyle },
-      { v: "TIN NUMBER", s: boldCenterStyle },
-      { v: "GROSS", s: boldCenterStyle },
-      { v: "PURCHASE", s: boldCenterStyle },
-      { v: "INPUT TAX", s: boldCenterStyle },
+      { v: "DATE", s: headerStyle },
+      { v: "DESCRIPTION", s: headerStyle },
+      { v: "GROSS", s: headerStyle },
     ],
   ];
 
-  // Append data dynamically
+  // Append report data
   birReports.value.forEach((row) => {
     sheetData.push([
       { v: formatDate(row.created_at), s: centerAlignStyle },
-      { v: row.receipt_no, s: centerAlignStyle },
-      { v: row.description.toUpperCase() },
-      { v: row.address.toUpperCase() },
-      { v: row.tin_no, s: centerAlignStyle },
+      { v: row.description.toUpperCase(), s: centerAlignStyle },
       { v: row.amount, s: centerAlignStyle },
-      { v: (row.amount / 1.12).toFixed(2), s: centerAlignStyle },
-      { v: ((row.amount / 1.12) * 0.12).toFixed(2), s: centerAlignStyle },
     ]);
   });
 
-  // Create worksheet with styles
+  // Create worksheet
   const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-  // Set column widths
-  worksheet["!cols"] = [
-    { wch: 12 }, // DATE
-    { wch: 12 }, // RECEIPT NO.
-    { wch: 30 }, // DESCRIPTION
-    { wch: 35 }, // ADDRESS
-    { wch: 18 }, // TIN NUMBER
-    { wch: 12 }, // GROSS
-    { wch: 12 }, // PURCHASE
-    { wch: 12 }, // INPUT TAX
+  // Column widths
+  worksheet["!cols"] = [{ wch: 15 }, { wch: 40 }, { wch: 15 }];
+
+  // Merge header cells (A1:C1, A2:C2, A4:C4, A5:C5)
+  worksheet["!merges"] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }, // Merge A1:C1
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 2 } }, // Merge A2:C2
+    { s: { r: 3, c: 0 }, e: { r: 3, c: 2 } }, // Merge A4:C4
+    { s: { r: 4, c: 0 }, e: { r: 4, c: 2 } }, // Merge A5:C5
   ];
 
-  // Apply styles
-  Object.keys(worksheet).forEach((cell) => {
-    if (worksheet[cell].s) {
-      worksheet[cell].s = worksheet[cell].s;
-    }
-  });
-
-  // Append worksheet & export
+  // Append and download
   XLSX.utils.book_append_sheet(workbook, worksheet, "BIR Report");
-  XLSX.writeFile(workbook, `NON_VAT_BIR_Report_${monthAndYear.value}.xlsx`);
+  XLSX.writeFile(workbook, `EXPENSES_BIR_Report_${monthAndYear.value}.xlsx`);
 };
 </script>
-
 <style lang="scss" scoped>
 .gradient-btn {
   background: linear-gradient(45deg, #037f60, #08c388);

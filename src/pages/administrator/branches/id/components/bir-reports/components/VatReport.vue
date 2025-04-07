@@ -77,7 +77,7 @@ import { date } from "quasar";
 import * as XLSX from "xlsx";
 
 const birReportsStore = useBirReportsStore();
-const birReports = computed(() => birReportsStore.NonVatReports);
+const birReports = computed(() => birReportsStore.VatReports);
 const route = useRoute();
 const branchId = route.params.branch_id;
 console.log("branchId", branchId);
@@ -154,14 +154,14 @@ const formatDateToCustomString = (dateString) => {
 const formattedStart = formatDateToCustomString(startDate.value);
 console.log("formattedStart", formattedStart);
 
-const fetchNonVatBirReports = async (branchId) => {
+const fetchVatBirReports = async (branchId) => {
   console.log("branchId", branchId);
   console.log("startDate", startDate.value);
   console.log("endDate", endDate.value);
 
   try {
     // if (branchId)
-    await birReportsStore.fetchNonVatBirReports(
+    await birReportsStore.fetchVatBirReports(
       branchId,
       startDate.value,
       endDate.value
@@ -170,12 +170,6 @@ const fetchNonVatBirReports = async (branchId) => {
     console.error("Error fetching BIR reports:", error);
   }
 };
-
-// onMounted(() => {
-//   if (branchId) {
-//     fetchNonVatBirReports(branchId);
-//   }
-// });
 
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");
@@ -199,7 +193,7 @@ const onPrev = () => {
   endDate.value = newEndDate;
 
   if (branchId) {
-    fetchNonVatBirReports(branchId);
+    fetchVatBirReports(branchId);
   }
 };
 
@@ -207,7 +201,7 @@ const onPrev = () => {
 const onCurrent = () => {
   initializeDateRange();
   if (branchId) {
-    fetchNonVatBirReports(branchId);
+    fetchVatBirReports(branchId);
   }
 };
 
@@ -221,7 +215,7 @@ const onNext = () => {
   startDate.value = newStartDate;
   endDate.value = newEndDate;
   if (branchId) {
-    fetchNonVatBirReports(branchId);
+    fetchVatBirReports(branchId);
   }
 };
 
@@ -231,7 +225,7 @@ initializeDateRange();
 onMounted(() => {
   initializeDateRange(); // ensure date is always the current month
   if (branchId) {
-    fetchNonVatBirReports(branchId); // fetch the current month data
+    fetchVatBirReports(branchId); // fetch the current month data
   }
 });
 const branchBirReports = [
@@ -288,16 +282,6 @@ const branchBirReports = [
   },
   // format: (val) => `$${val.toFixed(2)}`,
 ];
-
-// const companyInfo = {
-//   name: "GB BAKESHOP",
-//   tin: "277-391-942-000",
-//   owner: "CLEMENTE GUERRERO",
-//   address: "V. GUSTILO ST., BRGY. III, SAN CARLOS CITY, NEG. OCC.",
-//   reportType: "PURCHASES",
-//   reportMonth: "MARCH 2025",
-// };
-// Function to extract month and year from startDate
 const getMonthAndYear = (dateString) => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "Invalid Date"; // Check if the date is valid
@@ -383,7 +367,7 @@ const downloadExcel = () => {
 
   // Append worksheet & export
   XLSX.utils.book_append_sheet(workbook, worksheet, "BIR Report");
-  XLSX.writeFile(workbook, `NON_VAT_BIR_Report_${monthAndYear.value}.xlsx`);
+  XLSX.writeFile(workbook, `VAT_BIR_Report_${monthAndYear.value}.xlsx`);
 };
 </script>
 

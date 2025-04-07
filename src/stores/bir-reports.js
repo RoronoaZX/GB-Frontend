@@ -5,11 +5,14 @@ import { ref } from "vue";
 export const useBirReportsStore = defineStore("bir-reports", () => {
   const birReport = ref(null);
   const birReports = ref([]);
+  const NonVatReports = ref([]);
+  const VatReports = ref([]);
+  const expensesReport = ref([]);
 
   const fetchNonVatBirReports = async (branchId, startDate, endDate) => {
-    console.log(`fetchBirReports`, branchId);
-    console.log(`fetchBirReports startDate`, startDate);
-    console.log(`fetchBirReports endDate`, endDate);
+    // console.log(`fetchBirReports`, branchId);
+    // console.log(`fetchBirReports startDate`, startDate);
+    // console.log(`fetchBirReports endDate`, endDate);
     try {
       const response = await api.get(
         `/api/fetch-non-vat-bir-reports/${branchId}`,
@@ -18,7 +21,39 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
         }
       );
       console.log("birReports", response.data);
-      birReports.value = response.data;
+      NonVatReports.value = response.data;
+    } catch (error) {
+      console.error("Error fetching BIR reports:", error);
+    }
+  };
+
+  const fetchVatBirReports = async (branchId, startDate, endDate) => {
+    console.log(`fetchBirReports`, branchId);
+    console.log(`fetchBirReports startDate`, startDate);
+    console.log(`fetchBirReports endDate`, endDate);
+
+    try {
+      const response = await api.get(`/api/fetch-vat-bir-reports/${branchId}`, {
+        params: { startDate, endDate },
+      });
+      console.log("birReports", response.data);
+      VatReports.value = response.data;
+    } catch (error) {
+      console.error("Error fetching BIR reports:", error);
+    }
+  };
+
+  const fetchExpensesReport = async (branchId, startDate, endDate) => {
+    console.log(`fetchBirReports`, branchId);
+    console.log(`fetchBirReports startDate`, startDate);
+    console.log(`fetchBirReports endDate`, endDate);
+
+    try {
+      const response = await api.get(`/api/fetch-expenses-report/${branchId}`, {
+        params: { startDate, endDate },
+      });
+      console.log("birReports", response.data);
+      expensesReport.value = response.data;
     } catch (error) {
       console.error("Error fetching BIR reports:", error);
     }
@@ -40,7 +75,12 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   return {
     birReport,
     birReports,
+    NonVatReports,
+    VatReports,
+    expensesReport,
     fetchNonVatBirReports,
     fetchBranchData,
+    fetchVatBirReports,
+    fetchExpensesReport,
   };
 });

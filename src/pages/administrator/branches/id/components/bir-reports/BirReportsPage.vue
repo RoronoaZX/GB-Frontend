@@ -18,12 +18,12 @@
       </q-tab-panel>
       <q-tab-panel name="VAT">
         <div class="q-pa-md">
-          <h6 class="text-h6">VAT</h6>
+          <VatReport />
         </div>
       </q-tab-panel>
       <q-tab-panel name="expenses">
         <div class="q-pa-md">
-          <h6 class="text-h6">Expenses</h6>
+          <ExpensesReport />
         </div>
       </q-tab-panel>
     </q-tab-panels>
@@ -33,6 +33,8 @@
 <script setup>
 import { ref } from "vue";
 import NonVAT from "./components/NonVatReport.vue";
+import VatReport from "./components/VatReport.vue";
+import ExpensesReport from "./components/ExepensesReport.vue";
 
 const tab = ref("non-VAT");
 </script>
