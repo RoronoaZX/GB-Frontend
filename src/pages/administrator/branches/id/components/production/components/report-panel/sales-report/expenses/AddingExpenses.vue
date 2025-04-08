@@ -13,7 +13,7 @@
     position="right"
     backdrop-filter="blur(4px) saturate(150%)"
   >
-    <q-card style="width: 450px">
+    <q-card style="width: 500px">
       <q-card-section class="bg-gradient text-white">
         <div class="row justify-between">
           <div class="text-h6">Expenses</div>
@@ -26,12 +26,32 @@
       <q-card-section>
         <div class="q-gutter-y-md">
           <div class="row q-gutter-x-md">
+            <div class="q-gutter-x-xl" align="center">
+              <q-radio
+                keep-color
+                v-model="radioBtnVATIndicator"
+                size="lg"
+                val="normal"
+                label="Normal"
+                color="primary"
+              />
+              <q-radio
+                keep-color
+                v-model="radioBtnVATIndicator"
+                size="lg"
+                val="premium"
+                label="Premium"
+                color="purple-12"
+              />
+            </div>
+          </div>
+          <div class="row q-gutter-x-md">
             <div>
               <q-input
                 v-model="expensesForm.name"
                 outlined
                 dense
-                style="width: 300px"
+                style="width: 350px"
                 placeholder="Name"
               >
                 <!-- <div
@@ -78,7 +98,7 @@
               placeholder="Description"
               outlined
               autogrow
-              style="width: 415px"
+              style="width: 465px"
             />
           </div>
           <div align="right">
@@ -103,6 +123,9 @@
                 </q-item-section>
                 <q-item-section>
                   <q-item-label class="text-overline">Amount</q-item-label>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-overline">Category</q-item-label>
                 </q-item-section>
                 <q-item-section side>
                   <q-item-label class="text-overline"></q-item-label>
@@ -134,6 +157,20 @@
                   <!-- Price -->
                   <q-item-section class="q-ma-sm q-gutter-sm">
                     <q-item-label caption>{{ expenses.amount }}</q-item-label>
+                  </q-item-section>
+
+                  <!-- Category -->
+                  <q-item-section class="q-ma-sm q-gutter-sm">
+                    <q-item-label caption>
+                      <q-badge
+                        outline
+                        :label="
+                          capitalizeFirstLetter(expenses.radioBtnVATIndicator)
+                        "
+                        :color="getCategoryColor(expenses.radioBtnVATIndicator)"
+                        text-color="white"
+                      />
+                    </q-item-label>
                   </q-item-section>
 
                   <!-- Remove Button -->
@@ -200,6 +237,7 @@ const branch_id = (props.reports[0] && props.reports[0].branch_id) || "Unknown";
 const user_id = props.user_id || "Unknown"; // Fallback if undefined
 const dialog = ref(false);
 const expensesList = ref([]);
+const radioBtnVATIndicator = ref("");
 
 const expensesForm = reactive({
   user_expense_id: "",
@@ -209,12 +247,18 @@ const expensesForm = reactive({
 });
 
 const addExpensesToList = () => {
-  if (expensesForm.name && expensesForm.amount && expensesForm.description) {
+  if (
+    expensesForm.name &&
+    expensesForm.amount &&
+    expensesForm.description &&
+    radioBtnVATIndicator.value
+  ) {
     expensesList.value.push({
       user_expense_id: expensesForm.user_expense_id,
       name: expensesForm.name,
       amount: expensesForm.amount,
       description: expensesForm.description,
+      radioBtnVATIndicator: radioBtnVATIndicator.value,
     });
     clearExpenses();
   } else {
@@ -231,6 +275,7 @@ const clearExpenses = () => {
   expensesForm.name = "";
   expensesForm.amount = 0;
   expensesForm.description = "";
+  radioBtnVATIndicator.value = "";
 };
 
 const removeExpenses = (index) => {
@@ -250,8 +295,10 @@ const handleSubmit = async () => {
       name: expense.name,
       amount: expense.amount,
       description: expense.description,
+      category: expense.radioBtnVATIndicator,
     })),
   };
+  console.log("expenseReport", expenseReport);
   await expensesStore.addingExpense(expenseReport);
   Notify.create({
     type: "positive",
@@ -259,6 +306,20 @@ const handleSubmit = async () => {
     timeout: 1000,
   });
   clearExpenses();
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const getCategoryColor = (value) => {
+  if (value === "normal") return "blue";
+  if (value === "premium") return "purple";
+  return "grey"; // default fallback
 };
 
 // import { Notify } from "quasar";
