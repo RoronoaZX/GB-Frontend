@@ -34,16 +34,8 @@
         <!-- @click="onNext" -->
       </div>
     </div>
-    <div>
-      <!-- <q-btn
-        padding="sm md"
-        size="sm"
-        icon="print"
-        dense
-        label="PRINT"
-        class="gradient-btn text-white"
-        @click="generatePDF"
-      /> -->
+    <div class="row q-gutter-x-md">
+      <AddVatReport />
       <q-btn
         padding="sm md"
         size="sm"
@@ -62,6 +54,8 @@
       :columns="branchBirReports"
       :rows="birReports"
       row-key="name"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[0]"
       hide-bottom
     >
     </q-table>
@@ -75,6 +69,7 @@ import { useRoute } from "vue-router";
 import { date as quasarDate } from "quasar";
 import { date } from "quasar";
 import * as XLSX from "xlsx";
+import AddVatReport from "./AddVATReport.vue";
 
 const birReportsStore = useBirReportsStore();
 const birReports = computed(() => birReportsStore.VatReports);
@@ -85,6 +80,9 @@ const branchData = ref([]);
 console.log("branchData", branchData.value);
 const startDate = ref("");
 const endDate = ref("");
+const pagination = ref({
+  rowsPerPage: 0,
+});
 
 const fetchBranchData = async (branchId) => {
   try {

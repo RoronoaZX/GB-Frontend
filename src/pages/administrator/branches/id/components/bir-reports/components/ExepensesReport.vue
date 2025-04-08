@@ -62,6 +62,8 @@
       :columns="branchBirReports"
       :rows="birReports"
       row-key="name"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[0]"
       hide-bottom
     >
     </q-table>
@@ -84,6 +86,9 @@ const branchData = ref([]);
 console.log("branchData", branchData.value);
 const startDate = ref("");
 const endDate = ref("");
+const pagination = ref({
+  rowsPerPage: 0,
+});
 
 const fetchBranchData = async (branchId) => {
   try {

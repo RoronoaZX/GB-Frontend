@@ -212,11 +212,24 @@ const clear = () => {
 // };
 
 const handleSubmit = () => {
-  // submitted.value = true; // Mark as submitted
-  // if (!validateFields()) {
-  //   return; // Stop submission if validation fails
-  // }
-  // Handle the form submission logic here
+  // Check if any required field is missing
+
+  if (
+    !vatData.receiptNo ||
+    !vatData.tinNo ||
+    !vatData.description ||
+    !vatData.amount ||
+    !vatData.address ||
+    !radioBtnVATIndicator.value
+  ) {
+    Notify.create({
+      type: "negative",
+      message: "Please fill out all required fields.",
+      timeout: 1500,
+    });
+    return;
+  }
+
   const amountAsNumber = parseFloat(vatData.amount.replace(",", "."));
 
   console.log("Form submitted with values:", {

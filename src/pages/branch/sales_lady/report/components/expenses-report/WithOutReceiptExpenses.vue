@@ -144,9 +144,25 @@ const clear = () => {
   expensesForm.name = "";
   expensesForm.amount = "";
   expensesForm.description = "";
+  radioBtnVATIndicator.value = "";
 };
 
 const handleSubmit = () => {
+  // Check if any required field is missing
+  if (
+    !expensesForm.name ||
+    !expensesForm.amount ||
+    !expensesForm.description || // add other fields you consider required
+    !radioBtnVATIndicator.value
+  ) {
+    Notify.create({
+      type: "negative",
+      message: "Please fill out all required fields.",
+      timeout: 1500,
+    });
+    return; // prevent submission
+  }
+
   const amountAsNumber = parseFloat(expensesForm.amount.replace(",", "."));
 
   const expenseReport = {
@@ -158,6 +174,7 @@ const handleSubmit = () => {
   };
 
   salesReportsStore.updateWithOutReceiptExpensesReport(expenseReport);
+
   Notify.create({
     type: "positive",
     message: "Expenses Submitted",
@@ -166,6 +183,27 @@ const handleSubmit = () => {
 
   clear();
 };
+
+// const handleSubmit = () => {
+//   const amountAsNumber = parseFloat(expensesForm.amount.replace(",", "."));
+
+//   const expenseReport = {
+//     ...expensesForm,
+//     user_id: userData?.data.id,
+//     branch_id: userData?.device?.reference_id,
+//     amount: amountAsNumber,
+//     category: radioBtnVATIndicator.value,
+//   };
+
+//   salesReportsStore.updateWithOutReceiptExpensesReport(expenseReport);
+//   Notify.create({
+//     type: "positive",
+//     message: "Expenses Submitted",
+//     timeout: 1000,
+//   });
+
+//   clear();
+// };
 </script>
 
 <style lang="scss" scoped></style>

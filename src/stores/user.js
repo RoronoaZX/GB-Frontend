@@ -10,7 +10,7 @@ export const useUsersStore = defineStore("users", () => {
 
   const setUser = (newUser) => {
     userData.value = newUser;
-    console.log("userData.valuesss", userData.value);
+    console.log("userData.valuessssssss", userData.value);
   };
 
   const fetchUsers = async () => {

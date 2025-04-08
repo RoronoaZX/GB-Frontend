@@ -11,7 +11,7 @@
     <q-card style="width: 700px">
       <q-card-section class="bg-gradient text-white">
         <div class="row justify-between">
-          <div class="text-h6">Delivery Receipt</div>
+          <div class="text-h6">Deliveryss Receipt</div>
           <div>
             <q-btn flat round dense icon="close" @click="closeBtn" />
           </div>

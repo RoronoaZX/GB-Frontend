@@ -145,11 +145,23 @@ const clear = () => {
 };
 
 const handleSubmit = () => {
-  // submitted.value = true; // Mark as submitted
-  // if (!validateFields()) {
-  //   return; // Stop submission if validation fails
-  // }
-  // Handle the form submission logic here
+  // Validate required fields
+  if (
+    !vatData.receipt_no ||
+    !vatData.tin_no ||
+    !vatData.description ||
+    !vatData.amount ||
+    !vatData.address ||
+    !radioBtnVATIndicator.value
+  ) {
+    Notify.create({
+      type: "negative",
+      message: "Please fill in all required fields.",
+      timeout: 2000,
+    });
+    return;
+  }
+
   const amountAsNumber = parseFloat(vatData.amount.replace(",", "."));
 
   console.log("Form submitted with values:", {
@@ -159,16 +171,18 @@ const handleSubmit = () => {
     radioBtnVATIndicator: radioBtnVATIndicator.value,
     amount: amountAsNumber,
   });
+
   try {
     const data = {
       ...vatData,
       user_id: userData?.data.id,
       branch_id: userData?.device?.reference_id,
       category: radioBtnVATIndicator.value,
+      amount: amountAsNumber,
     };
-    // salesReportsStore.updateWithReceiptExpensesReport(data);
-    console.log("data", data);
+
     deliveryReceiptStore.saveDeliveryReceipt(data);
+
     Notify.create({
       type: "positive",
       message: `${radioBtnVATIndicator.value} expenses receipt added successfully`,
@@ -185,6 +199,59 @@ const handleSubmit = () => {
     });
   }
 };
+
+// const handleSubmit = () => {
+//   // Handle the form submission logic here
+//   if (
+//     !vatData.receipt_no ||
+//     !vatData.tin_no ||
+//     !vatData.description ||
+//     !vatData.amount ||
+//     !vatData.address
+//   ) {
+//     Notify.create({
+//       type: "negative",
+//       message: "Please fill in all fields.",
+//       timeout: 2000,
+//     });
+//     return;
+//   }
+
+//   const amountAsNumber = parseFloat(vatData.amount.replace(",", "."));
+
+//   console.log("Form submitted with values:", {
+//     ...vatData,
+//     user_id: userData?.data.id,
+//     branch_id: userData?.device?.reference_id,
+//     radioBtnVATIndicator: radioBtnVATIndicator.value,
+//     amount: amountAsNumber,
+//   });
+//   try {
+//     const data = {
+//       ...vatData,
+//       user_id: userData?.data.id,
+//       branch_id: userData?.device?.reference_id,
+//       category: radioBtnVATIndicator.value,
+//     };
+//     // salesReportsStore.updateWithReceiptExpensesReport(data);
+//     console.log("data", data);
+//     deliveryReceiptStore.saveDeliveryReceipt(data);
+//     Notify.create({
+//       type: "positive",
+//       message: `${radioBtnVATIndicator.value} expenses receipt added successfully`,
+//       timeout: 2000,
+//     });
+
+//     clear();
+//   } catch (error) {
+//     console.error("Error saving data:", error);
+//     Notify.create({
+//       type: "negative",
+//       message: "Failed to save data. Please try again.",
+//       timeout: 2000,
+//     });
+//   }
+// };
 
 // // Watch for changes in radio button selection and alert the value
 // watch(radioBtnVATIndicator, (newValue) => {
