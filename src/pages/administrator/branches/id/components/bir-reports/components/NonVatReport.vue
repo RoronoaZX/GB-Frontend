@@ -80,8 +80,6 @@
             title="Edit Date"
             v-slot="scope"
           >
-            <!-- auto-save
-            v-slot="scope" -->
             <q-input
               v-model="scope.value"
               dense
