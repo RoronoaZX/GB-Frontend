@@ -101,7 +101,12 @@
               size="sm"
               style="color: #ef4444"
               @click="handleSubmit"
-            />
+              :loading="loading"
+            >
+              <template v-slot:loading>
+                <q-spinner color="red-14" />
+              </template>
+            </q-btn>
             <!-- :style="{
           color: radioBtnVATIndicator
             ? radioBtnVATIndicator === 'Non-VAT'
@@ -138,6 +143,7 @@ const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
 };
+const loading = ref(false);
 
 // const reportDate = ref("");
 const vatData = ref({
@@ -205,6 +211,7 @@ const handleSubmit = async () => {
   }
 
   try {
+    loading.value = true;
     const dataTObeSave = {
       ...vatData.value,
       created_at: createdAt,
@@ -227,6 +234,8 @@ const handleSubmit = async () => {
       position: "top",
       timeout: 2000,
     });
+  } finally {
+    loading.value = false;
   }
 };
 </script>

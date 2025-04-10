@@ -51,14 +51,128 @@
   <div>
     <q-table
       class="table-container sticky-header"
-      :columns="branchBirReports"
+      :columns="tableColumns"
       :rows="birReports"
       row-key="name"
-      v-model:pagination="pagination"
+      v-model:pagination="tablePagination"
       :rows-per-page-options="[0]"
+      separator="cell"
       hide-bottom
     >
-      <!--  -->
+      <template v-slot:body-cell-created_at="props">
+        <q-td :props="props" align="center">
+          <span>{{ formatDate(props.row.created_at) }}</span>
+          <q-popup-edit
+            v-model="props.row.created_at"
+            @update:model-value="(val) => updateDate(props.row, val)"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              type="date"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-receipt_no="props">
+        <q-td :props="props" align="center">
+          <span>{{ props.row.receipt_no }}</span>
+          <q-popup-edit
+            v-model="props.row.receipt_no"
+            @update:model-value="(val) => updateReceiptNo(props.row, val)"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-description="props">
+        <q-td :props="props" align="center">
+          <span>{{ props.row.description.toUpperCase() }}</span>
+          <q-popup-edit
+            v-model="props.row.description"
+            @update:model-value="(val) => updateDescription(props.row, val)"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-address="props">
+        <q-td :props="props" align="center">
+          <span>{{ props.row.address.toUpperCase() }}</span>
+          <q-popup-edit
+            v-model="props.row.address"
+            @update:model-value="(val) => updateAddress(props.row, val)"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-tin_no="props">
+        <q-td :props="props" align="center">
+          <span>{{ props.row.tin_no }}</span>
+          <q-popup-edit
+            v-model="props.row.tin_no"
+            @update:model-value="(val) => updateTinNo(props.row, val)"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-amount="props">
+        <q-td :props="props" align="center">
+          <span>{{ formatPrice(props.row.amount) }}</span>
+          <q-popup-edit
+            v-model="props.row.amount"
+            @update:model-value="(val) => updateAmount(props.row, val)"
+            auto-save
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
     </q-table>
   </div>
 </template>
@@ -71,6 +185,15 @@ import { date as quasarDate } from "quasar";
 import { date } from "quasar";
 import * as XLSX from "xlsx";
 import AddNonVATReport from "./AddNonVATReport.vue";
+import {
+  updateReceiptNo,
+  updateDescription,
+  updateAddress,
+  updateTinNo,
+  updateAmount,
+  updateDate,
+} from "src/composables/non-vat/nonVatTableAPiRequest";
+import { useBirReportTableColumns } from "src/composables/non-vat/nonVatTableColumns";
 
 const birReportsStore = useBirReportsStore();
 const birReports = computed(() => birReportsStore.NonVatReports);
@@ -113,6 +236,9 @@ const initializeDateRange = () => {
   // const monthText = getMonthText(formattedDate);
   // console.log(monthText);
 };
+// Import column definitions and default pagination from the composable
+const { columns: tableColumns, pagination: tablePagination } =
+  useBirReportTableColumns();
 
 const getBirReportMonthly = (formattedDate) => {
   if (!formattedDate) {
@@ -169,12 +295,6 @@ const fetchNonVatBirReports = async (branchId) => {
     console.error("Error fetching BIR reports:", error);
   }
 };
-
-// onMounted(() => {
-//   if (branchId) {
-//     fetchNonVatBirReports(branchId);
-//   }
-// });
 
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");
@@ -233,69 +353,62 @@ onMounted(() => {
     fetchNonVatBirReports(branchId); // fetch the current month data
   }
 });
-const branchBirReports = [
-  {
-    name: "date",
-    label: "Date",
-    align: "center",
-    field: (row) => row.created_at,
-    format: formatDate,
-  },
-  {
-    name: "receipt_no",
-    label: "Receipt No.",
-    align: "center",
-    field: (row) => row.receipt_no,
-  },
-  {
-    name: "description",
-    label: "Description",
-    align: "center",
-    field: (row) => row.description,
-    format: (val) => val.toUpperCase(),
-  },
-  {
-    name: "address",
-    label: "Address",
-    align: "center",
-    field: (row) => row.address,
-    format: (val) => val.toUpperCase(),
-  },
-  {
-    name: "tin_no",
-    label: "TIN No.",
-    align: "center",
-    field: (row) => row.tin_no,
-  },
-  {
-    name: "amount",
-    label: "Gross",
-    align: "center",
-    field: (row) => formatPrice(row.amount),
-  },
-  {
-    name: "purchase",
-    label: "Purchase",
-    align: "center",
-    field: (row) => formatPrice((row.amount / 1.12).toFixed(2)),
-  },
-  {
-    name: "input_tax",
-    label: "Input Tax",
-    align: "center",
-    field: (row) => formatPrice(((row.amount / 1.12) * 0.12).toFixed(2)),
-  },
-  // format: (val) => `$${val.toFixed(2)}`,
-];
 
-// const companyInfo = {
-//   name: "GB BAKESHOP",
-//   tin: "277-391-942-000",
-//   owner: "CLEMENTE GUERRERO",
-//   address: "V. GUSTILO ST., BRGY. III, SAN CARLOS CITY, NEG. OCC.",
-//   reportType: "PURCHASES",
-//   reportMonth: "MARCH 2025",
-// };
+// const branchBirReports = [
+//   {
+//     name: "date",
+//     label: "Date",
+//     align: "center",
+//     field: (row) => row.created_at,
+//     format: formatDate,
+//   },
+//   {
+//     name: "receipt_no",
+//     label: "Receipt No.",
+//     align: "center",
+//     field: (row) => row.receipt_no,
+//   },
+//   {
+//     name: "description",
+//     label: "Description",
+//     align: "center",
+//     field: (row) => row.description,
+//     format: (val) => val.toUpperCase(),
+//   },
+//   {
+//     name: "address",
+//     label: "Address",
+//     align: "center",
+//     field: (row) => row.address,
+//     format: (val) => val.toUpperCase(),
+//   },
+//   {
+//     name: "tin_no",
+//     label: "TIN No.",
+//     align: "center",
+//     field: (row) => row.tin_no,
+//   },
+//   {
+//     name: "amount",
+//     label: "Gross",
+//     align: "center",
+//     field: (row) => formatPrice(row.amount),
+//   },
+//   {
+//     name: "purchase",
+//     label: "Purchase",
+//     align: "center",
+//     field: (row) => formatPrice((row.amount / 1.12).toFixed(2)),
+//   },
+//   {
+//     name: "input_tax",
+//     label: "Input Tax",
+//     align: "center",
+//     field: (row) => formatPrice(((row.amount / 1.12) * 0.12).toFixed(2)),
+//   },
+//   // format: (val) => `$${val.toFixed(2)}`,
+// ];
+
 // Function to extract month and year from startDate
 const getMonthAndYear = (dateString) => {
   const date = new Date(dateString);

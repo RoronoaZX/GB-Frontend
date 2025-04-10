@@ -64,6 +64,7 @@
       row-key="name"
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
+      separator="cell"
       hide-bottom
     >
     </q-table>

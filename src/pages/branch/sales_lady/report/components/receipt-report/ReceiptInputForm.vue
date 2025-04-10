@@ -102,6 +102,7 @@
             : 'dark',
         }"
         @click="handleSubmit"
+        :loading="loading"
       />
     </div>
   </div>
@@ -112,7 +113,7 @@ import { reactive, ref, watch, computed } from "vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useDeliveryReceiptStore } from "src/stores/delivery-report";
 import { useUsersStore } from "src/stores/user";
-import { Notify } from "quasar";
+import { Loading, Notify, QSpinnerIos } from "quasar";
 
 const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
@@ -126,6 +127,7 @@ console.log("userdatasss", userData);
 // console.log("branchId", branchId);
 
 const radioBtnVATIndicator = ref(""); // Default selection
+const loading = ref(false);
 const vatData = reactive({
   receipt_no: "",
   tin_no: "",
@@ -144,7 +146,7 @@ const clear = () => {
   vatData.address = "";
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   // Validate required fields
   if (
     !vatData.receipt_no ||
@@ -173,6 +175,11 @@ const handleSubmit = () => {
   });
 
   try {
+    Loading.show({
+      spinner: QSpinnerIos,
+      message: `Saving ${radioBtnVATIndicator.value} \n Receipt No. ${vatData.receipt_no} ...`,
+      messageColor: "white",
+    });
     const data = {
       ...vatData,
       user_id: userData?.data.id,
@@ -181,7 +188,7 @@ const handleSubmit = () => {
       amount: amountAsNumber,
     };
 
-    deliveryReceiptStore.saveDeliveryReceipt(data);
+    await deliveryReceiptStore.saveDeliveryReceipt(data);
 
     Notify.create({
       type: "positive",
@@ -197,6 +204,11 @@ const handleSubmit = () => {
       message: "Failed to save data. Please try again.",
       timeout: 2000,
     });
+  } finally {
+    setTimeout(() => {
+      Loading.hide();
+      // closeDialog();
+    }, 500);
   }
 };
 

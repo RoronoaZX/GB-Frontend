@@ -100,6 +100,7 @@
               size="sm"
               color="teal"
               @click="handleSubmit"
+              :loading="loading"
             />
             <!-- @click="handleSubmit" -->
             <!-- :style="{
@@ -134,6 +135,7 @@ const route = useRoute();
 const branchId = route.params.branch_id;
 console.log("branchId in add non vat reportsss", branchId);
 const dialog = ref(false);
+const loading = ref(false);
 const openDialog = () => {
   dialog.value = true;
 };
@@ -201,6 +203,7 @@ const handleSubmit = async () => {
     return;
   }
   try {
+    loading.value = true;
     const dataTObeSave = {
       ...vatData.value,
       created_at: createdAt,
@@ -222,6 +225,8 @@ const handleSubmit = async () => {
       position: "top",
       timeout: 2000,
     });
+  } finally {
+    loading.value = false;
   }
 };
 </script>
