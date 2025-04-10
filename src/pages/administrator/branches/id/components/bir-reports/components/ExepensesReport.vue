@@ -412,7 +412,7 @@ const downloadExcel = () => {
   ];
 
   // Append and download
-  XLSX.utils.book_append_sheet(workbook, worksheet, "BIR Report");
+  XLSX.utils.book_append_sheet(workbook, worksheet, "EXPENSES BIR Report");
   XLSX.writeFile(workbook, `EXPENSES_BIR_Report_${monthAndYear.value}.xlsx`);
 };
 </script>

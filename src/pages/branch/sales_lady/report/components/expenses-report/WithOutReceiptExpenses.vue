@@ -183,27 +183,6 @@ const handleSubmit = () => {
 
   clear();
 };
-
-// const handleSubmit = () => {
-//   const amountAsNumber = parseFloat(expensesForm.amount.replace(",", "."));
-
-//   const expenseReport = {
-//     ...expensesForm,
-//     user_id: userData?.data.id,
-//     branch_id: userData?.device?.reference_id,
-//     amount: amountAsNumber,
-//     category: radioBtnVATIndicator.value,
-//   };
-
-//   salesReportsStore.updateWithOutReceiptExpensesReport(expenseReport);
-//   Notify.create({
-//     type: "positive",
-//     message: "Expenses Submitted",
-//     timeout: 1000,
-//   });
-
-//   clear();
-// };
 </script>
 
 <style lang="scss" scoped></style>

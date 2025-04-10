@@ -532,7 +532,7 @@ const downloadExcel = () => {
   });
 
   // Append worksheet & export
-  XLSX.utils.book_append_sheet(workbook, worksheet, "BIR Report");
+  XLSX.utils.book_append_sheet(workbook, worksheet, "NON VAT BIR Report");
   XLSX.writeFile(workbook, `NON_VAT_BIR_Report_${monthAndYear.value}.xlsx`);
 };
 </script>

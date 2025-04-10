@@ -211,7 +211,9 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useUsersStore } from "src/stores/user";
 import { useExpensesStore } from "src/stores/expenses";
 import { ref, reactive, computed } from "vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const expensesStore = useExpensesStore();
 const props = defineProps({
   reports: {
@@ -230,20 +232,31 @@ const props = defineProps({
     type: [String, Number],
     default: null,
   },
+  created_at: {
+    type: String,
+    default: "",
+  },
 });
 
+console.log("Expenses Data created_at", props.created_at);
+
 const sales_report_id = props.sales_report_id || "N/A"; // Fallback if undefined
-const branch_id = (props.reports[0] && props.reports[0].branch_id) || "Unknown"; // Fallback if reports is empty
+const branch_id = route.params.branch_id;
+// Fallback if reports is empty
+console.log("branch_idssss", branch_id);
 const user_id = props.user_id || "Unknown"; // Fallback if undefined
 const dialog = ref(false);
 const expensesList = ref([]);
 const radioBtnVATIndicator = ref("");
+
+console.log("Expenses Data", props.reports);
 
 const expensesForm = reactive({
   user_expense_id: "",
   name: "",
   amount: 0,
   description: "",
+  created_at: props.created_at,
 });
 
 const addExpensesToList = () => {
@@ -251,13 +264,15 @@ const addExpensesToList = () => {
     expensesForm.name &&
     expensesForm.amount &&
     expensesForm.description &&
-    radioBtnVATIndicator.value
+    radioBtnVATIndicator.value &&
+    expensesForm.created_at
   ) {
     expensesList.value.push({
       user_expense_id: expensesForm.user_expense_id,
       name: expensesForm.name,
       amount: expensesForm.amount,
       description: expensesForm.description,
+      created_at: expensesForm.created_at,
       radioBtnVATIndicator: radioBtnVATIndicator.value,
     });
     clearExpenses();
@@ -296,6 +311,7 @@ const handleSubmit = async () => {
       amount: expense.amount,
       description: expense.description,
       category: expense.radioBtnVATIndicator,
+      created_at: expense.created_at,
     })),
   };
   console.log("expenseReport", expenseReport);

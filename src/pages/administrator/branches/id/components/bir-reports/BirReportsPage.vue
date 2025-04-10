@@ -4,9 +4,9 @@
       <!-- class="bg-grey-2 text-grey-7 tabs-as-cards"
       active-color="red-6"
       indicator-color="transparent" -->
-      <q-tab name="non-VAT" label="Non-VAT" />
-      <q-tab name="VAT" label="VAT" />
-      <q-tab name="expenses" label="Expenses" />
+      <q-tab class="text-red-14" name="non-VAT" label="Non-VAT" />
+      <q-tab class="text-teal-9" name="VAT" label="VAT" />
+      <q-tab class="text-green-7" name="expenses" label="Expenses" />
     </q-tabs>
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="non-VAT">

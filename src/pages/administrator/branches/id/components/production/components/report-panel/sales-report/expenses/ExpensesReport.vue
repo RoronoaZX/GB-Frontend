@@ -17,7 +17,8 @@
                 props.sales_Reports[0].expenses_reports,
                 props.sales_Reports[0].user.employee,
                 props.sales_Reports[0].id,
-                props.sales_Reports[0].user_id
+                props.sales_Reports[0].user_id,
+                props.sales_Reports[0].created_at
               )
             "
           />
@@ -39,6 +40,8 @@ import ExpensesDialog from "./ExpensesDialog.vue";
 
 const props = defineProps(["sales_Reports"]);
 
+console.log("Expenses Report", props.sales_Reports);
+
 console.log("Expenses Datassssss", props.sales_Reports);
 
 const $q = useQuasar();
@@ -53,7 +56,8 @@ const handleExpensesDialog = (
   dataReports,
   userData,
   sales_report_id,
-  user_id
+  user_id,
+  created_at
 ) => {
   $q.dialog({
     component: ExpensesDialog,
@@ -62,6 +66,7 @@ const handleExpensesDialog = (
       user: userData,
       sales_report_id: sales_report_id,
       user_id: user_id,
+      created_at: created_at,
     },
   });
 };

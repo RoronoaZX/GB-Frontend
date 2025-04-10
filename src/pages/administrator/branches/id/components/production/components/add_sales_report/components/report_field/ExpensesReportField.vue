@@ -10,6 +10,9 @@
           <q-item-label> Description </q-item-label>
         </q-item-section>
         <q-item-section align="center">
+          <q-item-label> Category </q-item-label>
+        </q-item-section>
+        <q-item-section align="center">
           <q-item-label> Amount </q-item-label>
         </q-item-section>
         <q-item-section align="center" side>
@@ -33,6 +36,16 @@
             <span>
               {{ expenses.description }}
             </span>
+          </q-item-label>
+        </q-item-section>
+        <q-item-section align="center">
+          <q-item-label>
+            <q-badge
+              outline
+              :label="capitalizeFirstLetter(expenses.category)"
+              :color="getCategoryColor(expenses.category)"
+              text-color="white"
+            />
           </q-item-label>
         </q-item-section>
         <q-item-section align="center">
@@ -115,7 +128,9 @@ import { computed } from "vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
 
 const salesReportsStore = useSalesReportsStore();
-const expensesReports = computed(() => salesReportsStore.expensesReports);
+const expensesReports = computed(
+  () => salesReportsStore.withOutReceiptExpensesReport
+);
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {
@@ -128,6 +143,20 @@ const formatCurrency = (value) => {
 
 const removeExpenses = (index) => {
   salesReportsStore.removeExpenses(index);
+};
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const getCategoryColor = (value) => {
+  if (value === "normal") return "blue";
+  if (value === "premium") return "purple";
+  return "grey"; // default fallback
 };
 </script>
 

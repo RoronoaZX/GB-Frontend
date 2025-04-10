@@ -43,6 +43,7 @@
             :user="props.user"
             :sales_report_id="props.sales_report_id"
             :user_id="props.user_id"
+            :created_at="props.created_at"
           />
         </div>
       </q-card-section>
@@ -165,8 +166,11 @@ const props = defineProps({
   user: Object,
   sales_report_id: Number,
   user_id: Number,
+  created_at: String,
 });
 // defineEmits("hide", "ok", "cancel");
+
+console.log("Expenses Dialog created_at", props.created_at);
 
 const expensesReports = props.reports;
 console.log("Expenses total", props.total);

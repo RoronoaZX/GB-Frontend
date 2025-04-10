@@ -142,7 +142,12 @@
       </template>
       <template v-slot:body-cell-address="props">
         <q-td :props="props" align="center">
-          <span>{{ props.row.address.toUpperCase() }}</span>
+          <div>
+            <span>{{ props.row.address.toUpperCase() }}</span>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Address
+            </q-tooltip>
+          </div>
           <q-popup-edit
             v-model="props.row.address"
             @update:model-value="(val) => updateAddress(props.row, val)"
@@ -161,7 +166,12 @@
       </template>
       <template v-slot:body-cell-tin_no="props">
         <q-td :props="props" align="center">
-          <span>{{ props.row.tin_no }}</span>
+          <div>
+            <span>{{ props.row.tin_no }}</span>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit TIN No.
+            </q-tooltip>
+          </div>
           <q-popup-edit
             v-model="props.row.tin_no"
             @update:model-value="(val) => updateTinNo(props.row, val)"
@@ -180,7 +190,12 @@
       </template>
       <template v-slot:body-cell-amount="props">
         <q-td :props="props" align="center">
-          <span>{{ formatPrice(props.row.amount) }}</span>
+          <div>
+            <span>{{ formatPrice(props.row.amount) }}</span>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Gross
+            </q-tooltip>
+          </div>
           <q-popup-edit
             v-model="props.row.amount"
             @update:model-value="(val) => updateAmount(props.row, val)"
@@ -517,7 +532,7 @@ const downloadExcel = () => {
   });
 
   // Append worksheet & export
-  XLSX.utils.book_append_sheet(workbook, worksheet, "BIR Report");
+  XLSX.utils.book_append_sheet(workbook, worksheet, "VAT BIR Report");
   XLSX.writeFile(workbook, `VAT_BIR_Report_${monthAndYear.value}.xlsx`);
 };
 </script>
