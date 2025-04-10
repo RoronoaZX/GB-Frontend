@@ -61,13 +61,27 @@
     >
       <template v-slot:body-cell-created_at="props">
         <q-td :props="props" align="center">
-          <span>{{ formatDate(props.row.created_at) }}</span>
+          <div>
+            <span>{{ formatDate(props.row.created_at) }}</span>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Date
+            </q-tooltip>
+          </div>
+
           <q-popup-edit
-            v-model="props.row.created_at"
-            @update:model-value="(val) => updateDate(props.row, val)"
-            auto-save
+            @update:model-value="
+              (val) => {
+                props.row.created_at = val; // update local data
+                updateDate(props.row, val); // update backend
+              }
+            "
+            :model-value="formatDateInput(props.row.created_at)"
+            buttons
+            title="Edit Date"
             v-slot="scope"
           >
+            <!-- auto-save
+            v-slot="scope" -->
             <q-input
               v-model="scope.value"
               dense
@@ -80,11 +94,17 @@
       </template>
       <template v-slot:body-cell-receipt_no="props">
         <q-td :props="props" align="center">
-          <span>{{ props.row.receipt_no }}</span>
+          <div>
+            <span>{{ props.row.receipt_no }}</span>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Receipt No.
+            </q-tooltip>
+          </div>
           <q-popup-edit
             v-model="props.row.receipt_no"
             @update:model-value="(val) => updateReceiptNo(props.row, val)"
-            auto-save
+            buttons
+            title="Edit Receipt No."
             v-slot="scope"
           >
             <q-input
@@ -99,11 +119,17 @@
       </template>
       <template v-slot:body-cell-description="props">
         <q-td :props="props" align="center">
-          <span>{{ props.row.description.toUpperCase() }}</span>
+          <div>
+            <span>{{ props.row.description.toUpperCase() }}</span>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Description
+            </q-tooltip>
+          </div>
           <q-popup-edit
             v-model="props.row.description"
             @update:model-value="(val) => updateDescription(props.row, val)"
-            auto-save
+            buttons
+            title="Edit Birthdate"
             v-slot="scope"
           >
             <q-input
@@ -119,10 +145,14 @@
       <template v-slot:body-cell-address="props">
         <q-td :props="props" align="center">
           <span>{{ props.row.address.toUpperCase() }}</span>
+          <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+            Edit Address
+          </q-tooltip>
           <q-popup-edit
             v-model="props.row.address"
             @update:model-value="(val) => updateAddress(props.row, val)"
-            auto-save
+            buttons
+            title="Edit Address"
             v-slot="scope"
           >
             <q-input
@@ -137,11 +167,17 @@
       </template>
       <template v-slot:body-cell-tin_no="props">
         <q-td :props="props" align="center">
-          <span>{{ props.row.tin_no }}</span>
+          <div>
+            <span>{{ props.row.tin_no }}</span>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit TIN No.
+            </q-tooltip>
+          </div>
           <q-popup-edit
             v-model="props.row.tin_no"
             @update:model-value="(val) => updateTinNo(props.row, val)"
-            auto-save
+            buttons
+            title="Edit TIN No."
             v-slot="scope"
           >
             <q-input
@@ -239,6 +275,10 @@ const initializeDateRange = () => {
 // Import column definitions and default pagination from the composable
 const { columns: tableColumns, pagination: tablePagination } =
   useBirReportTableColumns();
+
+const formatDateInput = (val) => {
+  return date.formatDate(val, "YYYY-MM-DD"); // for <input type="date">
+};
 
 const getBirReportMonthly = (formattedDate) => {
   if (!formattedDate) {
