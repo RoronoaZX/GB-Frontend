@@ -208,13 +208,13 @@ const signOut = () => {
 };
 
 const menuItems = [
-  {
-    name: "analytics",
-    icon: "query_stats",
-    to: "/branch/sales_lady",
-    label: "Analytics",
-    separator: true,
-  },
+  // {
+  //   name: "analytics",
+  //   icon: "query_stats",
+  //   to: "/branch/sales_lady",
+  //   label: "Analytics",
+  //   separator: true,
+  // },
   {
     name: "bread",
     icon: "fa-solid fa-cake-candles",
@@ -243,13 +243,13 @@ const menuItems = [
     label: "Report",
     separator: true,
   },
-  {
-    name: "accounts",
-    icon: "person",
-    to: "/branch/sales_lady/account",
-    label: "Accounts",
-    separator: true,
-  },
+  // {
+  //   name: "accounts",
+  //   icon: "person",
+  //   to: "/branch/sales_lady/account",
+  //   label: "Accounts",
+  //   separator: true,
+  // },
 ];
 onMounted(() => {
   const storedActiveMenuItem = localStorage.getItem("activeMenuItem");

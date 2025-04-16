@@ -17,42 +17,56 @@
           </template>
         </q-input>
       </div>
-      <q-scroll-area style="height: 450px; max-width: 1500px">
-        <div class="q-gutter-md q-ma-md">
-          <q-card v-for="report in filteredRows" :key="report.id">
-            <q-card-section>
-              <div class="row justify-between">
-                <div>
-                  <div class="text-subtitle1">
-                    {{ formatDate(report.created_at) }}
-                  </div>
-                  <div class="text-subtitle1">
-                    {{ formatTime(report.created_at) }}
-                  </div>
-                </div>
-                <div class="text-h6">
-                  {{ formatFullname(report.user.employee) }} -
-                  {{ capitalizeFirstLetter(report.branch_recipe.recipe.name) }}
-                </div>
-                <div>
-                  <q-badge outlined :color="getBadgeStatusColor(report.status)">
-                    {{ capitalizeFirstLetter(report.status) }}
-                  </q-badge>
-                </div>
-                <div>
-                  <ReportView :report="report" />
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-      </q-scroll-area>
-
-      <q-card v-if="showNoDataMessage && filteredRows.length === 0">
+      <div class="spinner-wrapper" v-if="loading">
+        <q-spinner-dots size="50px" color="primary" />
+      </div>
+      <q-card flat v-if="showNoDataMessage && filteredRows.length === 0">
         <q-card-section class="text-h6 text-center"
           >No reports found.</q-card-section
         >
       </q-card>
+      <div v-else>
+        <q-card v-if="showNoDataMessage && filteredRows.length === 0">
+          <q-card-section class="text-h6 text-center"
+            >No reports found.</q-card-section
+          >
+        </q-card>
+        <q-scroll-area v-else style="height: 450px; max-width: 1500px">
+          <div class="q-gutter-md q-ma-md">
+            <q-card v-for="report in filteredRows" :key="report.id">
+              <q-card-section>
+                <div class="row justify-between">
+                  <div>
+                    <div class="text-subtitle1">
+                      {{ formatDate(report.created_at) }}
+                    </div>
+                    <div class="text-subtitle1">
+                      {{ formatTime(report.created_at) }}
+                    </div>
+                  </div>
+                  <div class="text-h6">
+                    {{ formatFullname(report.user.employee) }} -
+                    {{
+                      capitalizeFirstLetter(report.branch_recipe.recipe.name)
+                    }}
+                  </div>
+                  <div>
+                    <q-badge
+                      outlined
+                      :color="getBadgeStatusColor(report.status)"
+                    >
+                      {{ capitalizeFirstLetter(report.status) }}
+                    </q-badge>
+                  </div>
+                  <div>
+                    <ReportView :report="report" />
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </q-scroll-area>
+      </div>
     </div>
   </q-page>
 </template>
@@ -69,6 +83,7 @@ const branchId = userData.value?.device?.reference_id || "";
 const filter = ref("");
 const loadingSearchIcon = ref(false);
 const showNoDataMessage = ref(false);
+const loading = ref(true);
 
 // Fetch reports on component mount
 onMounted(async () => {
@@ -81,8 +96,18 @@ onMounted(async () => {
 // Fetch reports function
 const fetchReports = async (branchId) => {
   loadingSearchIcon.value = true;
-  await bakerReportStore.fetchDoughReports(branchId);
-  loadingSearchIcon.value = false;
+  loading.value = true;
+  showNoDataMessage.value = false;
+  try {
+    await bakerReportStore.fetchDoughReports(branchId);
+    showNoDataMessage.value = bakerReportStore.reports.length === 0;
+  } catch (error) {
+    console.error("Failed to fetch reports:", error);
+    showNoDataMessage.value = true;
+  } finally {
+    loading.value = false;
+    loadingSearchIcon.value = false;
+  }
 };
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
@@ -171,3 +196,19 @@ const getBadgeStatusColor = (status) => {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
