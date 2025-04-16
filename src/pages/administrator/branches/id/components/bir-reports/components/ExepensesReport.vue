@@ -56,8 +56,16 @@
       <!-- @click="openDialog" -->
     </div>
   </div>
-  <div>
+  <div v-if="loading" class="spinner-wrapper">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="birReports.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
     <q-table
+      v-else
       class="table-container sticky-header"
       :columns="branchBirReports"
       :rows="birReports"
@@ -90,6 +98,9 @@ const endDate = ref("");
 const pagination = ref({
   rowsPerPage: 0,
 });
+
+const loading = ref(true);
+const showNoDataMessage = ref(false);
 
 const fetchBranchData = async (branchId) => {
   try {
@@ -171,8 +182,12 @@ const fetchExpensesReport = async (branchId) => {
       startDate.value,
       endDate.value
     );
+    showNoDataMessage.value = birReports.value.length === 0;
   } catch (error) {
     console.error("Error fetching BIR reports:", error);
+    showNoDataMessage.value = true;
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -195,6 +210,9 @@ const formatPrice = (price) => {
 
 // "Prev" Button Action: Move to the previous 15-day range
 const onPrev = () => {
+  loading.value = true;
+  showNoDataMessage.value = false;
+
   const prevDate = new Date(startDate.value);
   prevDate.setDate(prevDate.getDate() - 15); // Shift by 15 days back
   const { startDate: newStartDate, endDate: newEndDate } = getBirReportMonthly(
@@ -210,6 +228,9 @@ const onPrev = () => {
 
 // "Current" Button Action: Reset to the current 15-day period
 const onCurrent = () => {
+  loading.value = true;
+  showNoDataMessage.value = false;
+
   initializeDateRange();
   if (branchId) {
     fetchExpensesReport(branchId);
@@ -218,6 +239,9 @@ const onCurrent = () => {
 
 // "Next" Button Action: Move to the next 15-day range
 const onNext = () => {
+  loading.value = true;
+  showNoDataMessage.value = false;
+
   const nextDate = new Date(endDate.value);
   nextDate.setDate(nextDate.getDate() + 1); // Shift to the start of the next period
   const { startDate: newStartDate, endDate: newEndDate } = getBirReportMonthly(
@@ -273,79 +297,6 @@ const getMonthAndYear = (dateString) => {
 
 // Usage
 const monthAndYear = computed(() => getMonthAndYear(startDate.value));
-
-// const downloadExcel = () => {
-//   const workbook = XLSX.utils.book_new();
-
-//   // Define styles
-//   const boldCenterStyle = {
-//     font: { bold: true },
-//     alignment: { horizontal: "center" },
-//   };
-//   const centerAlignStyle = { alignment: { horizontal: "center" } };
-
-//   // Sheet data
-//   const sheetData = [
-//     [{ v: branchData.value[0].name, s: boldCenterStyle }], // Bold Center
-//     [{ v: branchData.value[0].location, s: centerAlignStyle }],
-//     [""], // Empty row
-//     [{ v: branchData.value.reportType, s: boldCenterStyle }],
-//     [
-//       {
-//         v: `AS FOR THE MONTH OF: ${monthAndYear.value}`,
-//         s: boldCenterStyle,
-//       },
-//     ],
-//     [""], // Empty row
-//     [
-//       { v: "DATE", s: boldCenterStyle },
-
-//       { v: "DESCRIPTION", s: boldCenterStyle },
-//       { v: "GROSS", s: boldCenterStyle },
-//       ,
-//     ],
-//   ];
-
-//   // Append data dynamically
-//   birReports.value.forEach((row) => {
-//     sheetData.push([
-//       { v: formatDate(row.created_at), s: centerAlignStyle },
-//       { v: row.description.toUpperCase() },
-//       { v: row.amount, s: centerAlignStyle },
-//       // { v: row.receipt_no, s: centerAlignStyle },
-//       // { v: row.address.toUpperCase() },
-//       // { v: row.tin_no, s: centerAlignStyle },
-//       // { v: (row.amount / 1.12).toFixed(2), s: centerAlignStyle },
-//       // { v: ((row.amount / 1.12) * 0.12).toFixed(2), s: centerAlignStyle },
-//     ]);
-//   });
-
-//   // Create worksheet with styles
-//   const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-
-//   // Set column widths
-//   worksheet["!cols"] = [
-//     { wch: 12 }, // DATE
-//     { wch: 30 }, // DESCRIPTION
-//     { wch: 12 }, // GROSS
-//     // { wch: 12 }, // RECEIPT NO.
-//     // { wch: 35 }, // ADDRESS
-//     // { wch: 18 }, // TIN NUMBER
-//     // { wch: 12 }, // PURCHASE
-//     // { wch: 12 }, // INPUT TAX
-//   ];
-
-//   // Apply styles
-//   Object.keys(worksheet).forEach((cell) => {
-//     if (worksheet[cell].s) {
-//       worksheet[cell].s = worksheet[cell].s;
-//     }
-//   });
-
-//   // Append worksheet & export
-//   XLSX.utils.book_append_sheet(workbook, worksheet, "BIR Report");
-//   XLSX.writeFile(workbook, `EXPENSES_BIR_Report_${monthAndYear.value}.xlsx`);
-// };
 
 const downloadExcel = () => {
   const workbook = XLSX.utils.book_new();
@@ -416,10 +367,23 @@ const downloadExcel = () => {
   XLSX.writeFile(workbook, `EXPENSES_BIR_Report_${monthAndYear.value}.xlsx`);
 };
 </script>
+
 <style lang="scss" scoped>
 .gradient-btn {
   background: linear-gradient(45deg, #037f60, #08c388);
   // background: linear-gradient(45deg, #103432, #2575fc);
   border: none;
+}
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

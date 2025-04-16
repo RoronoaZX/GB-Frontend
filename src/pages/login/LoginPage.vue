@@ -94,15 +94,15 @@ import axios, { api } from "src/boot/axios";
 // const uuid = ref(
 //   "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
 // ); //forscaller
-// const uuid = ref(
-//   "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
-// ); //SA
+const uuid = ref(
+  "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
+); //SA
 // 631cee3486ce71af // null
 // const uuid = ref("b76baeef9c2aef9a"); // branch id 6 endrina
 // const uuid = ref("2c1d4509090802cb"); // branch id 1 endrina
-const uuid = ref(
-  "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
-); // super admin
+// const uuid = ref(
+//   "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
+// ); // super admin
 // const uuid = ref("f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"); laptop
 
 // Method to get UUID from Electron using node-machine-id

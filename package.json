@@ -27,7 +27,7 @@
     "moment": "^2.30.1",
     "moment-holiday": "^1.5.1",
     "node-machine-id": "^1.1.12",
-    "pdfmake": "^0.2.12",
+    "pdfmake": "^0.2.18",
     "pinia": "^2.0.11",
     "quasar": "^2.16.0",
     "v-money": "^0.8.1",

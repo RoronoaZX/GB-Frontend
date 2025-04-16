@@ -48,8 +48,16 @@
       <!-- @click="openDialog" -->
     </div>
   </div>
-  <div>
+  <div class="spinner-wrapper" v-if="loading">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="birReports.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
     <q-table
+      v-else
       class="table-container sticky-header"
       :columns="tableColumns"
       :rows="birReports"
@@ -246,6 +254,9 @@ const endDate = ref("");
 const pagination = ref({
   rowsPerPage: 0,
 });
+const loading = ref(true);
+const showNoDataMessage = ref(false);
+
 const { columns: tableColumns, pagination: tablePagination } =
   useBirReportTableColumns();
 const formatDateInput = (val) => {
@@ -332,8 +343,12 @@ const fetchVatBirReports = async (branchId) => {
       startDate.value,
       endDate.value
     );
+    showNoDataMessage.value = birReports.value.length === 0;
   } catch (error) {
     console.error("Error fetching BIR reports:", error);
+    showNoDataMessage.value = true;
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -350,6 +365,8 @@ const formatPrice = (price) => {
 
 // "Prev" Button Action: Move to the previous 15-day range
 const onPrev = () => {
+  loading.value = true;
+  showNoDataMessage.value = false;
   const prevDate = new Date(startDate.value);
   prevDate.setDate(prevDate.getDate() - 15); // Shift by 15 days back
   const { startDate: newStartDate, endDate: newEndDate } = getBirReportMonthly(
@@ -365,6 +382,8 @@ const onPrev = () => {
 
 // "Current" Button Action: Reset to the current 15-day period
 const onCurrent = () => {
+  loading.value = true;
+  showNoDataMessage.value = false;
   initializeDateRange();
   if (branchId) {
     fetchVatBirReports(branchId);
@@ -373,6 +392,8 @@ const onCurrent = () => {
 
 // "Next" Button Action: Move to the next 15-day range
 const onNext = () => {
+  loading.value = true;
+  showNoDataMessage.value = false;
   const nextDate = new Date(endDate.value);
   nextDate.setDate(nextDate.getDate() + 1); // Shift to the start of the next period
   const { startDate: newStartDate, endDate: newEndDate } = getBirReportMonthly(
@@ -542,5 +563,17 @@ const downloadExcel = () => {
   background: linear-gradient(45deg, #037f60, #08c388);
   // background: linear-gradient(45deg, #103432, #2575fc);
   border: none;
+}
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
