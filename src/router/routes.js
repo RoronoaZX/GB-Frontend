@@ -80,6 +80,11 @@ const routes = [
         path: "devices",
         component: () => import("pages/devices/DevicesPage.vue"),
       },
+      {
+        path: "history_log",
+        component: () =>
+          import("pages/administrator/history_log/HistoryLogPage.vue"),
+      },
     ],
   },
 

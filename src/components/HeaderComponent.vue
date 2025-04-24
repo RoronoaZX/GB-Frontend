@@ -135,6 +135,7 @@ const menuItems = [
     toolbarDisplay: "🥖 Products",
     separator: true,
   },
+
   ...(role.value === "Super Admin"
     ? [
         {
@@ -161,6 +162,14 @@ const menuItems = [
     to: "/admin/payroll",
     label: "Payroll",
     toolbarDisplay: "💰 Payroll Management",
+    separator: true,
+  },
+  {
+    name: "history",
+    icon: "fa-solid fa-history",
+    to: "/admin/history_log",
+    label: "History Log",
+    toolbarDisplay: "🕰️ History Logs",
     separator: true,
   },
 ];
