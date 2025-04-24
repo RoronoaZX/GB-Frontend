@@ -78,6 +78,9 @@
             @update:model-value="(val) => updatedPrice(props.row, val)"
             v-model="props.row.price"
             auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
             v-slot="scope"
           >
             <q-input
@@ -88,6 +91,13 @@
               counter
               @keyup.enter="scope.set"
             />
+            <!-- <q-btn
+              align="right"
+              color="primary"
+              label="Save"
+              dense
+              @click="scope.set"
+            /> -->
           </q-popup-edit>
         </q-td>
       </template>
@@ -103,6 +113,9 @@
             @update:model-value="(val) => updatedBeginnings(props.row, val)"
             v-model="props.row.beginnings"
             auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
             v-slot="scope"
           >
             <q-input
@@ -128,6 +141,9 @@
             @update:model-value="(val) => updateNewProduction(props.row, val)"
             v-model="props.row.new_production"
             auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
             v-slot="scope"
           >
             <q-input
@@ -153,6 +169,9 @@
             @update:model-value="(val) => updatedTotalQuantity(props.row, val)"
             v-model="props.row.total_quantity"
             auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
             v-slot="scope"
           >
             <q-input
@@ -183,11 +202,17 @@ import ProductCreate from "./ProductCreate.vue";
 import ProductDelete from "./ProductDelete.vue";
 import { api } from "src/boot/axios";
 import { useBranchProductsStore } from "src/stores/branch-product";
+import { useUsersStore } from "src/stores/user";
 import { Notify } from "quasar";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("producttable user data", userData.value);
+const userId = userData.value?.data?.id || "0";
+console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
 const branchProductStore = useBranchProductsStore();
 const filter = ref("");
@@ -257,10 +282,51 @@ watch(filter, async (newFilter) => {
 });
 
 async function updatedPrice(data, val) {
+  console.log("data branch product", data);
+  const report_id = data.id;
+  const name = data?.product?.name || "undefined";
+  const originalData = `₱ ${data.price.toString()}`; // Convert to string
+  const updatedData = `₱ ${parseInt(val).toString()}`; // Convert to string after parsing
+  const updated_field = "price";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Product Table";
+  const user_id = userId;
+
+  // // Construct payload
+  // const payload = {
+  //   price: parseInt(val),
+  //   report_id,
+  //   original_data: originalData,
+  //   updated_data: updatedData,
+  //   designation,
+  //   designation_type,
+  //   action,
+  //   type_of_report,
+  //   user_id,
+  // };
+
+  // // Log the payload before sending
+  // console.log("Payload to be sent:", payload);
+
   try {
     const response = await api.put("/api/update-branch-products/" + data.id, {
       price: parseInt(val),
+
+      // Extra data for history logging (now strings)
+      report_id,
+      name,
+      original_data: originalData,
+      updated_data: updatedData,
+      updated_field,
+      designation,
+      designation_type,
+      action,
+      type_of_report,
+      user_id,
     });
+
     if (response.status === 200) {
       const i = branchProducts.value.findIndex((item) => item.id == data.id);
       branchProducts.value[i] = parseInt(val);
@@ -278,11 +344,34 @@ async function updatedPrice(data, val) {
 }
 
 async function updateNewProduction(data, val) {
+  console.log("data branch product", data);
+  const report_id = data.id;
+  const name = data?.product?.name || "undefined";
+  const originalData = ` ${data.new_production.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "new production";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Product Table";
+  const user_id = userId;
   try {
     const response = await api.put(
       "/api/update-branch-products-new-production/" + data.id,
       {
         new_production: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     if (response.status === 200) {
@@ -308,11 +397,50 @@ async function updateNewProduction(data, val) {
 }
 
 async function updatedBeginnings(data, val) {
+  console.log("data branch product", data);
+  const report_id = data.id;
+  const name = data?.product?.name || "undefined";
+  const originalData = ` ${data.beginnings.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "beginnings";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Product Table";
+  const user_id = userId;
+  // // Construct payload
+  // const payload = {
+  //   price: parseInt(val),
+  //   report_id,
+  //   original_data: originalData,
+  //   updated_data: updatedData,
+  //   designation,
+  //   designation_type,
+  //   action,
+  //   type_of_report,
+  //   user_id,
+  // };
+
+  // // Log the payload before sending
+  // console.log("Payload to be sent:", payload);
+
   try {
     const response = await api.put(
       "/api/update-branch-products-beginnings/" + data.id,
       {
         beginnings: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     if (response.status === 200) {
@@ -332,11 +460,34 @@ async function updatedBeginnings(data, val) {
 }
 
 async function updatedTotalQuantity(data, val) {
+  console.log("data branch product", data);
+  const report_id = data.id;
+  const name = data?.product?.name || "undefined";
+  const originalData = ` ${data.total_quantity.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "Total Quantity";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Product Table";
+  const user_id = userId;
   try {
     const response = await api.put(
       "/api/update-branch-products-total-quantity/" + data.id,
       {
         total_quantity: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     if (response.status === 200) {

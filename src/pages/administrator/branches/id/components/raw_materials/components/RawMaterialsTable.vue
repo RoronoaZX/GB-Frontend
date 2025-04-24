@@ -65,6 +65,9 @@
               @update:model-value="(val) => updatedStocks(props.row, val)"
               v-model="props.row.total_quantity"
               auto-save
+              buttons
+              label-set="Save"
+              label-cancel="Close"
               v-slot="scope"
             >
               <q-input
@@ -102,8 +105,14 @@ import { useRoute } from "vue-router";
 import { useBranchRawMaterialsStore } from "src/stores/branch-rawMaterials";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
+import { useUsersStore } from "src/stores/user";
 
 const route = useRoute();
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("producttable user data", userData.value);
+const userId = userData.value?.data?.id || "0";
+console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
 const branchRawMaterialsStore = useBranchRawMaterialsStore();
 const filter = ref("");
@@ -154,11 +163,50 @@ const reloadTableData = async (branchId) => {
 };
 
 async function updatedStocks(data, val) {
+  console.log("data branch raw materials", data);
+  const report_id = data.id;
+  const name = data?.ingredients?.name || "undefined";
+  const originalData = ` ${data.total_quantity.toString()} grams`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} grams`; // Convert to string after parsing
+  const updated_field = "Available Stocks";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Raw Materials Table";
+  const user_id = userId;
+
+  const payload = {
+    report_id,
+    name,
+    original_data: originalData,
+    updated_data: updatedData,
+    updated_field,
+    designation,
+    designation_type,
+    action,
+    type_of_report,
+    user_id,
+  };
+
+  console.log("payload raw materials", payload);
+
   try {
     const response = await api.put(
       "/api/update-branch-rawMaterials/" + data.id,
       {
         total_quantity: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     if (response.status === 200) {

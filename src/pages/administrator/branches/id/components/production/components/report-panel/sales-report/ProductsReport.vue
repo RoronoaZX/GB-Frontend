@@ -2,7 +2,9 @@
   <div>
     <q-card class="user-card">
       <q-card-section>
-        <div class="text-h6" align="center">Products Report</div>
+        <div class="text-h6" align="center">
+          Products Report {{ formatDate(reportDate) }}
+        </div>
       </q-card-section>
       <q-card-section>
         <div class="item-start q-gutter-md" align="center">
@@ -11,7 +13,9 @@
               handleBreadDialog(
                 props.sales_Reports[0].bread_reports,
                 props.sales_Reports[0].id,
-                props.sales_Reports[0].user
+                props.sales_Reports[0].user,
+                props.reportLabel,
+                props.reportDate
               )
             "
             no-caps
@@ -94,7 +98,7 @@
 </template>
 
 <script setup>
-import { useQuasar } from "quasar";
+import { useQuasar, date } from "quasar";
 import ProductsReportDialog from "./products/ProductsReportDialog.vue";
 import BreadReport from "./products/bread/BreadReport.vue";
 import SelectaReport from "./products/selecta/SelectaReport.vue";
@@ -102,11 +106,15 @@ import SoftdrinksReport from "./products/softdrinks/SoftdrinksReport.vue";
 import CakeReport from "./products/CakeReport.vue";
 import OtherProductReport from "./products/other/OtherProductsReport.vue";
 
-const props = defineProps(["sales_Reports"]);
+const props = defineProps(["sales_Reports", "reportLabel", "reportDate"]);
 const productsReportsss = props.sales_Reports;
 
 console.log("sales report2sss", productsReportsss);
 const $q = useQuasar();
+
+const formatDate = (dateString) => {
+  return date.formatDate(dateString, "MMMM DD, YYYY");
+};
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-US", {
@@ -115,13 +123,21 @@ const formatPrice = (price) => {
   }).format(price);
 };
 
-const handleBreadDialog = (dataReports, sales_report_id, user) => {
+const handleBreadDialog = (
+  dataReports,
+  sales_report_id,
+  user,
+  reportLabel,
+  reportDate
+) => {
   $q.dialog({
     component: BreadReport,
     componentProps: {
       reports: dataReports,
       sales_report_id: sales_report_id,
       user: user,
+      reportLabel: reportLabel,
+      reportDate: reportDate,
     },
   });
 };

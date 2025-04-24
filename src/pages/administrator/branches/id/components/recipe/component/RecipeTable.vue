@@ -70,6 +70,9 @@
             @update:model-value="(val) => updateRecipe(props.row, val)"
             v-model="props.row.target"
             auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
             v-slot="scope"
           >
             <q-input
@@ -95,6 +98,9 @@
             @update:model-value="(val) => updateRecipeStatus(props.row, val)"
             v-model="props.row.status"
             auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
             v-slot="scope"
           >
             <span> {{ props.row.name }}</span>
@@ -162,8 +168,16 @@ import RecipeBreadGroups from "./RecipeBreadGroups.vue";
 import RecipeIngredientGroups from "./RecipeIngredientGroups.vue";
 import { api } from "src/boot/axios";
 import { Notify, useQuasar } from "quasar";
+import { useUsersStore } from "src/stores/user";
+import { tiControlStop } from "@quasar/extras/themify";
+
 const route = useRoute();
 
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("producttable user data", userData.value);
+const userId = userData.value?.data?.id || "0";
+console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
 const branchRecipeStore = useBranchRecipeStore();
 const filter = ref("");
@@ -233,9 +247,56 @@ const formatNumber = (value) => {
 // })
 
 async function updateRecipe(data, val) {
+  console.log("branch recipe taable", data);
+  const formatNumber = (num) => {
+    const parsed = parseFloat(num);
+    // If it's a whole number, return as string without decimals
+    return parsed % 1 === 0 ? parsed.toFixed(0) : parsed.toFixed(1);
+  };
+
+  const report_id = data.id;
+  const name = `${data?.name || "undefined"} recipe`;
+
+  // These will always be strings like "25 pcs" or "1.5 pcs"
+  const originalData = `${formatNumber(data.target)} pcs`;
+  const updatedData = `${formatNumber(val)} pcs`;
+
+  const updated_field = "target";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Recipe Table";
+  const user_id = userId;
+
+  // const payload = {
+  //   report_id,
+  //   name,
+  //   originalData,
+  //   updatedData,
+  //   updated_field,
+  //   designation,
+  //   designation_type,
+  //   action,
+  //   type_of_report,
+  //   user_id,
+  // };
+  // console.log("payload recipe", payload);
+
   try {
     const response = await api.put("/api/update-target/" + data.id, {
       target: parseFloat(val),
+
+      // Extra data for history logging (now strings)
+      report_id,
+      name,
+      original_data: originalData,
+      updated_data: updatedData,
+      updated_field,
+      designation,
+      designation_type,
+      action,
+      type_of_report,
+      user_id,
     });
 
     console.log("response", response);
@@ -259,9 +320,34 @@ async function updateRecipe(data, val) {
   }
 }
 async function updateRecipeStatus(data, val) {
+  const report_id = data.id;
+  const name = `${data?.name || "undefined"} recipe`;
+  // These will always be strings like "25 pcs" or "1.5 pcs"
+  const originalData = `${data.status}`;
+  const updatedData = `${val}`;
+
+  const updated_field = "status";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Recipe Table";
+  const user_id = userId;
+
   try {
     const response = await api.put("/api/branch-update-status/" + data.id, {
       status: val,
+
+      // Extra data for history logging (now strings)
+      report_id,
+      name,
+      original_data: originalData,
+      updated_data: updatedData,
+      updated_field,
+      designation,
+      designation_type,
+      action,
+      type_of_report,
+      user_id,
     });
     if (response.status == 200) {
       const i = branchRecipes.value.findIndex((item) => item.id == data.id);

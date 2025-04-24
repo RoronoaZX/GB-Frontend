@@ -10,7 +10,7 @@
     <q-card>
       <q-card-section style="background-color: #795548">
         <div class="row justify-between text-white">
-          <div class="text-h6">Bread Report</div>
+          <div class="text-h6">Bread Report {{ formatDate(reportDate) }}</div>
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
           </q-btn>
@@ -39,6 +39,9 @@
             :sales_Reports="props.reports"
             :sales_report_id="sales_report_id"
             :user="props.user"
+            :reportLabel="props.reportLabel"
+            :reportDate="props.reportDate"
+            :reportLength="reportLength"
           />
         </div>
       </q-card-section>
@@ -71,6 +74,9 @@
                 @update:model-value="(val) => updatedPrice(props.row, val)"
                 v-model="props.row.price"
                 auto-save
+                buttons
+                label-set="Save"
+                label-cancel="Close"
                 v-slot="scope"
               >
                 <q-input
@@ -91,6 +97,9 @@
                 @update:model-value="(val) => updatedBeginnings(props.row, val)"
                 v-model="props.row.beginnings"
                 auto-save
+                buttons
+                label-set="Save"
+                label-cancel="Close"
                 v-slot="scope"
               >
                 <q-input
@@ -113,6 +122,9 @@
                 "
                 v-model="props.row.new_production"
                 auto-save
+                buttons
+                label-set="Save"
+                label-cancel="Close"
                 v-slot="scope"
               >
                 <q-input
@@ -133,6 +145,9 @@
                 @update:model-value="(val) => updatedRemaining(props.row, val)"
                 v-model="props.row.remaining"
                 auto-save
+                buttons
+                label-set="Save"
+                label-cancel="Close"
                 v-slot="scope"
               >
                 <q-input
@@ -153,6 +168,9 @@
                 @update:model-value="(val) => updatedBreadOut(props.row, val)"
                 v-model="props.row.bread_out"
                 auto-save
+                buttons
+                label-set="Save"
+                label-cancel="Close"
                 v-slot="scope"
               >
                 <q-input
@@ -189,20 +207,42 @@ import AddingBreadReport from "./AddingBreadReport.vue";
 import { useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
 import { computed, ref } from "vue";
+import { useUsersStore } from "src/stores/user";
+import { useRoute } from "vue-router";
+import { useQuasar, date } from "quasar";
+
+const route = useRoute();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("producttable user data", userData.value);
+const userId = userData.value?.data?.id || "0";
+console.log("user_id branch product table", userId);
+const branchId = route.params.branch_id;
 const dialog = ref(false);
 const maximizedToggle = ref(true);
-const props = defineProps(["reports", "sales_report_id", "user"]);
+const reportLength = computed(() => filteredRows.value.length);
+const props = defineProps([
+  "reports",
+  "sales_report_id",
+  "user",
+  "reportLabel",
+  "reportDate",
+]);
 const filter = ref("");
 const pagination = ref({
   rowsPerPage: 0,
 });
+
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
 console.log("Reports data sales_report_id:", props.sales_report_id);
+const formatDate = (dateString) => {
+  return date.formatDate(dateString, "MMMM DD, YYYY");
+};
 
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";
@@ -215,11 +255,55 @@ const capitalizeFirstLetter = (location) => {
 const updatedPrice = async (data, val) => {
   console.log("update data of the price", data);
   console.log("update val of the price", val);
+
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `₱ ${data.price.toString()}`; // Convert to string
+  const updatedData = `₱ ${parseInt(val).toString()}`; // Convert to string after parsing
+  const updated_field = "price";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
+
+  // // Construct payload
+  // const payload = {
+  //   price: parseInt(val),
+  //   name,
+  //   report_id,
+  //   updated_field,
+  //   original_data: originalData,
+  //   updated_data: updatedData,
+  //   designation,
+  //   designation_type,
+  //   action,
+  //   type_of_report,
+  //   user_id,
+  // };
+
+  // // Log the payload before sending
+  // console.log("Payload to be sent:", payload);
+
   try {
     const response = await api.put(
       "/api/update-bread-sales-price-report/" + data.id,
       {
         price: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     console.log("reponse", response.data);
@@ -230,11 +314,37 @@ const updatedPrice = async (data, val) => {
 const updatedBeginnings = async (data, val) => {
   console.log("update data of the beginnings", data);
   console.log("update val of the beginnings", val);
+
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `${data.beginnings.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "beginnings";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
+
   try {
     const response = await api.put(
       "/api/update-bread-sales-beginnings-report/" + data.id,
       {
         beginnings: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     console.log("reponse", response.data);
@@ -245,11 +355,37 @@ const updatedBeginnings = async (data, val) => {
 const updatedNewProduction = async (data, val) => {
   console.log("update data of the NewProduction", data);
   console.log("update val of the NewProduction", val);
+
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `${data.new_production.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "beginnings";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
+
   try {
     const response = await api.put(
       "/api/update-bread-sales-newProduction-report/" + data.id,
       {
         new_production: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     console.log("reponse", response.data);
@@ -275,11 +411,37 @@ const updatedRemaining = async (data, val) => {
 const updatedBreadOut = async (data, val) => {
   console.log("update data of the new updatedRemaining", data);
   console.log("update val of the new updatedRemaining", val);
+
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `${data.bread_out.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "beginnings";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
+
   try {
     const response = await api.put(
       "/api/update-bread-sales-breadOut-report/" + data.id,
       {
         bread_out: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     console.log("reponse", response.data);

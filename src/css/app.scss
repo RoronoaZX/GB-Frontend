@@ -1,4 +1,10 @@
 // app global css in SCSS form
+body {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #1f2937;
+}
+
 .q-stepper--horizontal .q-stepper__step-inner {
   --q-stepper-step-inner-padding: 2px; /* Define your desired padding */
 }

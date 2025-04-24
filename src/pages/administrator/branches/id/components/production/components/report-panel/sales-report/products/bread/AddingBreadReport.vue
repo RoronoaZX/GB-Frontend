@@ -19,7 +19,9 @@
   >
     <q-card style="width: 600px; max-width: 80vw">
       <q-card-section class="row items-center bg-backgroud">
-        <div class="text-h6 text-white">Bread</div>
+        <div class="text-h6 text-white">
+          Bread {{ reportLabel }} {{ reportLength }}
+        </div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
@@ -214,14 +216,26 @@ import { useProductionStore } from "src/stores/production";
 import { useProductsStore } from "src/stores/product";
 import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useUsersStore } from "src/stores/user";
 import BreadReport from "./BreadReport.vue";
 
-const props = defineProps(["sales_Reports", "sales_report_id", "user"]);
+const props = defineProps([
+  "sales_Reports",
+  "sales_report_id",
+  "user",
+  "reportLabel",
+  "reportLength",
+]);
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
 const sales_report_id = props.sales_report_id;
 const route = useRoute();
 
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("producttable user data", userData.value);
+const historyLogUserID = userData.value?.data?.id || "0";
+console.log("user_id branch product table", historyLogUserID);
 const productionStore = useProductionStore();
 const productStore = useProductsStore();
 const productData = computed(() => productStore.products);
@@ -358,6 +372,16 @@ watch(
 );
 
 const handleSubmit = async () => {
+  const report_id = data.id;
+  const name = data?.product?.name || "undefined";
+  const originalData = `₱ ${data.price.toString()}`; // Convert to string
+  const updatedData = `₱ ${parseInt(val).toString()}`; // Convert to string after parsing
+  const updated_field = "price";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Product Table";
+  const user_id = historyLogUserID;
   try {
     // Validate required fields
     if (
@@ -389,6 +413,18 @@ const handleSubmit = async () => {
       bread_sold: addbreadProduction.bread_sold,
       total: addbreadProduction.total,
       sales: addbreadProduction.sales,
+
+      //for history log
+      report_id: addbreadProduction.sales_report_id,
+      name: addbreadProduction.product_name || "undefined",
+      original_data: originalData,
+      updated_data: updatedData,
+      updated_field: "bread",
+      designation: addbreadProduction.branch_id,
+      designation_type: "branch",
+      action: "added",
+      type_of_report: `Branch Production bread report`,
+      user_id,
     };
     console.log("payload", payload);
     await productionStore.addBreadProduction(payload);

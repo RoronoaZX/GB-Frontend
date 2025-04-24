@@ -54,6 +54,9 @@
               @update:model-value="(val) => updatePremixStatus(props.row, val)"
               v-model="props.row.status"
               auto-save
+              buttons
+              label-set="Save"
+              label-cancel="Close"
               v-slot="scope"
             >
               <span>{{ props.row.name }}</span>
@@ -104,6 +107,9 @@
             @update:model-value="(val) => updateAvailableStocks(props.row, val)"
             v-model.number="props.row.available_stocks"
             auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
             v-slot="scope"
           >
             <q-input
@@ -130,7 +136,13 @@ import { usePremixStore } from "/src/stores/premix";
 import { api } from "src/boot/axios";
 import { useRoute } from "vue-router";
 import { Notify } from "quasar";
+import { useUsersStore } from "src/stores/user";
 
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("producttable user data", userData.value);
+const userId = userData.value?.data?.id || "0";
+console.log("user_id branch product table", userId);
 const premixStore = usePremixStore();
 const premixRows = computed(() => premixStore.premixes);
 console.log("premixRows", premixRows.value);
@@ -174,13 +186,43 @@ const reloadTableData = async (branchId) => {
 };
 
 const updateAvailableStocks = async (data, val) => {
-  console.log("data", data.id);
-  console.log("val", val);
+  console.log("branch recipe taable", data);
+  const formatNumber = (num) => {
+    const parsed = parseFloat(num);
+    // If it's a whole number, return as string without decimals
+    return parsed % 1 === 0 ? parsed.toFixed(0) : parsed.toFixed(1);
+  };
+
+  const report_id = data.id;
+  const name = `${data?.branch_recipe?.recipe?.name || "undefined"} premix`;
+
+  // These will always be strings like "25 pcs" or "1.5 pcs"
+  const originalData = `${formatNumber(data.available_stocks)} pcs`;
+  const updatedData = `${formatNumber(val)} pcs`;
+
+  const updated_field = "Available Stocks";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Premix Table";
+  const user_id = userId;
   try {
     const response = await api.put(
       "/api/branch-premix-update-stocks/" + data.id,
       {
         available_stocks: val,
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     if (response.status == 200) {
@@ -203,11 +245,36 @@ const updateAvailableStocks = async (data, val) => {
 };
 
 const updatePremixStatus = async (data, val) => {
+  const report_id = data.id;
+  const name = `${data?.branch_recipe?.recipe?.name || "undefined"} premix`;
+
+  // These will always be strings like "25 pcs" or "1.5 pcs"
+  const originalData = `${data.status} pcs`;
+  const updatedData = `${val} pcs`;
+
+  const updated_field = "Status";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = "Branch Premix Table";
+  const user_id = userId;
   try {
     const response = await api.put(
       "/api/branch-premix-update-status/" + data.id,
       {
         status: val,
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
       }
     );
     if (response.status == 200) {

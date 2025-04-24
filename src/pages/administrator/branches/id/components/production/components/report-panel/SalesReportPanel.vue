@@ -6,7 +6,7 @@
           <q-card flat dense bordered>
             <q-card-section>
               <div class="row justify-between">
-                <div class="text-h6">Sales Report</div>
+                <div class="text-h6">Sales Report {{ reportLabel }}</div>
 
                 <div align="right">
                   <q-btn
@@ -33,7 +33,11 @@
               </div>
             </q-card-section>
             <div class="row q-gutter-sm q-pa-md">
-              <ProductsReport :sales_Reports="[report]" />
+              <ProductsReport
+                :sales_Reports="[report]"
+                :reportLabel="reportLabel"
+                :reportDate="report.created_at"
+              />
               <DenominationReport :sales_Reports="[report]" />
               <ExpensesReport :sales_Reports="[report]" />
               <CreditsReport :sales_Reports="[report]" />
@@ -91,7 +95,7 @@ const printPdf = (report) => {
   pdfMake.createPdf(docDefinition).print();
 };
 
-const props = defineProps(["salesReport"]);
+const props = defineProps(["salesReport", "reportLabel", "reportDate"]);
 const reportsData = props.salesReport;
 console.log("reportsDatasssss", props.salesReport);
 
