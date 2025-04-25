@@ -24,7 +24,7 @@ export const useDeviceStore = defineStore("devices", () => {
   const createDevices = async (data) => {
     Loading.show();
     console.log("Data parameters being sent:", data);
-    return data;
+    // return data;
     try {
       const response = await api.post("/api/device", data);
       fetchDevices();

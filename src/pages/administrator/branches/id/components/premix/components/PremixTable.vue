@@ -30,6 +30,7 @@
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
     <q-table
+      v-else
       class="table-container sticky-header"
       :filter="filter"
       :virtual-scroll-sticky-size-start="48"
