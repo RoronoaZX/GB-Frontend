@@ -1,6 +1,14 @@
 <template>
-  <div>
+  <div class="spinner-wrapper" v-if="loading">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="historyLogsData.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
     <q-table
+      v-else
       class="table-container elegant-container sticky-header"
       :virtual-scroll-sticky-size-start="48"
       flat
@@ -65,12 +73,25 @@ import { date } from "quasar";
 const useHistoryLogs = useHistoryLogsStore();
 const historyLogsData = computed(() => useHistoryLogs.historyLogs);
 console.log("historyLogsData", historyLogsData.value);
+const loading = ref(true);
+const showDataMessage = ref(false);
 
 onMounted(async () => fetchHistoryLogs());
 
 const fetchHistoryLogs = async () => {
-  await useHistoryLogs.fetchHistoryLogs();
-  console.log("historyLogsData", historyLogsData.value);
+  try {
+    loading.value = true;
+    await useHistoryLogs.fetchHistoryLogs();
+    console.log("historyLogsData", historyLogsData.value);
+    if (!historyLogsData.value.length) {
+      showDataMessage.value = true;
+    }
+  } catch (error) {
+    console.error("Error fetch history log", error);
+    showDataMessage.value = true;
+  } finally {
+    loading.value = false;
+  }
 };
 
 const capitalizeFirstLetter = (location) => {
@@ -100,19 +121,20 @@ const formatTimestamp = (val) => {
 
 const columns = [
   {
-    name: "timestamp",
-    label: "Timestamp",
-    align: "left",
-    field: (row) => formatTimestamp(row.created_at),
-    sortable: true,
-  },
-  {
     name: "report_id",
     label: "Report ID",
     align: "center",
     field: "report_id",
     sortable: true,
   },
+  {
+    name: "timestamp",
+    label: "Timestamp",
+    align: "left",
+    field: (row) => formatTimestamp(row.created_at),
+    sortable: true,
+  },
+
   // {
   //   name: "designation",
   //   label: "Designation",
@@ -203,6 +225,19 @@ const rows = ref([
 </script>
 
 <style scoped lang="scss">
+.data-error {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.spinner-wrapper {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .elegant-table {
   font-family: "Inter", sans-serif;
   font-size: 14px;

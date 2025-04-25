@@ -74,19 +74,26 @@ import ProfileAvatarComponent from "./ProfileAvatarComponent.vue";
 import { ref, onMounted, computed } from "vue";
 
 const adminDrawer = ref(false);
-const activeMenuItem = ref("dashboard");
 const role = ref(localStorage.getItem("role"));
+const activeMenuItem = ref(
+  role.value === "Super Admin" ? "dashboard" : "raw_materials"
+);
 const bar = ref(null);
 
 const menuItems = [
-  {
-    name: "dashboard",
-    icon: "fa-solid fa-house",
-    to: "/admin/dashboard",
-    label: "Dashboard",
-    toolbarDisplay: "📊 Dashboard",
-    separator: true,
-  },
+  ...(role.value === "Super Admin"
+    ? [
+        {
+          name: "dashboard",
+          icon: "fa-solid fa-house",
+          to: "/admin/dashboard",
+          label: "Dashboard",
+          toolbarDisplay: "📊 Dashboard",
+          separator: true,
+        },
+      ]
+    : []),
+
   {
     name: "raw_materials",
     icon: "fa-solid fa-layer-group",
@@ -154,6 +161,14 @@ const menuItems = [
           toolbarDisplay: "📱 Device",
           separator: true,
         },
+        {
+          name: "history",
+          icon: "fa-solid fa-history",
+          to: "/admin/history_log",
+          label: "History Log",
+          toolbarDisplay: "🕰️ History Logs",
+          separator: true,
+        },
       ]
     : []),
   {
@@ -162,14 +177,6 @@ const menuItems = [
     to: "/admin/payroll",
     label: "Payroll",
     toolbarDisplay: "💰 Payroll Management",
-    separator: true,
-  },
-  {
-    name: "history",
-    icon: "fa-solid fa-history",
-    to: "/admin/history_log",
-    label: "History Log",
-    toolbarDisplay: "🕰️ History Logs",
     separator: true,
   },
 ];

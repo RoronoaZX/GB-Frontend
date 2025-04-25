@@ -250,8 +250,8 @@ const updatePremixStatus = async (data, val) => {
   const name = `${data?.branch_recipe?.recipe?.name || "undefined"} premix`;
 
   // These will always be strings like "25 pcs" or "1.5 pcs"
-  const originalData = `${data.status} pcs`;
-  const updatedData = `${val} pcs`;
+  const originalData = `${data.status} `;
+  const updatedData = `${val}`;
 
   const updated_field = "Status";
   const designation = branchId;

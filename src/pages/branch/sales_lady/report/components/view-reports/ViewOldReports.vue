@@ -73,7 +73,8 @@ const salesReportStore = useSalesReportsStore();
 const salesReportRows = computed(() => salesReportStore.salesReport);
 console.log("sales report in page", salesReportRows.value);
 const userData = computed(() => salesReportStore.user);
-const branchId = userData.value?.employee?.branch_id || "";
+console.log("user datasss", userData.value);
+const branchId = userData.value?.device?.reference?.id || "";
 console.log("sales branch id", branchId);
 const loading = ref(true);
 

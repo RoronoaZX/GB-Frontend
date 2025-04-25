@@ -377,7 +377,7 @@ const handleSubmit = async () => {
   const originalData = `₱ ${data.price.toString()}`; // Convert to string
   const updatedData = `₱ ${parseInt(val).toString()}`; // Convert to string after parsing
   const updated_field = "price";
-  const designation = branchId;
+  const designation = branch_id;
   const designation_type = "branch";
   const action = "updated";
   const type_of_report = "Branch Product Table";
