@@ -16,7 +16,7 @@
     <q-card style="width: 450px">
       <q-card-section class="row bg-gradient text-white">
         <div class="text-h6 text-white">Credits</div>
-        {{ saleReportId }} {{ userId }}
+        <!-- {{ saleReportId }} {{ userId }} -->
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
