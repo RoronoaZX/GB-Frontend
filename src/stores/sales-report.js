@@ -250,10 +250,13 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.filterOthersproducts();
     },
 
-    async fetchSalesReports(branchId) {
+    async fetchSalesReports(branchId, page, rowsPerPage) {
       try {
         const response = await api.get(
-          `/api/branches/${branchId}/branch-sales-report`
+          `/api/branches/${branchId}/branch-sales-report`,
+          {
+            params: { page: page, per_page: rowsPerPage },
+          }
         );
         console.log("sales report", response.data);
         this.salesReport = response.data;

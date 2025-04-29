@@ -26,22 +26,22 @@
     <q-spinner-dots size="50px" color="primary" />
   </div>
   <div v-else>
-    <div v-if="filteredRows.length === 0" class="data-error">
+    <div v-if="productionRows.length === 0" class="data-error">
       <q-icon name="warning" color="warning" size="4em" />
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
+
+    <!-- :filter="filter" -->
+    <!-- style="height: 450px" -->
     <q-table
       v-else
-      class="table-container sticky-header"
-      :filter="filter"
       flat
-      style="height: 450px"
       :columns="productsColumn"
-      :rows="filteredRows"
-      row-key="reportDate"
+      :rows="productionRows"
+      row-key="name"
       v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      hide-bottom
+      :rows-per-page-options="[3, 5, 10, 0]"
+      @request="handleRequest"
     >
       <template v-slot:body-cell-reports="props">
         <q-td :props="props">
@@ -91,11 +91,17 @@ const selectedPeriod = ref("");
 const branchName = ref("");
 
 const pagination = ref({
+  page: 1,
   rowsPerPage: 0,
+  rowsNumber: 0,
 });
+
 const productionStore = useProductionStore();
 const filter = ref("");
-const productionRows = computed(() => productionStore.productions);
+// const productions = computed(() => productionStore.productions);
+// const productionRows = computed(() => productionStore.productions.data);
+const productions = computed(() => productionStore.productions);
+const productionRows = ref([]);
 console.log("productionRows:", productionRows.value); // Log the computed production rows
 const isLoading = ref(true);
 const loading = ref(true);
@@ -116,13 +122,31 @@ onMounted(async () => {
   }
 });
 
-const reloadTableData = async (branchId) => {
+const reloadTableData = async (
+  branchId,
+  page = 0,
+  rowsPerPage = 5,
+  search = ""
+) => {
   try {
     loading.value = true;
-    const response = await productionStore.fetchBranchProductions(branchId);
+    const response = await productionStore.fetchBranchProductions(
+      branchId,
+      page,
+      rowsPerPage,
+      search
+    );
 
-    console.log("Fetched data:", response); // Log the raw response data
+    console.log("Fetched data:", productions.value); // Log the raw response data
     console.log("Production rows:", productionRows.value); // Log the computed production rows
+
+    const { data, current_page, per_page, total } = productions.value;
+
+    productionRows.value = data;
+    console.log("productions.value", productionRows.value);
+    pagination.value.page = current_page;
+    pagination.value.rowsPerPage = per_page;
+    pagination.value.rowsNumber = total;
 
     if (!productionRows.value.length) {
       showNoDataMessage.value = true;
@@ -134,11 +158,25 @@ const reloadTableData = async (branchId) => {
   }
 };
 
+const handleRequest = (props) => {
+  console.log("[ropss]", props);
+  reloadTableData(
+    branchId,
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    filter.value
+  );
+};
+
+watch(filter, (newFilter) => {
+  handleRequest({ pagination: pagination.value });
+});
+
 watch(filter, async (newFilter) => {
   loading.value = true;
   await new Promise((resolve) => setTimeout(resolve, 1000));
   loading.value = false;
-  showNoDataMessage.value = filteredRows.value.length === 0;
+  showNoDataMessage.value = productionRows.value.length === 0;
 });
 
 const formatDate = (dateString) => {

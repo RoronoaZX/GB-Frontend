@@ -6,18 +6,30 @@ import { ref } from "vue";
 export const useProductionStore = defineStore("productions", () => {
   const productions = ref([]);
   const production = ref([]);
+  const productionRows = ref([]);
 
   const fetchAllProduction = async () => {
     const response = await api.get("/api/branch-production-report");
     productions.value = response.data.reports;
   };
 
-  const fetchBranchProductions = async (branchId) => {
+  const fetchBranchProductions = async (
+    branchId,
+    page,
+    rowsPerPage,
+    search
+  ) => {
     try {
       const response = await api.get(
-        `/api/branches/${branchId}/production-report`
+        `/api/branches/${branchId}/production-report`,
+        {
+          params: { page: page, per_page: rowsPerPage, search },
+        }
       );
+      console.log("production for pagination", response.data);
       productions.value = response.data;
+      // productionRows.value = response.data.data;
+      // return response.data;
     } catch (error) {
       console.log(error);
     }
@@ -141,6 +153,7 @@ export const useProductionStore = defineStore("productions", () => {
   return {
     productions,
     production,
+    productionRows,
     fetchAllProduction,
     fetchBranchProductions,
     updateBakerReport,
