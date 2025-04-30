@@ -1,12 +1,16 @@
 <template>
-  <div>
-    <q-scroll-area style="height: 450px; max-width: 1500px">
+  <div v-if="loading" class="spinner-wrapper">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="softdrinksData.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
+    <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <template v-if="softdrinksProductsConfirmed.length">
-          <q-card
-            v-for="(confirmed, index) in softdrinksProductsConfirmed"
-            :key="index"
-          >
+        <template v-if="softdrinksData.length">
+          <q-card v-for="(confirmed, index) in softdrinksData" :key="index">
             <q-card-section>
               <div class="row justify-between">
                 <div class="text-subtitle1">
@@ -41,6 +45,15 @@
       </div>
     </q-scroll-area>
   </div>
+  <div class="q-pa-lg flex flex-center">
+    <q-pagination
+      v-model="pagination.page"
+      color="purple"
+      :max="Math.ceil(pagination.rowsNumber / pagination.rowsPerPage)"
+      @update:model-value="onPageChange"
+      boundary-numbers
+    />
+  </div>
 </template>
 
 <script setup>
@@ -54,18 +67,50 @@ const softdrinksProductStore = useSoftdrinksProductStore();
 const softdrinksProductsConfirmed = computed(
   () => softdrinksProductStore.confirmedSoftdrinksReports
 );
+const softdrinksData = ref([]);
+
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 0,
+  rowsNumber: 0,
+});
+
+const loading = ref(false);
 
 const branchId = route.params.branch_id;
 const category = ref("confirmed");
-const fetchConfirmedSoftdrinksStocks = async () => {
+const fetchConfirmedSoftdrinksStocks = async (
+  branchId,
+  page = 1,
+  rowsPerPage = 5
+) => {
   try {
+    loading.value = true;
     const stocks = await softdrinksProductStore.fetchConfirmedSoftdrinksStocks(
       branchId,
-      category.value
+      category.value,
+      page,
+      rowsPerPage
     );
-    console.log(softdrinksProductsConfirmed.value);
+    console.log(
+      "softdrinksProductsConfirmed.value",
+      softdrinksProductsConfirmed.value
+    );
+    const { data, current_page, per_page, total } =
+      softdrinksProductsConfirmed.value;
+
+    softdrinksData.value = data;
+    console.log("softdrinksData.value", softdrinksData.value);
+    pagination.value.page = current_page;
+    console.log("pagination.value.page", pagination.value.page);
+    pagination.value.rowsPerPage = per_page;
+    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    pagination.value.rowsNumber = total;
+    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
   } catch (error) {
     console.error("Error fetching confirmed stocks", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -74,6 +119,14 @@ onMounted(async () => {
     await fetchConfirmedSoftdrinksStocks(branchId);
   }
 });
+
+const onPageChange = (page) => {
+  pagination.value.page = page;
+  console.log("pagination.value.page", pagination.value.page);
+  console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+
+  fetchConfirmedSoftdrinksStocks(branchId, page, pagination.value.rowsPerPage);
+};
 
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");
@@ -98,8 +151,14 @@ const formatFullname = (row) => {
 </script>
 
 <style lang="scss" scoped>
+.spinner-wrapper {
+  min-height: 40vh; /* Minimum height of 50% viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .data-error {
-  min-height: 40vh;
+  min-height: 40vh; /* Minimum height of 50% viewport height */
   display: flex;
   justify-content: center;
   align-items: center;

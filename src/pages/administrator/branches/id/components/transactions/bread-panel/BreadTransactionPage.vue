@@ -1,15 +1,23 @@
 <template>
-  <div>
+  <div class="spinner-wrapper" v-if="loading">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="breadData.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
     <q-table
+      v-else
       flat
       bordered
-      :rows="pendingReports"
+      :rows="breadData"
       :columns="sentBreadColumns"
       row-key="id"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[3, 5, 10, 0]"
+      @request="handleRequest"
     >
-      <!-- v-model:pagination="pagination" -->
-      <!-- hide-pagination
-      @request="fetchSendBreadPendingReports" -->
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
           <q-badge :color="getBadgeCategoryColor(props.row.status)">
@@ -18,15 +26,6 @@
         </q-td>
       </template>
     </q-table>
-    <!-- <div class="row justify-center q-mt-md">
-      <q-pagination
-        v-model="pagination.page"
-        color="grey-8"
-        :max="pagesNumbers"
-        size="sm"
-        @update:model-value="fetchSendBreadPendingReports"
-      />
-    </div> -->
   </div>
 </template>
 
@@ -37,65 +36,72 @@ import { computed, onMounted, ref } from "vue";
 import { date } from "quasar";
 
 const route = useRoute();
+
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 0,
+  rowsNumber: 0,
+});
+
 const breadProductStore = useBreadProductStore();
 const pendingReports = computed(() => breadProductStore.pendingBreads);
+console.log("pendingReportsadmin", pendingReports.value);
+const breadData = ref([]);
 const branchId = route.params.branch_id;
+const showNoDataMessage = ref(false);
+const loading = ref(false);
 
-// const pagination = ref({
-//   page: 1,
-//   rowsNumber: 5,
-// });
-
-// const pagesNumbers = computed(() => {
-//   return Math.ceil(pendingReports.value.length / pagination.value.rowsNumber);
-// });
-
-const fetchSendBreadPendingReports = async () => {
+const fetchSendBreadPendingReports = async (
+  branchId,
+  page = 0,
+  rowsPerPage = 5
+) => {
   try {
     const response = await breadProductStore.fetchPendingBreadsReport(
-      branchId
-      // pagination.value.page,
-      // pagination.value.rowsNumber
+      branchId,
+      page,
+      rowsPerPage
     );
 
-    // if (response && response.data) {
-    //   pendingReports.value = response.data; // Extract the actual data
-    //   pagination.value.rowsNumber = response.last_page; // Update total rows for pagination
-    // } else {
-    //   console.error("Invalid response format:", response);
-    // }
     console.log("Pending bread reports:", response);
-    // pendingReports.value = response.data;
     console.log("Pending bread reports:", pendingReports.value);
+
+    const { data, current_page, per_page, total } = pendingReports.value;
+
+    breadData.value = data;
+    console.log("breadData", breadData.value);
+    pagination.value.page = current_page;
+    console.log("pagination.value.page", pagination.value.page);
+    pagination.value.rowsPerPage = per_page;
+    console.log("pagination.value.per_page", pagination.value.rowsNumber);
+    pagination.value.rowsNumber = total;
+    console.log("pagination.value.total", pagination.value.total);
+
+    if (!breadData.value.length) {
+      showNoDataMessage.value = true;
+    }
   } catch (error) {
     console.error("Error fetching pending bread reports:", error);
+    showNoDataMessage.value = true;
+  } finally {
+    loading.value = false;
   }
 };
 
-// const fetchSendBreadPendingReports = async () => {
-//   try {
-//     const response = await breadProductStore.fetchPendingBreadsReport(
-//       branchId,
-//       pagination.value.page,
-//       pagination.value.rowsNumber
-//     );
-//     pendingReports.value = response.data;
-//     console.log("pending bread reports", pendingReports.value);
-//     pagination.value.rowsNumber = response.data.total;
-//   } catch (error) {
-//     console.error("Error fetching pending bread reports:", error);
-//   }
-// };
-
 onMounted(async () => {
   if (branchId) {
-    await fetchSendBreadPendingReports(
-      branchId
-      // pagination.value.page,
-      // pagination.value.rowsNumber
-    );
+    await fetchSendBreadPendingReports(branchId);
   }
 });
+
+const handleRequest = (props) => {
+  console.log("props", props);
+  fetchSendBreadPendingReports(
+    branchId,
+    props.pagination.page,
+    props.pagination.rowsPerPage
+  );
+};
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMMM DD, YYYY");
@@ -182,4 +188,17 @@ const getBadgeCategoryColor = (category) => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

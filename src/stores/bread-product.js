@@ -31,8 +31,8 @@ export const useBreadProductStore = defineStore("bread", () => {
       const response = await api.get(`/api/fetch-pending-send-branch-bread`, {
         params: {
           branch_id: branchId,
-          // page: page,
-          // per_page: perPage,
+          page: page,
+          per_page: perPage,
         },
       });
       console.log("bread responsesss", response.data);

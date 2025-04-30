@@ -37,7 +37,7 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
   //   }
   // };
 
-  const fetchPendingSelectaStocks = async (branchId, status) => {
+  const fetchPendingSelectaStocks = async (branchId, status, page, perPage) => {
     console.log("branchId", branchId);
     console.log("category", status);
 
@@ -47,6 +47,8 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
         {
           params: {
             status: status, // Keep category in the query parameters
+            page: page,
+            per_page: perPage,
           },
         }
       );
@@ -55,7 +57,12 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
       console.log(error);
     }
   };
-  const fetchConfirmedSelectaStocks = async (branchId, status) => {
+  const fetchConfirmedSelectaStocks = async (
+    branchId,
+    status,
+    page,
+    rowsPerPage
+  ) => {
     console.log("branchId", branchId);
     console.log("category", status);
 
@@ -65,6 +72,8 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
         {
           params: {
             status: status, // Keep category in the query parameters
+            page: page,
+            per_page: rowsPerPage,
           },
         }
       );
@@ -73,7 +82,12 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
       console.log(error);
     }
   };
-  const fetchDeclinedSelectaStocks = async (branchId, status) => {
+  const fetchDeclinedSelectaStocks = async (
+    branchId,
+    status,
+    page,
+    rowsPerPage
+  ) => {
     console.log("branchId", branchId);
     console.log("category", status);
 
@@ -83,6 +97,8 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
         {
           params: {
             status: status, // Keep category in the query parameters
+            page: page,
+            per_page: rowsPerPage,
           },
         }
       );

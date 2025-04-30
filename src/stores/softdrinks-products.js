@@ -22,7 +22,7 @@ export const useSoftdrinksProductStore = defineStore(
           `/api/softdrinks-added-stocks/${branchId}`,
           {
             params: {
-              page,
+              page: page,
               per_page: rowsPerPage, // pagination
             },
           }
@@ -37,7 +37,12 @@ export const useSoftdrinksProductStore = defineStore(
       }
     };
 
-    const fetchPendingSoftdrinksStocks = async (branchId, status) => {
+    const fetchPendingSoftdrinksStocks = async (
+      branchId,
+      status,
+      page,
+      perPage
+    ) => {
       console.log("branchId", branchId);
       console.log("category", status);
 
@@ -47,6 +52,8 @@ export const useSoftdrinksProductStore = defineStore(
           {
             params: {
               status: status, // Keep category in the query parameters
+              page: page,
+              per_page: perPage,
             },
           }
         );
@@ -56,7 +63,12 @@ export const useSoftdrinksProductStore = defineStore(
       }
     };
 
-    const fetchConfirmedSoftdrinksStocks = async (branchId, status) => {
+    const fetchConfirmedSoftdrinksStocks = async (
+      branchId,
+      status,
+      page,
+      rowsPerPage
+    ) => {
       console.log("branchId", branchId);
       console.log("category", status);
 
@@ -66,6 +78,8 @@ export const useSoftdrinksProductStore = defineStore(
           {
             params: {
               status: status, // Keep category in the query parameters
+              page: page,
+              per_page: rowsPerPage,
             },
           }
         );
@@ -75,7 +89,12 @@ export const useSoftdrinksProductStore = defineStore(
       }
     };
 
-    const fetchDeclinedSoftdrinksStocks = async (branchId, status) => {
+    const fetchDeclinedSoftdrinksStocks = async (
+      branchId,
+      status,
+      page,
+      rowsPerPage
+    ) => {
       console.log("branchId", branchId);
       console.log("category", status);
 
@@ -85,6 +104,8 @@ export const useSoftdrinksProductStore = defineStore(
           {
             params: {
               status: status, // Keep category in the query parameters
+              page: page,
+              per_page: rowsPerPage,
             },
           }
         );

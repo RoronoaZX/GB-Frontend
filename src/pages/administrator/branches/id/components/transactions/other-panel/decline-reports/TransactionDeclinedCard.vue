@@ -2,11 +2,8 @@
   <div>
     <q-scroll-area style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <template v-if="selectedOtherProductDeclined.length">
-          <q-card
-            v-for="(decline, index) in selectedOtherProductDeclined"
-            :key="index"
-          >
+        <template v-if="otherProductsData.length">
+          <q-card v-for="(decline, index) in otherProductsData" :key="index">
             <q-card-section>
               <!-- Display the Selecta product status and creation time -->
               <div class="row justify-between">
@@ -40,6 +37,15 @@
       </div>
     </q-scroll-area>
   </div>
+  <div class="q-pa-lg flex flex-center">
+    <q-pagination
+      v-model="pagination.page"
+      color="purple"
+      :max="Math.ceil(pagination.rowsNumber / pagination.rowsPerPage)"
+      @update:model-value="onPageChange"
+      boundary-numbers
+    />
+  </div>
 </template>
 
 <script setup>
@@ -55,18 +61,39 @@ const selectedOtherProductDeclined = computed(
   () => otherProductStore.declinedOtherReports
 );
 
+const otherProductsData = ref([]);
+
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 0,
+  rowsNumber: 0,
+});
+
 const branchId = route.params.branch_id;
 const category = ref("declined");
-const fetchDeclinedOtherProdStocks = async () => {
+const fetchDeclinedOtherProdStocks = async (
+  branchId,
+  page = 1,
+  rowsPerPage = 5
+) => {
   try {
     const stocks = await otherProductStore.fetchDeclinedOtherStocks(
       branchId,
-      category.value
+      category.value,
+      page,
+      rowsPerPage
     );
     console.log(
       "selectedOtherProductDeclined",
       selectedOtherProductDeclined.value
     );
+    const { data, current_page, per_page, total } =
+      selectedOtherProductDeclined.value;
+
+    otherProductsData.value = data;
+    pagination.value.page = current_page;
+    pagination.value.rowsPerPage = per_page;
+    pagination.value.rowsNumber = total;
   } catch (error) {
     console.error("Error fetching decline stocks:", error);
   }
@@ -77,6 +104,12 @@ onMounted(async () => {
     await fetchDeclinedOtherProdStocks(branchId);
   }
 });
+
+const onPageChange = (page) => {
+  pagination.value.page = page;
+
+  fetchDeclinedOtherProdStocks(branchId, page, pagination.value.rowsPerPage);
+};
 
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");

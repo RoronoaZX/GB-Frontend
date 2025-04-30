@@ -45,7 +45,12 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
     }
   };
 
-  const fetchPendingOtherStocks = async (branchId, status) => {
+  const fetchPendingOtherStocks = async (
+    branchId,
+    status,
+    page,
+    rowsPerPage
+  ) => {
     console.log("branchId", branchId);
     console.log("category", status);
 
@@ -55,6 +60,8 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
         {
           params: {
             status: status,
+            page: page,
+            per_page: rowsPerPage,
           },
         }
       );
@@ -64,7 +71,12 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
     }
   };
 
-  const fetchConfirmedOtherStocks = async (branchId, status) => {
+  const fetchConfirmedOtherStocks = async (
+    branchId,
+    status,
+    page,
+    rowsPerPage
+  ) => {
     console.log("branchId", branchId);
     console.log("category", status);
 
@@ -74,6 +86,8 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
         {
           params: {
             status: status, // Keep category in the query parameters
+            page,
+            rowsPerPage,
           },
         }
       );
@@ -84,7 +98,12 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
     }
   };
 
-  const fetchDeclinedOtherStocks = async (branchId, status) => {
+  const fetchDeclinedOtherStocks = async (
+    branchId,
+    status,
+    page,
+    rowsPerPage
+  ) => {
     console.log("branchId", branchId);
     console.log("category", status);
 
@@ -94,6 +113,8 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
         {
           params: {
             status: status, // Keep category in the query parameters
+            page: page,
+            per_page: rowsPerPage,
           },
         }
       );
