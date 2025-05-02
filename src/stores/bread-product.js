@@ -25,7 +25,7 @@ export const useBreadProductStore = defineStore("bread", () => {
     }
   };
 
-  const fetchPendingBreadsReport = async (branchId, page, perPage) => {
+  const fetchPendingBreadsReport = async (branchId, page, perPage, search) => {
     console.log("branch IDsss", branchId);
     try {
       const response = await api.get(`/api/fetch-pending-send-branch-bread`, {
@@ -33,6 +33,7 @@ export const useBreadProductStore = defineStore("bread", () => {
           branch_id: branchId,
           page: page,
           per_page: perPage,
+          search,
         },
       });
       console.log("bread responsesss", response.data);

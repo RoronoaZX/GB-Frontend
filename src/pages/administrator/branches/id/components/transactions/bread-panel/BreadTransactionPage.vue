@@ -1,4 +1,14 @@
 <template>
+  <q-input
+    rounded
+    outlined
+    dense
+    debounce="300"
+    v-model="filter"
+    placeholder="Search"
+    style="width: 500px; max-width: 1500px; min-width: 100px"
+  >
+  </q-input>
   <div class="spinner-wrapper" v-if="loading">
     <q-spinner-dots size="50px" color="primary" />
   </div>
@@ -10,6 +20,7 @@
     <q-table
       v-else
       flat
+      class="q-mt-md"
       bordered
       :rows="breadData"
       :columns="sentBreadColumns"
@@ -50,17 +61,21 @@ const breadData = ref([]);
 const branchId = route.params.branch_id;
 const showNoDataMessage = ref(false);
 const loading = ref(false);
+const filter = ref("");
 
 const fetchSendBreadPendingReports = async (
   branchId,
   page = 0,
-  rowsPerPage = 5
+  rowsPerPage = 5,
+  search = ""
 ) => {
   try {
+    loading.value = true;
     const response = await breadProductStore.fetchPendingBreadsReport(
       branchId,
       page,
-      rowsPerPage
+      rowsPerPage,
+      search
     );
 
     console.log("Pending bread reports:", response);
@@ -99,7 +114,8 @@ const handleRequest = (props) => {
   fetchSendBreadPendingReports(
     branchId,
     props.pagination.page,
-    props.pagination.rowsPerPage
+    props.pagination.rowsPerPage,
+    filter.value
   );
 };
 

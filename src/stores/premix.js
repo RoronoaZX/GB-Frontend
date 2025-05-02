@@ -17,7 +17,12 @@ export const usePremixStore = defineStore("premix", () => {
   const branchPremix = ref([]);
   const branchEmployeePremix = ref([]);
 
-  const fetchRequestBranchPremix = async (branchId, page, rowsPerPage) => {
+  const fetchRequestBranchPremix = async (
+    branchId,
+    page,
+    rowsPerPage,
+    search
+  ) => {
     try {
       const response = await api.get(
         `/api/get-request-branch-premix/${branchId}`,
@@ -25,6 +30,7 @@ export const usePremixStore = defineStore("premix", () => {
           params: {
             page,
             per_page: rowsPerPage,
+            search,
           },
         }
       );

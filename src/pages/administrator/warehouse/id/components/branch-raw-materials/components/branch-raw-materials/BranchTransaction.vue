@@ -15,9 +15,17 @@
       </template>
     </q-input>
   </div>
-  <div>
+  <div class="spinner-wrapper" v-if="loading">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="branchPremixDatas.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
     <!-- :filter="filter" -->
     <q-table
+      v-else
       bordered
       class="q-mt-md"
       flat
@@ -46,11 +54,11 @@
           </div>
         </q-td>
       </template>
-      <template #loading>
+      <!-- <template #loading>
         <q-inner-loading showing>
           <q-spinner-gears size="50px" color="grey-9" />
         </q-inner-loading>
-      </template>
+      </template> -->
     </q-table>
   </div>
 </template>
@@ -84,14 +92,22 @@ const pagination = ref({
 
 const branchId = props.branchId;
 
+const filteringData = async () => {};
+
 const fetchRequestBranchPremix = async (
   branchId,
   page = 0,
-  rowsPerPage = 5
+  rowsPerPage = 5,
+  search = ""
 ) => {
   try {
     loading.value = true;
-    await premixStore.fetchRequestBranchPremix(branchId, page, rowsPerPage);
+    await premixStore.fetchRequestBranchPremix(
+      branchId,
+      page,
+      rowsPerPage,
+      search
+    );
     console.log("Fetch premix data", premixDatas.value);
 
     const { data, current_page, per_page, total } = premixDatas.value;
@@ -126,12 +142,24 @@ const onPageRequest = (props) => {
   );
 };
 
-watch(filter, () => {
+// watch(filter, () => {
+//   loadingSearchIcon.value = true;
+//   setTimeout(() => {
+//     loadingSearchIcon.value = false;
+//   });
+// });
+
+watch(filter, async (newVal) => {
   loadingSearchIcon.value = true;
-  setTimeout(() => {
-    loadingSearchIcon.value = false;
-  });
+  await fetchRequestBranchPremix(
+    branchId,
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+  loadingSearchIcon.value = false;
 });
+
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMM D, YYYY - hh:mm A");
 };
@@ -235,5 +263,18 @@ const transactionListColumns = [
     /* height of all previous header rows */
     scroll-margin-top: 48px;
   }
+}
+
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
