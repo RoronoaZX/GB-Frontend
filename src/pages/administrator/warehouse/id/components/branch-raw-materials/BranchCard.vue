@@ -40,61 +40,6 @@
         </q-card>
       </div>
     </div>
-    <!-- Dialog -->
-    <!-- <q-dialog v-model="dialogOpen" persistent>
-      <q-card>
-        <q-card-section>
-          <div>
-            <div class="row justify-between">
-              <div class="text-h6">
-                {{ capitalizeFirstLetter(selectedBranch.branch_name) }}
-              </div>
-              <div>
-                <q-btn round dense flat icon="close" v-close-popup />
-              </div>
-            </div>
-          </div>
-          <div class="text-subtitle2">Raw Materials Reports:</div>
-        </q-card-section>
-        <q-card-section>
-          <q-table
-            :rows="selectedBranch.reports"
-            :columns="tableColumns"
-            row-key="id"
-            flat
-            bordered
-            virtual-scroll
-            v-model:pagination="pagination"
-            :rows-per-page-options="[0]"
-            hide-bottom
-            class="q-mt-md"
-          >
-            <template v-slot:body-cell-total_quantity="props">
-              <q-td :props="props">
-                <q-badge
-                  square
-                  class="text-white cursor-pointer"
-                  :class="getRawMaterialBadgeColor(props.row)"
-                >
-                  {{ formatTotalQuantity(props.row) }}
-                </q-badge>
-              </q-td>
-            </template>
-            <template v-slot:body-cell-category="props">
-              <q-td key="name" :props="props">
-                <q-badge
-                  :color="
-                    getBadgeCategoryColor(props.row.raw_material.category)
-                  "
-                >
-                  {{ props.row.raw_material.category }}
-                </q-badge>
-              </q-td>
-            </template>
-          </q-table>
-        </q-card-section>
-      </q-card>
-    </q-dialog> -->
   </div>
 </template>
 
@@ -215,4 +160,24 @@ watch(
 );
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.user-card {
+  height: 300px; /* Fixed height for all cards */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.elegant-name {
+  font-size: clamp(14px, 2vw, 20px); /* Adjust based on card width */
+  line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  padding: 0 8px;
+}
+
+.user-card img {
+  height: 180px;
+  object-fit: cover;
+}
+</style>

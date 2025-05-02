@@ -11,7 +11,7 @@
       <q-card-section>
         <div class="row justify-between">
           <div class="text-h6">
-            {{ capitalizeFirstLetter(branchReport.branch_name) }}
+            {{ `${capitalizeFirstLetter(branchReport.branch_name)}  Branch` }}
           </div>
           <div>
             <q-btn round dense flat icon="close" @click="onDialogCancel" />

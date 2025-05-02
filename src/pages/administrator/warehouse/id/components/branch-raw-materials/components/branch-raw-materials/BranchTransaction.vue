@@ -16,12 +16,18 @@
     </q-input>
   </div>
   <div>
+    <!-- :filter="filter" -->
     <q-table
-      :filter="filter"
+      bordered
+      class="q-mt-md"
       flat
       :columns="transactionListColumns"
-      :rows="premixDatas"
-      row-key="name"
+      :rows="branchPremixDatas"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[5, 7, 10, 0]"
+      row-key="id"
+      @request="onPageRequest"
+      :loading="loading"
     >
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
@@ -40,6 +46,11 @@
           </div>
         </q-td>
       </template>
+      <template #loading>
+        <q-inner-loading showing>
+          <q-spinner-gears size="50px" color="grey-9" />
+        </q-inner-loading>
+      </template>
     </q-table>
   </div>
 </template>
@@ -56,6 +67,7 @@ const warehouseID = computed(() => route.params.warehouse_id || null);
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.branchPremix);
 console.log("premixDatas", premixDatas.value);
+const branchPremixDatas = ref([]);
 
 const filter = ref("");
 const loadingSearchIcon = ref(true);
@@ -63,7 +75,39 @@ const props = defineProps({
   branchId: Object,
 });
 
+const loading = ref(false);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 0,
+  rowsNumber: 0,
+});
+
 const branchId = props.branchId;
+
+const fetchRequestBranchPremix = async (
+  branchId,
+  page = 0,
+  rowsPerPage = 5
+) => {
+  try {
+    loading.value = true;
+    await premixStore.fetchRequestBranchPremix(branchId, page, rowsPerPage);
+    console.log("Fetch premix data", premixDatas.value);
+
+    const { data, current_page, per_page, total } = premixDatas.value;
+    branchPremixDatas.value = data;
+    pagination.value.page = current_page;
+    console.log("pagination.value.page", pagination.value.page);
+    pagination.value.rowsPerPage = per_page;
+    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    pagination.value.rowsNumber = total;
+    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    loading.value = false;
+  }
+};
 
 onMounted(async () => {
   if (branchId) {
@@ -72,8 +116,14 @@ onMounted(async () => {
   console.log("premixdatas", premixDatas.value);
 });
 
-const fetchRequestBranchPremix = async () => {
-  await premixStore.fetchRequestBranchPremix(branchId);
+const onPageRequest = (props) => {
+  // pagination.value.page = page;
+
+  fetchRequestBranchPremix(
+    branchId,
+    props.pagination.page,
+    props.pagination.rowsPerPage
+  );
 };
 
 watch(filter, () => {
@@ -155,4 +205,35 @@ const transactionListColumns = [
 ];
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.sticky-header-top {
+  /* height or max-height is important */
+  // height: 342px;
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {
+    /* bg color is important for th; just specify one */
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    // #1d1d1d
+  }
+  thead tr th {
+    position: sticky;
+    z-index: 1;
+  }
+  thead tr:first-child th {
+    top: 0;
+  }
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th {
+    /* height of all previous header rows */
+    top: 48px;
+  }
+  /* prevent scrolling behind sticky top row on focus */
+  tbody {
+    /* height of all previous header rows */
+    scroll-margin-top: 48px;
+  }
+}
+</style>

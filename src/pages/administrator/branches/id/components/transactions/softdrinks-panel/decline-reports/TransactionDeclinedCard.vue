@@ -61,7 +61,6 @@ import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
 import { date as quasarDate } from "quasar";
 import { useRoute } from "vue-router";
-import { laOdnoklassniki } from "@quasar/extras/line-awesome";
 
 const route = useRoute();
 const softdrinksProductStore = useSoftdrinksProductStore();

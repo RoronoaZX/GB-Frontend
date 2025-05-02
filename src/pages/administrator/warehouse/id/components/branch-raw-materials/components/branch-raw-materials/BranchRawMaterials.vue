@@ -5,11 +5,11 @@
     row-key="id"
     flat
     bordered
-    virtual-scroll
     v-model:pagination="pagination"
     :rows-per-page-options="[0]"
     hide-bottom
-    class="q-mt-md"
+    class="q-mt-md sticky-header3"
+    style="height: 450px"
   >
     <template v-slot:body-cell-total_quantity="props">
       <q-td :props="props">

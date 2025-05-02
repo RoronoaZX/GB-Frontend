@@ -31,12 +31,11 @@
             <div
               class="q-pa-sm"
               :class="{
-                'text-h6': item.product.name.length <= 10,
+                'text-subtitle2': item.product.name.length <= 5,
                 'text-caption text-weight-medium':
                   item.product.name.length > 10 &&
                   item.product.name.length <= 20,
-                'text-caption text-weight-medium':
-                  item.product.name.length > 20,
+                'text-caption': item.product.name.length > 20,
               }"
             >
               {{ capitalizeFirstLetter(item.product.name) }}
@@ -391,10 +390,45 @@ const saveReport = () => {
 <style lang="scss" scoped>
 .example-item {
   width: 190px;
-  max-width: 500px;
-  min-width: 80px;
-  height: 250px;
-  max-height: 500px;
-  min-height: 200px;
+  height: 300px;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  .my-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    img {
+      height: 150px;
+      width: 100%;
+      object-fit: cover;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    .product-name {
+      font-weight: 600;
+      font-size: 16px;
+      text-align: center;
+      padding: 6px 8px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .q-card-section {
+      padding: 6px 12px;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+  }
 }
 </style>

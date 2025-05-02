@@ -1,6 +1,13 @@
 <template>
-  <div>
-    <q-scroll-area style="height: 450px; max-width: 1500px">
+  <div v-if="loading" class="spinner-wrapper">
+    <q-spinner-dots size="50px" color="primary" />
+  </div>
+  <div v-else>
+    <div v-if="otherProductsData.length === 0" class="data-error">
+      <q-icon name="warning" color="warning" size="4em" />
+      <div class="q-ml-sm text-h6">No data available</div>
+    </div>
+    <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
         <template v-if="otherProductsData.length">
           <q-card v-for="(decline, index) in otherProductsData" :key="index">
@@ -62,6 +69,7 @@ const selectedOtherProductDeclined = computed(
 );
 
 const otherProductsData = ref([]);
+const loading = ref(false);
 
 const pagination = ref({
   page: 1,
@@ -77,6 +85,7 @@ const fetchDeclinedOtherProdStocks = async (
   rowsPerPage = 5
 ) => {
   try {
+    loading.value = true;
     const stocks = await otherProductStore.fetchDeclinedOtherStocks(
       branchId,
       category.value,
@@ -96,6 +105,8 @@ const fetchDeclinedOtherProdStocks = async (
     pagination.value.rowsNumber = total;
   } catch (error) {
     console.error("Error fetching decline stocks:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -134,6 +145,12 @@ const formatFullname = (row) => {
 </script>
 
 <style lang="scss" scoped>
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .data-error {
   min-height: 40vh;
   display: flex;

@@ -17,10 +17,16 @@ export const usePremixStore = defineStore("premix", () => {
   const branchPremix = ref([]);
   const branchEmployeePremix = ref([]);
 
-  const fetchRequestBranchPremix = async (branchId) => {
+  const fetchRequestBranchPremix = async (branchId, page, rowsPerPage) => {
     try {
       const response = await api.get(
-        `/api/get-request-branch-premix/${branchId}`
+        `/api/get-request-branch-premix/${branchId}`,
+        {
+          params: {
+            page,
+            per_page: rowsPerPage,
+          },
+        }
       );
       branchPremix.value = response.data;
     } catch (error) {

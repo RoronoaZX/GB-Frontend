@@ -21,7 +21,7 @@
             <div
               class="q-pa-sm"
               :class="{
-                'text-h6': item.product.name.length <= 10,
+                'text-subtitle2': item.product.name.length <= 5,
                 'text-caption text-weight-medium':
                   item.product.name.length > 10 &&
                   item.product.name.length <= 20,

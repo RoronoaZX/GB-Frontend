@@ -30,9 +30,6 @@
       <q-icon name="warning" color="warning" size="4em" />
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
-
-    <!-- :filter="filter" -->
-    <!-- style="height: 450px" -->
     <q-table
       v-else
       flat

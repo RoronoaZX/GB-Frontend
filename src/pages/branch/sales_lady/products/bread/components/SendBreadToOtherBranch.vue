@@ -90,6 +90,7 @@
               type="number"
               outlined
               dense
+              style="width: 180px; max-width: 600px; min-width: 80px"
             />
           </div>
         </div>
@@ -192,8 +193,6 @@ const loading = ref(false);
 const breadProductGroups = ref([]);
 const breadProductOptions = ref([]);
 
-const filterBreadProductsOptions = ref(breadProductOptions.value);
-
 const selectedBreadProducts = reactive({
   name: "",
   quantity: "",
@@ -233,6 +232,8 @@ const sendingBreadtoBranchData = reactive({
   product_id: "",
   quantity: "",
 });
+
+const filterBreadProductsOptions = ref(breadProductOptions.value);
 
 const fetchBranchBread = async () => {
   try {

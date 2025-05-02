@@ -38,17 +38,17 @@
       v-else
       class="table-container sticky-header"
       :filter="filter"
-      :virtual-scroll-sticky-size-start="48"
       flat
       :columns="rawMaterialsColumns"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
-      style="height: 340px"
+      style="height: 375px"
     >
+      <!-- :virtual-scroll-sticky-size-start="48"
+      virtual-scroll -->
       <template v-slot:body-cell-total_quantity="props">
         <q-td :props="props">
           <q-badge
