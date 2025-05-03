@@ -9,10 +9,10 @@
       placeholder="Search"
       style="width: 500px; max-width: 1500px; min-width: 100px"
     >
-      <template v-slot:append>
+      <!-- <template v-slot:append>
         <q-icon v-if="!loadingSearchIcon" name="search" />
         <q-icon v-else :thickness="2" color="teal" size="1em" />
-      </template>
+      </template> -->
     </q-input>
   </div>
   <div class="spinner-wrapper" v-if="loading">

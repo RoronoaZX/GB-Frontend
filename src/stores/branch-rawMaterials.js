@@ -77,6 +77,16 @@ export const useBranchRawMaterialsStore = defineStore(
       }
     };
 
+    const createMultipleBranchRawMaterials = async (materials) => {
+      try {
+        const response = await api.post(
+          "/api/branch/raw-materials/bulk-create",
+          { materials }
+        );
+        console.log(response);
+      } catch (error) {}
+    };
+
     const updateBranchRawMaterials = async (id) => {
       await api.put(`/api/update-branch-products/${id}`, { price: newPrice });
       const index = branchRawMaterials.value.findIndex(
@@ -103,6 +113,7 @@ export const useBranchRawMaterialsStore = defineStore(
       createBranchRawMaterials,
       updateBranchRawMaterials,
       deleteBranchRawMaterials,
+      createMultipleBranchRawMaterials,
     };
   }
 );

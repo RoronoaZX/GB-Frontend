@@ -2,13 +2,14 @@
   <q-btn
     outline
     class="text-dark q-pa-sm"
+    push
     dense
     elevated
     icon="add_circle"
     label="Create Branch Raw Material"
     @click="open_create_bread_dialog"
-    style="background: #f43f5e"
   />
+  <!-- style="background: #f43f5e" -->
   <q-dialog v-model="dialog" persistent>
     <q-card
       class="my-card"

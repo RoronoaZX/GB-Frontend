@@ -5,9 +5,13 @@
     dense
     debounce="300"
     v-model="filter"
-    placeholder="Search"
+    placeholder="Search Date"
     style="width: 500px; max-width: 1500px; min-width: 100px"
   >
+    <!-- <template v-slot:append>
+      <q-icon v-if="!loadingSearchIcon" name="search" />
+      <q-icon v-else :thickness="2" color="teal" size="1em" />
+    </template> -->
   </q-input>
   <div class="spinner-wrapper" v-if="loading">
     <q-spinner-dots size="50px" color="primary" />
@@ -43,7 +47,7 @@
 <script setup>
 import { useBreadProductStore } from "src/stores/bread-product";
 import { useRoute } from "vue-router";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { date } from "quasar";
 
 const route = useRoute();
@@ -62,6 +66,7 @@ const branchId = route.params.branch_id;
 const showNoDataMessage = ref(false);
 const loading = ref(false);
 const filter = ref("");
+const loadingSearchIcon = ref(true);
 
 const fetchSendBreadPendingReports = async (
   branchId,
@@ -88,9 +93,9 @@ const fetchSendBreadPendingReports = async (
     pagination.value.page = current_page;
     console.log("pagination.value.page", pagination.value.page);
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.per_page", pagination.value.rowsNumber);
+    console.log("pagination.value.per_page", pagination.value.rowsPerPage);
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.total", pagination.value.total);
+    console.log("pagination.value.total", pagination.value.rowsNumber);
 
     if (!breadData.value.length) {
       showNoDataMessage.value = true;
@@ -118,6 +123,17 @@ const handleRequest = (props) => {
     filter.value
   );
 };
+
+watch(filter, async (newVal) => {
+  loadingSearchIcon.value = true;
+  await fetchSendBreadPendingReports(
+    branchId,
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+  loadingSearchIcon.value = false;
+});
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMMM DD, YYYY");

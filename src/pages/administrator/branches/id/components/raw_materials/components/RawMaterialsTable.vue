@@ -17,8 +17,9 @@
         </template>
       </q-input>
     </div>
-    <div class="q-my-sm">
+    <div class="row q-my-sm q-gutter-x-md">
       <RawMaterialsCreate />
+      <RawMaterialsAddAll />
     </div>
   </div>
   <div class="spinner-wrapper" v-if="loading">
@@ -98,6 +99,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
 import RawMaterialsCreate from "./RawMaterialsCreate.vue";
+import RawMaterialsAddAll from "./RawMaterialsAddAll.vue";
 // import RawMaterialsAdd from "./RawMaterialsAdd.vue";
 // import RawMaterialsTableEdit from "./RawMaterialsTableEdit.vue";
 import RawMaterialsTableDelete from "./RawMaterialsTableDelete.vue";
