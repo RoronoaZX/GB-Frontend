@@ -27,20 +27,24 @@
       v-else
       class="table-container sticky-header"
       :filter="filter"
-      :virtual-scroll-sticky-size-start="48"
       flat
       :columns="rawMaterialsColumns"
       :rows="filteredRows"
       row-key="name"
-      virtual-scroll
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
       style="height: 340px"
     >
+      <!-- virtual-scroll
+    :virtual-scroll-sticky-size-start="48" -->
       <template v-slot:body-cell-availableStocks="props">
         <q-td :props="props">
-          <q-chip square class="text-white" :class="getRawMaterialBadgeColor(props.row)">
+          <q-chip
+            square
+            class="text-white"
+            :class="getRawMaterialBadgeColor(props.row)"
+          >
             <!-- :class="getRawMaterialBadgeColor(props.row.total_quantity)" -->
             {{ formatTotalQuantity(props.row) }}
             <!-- formatTotalQuantity -->
@@ -107,9 +111,8 @@ const reloadTableData = async (warehouseId) => {
   console.log("Fetching raw materials for warehouse ID:", warehouseId);
   try {
     loading.value = true;
-    const response = await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(
-      warehouseId
-    );
+    const response =
+      await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
     warehouseRawMaterialsRows.value = response;
     if (!warehouseRawMaterialsRows.value.length) {
       showNoDataMessage.value = true;

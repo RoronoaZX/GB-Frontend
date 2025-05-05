@@ -9,17 +9,18 @@
     </div>
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <q-card v-for="(pending, index) in premix" :key="index">
+        <q-card
+          v-for="(pending, index) in premix"
+          :key="index"
+          @click="handleDialog(pending)"
+        >
           <q-card-section class="q-gutter-sm">
             <div class="text-h6">
               {{ pending.name }}
             </div>
             <div class="row justify-between">
               <div class="text-subtitle1">
-                {{ formatDate(pending.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ formatTime(pending.created_at) }}
+                {{ formatTimestamp(pending.created_at) }}
               </div>
               <div class="text-subtitle1">
                 {{ pending.branch_premix.branch_recipe.branch.name }} -
@@ -29,9 +30,9 @@
               <div>
                 <q-badge color="warning" outlined> Pending </q-badge>
               </div>
-              <div>
+              <!-- <div>
                 <TransactionView :report="pending" />
-              </div>
+              </div> -->
             </div>
           </q-card-section>
         </q-card>
@@ -43,7 +44,7 @@
 <script setup>
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
-import { date as quasarDate } from "quasar";
+import { date as quasarDate, useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
 
@@ -58,7 +59,7 @@ console.log("warehouseId", warehouseId);
 const status = ref("pending");
 const loading = ref(true);
 const showNoDataMessage = ref(false);
-
+const $q = useQuasar();
 onMounted(async () => {
   if (warehouseId) {
     await fetchPendingPremix(warehouseId);
@@ -71,6 +72,9 @@ const formatDate = (dateString) => {
 
 const formatTime = (timeString) => {
   return quasarDate.formatDate(timeString, "hh:mm A");
+};
+const formatTimestamp = (val) => {
+  return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
 };
 
 const formatFullname = (row) => {
@@ -98,6 +102,15 @@ const fetchPendingPremix = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleDialog = (data) => {
+  $q.dialog({
+    component: TransactionView,
+    componentProps: {
+      report: data,
+    },
+  });
 };
 </script>
 

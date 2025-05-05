@@ -1,15 +1,6 @@
 <template>
   <div>
-    <q-btn
-      color="accent"
-      icon="visibility"
-      size="md"
-      flat
-      round
-      dense
-      @click="openDialog"
-    />
-    <q-dialog v-model="dialog">
+    <q-dialog ref="dialogRef" v-model="dialog" @hide="onDialogHide">
       <q-card style="width: 700px; max-width: 80vw">
         <q-card-section>
           <div class="row justify-between">
@@ -113,7 +104,10 @@
 
 <script setup>
 import { ref } from "vue";
+import { useDialogPluginComponent } from "quasar";
 
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent();
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;

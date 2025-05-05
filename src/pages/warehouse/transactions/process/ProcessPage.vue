@@ -9,37 +9,39 @@
     </div>
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <q-card v-for="(process, index) in processPremixData" :key="index">
+        <q-card
+          v-for="(process, index) in processPremixData"
+          :key="index"
+          @click="handleDialog(process)"
+        >
           <q-card-section class="q-gutter-sm">
             <div class="row justify-between">
               <div class="text-h6">
                 {{ process.name }}
-              </div>
-              <div class="row q-gutter-x-md">
-                <div class="text-subtitle1">Process By:</div>
-                <div class="text-overline text-weight-bold">
-                  {{ formatFullname(process.history[0].employee) }}
-                </div>
-              </div>
-            </div>
-            <div class="row justify-between">
-              <div class="text-subtitle1">
-                {{ formatDate(process.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ formatTime(process.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ process.branch_premix.branch_recipe.branch.name }} -
-                {{ formatFullname(process.employee) }}
               </div>
               <div>
                 <q-badge color="primary" outlined>
                   {{ process.status }}
                 </q-badge>
               </div>
-              <div>
-                <TransactionView :report="process" />
+            </div>
+            <div class="row justify-between">
+              <div class="text-subtitle1">
+                {{ formatTimestamp(process.created_at) }}
+              </div>
+              <!-- <div class="text-subtitle1">
+                {{ formatTime(process.created_at) }}
+              </div> -->
+              <div class="text-subtitle1">
+                {{ process.branch_premix.branch_recipe.branch.name }} -
+                {{ formatFullname(process.employee) }}
+              </div>
+
+              <div class="row q-gutter-x-md">
+                <div class="text-subtitle1">Process By:</div>
+                <div class="text-overline text-weight-bold">
+                  {{ formatFullname(process.history[0].employee) }}
+                </div>
               </div>
             </div>
           </q-card-section>
@@ -52,7 +54,7 @@
 <script setup>
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
-import { date as quasarDate } from "quasar";
+import { date as quasarDate, useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
 
@@ -67,6 +69,7 @@ const status = ref("process");
 // const premix = computed(() => premixStore.pendingPremixData);
 const loading = ref(true);
 const showNoDataMessage = ref(false);
+const $q = useQuasar();
 
 onMounted(async () => {
   if (warehouseId) {
@@ -80,6 +83,10 @@ const formatDate = (dateString) => {
 
 const formatTime = (timeString) => {
   return quasarDate.formatDate(timeString, "hh:mm A");
+};
+
+const formatTimestamp = (dateString) => {
+  return quasarDate.formatDate(dateString, "MMM DD, YYYY || hh:mm A");
 };
 
 const formatFullname = (row) => {
@@ -107,6 +114,15 @@ const fetchProcessPremix = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleDialog = (data) => {
+  $q.dialog({
+    component: TransactionView,
+    componentProps: {
+      report: data,
+    },
+  });
 };
 </script>
 

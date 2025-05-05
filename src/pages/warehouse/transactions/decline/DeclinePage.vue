@@ -9,38 +9,36 @@
     </div>
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
-        <q-card v-for="(decline, index) in declinedPremixData" :key="index">
+        <q-card
+          v-for="(decline, index) in declinedPremixData"
+          :key="index"
+          @click="handleDialog(decline)"
+        >
           <q-card-section class="q-gutter-sm">
             <div class="row justify-between">
               <div class="text-h6">
                 {{ decline.name }}
+              </div>
+              <div>
+                <q-badge color="red-6" outlined>
+                  {{ decline.status }}
+                </q-badge>
+              </div>
+            </div>
+            <div class="row justify-between">
+              <div class="text-subtitle1">
+                {{ formatTimestamp(decline.created_at) }}
+              </div>
+
+              <div class="text-subtitle1">
+                {{ decline.branch_premix.branch_recipe.branch.name }} -
+                {{ formatFullname(decline.employee) }}
               </div>
               <div class="row q-gutter-x-md">
                 <div class="text-subtitle1">Declined By:</div>
                 <div class="text-overline text-weight-bold">
                   {{ formatFullname(decline.history[0].employee) }}
                 </div>
-              </div>
-            </div>
-            <div class="row justify-between">
-              <div class="text-subtitle1">
-                {{ formatDate(decline.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ formatTime(decline.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ decline.branch_premix.branch_recipe.branch.name }} -
-                {{ formatFullname(decline.employee) }}
-              </div>
-
-              <div>
-                <q-badge color="red-6" outlined>
-                  {{ decline.status }}
-                </q-badge>
-              </div>
-              <div>
-                <TransactionView :report="decline" />
               </div>
             </div>
           </q-card-section>
@@ -53,7 +51,7 @@
 <script setup>
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
-import { date as quasarDate } from "quasar";
+import { date as quasarDate, useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
 
@@ -67,6 +65,7 @@ console.log("declinedPremixData", declinedPremixData.value);
 const status = ref("declined");
 const loading = ref(true);
 const showNoDataMessage = ref(false);
+const $q = useQuasar();
 
 onMounted(async () => {
   if (warehouseId) {
@@ -80,6 +79,10 @@ const formatDate = (dateString) => {
 
 const formatTime = (timeString) => {
   return quasarDate.formatDate(timeString, "hh:mm A");
+};
+
+const formatTimestamp = (val) => {
+  return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
 };
 
 const formatFullname = (row) => {
@@ -107,6 +110,15 @@ const fetchDeclinedPremix = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleDialog = (data) => {
+  $q.dialog({
+    component: TransactionView,
+    componentProps: {
+      report: data,
+    },
+  });
 };
 </script>
 

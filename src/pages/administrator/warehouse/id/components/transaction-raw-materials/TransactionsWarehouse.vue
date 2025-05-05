@@ -1,5 +1,5 @@
 <template>
-  <div class="text-h6">Premix / Raw Materials Transactions</div>
+  <div class="text-h6">Raw Materials Transactions</div>
   <TablePage />
 </template>
 

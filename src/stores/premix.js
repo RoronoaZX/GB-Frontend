@@ -364,10 +364,16 @@ export const usePremixStore = defineStore("premix", () => {
     }
   };
 
-  const fetchReceivePremix = async (warehouseId) => {
+  const fetchReceivePremix = async (warehouseId, status, page, rowsPerPage) => {
     // console.log("data to be received", data);
     try {
-      const response = await api.get(`/api/get-receive-premix/${warehouseId}`);
+      const response = await api.get(`/api/get-receive-premix/${warehouseId}`, {
+        params: {
+          status,
+          page,
+          per_page: rowsPerPage,
+        },
+      });
       // return response.data;
       receivePremixData.value = response.data;
     } catch (error) {

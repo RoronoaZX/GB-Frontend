@@ -14,6 +14,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
     const branchRawMaterials = ref([]);
     const branchRecipe = ref([]);
     const warehouseRawMaterialsReport = ref([]);
+    const historyRawMaterials = ref([]);
     const user = ref({});
 
     const setUser = (newUser) => {
@@ -43,6 +44,19 @@ export const useWarehouseRawMaterialsStore = defineStore(
         warehouseRawMaterials.value = response.data;
       } catch (error) {
         console.log("error", error);
+      }
+    };
+
+    const fetchWarehouseAddedStocks = async (warehouseId) => {
+      console.log("warehouse id", warehouseId);
+      try {
+        const response = await api.get(
+          `/api/warehouse/${warehouseId}/added-stocks-history`
+        );
+        console.log("historyRawMaterials.value", response.data);
+        historyRawMaterials.value = response.data;
+      } catch (error) {
+        console.error(error);
       }
     };
 
@@ -256,6 +270,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
       warehouseRawMaterial,
       warehouseRawMaterials,
       warehouseRawMaterialsReport,
+      historyRawMaterials,
       createWarehouseRawMaterials,
       fetchWarehouseRawMaterials,
       deleteWarehouseRawMaterials,
@@ -266,6 +281,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
       searchBranchRecipe,
       saveWarehouseRawMaterialsReport,
       createMultipleWarehouseRawMaterials,
+      fetchWarehouseAddedStocks,
     };
   }
 );

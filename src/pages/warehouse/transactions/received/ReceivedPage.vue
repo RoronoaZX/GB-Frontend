@@ -3,49 +3,32 @@
     <q-spinner-dots size="50px" color="primary" />
   </div>
   <div v-else>
-    <div v-if="receivePremixData.length === 0" class="data-error">
+    <div v-if="premixData.length === 0" class="data-error">
       <q-icon name="warning" color="warning" size="4em" />
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
-    <q-scroll-area v-else style="height: 450px; max-width: 1500px">
-      <div class="q-gutter-md q-ma-md">
-        <q-card v-for="(receive, index) in receivePremixData" :key="index">
-          <q-card-section class="q-gutter-sm">
-            <div class="row justify-between">
-              <div class="text-h6">
-                {{ receive.name }}
-              </div>
-              <div class="row q-gutter-x-md">
-                <div class="text-subtitle1">Received By:</div>
-                <div class="text-overline text-weight-bold">
-                  {{ formatFullname(receive?.history[0]?.employee || "Undefined") }}
-                </div>
-              </div>
-            </div>
-            <div class="row justify-between">
-              <div class="text-subtitle1">
-                {{ formatDate(receive.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ formatTime(receive.created_at) }}
-              </div>
-              <div class="text-subtitle1">
-                {{ receive.branch_premix.branch_recipe.branch.name }} -
-                {{ formatFullname(receive.employee) }}
-              </div>
-              <div>
-                <q-badge color="green" outlined>
-                  {{ receive.status }}
-                </q-badge>
-              </div>
-              <div>
-                <TransactionView :report="receive" />
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-    </q-scroll-area>
+    <q-table
+      :rows="premixData"
+      :columns="receivedPremixColumns"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[3, 5, 10, 0]"
+      @request="handleRequest"
+      flat
+      bordered
+    >
+      <template v-slot:body-cell-status="props">
+        <q-td :props="props">
+          <q-badge color="green">
+            {{ capitalizeFirstLetter(props.row.status) }}
+          </q-badge>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-action="props">
+        <q-td :props="props">
+          <TransactionView :report="props.row" />
+        </q-td>
+      </template>
+    </q-table>
   </div>
 </template>
 
@@ -55,6 +38,7 @@ import { usePremixStore } from "src/stores/premix";
 import { date as quasarDate } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
+import { preFetch } from "quasar/wrappers";
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
@@ -63,6 +47,14 @@ console.log("warehouseId", warehouseId);
 const premixStore = usePremixStore();
 const receivePremixData = computed(() => premixStore.receivePremixData);
 console.log("receivePremixData", receivePremixData.value);
+
+const premixData = ref([]);
+
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 0,
+  rowsNumber: 0,
+});
 const status = ref("process");
 const loading = ref(true);
 const showNoDataMessage = ref(false);
@@ -81,22 +73,49 @@ const formatDate = (dateString) => {
 const formatTime = (timeString) => {
   return quasarDate.formatDate(timeString, "hh:mm A");
 };
+const formatTimestamp = (val) => {
+  return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
+};
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename ? capitalize(row.middlename).charAt(0) + "." : "";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
 
   return `${firstname} ${middlename} ${lastname}`;
 };
 
-const fetchReceivePremix = async () => {
+const fetchReceivePremix = async (warehouseId, page = 0, rowsPerPage = 5) => {
   try {
     loading.value = true;
-    await premixStore.fetchReceivePremix(warehouseId, status.value);
+    await premixStore.fetchReceivePremix(
+      warehouseId,
+      status.value,
+      page,
+      rowsPerPage
+    );
+    console.log("receivePremixDatssa", receivePremixData.value);
+
+    const { data, current_page, per_page, total } = receivePremixData.value;
+
+    premixData.value = data;
+    console.log("premixData.value", premixData.value);
+    pagination.value.page = current_page;
+    pagination.value.rowsPerPage = per_page;
+    pagination.value.rowsNumber = total;
+
     if (!receivePremixData.value.length) {
       showNoDataMessage.value = true;
     }
@@ -106,6 +125,60 @@ const fetchReceivePremix = async () => {
     loading.value = false;
   }
 };
+
+const handleRequest = (props) => {
+  fetchReceivePremix(
+    warehouseId,
+    props.pagination.page,
+    props.pagination.rowsPerPage
+  );
+};
+
+const receivedPremixColumns = [
+  {
+    name: "created_at",
+    label: "Date / Time",
+    align: "left",
+    field: (row) => formatTimestamp(row.created_at) || "Not Available",
+    sortable: true,
+  },
+  {
+    name: "employee",
+    label: "Employee",
+    align: "left",
+    field: (row) => formatFullname(row.employee) || "Not Available",
+    sortable: true,
+  },
+  {
+    name: "branch",
+    label: "Branch Name",
+    align: "left",
+    field: (row) =>
+      row.branch_premix.branch_recipe.branch.name || "Not Available",
+    sortable: true,
+  },
+  {
+    name: "premix_name",
+    label: "Premix Name",
+    align: "left",
+    field: (row) => row.name || "Not Available",
+    sortable: true,
+  },
+  {
+    name: "status",
+    label: "Status",
+    align: "left",
+    field: "status",
+    sortable: true,
+  },
+  {
+    name: "action",
+    label: "Action",
+    align: "left",
+    field: "action",
+    sortable: true,
+  },
+];
 </script>
 
 <style lang="scss" scoped>

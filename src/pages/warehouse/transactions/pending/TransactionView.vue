@@ -1,16 +1,5 @@
 <template>
-  <div>
-    <q-btn
-      color="accent"
-      icon="visibility"
-      size="md"
-      flat
-      round
-      dense
-      @click="openDialog"
-    />
-  </div>
-  <q-dialog v-model="dialog">
+  <q-dialog ref="dialogRef" v-model="dialog" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section>
         <div class="row justify-between">
@@ -113,7 +102,10 @@ import { ref, computed } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
 import { Notify } from "quasar";
+import { useDialogPluginComponent } from "quasar";
 
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent();
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
 console.log("userdata", userData.value);

@@ -82,7 +82,7 @@
           <div class="q-my-sm">Raw Materials Name</div>
           <q-select
             v-model="selectedRawMaterials.name"
-            debounce="3000"
+            debounce="100"
             outlined
             chips-color="primary"
             :options="filterRawMaterialsOptions"
@@ -166,9 +166,9 @@ const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 const userData = computed(() => warehouseRawMaterialsStore.user);
 // const warehouseId = route.params.warehouse_id;
 console.log("userData", userData.value);
-const warehouseId = userData.value?.employee?.warehouse_id || "";
+const warehouseId = userData.value?.device?.reference_id || "";
 console.log("warehouseId", warehouseId);
-const employeeId = userData.value?.employee?.employee_id || "";
+const employeeId = userData.value?.data?.employee?.id || "";
 console.log("employeeId", employeeId);
 const addIngredientsDialog = ref(false);
 const warehouseRawMaterialsRows = computed(
@@ -203,26 +203,27 @@ const filterRawMaterialsOptions = ref(rawMaterialsOptions.value);
 
 const fetchWarehouseRawMaterials = async () => {
   try {
+    loading.value = true; // Start loading
     const warehouse_id = warehouseId;
-    console.log("warehouse_id", warehouse_id);
-
     const warehouseRawMaterials =
       await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouse_id);
-    loading.value = false;
+
+    console.log("warehouseRawMaterials", warehouseRawMaterials);
     rawMaterialsOptions.value =
-      warehouseRawMaterialsStore.warehouseRawMaterials.map((val) => {
-        return {
-          label: val.raw_materials.name,
-          value: val.raw_materials.id,
-          suffix: val.raw_materials.unit,
-        };
-      });
-    console.log("rawMaterialsOptions", rawMaterialsOptions.value);
+      warehouseRawMaterialsStore.warehouseRawMaterials.map((val) => ({
+        label: val.raw_materials.name,
+        value: val.raw_materials.id,
+        suffix: val.raw_materials.unit,
+      }));
+
+    filterRawMaterialsOptions.value = rawMaterialsOptions.value;
   } catch (error) {
     console.error("Error fetching warehouse raw materials:", error);
+  } finally {
+    loading.value = false; // Stop loading
   }
 };
-fetchWarehouseRawMaterials();
+fetchWarehouseRawMaterials(warehouseId);
 
 const clearData = () => {
   (selectedRawMaterials.name = ""),
@@ -332,7 +333,7 @@ const save = async () => {
         unit: item.unit.value, // Always save as grams
       })),
     };
-
+    console.log("new data", newData);
     await warehouseRawMaterialsStore.warehouseAddSupply(newData);
     warehouseRawMaterialsRows.value =
       await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
