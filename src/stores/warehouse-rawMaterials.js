@@ -47,11 +47,21 @@ export const useWarehouseRawMaterialsStore = defineStore(
       }
     };
 
-    const fetchWarehouseAddedStocks = async (warehouseId) => {
+    const fetchWarehouseAddedStocks = async (
+      warehouseId,
+      page,
+      rowsPerPage
+    ) => {
       console.log("warehouse id", warehouseId);
       try {
         const response = await api.get(
-          `/api/warehouse/${warehouseId}/added-stocks-history`
+          `/api/warehouse/${warehouseId}/added-stocks-history`,
+          {
+            params: {
+              page,
+              rowsPerPage,
+            },
+          }
         );
         console.log("historyRawMaterials.value", response.data);
         historyRawMaterials.value = response.data;
