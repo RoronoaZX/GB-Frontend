@@ -5,7 +5,7 @@
     dense
     debounce="300"
     v-model="filter"
-    placeholder="Search Date"
+    placeholder="Search"
     style="width: 500px; max-width: 1500px; min-width: 100px"
   >
     <!-- <template v-slot:append>

@@ -18,9 +18,16 @@ export const useEmployeeStore = defineStore("employees", () => {
     employees.value = response.data;
   };
 
-  const fetchEmployeeWithEmploymentType = async () => {
-    const response = await api.get("/api/fetchEmployeeWithEmploymentType");
+  const fetchEmployeeWithEmploymentType = async (page, rowsPerPage, search) => {
+    const response = await api.get("/api/fetchEmployeeWithEmploymentType", {
+      params: {
+        page,
+        per_page: rowsPerPage,
+        search,
+      },
+    });
     employees.value = response.data;
+    console.log("employees.value", employees.value);
   };
   const createEmployee = async (data) => {
     // Loading.show();

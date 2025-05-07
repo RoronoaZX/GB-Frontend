@@ -6,8 +6,8 @@
       <TableSection />
     </div>
 
-    <!-- Cards Section: Full width on mobile, 4/12 width on tablet, 3/12 width on desktop -->
-    <div class="col-12 col-md-3 col-lg-3 q-gutter-y-md q-pa-sm">
+    <!-- Cards Section: Prevent height stretching -->
+    <div class="col-12 col-md-3 col-lg-3 q-gutter-y-md q-pa-sm card-side">
       <RegisterEmployee />
       <div class="row2">
         <BranchDesignationEmployee />
@@ -25,11 +25,17 @@ import WarehouseDesignationEmployee from "./section/WarehouseDesignationEmployee
 </script>
 
 <style lang="scss" scoped>
+/* Prevent right-side card section from inheriting full height of flex row */
+.card-side {
+  align-self: flex-start;
+}
+
+/* Layout for designation cards in a row */
 .row2 {
   display: flex;
-  flex-wrap: nowrap; /* Prevent wrapping */
-  justify-content: space-between; /* Add spacing between cards */
-  gap: 10px; /* Add gap between cards */
-  align-items: center; /* Align cards vertically */
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
 }
 </style>

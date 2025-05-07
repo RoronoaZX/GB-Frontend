@@ -1,20 +1,27 @@
 <template>
-  <!-- max-width: 1000px -->
   <div style="width: 100%">
     <q-table
+      class="user-card"
       title="Employees"
-      :rows="employeeRows"
+      :rows="employeesRowsData"
       :columns="employeeColumns"
       row-key="fullname"
-      hide-bottom
       v-model:pagination="pagination"
-      class="custom-table"
-      style="max-width: 100%; height: 460px"
+      :rows-per-page-options="[5, 7, 10, 0]"
+      :loading="loading"
+      :filter="filter"
+      @request="onPageRequest"
     >
-      <!-- style="height: 460px" -->
-      <!-- width: 1000px; -->
       <template v-slot:top-right>
-        <SearchEmployee />
+        <q-input
+          v-model="filter"
+          outlined
+          dense
+          flat
+          label="Search"
+          debounce="300"
+          style="width: 300px"
+        ></q-input>
       </template>
       <template v-slot:body-cell-fullname="props">
         <q-td key="fullname" :props="props">
@@ -121,9 +128,8 @@
           </q-popup-edit>
         </q-td>
       </template>
-
       <template v-slot:body-cell-address="props">
-        <q-td :props="props">
+        <q-td :props="props" style="text-align: justify">
           <div>
             {{ capitalizeAddress(props.row.address) }}
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
@@ -202,7 +208,6 @@
           </q-popup-edit>
         </q-td>
       </template>
-
       <template v-slot:body-cell-actions="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
@@ -222,18 +227,13 @@
           </div>
         </q-td>
       </template>
+      <template #loading>
+        <q-inner-loading showing>
+          <q-spinner-ios size="50px" color="grey-10" />
+        </q-inner-loading>
+      </template>
     </q-table>
   </div>
-  <!-- for profile pic-->
-  <!-- <template v-slot:body-cell-profile="props">
-        <q-td :props="props" align="center">
-          <img
-            :src="props.row.profile"
-            alt="Profile"
-            style="width: 30px; height: 30px; border-radius: 50%"
-          />
-        </q-td>
-      </template> -->
   <q-dialog v-model="dialog" persistent>
     <q-card class="bg-gradient" style="width: 700px; max-width: 80vw">
       <div class="text-white q-ma-sm" align="right">
@@ -247,27 +247,50 @@
 </template>
 
 <script setup>
+import {
+  formatFullname,
+  capitalizeAddress,
+  formatDate,
+  updateEmployeeFullname,
+  updateEmploymentType,
+  updateEmployeeAddress,
+  updateEmployeePhone,
+  updateEmployeeBirthdate,
+  getEmployementTypeColor,
+  employeeColumns,
+} from "src/composables/employeeFunction/useEmployeeFunctions";
 import SearchEmployee from "./SearchEmployee.vue";
 import { date, useQuasar } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
 import { useEmploymentTypeStore } from "src/stores/employment-type";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import IDLogo from "../../../../../../assets/IDLogo.png";
 import GB_LOGO from "../../../../../../assets/GB_LOGO.png";
-import EmployeeEdit from "./EmployeeEdit.vue";
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fontes";
-pdfMake.vfs = pdfFonts.default;
+import { useEmployeeIDPrinter } from "src/composables/employeeFunction/useEmployeeIDPrinter";
+
+const { dialog, pdfUrl, handlePrintID } = useEmployeeIDPrinter(IDLogo, GB_LOGO);
+
+// import IDLogo from "../../../../../../assets/IDLogo.png";
+// import GB_LOGO from "../../../../../../assets/GB_LOGO.png";
+// import EmployeeEdit from "./EmployeeEdit.vue";
+// import * as pdfMake from "pdfmake/build/pdfmake";
+// import * as pdfFonts from "pdfmake/build/vfs_fontes";
+// pdfMake.vfs = pdfFonts.default;
 
 const employmentStore = useEmploymentTypeStore();
 const employmentTypeOptions = ref([]);
 const employeeStore = useEmployeeStore();
 const employeeRows = computed(() => employeeStore.employees); // Computed property will automatically update when the store changes
+const employeesRowsData = ref([]);
 
 const pagination = ref({
+  page: 1,
   rowsPerPage: 0,
+  rowsNumber: 0,
 });
 
+const filter = ref("");
+const loading = ref(false);
 console.log("employees fetch madepaker", employeeRows.value);
 
 onMounted(async () => {
@@ -295,358 +318,292 @@ const setEmploymentTypeId = (row) => {
   console.log("Initial employmentTypeId:", employmentTypeId.value);
 };
 
-// const setEmploymentTypeId = (row, scope) => {
-//   // Set the initial value directly on `scope.value`
-//   console.log("Row data:", row);
-//   scope.value = row.employment_type?.id || null;
-//   console.log("Initial employmentTypeId:", scope.value);
-// };
-
-// const setEmploymentTypeId = (row) => {
-//   // Initialize employmentTypeId with the current ID of the employment type for the selected row
-//   console.log("employmentTypeIdrowsss", row);
-//   employmentTypeId.value = row.employment_type?.category || null;
-//   console.log("employmentTypeId.value", employmentTypeId.value);
-// };
-
 console.log("====================================");
 console.log("employmentTypeIdsss", employmentTypeId.value);
 console.log("====================================");
 
-const reloadTableData = async () => {
+const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   try {
-    employeeRows.value = await employeeStore.fetchEmployeeWithEmploymentType();
+    loading.value = true;
+    employeeRows.value = await employeeStore.fetchEmployeeWithEmploymentType(
+      page,
+      rowsPerPage,
+      search
+    );
     console.log("fetchEmployeeWithEmploymentType", employeeRows.value);
+
+    const { data, current_page, per_page, total } = employeeRows.value;
+    employeesRowsData.value = data;
+    console.log("employeesRowsData.value", employeesRowsData.value);
+    pagination.value.page = current_page;
+    console.log("pagination.value.page", pagination.value.page);
+    pagination.value.rowsPerPage = per_page;
+    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    pagination.value.rowsNumber = total;
+    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
   } catch (error) {
     console.log("employee madepaker", error);
+  } finally {
+    loading.value = false;
   }
 };
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
-
-const capitalizeAddress = (address) => {
-  if (!address) return "";
-  return address
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const updateEmployeeFullname = async (data, val) => {
-  console.log("data", data);
-  console.log("val", val);
-
-  const employeeFullname = {
-    id: data.id, // Use the employee's id from data
-    firstname: val.firstname || data.firstname,
-    middlename: val.middlename || data.middlename,
-    lastname: val.lastname || data.lastname,
-  };
-  await employeeStore.updateEmployeeFullname(employeeFullname);
-};
-
-const updateEmploymentType = async (row, selectedId) => {
-  console.log("updateEmploymentType triggered");
-  console.log("row", row);
-  console.log("New employment type ID:", selectedId);
-
-  const updateEmployeesEmploymentType = {
-    id: row.id,
-    employment_type_id: selectedId.value,
-  };
-  await employeeStore.updateEmployeeEmploymentType(
-    updateEmployeesEmploymentType
+const onPageRequest = (props) => {
+  console.log("porps", props);
+  reloadTableData(
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    props.filter
   );
 };
 
-// const updateEmploymentType = async (data, val) => {
-//   console.log("row", data); // Log the row data
-//   console.log("selectedId", val); // Log the selected employment type ID
+watch(filter, async (newVal) => {
+  await reloadTableData(
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+});
+
+// const formatDate = (dateString) => {
+//   return date.formatDate(dateString, "MMMM DD, YYYY");
+// };
+
+// const formatFullname = (row) => {
+//   const capitalize = (str) =>
+//     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+//   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+//   const middlename = row.middlename
+//     ? capitalize(row.middlename).charAt(0) + "."
+//     : "";
+//   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+//   return `${firstname} ${middlename} ${lastname}`;
+// };
+
+// const capitalizeAddress = (address) => {
+//   if (!address) return "";
+//   return address
+//     .split(" ")
+//     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+//     .join(" ");
+// };
+
+// const updateEmployeeFullname = async (data, val) => {
+//   console.log("data", data);
+//   console.log("val", val);
+
+//   const employeeFullname = {
+//     id: data.id, // Use the employee's id from data
+//     firstname: val.firstname || data.firstname,
+//     middlename: val.middlename || data.middlename,
+//     lastname: val.lastname || data.lastname,
+//   };
+//   await employeeStore.updateEmployeeFullname(employeeFullname);
 // };
 
 // const updateEmploymentType = async (row, selectedId) => {
+//   console.log("updateEmploymentType triggered");
 //   console.log("row", row);
-//   console.log("selectedId", selectedId);
+//   console.log("New employment type ID:", selectedId);
+
+//   const updateEmployeesEmploymentType = {
+//     id: row.id,
+//     employment_type_id: selectedId.value,
+//   };
+//   await employeeStore.updateEmployeeEmploymentType(
+//     updateEmployeesEmploymentType
+//   );
 // };
-// try {
-//   const response = await api.put(
-//     `/api/update-employee-employment-type/${row.id}`,
-//     {
-//       employment_type_id: selectedId,
+
+// const updateEmployeeAddress = async (data, val) => {
+//   console.log("data", data);
+//   console.log("val", val);
+
+//   const employeeAddress = {
+//     id: data.id,
+//     address: val,
+//   };
+
+//   await employeeStore.updateEmployeeAddress(employeeAddress);
+// };
+
+// const updateEmployeePhone = async (data, val) => {
+//   console.log("data", data);
+//   console.log("val", val);
+
+//   const employeePhone = {
+//     id: data.id,
+//     phone: val,
+//   };
+
+//   await employeeStore.updateEmployeePhone(employeePhone);
+// };
+
+// const updateEmployeeBirthdate = async (data, val) => {
+//   console.log("data", data);
+//   console.log("val", val);
+
+//   const employeeBirthdate = {
+//     id: data.id,
+//     birthdate: val,
+//   };
+
+//   await employeeStore.updateEmployeebirthdate(employeeBirthdate);
+// };
+
+// const $q = useQuasar();
+// const dialog = ref(false);
+// const pdfUrl = ref("");
+
+// const handlePrintID = (row) => {
+//   convertImageToBase64(IDLogo, (base64Image) => {
+//     convertImageToBase64(GB_LOGO, (base64Logo) => {
+//       const docDefinition = generateDocDefinition(row, base64Image, base64Logo);
+//       pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
+//         pdfUrl.value = dataUrl;
+//         dialog.value = true;
+//       });
+//     });
+//   });
+// };
+
+// const convertImageToBase64 = (url, callback) => {
+//   const reader = new FileReader();
+//   const xhr = new XMLHttpRequest();
+//   xhr.open("GET", url, true);
+//   xhr.responseType = "blob";
+//   xhr.onload = function () {
+//     if (xhr.status === 200) {
+//       reader.readAsDataURL(xhr.response);
+//       reader.onloadend = function () {
+//         callback(reader.result);
+//       };
+//     } else {
+//       console.error("Failed to load image.");
 //     }
-//   );
-//   console.log("Employment type updated:", response.data);
+//   };
+//   xhr.send();
+// };
 
-//   // Update the row data with the selected employment type
-//   const selectedType = employmentTypeOptions.value.find(
-//     (option) => option.value === selectedId
-//   );
+// const generateDocDefinition = (employee, base64Image, base64Logo) => {
+//   return {
+//     pageSize: { width: 323, height: 204 },
+//     pageMargins: [0, 0, 0, 0],
+//     background: [
+//       {
+//         image: base64Logo, // Add logo as a watermark
+//         width: 140, // Adjust the size of the watermark as needed
+//         opacity: 0.1, // Set the opacity for a watermark effect
+//         absolutePosition: { x: 70, y: 15 }, // Position the watermark on the page
+//       },
+//     ],
+//     content: [
+//       {
+//         canvas: [
+//           {
+//             type: "rect",
+//             x: 0,
+//             y: 0,
+//             w: 260,
+//             h: 150,
+//             lineWidth: 1,
+//             lineColor: "black",
+//             dash: { length: 4 }, // Creates the broken line effect
+//           },
+//         ],
+//         absolutePosition: { x: 0, y: 0 },
+//       },
+//       {
+//         alignment: "justify",
+//         columns: [
+//           {
+//             image: base64Image,
+//             width: 100,
+//             height: 153,
+//             alignment: "left",
+//             margin: [-8, -4, 0, 0],
+//           },
+//           {
+//             stack: [
+//               {
+//                 text: "GB Bakeshop",
+//                 style: "header",
+//                 color: "red",
+//                 margin: [0, 0, 50, 0],
+//               },
+//               {
+//                 text: `Name  : ${formatFullname(employee)}`,
+//                 style: "name",
+//               },
+//               {
+//                 text: `Position : ${employee.position}`,
+//                 style: "position",
+//               },
+//               // {
+//               //   text: `Employment Type: ${employee.employment_type?.category}`,
+//               //   style: "info",
+//               // },
+//               {
+//                 text: `Phone  : ${employee.phone}`,
+//                 style: "info",
+//               },
+//               {
+//                 qr: `${employee.id.toString()} - ${formatFullname(
+//                   employee
+//                 )} - ${employee.position}`,
+//                 fit: 87,
+//                 foreground: "red",
+//                 background: "yellow",
+//                 margin: [30, 7, 0, 0],
+//               },
+//             ],
+//           },
+//         ],
+//       },
+//     ],
+//     styles: {
+//       header: {
+//         fontSize: 15,
+//         bold: true,
+//         alignment: "center",
+//         // margin: [5, 10, 0, 0],
+//       },
+//       name: {
+//         fontSize: 8,
+//         bold: true,
+//         margin: [5, 1, 0, 0],
+//       },
+//       position: {
+//         fontSize: 8,
+//         // italics: true,
+//         margin: [5, 2, 0, 0],
+//       },
+//       info: {
+//         fontSize: 7,
+//         margin: [5, 2, 0, 0],
+//       },
+//       address: {
+//         fontSize: 7,
+//         margin: [0, 5, 0, 0],
+//       },
+//     },
+//   };
+// };
 
-//   if (selectedType) {
-//     row.employment_type = {
-//       id: selectedId,
-//       category: selectedType.label,
-//       salary: selectedType.salary,
-//     };
+// const getEmployementTypeColor = (employmentType) => {
+//   switch (employmentType) {
+//     case "Regular":
+//       return "blue-8";
+//     case "Trainee":
+//       return "orange-5";
+//     case "Part-time":
+//       return "teal-5";
+//     default:
+//       return "grey";
 //   }
-// } catch (error) {
-//   console.error("Error updating employment type:", error);
-// }
-
-const updateEmployeeAddress = async (data, val) => {
-  console.log("data", data);
-  console.log("val", val);
-
-  const employeeAddress = {
-    id: data.id,
-    address: val,
-  };
-
-  await employeeStore.updateEmployeeAddress(employeeAddress);
-};
-
-const updateEmployeePhone = async (data, val) => {
-  console.log("data", data);
-  console.log("val", val);
-
-  const employeePhone = {
-    id: data.id,
-    phone: val,
-  };
-
-  await employeeStore.updateEmployeePhone(employeePhone);
-};
-
-const updateEmployeeBirthdate = async (data, val) => {
-  console.log("data", data);
-  console.log("val", val);
-
-  const employeeBirthdate = {
-    id: data.id,
-    birthdate: val,
-  };
-
-  await employeeStore.updateEmployeebirthdate(employeeBirthdate);
-};
-
-const employeeColumns = [
-  {
-    name: "fullname",
-    required: true,
-    label: "Full Name",
-    align: "center",
-    field: (row) => formatFullname(row),
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: "employmentType",
-    label: "Employment Type",
-    align: "center",
-    field: (row) =>
-      row.employment_type ? row.employment_type.category : "N/A",
-    format: (val) => `${val}`,
-  },
-
-  {
-    name: "address",
-    required: true,
-    label: "Address",
-    align: "center",
-    field: "address",
-    sortable: true,
-  },
-  {
-    name: "phone",
-    required: true,
-    label: "Phone",
-    align: "center",
-    field: "phone",
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: "birthdate",
-    required: true,
-    label: "Birthdate",
-    align: "center",
-    field: "birthdate",
-    format: (val) => formatDate(val),
-    sortable: true,
-  },
-  {
-    name: "actions",
-    align: "center",
-    label: "Action",
-    field: "actions",
-  },
-];
-
-const $q = useQuasar();
-const dialog = ref(false);
-const pdfUrl = ref("");
-
-const handlePrintID = (row) => {
-  convertImageToBase64(IDLogo, (base64Image) => {
-    convertImageToBase64(GB_LOGO, (base64Logo) => {
-      const docDefinition = generateDocDefinition(row, base64Image, base64Logo);
-      pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
-        pdfUrl.value = dataUrl;
-        dialog.value = true;
-      });
-    });
-  });
-};
-
-const convertImageToBase64 = (url, callback) => {
-  const reader = new FileReader();
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", url, true);
-  xhr.responseType = "blob";
-  xhr.onload = function () {
-    if (xhr.status === 200) {
-      reader.readAsDataURL(xhr.response);
-      reader.onloadend = function () {
-        callback(reader.result);
-      };
-    } else {
-      console.error("Failed to load image.");
-    }
-  };
-  xhr.send();
-};
-
-const generateDocDefinition = (employee, base64Image, base64Logo) => {
-  return {
-    pageSize: { width: 323, height: 204 },
-    pageMargins: [0, 0, 0, 0],
-    background: [
-      {
-        image: base64Logo, // Add logo as a watermark
-        width: 140, // Adjust the size of the watermark as needed
-        opacity: 0.1, // Set the opacity for a watermark effect
-        absolutePosition: { x: 70, y: 15 }, // Position the watermark on the page
-      },
-    ],
-    content: [
-      {
-        canvas: [
-          {
-            type: "rect",
-            x: 0,
-            y: 0,
-            w: 260,
-            h: 150,
-            lineWidth: 1,
-            lineColor: "black",
-            dash: { length: 4 }, // Creates the broken line effect
-          },
-        ],
-        absolutePosition: { x: 0, y: 0 },
-      },
-      {
-        alignment: "justify",
-        columns: [
-          {
-            image: base64Image,
-            width: 100,
-            height: 153,
-            alignment: "left",
-            margin: [-8, -4, 0, 0],
-          },
-          {
-            stack: [
-              {
-                text: "GB Bakeshop",
-                style: "header",
-                color: "red",
-                margin: [0, 0, 50, 0],
-              },
-              {
-                text: `Name  : ${formatFullname(employee)}`,
-                style: "name",
-              },
-              {
-                text: `Position : ${employee.position}`,
-                style: "position",
-              },
-              // {
-              //   text: `Employment Type: ${employee.employment_type?.category}`,
-              //   style: "info",
-              // },
-              {
-                text: `Phone  : ${employee.phone}`,
-                style: "info",
-              },
-              {
-                qr: `${employee.id.toString()} - ${formatFullname(
-                  employee
-                )} - ${employee.position}`,
-                fit: 87,
-                foreground: "red",
-                background: "yellow",
-                margin: [30, 7, 0, 0],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    styles: {
-      header: {
-        fontSize: 15,
-        bold: true,
-        alignment: "center",
-        // margin: [5, 10, 0, 0],
-      },
-      name: {
-        fontSize: 8,
-        bold: true,
-        margin: [5, 1, 0, 0],
-      },
-      position: {
-        fontSize: 8,
-        // italics: true,
-        margin: [5, 2, 0, 0],
-      },
-      info: {
-        fontSize: 7,
-        margin: [5, 2, 0, 0],
-      },
-      address: {
-        fontSize: 7,
-        margin: [0, 5, 0, 0],
-      },
-    },
-  };
-};
-
-const getEmployementTypeColor = (employmentType) => {
-  switch (employmentType) {
-    case "Regular":
-      return "blue-8";
-    case "Trainee":
-      return "orange-5";
-    case "Part-time":
-      return "teal-5";
-    default:
-      return "grey";
-  }
-};
+// };
 </script>
 
 <style lang="scss" scoped>
@@ -658,6 +615,16 @@ const getEmployementTypeColor = (employmentType) => {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
 }
+
+.user-card {
+  height: 42%;
+  border-radius: 15px;
+  background: #fff;
+  color: #333;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
 .q-btn {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
