@@ -13,11 +13,22 @@
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section>
         <div class="row justify-between">
-          <div class="text-h6">
-            {{
-              capitalizeFirstLetter(report?.supplier_company_name) ||
-              "Undefined"
-            }}
+          <div>
+            <span class="text-caption">Supplier's Company Name: </span>
+            <span class="text-caption text-weight-medium">
+              {{
+                capitalizeFirstLetter(report?.supplier_company_name) ||
+                "Undefined"
+              }}
+            </span>
+            <div class="text-subtitle1">
+              <span class="text-caption"> Supplier's Name: </span>
+              <span class="text-caption text-weight-medium">
+                {{
+                  capitalizeFirstLetter(report?.supplier_name) || "Undefined"
+                }}
+              </span>
+            </div>
           </div>
           <q-btn
             class="close-btn"

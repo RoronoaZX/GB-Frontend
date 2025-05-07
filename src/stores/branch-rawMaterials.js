@@ -83,7 +83,16 @@ export const useBranchRawMaterialsStore = defineStore(
           "/api/branch/raw-materials/bulk-create",
           { materials }
         );
-        console.log(response);
+        console.log("multipleRawMAterials", response.data);
+        response.data.data.forEach((item) => {
+          const exists = branchRawMaterials.value.find(
+            (mat) => mat.id === item.id
+          );
+          if (!exists) {
+            branchRawMaterials.value.unshift(item);
+          }
+        });
+        console("branchRawMaterials.value", branchRawMaterials.value);
       } catch (error) {}
     };
 

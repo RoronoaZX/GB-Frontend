@@ -59,7 +59,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
           {
             params: {
               page,
-              rowsPerPage,
+              per_page: rowsPerPage,
             },
           }
         );
@@ -176,53 +176,75 @@ export const useWarehouseRawMaterialsStore = defineStore(
             materials,
           }
         );
-        if (
-          response.data.message === "Warehouse Raw Materials saved successfully"
-        ) {
-          const rawMaterials = materials.map((material) => {
-            const rawMaterial = rawMaterialsData.value.find(
-              (item) => item.id === material.raw_material_id
-            );
-
-            return {
-              ...material,
-              raw_materials: rawMaterial
-                ? rawMaterial
-                : { name: "No Name", code: "Unknown" },
-              total_quantity: material.total_quantity,
-            };
-          });
-
-          console.log("newRawMaterials", ...rawMaterials);
-
-          warehouseRawMaterials.value.unshift(...rawMaterials);
-
-          Notify.create({
-            type: "positive",
-            message: "Warehouse Raw Materials saved successfully",
-            position: "top",
-          });
-        } else if (
-          response.data.message ===
-          "The RawMaterials already exists in this branch."
-        ) {
-          Notify.create({
-            type: "warning",
-            message: "The Raw Materials already exists in this branch.",
-            position: "top",
-          });
-        }
+        console.log("warehouse raw materials", response.data);
+        response.data.data.forEach((item) => {
+          const exists = warehouseRawMaterials.value.find(
+            (mat) => mat.id === item.id
+          );
+          if (!exists) {
+            warehouseRawMaterials.value.unshift(item);
+          }
+        });
       } catch (error) {
         console.log(error);
-        Notify.create({
-          type: "negative",
-          message: "An error occurred while saving the branch product.",
-          position: "top",
-        });
-      } finally {
-        Loading.hide();
       }
     };
+
+    // const createMultipleWarehouseRawMaterials = async (materials) => {
+    //   try {
+    //     const response = await api.post(
+    //       "/api/warehouse/raw-materials/bulk-create",
+    //       {
+    //         materials,
+    //       }
+    //     );
+    //     if (
+    //       response.data.message === "Warehouse Raw Materials saved successfully"
+    //     ) {
+    //       const rawMaterials = materials.map((material) => {
+    //         const rawMaterial = rawMaterialsData.value.find(
+    //           (item) => item.id === material.raw_material_id
+    //         );
+
+    //         return {
+    //           ...material,
+    //           raw_materials: rawMaterial
+    //             ? rawMaterial
+    //             : { name: "No Name", code: "Unknown" },
+    //           total_quantity: material.total_quantity,
+    //         };
+    //       });
+
+    //       console.log("newRawMaterials", ...rawMaterials);
+
+    //       warehouseRawMaterials.value.unshift(...rawMaterials);
+
+    //       Notify.create({
+    //         type: "positive",
+    //         message: "Warehouse Raw Materials saved successfully",
+    //         position: "top",
+    //       });
+    //     } else if (
+    //       response.data.message ===
+    //       "The RawMaterials already exists in this branch."
+    //     ) {
+    //       Notify.create({
+    //         type: "warning",
+    //         message: "The Raw Materials already exists in this branch.",
+    //         position: "top",
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //     Notify.create({
+    //       type: "negative",
+    //       message: "An error occurred while saving the branch product.",
+    //       position: "top",
+    //     });
+    //   } finally {
+    //     Loading.hide();
+    //   }
+    // };
 
     const saveWarehouseRawMaterialsReport = async () => {
       try {
