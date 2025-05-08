@@ -1,7 +1,7 @@
-// src/composables/useEmployeeFunctions.js
-import { date } from "quasar";
+// function to be use in the
+// pages/administrator/payroll/panel-section/employees
 
-// src/composables/useEmployeeUpdates.js
+import { date } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
 
 const employeeStore = useEmployeeStore();

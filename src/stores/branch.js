@@ -74,76 +74,106 @@ export const useBranchesStore = defineStore("branches", () => {
     // Loading.show();
     try {
       const response = await api.post("/api/branches", data);
-      // const warehouse = warehouses.value.find(
-      //   (item) => item.id === data.warehouse_id
-      // );
-      // const employee = employees.value.find(
-      //   (item) => item.id === data.employee_id
-      // );
-
-      // const newBranch = {
-      //   ...response.data,
-      //   warehouse: warehouse ? warehouse.name : "No Warehouse",
-      //   employee: employee
-      //     ? `${employee.firstname} ${employee.lastname}`
-      //     : "No Employee Assigned",
-      // };
-      console.log("create branch", response.data);
-      branches.value.unshift(response.data);
+      console.log("create branchssss", response);
       fetchBranches();
       Notify.create({
         type: "positive",
         message: "Branch created successfully",
-        timeout: 1000,
-        // position: "top",
+        setTimeout: 1000,
       });
     } catch (error) {
-      console.log(error);
-      Notify.create({
-        type: "negative",
-        icon: "error",
-        message: "Failed to create branch",
-        // position: "top",
-      });
+      console.log("error", error);
+      if (error.response.data.message === "The name has already been taken.") {
+        Notify.create({
+          type: "warning",
+          icon: "warning",
+          message: "The name has already been taken.",
+          // position: "top",
+        });
+      } else if (
+        error.response.data.message === "Request failed with status code 422"
+      ) {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message: "Request failed with status code 422",
+          // position: "top",
+        });
+      }
     }
   };
 
   const updateBranches = async (id, data) => {
-    Loading.show();
     try {
+      Loading.show();
       const response = await api.put(`/api/branches/${id}`, data);
 
-      branches.value = response.data;
-      fetchBranches();
-      // const index = branches.value.findIndex((item) => item.id === id);
-      // if (index > -1) {
-      //   branches.value[index] = {
-      //     ...branches.value[index],
-      //     ...response.data,
+      console.log("response edit", response.data);
+      const updatedBranch = response.data;
 
-      //     warehouse: warehouses.value.find(
-      //       (item) => item.id === data.warehouse_id
-      //     ),
-      //   };
-      // }
+      // Find and update the branch in the local branches array
+      const index = branches.value.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        branches.value[index] = {
+          ...branches.value[index],
+          ...updatedBranch,
+        };
+      }
 
       Notify.create({
         type: "positive",
         message: "Branch updated successfully",
-        // position: "top",
       });
     } catch (error) {
       console.log("updateBranches", error);
-      Notify.create({
-        type: "negative",
-        icon: "error",
-        message: "Failed to update branch",
-        // position: "top",
-      });
+      if (
+        error.response?.data?.message === "The name has already been taken."
+      ) {
+        Notify.create({
+          type: "warning",
+          icon: "warning",
+          message: error.response?.data?.message || "Failed to update branch",
+          setTimeout: 1000,
+        });
+      } else {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message: error.response?.data?.message || "Failed to update branch",
+          setTimeout: 1000,
+        });
+      }
     } finally {
       Loading.hide();
     }
   };
+
+  // const updateBranches = async (id, data) => {
+  //   Loading.show();
+  //   try {
+  //     const response = await api.put(`/api/branches/${id}`, data);
+
+  //     console.log("response.edit", response.data);
+  //     // branches.value = response.data;
+  //     // fetchBranches();
+
+  //     Notify.create({
+  //       type: "positive",
+  //       message: "Branch updated successfully",
+  //       // position: "top",
+  //     });
+  //   } catch (error) {
+  //     console.log("updateBranches", error);
+  //     Notify.create({
+  //       type: "negative",
+  //       icon: "error",
+  //       message: "Failed to update branch",
+  //       // position: "top",
+  //     });
+  //   } finally {
+  //     Loading.hide();
+  //   }
+  // };
 
   const deleteBranches = async (id) => {
     Loading.show();

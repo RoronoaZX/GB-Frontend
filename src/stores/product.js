@@ -33,48 +33,77 @@ export const useProductsStore = defineStore("products", () => {
   };
 
   const createProducts = async (data) => {
-    Loading.show();
     try {
+      Loading.show();
       const response = await api.post("/api/products", data);
       console.log("data", response.data);
-      if (response.data.message === "Product saved successfully") {
-        fetchProducts();
-        const product = products.value.find((item) => item.id === data.id);
-        products.value.unshift(response.data);
-        Notify.create({
-          type: "positive",
-          message: "Product created successfully",
-        });
-      } else if (response.data.message === "The product already exists.") {
-        Notify.create({
-          type: "warning",
-          message: "The product already exists.",
-          // position: "top",
-        });
-      }
+      fetchProducts();
+      Notify.create({
+        type: "positive",
+        message: "Product created successfully",
+      });
     } catch (error) {
       console.log("erroe", error);
+      if (error.response.data.message === "The name has already been taken.") {
+        Notify.create({
+          type: "warning",
+          icon: "warning",
+          message: "The name has already been taken.",
+          setTimeout: 5000,
+        });
+      } else {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message:
+            error.response?.data?.message || "The name has already been taken.",
+          setTimeout: 5000,
+        });
+      }
     } finally {
       Loading.hide();
     }
   };
 
   const updateProducts = async (id, data) => {
-    Loading.show();
-    const response = await api.put(`/api/products/${id}`, data);
-    const updatedProduct = products.value.findIndex(
-      (product) => product.id === id
-    );
-    if (updatedProduct !== -1) {
-      products.value[updatedProduct] = response.data;
-    }
-    Notify.create({
-      type: "positive",
-      message: "Product updated successfully",
-      timeout: 1000,
-    });
+    try {
+      Loading.show();
+      const response = await api.put(`/api/products/${id}`, data);
+      console.log("response product", response.data);
 
-    Loading.hide();
+      const updatedProduct = response.data;
+
+      const index = products.value.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        products.value[index] = {
+          ...products.value[index],
+          ...updatedProduct,
+        };
+      }
+      Notify.create({
+        type: "positive",
+        message: "Product updated successfully",
+        timeout: 1000,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.response.data.message === "The name has already been taken.") {
+        Notify.create({
+          type: "warning",
+          icon: "warning",
+          message: error.response.data.message || "ERROR",
+          timeout: 1000,
+        });
+      } else {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message: error.response.data.message || "ERROR",
+        });
+      }
+    } finally {
+      Loading.hide();
+    }
   };
 
   const deleteProducts = async (id) => {

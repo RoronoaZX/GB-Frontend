@@ -143,7 +143,7 @@ const dialog = ref(false);
 
 const statusOptions = ["Open", "Closed"];
 const props = defineProps(["edit"]);
-let editRow = props.edit.row;
+// let editRow = props.edit.row;
 const searchKeyword = ref(null);
 const searchLoading = ref(false);
 const showDropdown = ref(false);
@@ -151,7 +151,7 @@ const showDropdown = ref(false);
 const search = async () => {
   if (searchKeyword.value.trim()) {
     searchLoading.value = true;
-    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    await employeeStore.searchPersonInCharge(searchKeyword.value);
     searchLoading.value = false;
     showDropdown.value = true;
   }
@@ -189,6 +189,7 @@ const editWarehouseForm = reactive({
 
 const openEditForm = () => {
   // Object.assign(editWarehouseForm, props.edit.row);
+  const editRow = props.edit.row;
   console.log("Edit Row Data:", editRow);
   showDropdown.value = false;
   editWarehouseForm.name = editRow.name;
@@ -237,7 +238,7 @@ const clearForm = () => {
 };
 
 const saveEditedWarehouse = async () => {
-  console.log("editRow.id", editRow.id);
+  // console.log("editRow.id", editRow.id);
   console.log("updatedWarehouse", editWarehouseForm);
   try {
     // const updatedWarehouse = { ...props.edit.row, ...editWarehouseForm };

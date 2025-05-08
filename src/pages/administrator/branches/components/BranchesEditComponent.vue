@@ -157,7 +157,7 @@ const warehouses = computed(() => warehousesStore.warehouses);
 const props = defineProps(["edit"]);
 const dialog = ref(false);
 const warehouseOptions = ref([]);
-let editRow = props.edit.row;
+// let editRow = props.edit.row;
 const statusOptions = ["Open", "Open soon", "Close"];
 const searchKeyword = ref(null);
 const searchLoading = ref(false);
@@ -167,7 +167,7 @@ const employees = computed(() => employeeStore.employee);
 const search = async () => {
   if (searchKeyword.value.trim()) {
     searchLoading.value = true;
-    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    await employeeStore.searchPersonInCharge(searchKeyword.value);
     searchLoading.value = false;
     showDropdown.value = true;
   }
@@ -194,6 +194,7 @@ const autoFillEmployee = (employee) => {
 };
 
 const openEditForm = () => {
+  const editRow = props.edit.row;
   console.log("Edit Row Data:", editRow);
   showDropdown.value = false;
   editBranchesForm.name = editRow.name;
@@ -241,10 +242,10 @@ const formatFullname = (row) => {
 };
 
 const saveEditedBranches = async () => {
-  console.log("editRow.id", editRow.id);
+  // console.log("editRow.id", editRow.id);
   console.log("editBranchesForm", editBranchesForm);
   try {
-    await branchesStore.updateBranches(editRow.id, editBranchesForm);
+    await branchesStore.updateBranches(props.edit.row.id, editBranchesForm);
 
     dialog.value = false;
   } catch (error) {

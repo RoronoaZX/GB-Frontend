@@ -97,8 +97,8 @@ const openEditForm = () => {
 
 const saveEditedProduct = async () => {
   try {
-    const updatedProducts = { ...props.edit.row, ...editProductForm };
-    await productStore.updateProducts(props.edit.row.id, updatedProducts);
+    // const updatedProducts = { ...props.edit.row, ...editProductForm };
+    await productStore.updateProducts(props.edit.row.id, editProductForm);
     dialog.value = false;
   } catch (error) {
     console.log("Failed to update ingredients:", error);

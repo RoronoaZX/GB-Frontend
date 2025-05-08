@@ -118,6 +118,30 @@ export const useEmployeeStore = defineStore("employees", () => {
       console.error("Error searching employee:", error);
     }
   };
+  const searchPersonInCharge = async (keyword) => {
+    try {
+      console.log("Searching for employee with keyword:", keyword); // Log the keyword
+
+      // API call
+      const response = await api.post(
+        `/api/search-employees-person-in-charge?keyword=${keyword}`
+      );
+
+      // Log the raw response to see what is returned
+      console.log("Raw API Response:", response);
+
+      // Check if response and data are valid before processing
+      if (response && response.data && response.data.length > 0) {
+        console.log("Search Results:", response.data); // Log the valid API response
+        employee.value = response.data; // Update the employees list with the search results
+      } else {
+        console.log("No employees found or empty response");
+        employee.value = []; // Reset the employee list if no results
+      }
+    } catch (error) {
+      console.error("Error searching employee:", error);
+    }
+  };
 
   const searchEmployeeWithBranchID = async (keyword, branchId) => {
     console.log("data to be send", keyword);
@@ -298,5 +322,6 @@ export const useEmployeeStore = defineStore("employees", () => {
     updateEmployeePhone,
     updateEmployeebirthdate,
     updateEmployeeEmploymentType,
+    searchPersonInCharge,
   };
 });

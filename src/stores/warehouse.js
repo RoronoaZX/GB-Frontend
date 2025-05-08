@@ -51,7 +51,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
       Notify.create({
         type: "negative",
         message: "Failed to fetch warehouse",
-        setTimeout: 1000,
+        timeout: 1000,
       });
     } finally {
       // Loading.hide();
@@ -68,60 +68,81 @@ export const useWarehousesStore = defineStore("warehouses", () => {
     console.log("Data parameters being sent:", data);
     try {
       const response = await api.post("/api/warehouses", data);
-      console.log("Response from backend:", response.data);
+      console.log("Response from backend:", response);
       fetchWarehouses();
-      // if (response.data.message === "Warehouse save successfully") {
-      //   warehouses.value.unshift(response.data.warehouse);
-      //   Notify.create({
-      //     type: "positive",
-      //     message: "Warehouse created successfully",
-      //     setTimeout: 1000,
-      //     // position: "top",
-      //   });
-      // } else if (response.data.message === "Warehouse already exist") {
-      //   Notify.create({
-      //     type: "warning",
-      //     message: "Warehouse already exist",
-      //     setTimeout: 1000,
-      //     // position: "top",
-      //   });
-      // }
-    } catch (error) {
-      console.error(
-        "Error creating warehouse:",
-        error.response ? error.response.data : error.message
-      );
       Notify.create({
-        type: "negative",
-        message: "Failed to create warehouse",
-        setTimeout: 1000,
+        type: "positive",
+        message: "Warehouse created successfully",
+        timeout: 1000,
         // position: "top",
       });
+    } catch (error) {
+      console.error("Error creating warehouse:", error.response);
+      if (error.response.data.message === "The name has already been taken.") {
+        Notify.create({
+          type: "warning",
+          icon: "warning",
+          message: "The name has already been taken.",
+          timeout: 5000,
+          // position: "top",
+        });
+      } else {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message: error.response.data.message || "ERROR",
+          timeout: 5000,
+        });
+      }
     }
   };
 
   const updateWarehouses = async (id, data) => {
-    Loading.show();
+    console.log("datass", data);
     try {
+      Loading.show();
       const response = await api.put(`/api/warehouses/${id}`, data);
-      fetchWarehouses();
-      // const index = warehouses.value.findIndex((item) => item.id === id);
-      // if (index !== -1) {
-      //   warehouses.value[index] = response.data;
-      // }
+
+      console.log("edit warehouse", response.data);
+      const updatedWarehouse = response.data;
+
+      const index = warehouses.value.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        warehouses.value[index] = {
+          ...warehouses.value[index],
+          ...updatedWarehouse,
+        };
+      }
       Notify.create({
         type: "positive",
         message: "Warehouse updated successfully",
-        setTimeout: 1000,
+        timeout: 1000,
         // position: "top",
       });
     } catch (error) {
-      Notify.create({
-        type: "negative",
-        message: "Failed to update warehouse",
-        setTimeout: 1000,
-        // position: "top",
-      });
+      console.log(error);
+
+      console.log("resposnses.error", error.response);
+
+      if (error.response.data.message === "The name has already been taken.") {
+        Notify.create({
+          type: "warning",
+          icon: "warning",
+          message:
+            error.response?.data?.message || "Failed to update warehouse",
+          timeout: 5000,
+          // position: "top",
+        });
+      } else {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message:
+            error.response?.data?.message || "Failed to update warehouse",
+          timeout: 5000,
+          // position: "top",
+        });
+      }
     } finally {
       Loading.hide();
     }

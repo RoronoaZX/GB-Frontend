@@ -158,7 +158,7 @@ const searchLoading = ref(false);
 const search = async () => {
   if (searchKeyword.value.trim()) {
     searchLoading.value = true;
-    await employeeStore.searchCertainEmployee(searchKeyword.value);
+    await employeeStore.searchPersonInCharge(searchKeyword.value);
     searchLoading.value = false;
     showDropdown.value = true;
   }

@@ -49,8 +49,8 @@
             >
           </span>
           <q-popup-edit
+            :model-value="props.row.name"
             @update:model-value="(val) => updateRecipeName(props.row, val)"
-            v-model="props.row.name"
             auto-save
             v-slot="scope"
           >
@@ -72,111 +72,6 @@
           </q-badge>
         </q-td>
       </template>
-      <!-- <template v-slot:body-cell-bread_groups="props">
-        <q-td :props="props">
-          <q-tooltip
-            :offset="[0, 10]"
-            :delay="600"
-            class="bg-info text-dark text-subtitle1"
-          >
-            <div
-              class="q-pb-sm text-center text-h6 text-weight-bold text-subtitle2"
-            >
-              Breads List
-            </div>
-            <q-separator class="q-mb-md" color="yellow" />
-            <div v-for="bread in props.row.bread_groups" :key="bread">
-              {{ bread }}
-            </div>
-          </q-tooltip>
-          <q-chip square outline color="red-6" class="text-white">
-            {{ props.row.bread_groups.length }} breads
-          </q-chip>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-ingredient_groups="props">
-        <q-td :props="props">
-          <q-tooltip
-            :delay="600"
-            class="bg-info text-dark text-subtitle1"
-            style="width: 300px"
-          >
-            <div
-              class="q-pb-sm text-center text-h6 text-weight-bold text-subtitle2"
-            >
-              Ingredients List
-            </div>
-            <q-separator class="q-mb-md" color="yellow" />
-            <div
-              class="row justify-between"
-              v-for="ingredient in props.row.ingredient_groups"
-              :key="ingredient.ingredient_name"
-            >
-              <div>
-                {{ ingredient.ingredient_name }}
-              </div>
-              <div>{{ ingredient.quantity }} {{ ingredient.unit }}</div>
-            </div>
-          </q-tooltip>
-          <q-chip square outline color="purple-6" class="text-white">
-            {{ props.row.ingredient_groups.length }} ingredients
-          </q-chip>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-target="props">
-        <q-td auto-width class="cursor-pointer text-center">
-          <span
-            >{{ props.row.target ? props.row.target : "Set Target" }}
-
-            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
-              >Edit Target</q-tooltip
-            >
-          </span>
-          <q-popup-edit
-            @update:model-value="(val) => updateRecipe(props.row, val)"
-            v-model="props.row.target"
-            auto-save
-            v-slot="scope"
-          >
-            <q-input
-              v-model="scope.value"
-              dense
-              autofocus
-              counter
-              mask="###"
-              @keyup.enter="scope.set"
-            />
-          </q-popup-edit>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-status="props">
-        <q-td :props="props">
-          <q-badge outline :color="getBadgeStatusColor(props.row.status)">
-            {{ capitalizeFirstLetter(props.row.status) }}
-            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
-              >Change Status</q-tooltip
-            >
-          </q-badge>
-          <q-popup-edit
-            @update:model-value="(val) => updateRecipeStatus(props.row, val)"
-            v-model="props.row.status"
-            auto-save
-            v-slot="scope"
-          >
-            <span> {{ props.row.name }}</span>
-            <q-select
-              v-model="scope.value"
-              dense
-              label="status"
-              autofocus
-              :options="status"
-              counter
-              mask="###"
-              @keyup.enter="scope.set"
-            />
-          </q-popup-edit>
-        </q-td>
-      </template> -->
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
@@ -193,7 +88,6 @@ import { onMounted, computed, ref, watch } from "vue";
 import RecipeEdit from "./RecipeEdit.vue";
 import RecipeDelete from "./RecipeDelete.vue";
 import { useRecipeStore } from "src/stores/recipe";
-// import { update_recipe_target } from "src/services/recipe";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 
@@ -227,48 +121,9 @@ const capitalizeFirstLetter = (location) => {
     .join(" ");
 };
 
-// async function updateRecipe(data, val) {
-//   try {
-//     const response = await api.put("/api/update-target/" + data.id, {
-//       target: parseInt(val),
-//     });
-
-//     console.log("response", response);
-//     if (response.status == 200) {
-//       const i = recipes.value.findIndex((item) => item.id == data.id);
-//       recipes.value[i] = val;
-//     }
-
-//     Notify.create({
-//       type: "positive",
-//       message: "Recipe target edited successfully",
-//       // position: "top",
-//     });
-//   } catch (error) {
-//     console.error("Error updating recipe target:", error);
-//     Notify.create({
-//       type: "negative",
-//       message: "Failed to edit recipe target",
-//       // position: "top",
-//     });
-//   }
-// }
-
 async function updateRecipeName(data, val) {
   try {
-    const response = await api.put("/api/update-name/" + data.id, {
-      name: val,
-    });
-    if (response.status == 200) {
-      const i = recipes.value.findIndex((item) => item.id == data.id);
-      recipes.value[i] = val;
-    }
-
-    Notify.create({
-      type: "positive",
-      message: "Recipe name edited successfully",
-      // position: "top",
-    });
+    await recipeStore.updateRecipeName(data, val);
   } catch (error) {
     console.error("Error updating recipe name:", error);
     Notify.create({
@@ -278,30 +133,6 @@ async function updateRecipeName(data, val) {
     });
   }
 }
-// async function updateRecipeStatus(data, val) {
-//   try {
-//     const response = await api.put("/api/update-status/" + data.id, {
-//       status: val,
-//     });
-//     if (response.status == 200) {
-//       const i = recipes.value.findIndex((item) => item.id == data.id);
-//       recipes.value[i] = val;
-//     }
-
-//     Notify.create({
-//       type: "positive",
-//       message: "Recipe status change successfully",
-//       // position: "top",
-//     });
-//   } catch (error) {
-//     console.error("Error updating recipe status:", error);
-//     Notify.create({
-//       type: "negative",
-//       message: "Failed to change recipe status",
-//       // position: "top",
-//     });
-//   }
-// }
 
 onMounted(async () => {
   await reloadTableData();
@@ -340,13 +171,6 @@ const recipeColumns = [
     format: (val) => `${val}`,
     sortable: true,
   },
-  // {
-  //   name: "target",
-  //   label: "Target Pcs",
-  //   align: "left",
-  //   field: "target",
-  //   sortable: true,
-  // },
   {
     name: "category",
     align: "left",
@@ -354,27 +178,6 @@ const recipeColumns = [
     field: "category",
     sortable: true,
   },
-  // {
-  //   name: "bread_groups",
-  //   label: "List of Bread",
-  //   align: "center",
-  //   field: "bread_groups",
-  //   sortable: true,
-  // },
-  // {
-  //   name: "ingredient_groups",
-  //   label: "List of Ingredients",
-  //   align: "center",
-  //   field: "ingredient_groups",
-  //   sortable: true,
-  // },
-  // {
-  //   name: "status",
-  //   label: "Status",
-  //   align: "center",
-  //   field: "status",
-  //   sortable: true,
-  // },
   {
     name: "action",
     label: "Action",
@@ -389,17 +192,6 @@ const getBadgeCategoryColor = (category) => {
       return "teal";
     case "Dough":
       return "brown-6";
-    default:
-      return "grey";
-  }
-};
-
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "Inactive":
-      return "grey";
-    case "Active":
-      return "green";
     default:
       return "grey";
   }

@@ -100,7 +100,7 @@ const branchesStore = useBranchesStore();
 const warehousesStore = useWarehousesStore();
 const filter = ref("");
 const branchesRows = computed(() => branchesStore.branches);
-console.log("branchesRow", branchesRows.value);
+
 const loading = ref(true);
 const showNoDataMessage = ref(false);
 const pagination = ref({
@@ -132,6 +132,7 @@ const reloadTableData = async () => {
     const response = await branchesStore.fetchBranches();
     console.log("branches data", response);
     showNoDataMessage.value = branchesRows.value.length === 0;
+    console.log("branchesRow", branchesRows.value);
   } catch (error) {
     showNoDataMessage.value = true;
   } finally {

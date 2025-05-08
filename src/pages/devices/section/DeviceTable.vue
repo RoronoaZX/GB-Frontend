@@ -51,6 +51,7 @@
 </template>
 
 <script setup>
+import { format } from "quasar";
 import DeviceDelete from "./DeviceDelete.vue";
 import DeviceEdit from "./DeviceEdit.vue";
 import { useDeviceStore } from "src/stores/device";
@@ -103,13 +104,21 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
 const deviceColumns = [
   {
     name: "name",
     label: "Name",
     align: "center",
     field: "name",
-    format: (val) => `${val}`,
+    format: (val) => `${capitalizeFirstLetter(val)}`,
     sortable: true,
   },
   {
@@ -117,12 +126,14 @@ const deviceColumns = [
     label: "Model",
     align: "center",
     field: "model",
+    format: (val) => `${capitalizeFirstLetter(val)}`,
   },
   {
     name: "os_version",
     label: "OS Version",
     align: "center",
     field: "os_version",
+    format: (val) => `${capitalizeFirstLetter(val)}`,
   },
   {
     name: "uuid",
@@ -134,8 +145,14 @@ const deviceColumns = [
     name: "designation",
     label: "Designation",
     align: "center",
-    field: (row) =>
-      row.branch ? row.branch.name : row.warehouse ? row.warehouse.name : "N/A",
+    field: (row) => {
+      const name = row.branch
+        ? row.branch.name
+        : row.warehouse
+        ? row.warehouse.name
+        : "N/A";
+      return capitalizeFirstLetter(name);
+    },
   },
   {
     name: "action",

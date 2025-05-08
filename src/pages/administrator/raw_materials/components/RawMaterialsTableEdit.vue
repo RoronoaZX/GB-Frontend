@@ -131,50 +131,6 @@ const saveEditedIngredient = async () => {
     console.error("Failed to update ingredient:", error);
   }
 };
-
-// const saveEditedIngredient = async () => {
-//   try {
-//     const originalRawMaterials = props.edit.row;
-//     const updatedRawMaterials = {
-//       id: originalRawMaterials.id,
-//       name: editRawMaterialsForm.name,
-//       code: editRawMaterialsForm.code,
-//       category: editRawMaterialsForm.category,
-//       unit: editRawMaterialsForm.unit,
-//     };
-//     const changedFields = [];
-//     if (originalRawMaterials.name !== updatedRawMaterials.name) {
-//       changedFields.push(
-//         `Name: ${originalRawMaterials.name} to $ updatedRawMaterials.name}`
-//       );
-//     }
-//     if (originalRawMaterials.code !== updatedRawMaterials.code) {
-//       changedFields.push(
-//         `Code: ${originalRawMaterials.code} to $ updatedRawMaterials.code}`
-//       );
-//     }
-//     if (originalRawMaterials.unit !== updatedRawMaterials.unit) {
-//       changedFields.push(
-//         `Unit: ${originalRawMaterials.unit} to $ updatedRawMaterials.unit}`
-//       );
-//     }
-
-//     await rawMaterialStore.update(props.edit.row.id, updatedRawMaterials);
-//     Notify.create({
-//       type: "warning",
-//       icon: "check",
-//       message: `${props.edit.row.name} ingredient successfully updated!`,
-//       position: "top",
-//     });
-
-//     editRawMaterialsDialog.value = false;
-//     if (response.status === 2000) {
-//       console.log("Ingredient updated successfully:", response.data);
-//     } else {
-//       console.log("Failed to update ingredient:", response);
-//     }
-//   } catch (error) {}
-// };
 </script>
 <style scoped>
 .my-card {

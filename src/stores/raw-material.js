@@ -28,70 +28,81 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
     console.log("Data", data);
 
     try {
+      Loading.show();
       const response = await api.post("/api/raw-materials", data);
       console.log("RawMaterials", response.data.rawMaterials);
-      if (response.data.message === "Raw Materials saved successfully") {
-        // const rawMaterials = rawMaterials.value.find((item) =>item.id === data.id)
-        rawMaterials.value.unshift(response.data.rawMaterials);
-        Notify.create({
-          type: "positive",
-          message: "Raw Materials successfully created",
-          timeout: 1000,
-        });
+      rawMaterials.value.unshift(response.data.rawMaterials);
+      Notify.create({
+        type: "positive",
+        message: "Raw Materials successfully created",
+        timeout: 1000,
+      });
+    } catch (error) {
+      console.log("error", error);
 
-        //delayong hidong the loading spinner
-        // setTimeout(() => {
-        //   Loading.hide();
-        // }, 1000);
-      } else if (
-        response.data.message ===
-        "The RawMaterials name or code already exists."
+      if (
+        error.response.data.message === "The code has already been taken." ||
+        "The name has already been taken."
       ) {
         Notify.create({
           type: "warning",
-          message: "The RawMaterials name or code already exists.",
+          icon: "warning",
+          message: error.response.data.message || "ERROR",
+          timeout: 5000,
           // position: "top",
         });
-
-        //delaying hiding the loading spinner
-
-        // setTimeout(() => {
-        //   Loading.hide();
-        // }, 1000);
+      } else {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message: error.response.data.message || "ERROR",
+          timeout: 5000,
+          // position: "top",
+        });
       }
-      return response;
-    } catch (error) {
-      console.log("error", error);
-      Notify.create({
-        type: "negative",
-        message: "An error occurred while saving the raw materials.",
-        // position: "top",
-      });
-
-      //delayong hidong the loading spinner
-
-      // setTimeout(() => {
-      //   Loading.hide();
-      // }, 1000);
+    } finally {
+      Loading.hide();
     }
   };
 
   const updateRawMaterials = async (id, data) => {
-    Loading.show();
+    try {
+      Loading.show();
 
-    const response = await api.put(`/api/raw-materials/${id}`, data);
-    const updatedRawMaterial = rawMaterials.value.findIndex(
-      (rawMaterial) => rawMaterial.id === id
-    );
-    if (updatedRawMaterial !== -1) {
-      rawMaterials.value[updatedRawMaterial] = response.data;
+      const response = await api.put(`/api/raw-materials/${id}`, data);
+      const updatedRawMaterial = rawMaterials.value.findIndex(
+        (rawMaterial) => rawMaterial.id === id
+      );
+      if (updatedRawMaterial !== -1) {
+        rawMaterials.value[updatedRawMaterial] = response.data;
+      }
+      Notify.create({
+        type: "positive",
+        message: "Raw Materials updated successfully",
+        timeout: 1000,
+        // position: "top",
+      });
+    } catch (error) {
+      console.log("erororoeo", error);
+      if (
+        error.response.data.message ===
+        "The name has already been taken. (and 1 more error)"
+      ) {
+        Notify.create({
+          type: "warning",
+          icon: "warning",
+          message: error.response.data.message || "ERROR",
+          timeout: 5000,
+        });
+      } else {
+        Notify.create({
+          type: "negative",
+          icon: "error",
+          message: error.response.data.message || "ERROR",
+          timeout: 5000,
+        });
+      }
     }
-    Notify.create({
-      type: "positive",
-      message: "Raw Materials updated successfully",
-      timeout: 1000,
-      // position: "top",
-    });
 
     Loading.hide();
   };

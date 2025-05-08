@@ -43,22 +43,7 @@
             ]"
           />
         </div>
-        <!-- <div class="q-mt-md q-animated q-animate-bounce">
-          <div>Target Pcs</div>
-          <q-input
-            v-model="recipe.target"
-            suffix=" / 1kg"
-            outlined
-            type="number"
-            dense
-            label="Target Piece/s"
-            :rules="[
-              (val) => (val && val.length > 0) || 'Target piece/s is required',
-            ]"
-          />
-        </div> -->
         <div class="q-mt-md q-animated q-animate-bounce">
-          <!-- <div class="q-my-sm">Category</div> -->
           <q-select
             v-model="recipe.category"
             :options="category"
@@ -72,122 +57,6 @@
             ]"
           />
         </div>
-        <!-- <div class="q-mt-md q-animated q-animate-bounce">
-          <div>Breads</div>
-          <q-select
-            v-model="breadGroup"
-            use-input
-            use-chips
-            chips-color="primary"
-            multiple
-            input-debounce="0"
-            :options="filterBreadOptions"
-            behavior="menu"
-            hide-dropdown-icon
-            outlined
-            dense
-            label="Bread/s"
-            @new-value="createValue"
-            @filter="filterFn"
-            :rules="[(val) => (val && val.length > 0) || 'Bread is required']"
-          >
-            @new-value="createValue"
-            @filter="filterBread"
-            @filter-abort="abortFilterFn"
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div> -->
-        <!-- <div class="q-mt-md q-gutter-y-sm q-animated q-animate-bounce">
-          <div class="text-weight-thin">Ingredients List</div>
-          <div>
-            <q-list dense separator class="box">
-              <q-item
-                v-for="(ingredient, index) in ingredientGroup"
-                :key="index"
-              >
-                <q-item-section>
-                  <q-item-label>{{ ingredient.label }}</q-item-label>
-                </q-item-section>
-                <q-item-section
-                  >{{ ingredient.quantity }}
-                  {{ ingredient.unit }}</q-item-section
-                >
-                <q-item-section side>
-                  <q-btn
-                    @click="removeIngredient(index)"
-                    color="grey-10"
-                    icon="backspace"
-                    dense
-                    flat
-                    round
-                  />
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-        </div>
-        <div class="q-mt-xl q-gutter-y-sm q-animated q-animate-bounce">
-          <div class="row justify-between">
-            <div>
-              <div align="center">Ingredients</div>
-              <q-select
-                v-model="selectedIngredients.name"
-                debounce="3000"
-                outlined
-                chips-color="primary"
-                :options="filterIngredientsOptions"
-                dense
-                label="Ingredients"
-                behavior="menu"
-                use-input
-                hide-dropdown-icon
-                @filter="filterIngredients"
-                style="width: 215px; max-width: 450px; min-width: 80px"
-              >
-                <template v-slot:no-option>
-                  <q-item>
-                    <q-item-section class="text-grey">
-                      No results
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
-            </div>
-
-            <div>
-              <div align="center">Quantity</div>
-              <q-input
-                v-model="selectedIngredients.quantity"
-                outlined
-                mask="#####"
-                dense
-                label="Quantity"
-                :suffix="selectedIngredients.name.unit || ''"
-                style="width: 115px"
-              />
-            </div>
-          </div>
-          <form @keyup.enter.prevent="addIngredients">
-            <div align="right">
-              <q-btn
-                padding="xs md"
-                type="button"
-                size="sm"
-                outline
-                dense
-                label="add"
-                icon="add"
-                color="purple"
-                @click="addIngredients"
-              />
-            </div>
-          </form>
-        </div> -->
-        <!-- <q-separator class="q-my-lg"></q-separator> -->
         <q-card-actions
           class="row q-mt-md q-px-lg q-py-sm q-pt-none"
           align="right"
@@ -206,15 +75,11 @@
 </template>
 
 <script setup>
-// import { useProductsStore } from "src/stores/product";
-// import { useRawMaterialsStore } from "src/stores/raw-material";
 import { ref, reactive, watch, computed } from "vue";
 import { useRecipeStore } from "src/stores/recipe";
 import { Notify } from "quasar";
-const recipeRows = computed(() => recipeStore.recipes);
 
-// const breadProductStore = useProductsStore();
-// const ingredientsStore = useRawMaterialsStore();
+const recipeRows = computed(() => recipeStore.recipes);
 const recipeStore = useRecipeStore();
 const dialog = ref(false);
 const openAddRecipe = () => {
@@ -227,103 +92,7 @@ const recipe = reactive({
   category: "",
 });
 
-// const breadGroup = ref(null);
-// const breadOptions = ref([]);
-// const filterBreadOptions = ref(breadOptions.value);
-// const ingredientGroup = ref([]);
-// const ingredientOptions = ref([]);
-// const selectedIngredients = reactive({
-//   name: "",
-//   quantity: "",
-// });
-// const filterIngredientsOptions = ref(ingredientOptions.value);
-
-// const fetchBreadsData = async () => {
-//   const breads = await breadProductStore.fetchProductsByCategory("Bread");
-
-//   loading.value = false;
-//   breadOptions.value = breadProductStore.breads.map((val) => {
-//     return {
-//       label: val.name,
-//       value: val.id,
-//     };
-//   });
-// };
-// fetchBreadsData();
-
-// const fetchIngredientsData = async () => {
-//   const ingredient = await ingredientsStore.fetchIngredients("Ingredients");
-//   loading.value = false;
-//   ingredientOptions.value = ingredientsStore.ingredients.map((val) => {
-//     return {
-//       label: val.name,
-//       value: val.id,
-//       unit: val.unit,
-//     };
-//   });
-// };
-// fetchIngredientsData();
-
-// const clearData = () => {
-//   (selectedIngredients.name = ""), (selectedIngredients.quantity = "");
-// };
-
-// const createValue = (val, done) => {
-//   if (val.length > 2) {
-//     if (!breadOptions.value.includes(val)) {
-//       done(val, "add-unique");
-//     }
-//   }
-// };
-
-// const filterFn = (val, update) => {
-//   update(() => {
-//     if (val === "") {
-//       filterBreadOptions.value = breadOptions.value;
-//     } else {
-//       const needle = val.toLowerCase();
-//       filterBreadOptions.value = breadOptions.value.filter(
-//         (v) => v.label.toLowerCase().indexOf(needle) > -1
-//       );
-//     }
-//   });
-// };
-
-// const createValueIngredient = (val, done) => {
-//   if (val.length > 2) {
-//     if (!ingredientOptions.value.includes(val)) {
-//       done(val, "add-unique");
-//     }
-//   }
-// };
-// const filterIngredients = (val, update) => {
-//   update(() => {
-//     if (val === "") {
-//       filterIngredientsOptions.value = ingredientOptions.value;
-//     } else {
-//       const needle = val.toLowerCase();
-//       filterIngredientsOptions.value = ingredientOptions.value.filter(
-//         (v) => v.label.toLowerCase().indexOf(needle) > -1
-//       );
-//     }
-//   });
-// };
-
 const saveRecipe = async () => {
-  // const newData = {
-  //   name: recipe.name,
-  //   target: recipe.target,
-  //   category: recipe.category,
-  //   status: "Active",
-  //   breads: breadGroup.value.map((bread) => ({
-  //     bread_id: bread.value,
-  //   })),
-  //   ingredients: ingredientGroup.value.map((ingredient) => ({
-  //     ingredient_id: ingredient.ingredients_id,
-  //     quantity: ingredient.quantity,
-  //   })),
-  // };
-
   console.log("Recipe", recipe);
   try {
     loading.value = true;
@@ -331,74 +100,18 @@ const saveRecipe = async () => {
     loading.value = false;
     dialog.value = false;
     clearRecipeData();
-    // await reloadTableData();
     recipeRows.value = await recipeStore.fetchRecipes();
   } catch (error) {
     loading.value = false;
-    // Notify.create({
-    //   type: "negative",
-    //   message: "Error creating recipe",
-    // });
   }
 };
 
 const clearRecipeData = () => {
   recipe.name = "";
   recipe.category = "";
-  // recipe.target = "";
-  // breadGroup.value = null;
-  // ingredientGroup.value = [];
-  // selectedIngredients.name = "";
-  // selectedIngredients.quantity = "";
 
   dialog.value = false;
 };
-
-// const addIngredients = () => {
-//   const data = ingredientGroup.value;
-
-//   function findObjectById(arr, id) {
-//     return arr.find((obj) => obj.ingredients_id == id);
-//   }
-//   const idToSearch = selectedIngredients.name.value;
-
-//   const foundObject = findObjectById(data, idToSearch);
-//   if (!foundObject) {
-//     ingredientGroup.value = [
-//       ...data,
-//       {
-//         ingredients_id: selectedIngredients.name.value,
-//         label: selectedIngredients.name.label,
-//         quantity: selectedIngredients.quantity,
-//         unit: selectedIngredients.name.unit,
-//       },
-//     ];
-//     clearData();
-//   } else {
-//     Notify.create({
-//       type: "negative",
-//       icon: "warning",
-//       message: "Ingredient already exist",
-//       timeout: 2000,
-//     });
-//     // alert("ingredient already exist!");
-//   }
-// };
-
-// const removeIngredient = (index) => {
-//   ingredientGroup.value.splice(index, 1);
-// };
-
-// watch(
-//   () => selectedIngredients.name,
-//   (newVal) => {
-//     if (newVal && newVal.unit) {
-//       selectedIngredients.unit = newVal.unit;
-//     } else {
-//       selectedIngredients.unit = "";
-//     }
-//   }
-// );
 </script>
 <style>
 .q-chip {
