@@ -100,9 +100,9 @@ import axios, { api } from "src/boot/axios";
 // 631cee3486ce71af // null
 // const uuid = ref("b76baeef9c2aef9a"); // branch id 6 endrina
 // const uuid = ref("2c1d4509090802cb"); // branch id 1 endrina
-// const uuid = ref(
-//   "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
-// ); // super admin
+const uuid = ref(
+  "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
+); // super admin
 // const uuid = ref("f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"); //laptop / warehouse
 // const uuid = ref("1c0b0ba5a75ded98"); // warehouse
 
@@ -113,24 +113,24 @@ import axios, { api } from "src/boot/axios";
 // comment this out //
 // ===================================================//
 
-const getUUID = async () => {
-  if (window.require) {
-    try {
-      // Import `node-machine-id` using `window.require`
-      const { machineId } = window.require("node-machine-id");
+// const getUUID = async () => {
+//   if (window.require) {
+//     try {
+//       // Import `node-machine-id` using `window.require`
+//       const { machineId } = window.require("node-machine-id");
 
-      // Fetch UUID using `machineId` function
-      uuid.value = await machineId();
-    } catch (error) {
-      console.error("Error fetching machine UUID:", error);
-    }
-  } else {
-    console.warn("Electron not available.");
-  }
-};
-onMounted(() => {
-  getUUID();
-});
+//       // Fetch UUID using `machineId` function
+//       uuid.value = await machineId();
+//     } catch (error) {
+//       console.error("Error fetching machine UUID:", error);
+//     }
+//   } else {
+//     console.warn("Electron not available.");
+//   }
+// };
+// onMounted(() => {
+//   getUUID();
+// });
 
 // ===================================================//
 // Use this code for building electron and //
@@ -141,7 +141,7 @@ onMounted(() => {
 const isPwd = ref(true);
 const email = ref("");
 const password = ref("");
-const uuid = ref("");
+// const uuid = ref("");
 const loading = ref(false);
 
 const formIsValid = computed(() => email.value !== "" && password.value !== "");

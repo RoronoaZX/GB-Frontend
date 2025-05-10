@@ -44,7 +44,9 @@
 import { ref, watch, computed, reactive } from "vue";
 import { useBranchRecipeStore } from "src/stores/branch-recipe";
 import { useBakerReportsStore } from "src/stores/baker-report";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const bakerReports = useBakerReportsStore();
 const searchQuery = ref("");
 const bakerReportStore = useBakerReportsStore();
@@ -52,12 +54,13 @@ const branchRecipeStore = useBranchRecipeStore();
 const userData = computed(() => bakerReportStore.user);
 console.log("erw:", userData.value);
 const branhRecipes = computed(() => branchRecipeStore.branchRecipe);
-const branch_id = userData.value?.employee?.branch_id || "";
+const branch_id = route.params.branch_id;
 console.log("branch_id", branch_id);
 const search = async () => {
   branchRecipeStore.searchBranchRecipe(searchQuery.value, branch_id);
   console.log("searchQuery.value", searchQuery.value);
   console.log("branch_id", branch_id);
+  console.log("branchRecipe", branchRecipe.value);
 };
 // watch(searchQuery, (newQuery) => {
 //
