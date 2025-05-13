@@ -48,7 +48,7 @@ export const useEmployeeStore = defineStore("employees", () => {
         lastname: response.data.employee.lastname,
         position: response.data.employee.position,
       };
-      employees.value.unshift(newEmployee);
+
       Notify.create({
         type: "positive",
         message: "User created successfully",
