@@ -250,13 +250,6 @@ const capitalizeFirstLetter = (location) => {
     .join(" ");
 };
 
-// const printPdf = (bakerReport) => {
-//   const docDefinition = generateDocDefinition(bakerReport);
-
-//   // Open the generated PDF in a new tab or download directly
-//   pdfMake.createPdf(docDefinition).print();
-// };
-
 const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -317,7 +310,7 @@ const getBreadReports = (reportsData) => {
   if (reportsData.recipe_category === "Filling") {
     return reportsData.filling_bakers_reports || [];
   } else if (reportsData.recipe_category === "Dough") {
-    return reportsData.bread_production_reports || [];
+    return reportsData.bread_bakers_reports || [];
   } else {
     return [];
   }
@@ -545,7 +538,7 @@ const generateDocDefinition = (bakerReport) => {
                         text:
                           bakerReport.recipe_category === "Filling"
                             ? `${breadReport?.filling_production || "0"} pcs`
-                            : `${breadReport?.bread_new_production} pcs`,
+                            : `${breadReport?.bread_production} pcs`,
                         style: "body",
                         alignment: "center",
                       },

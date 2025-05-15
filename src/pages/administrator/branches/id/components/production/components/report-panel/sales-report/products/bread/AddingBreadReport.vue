@@ -19,9 +19,7 @@
   >
     <q-card style="width: 600px; max-width: 80vw">
       <q-card-section class="row items-center bg-backgroud">
-        <div class="text-h6 text-white">
-          Bread {{ reportLabel }} {{ reportLength }}
-        </div>
+        <div class="text-h6 text-white">Bread {{ reportLabel }}</div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
@@ -372,15 +370,15 @@ watch(
 );
 
 const handleSubmit = async () => {
-  const report_id = data.id;
-  const name = data?.product?.name || "undefined";
-  const originalData = `₱ ${data.price.toString()}`; // Convert to string
-  const updatedData = `₱ ${parseInt(val).toString()}`; // Convert to string after parsing
-  const updated_field = "price";
-  const designation = branch_id;
-  const designation_type = "branch";
-  const action = "updated";
-  const type_of_report = "Branch Product Table";
+  // const report_id = data.id;
+  // const name = data?.product?.name || "undefined";
+  const originalData = `₱ ${addbreadProduction.price.toString()}`; // Convert to string
+  const updatedData = `₱ ${parseInt(addbreadProduction.price).toString()}`; // Convert to string after parsing
+  // const updated_field = "price";
+  // const designation = branch_id;
+  // const designation_type = "branch";
+  // const action = "updated";
+  // const type_of_report = "Branch Product Table";
   const user_id = historyLogUserID;
   try {
     // Validate required fields
