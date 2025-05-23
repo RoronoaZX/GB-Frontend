@@ -2,7 +2,7 @@
   <div>
     <q-card class="my-card q-pa-md">
       <div class="row justify-between">
-        <div class="text-h6">Baker Report</div>
+        <div class="text-h6">Baker Reporsst</div>
         <!-- <div align="right">
           <AddingBakerReportRecipe :reportsData="reportsData" />
           <div>
@@ -33,6 +33,7 @@
             )}`
           }}
         </div>
+        <div>Overall Total Kilos (kgs) : {{ overallKiloTotal }}</div>
 
         <!-- Sales Report ID: {{ sales_report_id }} -->
       </div>
@@ -170,7 +171,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { date, useQuasar } from "quasar";
 import BreadView from "./baker-report/BreadView.vue";
 import IngredientsView from "./baker-report/IngredientsView.vue";
@@ -222,6 +223,20 @@ const handleBakerReportEditDialog = (bakerReports, salesReportID) => {
     },
   });
 };
+
+const overallKiloTotal = computed(() => {
+  if (!reportsData || reportsData.length === 0) return "0 kgs";
+
+  const total = reportsData.reduce((sum, row) => {
+    const kilo = parseFloat(row.kilo) || 0;
+    return sum + kilo;
+  }, 0);
+
+  // Show decimal only if needed
+  const isWhole = total % 1 === 0;
+
+  return isWhole ? `${total.toFixed(0)} kgs` : `${total.toFixed(2)} kgs`;
+});
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMM. DD, YYYY");
