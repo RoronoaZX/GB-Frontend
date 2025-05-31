@@ -50,7 +50,7 @@
           v-if="report.to_branch_id === branchId && report.status === 'pending'"
         >
           <div class="text-h6 text-weight-regular">
-            Do you want to receive the premix?
+            Do you want to receive the bread?
           </div>
           <q-btn color="amber-10" label="Yes" icon="check" @click="received">
           </q-btn>

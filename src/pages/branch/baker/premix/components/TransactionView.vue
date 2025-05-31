@@ -76,9 +76,9 @@
               <q-item-section>
                 <q-item-label class="text-overline"> Code</q-item-label>
               </q-item-section>
-              <q-item-section>
+              <!-- <q-item-section>
                 <q-item-label class="text-overline"> Name</q-item-label>
-              </q-item-section>
+              </q-item-section> -->
               <q-item-section side>
                 <q-item-label class="text-overline">Quantity</q-item-label>
               </q-item-section>
@@ -92,11 +92,11 @@
                   {{ ingredients.ingredient.code }}
                 </q-item-label>
               </q-item-section>
-              <q-item-section>
+              <!-- <q-item-section>
                 <q-item-label class="text-subtitle1" align="left">
                   {{ ingredients.ingredient.name }}
                 </q-item-label>
-              </q-item-section>
+              </q-item-section> -->
               <q-item-section side>
                 <q-item-label class="text-subtitle1">
                   {{

@@ -7,7 +7,7 @@
       dense
       elevated
       icon="add_circle"
-      label="Add Selecta"
+      label="Add Other Products"
       @click="openDialog"
     />
   </div>
