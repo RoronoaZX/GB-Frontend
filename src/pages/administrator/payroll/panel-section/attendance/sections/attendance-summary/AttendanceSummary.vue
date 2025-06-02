@@ -18,7 +18,7 @@
       <div v-if="searchKeyword" class="custom-list z-top">
         <q-card>
           <q-list separator>
-            <q-item v-if="!employees?.length"> No record found. </q-item>
+            <q-item v-if="!employees?.length"> No record foundddd. </q-item>
             <template v-else>
               <q-item
                 v-for="employee in employees"
