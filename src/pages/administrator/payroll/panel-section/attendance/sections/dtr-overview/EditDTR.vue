@@ -12,7 +12,7 @@
     <q-tooltip class="bg-positive" :delay="200">Edit</q-tooltip>
   </q-btn>
   <q-dialog v-model="dialog">
-    <q-card style="width: 500px; max-width: 80vw">
+    <q-card style="width: 550px; max-width: 80vw">
       <q-card-section
         class="row items-center q-px-md q-py-sm gradient-btn text-white"
       >
