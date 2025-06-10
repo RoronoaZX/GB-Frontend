@@ -9,9 +9,11 @@ export const useDTRStore = defineStore("dtrs", () => {
   const dtrs = ref([]);
   const dtrCutOffData = ref([]);
 
-  const fetchDTR = async () => {
+  const fetchDTR = async (page, rowsPerPage, search) => {
     try {
-      const response = await api.get("/api/dtr");
+      const response = await api.get("/api/dtr", {
+        params: { page: page, per_page: rowsPerPage, search },
+      });
       if (response && response.data) {
         dtrs.value = response.data; // Assign the fetched data to the store
         return response.data; // Return the fetched data
@@ -29,11 +31,12 @@ export const useDTRStore = defineStore("dtrs", () => {
 
   const fetchDTRRange = async (data) => {
     // Send a POST request to fetch DTR data
+    console.log("Fetching DTR Range with data:", data);
     const response = await api.post("/api/dtr-data", data);
+    console.log("DTR Range response:", response);
 
     // Assuming your DTR store has a method to set the fetched data
     dtrCutOffData.value = response.data;
-    console.log("Fetched DTR Data:", response.data);
   };
 
   const searchDTR = async (keyword) => {

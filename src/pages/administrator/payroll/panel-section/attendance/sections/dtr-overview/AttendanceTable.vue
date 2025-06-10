@@ -3,18 +3,57 @@
     <div>
       <OvertimeButton />
     </div>
-    <SearchDTR />
+    <!-- <SearchDTR /> -->
+    <q-input
+      v-model="filter"
+      outlined
+      dense
+      flat
+      label="Search"
+      debounce="300"
+      style="width: 300px"
+    />
   </div>
   <div>
+    <!-- class="sticky-header" -->
     <q-table
       :rows="dtrRows"
       :columns="dtrColumns"
       row-key="time_in"
-      class="sticky-header"
-      hide-bottom
       v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
+      :rows-per-page-options="[3, 5, 10, 0]"
+      :loading="loading"
+      :filter="filter"
+      @request="handleRequest"
     >
+      <!-- <template v-slot:body-cell-name="props">
+        <q-td :props="props">
+          <q-chip
+            outline
+            square
+            :color="getBadgePositionColor(props.row.employee?.position)"
+            class="q-ma-xs"
+            size="md"
+          >
+            {{ formatFullname(props.row.employee) }}
+          </q-chip>
+        </q-td>
+      </template> -->
+      <template v-slot:body-cell-position="props">
+        <q-td :props="props">
+          <q-chip
+            outline
+            square
+            :text-color="getBadgePositionColor(props.row.employee?.position)"
+            :color="getBadgePositionColor(props.row.employee?.position)"
+            class="q-ma-xs"
+            size="sm"
+          >
+            <!-- size="md" -->
+            {{ props.row.employee?.position || "N/A" }}
+          </q-chip>
+        </q-td>
+      </template>
       <template v-slot:body-cell-time_in="props">
         <q-td :props="props">
           <template v-if="props.row.time_in">
@@ -233,7 +272,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useDTRStore } from "stores/dtr";
 import OvertimeButton from "./OvertimeButton.vue";
 import SearchDTR from "./SearchDTR.vue";
@@ -241,26 +280,56 @@ import EditDTR from "./EditDTR.vue";
 import { api } from "src/boot/axios";
 
 const pagination = ref({
+  page: 1,
   rowsPerPage: 0,
+  rowsNumber: 0,
 });
+const filter = ref("");
+const loading = ref(false);
 const dtrStore = useDTRStore();
-// const dtrRows = ref([]);
-const dtrRows = computed(() => dtrStore.dtrs);
+const dtrData = computed(() => dtrStore.dtrs);
+const dtrRows = ref([]);
 
 onMounted(async () => {
   await reloadTableData();
 });
 
-const reloadTableData = async () => {
+const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   try {
-    // const data = await dtrStore.fetchDTR();
-    // dtrRows.value = Array.isArray(data) ? data : [];
-    dtrRows.value = await dtrStore.fetchDTR();
-    console.log("dtrsss", dtrRows.value);
+    loading.value = true;
+    const response = await dtrStore.fetchDTR(page, rowsPerPage, search);
+
+    console.log("dtrsss", dtrData.value);
+    const { data, current_page, per_page, total } = dtrData.value;
+    dtrRows.value = data;
+    console.log("dtrRows:", dtrRows.value);
+    pagination.value = {
+      page: current_page,
+      rowsPerPage: per_page,
+      rowsNumber: total,
+    };
+    loading.value = false;
   } catch (error) {
     console.log("Error fetching DTR data:", error);
   }
 };
+
+const handleRequest = (props) => {
+  console.log("Request props:", props);
+
+  reloadTableData(
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    props.filter
+  );
+};
+watch(filter, async (newVal) => {
+  await reloadTableData(
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+});
 
 const updateTimeIn = async (row) => {
   // try {
@@ -424,7 +493,8 @@ const getBreakHoursIcon = (timeIn, timeOut) => {
 };
 
 const getWorkHoursColor = (timeIn, timeOut) => {
-  const { hours } = calculateTotalWorkingHours(timeIn, timeOut);
+  const { hours, minutes } = calculateTotalWorkingHours(timeIn, timeOut);
+
   if (hours > 9 || (hours === 9 && minutes > 0)) {
     return "blue-grey-9"; // Overtime
   } else if (hours >= 8) {
@@ -433,6 +503,17 @@ const getWorkHoursColor = (timeIn, timeOut) => {
     return "pink-13"; // Short work hours
   }
 };
+
+// const getWorkHoursColor = (timeIn, timeOut) => {
+//   const { hours } = calculateTotalWorkingHours(timeIn, timeOut);
+//   if (hours > 9 || (hours === 9 && minutes > 0)) {
+//     return "blue-grey-9"; // Overtime
+//   } else if (hours >= 8) {
+//     return "green-7"; // Regular work hours
+//   } else {
+//     return "pink-13"; // Short work hours
+//   }
+// };
 
 // Function to determine the icon to display
 const getWorkHoursIcon = (timeIn, timeOut) => {
@@ -454,22 +535,28 @@ const dtrColumns = [
     align: "left",
     field: (row) => formatFullname(row.employee),
   },
-  // {
-  //   name: "branch",
-  //   required: true,
-  //   label: "Branch Designation",
-  //   align: "left",
-  //   field: (row) =>
-  //     row.employee && row.employee.branch ? row.employee.branch.name : "N/A",
-  // },
-  // {
-  //   name: "position",
-  //   required: true,
-  //   label: "Position",
-  //   align: "center",
-  //   field: (row) =>
-  //     row.employee && row.employee ? row.employee.position : "N/A",
-  // },
+  {
+    name: "position",
+    required: true,
+    label: "Position",
+    align: "center",
+    field: (row) =>
+      row.employee && row.employee ? row.employee.position : "N/A",
+  },
+  {
+    name: "where_in",
+    required: true,
+    label: "Where IN",
+    align: "center",
+    field: (row) => row.device_in_reference_name || "N/A",
+  },
+  {
+    name: "wherer_out",
+    required: true,
+    label: "Where OUT",
+    align: "center",
+    field: (row) => row.device_out_reference_name || "N/A",
+  },
   {
     name: "date_in",
     required: true,
@@ -616,6 +703,37 @@ const dtrColumns = [
     align: "center",
   },
 ];
+
+const getBadgePositionColor = (role) => {
+  switch (role) {
+    case "Super Admin":
+      return "blue-10"; // Royal Blue
+    case "Admin":
+      return "purple-10"; // Dark Purple
+    case "Supervisor":
+      return "teal-7"; // Teal
+    case "Scaler":
+      return "green-8"; // Dark Green
+    case "Lamesador":
+      return "orange-5"; // Orange
+    case "Hornero":
+      return "red-6"; // Red
+    case "Baker":
+      return "brown"; // Warm Brown (closest match in Quasar)
+    case "Cake Maker":
+      return "brown-4"; // Warm Brown (closest match in Quasar)
+    case "Cashier":
+      return "green-5"; // Light Green
+    case "Sales Clerk":
+      return "blue-5"; // Light Blue
+    case "Utility":
+      return "grey-7"; // Gray
+    case "Not Yet Assigned":
+      return "grey-4"; // Light Gray
+    default:
+      return "grey-4"; // Default Light Gray
+  }
+};
 </script>
 
 <style lang="scss" scoped>

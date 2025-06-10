@@ -42,7 +42,8 @@
         <div class="col-3 q-ma-lg" align="center">
           <div class="q-pa-lg">
             <q-avatar size="150px" color="grey-2">
-              <img :src="imageUrl" :alt="altText" @error="handleImageError" />
+              <!-- :alt="altText" -->
+              <img :src="imageUrl" @error="handleImageError" />
             </q-avatar>
           </div>
           <div class="row q-mt-lg" align="left">
@@ -332,6 +333,7 @@ const formattedEndDate = formatDateToCustomString(new Date(endDate));
 
 const dtrRow = computed(() => {
   const data = dtrStore.dtrCutOffData;
+  console.log("DTR Data", data);
 
   // Helper function to format time differences as "09h:33m" or "-----"
   const formatTimeDifference = (startTime, endTime) => {
@@ -591,12 +593,24 @@ const columns = [
     align: "center", // Center the header
     label: "IN",
     field: "time_in",
+    format: (val) => {
+      if (!val) return "";
+      const parts = val.split(", ");
+      if (parts.length < 2) return val;
+      return `${parts[0]}, ${parts[1]} || ${parts[2]}`;
+    },
   },
   {
     name: "out",
     label: "OUT",
     align: "center", // Center the header
     field: "time_out",
+    format: (val) => {
+      if (!val) return "";
+      const parts = val.split(", ");
+      if (parts.length < 2) return val;
+      return `${parts[0]}, ${parts[1]} || ${parts[2]}`;
+    },
   },
   {
     name: "total_working_hours",
