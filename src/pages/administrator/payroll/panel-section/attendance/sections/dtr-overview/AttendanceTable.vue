@@ -370,9 +370,9 @@ const formatFullname = (row) => {
 };
 
 const formatDate = (dateTime) => {
-  if (!dateTime) return " - - "; // Return a placeholder if the value is missing
+  if (!dateTime) return " - - -"; // Return a placeholder if the value is missing
   const date = new Date(dateTime);
-  if (isNaN(date.getTime())) return " - - ";
+  if (isNaN(date.getTime())) return " - - -";
 
   return date.toLocaleDateString("en-US", {
     month: "short",
@@ -383,9 +383,9 @@ const formatDate = (dateTime) => {
 
 // Function to format time
 const formatTime = (dateTime) => {
-  if (!dateTime) return " - - ";
+  if (!dateTime) return " - - -";
   const date = new Date(dateTime);
-  if (isNaN(date.getTime())) return " - - ";
+  if (isNaN(date.getTime())) return " - - -";
 
   // Format hours and minutes manually
   let hours = date.getHours();
