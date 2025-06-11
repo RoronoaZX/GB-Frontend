@@ -1,0 +1,1 @@
+import{d as e}from"./index.ee7b3a2d.js";import{api as t}from"./axios.b81b080d.js";const a=e("supervisors",{state:()=>({supervisors:[],user:{}}),actions:{setUser(s){this.user=s},async fetchSupervisorUnderBranch(s){const r=await t.get(`/api/fetchSupervisorUnderBranch/${s}`);this.supervisors=r.data}}});export{a as u};
