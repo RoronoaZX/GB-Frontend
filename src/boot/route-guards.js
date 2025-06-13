@@ -100,6 +100,7 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSupervisorStore } from "src/stores/supervisor";
 import { useCakeMakerReportStore } from "src/stores/cake-maker-report";
 import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
+import { useDTRStore } from "src/stores/dtr";
 import { Loading } from "quasar";
 
 export default boot(async ({ router }) => {
@@ -132,6 +133,7 @@ export default boot(async ({ router }) => {
         useSupervisorStore().setUser(user.data);
         useCakeMakerReportStore().setUser(user.data);
         useWarehouseRawMaterialsStore().setUser(user.data);
+        useDTRStore().setUser(user.data);
 
         // Role-based routing
         if (to.path === "/") {

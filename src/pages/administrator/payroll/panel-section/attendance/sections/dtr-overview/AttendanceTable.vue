@@ -44,8 +44,10 @@
           <q-chip
             outline
             square
-            :text-color="getBadgePositionColor(props.row.employee?.position)"
-            :color="getBadgePositionColor(props.row.employee?.position)"
+            :text-color="
+              helpers.getBadgePositionColor(props.row.employee?.position)
+            "
+            :color="helpers.getBadgePositionColor(props.row.employee?.position)"
             class="q-ma-xs"
             size="sm"
           >
@@ -58,7 +60,7 @@
         <q-td :props="props">
           <template v-if="props.row.time_in">
             <q-badge outline color="positive">
-              {{ formatTime(props.row.time_in) }}
+              {{ helpers.formatTime(props.row.time_in) }}
             </q-badge>
             <!-- <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
               Edit Time In
@@ -88,7 +90,7 @@
         <q-td :props="props">
           <template v-if="props.row.time_out">
             <q-badge outline color="purple-12">
-              {{ formatTime(props.row.time_out) }}
+              {{ helpers.formatTime(props.row.time_out) }}
             </q-badge>
           </template>
           <template v-else>
@@ -100,7 +102,7 @@
         <q-td :props="props">
           <template v-if="props.row.lunch_break_start">
             <q-badge outline color="amber-7">{{
-              formatTime(props.row.lunch_break_start)
+              helpers.formatTime(props.row.lunch_break_start)
             }}</q-badge>
           </template>
           <template v-else>
@@ -112,7 +114,7 @@
         <q-td :props="props">
           <template v-if="props.row.lunch_break_end">
             <q-badge outline color="amber-4">{{
-              formatTime(props.row.lunch_break_end)
+              helpers.formatTime(props.row.lunch_break_end)
             }}</q-badge>
           </template>
           <template v-else>
@@ -124,7 +126,7 @@
         <q-td :props="props">
           <template v-if="props.row.break_start">
             <q-badge outline color="blue-7">{{
-              formatTime(props.row.break_start)
+              helpers.formatTime(props.row.break_start)
             }}</q-badge>
           </template>
           <template v-else>
@@ -136,7 +138,7 @@
         <q-td :props="props">
           <template v-if="props.row.break_end">
             <q-badge outline color="blue-4">{{
-              formatTime(props.row.break_end)
+              helpers.formatTime(props.row.break_end)
             }}</q-badge>
           </template>
           <template v-else>
@@ -149,25 +151,33 @@
           <template v-if="props.row.break_start && props.row.break_end">
             <q-badge
               outline
-              :color="getBreakColor(props.row.break_start, props.row.break_end)"
+              :color="
+                helpers.getBreakColor(
+                  props.row.break_start,
+                  props.row.break_end
+                )
+              "
               class="q-ma-xs"
               size="md"
             >
               <q-icon
                 :name="
-                  getBreakHoursIcon(props.row.break_start, props.row.break_end)
+                  helpers.getBreakHoursIcon(
+                    props.row.break_start,
+                    props.row.break_end
+                  )
                 "
                 size="xs"
                 class="q-mr-xs"
               />
               {{
                 `${
-                  calculateTotalWorkingHours(
+                  helpers.calculateTotalWorkingHours(
                     props.row.break_start,
                     props.row.break_end
                   ).hours
                 } Hrs : ${
-                  calculateTotalWorkingHours(
+                  helpers.calculateTotalWorkingHours(
                     props.row.break_start,
                     props.row.break_end
                   ).minutes
@@ -188,7 +198,7 @@
             <q-badge
               outline
               :color="
-                getLunchBreakColor(
+                helpers.getLunchBreakColor(
                   props.row.lunch_break_start,
                   props.row.lunch_break_end
                 )
@@ -198,7 +208,7 @@
             >
               <q-icon
                 :name="
-                  getLunchBreakIcon(
+                  helpers.getLunchBreakIcon(
                     props.row.lunch_break_start,
                     props.row.lunch_break_end
                   )
@@ -208,12 +218,12 @@
               />
               {{
                 `${
-                  calculateTotalWorkingHours(
+                  helpers.calculateTotalWorkingHours(
                     props.row.lunch_break_start,
                     props.row.lunch_break_end
                   ).hours
                 } Hrs : ${
-                  calculateTotalWorkingHours(
+                  helpers.calculateTotalWorkingHours(
                     props.row.lunch_break_start,
                     props.row.lunch_break_end
                   ).minutes
@@ -231,23 +241,30 @@
           <template v-if="props.row.time_in && props.row.time_out">
             <q-badge
               outline
-              :color="getWorkHoursColor(props.row.time_in, props.row.time_out)"
+              :color="
+                helpers.getWorkHoursColor(props.row.time_in, props.row.time_out)
+              "
               class="q-ma-xs"
               size="md"
             >
               <q-icon
-                :name="getWorkHoursIcon(props.row.time_in, props.row.time_out)"
+                :name="
+                  helpers.getWorkHoursIcon(
+                    props.row.time_in,
+                    props.row.time_out
+                  )
+                "
                 size="xs"
                 class="q-mr-xs"
               />
               {{
                 `${
-                  calculateTotalWorkingHours(
+                  helpers.calculateTotalWorkingHours(
                     props.row.time_in,
                     props.row.time_out
                   ).hours
                 } Hrs : ${
-                  calculateTotalWorkingHours(
+                  helpers.calculateTotalWorkingHours(
                     props.row.time_in,
                     props.row.time_out
                   ).minutes
@@ -258,6 +275,55 @@
           <template v-else>
             <span> - - - </span>
           </template>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-ot_status="props">
+        <q-td :props="props" class="row">
+          <q-chip
+            v-if="props.row.ot_status === 'approved'"
+            size="sm"
+            color="green-1"
+            text-color="green-8"
+            rounded
+            icon="check_circle"
+            :label="helpers.capitalize(props.row.ot_status)"
+          >
+            <!-- style="font-weight: 500" -->
+            <!-- <q-icon name="check_circle" class="q-mr-xs" /> -->
+            <!-- {{ capitalize(props.row.ot_status) }} -->
+          </q-chip>
+          <q-chip
+            v-else-if="props.row.ot_status === 'declined'"
+            size="sm"
+            color="red-2"
+            text-color="red-14"
+            rounded
+            icon="cancel"
+            :label="helpers.capitalize(props.row.ot_status)"
+          >
+            <!-- style="font-weight: 500" -->
+            <!-- <q-icon name="check_circle" class="q-mr-xs" /> -->
+            <!-- {{ capitalize(props.row.ot_status) }} -->
+          </q-chip>
+          <span v-else-if="!props.row.ot_status"> - - - </span>
+          <div v-else class="q-gutter-x-sm">
+            <DeclineOTButton :decline="props.row" />
+            <ApproveOTButton :approve="props.row" />
+          </div>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-overtime_reason="props">
+        <q-td :props="props">
+          <span v-if="props.row.overtime_reason">
+            {{ helpers.truncateText(props.row.overtime_reason, 15) }}
+            <q-tooltip
+              v-if="props.row.overtime_reason.length > 15"
+              class="bg-blue-grey-10 text-white text-subtitle1"
+              :offset="[10, 10]"
+            >
+              {{ props.row.overtime_reason }}
+            </q-tooltip>
+          </span>
         </q-td>
       </template>
       <template v-slot:body-cell-action="props">
@@ -275,9 +341,15 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { useDTRStore } from "stores/dtr";
 import OvertimeButton from "./OvertimeButton.vue";
-import SearchDTR from "./SearchDTR.vue";
 import EditDTR from "./EditDTR.vue";
-import { api } from "src/boot/axios";
+import DeclineOTButton from "./DeclineOTButton.vue";
+import ApproveOTButton from "./ApproveOTButton.vue";
+import { useQuasar } from "quasar";
+import { useAttendanceHelpers } from "src/composables/attendance/useAttendanceHelpers";
+// import { useAttendanceColumns } from "src/composables/attendance/attendanceColumns";
+
+const helpers = useAttendanceHelpers();
+// const dtrColumns = useAttendanceColumns();
 
 const pagination = ref({
   page: 1,
@@ -289,10 +361,285 @@ const loading = ref(false);
 const dtrStore = useDTRStore();
 const dtrData = computed(() => dtrStore.dtrs);
 const dtrRows = ref([]);
+const $q = useQuasar();
 
 onMounted(async () => {
   await reloadTableData();
 });
+
+const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
+  try {
+    loading.value = true;
+    await dtrStore.fetchDTR(page, rowsPerPage, search);
+    const { data, current_page, per_page, total } = dtrData.value;
+    dtrRows.value = data;
+    pagination.value = {
+      page: current_page,
+      rowsPerPage: per_page,
+      rowsNumber: total,
+    };
+    loading.value = false;
+  } catch (error) {
+    console.log("Error fetching DTR data:", error);
+  }
+};
+
+const dtrColumns = [
+  {
+    name: "name",
+    required: true,
+    label: "Name",
+    align: "left",
+    field: (row) => helpers.formatFullname(row.employee),
+  },
+  {
+    name: "position",
+    required: true,
+    label: "Position",
+    align: "center",
+    field: (row) => row.employee?.position || "N/A",
+  },
+  {
+    name: "where_in",
+    required: true,
+    label: "Where IN",
+    align: "center",
+    field: (row) => row.device_in_reference_name || "N/A",
+  },
+  {
+    name: "where_out",
+    required: true,
+    label: "Where OUT",
+    align: "center",
+    field: (row) => row.device_out_reference_name || "N/A",
+  },
+  {
+    name: "date_in",
+    required: true,
+    label: "Date In",
+    align: "center",
+    field: "time_in",
+    format: helpers.formatDate,
+  },
+  {
+    name: "date_out",
+    required: true,
+    label: "Date Out",
+    align: "center",
+    field: "time_out",
+    format: helpers.formatDate,
+  },
+  {
+    name: "time_in",
+    required: true,
+    label: "Time In",
+    align: "center",
+    field: "time_in",
+  },
+  {
+    name: "time_out",
+    required: true,
+    label: "Time Out",
+    align: "center",
+    field: "time_out",
+    format: helpers.formatTime,
+  },
+  {
+    name: "lunch_break_start",
+    required: true,
+    label: "Lunch Break Start",
+    align: "center",
+    field: "lunch_break_start",
+    format: helpers.formatTime,
+  },
+  {
+    name: "lunch_break_end",
+    required: true,
+    label: "Lunch Break End",
+    align: "center",
+    field: "lunch_break_end",
+    format: helpers.formatTime,
+  },
+  {
+    name: "break_start",
+    required: true,
+    label: "Break Start",
+    align: "center",
+    field: "break_start",
+    format: helpers.formatTime,
+  },
+  {
+    name: "break_end",
+    required: true,
+    label: "Break End",
+    align: "center",
+    field: "break_end",
+    format: helpers.formatTime,
+  },
+  {
+    name: "break",
+    required: true,
+    label: "Total Break",
+    align: "center",
+    field: (row) => {
+      const { hours, minutes } = helpers.calculateTotalWorkingHours(
+        row.break_start,
+        row.break_end
+      );
+      return `${hours}h ${minutes}m`;
+    },
+  },
+  {
+    name: "lunch_break",
+    required: true,
+    label: "Total Lunch break",
+    align: "center",
+    field: (row) => {
+      const { hours, minutes } = helpers.calculateTotalWorkingHours(
+        row.lunch_break_start,
+        row.lunch_break_end
+      );
+      return `${hours}h ${minutes}m`;
+    },
+  },
+  {
+    name: "total_working_hours",
+    required: true,
+    label: "Work Hours",
+    align: "center",
+    field: (row) => {
+      const { hours, minutes } = helpers.calculateTotalWorkingHours(
+        row.time_in,
+        row.time_out
+      );
+      return `${hours}h ${minutes}m`;
+    },
+  },
+  {
+    name: "overtime_start",
+    required: true,
+    label: "Overtime Start",
+    align: "center",
+    field: "overtime_start",
+    format: helpers.formatTime,
+  },
+  {
+    name: "overtime_end",
+    required: true,
+    label: "Overtime End",
+    align: "center",
+    field: "overtime_end",
+    format: helpers.formatTime,
+  },
+  {
+    name: "total_overtime",
+    required: true,
+    label: "OT Total Hours",
+    align: "center",
+    field: (row) => {
+      const { hours, minutes } = helpers.calculateTotalOvertimeHours(
+        row.overtime_start,
+        row.overtime_end
+      );
+      return `${hours}h ${minutes}m`;
+    },
+  },
+  {
+    name: "overtime_reason",
+    required: true,
+    label: "Overtime Reason",
+    align: "justify",
+    field: "overtime_reason",
+    format: (val) => (val ? val : " - - - "),
+  },
+  {
+    name: "declined_reason",
+    label: "Declined Reason",
+    field: "declined_reason",
+    format: (val) => (val ? val : " - - - "),
+    sortable: false,
+  },
+  {
+    name: "ot_status",
+    label: "OT Status",
+    align: "center",
+    field: (row) => row.ot_status,
+    sortable: false,
+  },
+  {
+    name: "approved_by",
+    label: "Approved By",
+    align: "center",
+    field: (row) => helpers.formatFullname(row.approvedBy),
+    sortable: false,
+  },
+  {
+    name: "action",
+    label: "Action",
+    align: "right",
+  },
+];
+
+const handleRequest = (props) => {
+  reloadTableData(
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    props.filter
+  );
+};
+
+watch(filter, async (newVal) => {
+  await reloadTableData(
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+});
+</script>
+
+<!-- <script setup>
+import { ref, onMounted, computed, watch } from "vue";
+import { useDTRStore } from "stores/dtr";
+import OvertimeButton from "./OvertimeButton.vue";
+import SearchDTR from "./SearchDTR.vue";
+import EditDTR from "./EditDTR.vue";
+import { api } from "src/boot/axios";
+import DeclineOTButton from "./DeclineOTButton.vue";
+import ApproveOTButton from "./ApproveOTButton.vue";
+import { useQuasar } from "quasar";
+
+function truncateText(text, maxLength) {
+  if (!text) return "";
+  return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+}
+
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 0,
+  rowsNumber: 0,
+});
+const filter = ref("");
+const loading = ref(false);
+const dtrStore = useDTRStore();
+const dtrData = computed(() => dtrStore.dtrs);
+const dtrRows = ref([]);
+const $q = useQuasar();
+
+onMounted(async () => {
+  await reloadTableData();
+});
+
+const handleOvertimeReason = (row) => {
+  console.log("Overtime Reason:", row.overtime_reason);
+  $q.dialog({
+    component: ViewOTReason,
+    componentProps: {
+      reason: row.overtime_reason || "No reason provided",
+      employeeName: formatFullname(row.employee),
+      otStatus: row.ot_status,
+    },
+  });
+};
 
 const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   try {
@@ -356,15 +703,31 @@ const updateTimeIn = async (row) => {
   console.log("Updated time_in:", row.time_in);
 };
 
+const capitalize = (str) =>
+  str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+// const formatFullname = (row) => {
+//   const capitalize = (str) =>
+//     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+//   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+//   const middlename = row.middlename
+//     ? capitalize(row.middlename).charAt(0) + "."
+//     : "";
+//   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+//   return `${firstname} ${middlename} ${lastname}`.trim();
+// };
+
 const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
+  const firstname = row?.firstname ? capitalize(row.firstname) : "- ";
+  const middlename = row?.middlename
     ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+    : "-";
+  const lastname = row?.lastname ? capitalize(row.lastname) : " -";
 
   return `${firstname} ${middlename} ${lastname}`.trim();
 };
@@ -698,9 +1061,38 @@ const dtrColumns = [
     },
   },
   {
+    name: "overtime_reason",
+    required: true,
+    label: "Overtime Reason",
+    align: "justify",
+    field: "overtime_reason",
+    format: (val) => (val ? val : " - - - "), // Format the output
+  },
+  {
+    name: "declined_reason",
+    label: "Declined Reason",
+    field: "declined_reason",
+    format: (val) => (val ? val : " - - - "),
+    sortable: false,
+  },
+  {
+    name: "ot_status",
+    label: "OT Status",
+    align: "center",
+    field: (row) => row.ot_status,
+    sortable: false,
+  },
+  {
+    name: "approved_by",
+    label: "Approved By",
+    align: "center",
+    field: (row) => formatFullname(row.approvedBy),
+    sortable: false,
+  },
+  {
     name: "action",
     label: "Action",
-    align: "center",
+    align: "right",
   },
 ];
 
@@ -734,7 +1126,7 @@ const getBadgePositionColor = (role) => {
       return "grey-4"; // Default Light Gray
   }
 };
-</script>
+</script> -->
 
 <style lang="scss" scoped>
 .elegant-container {
@@ -769,5 +1161,26 @@ const getBadgePositionColor = (role) => {
 
 .q-table-container {
   overflow: hidden !important; /* Target the container generated by q-table */
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white !important;
+  transition: 0.3s ease;
+}
+
+.gradient-icon {
+  font-size: 24px; /* Adjust size as needed */
+  // background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
+  background: linear-gradient(to right, #a0522d, #ff8833);
+  // background: linear-gradient(to right, #6a320a, #a0522d, #d2691e, #f2be90);
+  -webkit-background-clip: text; /* For compatibility */
+  background-clip: text;
+  color: transparent; /* Make text fill transparent */
+  display: inline-block; /* Ensure proper display */
+}
+
+.gradient-btn:hover {
+  filter: brightness(1.1);
 }
 </style>

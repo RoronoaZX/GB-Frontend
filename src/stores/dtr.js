@@ -8,6 +8,12 @@ export const useDTRStore = defineStore("dtrs", () => {
   const dtr = ref(null);
   const dtrs = ref([]);
   const dtrCutOffData = ref([]);
+  const user = ref({});
+
+  const setUser = (newUser) => {
+    console.log("Setting user in DTR store:", newUser.data);
+    user.value = newUser.data;
+  };
 
   const fetchDTR = async (page, rowsPerPage, search) => {
     try {
@@ -60,17 +66,42 @@ export const useDTRStore = defineStore("dtrs", () => {
     });
   };
 
-  // const updateTimeIn = async () => {
-  //   try
-  // }
+  const approveOvertime = async (data) => {
+    console.log("Approving overtime with data:", data);
+    try {
+      const response = await api.post("/api/approveOvertime", data);
+      Notify.create({
+        type: "positive",
+        message: "Over Time Approved",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error approving overtime:", error);
+    }
+    // Return the response data for further processing if needed
+  };
+
+  const declineOvertime = async (data) => {
+    const response = await api.post("/api/declineOvertime", data);
+
+    Notify.create({
+      type: "negative",
+      message: "Over Time Declined",
+    });
+    return response.data;
+  };
 
   return {
     dtr,
     dtrs,
     dtrCutOffData,
+    user,
+    setUser,
     fetchDTR,
     fetchDTRRange,
     saveOvertime,
     searchDTR,
+    approveOvertime,
+    declineOvertime,
   };
 });
