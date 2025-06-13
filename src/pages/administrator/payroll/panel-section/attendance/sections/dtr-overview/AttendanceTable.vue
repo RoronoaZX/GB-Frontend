@@ -408,6 +408,8 @@ const dtrColumns = [
     label: "Name",
     align: "left",
     field: (row) => helpers.formatFullname(row.employee),
+    style: "position: sticky; left: 0; background: white; z-index: 1;",
+    headerStyle: "position: sticky; left: 0; background: white; z-index: 2;",
   },
   {
     name: "position",
