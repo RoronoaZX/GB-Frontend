@@ -324,6 +324,22 @@
               {{ props.row.overtime_reason }}
             </q-tooltip>
           </span>
+          <span v-else> - - - </span>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-declined_reason="props">
+        <q-td :props="props">
+          <span v-if="props.row.declined_reason">
+            {{ helpers.truncateText(props.row.declined_reason, 15) }}
+            <q-tooltip
+              v-if="props.row.declined_reason.length > 15"
+              class="bg-blue-grey-10 text-white text-subtitle1"
+              :offset="[10, 10]"
+            >
+              {{ props.row.declined_reason }}
+            </q-tooltip>
+          </span>
+          <span v-else> - - - </span>
         </q-td>
       </template>
       <template v-slot:body-cell-action="props">
@@ -373,6 +389,7 @@ const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
     await dtrStore.fetchDTR(page, rowsPerPage, search);
     const { data, current_page, per_page, total } = dtrData.value;
     dtrRows.value = data;
+    console.log("dtrRows:", dtrRows.value);
     pagination.value = {
       page: current_page,
       rowsPerPage: per_page,
