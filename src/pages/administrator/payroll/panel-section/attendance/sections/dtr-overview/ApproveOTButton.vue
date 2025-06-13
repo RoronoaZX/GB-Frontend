@@ -11,7 +11,6 @@
     backdrop-filter="blur(4px) saturate(150%) brightness(60%)"
   >
     <q-card>
-      {{ props.approve }}
       <q-card-section
         class="q-pa-md q-rounded q-elevate-2 bg-white text-grey-9"
       >
