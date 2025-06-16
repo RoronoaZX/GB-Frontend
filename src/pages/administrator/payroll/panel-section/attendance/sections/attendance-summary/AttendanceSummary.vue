@@ -117,6 +117,11 @@
               v-model:pagination="pagination"
               hide-bottom
             >
+              <template v-slot:body-cell="props">
+                <q-td :props="props">
+                  <span class="text-overline">{{ props.value }}</span>
+                </q-td>
+              </template>
             </q-table>
           </div>
         </div>
@@ -335,7 +340,13 @@ const dtrRow = computed(() => {
   const data = dtrStore.dtrCutOffData;
   console.log("DTR Data", data);
 
-  // Helper function to format time differences as "09h:33m" or "-----"
+  // Capitalize first letter
+  const capitalize = (text) => {
+    if (!text) return " - - - ";
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
+
+  // Helper function to format time differences as "09h:33m" or " - - - "
   const formatTimeDifference = (startTime, endTime) => {
     if (!startTime || !endTime) return " - - - ";
 
@@ -356,20 +367,25 @@ const dtrRow = computed(() => {
   };
 
   return data.map((entry, index) => {
-    const timeIn = entry.time_in; // Assuming `time_in` is a string
-    const timeOut = entry.time_out; // Assuming `time_out` is a string
-    const overtimeStart = entry.overtime_start; // Assuming `overtime_start` is a string
-    const overtimeEnd = entry.overtime_end; // Assuming `overtime_end` is a string
+    const timeIn = entry.time_in;
+    const timeOut = entry.time_out;
+    const overtimeStart = entry.overtime_start;
+    const overtimeEnd = entry.overtime_end;
+    const otStatusRaw = entry.ot_status || " - - - ";
+    const otStatus = capitalize(otStatusRaw); // Capitalize the overtime status
 
     // Calculate total working hours
     const totalWorkingHours = formatTimeDifference(timeIn, timeOut);
 
-    // Calculate total overtime hours
-    const totalOvertime = formatTimeDifference(overtimeStart, overtimeEnd);
+    // Calculate total overtime hours only if ot_status is "approved"
+    const totalOvertime =
+      otStatus.toLowerCase() === "approved"
+        ? formatTimeDifference(overtimeStart, overtimeEnd)
+        : " - - - ";
 
     // Calculate undertime if total working hours are less than standard work hours
     let undertime = " - - - ";
-    const STANDARD_WORK_HOURS = 8; // Assuming a standard of 8 hours
+    const STANDARD_WORK_HOURS = 9;
     if (totalWorkingHours !== " - - - ") {
       const [hoursStr, minutesStr] = totalWorkingHours.split(" h : ");
       const totalHours = parseInt(hoursStr, 10) + parseInt(minutesStr, 10) / 60;
@@ -387,15 +403,84 @@ const dtrRow = computed(() => {
     }
 
     return {
-      entry: index + 1, // This represents the number of days
-      time_in: entry.time_in, // Use actual time_in value
-      time_out: entry.time_out, // Use actual time_out value
-      total_working_hours: totalWorkingHours, // Format total hours as "09h:33m" or "-----"
-      undertime, // Formatted as "09h:33m" or "-----"
-      overtime: totalOvertime, // Formatted as "09h:33m" or "-----"
+      entry: index + 1,
+      time_in: entry.time_in,
+      time_out: entry.time_out,
+      total_working_hours: totalWorkingHours,
+      undertime,
+      overtime: totalOvertime,
+      ot_status: otStatus,
     };
   });
 });
+
+// const dtrRow = computed(() => {
+//   const data = dtrStore.dtrCutOffData;
+//   console.log("DTR Data", data);
+
+//   // Helper function to format time differences as "09h:33m" or "-----"
+//   const formatTimeDifference = (startTime, endTime) => {
+//     if (!startTime || !endTime) return " - - - ";
+
+//     const start = new Date(startTime);
+//     const end = new Date(endTime);
+
+//     // Check if the times are valid
+//     if (isNaN(start.getTime()) || isNaN(end.getTime())) return " - - - ";
+
+//     const diffInMillis = end - start;
+//     if (diffInMillis <= 0) return " - - - ";
+
+//     const totalMinutes = Math.floor(diffInMillis / (1000 * 60));
+//     const hours = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+//     const minutes = String(totalMinutes % 60).padStart(2, "0");
+
+//     return `${hours} h : ${minutes} m`;
+//   };
+
+//   return data.map((entry, index) => {
+//     const timeIn = entry.time_in; // Assuming `time_in` is a string
+//     const timeOut = entry.time_out; // Assuming `time_out` is a string
+//     const overtimeStart = entry.overtime_start; // Assuming `overtime_start` is a string
+//     const overtimeEnd = entry.overtime_end; // Assuming `overtime_end` is a string
+//     const otStatus = entry.ot_status || " - - - "; // Assuming `ot_status` is a string
+
+//     // Calculate total working hours
+//     const totalWorkingHours = formatTimeDifference(timeIn, timeOut);
+
+//     // Calculate total overtime hours
+//     const totalOvertime = formatTimeDifference(overtimeStart, overtimeEnd);
+
+//     // Calculate undertime if total working hours are less than standard work hours
+//     let undertime = " - - - ";
+//     const STANDARD_WORK_HOURS = 8; // Assuming a standard of 8 hours
+//     if (totalWorkingHours !== " - - - ") {
+//       const [hoursStr, minutesStr] = totalWorkingHours.split(" h : ");
+//       const totalHours = parseInt(hoursStr, 10) + parseInt(minutesStr, 10) / 60;
+//       if (totalHours < STANDARD_WORK_HOURS) {
+//         const diffInMinutes = (STANDARD_WORK_HOURS - totalHours) * 60;
+//         const undertimeHours = String(Math.floor(diffInMinutes / 60)).padStart(
+//           2,
+//           "0"
+//         );
+//         const undertimeMinutes = String(
+//           Math.floor(diffInMinutes % 60)
+//         ).padStart(2, "0");
+//         undertime = `${undertimeHours} h : ${undertimeMinutes} m`;
+//       }
+//     }
+
+//     return {
+//       entry: index + 1, // This represents the number of days
+//       time_in: entry.time_in, // Use actual time_in value
+//       time_out: entry.time_out, // Use actual time_out value
+//       total_working_hours: totalWorkingHours, // Format total hours as "09h:33m" or "-----"
+//       undertime, // Formatted as "09h:33m" or "-----"
+//       overtime: totalOvertime, // Formatted as "09h:33m" or "-----"
+//       ot_status: otStatus, // Use actual ot_status value
+//     };
+//   });
+// });
 
 // Fetch DTR data for the selected employee within the current date range
 const fetchDTRData = async () => {
@@ -614,20 +699,26 @@ const columns = [
   },
   {
     name: "total_working_hours",
-    label: "Total Working Hours",
+    label: "Total Hours",
     align: "center", // Center the header
     field: "total_working_hours",
-  },
-  {
-    name: "overtime",
-    label: "Overtime",
-    field: "overtime",
-    align: "center", // Center the header
   },
   {
     name: "undertime",
     label: "Undertime",
     field: "undertime",
+    align: "center", // Center the header
+  },
+  {
+    name: "overtime",
+    label: "OT",
+    field: "overtime",
+    align: "center", // Center the header
+  },
+  {
+    name: "ot_status",
+    label: "OT Stat",
+    field: "ot_status",
     align: "center", // Center the header
   },
 ];
@@ -638,10 +729,20 @@ const columns = [
   background: linear-gradient(45deg, #103432, #2575fc);
   border: none;
 }
-.full-height-table {
-  max-height: none;
+// .full-height-table {
+//   max-height: none;
+// }
+// .q-table td {
+//   padding: 7px;
+// }
+.full-height-table .q-td,
+.full-height-table .q-th {
+  font-size: 9px !important; /* Force 9px font size */
+  padding: 4px 6px !important; /* Reduce padding to make cells smaller */
+  line-height: 1.2; /* Optional: tighter line spacing */
 }
-.q-table td {
-  padding: 7px;
+
+.full-height-table .text-overline {
+  font-size: 10px !important; /* Ensure caption text also matches 9px */
 }
 </style>

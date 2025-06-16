@@ -13,6 +13,39 @@
     v-model:pagination="pagination"
     hide-bottom
   >
+    <template v-slot:body-cell-amount="props">
+      <q-td :props="props" class="cursor-pointer">
+        <span>
+          {{ props.row.amount ? formatCurrency(props.row.amount) : " - - " }}
+          <q-tooltip class="bg-blue-grey-8">Edit Amount</q-tooltip>
+        </span>
+
+        <q-popup-edit
+          @update:model-value="(val) => updateAmount(props.row, val)"
+          v-model="props.row.amount"
+          :value="props.row.amount"
+          :disable="props.row.amount === null || props.row.amount === undefined"
+          :auto-save="true"
+          :persistent="true"
+          :input-class="'text-center'"
+          :options="{ offset: [0, 10] }"
+          buttons
+          label-set="Save"
+          label-cancel="Close"
+          v-slot="scope"
+        >
+          <q-input
+            v-model="scope.value"
+            :model-value="formatForEdit(scope.value)"
+            @update:model-value="scope.value = $event"
+            type="text"
+            autofocus
+            counter
+            @keyup.enter="scope.set"
+          />
+        </q-popup-edit>
+      </q-td>
+    </template>
     <template v-slot:body-cell-actions="props">
       <q-td :props="props">
         <q-btn color="positive" icon="edit" size="sm" flat round dense>
@@ -28,6 +61,8 @@ import { computed, onMounted, ref } from "vue";
 import { useEmployeeAllowance } from "stores/allowance";
 import AddAllowance from "./AddAllowance.vue";
 import SearchAllowance from "./SearchAllowance.vue";
+import { api } from "src/boot/axios";
+import { Notify } from "quasar";
 
 const employeeAllowanceStore = useEmployeeAllowance();
 const employeeAllowanceRows = computed(() => employeeAllowanceStore.allowances);
@@ -35,6 +70,44 @@ const employeeAllowanceRows = computed(() => employeeAllowanceStore.allowances);
 const pagination = ref({
   rowsPerPage: 0,
 });
+
+function formatForEdit(val) {
+  if (val === null || val === undefined || val === "") {
+    return "";
+  }
+  const num = parseFloat(val);
+  if (isNaN(num)) return "";
+  return Number.isInteger(num) ? String(parseInt(num)) : String(num);
+}
+
+async function updateAmount(data, val) {
+  console.log("updateteAmount", data, val);
+
+  try {
+    const response = await api.put(
+      "/api/update-employee-allowance/" + data.id,
+      {
+        amount: val,
+      }
+    );
+
+    console.log("Update response:", response.data);
+    Notify.create({
+      message: "Amount updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating amount:", error);
+    Notify.create({
+      message: "Failed to update amount",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  }
+}
 
 onMounted(async () => {
   await reloadTableData();
@@ -83,13 +156,13 @@ const formatCurrency = (value) => {
 };
 
 const employeeAllowanceColumns = [
-  {
-    name: "date",
-    required: true,
-    label: "Date",
-    align: "center",
-    field: (row) => formatDate(row.created_at),
-  },
+  // {
+  //   name: "date",
+  //   required: true,
+  //   label: "Date",
+  //   align: "center",
+  //   field: (row) => formatDate(row.created_at),
+  // },
   {
     name: "name",
     required: true,
@@ -104,13 +177,6 @@ const employeeAllowanceColumns = [
     label: "Amount",
     align: "center",
     field: (row) => formatCurrency(row.amount),
-  },
-  {
-    name: "actions",
-    required: true,
-    label: "Actions",
-    align: "center",
-    field: "actions",
   },
 ];
 </script>

@@ -29,6 +29,41 @@
     v-model:pagination="pagination"
     hide-bottom
   >
+    <template v-slot:body-cell-number_of_payments="props">
+      <q-td :props="props">
+        <span>
+          {{ props.row.number_of_payments || " - - " }}
+          <q-tooltip>Edit Number Of Payments</q-tooltip>
+        </span>
+        <q-popup-edit
+          @update:model-value="(val) => updateNumberOfPayments(props.row, val)"
+          v-model="props.row.number_of_payments"
+          :value="props.row.number_of_payments"
+          :disable="
+            props.row.number_of_payments === null ||
+            props.row.number_of_payments === undefined
+          "
+          :auto-save="true"
+          :persistent="true"
+          :input-class="'text-center'"
+          :options="{ offser: [0, 10] }"
+          buttons
+          label-set="Save"
+          label-cancel="Close"
+          v-slot="scope"
+        >
+          <q-input
+            v-model="scope.value"
+            :v-model="scope.value"
+            @update:model-value="scope.value = $event"
+            type="text"
+            autofocus
+            counter
+            @keyup.enter="scope.set"
+          />
+        </q-popup-edit>
+      </q-td>
+    </template>
     <template v-slot:body-cell-t_shirt="props">
       <q-td :props="props">
         <q-tooltip
@@ -109,6 +144,11 @@
         </q-chip>
       </q-td>
     </template>
+    <template v-slot:body-cell-actions="props">
+      <q-td :props="props">
+        <EditUniform :edit="props.row" />
+      </q-td>
+    </template>
   </q-table>
 </template>
 
@@ -116,6 +156,9 @@
 import { ref, computed, onMounted } from "vue";
 import AddUniform from "./AddUniform.vue";
 import { useUniformStore } from "stores/uniform";
+import { Notify } from "quasar";
+import { api } from "src/boot/axios";
+import EditUniform from "./EditUniform.vue";
 
 const uniformStore = useUniformStore();
 const filter = ref("");
@@ -124,6 +167,32 @@ const loading = ref(false);
 const pagination = ref({
   rowsPerPage: 0,
 });
+
+async function updateNumberOfPayments(data, val) {
+  console.log("updateNumberOfPayments", data, val);
+  try {
+    const response = await api.put(
+      "/api/update-uniform-number-of-payments/" + data.id,
+      {
+        numberOfPayments: val,
+      }
+    );
+    Notify.create({
+      message: "Number of payments updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating number of payments:", error);
+    Notify.create({
+      message: "Failed to update number of payments",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  }
+}
 
 onMounted(async () => {
   await reloadTableData();
@@ -226,6 +295,12 @@ const uniformColumns = [
     label: "Pants",
     align: "center",
     field: "pants",
+  },
+  {
+    name: "actions",
+    label: "Actions",
+    align: "center",
+    field: "actions",
   },
 ];
 </script>

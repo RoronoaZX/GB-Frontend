@@ -14,7 +14,105 @@
     row-key="name"
     hide-bottom
     v-model:pagination="pagination"
-  />
+  >
+    <template v-slot:body-cell-sss="props">
+      <q-td :props="props">
+        <span>
+          {{ props.row.sss ? formatCurrency(props.row.sss) : " - - " }}
+          <q-tooltip class="bg-blue-grey-8">Edit SSS</q-tooltip>
+        </span>
+        <q-popup-edit
+          @update:model-value="(val) => updateSSS(props.row, val)"
+          v-model="props.row.sss"
+          :value="props.row.sss"
+          :disable="props.row.sss === null || props.row.sss === undefined"
+          :auto-save="true"
+          :persistent="true"
+          :input-class="'text-center'"
+          :options="{ offset: [0, 10] }"
+          buttons
+          label-set="Save"
+          label-cancel="Close"
+          v-slot="scope"
+        >
+          <q-input
+            v-model="scope.value"
+            :model-value="formatForEdit(scope.value)"
+            @update:model-value="scope.value = $event"
+            type="text"
+            autofocus
+            counter
+            @keyup.enter="scope.set"
+          >
+          </q-input>
+        </q-popup-edit>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-hdmf="props">
+      <q-td :props="props">
+        <span>
+          {{ props.row.hdmf ? formatCurrency(props.row.hdmf) : " - - -" }}
+          <q-tooltip class="bg-blue-grey-8">Edit HDMF</q-tooltip>
+        </span>
+        <q-popup-edit
+          @update:model-value="(val) => updateHDMF(props.row, val)"
+          v-model="props.row.hdmf"
+          :value="props.row.hdmf"
+          :disable="props.row.hdmf === null || props.row.hdmf === undefined"
+          :auto-save="true"
+          :persistent="true"
+          :input-class="'text-center'"
+          :options="{ offset: [0, 10] }"
+          buttons
+          label-set="Save"
+          label-cancel="Close"
+          v-slot="scope"
+        >
+          <q-input
+            v-model="scope.value"
+            :model-value="formatForEdit(scope.value)"
+            @update:model-value="scope.value = $event"
+            type="text"
+            autofocus
+            counter
+            @keyup.enter="scope.set"
+          />
+        </q-popup-edit>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-phic="props">
+      <q-td :props="props">
+        <span>
+          {{ props.row.phic ? formatCurrency(props.row.phic) : " - - - " }}
+        </span>
+        <q-popup-edit
+          @update:model-value="(val) => updatePHIC(props.row, val)"
+          v-model="props.row.phic"
+          :value="props.row.phic"
+          :disable="props.row.phic === null || props.row.phic === undefined"
+          :auto-save="true"
+          :persistent="true"
+          :input-class="'text-center'"
+          :options="{ offset: [0, 10] }"
+          buttons
+          label-save="Save"
+          label-cancel="Close"
+          v-slot="scope"
+        >
+          <q-input
+            v-model="scope.value"
+            :v-model="formatForEdit(scope.value)"
+            @update:model-value="scope.value = $event"
+            type="text"
+            autofocus
+            counter
+            @keyup.enter="scope.set"
+          >
+          </q-input>
+        </q-popup-edit>
+      </q-td>
+    </template>
+  </q-table>
 </template>
 
 <script setup>
@@ -22,12 +120,96 @@ import { computed, onMounted, ref } from "vue";
 import AddDeduction from "./AddDeduction.vue";
 import { useEmployeeBenefitStore } from "stores/benefit";
 import SearchBenefit from "./SearchBenefit.vue";
+import { api } from "src/boot/axios";
+import { Notify } from "quasar";
 
 const employeeBenefitStore = useEmployeeBenefitStore();
 const employeeBenefitRows = computed(() => employeeBenefitStore.benefits);
 const pagination = ref({
   rowsPerPage: 0,
 });
+
+function formatForEdit(val) {
+  if (val === null || val === undefined || val === "") {
+    return "";
+  }
+  const num = parseFloat(val);
+  if (isNaN(num)) return "";
+  return Number.isInteger(num) ? String(parseInt(num)) : String(num);
+}
+
+async function updateSSS(data, val) {
+  console.log("Updating SSS for", data, "to", val);
+  try {
+    const response = await api.put(
+      "/api/update-employee-sss-benefit/" + data.id,
+      {
+        sss: val,
+      }
+    );
+
+    Notify.create({
+      message: "SSS updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating SSS:", error);
+    Notify.create({
+      message: "Error updating SSS",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  }
+}
+
+async function updateHDMF(data, val) {
+  console.log("Updating HDMF for", data, "to", val);
+  try {
+    const response = await api.put(
+      "/api/update-employee-hdmf-benefit/" + data.id,
+      {
+        hdmf: val,
+      }
+    );
+    Notify.create({
+      message: "HDMF updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("ERROR updating HDMF:", error);
+  }
+}
+
+async function updatePHIC(data, val) {
+  console.log("Updating PHIC for", data, "to", val);
+  try {
+    const response = await api.put(
+      "/api/update-employee-phic-benefit/" + data.id,
+      {
+        phic: val,
+      }
+    );
+    Notify.create({
+      message: " PHIC updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating PHIC:", error);
+    Notify.create({
+      message: "Error updating PHIC",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  }
+}
 
 onMounted(async () => {
   await reloadTableData();
@@ -75,13 +257,13 @@ const formatCurrency = (value) => {
 };
 
 const employeeBenefitColumns = [
-  {
-    name: "date",
-    required: true,
-    label: "Date",
-    align: "left",
-    field: (row) => formatDate(row.created_at),
-  },
+  // {
+  //   name: "date",
+  //   required: true,
+  //   label: "Date",
+  //   align: "left",
+  //   field: (row) => formatDate(row.created_at),
+  // },
   {
     name: "name",
     required: true,
