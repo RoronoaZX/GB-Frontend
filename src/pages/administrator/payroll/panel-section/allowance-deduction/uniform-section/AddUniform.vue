@@ -257,6 +257,8 @@ const openDialog = () => {
   dialog.value = true;
 };
 
+const emit = defineEmits(["created"]);
+
 const search = async () => {
   if (searchKeyword.value.trim()) {
     searchLoading.value = true;

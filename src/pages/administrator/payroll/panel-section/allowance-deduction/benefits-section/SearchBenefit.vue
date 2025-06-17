@@ -2,7 +2,7 @@
   <div>
     <q-input
       v-model="searchKeyword"
-      @update:model-value="search"
+      @update:model-value="onInput"
       outlined
       dense
       flat
@@ -20,18 +20,23 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
-import { useEmployeeBenefitStore } from "stores/benefit";
+import { ref } from "vue";
 
-const employeeBenefitStore = useEmployeeBenefitStore();
+// emits search keyword to parent
+const emit = defineEmits(["search"]);
+
 const searchKeyword = ref("");
 const loading = ref(false);
 
-const search = async () => {
+// emit value to parent when input updates
+const onInput = (val) => {
   loading.value = true;
-  await employeeBenefitStore.searchBenefit(searchKeyword.value);
-  loading.value = false;
+
+  emit("search", val); // emit value
+
+  // optional fake delay to show spinner
+  setTimeout(() => {
+    loading.value = false;
+  }, 500);
 };
 </script>
-
-<style lang="scss" scoped></style>

@@ -7,9 +7,15 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
   const cashAdvance = ref(null);
   const cashAdvances = ref([]);
 
-  const fetchCashAdvance = async () => {
+  const fetchCashAdvance = async (page, rowsPerPage, search) => {
     try {
-      const response = await api.get("/api/cash-advance");
+      const response = await api.get("/api/cash-advance", {
+        params: {
+          page,
+          per_page: rowsPerPage,
+          search,
+        },
+      });
       cashAdvances.value = response.data;
     } catch (error) {
       console.log("====================================");
@@ -51,11 +57,28 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
     }
   };
 
+  const updateAmount = async (data, val) => {
+    console.log("updateAmount cash advance", data, val);
+    try {
+      const response = await api.put(
+        "/api/update-employee-cash-advance/" + data.id,
+        {
+          amount: val,
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     cashAdvance,
     cashAdvances,
     createCashAdvance,
     fetchCashAdvance,
     searchCashAdvance,
+    updateAmount,
   };
 });

@@ -1,39 +1,78 @@
 <template>
   <div class="row justify-between q-mb-md" align="right">
     <div>
-      <AddAllowance />
+      <AddAllowance @created="handleCreateAllowance" />
     </div>
-    <SearchAllowance />
+    <q-input
+      v-model="filter"
+      outlined
+      dense
+      debounce="300"
+      flat
+      label="Search"
+      style="width: 300px"
+    >
+      <template v-slot:append>
+        <div>
+          <q-icon v-if="!loading" name="search" />
+          <q-spinner v-else color="grey" size="sm" />
+        </div>
+      </template>
+    </q-input>
+    <!-- <SearchAllowance /> -->
   </div>
+  <!-- class="sticky-header" -->
   <q-table
-    class="sticky-header"
+    flat
+    bordered
     :rows="employeeAllowanceRows"
     :columns="employeeAllowanceColumns"
     row-key="name"
     v-model:pagination="pagination"
-    hide-bottom
+    :rows-per-page-options="[5, 7, 10, 0]"
+    @request="handleRequest"
+    :loading="loading"
   >
+    <template v-slot:header="props">
+      <q-tr :props="props" class="gradient-header text-white text-weight-bold">
+        <q-th
+          v-for="col in props.cols"
+          :key="col.name"
+          :props="props"
+          class="text-center text-subtitle2"
+        >
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
     <template v-slot:body-cell-amount="props">
       <q-td :props="props" class="cursor-pointer">
         <span>
           {{ props.row.amount ? formatCurrency(props.row.amount) : " - - " }}
           <q-tooltip class="bg-blue-grey-8">Edit Amount</q-tooltip>
         </span>
-
-        <q-popup-edit
-          @update:model-value="(val) => updateAmount(props.row, val)"
-          v-model="props.row.amount"
-          :value="props.row.amount"
+        <!-- :value="props.row.amount"
           :disable="props.row.amount === null || props.row.amount === undefined"
           :auto-save="true"
           :persistent="true"
           :input-class="'text-center'"
-          :options="{ offset: [0, 10] }"
+          :options="{ offset: [0, 10] }" -->
+        <q-popup-edit
+          @update:model-value="(val) => updateAmount(props.row, val)"
+          v-model="props.row.amount"
           buttons
           label-set="Save"
           label-cancel="Close"
           v-slot="scope"
         >
+          <div class="text-h6 text-primary text-center q-mb-xs">
+            Edit Amount
+          </div>
+
+          <!-- Show name inside the popup -->
+          <div class="text-subtitle2 q-mb-sm">
+            Name: {{ formatFullname(props.row.employee) }}
+          </div>
           <q-input
             v-model="scope.value"
             :model-value="formatForEdit(scope.value)"
@@ -57,19 +96,41 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useEmployeeAllowance } from "stores/allowance";
 import AddAllowance from "./AddAllowance.vue";
 import SearchAllowance from "./SearchAllowance.vue";
-import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 
 const employeeAllowanceStore = useEmployeeAllowance();
-const employeeAllowanceRows = computed(() => employeeAllowanceStore.allowances);
+const employeeAllowance = computed(() => employeeAllowanceStore.allowances);
 
 const pagination = ref({
+  page: 1,
   rowsPerPage: 0,
+  rowsNumber: 0,
 });
+
+const employeeAllowanceRows = ref([]);
+const loading = ref(true);
+const filter = ref("");
+
+const handleCreateAllowance = (newEntry) => {
+  rows.value.unshift(newEntry); // Add new entry to the top
+};
+
+// Function to call when a new allowance is added
+// const handleCreateAllowance = async (payload) => {
+//   try {
+//     const newRow = await employeeAllowanceStore.createEmployeeAllowance(
+//       payload
+//     );
+//     employeeAllowanceRows.value.unshift(newRow); // Add to top of table
+//     pagination.value.rowsNumber += 1;
+//   } catch (error) {
+//     // Already handled in the store
+//   }
+// };
 
 function formatForEdit(val) {
   if (val === null || val === undefined || val === "") {
@@ -84,14 +145,8 @@ async function updateAmount(data, val) {
   console.log("updateteAmount", data, val);
 
   try {
-    const response = await api.put(
-      "/api/update-employee-allowance/" + data.id,
-      {
-        amount: val,
-      }
-    );
+    await employeeAllowanceStore.updateAmount(data, val);
 
-    console.log("Update response:", response.data);
     Notify.create({
       message: "Amount updated successfully",
       color: "positive",
@@ -113,15 +168,46 @@ onMounted(async () => {
   await reloadTableData();
 });
 
-const reloadTableData = async () => {
+const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
   try {
-    employeeAllowanceRows.value =
-      await employeeAllowanceStore.fetchEmployeeAllowance();
-    console.log("allowance", employeeAllowanceRows.value);
+    loading.value = true;
+    await employeeAllowanceStore.fetchEmployeeAllowance(
+      page,
+      rowsPerPage,
+      search
+    );
+    console.log("allowance", employeeAllowance.value);
+
+    const { data, current_page, per_page, total } = employeeAllowance.value;
+
+    employeeAllowanceRows.value = data;
+    console.log("employeeAllowance", employeeAllowanceRows.value);
+    pagination.value.page = current_page;
+    pagination.value.rowsPerPage = per_page;
+    pagination.value.rowsNumber = total;
   } catch (error) {
     console.log("Error fetching allowance", error);
+  } finally {
+    loading.value = false;
   }
 };
+
+const handleRequest = (props) => {
+  console.log("handle request", props);
+  reloadTableData(
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    props.filter
+  );
+};
+
+watch(filter, async (newVal) => {
+  await reloadTableData(
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+});
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
@@ -156,13 +242,6 @@ const formatCurrency = (value) => {
 };
 
 const employeeAllowanceColumns = [
-  // {
-  //   name: "date",
-  //   required: true,
-  //   label: "Date",
-  //   align: "center",
-  //   field: (row) => formatDate(row.created_at),
-  // },
   {
     name: "name",
     required: true,
@@ -170,7 +249,6 @@ const employeeAllowanceColumns = [
     align: "center",
     field: (row) => formatFullname(row.employee),
   },
-
   {
     name: "amount",
     required: true,
@@ -189,5 +267,26 @@ const employeeAllowanceColumns = [
 .q-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gradient-header {
+  // background: linear-gradient(135deg, #8e2de2, #f27121);
+  // background: linear-gradient(135deg, #11998e, #38ef7d);
+  // background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  // background: linear-gradient(
+  //   135deg,
+  //   #2a2a72,
+  //   #009efd
+  // ); /* You can change colors */
+  background: linear-gradient(135deg, #444444, #111111);
+  // background: linear-gradient(135deg, #555555, #2f2f2f);
+  // background: linear-gradient(135deg, #3c3c3c, #1e1e1e);
+  // background: linear-gradient(135deg, #4e4e4e, #2b2b2b);
+  // background: linear-gradient(135deg, #3d3d3d, #232323);
+  // background: linear-gradient(135deg, #5a5a5a, #363636);
+  // background: linear-gradient(135deg, #606060, #404040);
+  // background: linear-gradient(135deg, #585858, #1f1f1f);
+  // background: linear-gradient(135deg, #494949, #2a2a2a);
+  // background: linear-gradient(135deg, #666666, #333333);
 }
 </style>

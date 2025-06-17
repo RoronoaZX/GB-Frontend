@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-between q-mb-md" align="right">
     <div class="row q-gutter-md">
-      <AddUniform />
+      <AddUniform @create="handleCreateuniforms" />
     </div>
     <q-input
       v-model="filter"
@@ -21,14 +21,27 @@
     </q-input>
   </div>
   <q-table
-    class="sticky-header"
     :filter="filter"
     :rows="uniformRows"
     :columns="uniformColumns"
     row-key="name"
     v-model:pagination="pagination"
-    hide-bottom
+    :rows-per-page-options="[5, 7, 10, 0]"
+    @request="handleRequest"
+    :loading="loading"
   >
+    <template v-slot:header="props">
+      <q-tr :props="props" class="gradient-header text-white text-weight-bold">
+        <q-th
+          v-for="col in props.cols"
+          :key="col.name"
+          :props="props"
+          class="text-center text-subtitle2"
+        >
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
     <template v-slot:body-cell-number_of_payments="props">
       <q-td :props="props">
         <span>
@@ -66,7 +79,7 @@
     </template>
     <template v-slot:body-cell-t_shirt="props">
       <q-td :props="props">
-        <q-tooltip
+        <!-- <q-tooltip
           :offset="[0, 10]"
           :delay="600"
           class="bg-info text-dark text-subtitle1"
@@ -98,11 +111,32 @@
               </div>
             </div>
           </div>
-        </q-tooltip>
-        <q-chip square outline color="red-6" class="text-white">
+        </q-tooltip> -->
+        <q-chip
+          square
+          outline
+          color="red-6"
+          text-color="white"
+          clickable
+          @click="showTShirtDialog(props.row.t_shirt)"
+        >
           {{ props.row.t_shirt.length }} T-Shirt
         </q-chip>
       </q-td>
+      <q-dialog v-model="tShirtDialog">
+        <q-card>
+          <q-card-section class="text-h6">T-Shirt Details</q-card-section>
+
+          <q-card-section>
+            <div v-for="(item, i) in selectedTShirts" :key="i" class="q-mb-sm">
+              • Size: {{ item.size }} — {{ item.pcs }} pcs — ₱{{ item.price }}
+            </div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="Close" v-close-popup />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </template>
     <template v-slot:body-cell-pants="props">
       <q-td :props="props">
@@ -153,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import AddUniform from "./AddUniform.vue";
 import { useUniformStore } from "stores/uniform";
 import { Notify } from "quasar";
@@ -162,11 +196,31 @@ import EditUniform from "./EditUniform.vue";
 
 const uniformStore = useUniformStore();
 const filter = ref("");
-const uniformRows = computed(() => uniformStore.uniforms);
+const uniforms = computed(() => uniformStore.uniforms);
+const uniformRows = ref([]);
 const loading = ref(false);
 const pagination = ref({
   rowsPerPage: 0,
+  rowsPerPage: 0,
+  rowsNumber: 0,
 });
+
+const tShirtDialog = ref(false);
+const selectedTShirts = ref([]);
+
+const showTShirtDialog = (tShirtData) => {
+  selectedTShirts.value = tShirtData;
+  tShirtDialog.value = true;
+};
+
+const handleCreateuniforms = (newEntry) => {
+  rows.value.unshift(newEntry);
+};
+// const viewTShirtDetails = (row) => {
+//   console.log("viewTShirtDetails", row);
+//   alert("T-Shirt data:", row);
+//   // You can open a dialog or set a reactive `selectedTShirt = row.t_shirt` etc.
+// };
 
 async function updateNumberOfPayments(data, val) {
   console.log("updateNumberOfPayments", data, val);
@@ -198,12 +252,26 @@ onMounted(async () => {
   await reloadTableData();
 });
 
-const reloadTableData = async () => {
+const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
   try {
-    uniformRows.value = await uniformStore.fetchUniform();
+    loading.value = true;
+    uniformRows.value = await uniformStore.fetchUniform(
+      page,
+      rowsPerPage,
+      search
+    );
     console.log("uniform", uniformRows.value);
+
+    const { data, current_page, per_page, total } = uniforms.value;
+    pagination.value.page = current_page;
+    pagination.value.rowsPerPage = per_page;
+    pagination.value.rowsNumber = total;
+
+    uniformRows.value = data;
   } catch (error) {
     console.log("error fetching madepakeer", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -215,6 +283,21 @@ const handleInput = () => {
     loading.value = false; // Stop loading after debounce delay
   }, 500); // Adjust debounce delay as needed
 };
+
+const handleRequest = (props) => {
+  reloadTableData(
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    props.filter
+  );
+};
+watch(filter, async (newVal) => {
+  await reloadTableData(
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+});
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
@@ -305,4 +388,8 @@ const uniformColumns = [
 ];
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.gradient-header {
+  background: linear-gradient(135deg, #444444, #111111);
+}
+</style>

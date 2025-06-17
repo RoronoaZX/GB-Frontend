@@ -5,11 +5,23 @@ import { api } from "src/boot/axios";
 
 export const useUniformStore = defineStore("uniform", () => {
   const uniform = ref(null);
-  const uniforms = ref([]);
+  const uniforms = ref({
+    data: [],
+    total: 0,
+    per_page: 7,
+    current_page: 1,
+    last_page: 1,
+  });
 
-  const fetchUniform = async () => {
+  const fetchUniform = async (page, rowsPerPage, search) => {
     try {
-      const response = await api.get("/api/uniform");
+      const response = await api.get("/api/uniform", {
+        params: {
+          page,
+          per_page: rowsPerPage,
+          search,
+        },
+      });
       uniforms.value = response.data;
     } catch (error) {
       console.log("error fetching uniform", error);
@@ -30,13 +42,19 @@ export const useUniformStore = defineStore("uniform", () => {
   const createUniforms = async (data) => {
     try {
       const response = await api.post("/api/uniform", data);
-      uniforms.value.unshift(response.data);
+      const newEntry = response.data.data[0];
+
       Notify.create({
         type: "positive",
         message: "Allowance successfully created",
         // position: "top",
         timeout: 1000,
       });
+
+      uniforms.value.data.unshift(newEntry);
+      uniforms.value.total += 1;
+
+      return newEntry;
     } catch (error) {
       console.log(error);
       let errorMessage = "An error occurred. Please try again.";
@@ -72,6 +90,8 @@ export const useUniformStore = defineStore("uniform", () => {
     console.log("Payload for update:", payload);
     try {
       const response = api.put(`/api/update/uniform/${form.id}`, payload);
+      // console.log("Update response:", response);
+      return response.data;
     } catch (error) {
       console.error("Error updating uniform:", error);
     }

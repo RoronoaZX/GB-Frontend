@@ -148,6 +148,8 @@ const openDialog = () => {
   dialog.value = true;
 };
 
+const emit = defineEmits(["created"]);
+
 const search = async () => {
   if (searchKeyword.value.trim()) {
     searchLoading.value = true;
@@ -186,7 +188,7 @@ const clearEmployeeDeductionForm = () => {
 };
 
 const save = async () => {
-  console.log("deductionss:", employeeDeduction);
+  console.log("deductionssss:", employeeDeduction);
   loading.value = true;
   try {
     const deduction = await employeeBenefitStore.createEmployeeBenefit(

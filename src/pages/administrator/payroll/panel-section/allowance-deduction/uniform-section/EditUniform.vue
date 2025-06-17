@@ -195,6 +195,7 @@
 <script setup>
 import { reactive, ref, watch, computed } from "vue";
 import { useUniformStore } from "src/stores/uniform";
+import { Notify } from "quasar";
 
 const props = defineProps(["edit"]);
 const uniformStore = useUniformStore();
@@ -342,7 +343,14 @@ const saveUniformChanges = async () => {
   };
   try {
     loading.value = true;
-    await uniformStore.updateUnifrom(updated);
+    const response = await uniformStore.updateUnifrom(updated);
+    // console.log("Uniform updated successfully:", response.data);
+    Notify.create({
+      message: "Uniform changes saved successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
     dialog.value = false;
     clearForm();
   } catch (error) {
