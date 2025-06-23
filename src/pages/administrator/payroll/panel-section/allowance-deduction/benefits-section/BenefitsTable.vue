@@ -2,7 +2,7 @@
   <div class="row justify-between q-mb-md" align="right">
     <div class="row q-gutter-md">
       <div>
-        <AddDeduction @created="handleCreateBenefits" />
+        <AddDeduction @created="reloadTableData" />
       </div>
     </div>
     <q-input
@@ -16,13 +16,12 @@
     >
       <template v-slot:append>
         <div>
-          <q-icon v-if="!loading" name="search" />
-          <q-spinner v-else color="grey" size="sm" />
+          <q-icon name="search" />
         </div>
       </template>
     </q-input>
   </div>
-  <!-- class="sticky-header" -->
+
   <q-table
     :rows="employeeBenefitRows"
     :columns="employeeBenefitColumns"
@@ -30,7 +29,7 @@
     v-model:pagination="pagination"
     :rows-per-page-options="[5, 7, 10, 0]"
     @request="handleRequest"
-    :loading="loading"
+    :loading="tableLoading"
     :filter="filter"
   >
     <template v-slot:header="props">
@@ -51,12 +50,6 @@
           {{ props.row.sss ? formatCurrency(props.row.sss) : " - - " }}
           <q-tooltip class="bg-blue-grey-8">Edit SSS</q-tooltip>
         </span>
-        <!-- :value="props.row.sss"
-          :disable="props.row.sss === null || props.row.sss === undefined"
-          :auto-save="true"
-          :persistent="true"
-          :input-class="'text-center'"
-          :options="{ offset: [0, 10] }" -->
         <q-popup-edit
           @update:model-value="(val) => updateSSS(props.row, val)"
           v-model="props.row.sss"
@@ -88,12 +81,6 @@
           {{ props.row.hdmf ? formatCurrency(props.row.hdmf) : " - - -" }}
           <q-tooltip class="bg-blue-grey-8">Edit HDMF</q-tooltip>
         </span>
-        <!-- :value="props.row.hdmf"
-          :disable="props.row.hdmf === null || props.row.hdmf === undefined"
-          :auto-save="true"
-          :persistent="true"
-          :input-class="'text-center'"
-          :options="{ offset: [0, 10] }" -->
         <q-popup-edit
           @update:model-value="(val) => updateHDMF(props.row, val)"
           v-model="props.row.hdmf"
@@ -122,13 +109,8 @@
       <q-td :props="props">
         <span>
           {{ props.row.phic ? formatCurrency(props.row.phic) : " - - - " }}
+          <q-tooltip class="bg-blue-grey-8">Edit PHIC</q-tooltip>
         </span>
-        <!-- :value="props.row.phic"
-          :disable="props.row.phic === null || props.row.phic === undefined"
-          :auto-save="true"
-          :persistent="true"
-          :input-class="'text-center'"
-          :options="{ offset: [0, 10] }" -->
         <q-popup-edit
           @update:model-value="(val) => updatePHIC(props.row, val)"
           v-model="props.row.phic"
@@ -143,7 +125,7 @@
           </div>
           <q-input
             v-model="scope.value"
-            :v-model="formatForEdit(scope.value)"
+            :model-value="formatForEdit(scope.value)"
             @update:model-value="scope.value = $event"
             type="text"
             autofocus
@@ -153,6 +135,11 @@
           </q-input>
         </q-popup-edit>
       </q-td>
+    </template>
+    <template #loading>
+      <q-inner-loading showing>
+        <q-spinner-ios size="50px" color="grey-10" />
+      </q-inner-loading>
     </template>
   </q-table>
 </template>
@@ -175,11 +162,8 @@ const pagination = ref({
 });
 
 const filter = ref("");
-const loading = ref(true);
-
-const handleCreateBenefits = (newEntry) => {
-  rows.value.unshift(newEntry); // Add new entry to the top
-};
+const tableLoading = ref(false);
+const searchLoading = ref(false);
 
 function formatForEdit(val) {
   if (val === null || val === undefined || val === "") {
@@ -193,12 +177,10 @@ function formatForEdit(val) {
 async function updateSSS(data, val) {
   console.log("Updating SSS for", data, "to", val);
   try {
-    const response = await api.put(
-      "/api/update-employee-sss-benefit/" + data.id,
-      {
-        sss: val,
-      }
-    );
+    tableLoading.value = true;
+    await api.put("/api/update-employee-sss-benefit/" + data.id, {
+      sss: val,
+    });
 
     Notify.create({
       message: "SSS updated successfully",
@@ -214,18 +196,18 @@ async function updateSSS(data, val) {
       position: "top",
       timeout: 2000,
     });
+  } finally {
+    tableLoading.value = false;
   }
 }
 
 async function updateHDMF(data, val) {
   console.log("Updating HDMF for", data, "to", val);
   try {
-    const response = await api.put(
-      "/api/update-employee-hdmf-benefit/" + data.id,
-      {
-        hdmf: val,
-      }
-    );
+    tableLoading.value = true;
+    await api.put("/api/update-employee-hdmf-benefit/" + data.id, {
+      hdmf: val,
+    });
     Notify.create({
       message: "HDMF updated successfully",
       color: "positive",
@@ -234,18 +216,18 @@ async function updateHDMF(data, val) {
     });
   } catch (error) {
     console.error("ERROR updating HDMF:", error);
+  } finally {
+    tableLoading.value = false;
   }
 }
 
 async function updatePHIC(data, val) {
   console.log("Updating PHIC for", data, "to", val);
   try {
-    const response = await api.put(
-      "/api/update-employee-phic-benefit/" + data.id,
-      {
-        phic: val,
-      }
-    );
+    tableLoading.value = true;
+    await api.put("/api/update-employee-phic-benefit/" + data.id, {
+      phic: val,
+    });
     Notify.create({
       message: " PHIC updated successfully",
       color: "positive",
@@ -260,6 +242,8 @@ async function updatePHIC(data, val) {
       position: "top",
       timeout: 2000,
     });
+  } finally {
+    tableLoading.value = false;
   }
 }
 
@@ -269,7 +253,7 @@ onMounted(async () => {
 
 const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
   try {
-    loading.value = true;
+    tableLoading.value = true;
     employeeBenefit.value = await employeeBenefitStore.fetchEmployeeBenefit(
       page,
       rowsPerPage,
@@ -287,12 +271,13 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
   } catch (error) {
     console.log("error fetching", error);
   } finally {
-    loading.value = false;
+    tableLoading.value = false;
   }
 };
 
 const handleRequest = (props) => {
   console.log("handle benefits request", props);
+
   reloadTableData(
     props.pagination.page,
     props.pagination.rowsPerPage,
@@ -301,11 +286,13 @@ const handleRequest = (props) => {
 };
 
 watch(filter, async (newVal) => {
+  searchLoading.value = true;
   await reloadTableData(
     pagination.value.page,
     pagination.value.rowsPerPage,
     newVal
   );
+  searchLoading.value = false;
 });
 
 const formatFullname = (row) => {

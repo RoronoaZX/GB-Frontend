@@ -15,7 +15,7 @@
       position="right"
       backdrop-filter="blur(4px) saturate(150%)"
     >
-      <q-card style="width: 400px; max-width: 80vw">
+      <q-card style="width: 500px; max-width: 80vw">
         <q-card-section
           class="row items-center q-px-md q-py-sm gradient-btn text-white"
         >
@@ -195,10 +195,9 @@ const save = async () => {
       employeeDeduction
     );
     console.log("deduction", deduction);
+    emit("created"); // 🔥 trigger reload in parent
     dialog.value = false;
     clearEmployeeDeductionForm();
-    employeeBenefitRows.value =
-      await employeeBenefitStore.fetchEmployeeBenefit();
   } catch (error) {
     console.log("error", error);
   } finally {

@@ -88,31 +88,17 @@
               }}
             </div>
           </div>
-          <!-- <div class="q-gutter-md">
-            <q-input outlined dense readonly label="Name" />
-            <q-input outlined dense readonly label="Position" />
-          </div> -->
         </q-card-section>
         <q-card-section>
           <div class="q-gutter-y-md">
             <div>
-              <q-input v-model="cashAdvance.amount" outlined label="Amount" />
+              <q-input
+                v-model="cashAdvance.amount"
+                type="number"
+                outlined
+                label="Amount"
+              />
             </div>
-            <!-- <div class="row justify-between">
-              <q-input
-                v-model="cashAdvance.number_of_payments"
-                outlined
-                label="Number of Payments"
-                style="width: 180px"
-              />
-              <q-input
-                v-model="cashAdvance.payments_per_payroll"
-                outlined
-                readonly
-                label="Payments per Payroll"
-                style="width: 180px"
-              />
-            </div> -->
             <div>
               <q-input
                 v-model="cashAdvance.reason"
@@ -145,6 +131,7 @@ import { useEmployeeStore } from "stores/employee";
 import { computed, reactive, ref } from "vue";
 import { useCashAdvanceStore } from "stores/cash-advance";
 
+const emit = defineEmits(["created"]);
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const cashAdvanceStore = useCashAdvanceStore();
@@ -182,8 +169,6 @@ const cashAdvance = reactive({
   employee_position: "",
   amount: "",
   reason: "",
-  // number_of_payments: 1,
-  // payments_per_payroll: "",
 });
 
 const clearCashAdvanceForm = () => {
@@ -193,26 +178,21 @@ const clearCashAdvanceForm = () => {
     (cashAdvance.amount = ""),
     (cashAdvance.reason = "");
 };
-// Math.round
-// watch([() => cashAdvance.amount, () => cashAdvance.number_of_payments], () => {
-//   cashAdvance.payments_per_payroll =
-//     cashAdvance.amount / (cashAdvance.number_of_payments || 1);
-// });
 
 const save = async () => {
-  console.log("cashAdvance", cashAdvance);
   loading.value = true;
   try {
-    const response = await cashAdvanceStore.createCashAdvance(cashAdvance);
+    await cashAdvanceStore.createCashAdvance(cashAdvance);
+
+    emit("created"); // 🔥 trigger reload in parent
+
+    dialog.value = false;
+    clearCashAdvanceForm();
   } catch (error) {
     console.log(error);
   } finally {
     loading.value = false;
   }
-
-  clearCashAdvanceForm();
-  cashAdvanceRows.value = await cashAdvanceStore.fetchCashAdvance();
-  dialog.value = false;
 };
 </script>
 

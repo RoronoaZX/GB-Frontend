@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-between q-mb-md" align="right">
     <div class="row q-gutter-md">
-      <CashAdvanceButton />
+      <CashAdvanceButton @created="reloadTableData" />
     </div>
     <q-input
       v-model="filter"
@@ -14,8 +14,9 @@
     >
       <template v-slot:append>
         <div>
-          <q-icon v-if="!loading" name="search" />
-          <q-spinner v-else color="grey" size="sm" />
+          <!-- v-if="!loading" -->
+          <q-icon name="search" />
+          <!-- <q-spinner v-else color="grey" size="sm" /> -->
         </div>
       </template>
     </q-input>
@@ -26,6 +27,8 @@
     row-key="name"
     v-model:pagination="pagination"
     :rows-per-page-options="[5, 7, 10, 0]"
+    :loading="loading"
+    :filter="filter"
     @request="handleRequest"
   >
     <template v-slot:header="props">
@@ -73,6 +76,41 @@
         </q-popup-edit>
       </q-td>
     </template>
+    <template v-slot:body-cell-reason="props">
+      <q-td :props="props" class="cursor-pointer">
+        <span>
+          {{ props.row.reason || " - - - " }}
+        </span>
+        <q-tooltip class="bg-blue-grey-8">Edit Reason</q-tooltip>
+        <q-popup-edit
+          v-model="props.row.reason"
+          @update:model-value="(val) => updateReason(props.row, val)"
+          buttons
+          label-set="Save"
+          label-cancel="Close"
+          v-slot="scope"
+        >
+          <div class="text-h6 text-primary text-center q-mb-xs">
+            Edit Reason
+          </div>
+          <div class="text-subtitle2 q-mb-sm">
+            Name: {{ formatFullname(props.row.employee) }}
+          </div>
+          <q-input
+            v-model="scope.value"
+            type="text"
+            autofocus
+            counter
+            @keyup.enter="scope.set"
+          />
+        </q-popup-edit>
+      </q-td>
+    </template>
+    <template #loading>
+      <q-inner-loading showing>
+        <q-spinner-ios size="50px" color="grey-10" />
+      </q-inner-loading>
+    </template>
   </q-table>
 </template>
 
@@ -106,6 +144,7 @@ function formatForEdit(val) {
 }
 
 async function updateAmount(data, val) {
+  loading.value = true;
   try {
     await cashAdvanceStore.updateAmount(data, val);
     Notify.create({
@@ -122,6 +161,31 @@ async function updateAmount(data, val) {
       position: "top",
       timeout: 2000,
     });
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function updateReason(data, val) {
+  loading.value = true;
+  try {
+    await cashAdvanceStore.updateReason(data, val);
+    Notify.create({
+      message: "Cash Advance reason updated successfully!",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.log(error);
+    Notify.create({
+      message: "Cash Advance reasons updated successfully!",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    loading.value = false;
   }
 }
 

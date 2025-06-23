@@ -16,9 +16,9 @@
     >
       <q-card style="width: 600px; max-width: 80vw">
         <q-card-section
-          class="row items-center q-px-md q-py-sm gradient-btn text-white"
+          class="row items-center gradient-btn text-white rounded-borders-top q-pa-md"
         >
-          <div class="text-h5 q-mr-md">👔 Add Uniform</div>
+          <div class="text-h5 q-mr-md">🧥 Add Uniform</div>
           <q-space />
           <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
         </q-card-section>
@@ -66,164 +66,163 @@
             </div>
           </q-input>
         </q-card-section>
-        <q-card-section>
-          <div class="row q-gutter-md text-subtitle1">
-            <div>Name:</div>
-            <div class="text-weight-medium">
-              {{ uniform.employee_name ? uniform.employee_name : "-------" }}
-            </div>
-          </div>
-          <div class="row q-gutter-md text-subtitle1">
-            <div>Position:</div>
-            <div class="text-weight-medium">
-              {{
-                uniform.employee_position
-                  ? uniform.employee_position
-                  : "-------"
-              }}
-            </div>
-          </div>
+        <q-card-section class="q-gutter-y-sm">
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="person" color="primary" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-subtitle2 text-grey-8"
+                >Name</q-item-label
+              >
+              <q-item-label class="text-subtitle1 text-weight-medium">
+                {{ uniform.employee_name ? uniform.employee_name : "-------" }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="badge" color="primary" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-subtitle2 text-grey-8">
+                Position
+              </q-item-label>
+              <q-item-label class="text-subtitle1 text-weight-medium">
+                {{
+                  uniform.employee_position
+                    ? uniform.employee_position
+                    : "-------"
+                }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
         </q-card-section>
-        <q-card-section>
-          <div class="row">
-            <div class="col-6">
+        <q-card-section class="row q-gutter-x-md">
+          <div class="col-5">
+            <div class="q-mb-lg" align="center">
               <q-checkbox
                 keep-color
                 v-model="tShirt"
                 label="T-Shirt"
-                color="red"
+                color="deep-orange"
               />
-              <div class="q-gutter-sm q-pa-md" v-if="tShirt">
-                <div>
-                  <q-radio
-                    keep-color
-                    v-model="uniform.tShirtsize"
-                    val="18"
-                    label="18"
-                    color="teal"
-                  />
-                  <q-radio
-                    keep-color
-                    v-model="uniform.tShirtsize"
-                    val="S"
-                    label="S"
-                    color="orange"
-                  />
-                  <q-radio
-                    keep-color
-                    v-model="uniform.tShirtsize"
-                    val="M"
-                    label="M"
-                    color="red"
-                  />
-                  <q-radio
-                    keep-color
-                    v-model="uniform.tShirtsize"
-                    val="L"
-                    label="L"
-                    color="cyan"
-                  />
-                </div>
-                <div class="row q-gutter-x-sm" v-if="uniform.tShirtsize">
-                  <q-input
-                    v-model="uniform.tShirtPcs"
-                    dense
-                    outlined
-                    label="pcs"
-                    style="width: 100px"
-                  />
-                  <q-input
-                    v-model="uniform.tShirtPrice"
-                    dense
-                    outlined
-                    label="price"
-                    style="width: 100px"
-                  />
-                </div>
+            </div>
+            <div v-if="tShirt" class="row q-ml-sm q-mt-sm">
+              <div class="col-6">
+                <q-option-group
+                  v-model="uniform.tShirtsize"
+                  :options="[
+                    { label: '18', value: '18' },
+                    { label: 'S', value: 'S' },
+                    { label: 'M', value: 'M' },
+                    { label: 'L', value: 'L' },
+                  ]"
+                  color="deep-orange"
+                  type="radio"
+                  dense
+                />
+              </div>
+              <div v-if="uniform.tShirtsize" class="q-gutter-md">
+                <q-input
+                  v-model="uniform.tShirtPcs"
+                  dense
+                  outlined
+                  label="pcs"
+                  style="width: 100px"
+                />
+                <q-input
+                  v-model="uniform.tShirtPrice"
+                  dense
+                  outlined
+                  label="price"
+                  style="width: 100px"
+                />
               </div>
             </div>
-            <div class="col-6">
+          </div>
+          <div class="col-6">
+            <div class="q-mb-lg" align="center">
               <q-checkbox
                 keep-color
                 v-model="pants"
                 label="Pants"
                 color="brown-6"
               />
-              <div class="q-gutter-sm q-pa-md" v-if="pants">
-                <q-radio
-                  keep-color
+            </div>
+            <div v-if="pants" class="row q-ml-sm q-mt-sm">
+              <div class="col-6 q-pl-xl">
+                <q-option-group
                   v-model="uniform.pantsSize"
-                  val="M"
-                  label="M"
-                  color="red"
+                  :options="[
+                    { label: 'M', value: 'M' },
+                    { label: 'L', value: 'L' },
+                    { label: 'XL', value: 'XL' },
+                    { label: 'XXL', value: 'XXL' },
+                  ]"
+                  color="brown"
+                  type="radio"
+                  dense
                 />
-                <q-radio
-                  keep-color
-                  v-model="uniform.pantsSize"
-                  val="L"
-                  label="L"
-                  color="cyan"
+              </div>
+              <div v-if="uniform.pantsSize" class="q-gutter-md q-pl-lg">
+                <q-input
+                  v-model="uniform.pantsPcs"
+                  dense
+                  outlined
+                  label="pcs"
+                  style="width: 100px"
                 />
-                <q-radio
-                  keep-color
-                  v-model="uniform.pantsSize"
-                  val="XL"
-                  label="XL"
-                  color="purple-6"
+                <q-input
+                  v-model="uniform.pantsPrice"
+                  dense
+                  outlined
+                  label="price"
+                  style="width: 100px"
                 />
-                <q-radio
-                  keep-color
-                  v-model="uniform.pantsSize"
-                  val="XXL"
-                  label="XXL"
-                  color="deep-orange-13"
-                />
-                <div class="row q-gutter-x-sm" v-if="uniform.pantsSize">
-                  <q-input
-                    v-model="uniform.pantsPcs"
-                    dense
-                    outlined
-                    label="pcs"
-                    style="width: 100px"
-                  />
-                  <q-input
-                    v-model="uniform.pantsPrice"
-                    dense
-                    outlined
-                    label="price"
-                    style="width: 100px"
-                  />
-                </div>
               </div>
             </div>
           </div>
         </q-card-section>
-        <q-card-section>
-          <div class="row justify-between q-gutter-sm">
-            <div>
-              <div class="q-mt-lg text-subtitle1">Number of Payments</div>
-              <q-input v-model="uniform.numberOfPayments" outlined flat dense />
+        <q-card-section class="q-ma-lg">
+          <div class="row q-col-gutter-md">
+            <div class="col-4">
+              <q-input
+                v-model="uniform.numberOfPayments"
+                label="Number of Payments"
+                type="number"
+                outlined
+                dense
+              />
             </div>
-            <div>
-              <div class="q-mt-lg text-subtitle1">Total Amount</div>
-              <q-input v-model="totalAmount" outlined readonly flat dense />
-              <div class="q-mt-lg text-subtitle1">Payments Per Payroll</div>
+            <div class="col-4">
+              <q-input
+                v-model="totalAmount"
+                label="Total Amount"
+                outlined
+                dense
+                readonly
+              />
+            </div>
+            <div class="col-4">
               <q-input
                 v-model="paymentPerPayroll"
+                label="Per Payroll"
                 outlined
-                readonly
-                flat
                 dense
+                readonly
               />
             </div>
           </div>
           <div class="row q-gutter-sm"></div>
         </q-card-section>
-        <q-card-actions>
+        <q-card-actions align="right">
           <q-btn
             size="md"
             padding="xs md"
-            label="save"
+            no-caps
+            label="Save"
             icon-right="send"
             class="gradient-btn text-white"
             @click="save"
@@ -241,6 +240,7 @@ import { useEmployeeStore } from "stores/employee";
 import { useUniformStore } from "stores/uniform";
 import { reactive, ref, watch, computed } from "vue";
 
+const emit = defineEmits(["created"]);
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const uniformStore = useUniformStore();
@@ -256,8 +256,6 @@ const searchLoading = ref(false);
 const openDialog = () => {
   dialog.value = true;
 };
-
-const emit = defineEmits(["created"]);
 
 const search = async () => {
   if (searchKeyword.value.trim()) {
@@ -370,15 +368,13 @@ const save = async () => {
   try {
     loading.value = true;
     await uniformStore.createUniforms(payload);
+
+    emit("created"); // 🔥 trigger reload in parent
+
     dialog.value = false;
     clearUniform();
-    uniformRows.value = await uniformStore.fetchUniform();
   } catch (error) {
     console.log(error);
-    Notify.create({
-      type: "negative",
-      message: "error",
-    });
   } finally {
     loading.value = false;
   }

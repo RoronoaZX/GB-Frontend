@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-between q-mb-md" align="right">
     <div>
-      <AddAllowance @created="handleCreateAllowance" />
+      <AddAllowance @created="reloadTableData" />
     </div>
     <q-input
       v-model="filter"
@@ -14,14 +14,11 @@
     >
       <template v-slot:append>
         <div>
-          <q-icon v-if="!loading" name="search" />
-          <q-spinner v-else color="grey" size="sm" />
+          <q-icon name="search" />
         </div>
       </template>
     </q-input>
-    <!-- <SearchAllowance /> -->
   </div>
-  <!-- class="sticky-header" -->
   <q-table
     flat
     bordered
@@ -31,7 +28,7 @@
     v-model:pagination="pagination"
     :rows-per-page-options="[5, 7, 10, 0]"
     @request="handleRequest"
-    :loading="loading"
+    :loading="tableLoading"
   >
     <template v-slot:header="props">
       <q-tr :props="props" class="gradient-header text-white text-weight-bold">
@@ -51,12 +48,6 @@
           {{ props.row.amount ? formatCurrency(props.row.amount) : " - - " }}
           <q-tooltip class="bg-blue-grey-8">Edit Amount</q-tooltip>
         </span>
-        <!-- :value="props.row.amount"
-          :disable="props.row.amount === null || props.row.amount === undefined"
-          :auto-save="true"
-          :persistent="true"
-          :input-class="'text-center'"
-          :options="{ offset: [0, 10] }" -->
         <q-popup-edit
           @update:model-value="(val) => updateAmount(props.row, val)"
           v-model="props.row.amount"
@@ -92,6 +83,11 @@
         </q-btn>
       </q-td>
     </template>
+    <template #loading>
+      <q-inner-loading showing>
+        <q-spinner-ios size="50px" color="grey-10" />
+      </q-inner-loading>
+    </template>
   </q-table>
 </template>
 
@@ -112,25 +108,10 @@ const pagination = ref({
 });
 
 const employeeAllowanceRows = ref([]);
-const loading = ref(true);
+const tableLoading = ref(false);
+const searchLoading = ref(false);
 const filter = ref("");
-
-const handleCreateAllowance = (newEntry) => {
-  rows.value.unshift(newEntry); // Add new entry to the top
-};
-
-// Function to call when a new allowance is added
-// const handleCreateAllowance = async (payload) => {
-//   try {
-//     const newRow = await employeeAllowanceStore.createEmployeeAllowance(
-//       payload
-//     );
-//     employeeAllowanceRows.value.unshift(newRow); // Add to top of table
-//     pagination.value.rowsNumber += 1;
-//   } catch (error) {
-//     // Already handled in the store
-//   }
-// };
+const loading = ref(false);
 
 function formatForEdit(val) {
   if (val === null || val === undefined || val === "") {
@@ -143,7 +124,7 @@ function formatForEdit(val) {
 
 async function updateAmount(data, val) {
   console.log("updateteAmount", data, val);
-
+  tableLoading.value = true;
   try {
     await employeeAllowanceStore.updateAmount(data, val);
 
@@ -161,6 +142,8 @@ async function updateAmount(data, val) {
       position: "top",
       timeout: 2000,
     });
+  } finally {
+    tableLoading.value = false;
   }
 }
 
@@ -170,7 +153,7 @@ onMounted(async () => {
 
 const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
   try {
-    loading.value = true;
+    tableLoading.value = true;
     await employeeAllowanceStore.fetchEmployeeAllowance(
       page,
       rowsPerPage,
@@ -188,7 +171,7 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
   } catch (error) {
     console.log("Error fetching allowance", error);
   } finally {
-    loading.value = false;
+    tableLoading.value = false;
   }
 };
 
@@ -202,11 +185,13 @@ const handleRequest = (props) => {
 };
 
 watch(filter, async (newVal) => {
+  searchLoading.value = true;
   await reloadTableData(
     pagination.value.page,
     pagination.value.rowsPerPage,
     newVal
   );
+  searchLoading.value = false;
 });
 
 const formatFullname = (row) => {

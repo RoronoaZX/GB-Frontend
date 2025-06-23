@@ -42,32 +42,20 @@ export const useUniformStore = defineStore("uniform", () => {
   const createUniforms = async (data) => {
     try {
       const response = await api.post("/api/uniform", data);
-      const newEntry = response.data.data[0];
 
       Notify.create({
         type: "positive",
-        message: "Allowance successfully created",
-        // position: "top",
+        message: "Uniform successfully created",
         timeout: 1000,
       });
 
-      uniforms.value.data.unshift(newEntry);
-      uniforms.value.total += 1;
-
-      return newEntry;
+      return response.data;
     } catch (error) {
       console.log(error);
-      let errorMessage = "An error occurred. Please try again.";
-      if (error.response && error.response.status === 409) {
-        errorMessage = "Allowance for this employee already exists.";
-      } else if (error.response && error.response.status === 422) {
-        errorMessage = "Invalid data. Please check the inputs.";
-      }
 
       Notify.create({
         type: "negative",
         message: errorMessage,
-        // position: "top",
         timeout: 1000,
       });
     }

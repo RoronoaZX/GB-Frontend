@@ -14,9 +14,6 @@ export const useEmployeeBenefitStore = defineStore("benefits", () => {
     current_page: 1,
     last_page: 1,
   });
-  const currentPage = ref(1);
-  const rowsPerPage = ref(7);
-  const search = ref("");
 
   const fetchEmployeeBenefit = async (page, rowsPerPage, search) => {
     try {
@@ -44,58 +41,22 @@ export const useEmployeeBenefitStore = defineStore("benefits", () => {
     }
   };
 
-  // const createEmployeeBenefit = async (data) => {
-  //   console.log("BENEFIT:", data);
-  //   try {
-  //     const response = await api.post("/api/employee-benefit", data);
-  //     console.log("benefit response", response.data);
-  //     benefits.value.unshift(response.data);
-
-  //     Notify.create({
-  //       type: "positive",
-  //       // position: "top",
-  //       message: "Employee deductions successfully created",
-  //       setTimeout: 1000,
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-
-  //     let errorMessage = "An error occurred. Please try again.";
-  //     if (error.response && error.response.status === 409) {
-  //       errorMessage = "Allowance for this employee already exists.";
-  //     } else if (error.response && error.response.status === 422) {
-  //       errorMessage = "Invalid data. Please check the inputs.";
-  //     }
-
-  //     Notify.create({
-  //       type: "negative",
-  //       message: errorMessage,
-  //       // position: "top",
-  //       timeout: 5000,
-  //     });
-  //   }
-  // };
-
   const createEmployeeBenefit = async (data) => {
     try {
       const response = await api.post("/api/employee-benefit", data);
-      const newEntry = response.data.data[0];
-
       Notify.create({
         type: "positive",
-        message: "Employee deductions successfully created",
+        message: "Employee benefits successfully created",
         timeout: 1000,
       });
 
-      benefits.value.data.unshift(newEntry);
-      benefits.value.total += 1;
-
-      return newEntry;
+      return response.data;
     } catch (error) {
       console.log(error);
+      console.log("responce", error.response);
       let errorMessage = "An error occurred. Please try again.";
       if (error.response?.status === 409) {
-        errorMessage = "Allowance for this employee already exists.";
+        errorMessage = error.response.data.error || "ssdd";
       } else if (error.response?.status === 422) {
         errorMessage = "Invalid data. Please check the inputs.";
       }

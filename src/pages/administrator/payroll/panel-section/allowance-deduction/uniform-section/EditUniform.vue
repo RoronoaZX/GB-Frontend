@@ -10,8 +10,190 @@
   >
     <q-tooltip class="bg-positive" :delay="200">Edit</q-tooltip>
   </q-btn>
-
   <q-dialog
+    v-model="dialog"
+    persistent
+    position="right"
+    backdrop-filter="blur(6px) saturate(150%)"
+  >
+    <q-card style="width: 600px; max-width: 90vw">
+      <q-card-section
+        class="row items-center gradient-btn text-white rounded-borders-top q-pa-md"
+      >
+        <div class="text-h6">🧥 Edit Uniform</div>
+        <q-space />
+        <q-btn icon="close" flat dense round v-close-popup class="text-white" />
+      </q-card-section>
+
+      <q-card-section class="q-gutter-y-sm">
+        <q-item>
+          <q-item-section avatar>
+            <q-icon name="person" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-subtitle2 text-grey-8">Name</q-item-label>
+            <q-item-label class="text-subtitle1 text-weight-medium">
+              {{ edit.employee ? formatFullname(edit.employee) : "----" }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section avatar
+            ><q-icon name="badge" color="primary"
+          /></q-item-section>
+          <q-item-section>
+            <q-item-label class="text-subtitle2 text-grey-8"
+              >Position</q-item-label
+            >
+            <q-item-label class="text-subtitle1 text-weight-medium">
+              {{ edit.employee.position ? edit.employee.position : "-----" }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-card-section>
+
+      <q-card-section class="q-gutter-md row">
+        <div class="col-5">
+          <div class="q-mb-lg" align="center">
+            <q-checkbox
+              keep-color
+              v-model="tShirt"
+              label="T-Shirt"
+              color="deep-orange"
+            />
+          </div>
+          <div v-if="tShirt" class="row q-ml-sm q-mt-sm">
+            <div class="col-6">
+              <q-option-group
+                v-model="uniform.tShirtsize"
+                :options="[
+                  { label: '18', value: '18' },
+                  { label: 'S', value: 'S' },
+                  { label: 'M', value: 'M' },
+                  { label: 'L', value: 'L' },
+                ]"
+                color="deep-orange"
+                type="radio"
+                dense
+              />
+            </div>
+
+            <div class="q-gutter-md">
+              <q-input
+                v-model="uniform.tShirtPcs"
+                label="pcs"
+                outlined
+                dense
+                style="width: 100px"
+              />
+              <q-input
+                v-model="uniform.tShirtPrice"
+                label="price"
+                outlined
+                dense
+                style="width: 100px"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="q-mb-lg" align="center">
+            <q-checkbox
+              keep-color
+              v-model="pants"
+              label="Pants"
+              color="brown-6"
+            />
+          </div>
+          <div v-if="pants" class="row q-ml-sm q-mt-sm">
+            <div class="col-6 q-pl-xl">
+              <q-option-group
+                v-model="uniform.pantsSize"
+                :options="[
+                  { label: 'M', value: 'M' },
+                  { label: 'L', value: 'L' },
+                  { label: 'XL', value: 'XL' },
+                  { label: 'XXL', value: 'XXL' },
+                ]"
+                color="brown"
+                type="radio"
+                dense
+              />
+            </div>
+            <div class="q-gutter-md q-pl-lg">
+              <q-input
+                v-model="uniform.pantsPcs"
+                label="pcs"
+                outlined
+                dense
+                style="width: 100px"
+              />
+              <q-input
+                v-model="uniform.pantsPrice"
+                label="price"
+                outlined
+                dense
+                style="width: 100px"
+              />
+            </div>
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-card-section class="q-ma-lg">
+        <div class="row q-col-gutter-md">
+          <div class="col-4">
+            <q-input
+              v-model="uniform.numberOfPayments"
+              label="Number of Payments"
+              type="number"
+              outlined
+              dense
+            />
+          </div>
+          <div class="col-4">
+            <q-input
+              v-model="totalAmount"
+              label="Total Amount"
+              outlined
+              dense
+              readonly
+            />
+          </div>
+          <div class="col-4">
+            <q-input
+              v-model="paymentPerPayroll"
+              label="Per Payroll"
+              outlined
+              dense
+              readonly
+            />
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn
+          size="md"
+          padding="xs md"
+          no-caps
+          label="Save Edit"
+          icon-right="send"
+          class="gradient-btn text-white"
+          @click="saveUniformChanges"
+          :loading="loading"
+        />
+      </q-card-actions>
+
+      <q-inner-loading :showing="loading">
+        <q-spinner-ios size="50px" color="primary" />
+      </q-inner-loading>
+    </q-card>
+  </q-dialog>
+
+  <!-- <q-dialog
     v-model="dialog"
     persistent
     position="right"
@@ -41,7 +223,6 @@
       </q-card-section>
       <q-card-section>
         <div class="row">
-          <!-- T-Shirt Section -->
           <div class="col-6">
             <q-checkbox
               keep-color
@@ -99,7 +280,6 @@
             </div>
           </div>
 
-          <!-- Pants Section -->
           <div class="col-6">
             <q-checkbox
               keep-color
@@ -189,14 +369,18 @@
           :loading="loading"
         />
       </q-card-actions>
+      <q-inner-loading :showing="loading">
+        <q-spinner-ios size="50px" color="grey-10" />
+      </q-inner-loading>
     </q-card>
-  </q-dialog>
+  </q-dialog> -->
 </template>
 <script setup>
 import { reactive, ref, watch, computed } from "vue";
 import { useUniformStore } from "src/stores/uniform";
 import { Notify } from "quasar";
 
+const emit = defineEmits(["edited"]);
 const props = defineProps(["edit"]);
 const uniformStore = useUniformStore();
 console.log("EditUniform props:", props);
@@ -237,24 +421,6 @@ const paymentPerPayroll = computed(() => {
   return payments > 0 ? (total / payments).toFixed(2) : 0;
 });
 
-// Open dialog and populate reactive form
-// const openDialog = () => {
-//   const tData = props.edit?.t_shirt?.[0];
-//   const pData = props.edit?.pants?.[0];
-
-//   tShirt.value = !!tData;
-//   pants.value = !!pData;
-
-//   uniform.tShirtsize = tData?.size || "";
-//   uniform.tShirtPcs = tData?.pcs || "";
-//   uniform.tShirtPrice = tData?.price || "";
-
-//   uniform.pantsSize = pData?.size || "";
-//   uniform.pantsPcs = pData?.pcs || "";
-//   uniform.pantsPrice = pData?.price || "";
-
-//   dialog.value = true;
-// };
 const openDialog = () => {
   // Pull uniform item info
   const tData = props.edit?.t_shirt?.[0];
@@ -343,8 +509,10 @@ const saveUniformChanges = async () => {
   };
   try {
     loading.value = true;
-    const response = await uniformStore.updateUnifrom(updated);
+    await uniformStore.updateUnifrom(updated);
     // console.log("Uniform updated successfully:", response.data);
+    emit("edited"); // 🔥 trigger reload in parent
+
     Notify.create({
       message: "Uniform changes saved successfully",
       color: "positive",

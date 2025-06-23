@@ -15,7 +15,7 @@
       position="right"
       backdrop-filter="blur(4px) saturate(150%)"
     >
-      <q-card style="width: 400px; max-width: 80vw">
+      <q-card style="width: 500px; max-width: 80vw">
         <q-card-section
           class="row items-center q-px-md q-py-sm gradient-btn text-white"
         >
@@ -114,6 +114,7 @@ import { useEmployeeAllowance } from "src/stores/allowance";
 import { useEmployeeStore } from "stores/employee";
 import { computed, reactive, ref } from "vue";
 
+const emit = defineEmits(["created"]);
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const employeeAllowanceStore = useEmployeeAllowance();
@@ -125,8 +126,6 @@ const searchLoading = ref(false);
 const openDialog = () => {
   dialog.value = true;
 };
-
-const emit = defineEmits(["created"]);
 
 const search = async () => {
   if (searchKeyword.value.trim()) {
@@ -169,10 +168,11 @@ const save = async () => {
       employeeAllowance
     );
     console.log("data to be save", dataToBeSave);
-    clearEmployeeAllowanceForm();
-    employeeAllowanceRows.value =
-      await employeeAllowanceStore.fetchEmployeeAllowance();
+    emit("created"); // 🔥 trigger reload in parent
     dialog.value = false;
+    clearEmployeeAllowanceForm();
+    // employeeAllowanceRows.value =
+    //   await employeeAllowanceStore.fetchEmployeeAllowance();
   } catch (error) {
     console.log(error);
   } finally {

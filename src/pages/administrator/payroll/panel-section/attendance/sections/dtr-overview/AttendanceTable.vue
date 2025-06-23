@@ -26,19 +26,6 @@
       :filter="filter"
       @request="handleRequest"
     >
-      <!-- <template v-slot:body-cell-name="props">
-        <q-td :props="props">
-          <q-chip
-            outline
-            square
-            :color="getBadgePositionColor(props.row.employee?.position)"
-            class="q-ma-xs"
-            size="md"
-          >
-            {{ formatFullname(props.row.employee) }}
-          </q-chip>
-        </q-td>
-      </template> -->
       <template v-slot:body-cell-position="props">
         <q-td :props="props">
           <q-chip
@@ -62,23 +49,6 @@
             <q-badge outline color="positive">
               {{ helpers.formatTime(props.row.time_in) }}
             </q-badge>
-            <!-- <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
-              Edit Time In
-            </q-tooltip>
-            <q-pop-edit
-              v-model="props.row.time_in"
-              auto-save
-              @submit="updateTimeIn(props.row)"
-              v-slot="scope"
-            >
-              <q-input
-                v-model="props.row.time_in"
-                dense
-                autofocus
-                type="datetime-local"
-                @keyup.enter="scope?.set ? scope.set() : null"
-              />
-            </q-pop-edit> -->
           </template>
           <template v-else>
             <span> - - - </span>
@@ -348,6 +318,11 @@
             <EditDTR :edit="props" />
           </div>
         </q-td>
+      </template>
+      <template #loading>
+        <q-inner-loading showing>
+          <q-spinner-ios size="50px" color="grey-10" />
+        </q-inner-loading>
       </template>
     </q-table>
   </div>

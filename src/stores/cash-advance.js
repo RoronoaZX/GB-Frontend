@@ -5,7 +5,17 @@ import { ref } from "vue";
 
 export const useCashAdvanceStore = defineStore("cash-advance", () => {
   const cashAdvance = ref(null);
-  const cashAdvances = ref([]);
+  const cashAdvances = ref({
+    data: [],
+    total: 0,
+    per_page: 7,
+    current_page: 1,
+    last_page: 1,
+  });
+
+  const currentPage = ref(1);
+  const rowsPerPage = ref(7);
+  const search = ref("");
 
   const fetchCashAdvance = async (page, rowsPerPage, search) => {
     try {
@@ -16,6 +26,7 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
           search,
         },
       });
+      console.log("ca fetch data", response.data);
       cashAdvances.value = response.data;
     } catch (error) {
       console.log("====================================");
@@ -40,20 +51,22 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
   const createCashAdvance = async (data) => {
     try {
       const response = await api.post("/api/cash-advance", data);
-      cashAdvances.value.unshift(response.data);
+      console.log("response cash advance", response.data);
+
       Notify.create({
         type: "positive",
-        // position: "top",
-        message: "Cash Advance save",
-        setTimeout: 1000,
+        message: "Cash Advance saved",
       });
+
+      return response.data;
     } catch (error) {
       console.log("CA error", error);
+
       Notify.create({
         type: "negative",
-        // position: "top",
         message: "Error saving Cash Advance",
       });
+      throw error;
     }
   };
 
@@ -73,6 +86,21 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
     }
   };
 
+  const updateReason = async (data, val) => {
+    console.log("update reasons cash advance", data, val);
+    try {
+      const response = await api.put(
+        "/api/update-employee-cash-advance-reason/" + data.id,
+        {
+          reason: val,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     cashAdvance,
     cashAdvances,
@@ -80,5 +108,6 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
     fetchCashAdvance,
     searchCashAdvance,
     updateAmount,
+    updateReason,
   };
 });
