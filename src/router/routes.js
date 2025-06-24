@@ -75,6 +75,72 @@ const routes = [
       {
         path: "payroll",
         component: () => import("pages/administrator/payroll/PayrollPage.vue"),
+
+        children: [
+          // When a user navigates to /admin/payroll, automatically redirect them to the dashboard tab.
+          {
+            path: "",
+            redirect: {
+              name: "admin-payroll-dashboard",
+            },
+          },
+          // Route for the Dashboard Tab
+          {
+            path: "dashboard",
+            name: "admin-payroll-dashboard",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/dashboard/DashboardPage.vue"
+              ),
+          },
+          // Route for the Employees Tab
+          {
+            path: "employees",
+            name: "admin-payroll-employees",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/employees/EmployeesPage.vue"
+              ),
+          },
+          // Route for the Attendance Tab
+          {
+            path: "attendance",
+            name: "admin-payroll-attendance",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/attendance/AttendancePage.vue"
+              ),
+          },
+          // Route for the Allowances & Deductions Tab
+          {
+            path: "allowances_deductions",
+            name: "admin-payroll-allowances-deductions",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/allowance-deduction/AllowanceDeductionPage.vue"
+              ),
+          },
+          // Route for the Payslips tab
+          {
+            path: "payslip",
+            name: "admin-payroll-payslip",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/payslip/PayslipPage.vue"
+              ),
+
+            children: [
+              {
+                path: "details",
+                name: "admin-payroll-payslip-details",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/payslip/details/ViewDetails.vue"
+                  ),
+              },
+            ],
+          },
+        ],
       },
       {
         path: "devices",

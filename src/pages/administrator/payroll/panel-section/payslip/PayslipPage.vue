@@ -1,279 +1,452 @@
+<!-- <template>
+  <q-page class="q-pa-md">
+    <div class="row q-col-gutter-lg">
+
+      <div
+        v-for="employee in employeesData"
+        :key="employee.id"
+        class="col-12 col-sm-6 col-md-4 col-lg-3"
+      >
+        <q-card
+          class="employee-card"
+          flat
+          bordered
+          :style="getCardStyle(employee.status)"
+        >
+          <q-card-section>
+
+            <div class="row items-center justify-between no-wrap">
+              <q-chip
+                :icon="getStatusChip(employee.status).icon"
+                :color="getStatusChip(employee.status).chipColor"
+                :text-color="getStatusChip(employee.status).chipTextColor"
+                class="text-weight-bold"
+                size="xs"
+              >
+
+                {{ getStatusChip(employee.status).label }}
+              </q-chip>
+
+              <q-btn icon="more_horiz" round flat dense>
+                <q-menu>
+                  <q-list style="min-width: 100px">
+                    <q-item clickable v-close-popup>
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup>
+                      <q-item-section>Delete</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
+
+
+            <div class="text-center q-pt-sm">
+              <q-avatar size="90px">
+
+                <q-img
+                  :src="employee.avatar || defaultAvatar"
+                  :error-src="defaultAvatar"
+                  spinner-color="primary"
+                  style="height: 90px; width: 90px"
+                />
+              </q-avatar>
+              <div class="text-h6 q-mt-md">{{ formatFullname(employee) }}</div>
+              <div class="text-caption text-grey-7">
+                {{ employee.position }}
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-none">
+
+            <div class="text-body2 text-grey-8">
+              <div class="info-line">
+                <q-icon name="storefront" size="sm" class="q-mr-sm" />
+                <span>{{ employee?.designation?.name || "N/A" }}</span>
+              </div>
+
+              <div class="info-line">
+                <q-icon name="schedule" size="sm" class="q-mr-sm" />
+                <span>{{ employee.employment_type.category || "N/A" }}</span>
+              </div>
+            </div>
+
+
+            <div class="row items-center q-mt-sm">
+              <q-icon name="email" size="sm" class="text-grey-8 q-mr-md" />
+              <a
+                :href="'mailto:' + (employee?.user_designation?.email || '')"
+                class="contact-pill"
+              >
+                {{ employee?.user_designation?.email || "N/A" }}
+              </a>
+
+            </div>
+            <div class="row items-center q-mt-sm">
+              <q-icon name="phone" size="sm" class="text-grey-8 q-mr-md" />
+              <span class="contact-pill">{{ employee.phone }}</span>
+            </div>
+          </q-card-section>
+
+
+          <q-card-section class="q-pt-none">
+            <div
+              class="row items-center justify-between text-caption text-grey-7"
+            >
+              <span> </span>
+              <a
+                href="#"
+                :style="getLinkStyle(employee.status)"
+                class="text-weight-bold"
+                style="text-decoration: none"
+              >
+                View details
+                <q-icon name="arrow_forward_ios" size="0.7em" class="q-ml-xs" />
+              </a>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+  </q-page>
+</template> -->
+
 <template>
-  <div align="right">
-    <!-- v-model="searchQuery"
-    @update:model-value="search" -->
-    <q-input
-      class="q-pb-lg"
-      outlined
-      placeholder="Search"
-      debounce="1000"
-      flat
-      dense
-      rounded
-      style="width: 100%; max-width: 600px"
-    >
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-  </div>
-  <div class="row q-gutter-lg">
-    <!-- class="col-xs-12 col-sm-6 col-md-4 col-lg-3" -->
-    <!-- <div v-for="card in cards" :key="card.id">
-      <q-card
-        class="q-pa-md q-mt-lg user-card"
-        style="
-          box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.1);
-          border-radius: 12px;
-          background: linear-gradient(135deg, #f3f4f6, #e0e0e0);
-        "
+  <q-page class="q-pa-md">
+    <div class="row q-col-gutter-lg">
+      <!-- Loop through each employee and create a card -->
+      <div
+        v-for="employee in employeesData"
+        :key="employee.id"
+        class="col-12 col-sm-6 col-md-4 col-lg-3"
       >
-        <q-card-section class="text-center q-pa-md" style="position: relative">
-          <div>
-            <q-avatar
-              size="80px"
-              color="primary"
-              text-color="white"
-              class="q-ma-lg"
-              style="
-                margin: 0 auto;
-                position: absolute;
-                top: -40px;
-                left: 50%;
-                transform: translateX(-50%);
-              "
-            >
-              <img :src="card.avatar" />
-            </q-avatar>
-          </div>
+        <q-card
+          class="employee-card"
+          flat
+          bordered
+          :style="getCardStyle(employee.status)"
+        >
+          <q-card-section>
+            <!-- Top section: Status Chip and More Button -->
+            <div class="row items-center justify-between no-wrap">
+              <q-chip
+                :icon="getStatusChip(employee.status).icon"
+                :color="getStatusChip(employee.status).chipColor"
+                :text-color="getStatusChip(employee.status).chipTextColor"
+                class="text-weight-bold"
+                size="xs"
+              >
+                {{ getStatusChip(employee.status).label }}
+              </q-chip>
 
-          <div class="q-mt-lg" style="margin-top: 60px">
-            <div class="text-h5 text-weight-bold elegant-name text-capitalize">
-              {{ card.name }}
+              <q-btn icon="more_horiz" round flat dense>
+                <q-menu>
+                  <q-list style="min-width: 100px">
+                    <q-item clickable v-close-popup>
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup>
+                      <q-item-section>Delete</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
             </div>
 
-            <q-chip
-              text-color="white"
-              class="q-mt-sm elegant-chip"
-              style="
-                background-color: #3b82f6;
-                font-size: 14px;
-                padding: 5px 10px;
-              "
-            >
-              {{ card.position }}
-            </q-chip>
-            <q-chip
-              outline
-              square
-              color="deep-orange"
-              class="q-mt-sm elegant-chip"
-            >
-              Regular
-            </q-chip>
-          </div>
-        </q-card-section>
-
-        <q-separator class="q-ma-sm" />
-        <div align="center">
-          <q-btn
-            padding="sm md"
-            label="Open Payslip"
-            size="md"
-            class="gradient-btn text-darrk"
-          ></q-btn>
-        </div>
-      </q-card>
-    </div> -->
-
-    <q-intersection v-for="card in cards" :key="card.id" class="q-ma-md">
-      <!-- q-intersection to detect when the card is visible in the viewport -->
-
-      <q-card
-        class="q-pa-md q-mt-lg user-card"
-        style="
-          box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.1);
-          border-radius: 12px;
-          background: linear-gradient(135deg, #2c3e50, #4ca1af);
-        "
-      >
-        <!-- --
-      background: linear-gradient(135deg, #434343, #4b79a1);
- ---
- background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); -
-background: linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b); fro btn
-background: linear-gradient(135deg, #333333, #dd1818); for btn
-background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); ---
-background: linear-gradient(135deg, #232526, #414345, #6b6b6b); btn
-background: linear-gradient(135deg, #232526, #414345, #737373);
-
-
-       -->
-
-        <!-- background: linear-gradient(135deg, #0052d4, #65c7f7, #9cecfb);
-background: linear-gradient(135deg, #b8c6db, #f5f7fa);
-background: linear-gradient(135deg, #fddb92, #d1fdff);
-background: linear-gradient(135deg, #e0eafc, #cfdef3);
--->
-
-        <q-card-section class="text-center q-pa-md" style="position: relative">
-          <div>
-            <q-avatar
-              size="80px"
-              color="primary"
-              text-color="white"
-              class="q-ma-lg"
-              style="
-                margin: 0 auto;
-                position: absolute;
-                top: -40px;
-                left: 50%;
-                transform: translateX(-50%);
-              "
-            >
-              <img :src="card.avatar" />
-            </q-avatar>
-          </div>
-
-          <div class="q-mt-lg" style="margin-top: 60px">
-            <div class="text-h5 text-weight-bold elegant-name text-capitalize">
-              {{ card.name }}
+            <!-- Middle section: Avatar, Name, and Role -->
+            <div class="text-center q-pt-sm">
+              <q-avatar size="90px">
+                <q-img
+                  :src="employee.avatar || defaultAvatar"
+                  :error-src="defaultAvatar"
+                  spinner-color="primary"
+                  style="height: 90px; width: 90px"
+                />
+              </q-avatar>
+              <div class="text-h6 q-mt-md">{{ formatFullname(employee) }}</div>
+              <div class="text-caption text-grey-7">
+                {{ employee.position }}
+              </div>
             </div>
+          </q-card-section>
 
-            <q-chip
-              text-color="white"
-              class="q-mt-sm elegant-chip"
-              style="
-                background-color: #3b82f6;
-                font-size: 14px;
-                padding: 5px 10px;
-              "
+          <!-- ========================================================= -->
+          <!-- START: CORRECTED INFO SECTION                           -->
+          <!-- This block replaces your old info layout with the QList -->
+          <!-- ========================================================= -->
+          <q-card-section class="q-pt-none">
+            <q-list dense>
+              <!-- First row with Designation (main) and Employment Type (side) -->
+              <q-item class="q-px-none">
+                <q-item-section avatar style="min-width: 40px">
+                  <q-icon name="storefront" color="grey-8" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-grey-8 ellipsis">
+                    {{ employee?.designation?.name || "N/A" }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <div class="row items-center no-wrap text-grey-8">
+                    <q-icon name="schedule" class="q-mr-xs" />
+                    <span>{{
+                      employee.employment_type.category || "N/A"
+                    }}</span>
+                  </div>
+                </q-item-section>
+              </q-item>
+
+              <!-- Email Row -->
+              <q-item class="q-px-none">
+                <q-item-section avatar style="min-width: 40px">
+                  <q-icon name="email" color="grey-8" />
+                </q-item-section>
+                <q-item-section>
+                  <a
+                    :href="
+                      'mailto:' + (employee?.user_designation?.email || '')
+                    "
+                    class="contact-pill"
+                  >
+                    {{ employee?.user_designation?.email || "N/A" }}
+                  </a>
+                </q-item-section>
+              </q-item>
+
+              <!-- Phone Row -->
+              <q-item class="q-px-none">
+                <q-item-section avatar style="min-width: 40px">
+                  <q-icon name="phone" color="grey-8" />
+                </q-item-section>
+                <q-item-section>
+                  <a
+                    :href="'tel:' + (employee.phone || '').replace(/\D/g, '')"
+                    class="contact-pill"
+                  >
+                    {{ employee.phone || "N/A" }}
+                  </a>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+          <!-- ========================================================= -->
+          <!-- END: CORRECTED INFO SECTION                             -->
+          <!-- ========================================================= -->
+
+          <!-- Footer section: Join Date and View Details -->
+          <q-card-section class="q-pt-none">
+            <div
+              class="row items-center justify-between text-caption text-grey-7"
             >
-              {{ card.position }}
-            </q-chip>
-            <q-chip outline square color="cyan-12" class="q-mt-sm elegant-chip">
-              Regular
-            </q-chip>
-          </div>
-        </q-card-section>
-
-        <q-separator class="q-ma-sm" />
-        <div align="center">
-          <q-btn
-            padding="sm md"
-            label="Open Payslip"
-            size="md"
-            class="gradient-btn text-darrk"
-          ></q-btn>
-        </div>
-      </q-card>
-    </q-intersection>
-  </div>
+              <span> </span>
+              <a
+                href="#"
+                :style="getLinkStyle(employee.status)"
+                class="text-weight-bold"
+                style="text-decoration: none"
+              >
+                View details
+                <q-icon name="arrow_forward_ios" size="0.7em" class="q-ml-xs" />
+              </a>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+  </q-page>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useEmployeeStore } from "src/stores/employee";
+import { formatFullname } from "src/composables/employeeFunction/useEmployeeFunctions";
+import defaultAvatar from "src/assets/boy-avatar.png";
 
-const cards = ref([
-  {
-    id: 1,
-    name: "John D. Doe",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/boy-avatar.png",
+const employeeStore = useEmployeeStore();
+const employeesSample = computed(() => employeeStore.employees); // Fetch employees from the store
+
+const employeesData = ref([]);
+
+const fetchEmployees = async () => {
+  try {
+    // Simulate fetching data from the store
+    employeesSample.value =
+      await employeeStore.fetchEmployeeWithEmploymentTypeAndDesignation();
+    // Assign the fetched data to the employeesData ref
+    const { data, current_page, per_page, total } = employeesSample.value;
+    employeesData.value = data;
+    console.log("Fetched employees:", employeesData.value);
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+  }
+};
+
+onMounted(() => {
+  fetchEmployees();
+});
+// Fetch employees from the store
+
+// --- DATA ---
+// UPDATED: Employee data with realistic avatar placeholders
+// const employees = ref([
+//   // https://i.pravatar.cc/150?img=12
+//   {
+//     id: "#EMP01",
+//     name: "Bagus Fikri",
+//     role: "CEO",
+//     avatar: "", // Realistic photo
+//     status: "Active",
+//     department: "Managerial",
+//     employmentType: "Fulltime",
+//     email: "bagusfikri@gmail.com",
+//     phone: "+62 123 123 123",
+//     joinDate: "29 Oct, 2020",
+//   },
+//   {
+//     id: "#EMP02",
+//     name: "Ihdizein",
+//     role: "Illustrator",
+//     avatar: "https://i.pravatar.cc/150?img=1", // Realistic photo
+//     status: "Active",
+//     department: "Managerial",
+//     employmentType: "Fulltime",
+//     email: "ihdizain@gmail.com",
+//     phone: "(40) 768 082 716",
+//     joinDate: "1 Feb, 2019",
+//   },
+//   {
+//     id: "#EMP03",
+//     name: "Mufti Hidayat",
+//     role: "Project Manager",
+//     avatar: "https://i.pravatar.cc/150?img=32", // Realistic photo
+//     status: "Active",
+//     department: "Managerial",
+//     employmentType: "Fulltime",
+//     email: "muftih@gmail.com",
+//     phone: "(63) 130 689 256",
+//     joinDate: "1 Feb, 2021",
+//   },
+//   {
+//     id: "#EMP04",
+//     name: "Fauzan Ardhiansyah",
+//     role: "UI Designer",
+//     avatar: "https://i.pravatar.cc/150?img=60", // Realistic photo
+//     status: "Active",
+//     department: "Managerial",
+//     employmentType: "Fulltime",
+//     email: "heloozan@gmail.com",
+//     phone: "(64) 630 613 343",
+//     joinDate: "21 Sep, 2018",
+//   },
+//   // Added other statuses for completeness, they can be removed if not needed
+//   {
+//     id: "#EMP05",
+//     name: "Raihan Fikri",
+//     role: "QC & Research",
+//     avatar: "https://i.pravatar.cc/150?img=5",
+//     status: "Invited",
+//     department: "Human Resources",
+//     employmentType: "Fulltime",
+//     email: "raihan@gmail.com",
+//     phone: "(+62) 812 345 678",
+//     joinDate: "5 Mar, 2022",
+//   },
+// ]);
+
+// --- HELPERS ---
+// UPDATED: This object defines the styling for each status type to match the new image
+const statusConfig = {
+  Active: {
+    label: "Active",
+    chipColor: "green-6", // grey chip background
+    chipTextColor: "white", // white grey text/icon
+    icon: "lens",
+    borderColor: "#68B984", // Green border at the bottom
   },
-  {
-    id: 2,
-    name: "Jane Doe",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar2.jpg",
+  Invited: {
+    label: "Invited",
+    chipColor: "grey-10",
+    chipTextColor: "white",
+    icon: "check",
+    borderColor: "#333333",
   },
-  {
-    id: 3,
-    name: "Sam Smith",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar1.jpg",
+  Inactive: {
+    label: "Inactive",
+    chipColor: "grey-4",
+    chipTextColor: "grey-8",
+    icon: "pause",
+    borderColor: "#BDBDBD",
   },
-  {
-    id: 4,
-    name: "Chris Evans",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar4.jpg",
-  },
-  {
-    id: 5,
-    name: "Alex Doesss",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar6.jpg",
-  },
-  {
-    id: 6,
-    name: "John D. Doe",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/boy-avatar.png",
-  },
-  {
-    id: 7,
-    name: "Jane Doe",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar2.jpg",
-  },
-  {
-    id: 8,
-    name: "Sam Smith",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar1.jpg",
-  },
-  {
-    id: 9,
-    name: "Chris Evans",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar4.jpg",
-  },
-  {
-    id: 10,
-    name: "Alex Doe",
-    position: "Admin",
-    color: "primary",
-    avatar: "https://cdn.quasar.dev/img/avatar6.jpg",
-  },
-]);
+};
+
+function getStatusChip(status) {
+  return statusConfig[status] || statusConfig.Inactive;
+}
+
+function getCardStyle(status) {
+  const color = (statusConfig[status] || statusConfig.Inactive).borderColor;
+  return {
+    borderBottom: `4px solid ${color}`,
+  };
+}
+
+function getLinkStyle(status) {
+  const color = (statusConfig[status] || statusConfig.Inactive).borderColor;
+  return {
+    color: color,
+  };
+}
 </script>
 
 <style lang="scss" scoped>
-.user-card {
-  border-radius: 15px;
-  background: #fff;
-  color: #333;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.elegant-name {
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  color: #ffffff;
+.employee-card {
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: white;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+  }
 }
 
-.elegant-chip {
-  background-color: #007bff;
+.details-box {
+  background-color: #f8f9fa;
   border-radius: 8px;
-  color: #fff;
+  font-size: 0.8rem;
 }
 
-.elegant-chip-outline {
-  border-color: #007bff;
-  color: #007bff;
+.q-avatar img {
+  object-fit: cover;
+  object-position: center;
 }
-.gradient-btn {
-  background: linear-gradient(120deg, #16cc8c, #93f9b9);
-  border: none;
+
+.contact-pill {
+  /* Core layout styles */
+  display: block;
+  width: 100%;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background-color: #eaf2ff;
+  color: #0052cc;
+
+  /* Text handling and appearance */
+  font-size: 0.9em;
+  text-decoration: none;
+  cursor: pointer;
+
+  /* --- KEY ADDITIONS FOR ELLIPSIS --- */
+  white-space: nowrap; /* Prevents the text from wrapping to a new line */
+  overflow: hidden; /* Hides any text that overflows the container */
+  text-overflow: ellipsis; /* Adds the "..." to indicate truncated text */
+  /* text-align: left; is the default and looks best with ellipsis */
+
+  transition: background-color 0.3s;
+}
+
+.contact-pill:hover {
+  background-color: #dbe8ff;
 }
 </style>

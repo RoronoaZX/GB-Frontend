@@ -13,10 +13,10 @@
       class="user-tab justify-center q-ma-md"
       align="justify"
       active-color="teal"
-      indicator-class="q-tab-indicator-green"
+      indicator-color="teal"
     >
       <!-- Dashboard Tab -->
-      <q-tab name="dashboard">
+      <q-route-tab :to="{ name: 'admin-payroll-dashboard' }" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="insert_chart"
@@ -26,10 +26,10 @@
           <div class="text-weight-bold">Dashboard</div>
           <!-- <div class="text-caption text-grey-6">Recent Updates & Reports</div> -->
         </div>
-      </q-tab>
+      </q-route-tab>
 
       <!-- Employees Tab -->
-      <q-tab name="employees">
+      <q-route-tab :to="{ name: 'admin-payroll-employees' }" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="group"
@@ -39,10 +39,10 @@
           <div class="text-weight-bold text-lg">Employees</div>
           <!-- <div class="text-caption text-grey-6">List & New Entries</div> -->
         </div>
-      </q-tab>
+      </q-route-tab>
 
       <!-- Salary Tab -->
-      <q-tab name="attendance">
+      <q-route-tab :to="{ name: 'admin-payroll-attendance' }" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="access_time"
@@ -52,10 +52,10 @@
           <div class="text-weight-bold text-lg">Attendance</div>
           <!-- <div class="text-caption text-grey-6">Salary Report</div> -->
         </div>
-      </q-tab>
+      </q-route-tab>
 
       <!-- Allowances & Deductions Tab -->
-      <q-tab name="allowances">
+      <q-route-tab :to="{ name: 'admin-payroll-allowances-deductions' }" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="add_circle_outline"
@@ -64,10 +64,10 @@
           />
           <div class="text-weight-bold text-lg">Allowances & Deductions</div>
         </div>
-      </q-tab>
+      </q-route-tab>
 
       <!-- Administration Tab -->
-      <q-tab name="payslip">
+      <q-route-tab :to="{ name: 'admin-payroll-payslip' }" exact>
         <div class="q-pa-sm q-gutter-sm flex flex-column items-center">
           <q-icon
             name="payment"
@@ -77,7 +77,7 @@
           <div class="text-weight-bold text-lg">Payslip</div>
           <!-- <div class="text-caption text-grey-6">Department, Grade & Settings</div> -->
         </div>
-      </q-tab>
+      </q-route-tab>
     </q-tabs>
     <q-tab-panels v-model="tab" animated style="background-color: #f7f8fc">
       <q-tab-panel name="dashboard">
@@ -96,6 +96,9 @@
         <PayslipPage />
       </q-tab-panel>
     </q-tab-panels>
+    <div style="background-color: #f7f8fc">
+      <router-view />
+    </div>
   </q-page>
 
   <!--

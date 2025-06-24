@@ -29,6 +29,24 @@ export const useEmployeeStore = defineStore("employees", () => {
     employees.value = response.data;
     console.log("employees.value", employees.value);
   };
+  const fetchEmployeeWithEmploymentTypeAndDesignation = async (
+    page,
+    rowsPerPage,
+    search
+  ) => {
+    const response = await api.get(
+      "/api/fetchEmployeeWithEmploymentTypeAndDesignation",
+      {
+        params: {
+          page,
+          per_page: rowsPerPage,
+          search,
+        },
+      }
+    );
+    employees.value = response.data;
+    console.log("employees.value", employees.value);
+  };
   const createEmployee = async (data) => {
     // Loading.show();
     try {
@@ -323,5 +341,6 @@ export const useEmployeeStore = defineStore("employees", () => {
     updateEmployeebirthdate,
     updateEmployeeEmploymentType,
     searchPersonInCharge,
+    fetchEmployeeWithEmploymentTypeAndDesignation,
   };
 });

@@ -51,14 +51,22 @@ export const updateEmployeeBirthdate = async (data, val) => {
 };
 
 export function formatFullname(row) {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+  const capitalizeWords = (str) =>
+    str
+      ? str
+          .toLowerCase()
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")
+      : "";
 
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const firstname = row.firstname
+    ? capitalizeWords(row.firstname)
+    : "No Firstname";
   const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
+    ? capitalizeWords(row.middlename).charAt(0) + "."
     : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+  const lastname = row.lastname ? capitalizeWords(row.lastname) : "No Lastname";
 
   return `${firstname} ${middlename} ${lastname}`;
 }

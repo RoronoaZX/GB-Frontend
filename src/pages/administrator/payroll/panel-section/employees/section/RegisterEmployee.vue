@@ -235,6 +235,7 @@ const save = async () => {
   const employeeForm = {
     ...employeeInfo,
     employment_type_id: employeeInfo.employment_type.value,
+    status: "Active",
   };
   console.log("employee", employeeForm);
   const data = await employeeStore.createEmployee(employeeForm);
