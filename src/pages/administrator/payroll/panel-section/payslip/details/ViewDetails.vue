@@ -51,7 +51,7 @@
       <q-tab name="time" icon="schedule" label="Time Management" />
     </q-tabs>
     <q-separator />
-    <q-tab-panels v-model="tab" animated>
+    <q-tab-panels v-model="tab" animated transparent>
       <!-- Personal Information Tab -->
       <q-tab-panel name="personal">
         <div class="row q-col-gutter-lg q-mt-none">
@@ -98,6 +98,14 @@
       </q-tab-panel>
     </q-tab-panels>
     <!-- Main Content -->
+    <q-inner-loading
+      :showing="goBackLoading"
+      label="Loading..."
+      label-class="text-primary"
+      label-style="font-size: 1.1em"
+    >
+      <q-spinner-ios size="50px" color="primary" />
+    </q-inner-loading>
   </q-page>
 </template>
 
@@ -124,6 +132,7 @@ const isLoading = ref(true);
 const tab = ref("personal");
 const router = useRouter();
 const route = useRoute();
+const goBackLoading = ref(false);
 
 const employee_id = route.params.employee_id;
 console.log("Employee ID:", employee_id);
@@ -152,7 +161,11 @@ const fetchEmployeeDetails = async () => {
 };
 
 const goBack = () => {
-  router.push({ name: "admin-payroll-payslip" });
+  goBackLoading.value = true;
+  setTimeout(() => {
+    goBackLoading.value = false;
+    router.push({ name: "admin-payroll-payslip" });
+  }, 5000);
 };
 
 // This function now handles the 'edit' event from any card

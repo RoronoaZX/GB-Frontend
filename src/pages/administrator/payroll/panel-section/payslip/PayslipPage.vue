@@ -36,7 +36,6 @@
             <!-- Info Section Skeleton -->
             <q-card-section class="q-pt-none">
               <q-list dense>
-                <!-- First row skeleton -->
                 <q-item class="q-px-none">
                   <q-item-section avatar style="min-width: 40px">
                     <q-skeleton type="QAvatar" size="24px" />
@@ -48,8 +47,6 @@
                     <q-skeleton type="text" width="65px" />
                   </q-item-section>
                 </q-item>
-
-                <!-- Email Row skeleton -->
                 <q-item class="q-px-none">
                   <q-item-section avatar style="min-width: 40px">
                     <q-skeleton type="QAvatar" size="24px" />
@@ -58,8 +55,6 @@
                     <q-skeleton type="text" width="85%" />
                   </q-item-section>
                 </q-item>
-
-                <!-- Phone Row skeleton -->
                 <q-item class="q-px-none">
                   <q-item-section avatar style="min-width: 40px">
                     <q-skeleton type="QAvatar" size="24px" />
@@ -81,171 +76,177 @@
         </div>
       </template>
 
-      <!-- Loop through each employee and create a card -->
-      <div
-        v-for="employee in employeesData"
-        :key="employee.id"
-        class="col-12 col-sm-6 col-md-4 col-lg-3"
-      >
-        <q-card
-          class="employee-card"
-          flat
-          bordered
-          :style="getCardStyle(employee.status)"
+      <!-- ========================================================= -->
+      <!-- START: EMPLOYEE CARDS (Main Content)                    -->
+      <!-- ========================================================= -->
+      <template v-else>
+        <div
+          v-for="employee in employeesData"
+          :key="employee.id"
+          class="col-12 col-sm-6 col-md-4 col-lg-3"
         >
-          <q-card-section>
-            <!-- Top section: Status Chip and More Button -->
-            <div class="row items-center justify-between no-wrap">
-              <q-chip
-                :icon="getStatusChip(employee.status).icon"
-                :color="getStatusChip(employee.status).chipColor"
-                :text-color="getStatusChip(employee.status).chipTextColor"
-                class="text-weight-bold"
-                size="xs"
-              >
-                {{ getStatusChip(employee.status).label }}
-              </q-chip>
-
-              <q-btn icon="more_horiz" round flat dense>
-                <q-menu>
-                  <q-list style="min-width: 100px">
-                    <q-item clickable v-close-popup>
-                      <q-item-section>Edit</q-item-section>
-                    </q-item>
-                    <q-item clickable v-close-popup>
-                      <q-item-section>Delete</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </div>
-
-            <!-- Middle section: Avatar, Name, and Role -->
-            <div class="text-center q-pt-sm">
-              <q-avatar size="90px">
-                <q-img
-                  :src="employee.avatar || defaultAvatar"
-                  :error-src="defaultAvatar"
-                  spinner-color="primary"
-                  style="height: 90px; width: 90px"
-                />
-              </q-avatar>
-              <div class="text-h6 q-mt-md">{{ formatFullname(employee) }}</div>
-              <div class="text-caption text-grey-7">
-                {{ employee.position }}
+          <q-card
+            class="employee-card"
+            flat
+            bordered
+            :style="getCardStyle(employee.status)"
+          >
+            <q-card-section>
+              <!-- Top section: Status Chip and More Button -->
+              <div class="row items-center justify-between no-wrap">
+                <q-chip
+                  :icon="getStatusChip(employee.status).icon"
+                  :color="getStatusChip(employee.status).chipColor"
+                  :text-color="getStatusChip(employee.status).chipTextColor"
+                  class="text-weight-bold"
+                  size="xs"
+                >
+                  {{ getStatusChip(employee.status).label }}
+                </q-chip>
+                <q-btn icon="more_horiz" round flat dense>
+                  <q-menu>
+                    <q-list style="min-width: 100px">
+                      <q-item clickable v-close-popup>
+                        <q-item-section>Edit</q-item-section>
+                      </q-item>
+                      <q-item clickable v-close-popup>
+                        <q-item-section>Delete</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
               </div>
-            </div>
-          </q-card-section>
 
-          <!-- ========================================================= -->
-          <!-- START: CORRECTED INFO SECTION                           -->
-          <!-- This block replaces your old info layout with the QList -->
-          <!-- ========================================================= -->
-          <q-card-section class="q-pt-none">
-            <q-list dense>
-              <!-- First row with Designation (main) and Employment Type (side) -->
-              <q-item class="q-px-none">
-                <q-item-section avatar style="min-width: 40px">
-                  <q-icon name="storefront" color="grey-8" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-grey-8 ellipsis">
-                    {{ employee?.designation?.name || "N/A" }}
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <div class="row items-center no-wrap text-grey-8">
-                    <q-icon name="schedule" class="q-mr-xs" />
-                    <span>{{
-                      employee.employment_type.category || "N/A"
-                    }}</span>
-                  </div>
-                </q-item-section>
-              </q-item>
+              <!-- Middle section: Avatar, Name, and Role -->
+              <div class="text-center q-pt-sm">
+                <q-avatar size="90px">
+                  <q-img
+                    :src="employee.avatar || defaultAvatar"
+                    :error-src="defaultAvatar"
+                    spinner-color="primary"
+                    style="height: 90px; width: 90px"
+                  />
+                </q-avatar>
+                <div class="text-h6 q-mt-md">
+                  {{ formatFullname(employee) }}
+                </div>
+                <div class="text-caption text-grey-7">
+                  {{ employee.position }}
+                </div>
+              </div>
+            </q-card-section>
 
-              <!-- Email Row -->
-              <q-item class="q-px-none">
-                <q-item-section avatar style="min-width: 40px">
-                  <q-icon name="email" color="grey-8" />
-                </q-item-section>
-                <q-item-section>
-                  <a
-                    :href="
-                      'mailto:' + (employee?.user_designation?.email || '')
-                    "
-                    class="contact-pill"
-                  >
-                    {{ employee?.user_designation?.email || "N/A" }}
-                  </a>
-                </q-item-section>
-              </q-item>
+            <!-- Info Section -->
+            <q-card-section class="q-pt-none">
+              <q-list dense>
+                <!-- Designation and Employment Type -->
+                <q-item class="q-px-none">
+                  <q-item-section avatar style="min-width: 40px">
+                    <q-icon name="storefront" color="grey-8" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-grey-8 ellipsis">
+                      {{ employee?.designation?.name || "N/A" }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <div class="row items-center no-wrap text-grey-8">
+                      <q-icon name="schedule" class="q-mr-xs" />
+                      <span>{{
+                        employee.employment_type.category || "N/A"
+                      }}</span>
+                    </div>
+                  </q-item-section>
+                </q-item>
 
-              <!-- Phone Row -->
-              <q-item class="q-px-none">
-                <q-item-section avatar style="min-width: 40px">
-                  <q-icon name="phone" color="grey-8" />
-                </q-item-section>
-                <q-item-section>
-                  <a
-                    :href="'tel:' + (employee.phone || '').replace(/\D/g, '')"
-                    class="contact-pill"
-                  >
-                    {{ employee.phone || "N/A" }}
-                  </a>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card-section>
-          <!-- ========================================================= -->
-          <!-- END: CORRECTED INFO SECTION                             -->
-          <!-- ========================================================= -->
+                <!-- Email Row -->
+                <q-item class="q-px-none">
+                  <q-item-section avatar style="min-width: 40px">
+                    <q-icon name="email" color="grey-8" />
+                  </q-item-section>
+                  <q-item-section>
+                    <a
+                      :href="
+                        'mailto:' + (employee?.user_designation?.email || '')
+                      "
+                      class="contact-pill"
+                    >
+                      {{ employee?.user_designation?.email || "N/A" }}
+                    </a>
+                  </q-item-section>
+                </q-item>
 
-          <!-- Footer section: Join Date and View Details -->
-          <q-card-section class="q-pt-none">
-            <div
-              class="row items-center justify-between text-caption text-grey-7"
+                <!-- Phone Row -->
+                <q-item class="q-px-none">
+                  <q-item-section avatar style="min-width: 40px">
+                    <q-icon name="phone" color="grey-8" />
+                  </q-item-section>
+                  <q-item-section>
+                    <a
+                      :href="'tel:' + (employee.phone || '').replace(/\D/g, '')"
+                      class="contact-pill"
+                    >
+                      {{ employee.phone || "N/A" }}
+                    </a>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+
+            <!-- Footer section: View Details -->
+            <q-card-section class="q-pt-none">
+              <div
+                class="row items-center justify-between text-caption text-grey-7"
+              >
+                <span> </span>
+                <!-- CORRECTED LINK: Use <a> tag with @click.prevent -->
+                <a
+                  href="#"
+                  :style="getLinkStyle(employee.status)"
+                  class="text-weight-bold"
+                  style="text-decoration: none; cursor: pointer"
+                  @click.prevent="handleViewDetailsClick(employee)"
+                >
+                  View details
+                  <q-icon
+                    name="arrow_forward_ios"
+                    size="0.7em"
+                    class="q-ml-xs"
+                  />
+                </a>
+              </div>
+            </q-card-section>
+
+            <q-inner-loading
+              :showing="goBackLoading"
+              label="Returning..."
+              label-class="text-primary"
+              label-style="font-size: 1.1em"
             >
-              <span> </span>
-              <router-link
-                :to="{
-                  name: 'EmployeeProfile',
-                  params: { employee_id: employee.id },
-                }"
-                :style="getLinkStyle(employee.status)"
-                class="text-weight-bold"
-                style="text-decoration: none"
-              >
-                View details
-                <q-icon name="arrow_forward_ios" size="0.7em" class="q-ml-xs" />
-              </router-link>
-              <!-- <a
-                href="#"
-                :style="getLinkStyle(employee.status)"
-                class="text-weight-bold"
-                style="text-decoration: none"
-              >
-                View details
-                <q-icon name="arrow_forward_ios" size="0.7em" class="q-ml-xs" />
-              </a> -->
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
+              <q-spinner-ios size="50px" color="primary" />
+            </q-inner-loading>
+          </q-card>
+        </div>
+      </template>
     </div>
   </q-page>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { useEmployeeStore } from "src/stores/employee";
 import { formatFullname } from "src/composables/employeeFunction/useEmployeeFunctions";
 import defaultAvatar from "src/assets/boy-avatar.png";
 
 const employeeStore = useEmployeeStore();
-const employeesSample = computed(() => employeeStore.employees); // Fetch employees from the store
+const router = useRouter(); // Get the router instance
 
+// Reactive state
+const employeesSample = computed(() => employeeStore.employees);
 const employeesData = ref([]);
-const loading = ref(true);
+const loading = ref(true); // For initial page skeleton
+const loadingEmployeeId = ref(null); // For individual card loading
 
 const fetchEmployees = async () => {
   loading.value = true; // Set loading to true before fetching
@@ -268,15 +269,42 @@ onMounted(() => {
   fetchEmployees();
 });
 
+// Click handler for "View details"
+const handleViewDetailsClick = (employee) => {
+  // Immediately show the loading spinner for the clicked card
+  loadingEmployeeId.value = employee.id;
+
+  // Set a failsafe timeout. After 5 seconds, hide the spinner
+  // for this card, no matter what. This prevents it from getting stuck.
+  setTimeout(() => {
+    if (loadingEmployeeId.value === employee.id) {
+      loadingEmployeeId.value = null;
+    }
+  }, 5000);
+
+  // Navigate to the new page after a short delay (300ms)
+  // This gives the user time to see the spinner animation start.
+  setTimeout(() => {
+    router.push({
+      name: "EmployeeProfile",
+      params: { employee_id: employee.id },
+    });
+  }, 300);
+};
+
+// Clean up loading state when leaving the page
+onBeforeRouteLeave(() => {
+  loadingEmployeeId.value = null;
+});
+
 // --- HELPERS ---
-// UPDATED: This object defines the styling for each status type to match the new image
 const statusConfig = {
   Active: {
     label: "Active",
-    chipColor: "green-6", // grey chip background
-    chipTextColor: "white", // white grey text/icon
+    chipColor: "green-6",
+    chipTextColor: "white",
     icon: "lens",
-    borderColor: "#68B984", // Green border at the bottom
+    borderColor: "#68B984",
   },
   Invited: {
     label: "Invited",
@@ -354,7 +382,6 @@ function getLinkStyle(status) {
   white-space: nowrap; /* Prevents the text from wrapping to a new line */
   overflow: hidden; /* Hides any text that overflows the container */
   text-overflow: ellipsis; /* Adds the "..." to indicate truncated text */
-  /* text-align: left; is the default and looks best with ellipsis */
 
   transition: background-color 0.3s;
 }
