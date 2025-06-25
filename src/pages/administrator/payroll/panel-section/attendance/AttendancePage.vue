@@ -10,13 +10,15 @@
         align="justify"
         class="gradient-btn"
       >
-        <q-tab
+        <q-route-tab
+          :to="{ name: 'admin-payroll-attendance-dtr-overview' }"
           class="text-white"
           name="dtr_overview"
           icon="event_available"
           label="DTR Overview"
         />
-        <q-tab
+        <q-route-tab
+          :to="{ name: 'admin-payroll-attendance-summary' }"
           class="text-white"
           name="attendance_summary"
           icon="calendar_month"
@@ -24,15 +26,17 @@
         />
       </q-tabs>
     </div>
-    <q-tab-panels v-model="tab" animated>
+    <div>
+      <router-view />
+    </div>
+    <!-- <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="dtr_overview">
         <AttendancceTable />
       </q-tab-panel>
       <q-tab-panel name="attendance_summary">
         <AttendanceSummary />
-        <!-- <EmployeeAttendanceButton align="right" /> -->
       </q-tab-panel>
-    </q-tab-panels>
+    </q-tab-panels> -->
   </div>
 </template>
 

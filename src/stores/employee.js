@@ -47,6 +47,13 @@ export const useEmployeeStore = defineStore("employees", () => {
     employees.value = response.data;
     console.log("employees.value", employees.value);
   };
+  const fetchCertianEmployeeWithEmploymentTypeAndDesignation = async (id) => {
+    const response = await api.get(
+      `/api/fetchCertianEmployeeWithEmploymentTypeAndDesignation/${id}`
+    );
+    employees.value = response.data;
+    console.log("employees.value", employees.value);
+  };
   const createEmployee = async (data) => {
     // Loading.show();
     try {
@@ -342,5 +349,6 @@ export const useEmployeeStore = defineStore("employees", () => {
     updateEmployeeEmploymentType,
     searchPersonInCharge,
     fetchEmployeeWithEmploymentTypeAndDesignation,
+    fetchCertianEmployeeWithEmploymentTypeAndDesignation,
   };
 });

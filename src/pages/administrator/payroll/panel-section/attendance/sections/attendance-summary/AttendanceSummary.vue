@@ -1,5 +1,5 @@
 <template>
-  <div class="q-mb-md" align="right">
+  <div class="q-my-md" align="right">
     <q-input
       v-model="searchKeyword"
       @update:model-value="search"

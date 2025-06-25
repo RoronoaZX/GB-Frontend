@@ -1,121 +1,86 @@
-<!-- <template>
-  <q-page class="q-pa-md">
-    <div class="row q-col-gutter-lg">
-
-      <div
-        v-for="employee in employeesData"
-        :key="employee.id"
-        class="col-12 col-sm-6 col-md-4 col-lg-3"
-      >
-        <q-card
-          class="employee-card"
-          flat
-          bordered
-          :style="getCardStyle(employee.status)"
-        >
-          <q-card-section>
-
-            <div class="row items-center justify-between no-wrap">
-              <q-chip
-                :icon="getStatusChip(employee.status).icon"
-                :color="getStatusChip(employee.status).chipColor"
-                :text-color="getStatusChip(employee.status).chipTextColor"
-                class="text-weight-bold"
-                size="xs"
-              >
-
-                {{ getStatusChip(employee.status).label }}
-              </q-chip>
-
-              <q-btn icon="more_horiz" round flat dense>
-                <q-menu>
-                  <q-list style="min-width: 100px">
-                    <q-item clickable v-close-popup>
-                      <q-item-section>Edit</q-item-section>
-                    </q-item>
-                    <q-item clickable v-close-popup>
-                      <q-item-section>Delete</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </div>
-
-
-            <div class="text-center q-pt-sm">
-              <q-avatar size="90px">
-
-                <q-img
-                  :src="employee.avatar || defaultAvatar"
-                  :error-src="defaultAvatar"
-                  spinner-color="primary"
-                  style="height: 90px; width: 90px"
-                />
-              </q-avatar>
-              <div class="text-h6 q-mt-md">{{ formatFullname(employee) }}</div>
-              <div class="text-caption text-grey-7">
-                {{ employee.position }}
-              </div>
-            </div>
-          </q-card-section>
-
-          <q-card-section class="q-pt-none">
-
-            <div class="text-body2 text-grey-8">
-              <div class="info-line">
-                <q-icon name="storefront" size="sm" class="q-mr-sm" />
-                <span>{{ employee?.designation?.name || "N/A" }}</span>
-              </div>
-
-              <div class="info-line">
-                <q-icon name="schedule" size="sm" class="q-mr-sm" />
-                <span>{{ employee.employment_type.category || "N/A" }}</span>
-              </div>
-            </div>
-
-
-            <div class="row items-center q-mt-sm">
-              <q-icon name="email" size="sm" class="text-grey-8 q-mr-md" />
-              <a
-                :href="'mailto:' + (employee?.user_designation?.email || '')"
-                class="contact-pill"
-              >
-                {{ employee?.user_designation?.email || "N/A" }}
-              </a>
-
-            </div>
-            <div class="row items-center q-mt-sm">
-              <q-icon name="phone" size="sm" class="text-grey-8 q-mr-md" />
-              <span class="contact-pill">{{ employee.phone }}</span>
-            </div>
-          </q-card-section>
-
-
-          <q-card-section class="q-pt-none">
-            <div
-              class="row items-center justify-between text-caption text-grey-7"
-            >
-              <span> </span>
-              <a
-                href="#"
-                :style="getLinkStyle(employee.status)"
-                class="text-weight-bold"
-                style="text-decoration: none"
-              >
-                View details
-                <q-icon name="arrow_forward_ios" size="0.7em" class="q-ml-xs" />
-              </a>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-    </div>
-  </q-page>
-</template> -->
-
 <template>
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-lg">
+      <!-- ========================================================= -->
+      <!-- START: SKELETON LOADER                                  -->
+      <!-- This block is displayed when `loading` is true          -->
+      <!-- ========================================================= -->
+      <template v-if="loading">
+        <div v-for="n in 8" :key="n" class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <q-card flat bordered>
+            <q-card-section>
+              <!-- Top section: Status Chip and More Button -->
+              <div class="row items-center justify-between no-wrap">
+                <q-skeleton type="QChip" width="85px" height="24px" />
+                <q-skeleton type="QBtn" />
+              </div>
+
+              <!-- Middle section: Avatar, Name, and Role -->
+              <div class="text-center q-pt-sm">
+                <q-skeleton type="QAvatar" size="90px" class="q-mx-auto" />
+                <q-skeleton
+                  type="text"
+                  height="28px"
+                  width="60%"
+                  class="q-mt-md q-mx-auto"
+                />
+                <q-skeleton
+                  type="text"
+                  height="20px"
+                  width="40%"
+                  class="q-mt-xs q-mx-auto"
+                />
+              </div>
+            </q-card-section>
+
+            <!-- Info Section Skeleton -->
+            <q-card-section class="q-pt-none">
+              <q-list dense>
+                <!-- First row skeleton -->
+                <q-item class="q-px-none">
+                  <q-item-section avatar style="min-width: 40px">
+                    <q-skeleton type="QAvatar" size="24px" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-skeleton type="text" width="60%" />
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-skeleton type="text" width="65px" />
+                  </q-item-section>
+                </q-item>
+
+                <!-- Email Row skeleton -->
+                <q-item class="q-px-none">
+                  <q-item-section avatar style="min-width: 40px">
+                    <q-skeleton type="QAvatar" size="24px" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-skeleton type="text" width="85%" />
+                  </q-item-section>
+                </q-item>
+
+                <!-- Phone Row skeleton -->
+                <q-item class="q-px-none">
+                  <q-item-section avatar style="min-width: 40px">
+                    <q-skeleton type="QAvatar" size="24px" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-skeleton type="text" width="70%" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+
+            <!-- Footer section skeleton -->
+            <q-card-section class="q-pt-none">
+              <div class="row items-center justify-end">
+                <q-skeleton type="text" width="90px" height="20px" />
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </template>
+
       <!-- Loop through each employee and create a card -->
       <div
         v-for="employee in employeesData"
@@ -241,7 +206,19 @@
               class="row items-center justify-between text-caption text-grey-7"
             >
               <span> </span>
-              <a
+              <router-link
+                :to="{
+                  name: 'EmployeeProfile',
+                  params: { employee_id: employee.id },
+                }"
+                :style="getLinkStyle(employee.status)"
+                class="text-weight-bold"
+                style="text-decoration: none"
+              >
+                View details
+                <q-icon name="arrow_forward_ios" size="0.7em" class="q-ml-xs" />
+              </router-link>
+              <!-- <a
                 href="#"
                 :style="getLinkStyle(employee.status)"
                 class="text-weight-bold"
@@ -249,7 +226,7 @@
               >
                 View details
                 <q-icon name="arrow_forward_ios" size="0.7em" class="q-ml-xs" />
-              </a>
+              </a> -->
             </div>
           </q-card-section>
         </q-card>
@@ -268,8 +245,10 @@ const employeeStore = useEmployeeStore();
 const employeesSample = computed(() => employeeStore.employees); // Fetch employees from the store
 
 const employeesData = ref([]);
+const loading = ref(true);
 
 const fetchEmployees = async () => {
+  loading.value = true; // Set loading to true before fetching
   try {
     // Simulate fetching data from the store
     employeesSample.value =
@@ -280,80 +259,14 @@ const fetchEmployees = async () => {
     console.log("Fetched employees:", employeesData.value);
   } catch (error) {
     console.error("Error fetching employees:", error);
+  } finally {
+    loading.value = false; // Set loading to false after fetching
   }
 };
 
 onMounted(() => {
   fetchEmployees();
 });
-// Fetch employees from the store
-
-// --- DATA ---
-// UPDATED: Employee data with realistic avatar placeholders
-// const employees = ref([
-//   // https://i.pravatar.cc/150?img=12
-//   {
-//     id: "#EMP01",
-//     name: "Bagus Fikri",
-//     role: "CEO",
-//     avatar: "", // Realistic photo
-//     status: "Active",
-//     department: "Managerial",
-//     employmentType: "Fulltime",
-//     email: "bagusfikri@gmail.com",
-//     phone: "+62 123 123 123",
-//     joinDate: "29 Oct, 2020",
-//   },
-//   {
-//     id: "#EMP02",
-//     name: "Ihdizein",
-//     role: "Illustrator",
-//     avatar: "https://i.pravatar.cc/150?img=1", // Realistic photo
-//     status: "Active",
-//     department: "Managerial",
-//     employmentType: "Fulltime",
-//     email: "ihdizain@gmail.com",
-//     phone: "(40) 768 082 716",
-//     joinDate: "1 Feb, 2019",
-//   },
-//   {
-//     id: "#EMP03",
-//     name: "Mufti Hidayat",
-//     role: "Project Manager",
-//     avatar: "https://i.pravatar.cc/150?img=32", // Realistic photo
-//     status: "Active",
-//     department: "Managerial",
-//     employmentType: "Fulltime",
-//     email: "muftih@gmail.com",
-//     phone: "(63) 130 689 256",
-//     joinDate: "1 Feb, 2021",
-//   },
-//   {
-//     id: "#EMP04",
-//     name: "Fauzan Ardhiansyah",
-//     role: "UI Designer",
-//     avatar: "https://i.pravatar.cc/150?img=60", // Realistic photo
-//     status: "Active",
-//     department: "Managerial",
-//     employmentType: "Fulltime",
-//     email: "heloozan@gmail.com",
-//     phone: "(64) 630 613 343",
-//     joinDate: "21 Sep, 2018",
-//   },
-//   // Added other statuses for completeness, they can be removed if not needed
-//   {
-//     id: "#EMP05",
-//     name: "Raihan Fikri",
-//     role: "QC & Research",
-//     avatar: "https://i.pravatar.cc/150?img=5",
-//     status: "Invited",
-//     department: "Human Resources",
-//     employmentType: "Fulltime",
-//     email: "raihan@gmail.com",
-//     phone: "(+62) 812 345 678",
-//     joinDate: "5 Mar, 2022",
-//   },
-// ]);
 
 // --- HELPERS ---
 // UPDATED: This object defines the styling for each status type to match the new image

@@ -1,5 +1,5 @@
 <template>
-  <div class="row justify-between q-mb-md" align="right">
+  <div class="row justify-between q-my-md" align="right">
     <div>
       <OvertimeButton />
     </div>

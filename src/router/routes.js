@@ -110,6 +110,30 @@ const routes = [
               import(
                 "pages/administrator/payroll/panel-section/attendance/AttendancePage.vue"
               ),
+            children: [
+              {
+                path: "",
+                redirect: {
+                  name: "admin-payroll-attendance-dtr-overview",
+                },
+              },
+              {
+                path: "dtr-overview",
+                name: "admin-payroll-attendance-dtr-overview",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/attendance/sections/dtr-overview/AttendanceTable.vue"
+                  ),
+              },
+              {
+                path: "attendance-summary",
+                name: "admin-payroll-attendance-summary",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/attendance/sections/attendance-summary/AttendanceSummary.vue"
+                  ),
+              },
+            ],
           },
           // Route for the Allowances & Deductions Tab
           {
@@ -128,19 +152,16 @@ const routes = [
               import(
                 "pages/administrator/payroll/panel-section/payslip/PayslipPage.vue"
               ),
-
-            children: [
-              {
-                path: "details",
-                name: "admin-payroll-payslip-details",
-                component: () =>
-                  import(
-                    "pages/administrator/payroll/panel-section/payslip/details/ViewDetails.vue"
-                  ),
-              },
-            ],
           },
         ],
+      },
+      {
+        path: "payslip/payroll/employee/:employee_id/details",
+        name: "EmployeeProfile",
+        component: () =>
+          import(
+            "pages/administrator/payroll/panel-section/payslip/details/ViewDetails.vue"
+          ),
       },
       {
         path: "devices",

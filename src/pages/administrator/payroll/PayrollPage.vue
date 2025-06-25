@@ -42,7 +42,10 @@
       </q-route-tab>
 
       <!-- Salary Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-attendance' }" exact>
+      <q-route-tab
+        :to="{ name: 'admin-payroll-attendance-dtr-overview' }"
+        exact
+      >
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="access_time"
