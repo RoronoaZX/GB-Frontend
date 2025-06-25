@@ -217,9 +217,10 @@
               </div>
             </q-card-section>
 
+            <!-- INDIVIDUAL CARD LOADING SPINNER -->
             <q-inner-loading
-              :showing="goBackLoading"
-              label="Returning..."
+              :showing="loadingEmployeeId === employee.id"
+              label="Loading..."
               label-class="text-primary"
               label-style="font-size: 1.1em"
             >
