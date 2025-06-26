@@ -1,11 +1,11 @@
 <template>
-  <q-card flat class="log-card q-pa-md q-mb-md">
-    <div class="row items-stretch no-wrap">
+  <q-card flat class="log-card q-mb-sm">
+    <div class="row items-center no-wrap">
       <!-- Column 1: Day & Clock-in -->
       <div class="col-2">
-        <div class="text-weight-bold text-subtitle1">{{ log.dayLabel }}</div>
-        <div class="text-grey-7">Clock-in</div>
-        <div class="text-h6 text-weight-regular">{{ log.clockIn }}</div>
+        <div class="text-weight-bold">{{ log.dayLabel }}</div>
+        <div class="text-grey-7 text-caption">Clock-in</div>
+        <div class="text-subtitle1 text-weight-regular">{{ log.clockIn }}</div>
       </div>
 
       <!-- Column 2: Timeline -->
@@ -40,42 +40,29 @@
       </div>
 
       <!-- Column 3: Clock-out & Duration -->
-      <div class="col-2 row text-right justify-end">
-        <!-- ========================================================== -->
-        <!-- START: NEW OT STATUS CHIP                                  -->
-        <!-- ========================================================== -->
-        <div v-if="log.otStatus" class="col-12">
+      <div class="col-2 row text-right items-center justify-end">
+        <div v-if="log.otStatus" class="col-12 q-mb-xs">
           <q-chip
+            dense
             :icon="overtimeStatus.icon"
             :color="overtimeStatus.color"
             text-color="white"
             size="sm"
-            class="q-mb-xs"
           >
             {{ overtimeStatus.label }}
           </q-chip>
         </div>
-        <!-- ========================================================== -->
-        <!-- END: NEW OT STATUS CHIP                                    -->
-        <!-- ========================================================== -->
-        <div v-else-if="log.isDayOff" class="col-12">
-          <q-chip
-            icon="check_circle"
-            color="positive"
-            text-color="white"
-            size="sm"
-            class="q-mb-xs"
-          >
-            Approved
-          </q-chip>
+        <div class="col-6">
+          <div class="text-grey-7 text-caption">Clock-out</div>
+          <div class="text-subtitle1 text-weight-regular">
+            {{ log.clockOut }}
+          </div>
         </div>
         <div class="col-6">
-          <div class="text-grey-7">Clock-out</div>
-          <div class="text-h6 text-weight-regular">{{ log.clockOut }}</div>
-        </div>
-        <div class="col-6">
-          <div class="text-grey-7">Duration</div>
-          <div class="text-h6 text-weight-regular">{{ log.duration }}</div>
+          <div class="text-grey-7 text-caption">Duration</div>
+          <div class="text-subtitle1 text-weight-regular">
+            {{ log.duration }}
+          </div>
         </div>
       </div>
     </div>
@@ -93,11 +80,6 @@ const props = defineProps({
   },
 });
 
-console.log("DailyAttendanceLog props:", props.log);
-
-// ==========================================================
-// NEW: COMPUTED PROP FOR OT STATUS
-// ==========================================================
 const overtimeStatus = computed(() => {
   switch (props.log.otStatus) {
     case "approved":
@@ -111,7 +93,6 @@ const overtimeStatus = computed(() => {
   }
 });
 
-// --- The rest of the script remains unchanged ---
 const timeMarkers = ["09", "11", "13", "15", "17", "19", "21", "23"];
 
 const timeToPercentage = (timeString) => {
@@ -135,6 +116,7 @@ const getActivityStyle = (activity) => {
   const startPercent = timeToPercentage(activity.start);
   const endPercent = timeToPercentage(activity.end);
   const widthPercent = endPercent - startPercent;
+
   return {
     left: `${startPercent}%`,
     width: `${widthPercent}%`,
@@ -160,32 +142,38 @@ const getActivityClass = (activity) => {
 <style lang="scss" scoped>
 .log-card {
   background-color: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #eef0f2; // Lighter border
   border-radius: 8px;
   overflow: hidden;
+  // --- DENSE DESIGN CHANGE: Reduced padding ---
+  padding: 12px 16px;
 }
+
 .timeline-container {
   position: relative;
   width: 100%;
-  padding-top: 25px;
+  padding-top: 20px; // Reduced space for time markers
   height: 100%;
   display: flex;
   align-items: center;
 }
+
 .time-marker {
   position: absolute;
   top: 0;
   transform: translateX(-50%);
-  font-size: 0.75rem;
-  color: #757575;
+  font-size: 0.7rem; // Smaller font for time
+  color: #9e9e9e; // Lighter grey
 }
+
 .timeline-bar {
   position: relative;
   width: 100%;
-  height: 30px;
+  height: 24px; // --- DENSE DESIGN CHANGE: Reduced timeline height ---
   background-color: #f5f5f5;
   border-radius: 4px;
 }
+
 .activity-block {
   position: absolute;
   top: 0;
@@ -199,13 +187,25 @@ const getActivityClass = (activity) => {
   white-space: nowrap;
   transition: all 0.3s ease;
   cursor: pointer;
+
   &:hover {
     filter: brightness(1.1);
   }
 }
+
 .activity-label {
-  font-size: 0.8rem;
-  padding: 0 8px;
+  font-size: 0.75rem; // --- DENSE DESIGN CHANGE: Smaller label font ---
+  padding: 0 6px;
   font-weight: 500;
+}
+
+// --- DENSE DESIGN CHANGE: Use Quasar's text utility classes ---
+.text-caption {
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.text-subtitle1 {
+  font-size: 1.1rem;
 }
 </style>

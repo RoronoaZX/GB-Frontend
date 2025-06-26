@@ -2,7 +2,7 @@
   <q-page class="bg-grey-2 q-pa-md">
     <!-- Header Section -->
     <div class="row items-center q-mb-md q-gutter-x-md">
-      <q-btn flat round icon="arrow_back" @click="goBack" />
+      <q-btn flat round icon="arrow_back" @click="goBack" class="q-mr-lg" />
       <q-avatar>
         <img src="https://cdn.quasar.dev/img/avatar4.jpg" />
       </q-avatar>
@@ -18,12 +18,12 @@
           {{ getStatusChip(employeesData.status).label }}
         </q-chip>
       </div>
-      <q-separator vertical spaced />
+      <!-- <q-separator vertical spaced /> -->
       <q-space />
-      <q-btn flat round dense icon="chevron_left" />
-      <q-btn flat round dense icon="chevron_right" />
+      <!-- <q-btn flat round dense icon="chevron_left" /> -->
+      <!-- <q-btn flat round dense icon="chevron_right" />
       <span class="text-body2 q-mx-sm">1 of 32</span>
-      <q-btn flat round dense icon="more_vert" />
+      <q-btn flat round dense icon="more_vert" /> -->
       <q-btn
         unelevated
         color="teal"
@@ -33,6 +33,7 @@
         no-caps
       />
     </div>
+    <q-separator horizontal spaced />
     <!-- Tabs Navigation -->
     <q-tabs
       v-model="tab"
