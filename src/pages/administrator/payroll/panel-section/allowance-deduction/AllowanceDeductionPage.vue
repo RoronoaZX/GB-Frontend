@@ -10,7 +10,8 @@
         align="justify"
         class="gradient-btn"
       >
-        <q-tab
+        <q-route-tab
+          :to="{ name: 'admin-payroll-allowances-deductions-allowances' }"
           class="text-white"
           name="allowance"
           icon="account_balance_wallet"
@@ -18,34 +19,34 @@
         />
         <!-- view_timeline -->
 
-        <q-tab
+        <q-route-tab
+          :to="{ name: 'admin-payroll-allowances-deductions-benefits' }"
           class="text-white"
           name="benefits"
           icon="view_timeline"
           label="Benefits"
         />
-        <q-tab
+        <q-route-tab
+          :to="{ name: 'admin-payroll-allowances-deductions-uniforms' }"
           class="text-white"
           name="uniform"
           icon="settings_accessibility"
           label="Uniform"
         />
         <!-- payments -->
-        <q-tab
+        <q-route-tab
+          :to="{ name: 'admin-payroll-allowances-deductions-cash-advance' }"
           class="text-white"
           name="cash-advance"
           icon="wallet"
           label="Cash Advance"
         />
-        <!-- <q-tab
-          class="text-white"
-          name="others"
-          icon="devices_other"
-          label="Others"
-        /> -->
       </q-tabs>
     </div>
-    <q-tab-panels v-model="tab" animated>
+    <div>
+      <router-view />
+    </div>
+    <!-- <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="allowance">
         <div>
           <AllowanceTable />
@@ -66,7 +67,7 @@
           <CashAdvanceTable />
         </div>
       </q-tab-panel>
-    </q-tab-panels>
+    </q-tab-panels> -->
   </div>
 </template>
 

@@ -1,5 +1,90 @@
 <template>
   <q-page class="q-pa-md">
+    <!-- ========================================================= -->
+    <!-- START: FILTERING AND SEARCH CONTROLS                    -->
+    <!-- ========================================================= -->
+    <div class="row q-col-gutter-md q-mb-lg">
+      <!-- Search Input -->
+      <div class="col-12 col-sm-6 col-md-4">
+        <q-input
+          outlined
+          dense
+          v-model="searchQuery"
+          placeholder="Search"
+          class="bg-white"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </div>
+
+      <!-- Filter Dropdowns -->
+      <div class="col-12 col-sm-6 col-md-8">
+        <div class="row q-col-gutter-md">
+          <div class="col-6 col-md-3">
+            <q-select
+              outlined
+              dense
+              v-model="selectedType"
+              :options="typeOptions"
+              label="Type"
+              class="bg-white"
+              clearable
+            >
+              <template v-slot:prepend>
+                <q-icon name="workspaces_outline" />
+              </template>
+            </q-select>
+          </div>
+          <div class="col-6 col-md-3">
+            <q-select
+              outlined
+              dense
+              v-model="selectedStatus"
+              :options="statusOptions"
+              label="Status"
+              class="bg-white"
+              clearable
+            >
+              <template v-slot:prepend>
+                <q-icon name="show_chart" />
+              </template>
+            </q-select>
+          </div>
+          <div class="col-6 col-md-3">
+            <q-select
+              outlined
+              dense
+              v-model="selectedRole"
+              :options="roleOptions"
+              label="Role"
+              class="bg-white"
+              clearable
+            >
+              <template v-slot:prepend>
+                <q-icon name="badge" />
+              </template>
+            </q-select>
+          </div>
+          <div class="col-6 col-md-3">
+            <q-select
+              outlined
+              dense
+              label="Advance Filter"
+              class="bg-white"
+              :options="['Feature not available']"
+              disable
+            >
+              <template v-slot:prepend>
+                <q-icon name="filter_alt" />
+              </template>
+            </q-select>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row q-col-gutter-lg">
       <!-- ========================================================= -->
       <!-- START: SKELETON LOADER                                  -->
@@ -80,8 +165,18 @@
       <!-- START: EMPLOYEE CARDS (Main Content)                    -->
       <!-- ========================================================= -->
       <template v-else>
+        <!-- No Results Message -->
         <div
-          v-for="employee in employeesData"
+          v-if="filteredEmployees.length === 0"
+          class="col-12 text-center text-grey-7 q-mt-xl"
+        >
+          <q-icon name="person_search" size="4em" />
+          <div class="text-h6 q-mt-md">No employees found</div>
+          <p>Try adjusting your search or filter criteria.</p>
+        </div>
+        <!-- Employee Card Loop -->
+        <div
+          v-for="employee in filteredEmployees"
           :key="employee.id"
           class="col-12 col-sm-6 col-md-4 col-lg-3"
         >
@@ -249,6 +344,16 @@ const employeesData = ref([]);
 const loading = ref(true); // For initial page skeleton
 const loadingEmployeeId = ref(null); // For individual card loading
 
+// --- FILTERING STATE ---
+const searchQuery = ref("");
+const selectedType = ref(null);
+const selectedStatus = ref(null);
+const selectedRole = ref(null);
+
+const typeOptions = ref([]);
+const statusOptions = ref([]);
+const roleOptions = ref([]);
+
 const fetchEmployees = async () => {
   loading.value = true; // Set loading to true before fetching
   try {
@@ -256,15 +361,60 @@ const fetchEmployees = async () => {
     employeesSample.value =
       await employeeStore.fetchEmployeeWithEmploymentTypeAndDesignation();
     // Assign the fetched data to the employeesData ref
-    const { data, current_page, per_page, total } = employeesSample.value;
+    const { data } = employeesSample.value;
     employeesData.value = data;
-    console.log("Fetched employees:", employeesData.value);
+
+    // --- POPULATE FILTER OPTIONS ---
+    // Use a Set to get unique values, then map to string array
+    if (data && data.length > 0) {
+      typeOptions.value = [
+        ...new Set(data.map((e) => e.employment_type.category)),
+      ];
+      roleOptions.value = [...new Set(data.map((e) => e.position))];
+      statusOptions.value = [...new Set(data.map((e) => e.status))];
+    }
   } catch (error) {
     console.error("Error fetching employees:", error);
   } finally {
     loading.value = false; // Set loading to false after fetching
   }
 };
+
+// --- COMPUTED PROPERTY FOR FILTERING ---
+const filteredEmployees = computed(() => {
+  let filtered = employeesData.value;
+
+  // 1. Filter by Search Query (Name)
+  if (searchQuery.value) {
+    const lowerCaseQuery = searchQuery.value.toLowerCase();
+    filtered = filtered.filter((employee) =>
+      formatFullname(employee).toLowerCase().includes(lowerCaseQuery)
+    );
+  }
+
+  // 2. Filter by Employment Type
+  if (selectedType.value) {
+    filtered = filtered.filter(
+      (employee) => employee.employment_type.category === selectedType.value
+    );
+  }
+
+  // 3. Filter by Status
+  if (selectedStatus.value) {
+    filtered = filtered.filter(
+      (employee) => employee.status === selectedStatus.value
+    );
+  }
+
+  // 4. Filter by Role
+  if (selectedRole.value) {
+    filtered = filtered.filter(
+      (employee) => employee.position === selectedRole.value
+    );
+  }
+
+  return filtered;
+});
 
 onMounted(() => {
   fetchEmployees();

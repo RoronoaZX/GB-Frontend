@@ -1,98 +1,103 @@
 <template>
-  <div class="row justify-between q-mb-md" align="right">
-    <div class="row q-gutter-md">
-      <AddUniform @created="reloadTableData" />
+  <q-page class="q-my-md">
+    <div class="row justify-between q-mb-md" align="right">
+      <div class="row q-gutter-md">
+        <AddUniform @created="reloadTableData" />
+      </div>
+      <q-input
+        v-model="filter"
+        @update:model-value="handleInput"
+        outlined
+        dense
+        flat
+        label="Search"
+        style="width: 300px"
+      >
+        <template v-slot:append>
+          <div>
+            <q-icon name="search" />
+          </div>
+        </template>
+      </q-input>
     </div>
-    <q-input
-      v-model="filter"
-      @update:model-value="handleInput"
-      outlined
-      dense
-      flat
-      label="Search"
-      style="width: 300px"
+    <q-table
+      :filter="filter"
+      :rows="uniformRows"
+      :columns="uniformColumns"
+      row-key="name"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[5, 7, 10, 0]"
+      @request="handleRequest"
+      :loading="tableLoading"
     >
-      <template v-slot:append>
-        <div>
-          <q-icon name="search" />
-        </div>
-      </template>
-    </q-input>
-  </div>
-  <q-table
-    :filter="filter"
-    :rows="uniformRows"
-    :columns="uniformColumns"
-    row-key="name"
-    v-model:pagination="pagination"
-    :rows-per-page-options="[5, 7, 10, 0]"
-    @request="handleRequest"
-    :loading="tableLoading"
-  >
-    <template v-slot:header="props">
-      <q-tr :props="props" class="gradient-header text-white text-weight-bold">
-        <q-th
-          v-for="col in props.cols"
-          :key="col.name"
+      <template v-slot:header="props">
+        <q-tr
           :props="props"
-          class="text-center text-subtitle2"
+          class="gradient-header text-white text-weight-bold"
         >
-          {{ col.label }}
-        </q-th>
-      </q-tr>
-    </template>
-    <template v-slot:body-cell-t_shirt="props">
-      <q-td :props="props">
-        <q-chip
-          square
-          outline
-          color="red-6"
-          text-color="white"
-          clickable
-          @click="openUniformDialog(props.row.t_shirt, 'T-Shirt')"
-        >
-          T-Shirt
-          <q-tooltip class="bg-indigo" :offset="[10, 10]">
-            Click to view T-shirt details!
-          </q-tooltip>
-        </q-chip>
-      </q-td>
-    </template>
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="text-center text-subtitle2"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+      <template v-slot:body-cell-t_shirt="props">
+        <q-td :props="props">
+          <q-chip
+            square
+            outline
+            color="red-6"
+            text-color="white"
+            clickable
+            @click="openUniformDialog(props.row.t_shirt, 'T-Shirt')"
+          >
+            T-Shirt
+            <q-tooltip class="bg-indigo" :offset="[10, 10]">
+              Click to view T-shirt details!
+            </q-tooltip>
+          </q-chip>
+        </q-td>
+      </template>
 
-    <template v-slot:body-cell-pants="props">
-      <q-td :props="props">
-        <q-chip
-          square
-          outline
-          color="brown-6"
-          text-color="white"
-          clickable
-          @click="openUniformDialog(props.row.pants, 'Pants')"
-        >
-          Pants
-          <q-tooltip class="bg-indigo" :offset="[10, 10]">
-            Click to view pants details!
-          </q-tooltip>
-        </q-chip>
-      </q-td>
-    </template>
+      <template v-slot:body-cell-pants="props">
+        <q-td :props="props">
+          <q-chip
+            square
+            outline
+            color="brown-6"
+            text-color="white"
+            clickable
+            @click="openUniformDialog(props.row.pants, 'Pants')"
+          >
+            Pants
+            <q-tooltip class="bg-indigo" :offset="[10, 10]">
+              Click to view pants details!
+            </q-tooltip>
+          </q-chip>
+        </q-td>
+      </template>
 
-    <template v-slot:body-cell-actions="props">
-      <q-td :props="props">
-        <EditUniform :edit="props.row" @edited="reloadTableData" />
-      </q-td>
-    </template>
-    <template #loading>
-      <q-inner-loading showing>
-        <q-spinner-ios size="50px" color="grey-10" />
-      </q-inner-loading>
-    </template>
-  </q-table>
-  <ViewUniformDetails
-    v-model="tShirtDialog"
-    :items="selectedItems"
-    :label="dialogLabel"
-  />
+      <template v-slot:body-cell-actions="props">
+        <q-td :props="props">
+          <EditUniform :edit="props.row" @edited="reloadTableData" />
+        </q-td>
+      </template>
+      <template #loading>
+        <q-inner-loading showing>
+          <q-spinner-ios size="50px" color="grey-10" />
+        </q-inner-loading>
+      </template>
+    </q-table>
+    <ViewUniformDetails
+      v-model="tShirtDialog"
+      :items="selectedItems"
+      :label="dialogLabel"
+    />
+  </q-page>
 </template>
 
 <script setup>

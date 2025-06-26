@@ -44,6 +44,15 @@ export const useDTRStore = defineStore("dtrs", () => {
     // Assuming your DTR store has a method to set the fetched data
     dtrCutOffData.value = response.data;
   };
+  const fetchEmployeeDTRRange = async (data) => {
+    // Send a POST request to fetch DTR data
+    console.log("Fetching DTR Range with data:", data);
+    const response = await api.post("/api/dtr-data", data);
+    console.log("DTR Range response:", response);
+
+    // Assuming your DTR store has a method to set the fetched data
+    dtrCutOffData.value = response.data;
+  };
 
   const searchDTR = async (keyword) => {
     try {
@@ -99,6 +108,7 @@ export const useDTRStore = defineStore("dtrs", () => {
     setUser,
     fetchDTR,
     fetchDTRRange,
+    fetchEmployeeDTRRange,
     saveOvertime,
     searchDTR,
     approveOvertime,

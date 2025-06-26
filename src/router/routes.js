@@ -143,6 +143,46 @@ const routes = [
               import(
                 "pages/administrator/payroll/panel-section/allowance-deduction/AllowanceDeductionPage.vue"
               ),
+            children: [
+              {
+                path: "",
+                redirect: {
+                  name: "admin-payroll-allowances-deductions-allowances",
+                },
+              },
+              {
+                path: "allowances_deductions_allowances",
+                name: "admin-payroll-allowances-deductions-allowances",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/allowance-deduction/allowance-section/AllowanceTable.vue"
+                  ),
+              },
+              {
+                path: "allowances_deductions_benefits",
+                name: "admin-payroll-allowances-deductions-benefits",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/allowance-deduction/benefits-section/BenefitsTable.vue"
+                  ),
+              },
+              {
+                path: "allowances_deductions_uniforms",
+                name: "admin-payroll-allowances-deductions-uniforms",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/allowance-deduction/uniform-section/UniformTable.vue"
+                  ),
+              },
+              {
+                path: "allowances_deductions_cash_advance",
+                name: "admin-payroll-allowances-deductions-cash-advance",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/allowance-deduction/cash-advance-section/CashAdvanceTable.vue"
+                  ),
+              },
+            ],
           },
           // Route for the Payslips tab
           {

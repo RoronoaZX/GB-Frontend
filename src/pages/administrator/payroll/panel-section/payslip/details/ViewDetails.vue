@@ -51,7 +51,7 @@
       <q-tab name="time" icon="schedule" label="Time Management" />
     </q-tabs>
     <q-separator />
-    <q-tab-panels v-model="tab" animated transparent>
+    <q-tab-panels v-model="tab" animated class="bg-grey-2">
       <!-- Personal Information Tab -->
       <q-tab-panel name="personal">
         <div class="row q-col-gutter-lg q-mt-none">
@@ -165,7 +165,7 @@ const goBack = () => {
   setTimeout(() => {
     goBackLoading.value = false;
     router.push({ name: "admin-payroll-payslip" });
-  }, 5000);
+  }, 500);
 };
 
 // This function now handles the 'edit' event from any card

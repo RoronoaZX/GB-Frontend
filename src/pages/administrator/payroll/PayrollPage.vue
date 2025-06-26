@@ -58,7 +58,10 @@
       </q-route-tab>
 
       <!-- Allowances & Deductions Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-allowances-deductions' }" exact>
+      <q-route-tab
+        :to="{ name: 'admin-payroll-allowances-deductions-allowances' }"
+        exact
+      >
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="add_circle_outline"

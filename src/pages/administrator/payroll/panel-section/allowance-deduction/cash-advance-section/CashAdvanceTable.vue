@@ -1,117 +1,124 @@
 <template>
-  <div class="row justify-between q-mb-md" align="right">
-    <div class="row q-gutter-md">
-      <CashAdvanceButton @created="reloadTableData" />
+  <q-page class="q-my-md">
+    <div class="row justify-between q-mb-md" align="right">
+      <div class="row q-gutter-md">
+        <CashAdvanceButton @created="reloadTableData" />
+      </div>
+      <q-input
+        v-model="filter"
+        outlined
+        dense
+        debounce="300"
+        flat
+        label="Search"
+        style="width: 300px"
+      >
+        <template v-slot:append>
+          <div>
+            <!-- v-if="!loading" -->
+            <q-icon name="search" />
+            <!-- <q-spinner v-else color="grey" size="sm" /> -->
+          </div>
+        </template>
+      </q-input>
     </div>
-    <q-input
-      v-model="filter"
-      outlined
-      dense
-      debounce="300"
-      flat
-      label="Search"
-      style="width: 300px"
+    <q-table
+      :rows="cashAdvanceRows"
+      :columns="cashAdvanceColumns"
+      row-key="name"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[5, 7, 10, 0]"
+      :loading="loading"
+      :filter="filter"
+      @request="handleRequest"
     >
-      <template v-slot:append>
-        <div>
-          <!-- v-if="!loading" -->
-          <q-icon name="search" />
-          <!-- <q-spinner v-else color="grey" size="sm" /> -->
-        </div>
-      </template>
-    </q-input>
-  </div>
-  <q-table
-    :rows="cashAdvanceRows"
-    :columns="cashAdvanceColumns"
-    row-key="name"
-    v-model:pagination="pagination"
-    :rows-per-page-options="[5, 7, 10, 0]"
-    :loading="loading"
-    :filter="filter"
-    @request="handleRequest"
-  >
-    <template v-slot:header="props">
-      <q-tr :props="props" class="gradient-header text-white text-weight-bold">
-        <q-th
-          v-for="col in props.cols"
-          :key="col.name"
+      <template v-slot:header="props">
+        <q-tr
           :props="props"
-          class="text-center text-subtitle2"
+          class="gradient-header text-white text-weight-bold"
         >
-          {{ col.label }}
-        </q-th>
-      </q-tr>
-    </template>
-    <template v-slot:body-cell-amount="props">
-      <q-td :props="props" class="cursor-pointer">
-        <span>
-          {{ props.row.amount ? formatCurrency(props.row.amount) : " - - - " }}
-        </span>
-        <q-tooltip class="bg-blue-grey-8">Edit Amount</q-tooltip>
-        <q-popup-edit
-          @update:model-value="(val) => updateAmount(props.row, val)"
-          v-model="props.row.amount"
-          buttons
-          label-set="Save"
-          label-cancel="Close"
-          v-slot="scope"
-        >
-          <div class="text-h6 text-primary text-center q-mb-xs">
-            Edit Amount
-          </div>
-          <div class="text-subtitle2 q-mb-sm">
-            Name: {{ formatFullname(props.row.employee) }}
-          </div>
-          <q-input
-            v-model="scope.value"
-            :model-value="formatForEdit(scope.value)"
-            @update:model-value="scope.value = $event"
-            type="text"
-            autofocus
-            counter
-            @keyup.enter="scope.set"
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="text-center text-subtitle2"
           >
-          </q-input>
-        </q-popup-edit>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-reason="props">
-      <q-td :props="props" class="cursor-pointer">
-        <span>
-          {{ props.row.reason || " - - - " }}
-        </span>
-        <q-tooltip class="bg-blue-grey-8">Edit Reason</q-tooltip>
-        <q-popup-edit
-          v-model="props.row.reason"
-          @update:model-value="(val) => updateReason(props.row, val)"
-          buttons
-          label-set="Save"
-          label-cancel="Close"
-          v-slot="scope"
-        >
-          <div class="text-h6 text-primary text-center q-mb-xs">
-            Edit Reason
-          </div>
-          <div class="text-subtitle2 q-mb-sm">
-            Name: {{ formatFullname(props.row.employee) }}
-          </div>
-          <q-input
-            v-model="scope.value"
-            type="text"
-            autofocus
-            counter
-            @keyup.enter="scope.set"
-          />
-        </q-popup-edit>
-      </q-td>
-    </template>
-    <template #loading>
-      <q-inner-loading showing>
-        <q-spinner-ios size="50px" color="grey-10" />
-      </q-inner-loading>
-    </template>
-  </q-table>
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+      <template v-slot:body-cell-amount="props">
+        <q-td :props="props" class="cursor-pointer">
+          <span>
+            {{
+              props.row.amount ? formatCurrency(props.row.amount) : " - - - "
+            }}
+          </span>
+          <q-tooltip class="bg-blue-grey-8">Edit Amount</q-tooltip>
+          <q-popup-edit
+            @update:model-value="(val) => updateAmount(props.row, val)"
+            v-model="props.row.amount"
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            v-slot="scope"
+          >
+            <div class="text-h6 text-primary text-center q-mb-xs">
+              Edit Amount
+            </div>
+            <div class="text-subtitle2 q-mb-sm">
+              Name: {{ formatFullname(props.row.employee) }}
+            </div>
+            <q-input
+              v-model="scope.value"
+              :model-value="formatForEdit(scope.value)"
+              @update:model-value="scope.value = $event"
+              type="text"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            >
+            </q-input>
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-reason="props">
+        <q-td :props="props" class="cursor-pointer">
+          <span>
+            {{ props.row.reason || " - - - " }}
+          </span>
+          <q-tooltip class="bg-blue-grey-8">Edit Reason</q-tooltip>
+          <q-popup-edit
+            v-model="props.row.reason"
+            @update:model-value="(val) => updateReason(props.row, val)"
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            v-slot="scope"
+          >
+            <div class="text-h6 text-primary text-center q-mb-xs">
+              Edit Reason
+            </div>
+            <div class="text-subtitle2 q-mb-sm">
+              Name: {{ formatFullname(props.row.employee) }}
+            </div>
+            <q-input
+              v-model="scope.value"
+              type="text"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template #loading>
+        <q-inner-loading showing>
+          <q-spinner-ios size="50px" color="grey-10" />
+        </q-inner-loading>
+      </template>
+    </q-table>
+  </q-page>
 </template>
 
 <script setup>

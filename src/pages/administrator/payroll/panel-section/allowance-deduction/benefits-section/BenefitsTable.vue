@@ -1,147 +1,151 @@
 <template>
-  <div class="row justify-between q-mb-md" align="right">
-    <div class="row q-gutter-md">
-      <div>
-        <AddDeduction @created="reloadTableData" />
-      </div>
-    </div>
-    <q-input
-      v-model="filter"
-      outlined
-      dense
-      debounce="300"
-      flat
-      label="Search"
-      style="width: 300px"
-    >
-      <template v-slot:append>
+  <q-page class="q-my-md">
+    <div class="row justify-between q-mb-md" align="right">
+      <div class="row q-gutter-md">
         <div>
-          <q-icon name="search" />
+          <AddDeduction @created="reloadTableData" />
         </div>
-      </template>
-    </q-input>
-  </div>
-
-  <q-table
-    :rows="employeeBenefitRows"
-    :columns="employeeBenefitColumns"
-    row-key="name"
-    v-model:pagination="pagination"
-    :rows-per-page-options="[5, 7, 10, 0]"
-    @request="handleRequest"
-    :loading="tableLoading"
-    :filter="filter"
-  >
-    <template v-slot:header="props">
-      <q-tr :props="props" class="gradient-header text-white text-weight-bold">
-        <q-th
-          v-for="col in props.cols"
-          :key="col.name"
+      </div>
+      <q-input
+        v-model="filter"
+        outlined
+        dense
+        debounce="300"
+        flat
+        label="Search"
+        style="width: 300px"
+      >
+        <template v-slot:append>
+          <div>
+            <q-icon name="search" />
+          </div>
+        </template>
+      </q-input>
+    </div>
+    <q-table
+      :rows="employeeBenefitRows"
+      :columns="employeeBenefitColumns"
+      row-key="name"
+      v-model:pagination="pagination"
+      :rows-per-page-options="[5, 7, 10, 0]"
+      @request="handleRequest"
+      :loading="tableLoading"
+      :filter="filter"
+    >
+      <template v-slot:header="props">
+        <q-tr
           :props="props"
-          class="text-center text-subtitle2"
+          class="gradient-header text-white text-weight-bold"
         >
-          {{ col.label }}
-        </q-th>
-      </q-tr>
-    </template>
-    <template v-slot:body-cell-sss="props">
-      <q-td :props="props">
-        <span>
-          {{ props.row.sss ? formatCurrency(props.row.sss) : " - - " }}
-          <q-tooltip class="bg-blue-grey-8">Edit SSS</q-tooltip>
-        </span>
-        <q-popup-edit
-          @update:model-value="(val) => updateSSS(props.row, val)"
-          v-model="props.row.sss"
-          buttons
-          label-set="Save"
-          label-cancel="Close"
-          v-slot="scope"
-        >
-          <div class="text-h6 text-center q-mb-xs">Edit SSS</div>
-          <div class="text-subtitle2 q-mb-sm">
-            Name: {{ formatFullname(props.row.employee) }}
-          </div>
-          <q-input
-            v-model="scope.value"
-            :model-value="formatForEdit(scope.value)"
-            @update:model-value="scope.value = $event"
-            type="text"
-            autofocus
-            counter
-            @keyup.enter="scope.set"
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="text-center text-subtitle2"
           >
-          </q-input>
-        </q-popup-edit>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-hdmf="props">
-      <q-td :props="props">
-        <span>
-          {{ props.row.hdmf ? formatCurrency(props.row.hdmf) : " - - -" }}
-          <q-tooltip class="bg-blue-grey-8">Edit HDMF</q-tooltip>
-        </span>
-        <q-popup-edit
-          @update:model-value="(val) => updateHDMF(props.row, val)"
-          v-model="props.row.hdmf"
-          buttons
-          label-set="Save"
-          label-cancel="Close"
-          v-slot="scope"
-        >
-          <div class="text-h6 text-center q-mb-xs">Edit HDMF</div>
-          <div class="text-subtitle2 q-mb-sm">
-            Name: {{ formatFullname(props.row.employee) }}
-          </div>
-          <q-input
-            v-model="scope.value"
-            :model-value="formatForEdit(scope.value)"
-            @update:model-value="scope.value = $event"
-            type="text"
-            autofocus
-            counter
-            @keyup.enter="scope.set"
-          />
-        </q-popup-edit>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-phic="props">
-      <q-td :props="props">
-        <span>
-          {{ props.row.phic ? formatCurrency(props.row.phic) : " - - - " }}
-          <q-tooltip class="bg-blue-grey-8">Edit PHIC</q-tooltip>
-        </span>
-        <q-popup-edit
-          @update:model-value="(val) => updatePHIC(props.row, val)"
-          v-model="props.row.phic"
-          buttons
-          label-save="Save"
-          label-cancel="Close"
-          v-slot="scope"
-        >
-          <div class="text-h6 text-center q-mb-xs">Edit PHIC</div>
-          <div class="text-subtitle2 q-mb-sm">
-            Name: {{ formatFullname(props.row.employee) }}
-          </div>
-          <q-input
-            v-model="scope.value"
-            :model-value="formatForEdit(scope.value)"
-            @update:model-value="scope.value = $event"
-            type="text"
-            autofocus
-            counter
-            @keyup.enter="scope.set"
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+      <template v-slot:body-cell-sss="props">
+        <q-td :props="props">
+          <span>
+            {{ props.row.sss ? formatCurrency(props.row.sss) : " - - " }}
+            <q-tooltip class="bg-blue-grey-8">Edit SSS</q-tooltip>
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updateSSS(props.row, val)"
+            v-model="props.row.sss"
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            v-slot="scope"
           >
-          </q-input>
-        </q-popup-edit>
-      </q-td>
-    </template>
-    <template #loading>
-      <q-inner-loading showing>
-        <q-spinner-ios size="50px" color="grey-10" />
-      </q-inner-loading>
-    </template>
-  </q-table>
+            <div class="text-h6 text-center q-mb-xs">Edit SSS</div>
+            <div class="text-subtitle2 q-mb-sm">
+              Name: {{ formatFullname(props.row.employee) }}
+            </div>
+            <q-input
+              v-model="scope.value"
+              :model-value="formatForEdit(scope.value)"
+              @update:model-value="scope.value = $event"
+              type="text"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            >
+            </q-input>
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-hdmf="props">
+        <q-td :props="props">
+          <span>
+            {{ props.row.hdmf ? formatCurrency(props.row.hdmf) : " - - -" }}
+            <q-tooltip class="bg-blue-grey-8">Edit HDMF</q-tooltip>
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updateHDMF(props.row, val)"
+            v-model="props.row.hdmf"
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            v-slot="scope"
+          >
+            <div class="text-h6 text-center q-mb-xs">Edit HDMF</div>
+            <div class="text-subtitle2 q-mb-sm">
+              Name: {{ formatFullname(props.row.employee) }}
+            </div>
+            <q-input
+              v-model="scope.value"
+              :model-value="formatForEdit(scope.value)"
+              @update:model-value="scope.value = $event"
+              type="text"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-phic="props">
+        <q-td :props="props">
+          <span>
+            {{ props.row.phic ? formatCurrency(props.row.phic) : " - - - " }}
+            <q-tooltip class="bg-blue-grey-8">Edit PHIC</q-tooltip>
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updatePHIC(props.row, val)"
+            v-model="props.row.phic"
+            buttons
+            label-save="Save"
+            label-cancel="Close"
+            v-slot="scope"
+          >
+            <div class="text-h6 text-center q-mb-xs">Edit PHIC</div>
+            <div class="text-subtitle2 q-mb-sm">
+              Name: {{ formatFullname(props.row.employee) }}
+            </div>
+            <q-input
+              v-model="scope.value"
+              :model-value="formatForEdit(scope.value)"
+              @update:model-value="scope.value = $event"
+              type="text"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            >
+            </q-input>
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template #loading>
+        <q-inner-loading showing>
+          <q-spinner-ios size="50px" color="grey-10" />
+        </q-inner-loading>
+      </template>
+    </q-table>
+  </q-page>
 </template>
 
 <script setup>
