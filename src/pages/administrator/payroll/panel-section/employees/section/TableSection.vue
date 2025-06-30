@@ -8,7 +8,7 @@
       row-key="fullname"
       v-model:pagination="pagination"
       :rows-per-page-options="[5, 7, 10, 0]"
-      :loading="loading"
+      :loading="tableLoading"
       :filter="filter"
       @request="onPageRequest"
     >
@@ -91,39 +91,29 @@
             </q-tooltip>
             <!-- {{ props.row.employment_type }} -->
           </q-badge>
+          <!-- @before-show="() => setEmploymentTypeId(props.row)"
+          @save="(val) => updateEmploymentType(props.row, val)" -->
           <q-popup-edit
-            v-model="employmentTypeId"
-            @before-show="() => setEmploymentTypeId(props.row)"
-            @save="(val) => updateEmploymentType(props.row, val)"
+            v-model="props.row.employment_type.id"
             buttons
             title="Edit Employment Type"
             v-slot="scope"
+            @save="
+              (val) => updateEmploymentType(props.row, val, reloadTableData)
+            "
           >
-            <!-- @before-show="(scope) => setEmploymentTypeId(props.row, scope)"
-          @update:model-value="(val) => updateEmploymentType(props.row, val)"
-          buttons
-          title="Edit Employment Type"
-          v-slot="scope" -->
-            <!-- @update:model-value="(val) => updateEmploymentType(props.row, val)"
-          @before-show="setEmploymentTypeId(props.row)"
-          @save="
-            (val) => {
-              console.log('Selected ID:', val);
-              updateEmploymentType(props.row, val);
-            }
-          "
-          buttons
-          title="Edit Employment Type"
-          v-slot="scope" -->
             <q-select
               v-model="scope.value"
-              @update:model-value="employmentTypeId"
-              dense
-              autofocus
               :options="employmentTypeOptions"
+              autofocus
               option-label="label"
               option-value="value"
+              emit-value
+              map-options
+              dense
+              outlined
               behavior="menu"
+              @key.enter="scope.set(scope.value)"
             />
           </q-popup-edit>
         </q-td>
@@ -208,11 +198,121 @@
           </q-popup-edit>
         </q-td>
       </template>
+      <template v-slot:body-cell-designation="props">
+        <q-td :props="props">
+          <div>
+            {{ capitalizeAddress(props.row.designation?.name) || "N/A" }}
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Designation
+            </q-tooltip>
+          </div>
+
+          <q-popup-edit
+            v-if="props.row.designation"
+            v-model="props.row.designation.id"
+            buttons
+            title="Edit Employee designation"
+            v-slot="scope"
+            @save="
+              (val) =>
+                updateEmployeeDesignation(
+                  props.row.designation,
+                  val,
+                  reloadTableData
+                )
+            "
+          >
+            <q-select
+              v-model="scope.value"
+              :options="logOptions(props.row)"
+              option-value="id"
+              option-label="name"
+              emit-value
+              map-options
+              dense
+              outlined
+              @keyup.enter="scope.set(scope.value)"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-time_in="props">
+        <q-td :props="props">
+          <div :class="{ 'editable-cell': props.row.designation }">
+            {{ props.row.designation?.time_in || "N/A" }}
+
+            <q-tooltip
+              v-if="props.row.designation"
+              class="bg-blue-grey-8"
+              :offset="[10, 10]"
+            >
+              Edit Time In
+            </q-tooltip>
+          </div>
+
+          <q-popup-edit
+            v-if="props.row.designation"
+            @update:model-value="
+              (val) => updateEmployeeTimeIn(props.row.designation, val)
+            "
+            v-model="props.row.designation.time_in"
+            buttons
+            title="Edit Employee Time In"
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              :model-value="scope.value"
+              @update:model-value="scope.value = $event"
+              dense
+              autofocus
+              mask="##:## AA"
+              :rules="[validateTimeFormat]"
+              hint="Format: 01:00 AM/PM"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-time_out="props">
+        <q-td :props="props">
+          <div :class="{ 'editable-cell': props.row.designation }">
+            {{ props.row.designation?.time_out || "N/A" }}
+            <q-tooltip
+              v-if="props.row.designation"
+              class="bg-blue-grey-8"
+              :offset="[10, 10]"
+            >
+              Edit Time Out
+            </q-tooltip>
+          </div>
+          <q-popup-edit
+            v-if="props.row.designation"
+            @update:model-value="
+              (val) => updateEmployeeTimeOut(props.row.designation, val)
+            "
+            v-model="props.row.designation.time_out"
+            buttons
+            title="Edit Employee Time Out"
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              :model-value="scope.value"
+              @update:model-value="scope.value = $event"
+              dense
+              autofocus
+              mask="##:## AA"
+              :rules="[validateTimeFormat]"
+              hint="Format: 01:00 AM/PM"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
       <template v-slot:body-cell-actions="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
-            <!-- <EmployeeEdit :edit="props" /> -->
-            <!-- padding="xs md" -->
             <q-btn
               round
               dense
@@ -256,6 +356,13 @@ import {
   updateEmployeeAddress,
   updateEmployeePhone,
   updateEmployeeBirthdate,
+  updateEmployeeDesignation,
+  updateEmployeeTimeIn,
+  updateEmployeeTimeOut,
+  getOptions,
+  employmentTypeOptions,
+  tableLoading,
+  validateTimeFormat,
   getEmployementTypeColor,
   employeeColumns,
 } from "src/composables/employeeFunction/useEmployeeFunctions";
@@ -278,10 +385,24 @@ const { dialog, pdfUrl, handlePrintID } = useEmployeeIDPrinter(IDLogo, GB_LOGO);
 // pdfMake.vfs = pdfFonts.default;
 
 const employmentStore = useEmploymentTypeStore();
-const employmentTypeOptions = ref([]);
+// const employmentTypeOptions = ref([]);
 const employeeStore = useEmployeeStore();
 const employeeRows = computed(() => employeeStore.employees); // Computed property will automatically update when the store changes
 const employeesRowsData = ref([]);
+
+// updateEmployeeDesignation,
+
+// const updateEmployeeDesignation = async (designationObj, val) => {
+//   console.log("✅ updateEmployeeDesignation() called!");
+//   console.log("🧩 New designation ID:", val);
+//   console.log("📦 Original designation object:", designationObj);
+// };
+
+const logOptions = (row) => {
+  console.log("designation_type:", row.designation?.designation_type);
+  const opts = getOptions(row);
+  return opts;
+};
 
 const pagination = ref({
   page: 1,
@@ -324,7 +445,7 @@ console.log("====================================");
 
 const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   try {
-    loading.value = true;
+    tableLoading.value = true;
     employeeRows.value = await employeeStore.fetchEmployeeWithEmploymentType(
       page,
       rowsPerPage,
@@ -344,7 +465,7 @@ const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   } catch (error) {
     console.log("employee madepaker", error);
   } finally {
-    loading.value = false;
+    tableLoading.value = false;
   }
 };
 
@@ -414,5 +535,20 @@ watch(filter, async (newVal) => {
   padding: sm md;
   font-size: 1rem;
   color: #000; /* Adjust text color */
+}
+/*
+  This CSS makes it obvious to the user which cells can be clicked.
+  It will only apply when the `editable-cell` class is present.
+*/
+.editable-cell {
+  cursor: pointer;
+  /* Optional: add a subtle underline to invite clicks */
+  border-bottom: 1px dashed #777;
+  padding-bottom: 2px;
+}
+
+/* Optional: add a hover effect for better feedback */
+.editable-cell:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 </style>

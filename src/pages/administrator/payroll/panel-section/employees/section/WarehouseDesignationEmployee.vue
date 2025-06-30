@@ -25,11 +25,11 @@
     backdrop-filter="blur(4px) saturate(150%)"
     position="right"
   >
-    <q-card style="width: 600px; max-width: 100vw">
+    <q-card style="width: 550px; max-width: 100vw">
       <q-card-section
         class="row items-center q-px-md q-py-sm bg-gradient text-white"
       >
-        <div class="text-h5 q-mr-md">👨‍💼👩‍💼 Add Employee Designation</div>
+        <div class="text-h5 q-mr-md">👨‍💼👩‍💼 Warehouse Designation</div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
@@ -73,14 +73,14 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="row q-gutter-md">
+        <div class="row justify-between q-gutter-md">
           <q-input
             outlined
             readonly
             dense
             label="Full Name"
             v-model="addDesignation.employee_name"
-            style="width: 300px"
+            style="width: 350px"
           />
           <q-input
             outlined
@@ -93,9 +93,9 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="q-my-md">Designation</div>
         <div class="row q-gutter-x-md">
           <div>
+            <div class="q-my-md">Designation</div>
             <q-select
               v-model="addDesignation.warehouse_name"
               outlined
@@ -109,22 +109,37 @@
               @filter="filteredWarehouse"
               hide-dropdown-icon
               behavior="menu"
-              style="width: 250px; max-width: 500px; min-width: 100px"
+              style="width: 200px; max-width: 500px; min-width: 100px"
             />
           </div>
           <div>
-            <q-input
-              v-model="addDesignation.time_shift"
-              outlined
-              flat
-              dense
-              mask="##:## AA"
-              label="Time Schedule"
-              :rules="valididateTime"
-              hint="Format: 01:00 AM/PM"
-              style="width: 200px; max-width: 500px; min-width: 100px"
-              hide-dropdown-icon
-            />
+            <div class="q-my-md">Time Schedule</div>
+            <div class="row justify-between q-gutter-x-md">
+              <q-input
+                v-model="addDesignation.time_in"
+                outlined
+                flat
+                dense
+                mask="##:## AA"
+                label="Time IN"
+                :rules="[validateTimeFormat]"
+                hint="Format: 08:00 AM/PM"
+                style="width: 140px; max-width: 500px; min-width: 100px"
+                hide-dropdown-icon
+              />
+              <q-input
+                v-model="addDesignation.time_out"
+                outlined
+                flat
+                dense
+                mask="##:## AA"
+                label="Time OUT"
+                :rules="[validateTimeFormat]"
+                hint="Format: 01:00 AM/PM"
+                style="width: 140px; max-width: 500px; min-width: 100px"
+                hide-dropdown-icon
+              />
+            </div>
           </div>
         </div>
       </q-card-section>
@@ -173,9 +188,11 @@ const search = async () => {
   }
 };
 
-const valididateTime = (val) => {
+const validateTimeFormat = (val) => {
   const timeRegex = /^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
-  return timeRegex.test(val) || "Invalid time format";
+  return (
+    timeRegex.test(val) || "Time format must be HH:MM AM/PM (e.g., 01:00 AM)"
+  );
 };
 
 const fetchWarehouse = async () => {
@@ -249,7 +266,8 @@ const addDesignation = reactive({
   employee_name: "",
   position: "",
   warehouse_name: "",
-  time_shift: "",
+  time_in: "",
+  time_out: "",
 });
 
 const clearDesignationForm = () => {
@@ -257,7 +275,8 @@ const clearDesignationForm = () => {
   addDesignation.employee_name = "";
   addDesignation.position = "";
   addDesignation.warehouse_name = "";
-  addDesignation.time_shift = "";
+  addDesignation.time_in = "";
+  addDesignation.time_out = "";
 };
 
 const save = async () => {

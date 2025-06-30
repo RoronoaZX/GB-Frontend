@@ -10,6 +10,7 @@ export const useWarehouseEmployeeStore = defineStore(
     const warehouseEmployees = ref([]);
 
     const createWarehouseEmployee = async (data) => {
+      console.log("Creating employee with data:", data);
       try {
         const response = await api.post(`/api/warehouse-employee`, data);
         warehouseEmployees.value = response.data;

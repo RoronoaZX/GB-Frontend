@@ -43,9 +43,10 @@
       </div>
 
       <!-- Action -->
-      <div>
+      <!-- <div>
         <q-btn unelevated color="primary" label="Add Attendance" />
-      </div>
+      </div> -->
+      <span></span>
     </div>
 
     <!-- Daily Logs -->
@@ -105,12 +106,37 @@ const transformApiData = (rawData) => {
   if (!rawData || rawData.length === 0) {
     return [];
   }
+
+  // Helper function to get day label
+  const getDayLabel = (dateInput) => {
+    if (!dateInput) return "-"; // Or whatever default you prefer for null dates
+
+    const d = new Date(dateInput);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    let label = d.toLocaleDateString("en-US", {
+      weekday: "long",
+      day: "numeric",
+    });
+
+    if (date.isSameDate(d, today, "day")) label = "Today";
+    if (date.isSameDate(d, yesterday, "day")) label = "Yesterday";
+
+    return label;
+  };
+
   return rawData.map((record) => {
     const timeIn = record.time_in ? new Date(record.time_in) : null;
+    const timeOut = record.time_out ? new Date(record.time_out) : null;
+
+    // Determine dayLabelIn and dayLabelOut
+    const dayLabelIn = getDayLabel(timeIn || record.created_at); // Use timeIn or created_at for in
+    const dayLabelOut = getDayLabel(timeOut || timeIn || record.created_at); // Use timeOut, or timeIn, or created_at for out
 
     const isDayOff = !timeIn && record.ot_status === "approved";
 
-    const timeOut = record.time_out ? new Date(record.time_out) : null;
     const breakStart = record.break_start ? new Date(record.break_start) : null;
     const breakEnd = record.break_end ? new Date(record.break_end) : null;
     const lunchStart = record.lunch_break_start
@@ -199,16 +225,11 @@ const transformApiData = (rawData) => {
           })
         : null;
 
+    // The original dayLabel logic, now applied only to a single point in time,
+    // which seems to be the day the record primarily represents.
+    // It's still useful for the overall record, but you also want dayLabelIn/Out.
     const recordDate = timeIn || new Date(record.created_at || Date.now());
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    let dayLabel = recordDate.toLocaleDateString("en-US", {
-      weekday: "long",
-      day: "numeric",
-    });
-    if (date.isSameDate(recordDate, today, "day")) dayLabel = "Today";
-    if (date.isSameDate(recordDate, yesterday, "day")) dayLabel = "Yesterday";
+    let dayLabel = getDayLabel(recordDate);
 
     let duration = "-";
     if (timeIn && timeOut) {
@@ -219,7 +240,9 @@ const transformApiData = (rawData) => {
     }
 
     return {
-      dayLabel: dayLabel,
+      dayLabel: dayLabel, // Keep the original record's dayLabel
+      dayLabelIn: dayLabelIn, // New: Day label for time-in
+      dayLabelOut: dayLabelOut, // New: Day label for time-out
       clockIn: formatTime(timeIn),
       clockOut: formatTime(timeOut),
       duration: duration,
@@ -233,6 +256,139 @@ const transformApiData = (rawData) => {
     };
   });
 };
+
+// const transformApiData = (rawData) => {
+//   if (!rawData || rawData.length === 0) {
+//     return [];
+//   }
+//   return rawData.map((record) => {
+//     const timeIn = record.time_in ? new Date(record.time_in) : null;
+
+//     const isDayOff = !timeIn && record.ot_status === "approved";
+
+//     const timeOut = record.time_out ? new Date(record.time_out) : null;
+//     const breakStart = record.break_start ? new Date(record.break_start) : null;
+//     const breakEnd = record.break_end ? new Date(record.break_end) : null;
+//     const lunchStart = record.lunch_break_start
+//       ? new Date(record.lunch_break_start)
+//       : null;
+//     const lunchEnd = record.lunch_break_end
+//       ? new Date(record.lunch_break_end)
+//       : null;
+//     const otStart = record.overtime_start
+//       ? new Date(record.overtime_start)
+//       : null;
+//     const otEnd = record.overtime_end ? new Date(record.overtime_end) : null;
+
+//     const activities = [];
+//     if (timeIn) {
+//       let lastEventTime = timeIn;
+//       const firstBreak = breakStart || lunchStart;
+//       if (firstBreak && firstBreak > lastEventTime) {
+//         activities.push({
+//           type: "working",
+//           label: "Working time",
+//           start: lastEventTime,
+//           end: firstBreak,
+//         });
+//         lastEventTime = firstBreak;
+//       }
+//       if (breakStart && breakEnd && breakEnd > lastEventTime) {
+//         activities.push({
+//           type: "break",
+//           label: "Break",
+//           start: breakStart,
+//           end: breakEnd,
+//         });
+//         lastEventTime = breakEnd;
+//       }
+//       if (lunchStart && lunchEnd && lunchEnd > lastEventTime) {
+//         activities.push({
+//           type: "break",
+//           label: "Break",
+//           start: lunchStart,
+//           end: lunchEnd,
+//         });
+//         lastEventTime = lunchEnd;
+//       }
+//       const workEndTime = otStart || timeOut;
+//       if (workEndTime && workEndTime > lastEventTime) {
+//         activities.push({
+//           type: "working",
+//           label: "Working time",
+//           start: lastEventTime,
+//           end: workEndTime,
+//         });
+//         lastEventTime = workEndTime;
+//       }
+//       if (otStart && otEnd && otEnd > lastEventTime) {
+//         activities.push({
+//           type: "overtime",
+//           label: "Over time",
+//           start: otStart,
+//           end: otEnd,
+//         });
+//       }
+//     } else if (isDayOff) {
+//       activities.push({
+//         type: "day_off",
+//         label: "Requested day off",
+//         start: null,
+//         end: null,
+//       });
+//     }
+
+//     const formatTime = (d) =>
+//       d
+//         ? d.toLocaleTimeString("en-US", {
+//             hour: "2-digit",
+//             minute: "2-digit",
+//             hour12: true,
+//           })
+//         : "-";
+//     const formatForTimeline = (d) =>
+//       d
+//         ? d.toLocaleTimeString("en-US", {
+//             hour: "2-digit",
+//             minute: "2-digit",
+//             hour12: false,
+//           })
+//         : null;
+
+//     const recordDate = timeIn || new Date(record.created_at || Date.now());
+//     const today = new Date();
+//     const yesterday = new Date();
+//     yesterday.setDate(yesterday.getDate() - 1);
+//     let dayLabel = recordDate.toLocaleDateString("en-US", {
+//       weekday: "long",
+//       day: "numeric",
+//     });
+//     if (date.isSameDate(recordDate, today, "day")) dayLabel = "Today";
+//     if (date.isSameDate(recordDate, yesterday, "day")) dayLabel = "Yesterday";
+
+//     let duration = "-";
+//     if (timeIn && timeOut) {
+//       const diffMs = timeOut - timeIn;
+//       const diffHrs = Math.floor(diffMs / 3600000);
+//       const diffMins = Math.round((diffMs % 3600000) / 60000);
+//       duration = `${diffHrs}h ${diffMins}m`;
+//     }
+
+//     return {
+//       dayLabel: dayLabel,
+//       clockIn: formatTime(timeIn),
+//       clockOut: formatTime(timeOut),
+//       duration: duration,
+//       otStatus: record.ot_status,
+//       isDayOff: isDayOff,
+//       activities: activities.map((act) => ({
+//         ...act,
+//         start: formatForTimeline(act.start),
+//         end: formatForTimeline(act.end),
+//       })),
+//     };
+//   });
+// };
 
 const fetchAttendanceForPeriod = async () => {
   if (!startDate.value || !endDate.value || !props.employeeId) return;

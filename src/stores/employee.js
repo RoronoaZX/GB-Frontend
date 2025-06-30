@@ -242,7 +242,7 @@ export const useEmployeeStore = defineStore("employees", () => {
   const updateEmployeeEmploymentType = async (data) => {
     console.log("updateEmployeeEmploymentTypestore", data);
 
-    const id = data.id;
+    const id = data.employee_id;
     try {
       const response = await api.put(
         `/api/update-employee-employmentType/${id}`,
@@ -252,13 +252,6 @@ export const useEmployeeStore = defineStore("employees", () => {
       console.log("====================================");
       console.log("response addresss", response.data);
       console.log("====================================");
-      const index = employees.value.findIndex((item) => item.id === id);
-      if (index !== -1) {
-        employees.value[index] = {
-          ...employees.value[index],
-          employment_type: response.data.employee.employment_type,
-        };
-      }
     } catch (error) {
       console.log(error);
     }
@@ -329,6 +322,86 @@ export const useEmployeeStore = defineStore("employees", () => {
       console.log(error);
     }
   };
+  const updateEmployeeDesignation = async (data) => {
+    console.log("Employee Designation Data in store", data);
+    const id = data.id;
+
+    try {
+      const response = await api.put(
+        `/api/update-employee-designation/${id}`,
+        data
+      );
+
+      console.log("====================================");
+      console.log("response time IN", response.data);
+
+      Notify.create({
+        message: "Time designation updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        message: "Failed to update designation",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateEmployeeTimeIn = async (data) => {
+    console.log("updateEmployeeTimeIn in store", data);
+    const id = data.designation_id;
+    try {
+      const response = await api.put(
+        `/api/update-employee-time-in/${id}`,
+        data
+      );
+
+      console.log("====================================");
+      console.log("response time IN", response.data);
+      // console.log("====================================");
+      // const index = employees.value.findIndex((item) => item.id === id);
+      // if (index !== -1) {
+      //   employees.value[index] = {
+      //     ...employees.value[index],
+      //     birthdate: response.data.employee.birthdate,
+      //   };
+      // }
+
+      Notify.create({
+        message: "Time in updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        message: "Failed to update time in",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+  const updateEmployeeTimeOut = async (data) => {
+    console.log("updateEmployeeTimeOut in store", data);
+    const id = data.designation_id;
+    try {
+      const response = await api.put(
+        `/api/update-employee-time-out/${id}`,
+        data
+      );
+      console.log("====================================");
+      console.log("response time out", response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return {
     employee,
@@ -346,6 +419,9 @@ export const useEmployeeStore = defineStore("employees", () => {
     updateEmployeeAddress,
     updateEmployeePhone,
     updateEmployeebirthdate,
+    updateEmployeeDesignation,
+    updateEmployeeTimeIn,
+    updateEmployeeTimeOut,
     updateEmployeeEmploymentType,
     searchPersonInCharge,
     fetchEmployeeWithEmploymentTypeAndDesignation,

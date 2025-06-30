@@ -1,53 +1,330 @@
 // function to be use in the
 // pages/administrator/payroll/panel-section/employees
 
-import { date } from "quasar";
+import { date, Notify } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
+import { useBranchesStore } from "src/stores/branch";
+import { useWarehousesStore } from "src/stores/warehouse";
+import { useEmploymentTypeStore } from "src/stores/employment-type";
+import { computed, onMounted, ref } from "vue";
 
 const employeeStore = useEmployeeStore();
+const branchesStore = useBranchesStore();
+const warehousesStore = useWarehousesStore();
+const employmentStore = useEmploymentTypeStore();
 
-export const updateEmployeeFullname = async (data, val) => {
-  const employeeFullname = {
-    id: data.id,
-    firstname: val.firstname || data.firstname,
-    middlename: val.middlename || data.middlename,
-    lastname: val.lastname || data.lastname,
-  };
-  await employeeStore.updateEmployeeFullname(employeeFullname);
+const branchList = computed(() => branchesStore.branches);
+const warehouseList = computed(() => warehousesStore.warehouses);
+const employmentTypeList = computed(() => employmentStore.employmentType);
+
+export const getOptions = (row) => {
+  if (!row?.designation?.designation_type) return [];
+
+  return row.designation.designation_type === "branch"
+    ? branchList.value
+    : warehouseList.value;
 };
 
-export const updateEmploymentType = async (row, selectedId) => {
-  const updateEmployeesEmploymentType = {
-    id: row.id,
-    employment_type_id: selectedId.value,
-  };
-  await employeeStore.updateEmployeeEmploymentType(
-    updateEmployeesEmploymentType
-  );
+export const getEmploymentTypeOptions = (row) => {
+  return;
+};
+
+const fetchBranchesData = async () => {
+  const branch = await branchesStore.fetchBranches();
+};
+
+onMounted(fetchBranchesData);
+
+const fetchWarehouseData = async () => {
+  const warehouse = await warehousesStore.fetchWarehouses();
+};
+
+onMounted(fetchWarehouseData);
+
+const fetchEmploymentTypeData = async () => {
+  await employmentStore.fetchEmploymentType();
+  console.log("employmentTypeList.value", employmentTypeList.value);
+};
+
+onMounted(fetchEmploymentTypeData);
+
+export const employmentTypeOptions = computed(() =>
+  employmentTypeList.value.map((type) => ({
+    label: type.category, // shown in dropdown
+    value: type.id, // selected value sent to API
+  }))
+);
+
+export const tableLoading = ref(false);
+
+export const updateEmployeeFullname = async (data, val) => {
+  tableLoading.value = true;
+  try {
+    const employeeFullname = {
+      id: data.id,
+      firstname: val.firstname || data.firstname,
+      middlename: val.middlename || data.middlename,
+      lastname: val.lastname || data.lastname,
+    };
+    await employeeStore.updateEmployeeFullname(employeeFullname);
+    Notify.create({
+      message: "Fullname updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating fullname:", error);
+    Notify.create({
+      message: "Failed to update amount",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
+export const updateEmploymentType = async (employmenTypeOgj, val, reloadFn) => {
+  console.log("✅ employmenTypeOgj() calledsss!");
+  console.log("🧩 New employmenTypeOgj ID:", val);
+  console.log("📦 Original employmenTypeOgj object:", employmenTypeOgj);
+
+  tableLoading.value = true;
+
+  try {
+    const employmentType = {
+      employee_id: employmenTypeOgj.id,
+      employment_type_id: val,
+    };
+
+    console.log("update employmentType", employmentType);
+    await employeeStore.updateEmployeeEmploymentType(employmentType);
+
+    if (typeof reloadFn === "function") {
+      reloadFn();
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    tableLoading.value = false;
+  }
+
+  // try {
+  //   const updateEmployeesEmploymentType = {
+  //     id: row.id,
+  //     employment_type_id: selectedId.value,
+  //   };
+  //   await employeeStore.updateEmployeeEmploymentType(
+  //     updateEmployeesEmploymentType
+  //   );
+  //   Notify.create({
+  //     message: "Employment type updated successfully",
+  //     color: "positive",
+  //     position: "top",
+  //     timeout: 2000,
+  //   });
+  // } catch (error) {
+  //   console.error("Error updating employment type:", error);
+  //   Notify.create({
+  //     message: "Failed to update employment type",
+  //     color: "negative",
+  //     position: "top",
+  //     timeout: 2000,
+  //   });
+  // } finally {
+  //   tableLoading.value = false;
+  // }
 };
 
 export const updateEmployeeAddress = async (data, val) => {
-  const employeeAddress = {
-    id: data.id,
-    address: val,
-  };
-  await employeeStore.updateEmployeeAddress(employeeAddress);
+  tableLoading.value = true;
+  try {
+    const employeeAddress = {
+      id: data.id,
+      address: val,
+    };
+    await employeeStore.updateEmployeeAddress(employeeAddress);
+    Notify.create({
+      message: "Address updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating address:", error);
+    Notify.create({
+      message: "Failed to update address",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
 };
 
 export const updateEmployeePhone = async (data, val) => {
-  const employeePhone = {
-    id: data.id,
-    phone: val,
-  };
-  await employeeStore.updateEmployeePhone(employeePhone);
+  tableLoading.value = true;
+  try {
+    const employeePhone = {
+      id: data.id,
+      phone: val,
+    };
+    await employeeStore.updateEmployeePhone(employeePhone);
+    Notify.create({
+      message: "Phone number updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating phone number:", error);
+    Notify.create({
+      message: "Failed to update phone number",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
 };
 
 export const updateEmployeeBirthdate = async (data, val) => {
-  const employeeBirthdate = {
-    id: data.id,
-    birthdate: val,
-  };
-  await employeeStore.updateEmployeebirthdate(employeeBirthdate);
+  tableLoading.value = true;
+  try {
+    const employeeBirthdate = {
+      id: data.id,
+      birthdate: val,
+    };
+    await employeeStore.updateEmployeebirthdate(employeeBirthdate);
+    Notify.create({
+      message: "Birthdate updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    Notify.create({
+      message: "Failed to update birthdate",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
+export const updateEmployeeDesignation = async (
+  designationObj,
+  val,
+  reloadFn
+) => {
+  console.log("✅ updateEmployeeDesignation() calledsss!");
+  console.log("🧩 New designation ID:", val);
+  console.log("📦 Original designation object:", designationObj);
+
+  tableLoading.value = true;
+  try {
+    const employeeDesignation = {
+      id: designationObj.designation_type_id,
+      designation_id: val,
+      designation_type: designationObj.designation_type,
+    };
+
+    console.log("Employee Designation:", employeeDesignation);
+    await employeeStore.updateEmployeeDesignation(employeeDesignation);
+
+    // ✅ Call reload function after successful update
+    if (typeof reloadFn === "function") {
+      reloadFn();
+    }
+  } catch (error) {
+    console.log("designation error:", error);
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
+// export const updateEmployeeDesignation = async (designationObj, val) => {
+//   console.log("✅ updateEmployeeDesignation() calledsss!");
+//   console.log("🧩 New designation ID:", val);
+//   console.log("📦 Original designation object:", designationObj);
+
+//   tableLoading.value = true;
+//   try {
+//     const employeeDesignation = {
+//       id: designationObj.designation_type_id,
+//       designation_id: val,
+//       designation_type: designationObj.designation_type,
+//     };
+
+//     console.log("Employee Designation:", employeeDesignation);
+//     await employeeStore.updateEmployeeDesignation(employeeDesignation);
+//   } catch (error) {
+//     console.log("desognation error:", error);
+//   } finally {
+//     tableLoading.value = false;
+//   }
+// };
+export const updateEmployeeTimeIn = async (data, val) => {
+  console.log("updateEmployeeTimeIn composables", data, val);
+  tableLoading.value = true;
+  try {
+    const employeeTimeIn = {
+      designation_type: data.designation_type,
+      designation_id: data.designation_type_id,
+      time_in: val,
+    };
+    await employeeStore.updateEmployeeTimeIn(employeeTimeIn);
+  } catch (error) {
+    console.error("Error updating time in:", error);
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
+export const updateEmployeeTimeOut = async (data, val) => {
+  console.log("updateEmployeeTimeOut composables", data, val);
+  tableLoading.value = true;
+  try {
+    const employeeTimeOut = {
+      designation_type: data.designation_type,
+      designation_id: data.designation_type_id,
+      time_out: val,
+    };
+    await employeeStore.updateEmployeeTimeOut(employeeTimeOut);
+    Notify.create({
+      message: "Time OUT updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating time out:", error);
+    Notify.create({
+      message: "Failed to update amount",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
+export const validateTimeFormat = (val) => {
+  // Regex to match "HH:MM AM/PM" format.
+  // HH: 01-12
+  // MM: 00-59
+  // AM/PM: AM or PM
+  const timeRegex = /^(0[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/;
+  return (
+    timeRegex.test(val) || "Time format must be HH:MM AM/PM (e.g., 01:00 AM)"
+  );
 };
 
 export function formatFullname(row) {
@@ -103,6 +380,8 @@ export const employeeColumns = [
     field: (row) => formatFullname(row),
     format: (val) => `${val}`,
     sortable: true,
+    style: "position: sticky; left: 0 ; background: white; z-index: 1;",
+    headerStyle: "position: sticky; left: 0; background: white; z-index: 2;",
   },
   {
     name: "employmentType",
@@ -136,6 +415,30 @@ export const employeeColumns = [
     align: "center",
     field: "birthdate",
     format: (val) => formatDate(val),
+    sortable: true,
+  },
+  {
+    name: "designation",
+    required: true,
+    label: "Designation",
+    align: "center",
+    field: (row) => row.designation?.name || "N/A",
+    sortable: true,
+  },
+  {
+    name: "time_in",
+    required: true,
+    label: "Time In",
+    align: "center",
+    field: (row) => row.designation?.time_in || "N/A",
+    sortable: true,
+  },
+  {
+    name: "time_out",
+    required: true,
+    label: "Time Out",
+    align: "center",
+    field: (row) => row.designation?.time_out || "N/A",
     sortable: true,
   },
   {

@@ -18,7 +18,7 @@
     backdrop-filter="blur(4px) saturate(150%)"
     position="right"
   >
-    <q-card style="width: 800px; max-width: 100vw">
+    <q-card style="width: 550px; max-width: 100vw">
       <q-card-section
         class="row items-center q-px-md q-py-sm bg-gradient text-white"
       >
@@ -66,14 +66,15 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="row q-gutter-md">
+        <div class="row justify-between q-gutter-md">
           <q-input
             outlined
             readonly
             dense
             label="Full Name"
             v-model="addDesignation.employee_name"
-            style="width: 300px"
+            style="width: 350px"
+            :rules="[(val) => !!val || 'Employee name is required']"
           />
           <q-input
             outlined
@@ -82,13 +83,14 @@
             label="Position"
             v-model="addDesignation.position"
             style="width: 150px"
+            :rules="[(val) => !!val || 'Position is required']"
           />
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="q-my-md">Designation</div>
         <div class="row q-gutter-x-md">
           <div>
+            <div class="q-my-md">Designation</div>
             <q-select
               v-model="addDesignation.branch_name"
               outlined
@@ -102,22 +104,37 @@
               @filter="filteredBranches"
               hide-dropdown-icon
               behavior="menu"
-              style="width: 250px; max-width: 500px; min-width: 100px"
+              style="width: 200px; max-width: 500px; min-width: 100px"
             />
           </div>
           <div>
-            <q-input
-              v-model="addDesignation.time_shift"
-              outlined
-              flat
-              dense
-              mask="##:## AA"
-              label="Time Schedule"
-              :rules="valididateTime"
-              hint="Format: 01:00 AM/PM"
-              style="width: 200px; max-width: 500px; min-width: 100px"
-              hide-dropdown-icon
-            />
+            <div class="q-my-md">Time Schedule</div>
+            <div class="row justify-between q-gutter-x-md">
+              <q-input
+                v-model="addDesignation.time_in"
+                outlined
+                flat
+                dense
+                mask="##:## AA"
+                label="Time IN"
+                :rules="[validateTimeFormat]"
+                hint="Format: 08:00 AM/PM"
+                style="width: 140px; max-width: 500px; min-width: 100px"
+                hide-dropdown-icon
+              />
+              <q-input
+                v-model="addDesignation.time_out"
+                outlined
+                flat
+                dense
+                mask="##:## AA"
+                label="Time OUT"
+                :rules="[validateTimeFormat]"
+                hint="Format: 01:00 AM/PM"
+                style="width: 140px; max-width: 500px; min-width: 100px"
+                hide-dropdown-icon
+              />
+            </div>
           </div>
         </div>
       </q-card-section>
@@ -129,6 +146,7 @@
           label="Add"
           @click="save"
           :loading="loading"
+          :disable="isSaveDisabled"
         />
       </q-card-actions>
     </q-card>
@@ -166,10 +184,29 @@ const search = async () => {
   }
 };
 
-const valididateTime = (val) => {
-  const timeRegex = /^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
-  return timeRegex.test(val) || "Invalid time format";
-};
+const isSaveDisabled = computed(() => {
+  const timeRegex = /^(0[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/;
+
+  return (
+    !addDesignation.employee_id ||
+    !addDesignation.employee_name ||
+    !addDesignation.position ||
+    !addDesignation.branch_name ||
+    !addDesignation.time_in ||
+    !addDesignation.time_out ||
+    !timeRegex.test(addDesignation.time_in) ||
+    !timeRegex.test(addDesignation.time_out)
+  );
+});
+
+const addDesignation = reactive({
+  employee_id: "",
+  employee_name: "",
+  position: "",
+  branch_name: "",
+  time_in: "",
+  time_out: "",
+});
 
 const fetchBranchesData = async () => {
   const branch = await branchesStore.fetchBranches();
@@ -194,17 +231,6 @@ const filteredBranches = (val, update) => {
   });
 };
 
-// const formattedFullName = computed(() => {
-//   const employee = employees.value.find(
-//     (emp) => emp.id === addDesignation.employee_id
-//   );
-//   if (employee) {
-//     return `${employee.firstname} ${
-//       employee.middlename ? employee.middlename.charAt(0) + "." : ""
-//     } ${employee.lastname}`;
-//   }
-//   return "";
-// });
 const autoFillEmployee = (employee) => {
   // Log the selected employee data
   console.log("Selected Employee:", employee);
@@ -237,20 +263,24 @@ const openDesignationDialog = () => {
   designationDialog.value = true;
 };
 
-const addDesignation = reactive({
-  employee_id: "",
-  employee_name: "",
-  position: "",
-  branch_name: "",
-  time_shift: "",
-});
-
 const clearDesignationForm = () => {
   addDesignation.employee_id = "";
   addDesignation.employee_name = "";
   addDesignation.position = "";
   addDesignation.branch_name = "";
-  addDesignation.time_shift = "";
+  addDesignation.time_in = "";
+  addDesignation.time_out = "";
+};
+
+const validateTimeFormat = (val) => {
+  // Regex to match "HH:MM AM/PM" format.
+  // HH: 01-12
+  // MM: 00-59
+  // AM/PM: AM or PM
+  const timeRegex = /^(0[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/;
+  return (
+    timeRegex.test(val) || "Time format must be HH:MM AM/PM (e.g., 01:00 AM)"
+  );
 };
 
 const save = async () => {
@@ -263,8 +293,8 @@ const save = async () => {
   await designationStore.createDesignation(designation);
   console.log("Designation Data to Save:", designation);
   loading.value = false;
-  clearDesignationForm();
   designationDialog.value = false;
+  clearDesignationForm();
 };
 </script>
 
