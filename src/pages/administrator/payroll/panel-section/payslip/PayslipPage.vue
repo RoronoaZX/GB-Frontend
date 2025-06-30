@@ -325,6 +325,24 @@
         </div>
       </template>
     </div>
+    <q-page-scroller
+      position="bottom-right"
+      :scroll-offset="100"
+      :offset="[18, 18]"
+      transition-show="jump-up"
+      transition-hide="jump-down"
+    >
+      <q-btn
+        icon="keyboard_arrow_up"
+        round
+        size="md"
+        text-color="white"
+        @click="scrollToTop"
+        class="gradient-btn"
+      >
+        <q-tooltip class="gradient-tooltip"> Back to top </q-tooltip>
+      </q-btn>
+    </q-page-scroller>
   </q-page>
 </template>
 
@@ -353,6 +371,13 @@ const selectedRole = ref(null);
 const typeOptions = ref([]);
 const statusOptions = ref([]);
 const roleOptions = ref([]);
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
 
 const fetchEmployees = async () => {
   loading.value = true; // Set loading to true before fetching
@@ -539,5 +564,20 @@ function getLinkStyle(status) {
 
 .contact-pill:hover {
   background-color: #dbe8ff;
+}
+.gradient-btn {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.gradient-btn:hover {
+  filter: brightness(1.1);
+}
+
+.gradient-tooltip {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: black;
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
 }
 </style>

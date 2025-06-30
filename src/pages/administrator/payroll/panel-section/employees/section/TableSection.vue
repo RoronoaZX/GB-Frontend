@@ -200,9 +200,13 @@
       </template>
       <template v-slot:body-cell-designation="props">
         <q-td :props="props">
-          <div>
+          <div :class="{ 'editable-cell': props.row.designation }">
             {{ capitalizeAddress(props.row.designation?.name) || "N/A" }}
-            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+            <q-tooltip
+              v-if="props.row.designation?.name"
+              class="bg-blue-grey-8"
+              :offset="[10, 10]"
+            >
               Edit Designation
             </q-tooltip>
           </div>
@@ -543,12 +547,12 @@ watch(filter, async (newVal) => {
 .editable-cell {
   cursor: pointer;
   /* Optional: add a subtle underline to invite clicks */
-  border-bottom: 1px dashed #777;
+  // border-bottom: 1px dashed #777;
   padding-bottom: 2px;
 }
 
 /* Optional: add a hover effect for better feedback */
-.editable-cell:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
+// .editable-cell:hover {
+//   background-color: rgba(0, 0, 0, 0.05);
+// }
 </style>
