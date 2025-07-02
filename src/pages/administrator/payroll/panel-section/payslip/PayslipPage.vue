@@ -462,7 +462,7 @@ const handleViewDetailsClick = (employee) => {
   // This gives the user time to see the spinner animation start.
   setTimeout(() => {
     router.push({
-      name: "EmployeeProfile",
+      name: "employee-profile-page",
       params: { employee_id: employee.id },
     });
   }, 300);

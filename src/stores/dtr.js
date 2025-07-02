@@ -75,6 +75,19 @@ export const useDTRStore = defineStore("dtrs", () => {
     });
   };
 
+  const fetchDTRPayrollPerCutOff = async (id) => {
+    console.log("fetchDTRPayrollPerCutOff", id);
+
+    try {
+      const response = await api.get(
+        `/api/fetch-drt-payroll-per-cut-off/${id}`
+      );
+      dtrCutOffData.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const approveOvertime = async (data) => {
     console.log("Approving overtime with data:", data);
     try {
@@ -109,6 +122,7 @@ export const useDTRStore = defineStore("dtrs", () => {
     fetchDTR,
     fetchDTRRange,
     fetchEmployeeDTRRange,
+    fetchDTRPayrollPerCutOff,
     saveOvertime,
     searchDTR,
     approveOvertime,

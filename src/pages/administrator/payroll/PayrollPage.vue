@@ -85,7 +85,7 @@
         </div>
       </q-route-tab>
     </q-tabs>
-    <q-tab-panels v-model="tab" animated style="background-color: #f7f8fc">
+    <!-- <q-tab-panels v-model="tab" animated style="background-color: #f7f8fc">
       <q-tab-panel name="dashboard">
         <DashboardPage />
       </q-tab-panel>
@@ -101,7 +101,7 @@
       <q-tab-panel name="payslip">
         <PayslipPage />
       </q-tab-panel>
-    </q-tab-panels>
+    </q-tab-panels> -->
     <div style="background-color: #f7f8fc">
       <router-view />
     </div>

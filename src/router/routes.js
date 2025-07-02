@@ -196,12 +196,44 @@ const routes = [
         ],
       },
       {
-        path: "payslip/payroll/employee/:employee_id/details",
+        path: "payslip/payroll/employee/:employee_id",
         name: "EmployeeProfile",
         component: () =>
           import(
             "pages/administrator/payroll/panel-section/payslip/details/ViewDetails.vue"
           ),
+        children: [
+          {
+            path: "",
+            redirect: {
+              name: "employee-profile-page",
+            },
+          },
+          {
+            path: "details",
+            name: "employee-profile-page",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/payslip/details/components/personal-info/PersonalInfoPage.vue"
+              ),
+          },
+          {
+            path: "time-management-dashboard",
+            name: "payslip-payroll-time-management-dashboard",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/payslip/details/components/time-management/TimeManagementDashboard.vue"
+              ),
+          },
+          {
+            path: "payroll",
+            name: "employee-payroll-page",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/payslip/details/components/payroll/EmployeePayroll.vue"
+              ),
+          },
+        ],
       },
       {
         path: "devices",

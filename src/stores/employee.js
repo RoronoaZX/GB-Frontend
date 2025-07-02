@@ -52,7 +52,7 @@ export const useEmployeeStore = defineStore("employees", () => {
       `/api/fetchCertianEmployeeWithEmploymentTypeAndDesignation/${id}`
     );
     employees.value = response.data;
-    console.log("employees.value", employees.value);
+    console.log("employeessssss.value", employees.value);
   };
   const createEmployee = async (data) => {
     // Loading.show();

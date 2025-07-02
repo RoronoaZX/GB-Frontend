@@ -43,61 +43,40 @@
       indicator-color="primary"
       no-caps
     >
-      <q-tab
-        name="personal"
+      <q-route-tab
+        :to="{
+          name: 'employee-profile-page',
+          params: { employee_id: employee_id },
+        }"
         icon="person_outline"
         label="Personal Information"
+        :employeesData="employeesData"
       />
-      <q-tab name="payroll" icon="receipt_long" label="Payroll" />
-      <q-tab name="time" icon="schedule" label="Time Management" />
+      <q-route-tab
+        :to="{
+          name: 'payslip-payroll-time-management-dashboard',
+          params: { employee_id: employee_id },
+        }"
+        icon="schedule"
+        label="Time Management"
+      />
+      <q-route-tab
+        :to="{
+          name: 'employee-payroll-page',
+          params: { employee_id: employee_id },
+        }"
+        icon="receipt_long"
+        label="Payroll"
+      />
     </q-tabs>
     <q-separator />
-    <q-tab-panels v-model="tab" animated class="bg-grey-2">
-      <!-- Personal Information Tab -->
-      <q-tab-panel name="personal">
-        <div class="row q-col-gutter-lg q-mt-none">
-          <!-- Left Column -->
-          <div class="col-12 col-md-8">
-            <div class="column q-gutter-y-lg">
-              <!-- Personal Information Card -->
-              <PersonalInformationCard
-                :employee="employeesData"
-                @editClicked="handleEdit('personal')"
-              />
-              <!-- Address Information Card -->
-              <AddressInformationCard
-                :employee="employeesData"
-                @editClicked="handleEdit('address')"
-              />
-              <!-- Employment Overview Card -->
-              <EmploymentOverview
-                :employee="employeesData"
-                @editClicked="handleEdit('employment')"
-              />
-            </div>
-          </div>
-          <!-- Right Column -->
-          <div class="col-12 col-md-4">
-            <div class="column q-gutter-y-lg">
-              <!-- Contact Information Card -->
-              <ContactInformationCard
-                :employee="employeesData"
-                @editClicked="handleEdit('contact')"
-              />
-            </div>
-          </div>
-        </div>
-      </q-tab-panel>
-      <!-- Payroll Tab -->
+    <q-tab-panels v-model="tab" animated class="bg-grey-2"> </q-tab-panels>
 
-      <!-- ** THIS IS WHERE YOU ADD THE NEW COMPONENT ** -->
-      <q-tab-panel name="time">
-        <TimeManagementDashboard
-          v-if="employeesData"
-          :employee-id="employeesData.id"
-        />
-      </q-tab-panel>
-    </q-tab-panels>
+    <div>
+      <router-view v-slot="{ Component }">
+        <component :is="Component" :employees-data="employeesData" />
+      </router-view>
+    </div>
     <!-- Main Content -->
     <q-inner-loading
       :showing="goBackLoading"
@@ -118,11 +97,8 @@ import {
   formatFullname,
   capitalizeAddress,
 } from "src/composables/employeeFunction/useEmployeeFunctions";
-import PersonalInformationCard from "./components/personal-info/PersonalInformationCard.vue";
-import AddressInformationCard from "./components/personal-info/AddressInformationCard.vue";
-import EmploymentOverview from "./components/personal-info/EmploymentOverview.vue";
-import ContactInformationCard from "./components/personal-info/ContactInformationCard.vue";
-import TimeManagementDashboard from "./components/time-management/TimeManagementDashboard.vue";
+
+import EmployeePayroll from "./components/payroll/EmployeePayroll.vue";
 
 const employeeStore = useEmployeeStore();
 const employeesSample = computed(() => employeeStore.employees);
