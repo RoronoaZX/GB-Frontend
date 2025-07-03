@@ -1,7 +1,6 @@
 <template>
   <q-page padding class="bg-grey-2">
     <div class="q-pa-md bg-white rounded-borders">
-      <!-- Top Filter Bar -->
       <div class="row items-center q-gutter-md q-mb-lg">
         <q-input
           outlined
@@ -42,16 +41,8 @@
           icon-right="expand_more"
           no-caps
         />
-
-        <!-- <q-space /> -->
-
-        <!-- <q-btn flat no-caps>
-          <q-icon name="tune" class="q-mr-sm" />
-          General Setting
-        </q-btn> -->
       </div>
       <div v-if="!isLoading">
-        <!-- Payroll Table -->
         <q-table
           v-if="payrollData.length > 0"
           :rows="payrollData"
@@ -87,31 +78,25 @@
             </q-td>
           </template>
 
+          <template v-slot:body-cell-total_regular_hours="props">
+            <q-td :props="props">
+              {{ calculateTotalHoursForCutoff(props.row) }}
+            </q-td>
+          </template>
+
           <template v-slot:body-cell-action="props">
             <q-td :props="props">
               <div class="row items-center no-wrap q-gutter-x-sm">
-                <!-- Run Payroll Button -->
-                <!-- v-if="props.row.status === 'run'" -->
                 <q-btn
                   dense
-                  label="Run payroll"
+                  label="View"
                   color="dark"
                   unelevated
                   no-caps
                   padding="xs md"
                   class="action-button"
+                  @click="handleProcessEmployeeDTR(props.row)"
                 />
-
-                <!-- Status Chips -->
-                <!-- <div v-else class="status-chip" :class="props.row.status">
-             <span class="dot"></span>
-             <span>{{
-               props.row.status.charAt(0).toUpperCase() +
-               props.row.status.slice(1)
-             }}</span>
-           </div> -->
-
-                <!-- More Options Menu -->
                 <q-btn
                   flat
                   round
@@ -162,13 +147,14 @@ import { useRoute, useRouter } from "vue-router";
 import { usePayrollStore } from "src/stores/payroll";
 import { useEmployeeStore } from "src/stores/employee";
 import { useDTRStore } from "src/stores/dtr";
-import { useQuasar, date } from "quasar";
+import { useQuasar, date } from "quasar"; // 'date' utility is crucial here
+import EmployeeDTRDialog from "./EmployeeDTRDialog.vue";
 
 const $q = useQuasar();
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
-const employeesData = ref([]);
+const employeesData = ref(null); // This will hold the specific employee's details
 const dtrStore = useDTRStore();
 const route = useRoute();
 const employee_id = route.params.employee_id || "";
@@ -176,7 +162,17 @@ const search = ref("");
 const payrollData = computed(() => dtrStore.dtrCutOffData);
 const isLoading = ref(true);
 
-// --- No changes needed here, the fetch logic is correct ---
+// Function to handle opening the DTR details dialog
+const handleProcessEmployeeDTR = (dtrRecords) => {
+  $q.dialog({
+    component: EmployeeDTRDialog, // Pass the imported component directly (Quasar v2+ approach)
+    componentProps: {
+      dtrRecord: dtrRecords, // Note: dtrRecords is an array of daily DTR entries
+    },
+  });
+};
+
+// --- Lifecycle Hook ---
 onMounted(async () => {
   if (!employee_id) {
     console.error("Employee ID is missing.");
@@ -196,13 +192,36 @@ onMounted(async () => {
   }
 });
 
+// --- Data Fetching Functions ---
 const fetchEmployeeDetails = async () => {
   try {
     await employeeStore.fetchCertianEmployeeWithEmploymentTypeAndDesignation(
       employee_id
     );
+    // Assuming `employees.value` now contains the single employee object directly
     employeesData.value = employees.value;
     console.log("Employee Designation Data Loaded:", employeesData.value);
+
+    // --- Critical Debugging Step: Verify the 'designation' property ---
+    if (employeesData.value && employeesData.value.designation) {
+      console.log(
+        "Employee's regular designation time_in:",
+        employeesData.value.designation.time_in
+      );
+      console.log(
+        "Employee's regular designation time_out:",
+        employeesData.value.designation.time_out
+      );
+    } else {
+      console.error(
+        "Employee designation or its time_in/time_out is missing from the fetched employee data!"
+      );
+      $q.notify({
+        type: "negative",
+        message:
+          "Employee's regular work hours not found. Cannot calculate total hours.",
+      });
+    }
   } catch (error) {
     console.error("Error fetching employee details:", error);
     throw error;
@@ -213,7 +232,7 @@ const fetchPayrollPerCutOff = async () => {
   isLoading.value = true;
   try {
     await dtrStore.fetchDTRPayrollPerCutOff(employee_id);
-    console.log("payrollData", payrollData.value);
+    console.log("payrollData (DTR cut-off data):", payrollData.value);
   } catch (error) {
     console.error("Error fetching payroll data:", error);
     throw error;
@@ -222,7 +241,7 @@ const fetchPayrollPerCutOff = async () => {
   }
 };
 
-// --- No changes needed in the columns array ---
+// --- Table Columns Definition ---
 const columns = [
   {
     name: "payRuns",
@@ -240,17 +259,11 @@ const columns = [
     sortable: true,
     icon: "receipt_long",
   },
-  // {
-  //   name: "total_regular_hours",
-  //   label: "Total Regular Hours",
-  //   field: (row) => calculateRegularHours(row), // This now uses the new "full day" logic
-  //   align: "left",
-  //   sortable: true,
-  //   icon: "event",
-  // },
   {
     name: "action",
     label: "Action",
+    // Assuming 'status' is a field in your payrollData rows that dictates action
+    // If you don't have a 'status' field, you can set field: null
     field: "status",
     align: "left",
     icon: "bolt",
