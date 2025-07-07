@@ -6,148 +6,19 @@
     transition-show="slide-up"
     transition-hide="slide-down"
   >
-    <q-card class="dtr-dialog-card q-pa-md">
+    <q-card>
       <q-card-section class="row items-center justify-between q-pb-md">
         <div class="col-auto">
           <div class="text-h6 text-weight-bold text-primary">
-            Name: {{ employeeDetailsComputed.fullName }}
+            Name: {{ formatFullname(employeesData || "N/A") }}
           </div>
           <div class="text-subtitle1 text-grey-7">
-            From: {{ dtrRecord.from }} &bull; To: {{ dtrRecord.end }}
+            From : {{ dtrRecord.from }} &bull; To: {{ dtrRecord.end }}
           </div>
         </div>
         <q-btn icon="close" flat dense round v-close-popup>
           <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
         </q-btn>
-      </q-card-section>
-
-      <q-card-section class="q-pt-sm q-pb-md">
-        <q-card flat bordered class="summary-card q-pa-md">
-          <q-list dense>
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="schedule" color="indigo" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-medium">
-                  Schedule:
-                  <span class="text-info">{{ employeeSchedule }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-separator spaced inset="item" />
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="money" color="blue-grey" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-medium">
-                  Rate / Day:
-                  <span class="text-blue-grey">{{
-                    formatCurrency(employeesData?.employment_type?.salary) ||
-                    "₱ 0.00"
-                  }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="event_note" color="primary" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-medium">
-                  Total Number of Days:
-                  <span class="text-primary">{{
-                    dtrRecord.records.length
-                  }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="wallet" color="accent" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-medium">
-                  Expected Salary:
-                  <span class="text-accent">{{ expectedSalary }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-separator spaced inset="item" />
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="timer" color="positive" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-medium">
-                  Overall Total Working Hours:
-                  <span class="text-positive">{{
-                    overallTotalWorkingHours
-                  }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="trending_down" color="negative" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-medium">
-                  Overall Total Undertime / Late:
-                  <span class="text-negative">{{ overallTotalUndertime }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="access_time" color="blue" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-medium">
-                  Overall Total Overtime:
-                  <span class="text-blue">{{ overallTotalOvertime }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-separator spaced inset="item" />
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="payments" color="teal" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-bold">
-                  Overall Total Salary:
-                  <span class="text-teal">{{ overallTotalSalary }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="money_off" color="deep-orange" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-body1 text-weight-bold">
-                  Overall Total Undertime Cost:
-                  <span class="text-deep-orange">{{
-                    overallUndertimeCost
-                  }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card>
       </q-card-section>
 
       <q-card-section class="q-pt-sm">
@@ -159,14 +30,13 @@
           :rows="dtrRows"
           :columns="dtrColumns"
           row-key="entry"
-          class="modern-dtr-table"
+          class="full-height-table"
           v-model:pagination="pagination"
           hide-bottom
-          :loading="loadingTable"
         >
           <template v-slot:body-cell="props">
             <q-td :props="props">
-              <span>{{ props.value }}</span>
+              <span class="text-overline">{{ props.value }}</span>
             </q-td>
           </template>
           <template v-slot:body-cell-number_of_days="props">
@@ -174,15 +44,206 @@
               {{ props.pageIndex + 1 }}
             </q-td>
           </template>
-          <template v-slot:loading>
-            <q-inner-loading showing color="primary" />
-          </template>
         </q-table>
+      </q-card-section>
+
+      <q-card-section class="q-pt-sm q-pb-md">
+        <q-card flat bordered class="summary-card q-pa-md">
+          <q-list dense>
+            <div class="row justify-between">
+              <q-item>
+                <q-item-section avatar>
+                  <q-icon name="schedule" color="indigo" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-medium">
+                    Schedule:
+                    <span class="text-info">{{ employeeSchedule }}</span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-btn label="proceed"></q-btn>
+              </q-item>
+            </div>
+
+            <q-separator spaced inset="item" />
+
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="money" color="blue-grey" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-meduim">
+                    Rate / Day:
+                    <span class="text-blue-grey">
+                      {{
+                        formatCurrency(
+                          employeesData?.employment_type?.salary
+                        ) || "₱ 0.00"
+                      }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item-section>
+            </q-item>
+
+            <div class="row justify-between">
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <q-icon name="event_note" color="primary" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-meduim">
+                    Total Number of Days:
+                    <span class="text-primary">
+                      {{ dtrRecord.records.length }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <!-- color="accent" -->
+                  <q-icon name="wallet" color="primary" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-bold">
+                    Expected Salary in {{ dtrRecord.records.length }} days:
+                    <!-- class="text-accent" -->
+                    <span class="text-primary">{{ regularPay }}</span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+
+            <q-separator spaced inset="item" />
+
+            <div class="row justify-between">
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <!-- color="positive" -->
+                  <q-icon name="timer" color="teal" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-meduim">
+                    Total Working Hours:
+                    <span class="text-teal">
+                      {{ `${overallTotalWorkingHours}` }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <q-icon name="payments" color="teal" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-bold">
+                    Total Working Hours Cost :
+                    <span class="text-teal">
+                      {{ overallTotalWorkingHoursSalary }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+
+            <div class="row justify-between">
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <q-icon name="timelapse" color="orange" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-meduim">
+                    Total Overtime Hours:
+                    <span class="text-orange">
+                      {{ `${overallTotalOvertime}` }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <q-icon name="attach_money" color="orange" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-bold">
+                    Total Overtime Cost :
+                    <span class="text-orange">
+                      {{ overallOvertimeCost }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+
+            <div class="row justify-between">
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <q-icon name="trending_down" color="negative" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-meduim">
+                    Total Undertime / Late:
+                    <span class="text-negative">
+                      {{ `${overallTotalUndertime}` }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <q-icon name="money_off" color="negative" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-bold">
+                    Total Undertime / Late Cost :
+                    <span class="text-negative">
+                      {{ overallUndertimeCost }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+
+            <div class="row justify-between">
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <!-- account_balance_wallet -->
+                  <q-icon name="alarm_add" color="positive" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-meduim">
+                    TWH + TOH:
+                    <span class="text-positive">
+                      {{ `${overallTotalWorkingHoursWithOT}` }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item class="col-6">
+                <q-item-section avatar>
+                  <q-icon name="account_balance_wallet" color="positive" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-bold">
+                    TWH + TOH Cost :
+                    <span class="text-positive">
+                      {{ overallTotalSalary }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+          </q-list>
+        </q-card>
+        <q-card-section align="right"> </q-card-section>
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
-
 <script setup>
 import { useDialogPluginComponent, useQuasar } from "quasar";
 // The useAttendanceHelpers is commented out as it's not directly used in the provided snippet logic,
@@ -435,14 +496,19 @@ const overallTotalUndertime = computed(() => {
 });
 
 // New Computed Property: Overall Total Overtime
+// New Computed Property: Overall Total Overtime
 const overallTotalOvertime = computed(() => {
   let totalOvertimeMinutes = 0;
 
   dtrRows.forEach((row) => {
     // Only consider approved overtime
-    if (row.ot_status === "approved" && row.overtime_in && row.overtime_out) {
-      const otIn = new Date(row.overtime_in);
-      const otOut = new Date(row.overtime_out);
+    if (
+      row.ot_status === "approved" &&
+      row.overtime_start &&
+      row.overtime_end
+    ) {
+      const otIn = new Date(row.overtime_start);
+      const otOut = new Date(row.overtime_end);
 
       if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut > otIn) {
         const otMs = otOut.getTime() - otIn.getTime();
@@ -454,6 +520,45 @@ const overallTotalOvertime = computed(() => {
 });
 
 // Computed Property: Overall Total Salary
+const overallTotalWorkingHoursSalary = computed(() => {
+  if (
+    !employeesData.value ||
+    !employeesData.value.employment_type ||
+    !employeesData.value.employment_type.salary
+  ) {
+    return "₱ 0.00";
+  }
+
+  const dailySalary = parseFloat(employeesData.value.employment_type.salary);
+  if (isNaN(dailySalary) || dailySalary <= 0) {
+    return "₱ 0.00 (Invalid Salary)";
+  }
+  const standardWorkingHoursPerDay = 8; //As per requirements
+  const hourlyRate = dailySalary / standardWorkingHoursPerDay;
+
+  // Get the total working hours in minutes from the previously calculated computed property
+  const totalWorkingMinutes = convertHoursMinutesToMinutes(
+    overallTotalWorkingHours.value
+  );
+  // Get the total overtime hours in minutes
+  const totalOvertimeMinutes = convertHoursMinutesToMinutes(
+    overallTotalOvertime.value
+  );
+
+  // Convert total minutes to total hours (can be decimal)
+  const totalRegularWorkingHours = totalWorkingMinutes / 60;
+  const totalOvertimeHours = totalOvertimeMinutes / 60;
+
+  // Assuming overtime is paid at the regular hourly rate for simplicity, adjust if different rate applies
+  const calculatedSalary = totalRegularWorkingHours * hourlyRate;
+  // totalRegularWorkingHours * hourlyRate + totalOvertimeHours * hourlyRate;
+
+  // Format to Peso currency
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(calculatedSalary);
+});
 const overallTotalSalary = computed(() => {
   if (
     !employeesData.value ||
@@ -486,12 +591,53 @@ const overallTotalSalary = computed(() => {
   // Assuming overtime is paid at the regular hourly rate for simplicity, adjust if different rate applies
   const calculatedSalary =
     totalRegularWorkingHours * hourlyRate + totalOvertimeHours * hourlyRate;
+  // totalRegularWorkingHours * hourlyRate + totalOvertimeHours * hourlyRate;
 
   // Format to Peso currency
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
   }).format(calculatedSalary);
+});
+
+// NEW Computed Property: Overall Overtime Cost
+const overallOvertimeCost = computed(() => {
+  if (
+    !employeesData.value ||
+    !employeesData.value.employment_type ||
+    !employeesData.value.employment_type.salary
+  ) {
+    return "₱ 0.00";
+  }
+
+  const dailySalary = parseFloat(employeesData.value.employment_type.salary);
+  if (isNaN(dailySalary) || dailySalary <= 0) {
+    return "₱ 0.00 (Invalid Salary)";
+  }
+
+  const standardWorkHoursPerDay = 8; // Assuming 8 standard hours per day
+  const hourlyRate = dailySalary / standardWorkHoursPerDay;
+
+  // Get the total overtime minutes from the previously calculated computed property
+  const totalOvertimeMinutes = convertHoursMinutesToMinutes(
+    overallTotalOvertime.value
+  );
+
+  // Convert total overtime minutes to total overtime hours (can be decimal)
+  const totalOvertimeHours = totalOvertimeMinutes / 60;
+
+  // Since overtime is just hourly rate, the multiplier is 1.0
+  const overtimeRateMultiplier = 1.0;
+
+  // Calculate the cost of overtime
+  const calculatedOvertimeCost =
+    totalOvertimeHours * hourlyRate * overtimeRateMultiplier;
+
+  // Format to Philippine Peso currency
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(calculatedOvertimeCost);
 });
 
 // NEW Computed Property: Overall Undertime Cost
@@ -530,6 +676,34 @@ const overallUndertimeCost = computed(() => {
   }).format(calculatedUndertimeCost);
 });
 
+const overallTotalWorkingHoursWithOT = computed(() => {
+  const OTWHMinutes = convertHoursMinutesToMinutes(
+    overallTotalWorkingHours.value
+  );
+  console.log("OTWHMinutes", OTWHMinutes);
+  const OTOMinutes = convertHoursMinutesToMinutes(overallTotalOvertime.value);
+  console.log("OTOMinutes", OTOMinutes);
+
+  const totalHours = OTWHMinutes + OTOMinutes;
+
+  console.log("totalHours", totalHours);
+
+  return formatMinutesToHoursMinutes(totalHours);
+});
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
 const formatCurrency = (value) => {
   if (typeof value !== "number" && typeof value !== "string") {
     return "₱ 0.00";
@@ -544,7 +718,7 @@ const formatCurrency = (value) => {
   }).format(numValue);
 };
 
-const expectedSalary = computed(() => {
+const regularPay = computed(() => {
   console.log(
     "employeesData?.value?.employment_type?.salary :",
     employeesData?.value?.employment_type?.salary
@@ -719,9 +893,15 @@ const dtrColumns = [
     align: "center",
     field: (row) => {
       // Only calculate if ot_status is 'approved' and times are present
-      if (row.ot_status === "approved" && row.overtime_in && row.overtime_out) {
-        const otIn = new Date(row.overtime_in);
-        const otOut = new Date(row.overtime_out);
+      if (
+        row.ot_status === "approved" &&
+        row.overtime_start &&
+        row.overtime_end
+      ) {
+        // Changed to overtime_start and overtime_end
+        console.log("________row.ot_status ", row.ot_status);
+        const otIn = new Date(row.overtime_start); // Changed to overtime_start
+        const otOut = new Date(row.overtime_end); // Changed to overtime_end
 
         if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut > otIn) {
           const otMs = otOut.getTime() - otIn.getTime();
@@ -739,19 +919,22 @@ const dtrColumns = [
 </script>
 
 <style lang="scss" scoped>
-.dtr-dialog-card {
-  min-width: 900px; // A bit wider for better layout
-  max-width: 1200px; // Max width to prevent it from getting too wide
-  background-color: #f0f2f5; // Slightly off-white background for the dialog itself
-  border-radius: 12px;
-  overflow: hidden; // Ensures rounded corners
-}
-
 .summary-card {
   background-color: #ffffff; // White background for summary card
   border-radius: 8px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); // More prominent shadow
   border: 1px solid #e0e0e0; // Light border
+}
+
+.full-height-table .q-td,
+.full-height-table .q-th {
+  font-size: 9px !important; /* Force 9px font size */
+  padding: 4px 6px !important; /* Reduce padding to make cells smaller */
+  line-height: 1.2; /* Optional: tighter line spacing */
+}
+
+.full-height-table .text-overline {
+  font-size: 10px !important; /* Ensure caption text also matches 9px */
 }
 
 .q-list--dense > .q-item {
@@ -799,5 +982,10 @@ const dtrColumns = [
   .q-td {
     color: #444; // Slightly darker text for data
   }
+
+  // Remove the `text-overline` specific style if it's no longer used in template body-cell
+  // .q-td span.text-overline {
+  //   font-size: 10px !important;
+  // }
 }
 </style>
