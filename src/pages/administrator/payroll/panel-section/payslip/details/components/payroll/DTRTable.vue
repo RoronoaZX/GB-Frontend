@@ -242,3 +242,40 @@ const dtrColumns = [
   },
 ];
 </script>
+
+<style lang="scss" scoped>
+.full-height-table .q-td,
+.full-height-table .q-th {
+  font-size: 9px !important; /* Force 9px font size */
+  padding: 4px 6px !important; /* Reduce padding to make cells smaller */
+  line-height: 1.2; /* Optional: tighter line spacing */
+}
+
+.full-height-table .text-overline {
+  font-size: 10px !important; /* Ensure caption text also matches 9px */
+}
+.modern-dtr-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+
+  .q-td,
+  .q-th {
+    font-size: 13px !important; /* Slightly larger for readability */
+    padding: 10px 12px !important; /* Increased padding */
+    line-height: 1.4;
+  }
+
+  .q-th {
+    font-weight: 600;
+    background-color: #f5f5f5;
+    color: #555;
+    text-transform: uppercase;
+
+    .q-td {
+      color: #444;
+    }
+  }
+}
+</style>
