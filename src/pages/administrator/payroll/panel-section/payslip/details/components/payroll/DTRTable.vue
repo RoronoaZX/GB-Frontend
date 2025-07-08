@@ -6,7 +6,7 @@
     :rows="props.dtrRows"
     :columns="dtrColumns"
     row-key="entry"
-    class="full-height-table"
+    class="modern-dtr-table full-height-table"
     v-model:pagination="pagination"
     hide-bottom
   >
@@ -24,12 +24,12 @@
 </template>
 
 <script setup>
-import { format } from "quasar";
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
+import { date } from "quasar"; // <--- Import 'date' directly from 'quasar'
 
-const props = defineProps(["dtrRows", "employeeData"]); // Changed 'employeesData' to 'employeeData' for consistency with prop name
+const props = defineProps(["dtrRows", "employeeData"]);
 
-//Local ref to hold the employee data that we can react to
+// Local ref to hold the employee data that we can react to
 const internalEmployeeData = ref(props.employeeData);
 
 // Watch for changes in the employeeData prop
@@ -37,16 +37,15 @@ watch(
   () => props.employeeData,
   (newVal) => {
     internalEmployeeData.value = newVal;
-    console.log("EmployeeData updated inDTR Table:", newVal);
+    // console.log("EmployeeData updated in DTR Table:", newVal);
   },
   {
     immediate: true,
   }
 );
 
-console.log("dtrRows in DTR Table (initial):", props.dtrRows);
-// The console.log below will still show undefined initially because setup runs before the parent's async operation completes
-console.log("employeeData in DTR Table (initial):", props.employeeData);
+// console.log("dtrRows in DTR Table (initial):", props.dtrRows);
+// console.log("employeeData in DTR Table (initial):", props.employeeData);
 
 const pagination = ref({
   rowsPerPage: 0,
@@ -74,144 +73,135 @@ const parseTimeToDate = (timeString, dateObj) => {
   return newDate;
 };
 
-// All computed properties and methods that depend on `employeesData
-// should now use  `internalEmployeeData.value`
+// Helper to format minutes into "Hh Mm" string
+const formatMinutesToHoursMinutes = (totalMinutes) => {
+  if (totalMinutes < 0) totalMinutes = 0; // Ensure no negative display
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${minutes}m`;
+};
 
-const dtrColumns = [
+/**
+ * Calculates working hours, undertime, and overtime for a single DTR row.
+ * @param {Object} row - The DTR row data.
+ * @param {Object} designation - The employee's designation data (with time_in, time_out).
+ * @returns {Object} An object containing calculated times in minutes.
+ */
+const calculateRowTimes = (row, designation) => {
+  let totalWorkingMinutes = 0;
+  let undertimeMinutes = 0;
+  let overtimeMinutes = 0;
+
+  if (!row.time_in || !row.time_out || !designation) {
+    return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
+  }
+
+  const actualIn = new Date(row.time_in);
+  const actualOut = new Date(row.time_out);
+
+  if (isNaN(actualIn.getTime()) || isNaN(actualOut.getTime())) {
+    return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
+  }
+
+  const scheduledIn = parseTimeToDate(designation.time_in, actualIn);
+  const scheduledOut = parseTimeToDate(designation.time_out, actualOut);
+
+  if (!scheduledIn || !scheduledOut) {
+    return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
+  }
+
+  // --- Working Hours Calculation ---
+  const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
+  const effectiveOut = actualOut < scheduledOut ? actualOut : scheduledOut;
+
+  if (effectiveOut > effectiveIn) {
+    const totalMs = effectiveOut.getTime() - effectiveIn.getTime();
+    // Subtract 1 hour for lunch break (60 minutes)
+    const adjustedMs = totalMs - 60 * 60 * 1000;
+    if (adjustedMs > 0) {
+      totalWorkingMinutes = Math.floor(adjustedMs / (1000 * 60));
+    }
+  }
+
+  // --- Undertime/Late Calculation ---
+  const expectedMs = scheduledOut.getTime() - scheduledIn.getTime();
+  const expectedWorkingMinutes = Math.floor(
+    (expectedMs - 60 * 60 * 1000) / (1000 * 60) // Subtract 1hr lunch
+  );
+
+  const actualCountedMinutes = totalWorkingMinutes; // This is already calculated from effective hours
+  const calculatedUndertimeMins = expectedWorkingMinutes - actualCountedMinutes;
+
+  if (calculatedUndertimeMins > 0) {
+    undertimeMinutes = calculatedUndertimeMins;
+  }
+
+  // --- Overtime Calculation ---
+  if (row.ot_status === "approved" && row.overtime_start && row.overtime_end) {
+    const otIn = new Date(row.overtime_start);
+    const otOut = new Date(row.overtime_end);
+
+    if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut > otIn) {
+      const otMs = otOut.getTime() - otIn.getTime();
+      overtimeMinutes = Math.floor(otMs / (1000 * 60));
+    }
+  }
+
+  return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
+};
+
+const dtrColumns = computed(() => [
   {
     name: "number_of_days",
     required: true,
-    label: "Number Of Days",
+    label: "Day",
     align: "center",
+    field: "number_of_days", // This field is custom rendered in template
   },
   {
     name: "time_in",
     required: true,
     label: "Time In",
     align: "center",
-    field: "time_in",
+    field: (row) =>
+      row.time_in ? date.formatDate(row.time_in, "h:mm A") : "N/A", // <--- Corrected usage here
   },
   {
     name: "time_out",
     required: true,
     label: "Time Out",
     align: "center",
-    field: "time_out",
+    field: (row) =>
+      row.time_out ? date.formatDate(row.time_out, "h:mm A") : "N/A", // <--- Corrected usage here
   },
   {
     name: "total_working_hours",
     required: true,
-    label: "Total Working Hours",
+    label: "Working Hours",
     align: "center",
     field: (row) => {
-      if (
-        !row.time_in ||
-        !row.time_out ||
-        !internalEmployeeData.value ||
-        !internalEmployeeData.value.designation
-      ) {
-        return "N/A";
-      }
-
-      const formatHM = (hours, minutes) => {
-        return `${hours}h ${minutes}m`;
-      };
-
-      const actualIn = new Date(row.time_in);
-      const actualOut = new Date(row.time_out);
-
-      if (isNaN(actualIn.getTime()) || isNaN(actualOut.getTime())) {
-        return "Invalid Time";
-      }
-
-      const designationTimeInStr =
-        internalEmployeeData.value.designation.time_in;
-      const designationTimeOutStr =
-        internalEmployeeData.value.designation.time_out;
-
-      const scheduledIn = parseTimeToDate(designationTimeInStr, actualIn);
-      const scheduledOut = parseTimeToDate(designationTimeOutStr, actualOut);
-
-      if (!scheduledIn || !scheduledOut) {
-        return "Schedule Error";
-      }
-
-      const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
-      const effectiveOut = actualOut < scheduledOut ? actualOut : scheduledOut;
-
-      if (effectiveOut <= effectiveIn) {
-        return formatHM(0, 0);
-      }
-      const totalMs = effectiveOut.getTime() - effectiveIn.getTime();
-      const adjustedMs = totalMs - 1000 * 60 * 60;
-
-      if (adjustedMs < 0) return formatHM(0, 0);
-
-      const adjustedH = Math.floor(adjustedMs / (1000 * 60 * 60));
-      const adjustedM = Math.floor(
-        (adjustedMs % (1000 * 60 * 60)) / (1000 * 60)
+      if (!internalEmployeeData.value?.designation) return "N/A";
+      const { totalWorkingMinutes } = calculateRowTimes(
+        row,
+        internalEmployeeData.value.designation
       );
-
-      return formatHM(adjustedH, adjustedM);
+      return formatMinutesToHoursMinutes(totalWorkingMinutes);
     },
   },
   {
     name: "undertime_minutes",
     required: true,
-    label: "Undertime / Late",
+    label: "Undertime/Late",
     align: "center",
     field: (row) => {
-      if (
-        !row.time_in ||
-        !row.time_out ||
-        !internalEmployeeData.value ||
-        !internalEmployeeData.value.designation
-      ) {
-        return "N/A";
-      }
-
-      const actualIn = new Date(row.time_in);
-      const actualOut = new Date(row.time_out);
-
-      if (isNaN(actualIn.getTime()) || isNaN(actualOut.getTime())) {
-        return "Invalid Time";
-      }
-
-      const designationTimeInStr =
-        internalEmployeeData.value.designation.time_in;
-      const designationTimeOutStr =
-        internalEmployeeData.value.designation.time_out;
-
-      const scheduledIn = parseTimeToDate(designationTimeInStr, actualIn);
-      const scheduledOut = parseTimeToDate(designationTimeOutStr, actualOut);
-
-      if (!scheduledIn || !scheduledOut) {
-        return "Schedule Error";
-      }
-
-      const expectedMs = scheduledOut.getTime() - scheduledIn.getTime();
-      const expectedWorkingMinutes = Math.floor(
-        (expectedMs - 1000 * 60 * 60) / (1000 * 60)
+      if (!internalEmployeeData.value?.designation) return "N/A";
+      const { undertimeMinutes } = calculateRowTimes(
+        row,
+        internalEmployeeData.value.designation
       );
-
-      const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
-      const effectiveOut = actualOut < scheduledOut ? actualOut : scheduledOut;
-
-      let actualCountedMinutes = 0;
-      if (effectiveOut > effectiveIn) {
-        const actualMs = effectiveOut.getTime() - effectiveIn.getTime();
-        actualCountedMinutes = Math.floor(
-          (actualMs - 1000 * 60 * 60) / (1000 * 60)
-        );
-      }
-      const undertimeMins = expectedWorkingMinutes - actualCountedMinutes;
-
-      if (undertimeMins <= 0) return "—";
-
-      const hours = Math.floor(undertimeMins / 60);
-      const minutes = undertimeMins % 60;
-
-      return `${hours}h ${minutes}m`;
+      return undertimeMinutes > 0
+        ? formatMinutesToHoursMinutes(undertimeMinutes)
+        : "—";
     },
   },
   {
@@ -220,40 +210,20 @@ const dtrColumns = [
     label: "Overtime",
     align: "center",
     field: (row) => {
-      if (
-        row.ot_status === "approved" &&
-        row.overtime_start &&
-        row.overtime_end
-      ) {
-        const otIn = new Date(row.overtime_start);
-        const otOut = new Date(row.overtime_end);
-
-        if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut) {
-          const otMs = otOut.getTime() - otIn.getTime();
-          const otMinutes = Math.floor(otMs / (1000 * 60));
-
-          const hours = Math.floor(otMinutes / 60);
-          const minutes = otMinutes % 60;
-          return `${hours}h ${minutes}m`;
-        }
-      }
-      return "—";
+      if (!internalEmployeeData.value?.designation) return "N/A";
+      const { overtimeMinutes } = calculateRowTimes(
+        row,
+        internalEmployeeData.value.designation
+      );
+      return overtimeMinutes > 0
+        ? formatMinutesToHoursMinutes(overtimeMinutes)
+        : "—";
     },
   },
-];
+]);
 </script>
 
 <style lang="scss" scoped>
-.full-height-table .q-td,
-.full-height-table .q-th {
-  font-size: 9px !important; /* Force 9px font size */
-  padding: 4px 6px !important; /* Reduce padding to make cells smaller */
-  line-height: 1.2; /* Optional: tighter line spacing */
-}
-
-.full-height-table .text-overline {
-  font-size: 10px !important; /* Ensure caption text also matches 9px */
-}
 .modern-dtr-table {
   border-radius: 8px;
   overflow: hidden;
@@ -262,9 +232,9 @@ const dtrColumns = [
 
   .q-td,
   .q-th {
-    font-size: 13px !important; /* Slightly larger for readability */
-    padding: 10px 12px !important; /* Increased padding */
-    line-height: 1.4;
+    font-size: 11px !important; /* Slightly larger for readability than 9px, but still compact */
+    padding: 6px 8px !important; /* Adjusted padding for compactness */
+    line-height: 1.3;
   }
 
   .q-th {
@@ -272,10 +242,19 @@ const dtrColumns = [
     background-color: #f5f5f5;
     color: #555;
     text-transform: uppercase;
-
-    .q-td {
-      color: #444;
-    }
   }
+
+  .q-td {
+    color: #444;
+  }
+}
+
+.full-height-table {
+  /* You can still define specific full-height related styles here if needed */
+}
+
+/* Ensure the text within cells matches the desired font size */
+.full-height-table .text-overline {
+  font-size: 11px !important;
 }
 </style>

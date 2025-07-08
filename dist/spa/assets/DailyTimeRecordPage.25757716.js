@@ -1,1 +1,0 @@
-import{_ as e}from"./plugin-vue_export-helper.21dcd24c.js";import{o as r,a3 as o}from"./index.3a3e1599.js";const t={};function a(c,n){return r(),o("div",null,"This is for the DtR")}var _=e(t,[["render",a]]);export{_ as default};

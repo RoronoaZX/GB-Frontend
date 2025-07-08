@@ -1,38 +1,74 @@
-import { computed, unref } from "vue";
-import {
-  formatMinutesToHoursMinutes,
-  getTotalMinutesBetween,
-} from "./timeUtils";
+// useDtrCalculations.js
+export function parseTimeToDate(timeString, dateObj) {
+  if (!timeString || !dateObj) return null;
 
-export default function useDTRCalculations(employeeDataRef) {
-  const safeEmployeeData = computed(() => unref(employeeDataRef) || {});
+  const match = timeString.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+  if (!match) return null;
 
-  const requiredMinutes = computed(() => {
-    const designation = safeEmployeeData.value?.designation;
-    const totalHours = parseInt(designation?.total_working_hours || 0);
-    return totalHours * 60;
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const ampm = match[3]?.toUpperCase();
+
+  if (ampm === "PM" && hours < 12) hours += 12;
+  if (ampm === "AM" && hours === 12) hours = 0;
+
+  const newDate = new Date(dateObj);
+  newDate.setHours(hours, minutes, 0, 0);
+  return newDate;
+}
+
+export function formatMinutesToHoursMinutes(minutes) {
+  if (minutes < 0) return "0h 0m";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h}h ${m}m`;
+}
+
+export function convertHoursMinutesToMinutes(hmString) {
+  const match = hmString.match(/(\d+)h\s*(\d+)m/);
+  return match ? parseInt(match[1]) * 60 + parseInt(match[2]) : 0;
+}
+
+export function calculateTotals(dtrRows, designation) {
+  let totalWorking = 0;
+  let totalUndertime = 0;
+  let totalOvertime = 0;
+
+  dtrRows.forEach((row) => {
+    const { time_in, time_out, ot_status, overtime_start, overtime_end } = row;
+
+    if (time_in && time_out) {
+      const inTime = new Date(time_in);
+      const outTime = new Date(time_out);
+      const scheduledIn = parseTimeToDate(designation.time_in, inTime);
+      const scheduledOut = parseTimeToDate(designation.time_out, outTime);
+
+      const effectiveIn = inTime > scheduledIn ? inTime : scheduledIn;
+      const effectiveOut = outTime < scheduledOut ? outTime : scheduledOut;
+
+      const expectedMinutes = (scheduledOut - scheduledIn - 3600000) / 60000;
+      const actualMinutes =
+        effectiveOut > effectiveIn
+          ? (effectiveOut - effectiveIn - 3600000) / 60000
+          : 0;
+
+      totalWorking += Math.max(actualMinutes, 0);
+      const undertime = expectedMinutes - actualMinutes;
+      if (undertime > 0) totalUndertime += undertime;
+    }
+
+    if (ot_status === "approved" && overtime_start && overtime_end) {
+      const otIn = new Date(overtime_start);
+      const otOut = new Date(overtime_end);
+      if (!isNaN(otIn) && !isNaN(otOut) && otOut > otIn) {
+        totalOvertime += (otOut - otIn) / 60000;
+      }
+    }
   });
 
-  const computeTotalWorkingHours = (row) => {
-    const total = getTotalMinutesBetween(row.time_in, row.time_out);
-    return formatMinutesToHoursMinutes(total);
-  };
-
-  const computeUndertime = (row) => {
-    const total = getTotalMinutesBetween(row.time_in, row.time_out);
-    const undertime = requiredMinutes.value - total;
-    return formatMinutesToHoursMinutes(undertime > 0 ? undertime : 0);
-  };
-
-  const computeOvertime = (row) => {
-    const total = getTotalMinutesBetween(row.time_in, row.time_out);
-    const overtime = total - requiredMinutes.value;
-    return formatMinutesToHoursMinutes(overtime > 0 ? overtime : 0);
-  };
-
   return {
-    computeTotalWorkingHours,
-    computeUndertime,
-    computeOvertime,
+    totalWorking,
+    totalUndertime,
+    totalOvertime,
   };
 }
