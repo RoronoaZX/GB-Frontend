@@ -332,6 +332,7 @@
       transition-show="jump-up"
       transition-hide="jump-down"
     >
+      <!-- icon="keyboard_arrow_up" -->
       <q-btn
         icon="keyboard_arrow_up"
         round
@@ -561,6 +562,62 @@ function getLinkStyle(status) {
 
   transition: background-color 0.3s;
 }
+
+// .btn {
+//   --primary: #ff5569;
+//   --neutral-1: #f7f8f7;
+//   --neutral-2: #e7e7e7;
+//   --radius: 14px;
+
+//   cursor: pointer;
+//   border-radius: var(--radius);
+//   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+//   border: none;
+//   box-shadow: 0 0.5px 0.5px 1px rgba(255, 255, 255, 0.2),
+//     0 10px 20px rgba(0, 0, 0, 0.2), 0 4px 5px 0px rgba(0, 0, 0, 0.05);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   position: relative;
+//   transition: all 0.3s ease;
+//   min-width: 200px;
+//   padding: 20px;
+//   height: 68px;
+//   font-family: "Galano Grotesque", Poppins, Montserrat, sans-serif;
+//   font-style: normal;
+//   font-size: 18px;
+//   font-weight: 600;
+// }
+
+// .btn:hover {
+//  transform: scale(1.02);
+//   box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.3),
+//     0 15px 30px rgba(0, 0, 0, 0.3), 0 10px 3px -3px rgba(0, 0, 0, 0.04);
+// }
+
+// .btn:active {
+//   transform: scale(1);
+//   box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.3),
+//     0 10px 3px -3px rgba(0, 0, 0, 0.2);
+// }
+
+// .btn:after {
+//   content: "";
+//   position: absolute;
+//   inset: 0;
+//   border-radius: var(--radius);
+//   border: 2.5px solid transparent;
+//   background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
+//     linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.45))
+//       border-box;
+//   z-index: 0;
+//   transition: all 0.4s ease;
+// }
+
+// .btn:hover::after {
+//   transform: scale(1.05, 1.1);
+//   box-shadow: inset 0 -1px 3px 0 rgba(255, 255, 255, 1);
+// }
 
 .contact-pill:hover {
   background-color: #dbe8ff;

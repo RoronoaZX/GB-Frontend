@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <q-page>
     <div class="q-gutter-y-sm">
       <q-tabs
         v-model="tab"
@@ -29,15 +29,7 @@
     <div>
       <router-view />
     </div>
-    <!-- <q-tab-panels v-model="tab" animated>
-      <q-tab-panel name="dtr_overview">
-        <AttendancceTable />
-      </q-tab-panel>
-      <q-tab-panel name="attendance_summary">
-        <AttendanceSummary />
-      </q-tab-panel>
-    </q-tab-panels> -->
-  </div>
+  </q-page>
 </template>
 
 <script setup>

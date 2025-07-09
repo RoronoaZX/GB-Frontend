@@ -3,7 +3,6 @@
     <div>
       <OvertimeButton />
     </div>
-    <!-- <SearchDTR /> -->
     <q-input
       v-model="filter"
       outlined
@@ -15,7 +14,6 @@
     />
   </div>
   <div>
-    <!-- class="sticky-header" -->
     <q-table
       :rows="dtrRows"
       :columns="dtrColumns"
@@ -38,84 +36,78 @@
             class="q-ma-xs"
             size="sm"
           >
-            <!-- size="md" -->
             {{ props.row.employee?.position || "N/A" }}
           </q-chip>
         </q-td>
       </template>
+
+      <template v-slot:body-cell-shift_status="props">
+        <q-td :props="props">
+          <q-chip
+            :label="props.row.shift_status || 'Regular Day'"
+            :color="props.row.shift_status === 'half day' ? 'orange' : 'green'"
+            text-color="white"
+            dense
+            square
+            class="text-capitalize"
+          />
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-time_in="props">
         <q-td :props="props">
-          <template v-if="props.row.time_in">
-            <q-badge outline color="positive">
-              {{ helpers.formatTime(props.row.time_in) }}
-            </q-badge>
-          </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <q-badge v-if="props.row.time_in" outline color="positive">
+            {{ helpers.formatTime(props.row.time_in) }}
+          </q-badge>
+          <span v-else> - - - </span>
         </q-td>
       </template>
 
       <template v-slot:body-cell-time_out="props">
         <q-td :props="props">
-          <template v-if="props.row.time_out">
-            <q-badge outline color="purple-12">
-              {{ helpers.formatTime(props.row.time_out) }}
-            </q-badge>
-          </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <q-badge v-if="props.row.time_out" outline color="purple-12">
+            {{ helpers.formatTime(props.row.time_out) }}
+          </q-badge>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-lunch_break_start="props">
         <q-td :props="props">
-          <template v-if="props.row.lunch_break_start">
-            <q-badge outline color="amber-7">{{
-              helpers.formatTime(props.row.lunch_break_start)
-            }}</q-badge>
-          </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <q-badge v-if="props.row.lunch_break_start" outline color="amber-7">
+            {{ helpers.formatTime(props.row.lunch_break_start) }}
+          </q-badge>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-lunch_break_end="props">
         <q-td :props="props">
-          <template v-if="props.row.lunch_break_end">
-            <q-badge outline color="amber-4">{{
-              helpers.formatTime(props.row.lunch_break_end)
-            }}</q-badge>
-          </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <q-badge v-if="props.row.lunch_break_end" outline color="amber-4">
+            {{ helpers.formatTime(props.row.lunch_break_end) }}
+          </q-badge>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-break_start="props">
         <q-td :props="props">
-          <template v-if="props.row.break_start">
-            <q-badge outline color="blue-7">{{
-              helpers.formatTime(props.row.break_start)
-            }}</q-badge>
-          </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <q-badge v-if="props.row.break_start" outline color="blue-7">
+            {{ helpers.formatTime(props.row.break_start) }}
+          </q-badge>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-break_end="props">
         <q-td :props="props">
-          <template v-if="props.row.break_end">
-            <q-badge outline color="blue-4">{{
-              helpers.formatTime(props.row.break_end)
-            }}</q-badge>
-          </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <q-badge v-if="props.row.break_end" outline color="blue-4">
+            {{ helpers.formatTime(props.row.break_end) }}
+          </q-badge>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-break="props">
         <q-td :props="props">
           <template v-if="props.row.break_start && props.row.break_end">
@@ -155,11 +147,10 @@
               }}
             </q-badge>
           </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-lunch_break="props">
         <q-td :props="props">
           <template
@@ -201,11 +192,10 @@
               }}
             </q-badge>
           </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-total_working_hours="props">
         <q-td :props="props">
           <template v-if="props.row.time_in && props.row.time_out">
@@ -242,11 +232,10 @@
               }}
             </q-badge>
           </template>
-          <template v-else>
-            <span> - - - </span>
-          </template>
+          <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-ot_status="props">
         <q-td :props="props" class="row">
           <q-chip
@@ -257,11 +246,7 @@
             rounded
             icon="check_circle"
             :label="helpers.capitalize(props.row.ot_status)"
-          >
-            <!-- style="font-weight: 500" -->
-            <!-- <q-icon name="check_circle" class="q-mr-xs" /> -->
-            <!-- {{ capitalize(props.row.ot_status) }} -->
-          </q-chip>
+          />
           <q-chip
             v-else-if="props.row.ot_status === 'declined'"
             size="sm"
@@ -270,11 +255,7 @@
             rounded
             icon="cancel"
             :label="helpers.capitalize(props.row.ot_status)"
-          >
-            <!-- style="font-weight: 500" -->
-            <!-- <q-icon name="check_circle" class="q-mr-xs" /> -->
-            <!-- {{ capitalize(props.row.ot_status) }} -->
-          </q-chip>
+          />
           <span v-else-if="!props.row.ot_status"> - - - </span>
           <div v-else class="q-gutter-x-sm">
             <DeclineOTButton :decline="props.row" />
@@ -282,6 +263,7 @@
           </div>
         </q-td>
       </template>
+
       <template v-slot:body-cell-overtime_reason="props">
         <q-td :props="props">
           <span v-if="props.row.overtime_reason">
@@ -297,6 +279,7 @@
           <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-declined_reason="props">
         <q-td :props="props">
           <span v-if="props.row.declined_reason">
@@ -312,6 +295,7 @@
           <span v-else> - - - </span>
         </q-td>
       </template>
+
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
@@ -319,6 +303,7 @@
           </div>
         </q-td>
       </template>
+
       <template #loading>
         <q-inner-loading showing>
           <q-spinner-ios size="50px" color="grey-10" />
@@ -335,13 +320,12 @@ import OvertimeButton from "./OvertimeButton.vue";
 import EditDTR from "./EditDTR.vue";
 import DeclineOTButton from "./DeclineOTButton.vue";
 import ApproveOTButton from "./ApproveOTButton.vue";
-import { useQuasar } from "quasar";
 import { useAttendanceHelpers } from "src/composables/attendance/useAttendanceHelpers";
-// import { useAttendanceColumns } from "src/composables/attendance/attendanceColumns";
 
+// Initialize attendance helpers
 const helpers = useAttendanceHelpers();
-// const dtrColumns = useAttendanceColumns();
 
+// Reactive variables
 const pagination = ref({
   page: 1,
   rowsPerPage: 0,
@@ -352,30 +336,45 @@ const loading = ref(false);
 const dtrStore = useDTRStore();
 const dtrData = computed(() => dtrStore.dtrs);
 const dtrRows = ref([]);
-const $q = useQuasar();
 
+// Fetch data on component mount
 onMounted(async () => {
   await reloadTableData();
 });
 
+/**
+ * Fetches and reloads the DTR table data based on pagination and filter.
+ * @param {number} page - The current page number.
+ * @param {number} rowsPerPage - The number of rows per page.
+ * @param {string} search - The search string.
+ */
 const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   try {
     loading.value = true;
     await dtrStore.fetchDTR(page, rowsPerPage, search);
     const { data, current_page, per_page, total } = dtrData.value;
     dtrRows.value = data;
-    console.log("dtrRows:", dtrRows.value);
+    console.log("dtrRows.value", dtrRows.value);
     pagination.value = {
       page: current_page,
       rowsPerPage: per_page,
       rowsNumber: total,
     };
-    loading.value = false;
   } catch (error) {
-    console.log("Error fetching DTR data:", error);
+    console.error("Error fetching DTR data:", error);
+    // Optionally show a Quasar notification here
+  } finally {
+    loading.value = false;
   }
 };
 
+// const getBadgeShiftStatus = (role) => {
+//   switch (role) {
+//     case ""
+//   }
+// }
+
+// Column definitions for the q-table
 const dtrColumns = [
   {
     name: "name",
@@ -406,6 +405,23 @@ const dtrColumns = [
     label: "Where OUT",
     align: "center",
     field: (row) => row.device_out_reference_name || "N/A",
+  },
+  {
+    name: "shift_status",
+    required: true,
+    label: "Shift Status",
+    align: "center",
+    field: (row) => row.shift_status || "Regular Day",
+    format: (val) => {
+      const status = val || "Regular Day";
+      let color = "grey-4";
+
+      if (status === "Half Day") color = "orange";
+      else if (status === "Regular Day") color = "green";
+
+      return `<q-chip color="${color}" text-color="white" dense>${status}</q-chip>`;
+    },
+    sortable: true,
   },
   {
     name: "date_in",
@@ -486,7 +502,7 @@ const dtrColumns = [
   {
     name: "lunch_break",
     required: true,
-    label: "Total Lunch break",
+    label: "Total Lunch Break",
     align: "center",
     field: (row) => {
       const { hours, minutes } = helpers.calculateTotalWorkingHours(
@@ -568,12 +584,19 @@ const dtrColumns = [
     sortable: false,
   },
   {
+    name: "",
+  },
+  {
     name: "action",
     label: "Action",
     align: "right",
   },
 ];
 
+/**
+ * Handles the @request event from q-table to manage pagination and filtering.
+ * @param {object} props - The properties from the q-table request.
+ */
 const handleRequest = (props) => {
   reloadTableData(
     props.pagination.page,
@@ -582,7 +605,10 @@ const handleRequest = (props) => {
   );
 };
 
+// Watch for changes in the filter and reload data
 watch(filter, async (newVal) => {
+  // Reset to the first page when filter changes to ensure consistent behavior
+  pagination.value.page = 1;
   await reloadTableData(
     pagination.value.page,
     pagination.value.rowsPerPage,
@@ -605,12 +631,7 @@ watch(filter, async (newVal) => {
   bottom: 0;
   left: 0;
 }
-.spinner-wrapper {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.spinner-wrapper,
 .data-error {
   min-height: 40vh; /* Minimum height of 50% viewport height */
   display: flex;
@@ -634,9 +655,7 @@ watch(filter, async (newVal) => {
 
 .gradient-icon {
   font-size: 24px; /* Adjust size as needed */
-  // background: linear-gradient(135deg, #2c3e50, #4398f4); /* Gradient colors */
   background: linear-gradient(to right, #a0522d, #ff8833);
-  // background: linear-gradient(to right, #6a320a, #a0522d, #d2691e, #f2be90);
   -webkit-background-clip: text; /* For compatibility */
   background-clip: text;
   color: transparent; /* Make text fill transparent */

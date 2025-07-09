@@ -1,8 +1,5 @@
 <template>
   <q-page class="elegant-container" flat>
-    <!-- <div class="col-4 text-h6 q-pt-md q-pb-md" align="center">
-      💰 Payroll Management
-    </div> -->
     <q-tabs
       v-model="tab"
       dense
@@ -85,43 +82,10 @@
         </div>
       </q-route-tab>
     </q-tabs>
-    <!-- <q-tab-panels v-model="tab" animated style="background-color: #f7f8fc">
-      <q-tab-panel name="dashboard">
-        <DashboardPage />
-      </q-tab-panel>
-      <q-tab-panel name="employees">
-        <EmployeeesPage />
-      </q-tab-panel>
-      <q-tab-panel name="attendance">
-        <AttendancePage />
-      </q-tab-panel>
-      <q-tab-panel name="allowances">
-        <AllowanceDeductionPage />
-      </q-tab-panel>
-      <q-tab-panel name="payslip">
-        <PayslipPage />
-      </q-tab-panel>
-    </q-tab-panels> -->
     <div style="background-color: #f7f8fc">
       <router-view />
     </div>
   </q-page>
-
-  <!--
-  <q-card class="elegant-container q-mt-lg" flat>
-    <q-card-section> </q-card-section>
-    <q-card-section class="row justify-between">
-      <div class="col-6 row justify-between">
-        <div>
-          <EmploymentType class="user-card" style="width: 300px" />
-        </div>
-        <div>
-          <EmployeeBenefits class="user-card" style="width: 300px" />
-        </div>
-      </div>
-    </q-card-section>
-    <q-card-section> </q-card-section>
-  </q-card> -->
 </template>
 
 <script setup>

@@ -375,21 +375,13 @@ import {
 import { useEmployeeStore } from "src/stores/employee";
 import { useEmploymentTypeStore } from "src/stores/employment-type";
 import { computed, onMounted, ref, watch } from "vue";
-import IDLogo from "../../../../../../assets/IDLogo.png";
-import GB_LOGO from "../../../../../../assets/GB_LOGO.png";
+import IDLogo from "src/assets/IDLogo.png";
+import GB_LOGO from "src/assets/GB_LOGO.png";
 import { useEmployeeIDPrinter } from "src/composables/employeeFunction/useEmployeeIDPrinter";
 
 const { dialog, pdfUrl, handlePrintID } = useEmployeeIDPrinter(IDLogo, GB_LOGO);
 
-// import IDLogo from "../../../../../../assets/IDLogo.png";
-// import GB_LOGO from "../../../../../../assets/GB_LOGO.png";
-// import EmployeeEdit from "./EmployeeEdit.vue";
-// import * as pdfMake from "pdfmake/build/pdfmake";
-// import * as pdfFonts from "pdfmake/build/vfs_fontes";
-// pdfMake.vfs = pdfFonts.default;
-
 const employmentStore = useEmploymentTypeStore();
-// const employmentTypeOptions = ref([]);
 const employeeStore = useEmployeeStore();
 const employeeRows = computed(() => employeeStore.employees); // Computed property will automatically update when the store changes
 const employeesRowsData = ref([]);

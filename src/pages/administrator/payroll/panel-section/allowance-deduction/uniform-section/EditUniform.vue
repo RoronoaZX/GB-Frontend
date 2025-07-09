@@ -10,6 +10,7 @@
   >
     <q-tooltip class="bg-positive" :delay="200">Edit</q-tooltip>
   </q-btn>
+
   <q-dialog
     v-model="dialog"
     persistent
@@ -39,9 +40,9 @@
         </q-item>
 
         <q-item>
-          <q-item-section avatar
-            ><q-icon name="badge" color="primary"
-          /></q-item-section>
+          <q-item-section avatar>
+            <q-icon name="badge" color="primary" />
+          </q-item-section>
           <q-item-section>
             <q-item-label class="text-subtitle2 text-grey-8"
               >Position</q-item-label
@@ -78,7 +79,6 @@
                 dense
               />
             </div>
-
             <div class="q-gutter-md">
               <q-input
                 v-model="uniform.tShirtPcs"
@@ -192,189 +192,8 @@
       </q-inner-loading>
     </q-card>
   </q-dialog>
-
-  <!-- <q-dialog
-    v-model="dialog"
-    persistent
-    position="right"
-    backdrop-filter="blur(4px) saturate(150%)"
-  >
-    <q-card style="width: 600px; max-width: 80vw">
-      <q-card-section
-        class="row items-center q-px-md q-py-sm gradient-btn text-white"
-      >
-        <div class="text-h5 q-mr-md">🧥 Edit Uniform</div>
-        <q-space />
-        <q-btn icon="close" flat dense round v-close-popup />
-      </q-card-section>
-      <q-card-section>
-        <div class="row q-gutter-md text-subtitle1">
-          <div>Name:</div>
-          <div class="text-weight-medium">
-            {{ edit.employee ? formatFullname(edit.employee) : "----" }}
-          </div>
-        </div>
-        <div class="row q-gutter-md text-subtitle1">
-          <div>Position:</div>
-          <div class="text-weight-medium">
-            {{ edit.employee.position ? edit.employee.position : "-----" }}
-          </div>
-        </div>
-      </q-card-section>
-      <q-card-section>
-        <div class="row">
-          <div class="col-6">
-            <q-checkbox
-              keep-color
-              v-model="tShirt"
-              label="T-Shirt"
-              color="red"
-            />
-            <div class="q-gutter-sm q-pa-md" v-if="tShirt">
-              <div>
-                <q-radio
-                  keep-color
-                  v-model="uniform.tShirtsize"
-                  val="18"
-                  label="18"
-                  color="teal"
-                />
-                <q-radio
-                  keep-color
-                  v-model="uniform.tShirtsize"
-                  val="S"
-                  label="S"
-                  color="orange"
-                />
-                <q-radio
-                  keep-color
-                  v-model="uniform.tShirtsize"
-                  val="M"
-                  label="M"
-                  color="red"
-                />
-                <q-radio
-                  keep-color
-                  v-model="uniform.tShirtsize"
-                  val="L"
-                  label="L"
-                  color="cyan"
-                />
-              </div>
-              <div class="row q-gutter-x-sm" v-if="uniform.tShirtsize">
-                <q-input
-                  v-model="uniform.tShirtPcs"
-                  dense
-                  outlined
-                  label="pcs"
-                  style="width: 100px"
-                />
-                <q-input
-                  v-model="uniform.tShirtPrice"
-                  dense
-                  outlined
-                  label="price"
-                  style="width: 100px"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="col-6">
-            <q-checkbox
-              keep-color
-              v-model="pants"
-              label="Pants"
-              color="brown-6"
-            />
-            <div class="q-gutter-sm q-pa-md" v-if="pants">
-              <q-radio
-                keep-color
-                v-model="uniform.pantsSize"
-                val="M"
-                label="M"
-                color="red"
-              />
-              <q-radio
-                keep-color
-                v-model="uniform.pantsSize"
-                val="L"
-                label="L"
-                color="cyan"
-              />
-              <q-radio
-                keep-color
-                v-model="uniform.pantsSize"
-                val="XL"
-                label="XL"
-                color="purple-6"
-              />
-              <q-radio
-                keep-color
-                v-model="uniform.pantsSize"
-                val="XXL"
-                label="XXL"
-                color="deep-orange-13"
-              />
-              <div class="row q-gutter-x-sm" v-if="uniform.pantsSize">
-                <q-input
-                  v-model="uniform.pantsPcs"
-                  dense
-                  outlined
-                  label="pcs"
-                  style="width: 100px"
-                />
-                <q-input
-                  v-model="uniform.pantsPrice"
-                  dense
-                  outlined
-                  label="price"
-                  style="width: 100px"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </q-card-section>
-      <q-card-section>
-        <div class="row justify-between q-gutter-sm">
-          <div>
-            <div class="q-mt-lg text-subtitle1">Number of Payments</div>
-            <q-input
-              v-model="uniform.numberOfPayments"
-              outlined
-              flat
-              dense
-              type="number"
-            />
-          </div>
-          <div>
-            <div class="q-mt-lg text-subtitle1">Total Amount</div>
-            <q-input v-model="totalAmount" outlined readonly flat dense />
-
-            <div class="q-mt-lg text-subtitle1">Payments Per Payroll</div>
-            <q-input v-model="paymentPerPayroll" outlined readonly flat dense />
-          </div>
-        </div>
-      </q-card-section>
-      <q-card-actions>
-        <q-btn
-          size="md"
-          padding="xs md"
-          no-caps
-          label="Save Edit"
-          icon-right="send"
-          class="gradient-btn text-white"
-          @click="saveUniformChanges"
-          :loading="loading"
-        />
-      </q-card-actions>
-      <q-inner-loading :showing="loading">
-        <q-spinner-ios size="50px" color="grey-10" />
-      </q-inner-loading>
-    </q-card>
-  </q-dialog> -->
 </template>
+
 <script setup>
 import { reactive, ref, watch, computed } from "vue";
 import { useUniformStore } from "src/stores/uniform";
@@ -383,11 +202,13 @@ import { Notify } from "quasar";
 const emit = defineEmits(["edited"]);
 const props = defineProps(["edit"]);
 const uniformStore = useUniformStore();
-console.log("EditUniform props:", props);
+
+// Dialog and Loading state
 const dialog = ref(false);
 const loading = ref(false);
 const localEdit = reactive({ ...props.edit });
 
+// Uniform data state
 const uniform = reactive({
   numberOfPayments: 0,
   tShirtsize: "",
@@ -398,8 +219,11 @@ const uniform = reactive({
   pantsPrice: "",
 });
 
+// Checkbox states for T-Shirt and Pants
 const tShirt = ref(false);
 const pants = ref(false);
+
+// Computed property for Total Amount
 const totalAmount = computed(() => {
   const tshirtTotal =
     tShirt.value && uniform.tShirtPcs && uniform.tShirtPrice
@@ -414,6 +238,7 @@ const totalAmount = computed(() => {
   return tshirtTotal + pantsTotal;
 });
 
+// Computed property for Payment Per Payroll
 const paymentPerPayroll = computed(() => {
   const payments = parseFloat(uniform.numberOfPayments);
   const total = totalAmount.value;
@@ -421,8 +246,10 @@ const paymentPerPayroll = computed(() => {
   return payments > 0 ? (total / payments).toFixed(2) : 0;
 });
 
+/**
+ * Opens the dialog and populates uniform data from props.
+ */
 const openDialog = () => {
-  // Pull uniform item info
   const tData = props.edit?.t_shirt?.[0];
   const pData = props.edit?.pants?.[0];
 
@@ -437,14 +264,15 @@ const openDialog = () => {
   uniform.pantsPcs = pData?.pcs || "";
   uniform.pantsPrice = pData?.price || "";
 
-  // New payment-related fields
   uniform.numberOfPayments = props.edit.number_of_payments || 0;
-  totalAmount.value = props.edit.total_amount || 0;
-  paymentPerPayroll.value = props.edit.payments_per_payroll || 0;
-
+  // Note: totalAmount and paymentPerPayroll are computed, so no direct assignment needed here.
+  // They will react to changes in uniform.numberOfPayments, tShirtPcs, etc.
   dialog.value = true;
 };
 
+/**
+ * Clears all uniform-related form fields.
+ */
 const clearForm = () => {
   tShirt.value = false;
   pants.value = false;
@@ -460,6 +288,11 @@ const clearForm = () => {
   uniform.numberOfPayments = "";
 };
 
+/**
+ * Formats the employee's full name.
+ * @param {Object} row - Employee data containing firstname, middlename, and lastname.
+ * @returns {string} The formatted full name.
+ */
 const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -472,16 +305,20 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
+// Watcher to update paymentPerPayroll when numberOfPayments or totalAmount changes
 watch(
   () => [uniform.numberOfPayments, totalAmount.value],
   ([num, total]) => {
     const n = parseFloat(num);
     const t = parseFloat(total);
-    paymentPerPayroll.value =
+    uniform.paymentPerPayroll =
       !isNaN(n) && !isNaN(t) && n > 0 ? (t / n).toFixed(2) : 0;
   }
 );
 
+/**
+ * Saves the uniform changes to the backend.
+ */
 const saveUniformChanges = async () => {
   const updated = {
     ...localEdit,
@@ -507,11 +344,11 @@ const saveUniformChanges = async () => {
     total_amount: parseFloat(totalAmount.value),
     payments_per_payroll: parseFloat(paymentPerPayroll.value),
   };
+
   try {
     loading.value = true;
     await uniformStore.updateUnifrom(updated);
-    // console.log("Uniform updated successfully:", response.data);
-    emit("edited"); // 🔥 trigger reload in parent
+    emit("edited"); // Trigger reload in parent component
 
     Notify.create({
       message: "Uniform changes saved successfully",
@@ -539,7 +376,6 @@ const saveUniformChanges = async () => {
 .q-btn {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .q-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
