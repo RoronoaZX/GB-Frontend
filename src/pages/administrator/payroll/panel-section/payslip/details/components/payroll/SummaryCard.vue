@@ -362,22 +362,17 @@ const sumTWHTOH = computed(() => {
 });
 
 const sumTWHTOHCost = computed(() => {
-  const totalWorkingHoursCostCalc =
-    parseHourMinute(props.summaryData?.totalWorkingHoursFormatted) *
-    hourlyRate.value;
-  const totalOvertimeCostCalc =
-    parseHourMinute(props.summaryData?.totalOvertimeFormatted) *
-    hourlyRate.value *
-    1.25; // Use 1.25 for overtime as above
-  const totalUndertimeCostCalc =
-    parseHourMinute(props.summaryData?.totalUndertimeFormatted) *
-    hourlyRate.value;
+  const totalWorkingHours = parseHourMinute(
+    props.summaryData?.totalWorkingHoursFormatted
+  );
+  const totalOvertimeHours = parseHourMinute(
+    props.summaryData?.totalOvertimeFormatted
+  );
 
-  const total =
-    totalWorkingHoursCostCalc + totalOvertimeCostCalc - totalUndertimeCostCalc;
-  return formatCurrency(total);
+  const sum = totalWorkingHours + totalOvertimeHours;
+
+  return formatCurrency(sum * hourlyRate.value);
 });
-
 // Regular Pay Calculation (based on daily rate * number of days)
 const regularPay = computed(() => {
   const salary = employeesData.value?.employment_type?.salary;
