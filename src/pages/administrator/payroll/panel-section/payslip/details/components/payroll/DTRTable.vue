@@ -411,10 +411,59 @@ const dtrColumns = computed(() => [
 </script>
 
 <style lang="scss" scoped>
-.modern-dtr-table {
-  /* Add your table styling */
+.modern-dtr-table .q-table__bottom--nodata {
+  display: none; // Hide the "No data available" if you always want the total row
 }
-.total-row {
-  font-weight: bold;
+
+.modern-dtr-table {
+  // Make all 15 rows fit by preventing internal scrolling and shrinking cells.
+  // Target the internal scrollable body of the q-table
+  :deep(.q-table__middle) {
+    overflow-y: visible !important; // Prevent vertical scrolling for the table body
+    max-height: none !important; // Allow content to dictate height, remove any height limits
+  }
+
+  // Shrink cell padding to reduce row height
+  td {
+    padding-top: 4px !important; // Reduced top padding
+    padding-bottom: 4px !important; // Reduced bottom padding
+    font-size: 0.85em; // Slightly smaller font size for data
+  }
+
+  .total-row {
+    background-color: var(--q-color-blue-grey-1, #e0f2f7); // Fallback color
+    font-weight: bold;
+
+    // Remove vertical borders for the "Total" label cell and the two empty cells
+    td:nth-child(1) {
+      // The "Total" label cell
+      border-right: none !important; // Remove border to its right
+    }
+
+    td:nth-child(2), // The empty "Time In" cell
+    td:nth-child(3) {
+      // The empty "Time Out" cell
+      border-left: none !important; // Remove border to its left
+      border-right: none !important; // Remove border to its right
+    }
+
+    // --- Crucial: Remove Quasar's pseudo-elements that draw these specific vertical lines ---
+    // Target the pseudo-element for the right border of the "Total" label cell (1st td)
+    td:nth-child(1)::after {
+      content: none !important;
+      display: none !important;
+      border-right: none !important; // Just in case
+    }
+
+    // Target pseudo-elements for both left and right borders of the empty cells (2nd & 3rd td)
+    td:nth-child(2)::before,
+    td:nth-child(2)::after,
+    td:nth-child(3)::before,
+    td:nth-child(3)::after {
+      content: none !important;
+      display: none !important;
+      border: none !important; // Remove all pseudo-element borders
+    }
+  }
 }
 </style>

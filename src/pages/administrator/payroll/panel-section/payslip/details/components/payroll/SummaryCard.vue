@@ -55,7 +55,7 @@
           <q-item-section>
             <q-item-label class="text-body1 text-weight-bold">
               Expected Salary in {{ dtrRows.length }} days:
-              <span>{{ regularPay }}</span>
+              <span class="text-primary">{{ regularPay }}</span>
             </q-item-label>
           </q-item-section>
         </q-item>

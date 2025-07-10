@@ -284,6 +284,13 @@ const formatCurrency = (value) => {
   }).format(numValue);
 };
 
+const formatHoursAndMinutes = (totalHours) => {
+  if (isNaN(totalHours) || totalHours < 0) return "0h 0m"; // This line ensures "0h 0m" for invalid or negative
+  const hours = Math.floor(totalHours);
+  const minutes = Math.round((totalHours - hours) * 60);
+  return `${hours}h ${minutes}m`;
+};
+
 // Helper function to convert "Xh Ym" string to total minutes
 const convertHoursMinutesToMinutes = (formattedString) => {
   if (
