@@ -10,37 +10,54 @@
     v-model:pagination="pagination"
     hide-bottom
   >
+    <template v-slot:header="props">
+      <q-tr :props="props" class="modern-dtr-table-header">
+        <q-th
+          v-for="col in props.cols"
+          :key="col.name"
+          :props="props"
+          class="text-weight-bold text-uppercase"
+          :class="`text-${col.align}`"
+        >
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
+
     <template v-slot:body-cell="props">
-      <q-td :props="props">
-        <span class="text-overline"> {{ props.value }}</span>
+      <q-td :props="props" class="modern-dtr-table-cell">
+        <span class="text-body2 text-grey-8">{{ props.value }}</span>
       </q-td>
     </template>
+
     <template v-slot:body-cell-number_of_days="props">
-      <q-td :props="props">
-        {{ props.pageIndex + 1 }}
+      <q-td :props="props" class="modern-dtr-table-cell">
+        <span class="text-body2 text-grey-8">{{ props.rowIndex + 1 }}</span>
       </q-td>
     </template>
 
     <template v-slot:bottom-row>
-      <q-tr class="bg-blue-grey-1 text-weight-bold total-row">
-        <q-td class="text-left">Total</q-td>
+      <q-tr class="modern-dtr-total-row">
+        <q-td class="text-left text-weight-bold text-grey-9 total-label"
+          >Total</q-td
+        >
         <q-td></q-td>
         <q-td></q-td>
 
-        <q-td class="text-center">
-          <span class="text-overline">{{ totalWorkingHoursFormatted }}</span>
+        <q-td class="text-center text-weight-bold text-primary-8">
+          {{ totalWorkingHoursFormatted }}
         </q-td>
 
-        <q-td class="text-center">
-          <span class="text-overline">{{ totalUndertimeFormatted }}</span>
+        <q-td class="text-center text-weight-bold text-orange-8">
+          {{ totalUndertimeFormatted }}
         </q-td>
 
-        <q-td class="text-center">
-          <span class="text-overline">{{ totalOvertimeFormatted }}</span>
+        <q-td class="text-center text-weight-bold text-positive-8">
+          {{ totalOvertimeFormatted }}
         </q-td>
 
-        <q-td class="text-center">
-          <span class="text-overline">{{ totalBreakFormatted }}</span>
+        <q-td class="text-center text-weight-bold text-blue-grey-8">
+          {{ totalBreakFormatted }}
         </q-td>
       </q-tr>
     </template>
@@ -328,9 +345,9 @@ const dtrColumns = computed(() => [
     align: "center",
     field: (row) => {
       if (row.time_in) {
-        const formattedDate = date.formatDate(row.time_in, "MMM. DD,YYYY");
+        const formattedDate = date.formatDate(row.time_in, "MMM. DD, YYYY");
         const formattedTime = date.formatDate(row.time_in, "h:mm A");
-        return `${formattedDate} | | ${formattedTime}`;
+        return `${formattedDate}\n${formattedTime}`; // Use newline for better display
       }
       return "N/A";
     },
@@ -342,9 +359,9 @@ const dtrColumns = computed(() => [
     align: "center",
     field: (row) => {
       if (row.time_out) {
-        const formattedDate = date.formatDate(row.time_out, "MMM. DD,YYYY");
+        const formattedDate = date.formatDate(row.time_out, "MMM. DD, YYYY");
         const formattedTime = date.formatDate(row.time_out, "h:mm A");
-        return `${formattedDate} | | ${formattedTime}`;
+        return `${formattedDate}\n${formattedTime}`; // Use newline for better display
       }
       return "N/A";
     },
@@ -411,11 +428,27 @@ const dtrColumns = computed(() => [
 </script>
 
 <style lang="scss" scoped>
-.modern-dtr-table .q-table__bottom--nodata {
-  display: none; // Hide the "No data available" if you always want the total row
-}
-
 .modern-dtr-table {
+  border-radius: 12px;
+  overflow: hidden; // Ensures border-radius is respected
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); // Soft, subtle shadow
+
+  .q-table__container {
+    background-color: #fff;
+  }
+
+  // Remove default table border (Quasar's `bordered` prop handles outer border)
+  .q-table__middle,
+  .q-table__bottom,
+  .q-table__top {
+    border: none;
+  }
+
+  // Hide the "No data available" if you always want the total row
+  .q-table__bottom--nodata {
+    display: none;
+  }
+
   // Make all 15 rows fit by preventing internal scrolling and shrinking cells.
   // Target the internal scrollable body of the q-table
   :deep(.q-table__middle) {
@@ -423,47 +456,102 @@ const dtrColumns = computed(() => [
     max-height: none !important; // Allow content to dictate height, remove any height limits
   }
 
-  // Shrink cell padding to reduce row height
-  td {
-    padding-top: 4px !important; // Reduced top padding
-    padding-bottom: 4px !important; // Reduced bottom padding
-    font-size: 0.85em; // Slightly smaller font size for data
+  // --- Table Header Styling ---
+  .modern-dtr-table-header {
+    background-color: #f5f7fa; // Light background for headers
+    th {
+      padding: 12px 8px; // More vertical padding
+      font-size: 0.9em; // Slightly smaller font size
+      color: #555; // Softer header text color
+      border-bottom: 2px solid #e0e0e0; // Thicker, more prominent bottom border
+      &:first-child {
+        border-left: none; // Remove left border for the first header
+      }
+      &:last-child {
+        border-right: none; // Remove right border for the last header
+      }
+    }
   }
 
-  .total-row {
-    background-color: var(--q-color-blue-grey-1, #e0f2f7); // Fallback color
-    font-weight: bold;
+  // --- Table Body Cell Styling ---
+  .modern-dtr-table-cell {
+    padding-top: 8px !important; // More top padding
+    padding-bottom: 8px !important; // More bottom padding
+    font-size: 0.875em; // Standard body text size
+    color: #424242; // Darker grey for content
+    border-color: #eeeeee; // Lighter cell borders
+    border-right: 1px solid #eeeeee; // Ensure right border is visible
+    border-bottom: 1px solid #f5f5f5; // Very subtle row separation
 
-    // Remove vertical borders for the "Total" label cell and the two empty cells
-    td:nth-child(1) {
-      // The "Total" label cell
-      border-right: none !important; // Remove border to its right
+    &:last-child {
+      border-right: none; // Remove right border for the last cell in a row
     }
 
-    td:nth-child(2), // The empty "Time In" cell
+    span.text-body2 {
+      white-space: pre-wrap; /* Allows newline characters to create line breaks */
+      line-height: 1.4; /* Adjust line height for better readability with newlines */
+    }
+  }
+
+  // --- Total Row Styling ---
+  .modern-dtr-total-row {
+    background-color: #e3f2fd; // A light, calming blue for the total row
+    border-top: 2px solid #90caf9; // Distinct top border for emphasis
+    td {
+      padding: 14px 8px; // More padding for total row cells
+      font-size: 1em; // Slightly larger font for totals
+      font-weight: bold;
+      color: #333; // Darker text for totals
+      border-right: 1px solid #bbdefb; // Lighter border for total row cells
+      border-bottom: none; // No bottom border for the last row
+
+      &:first-child {
+        border-left: none; // Remove left border for the first cell
+      }
+      &:last-child {
+        border-right: none; // Remove right border for the last cell
+      }
+    }
+
+    .total-label {
+      color: #212121; // Darker specific color for "Total" label
+      // Adjust border behavior for the combined cells
+      border-right: none !important;
+      border-left: none !important;
+      position: relative; /* Needed for pseudo-elements */
+      &::after {
+        /* Hide the right vertical line of the "Total" label cell */
+        content: none !important;
+      }
+    }
+
+    // Hide vertical borders for the empty cells using their index
+    td:nth-child(2),
     td:nth-child(3) {
-      // The empty "Time Out" cell
-      border-left: none !important; // Remove border to its left
-      border-right: none !important; // Remove border to its right
+      border-left: none !important;
+      border-right: none !important;
+      // Also hide Quasar's pseudo-elements that draw these specific vertical lines
+      &::before,
+      &::after {
+        content: none !important;
+        display: none !important;
+        border: none !important;
+      }
     }
+  }
 
-    // --- Crucial: Remove Quasar's pseudo-elements that draw these specific vertical lines ---
-    // Target the pseudo-element for the right border of the "Total" label cell (1st td)
-    td:nth-child(1)::after {
-      content: none !important;
-      display: none !important;
-      border-right: none !important; // Just in case
-    }
-
-    // Target pseudo-elements for both left and right borders of the empty cells (2nd & 3rd td)
-    td:nth-child(2)::before,
-    td:nth-child(2)::after,
-    td:nth-child(3)::before,
-    td:nth-child(3)::after {
-      content: none !important;
-      display: none !important;
-      border: none !important; // Remove all pseudo-element borders
-    }
+  // --- Color overrides for the total row values ---
+  .text-primary-8 {
+    color: #2196f3; // Deeper blue for working hours total
+  }
+  .text-orange-8 {
+    color: #fb8c00; // Deeper orange for undertime total
+  }
+  .text-positive-8 {
+    color: #4caf50; // Deeper green for overtime total
+  }
+  .text-blue-grey-8 {
+    color: #607d8b; // Deeper blue-grey for break total
   }
 }
 </style>

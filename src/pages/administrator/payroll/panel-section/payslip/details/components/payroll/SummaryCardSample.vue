@@ -1,6 +1,18 @@
 <template>
   <q-card flat bordered class="summary-card q-pa-md">
     <q-list dense>
+      <div align="center">
+        <q-item>
+          <!-- <q-item-section avatar>
+            <q-icon name="analytics" />
+          </q-item-section> -->
+          <q-item-section>
+            <q-item-label class="text-h6 text-weight-meduim">
+              Checking Earning Summary
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </div>
       <div class="row justify-between">
         <q-item>
           <q-item-section avatar>
@@ -53,9 +65,9 @@
             <q-icon name="wallet" color="primary" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-body1 text-weight-bold">
+            <q-item-label class="text-body1 text-weight-meduim">
               Expected Salary in {{ dtrRows.length }} days:
-              <span>{{ regularPay }}</span>
+              <span class="text-primary">{{ regularPay }}</span>
             </q-item-label>
           </q-item-section>
         </q-item>
@@ -84,12 +96,10 @@
               <q-icon name="payments" color="teal" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-bold">
+              <q-item-label class="text-body1 text-weight-meduim">
                 Total Working Hours Cost :
                 <span class="text-teal">
-                  {{
-                    overallCalculations.formattedTotalWorkingHoursCost || "N/A"
-                  }}
+                  {{ totalWorkingHoursCost || "N/A" }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -115,10 +125,10 @@
               <q-icon name="attach_money" color="orange" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-bold">
+              <q-item-label class="text-body1 text-weight-meduim">
                 Total Overtime Cost :
                 <span class="text-orange">
-                  {{ overallCalculations.formattedTotalOvertimeCost || "N/A" }}
+                  {{ totalOvertimeCost || "N/A" }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -144,10 +154,10 @@
               <q-icon name="money_off" color="negative" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-bold">
+              <q-item-label class="text-body1 text-weight-meduim">
                 Total Undertime / Late Cost :
                 <span class="text-negative">
-                  {{ overallCalculations.formattedTotalUndertimeCost || "N/A" }}
+                  {{ totalUndertimeCost || "N/A" }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -163,9 +173,7 @@
               <q-item-label class="text-body1 text-weight-meduim">
                 TWH + TOH:
                 <span class="text-positive">
-                  {{
-                    overallCalculations.formattedTotalHoursWithOvertime || "N/A"
-                  }}
+                  {{ sumTWHTOH || "N/A" }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -175,10 +183,44 @@
               <q-icon name="account_balance_wallet" color="positive" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-bold">
+              <q-item-label class="text-body1 text-weight-meduim">
                 TWH + TOH Cost :
                 <span class="text-positive">
-                  {{ overallCalculations.formattedOverallTotalSalary || "N/A" }}
+                  {{ sumTWHTOHCost || "N/A" }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </div>
+
+        <q-separator spaced inset="item" />
+
+        <!-- <div>
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="attach_money" color="green" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-body1 text-weight-bold">
+                Totan Income
+                <span class="text-green">
+                  {{ sumTWHTOHCost || "N/A" }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </div> -->
+        <div class="row justify-between">
+          <q-item class="col-6" align="right">
+            <!-- <q-item-section avatar>
+              <q-icon name="paid" color="green-8" />
+            </q-item-section> -->
+            <q-item-section>
+              <q-item-label class="text-body1 text-weight-bold">
+                <!-- Net Payable Amount : -->
+                Total Income:
+                <span class="text-green-8">
+                  {{ sumTWHTOHCost || "N/A" }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -188,6 +230,7 @@
       <div v-else class="text-grey q-mt-md">Loading summary data...</div>
     </q-list>
   </q-card>
+  <!-- Removed {{ summaryData }} as it's for debugging -->
 </template>
 
 <script setup>
@@ -195,6 +238,7 @@ import { useQuasar } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+// Removed imports for useDTRCalculations as they are no longer used here
 import ModifiedButton from "src/components/buttons/ModifiedButton.vue";
 
 const props = defineProps({
@@ -252,6 +296,8 @@ const fetchEmployeeDetails = async () => {
 };
 
 onMounted(async () => {
+  // If employeeData is already provided via props, use it directly.
+  // Otherwise, fetch it.
   if (props.employeeData) {
     employeesData.value = props.employeeData;
   } else {
@@ -259,6 +305,7 @@ onMounted(async () => {
   }
 });
 
+// Watch for changes in props.employeeData in case it's loaded asynchronously
 watch(
   () => props.employeeData,
   (newVal) => {
@@ -267,8 +314,8 @@ watch(
     }
   },
   {
-    immediate: true,
-    deep: true,
+    immediate: true, // Run handler immediately on component mount
+    deep: true, // Watch for deep changes in the object
   }
 );
 
@@ -284,6 +331,23 @@ const formatCurrency = (value) => {
   }).format(numValue);
 };
 
+// --- REMOVED ALL CORE CALCULATION LOGIC FROM HERE ---
+// The `overallCalculations` computed property and all related helper functions
+// (parseTimeToDate, getBreakDuration, calculateTotalBreakMinutesPure, calculateRowTimes)
+// have been removed. These calculations are now solely handled by DTRTable.vue.
+const hourlyRate = computed(() => {
+  const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
+  return salary > 0 ? salary / 8 : 0; // Assuming 9 working hours per day
+});
+
+const parseHourMinute = (str) => {
+  if (!str || typeof str !== "string") return 0;
+  const parts = str.split("h");
+  const hours = parseInt(parts[0]?.trim() || 0);
+  const minutes = parseInt(parts[1]?.replace("m", "").trim() || 0);
+  return hours + minutes / 60;
+};
+
 const formatHoursAndMinutes = (totalHours) => {
   if (isNaN(totalHours) || totalHours < 0) return "0h 0m"; // This line ensures "0h 0m" for invalid or negative
   const hours = Math.floor(totalHours);
@@ -291,98 +355,50 @@ const formatHoursAndMinutes = (totalHours) => {
   return `${hours}h ${minutes}m`;
 };
 
-// Helper function to convert "Xh Ym" string to total minutes
-const convertHoursMinutesToMinutes = (formattedString) => {
-  if (
-    !formattedString ||
-    typeof formattedString !== "string" ||
-    formattedString === "N/A" ||
-    formattedString === "—"
-  ) {
-    return 0;
-  }
-  const parts = formattedString.match(/(\d+)h\s*(\d+)m/);
-  if (parts) {
-    const hours = parseInt(parts[1], 10);
-    const minutes = parseInt(parts[2], 10);
-    return hours * 60 + minutes;
-  }
-  return 0;
-};
+const totalWorkingHoursCost = computed(() => {
+  const hours = parseHourMinute(props.summaryData?.totalWorkingHoursFormatted);
+  return formatCurrency(hours * hourlyRate.value);
+});
 
-// --- NEW: Overall Calculations Computed Property (re-introduced) ---
-const overallCalculations = computed(() => {
-  const employee = employeesData.value;
-  const salary = parseFloat(employee?.employment_type?.salary || 0);
+const totalOvertimeCost = computed(() => {
+  const hours = parseHourMinute(props.summaryData?.totalOvertimeFormatted);
+  return formatCurrency(hours * hourlyRate.value);
+});
 
-  // Default values if data is not available
-  if (!employee || !salary || !props.summaryData) {
-    return {
-      totalWorkingHoursCost: 0,
-      formattedTotalWorkingHoursCost: formatCurrency(0),
-      totalOvertimeCost: 0,
-      formattedTotalOvertimeCost: formatCurrency(0),
-      totalUndertimeCost: 0,
-      formattedTotalUndertimeCost: formatCurrency(0),
-      totalHoursWithOvertime: 0,
-      formattedTotalHoursWithOvertime: "0h 0m",
-      overallTotalSalary: 0,
-      formattedOverallTotalSalary: formatCurrency(0),
-    };
-  }
+const totalUndertimeCost = computed(() => {
+  const hours = parseHourMinute(props.summaryData?.totalUndertimeFormatted);
+  return formatCurrency(hours * hourlyRate.value);
+});
 
-  // Retrieve formatted time strings from summaryData prop
-  const totalWorkingHoursFormatted =
-    props.summaryData.totalWorkingHoursFormatted || "0h 0m";
-  const totalOvertimeFormatted =
-    props.summaryData.totalOvertimeFormatted || "0h 0m";
-  const totalUndertimeFormatted =
-    props.summaryData.totalUndertimeFormatted || "0h 0m";
-
-  // Convert formatted strings back to minutes for calculations
-  const totalWorkingMinutes = convertHoursMinutesToMinutes(
-    totalWorkingHoursFormatted
+const totalHoursWithOTCost = computed(() => {
+  const hours = parseHourMinute(
+    props.summaryData?.formattedTotalHoursWithOvertime
   );
-  const totalOvertimeMinutes = convertHoursMinutesToMinutes(
-    totalOvertimeFormatted
+  return formatCurrency(hours * hourlyRate.value);
+});
+
+const sumTWHTOH = computed(() => {
+  const totalWorkingHours = parseHourMinute(
+    props.summaryData?.totalWorkingHoursFormatted
   );
-  const totalUndertimeMinutes = convertHoursMinutesToMinutes(
-    totalUndertimeFormatted
+  const totalOverTimeHours = parseHourMinute(
+    props.summaryData?.totalOvertimeFormatted
   );
 
-  const standardWorkHoursPerDay = 8; // Assuming 8 hours per day for hourly rate calculation
-  const hourlyRate = salary / standardWorkHoursPerDay;
-  const overtimeRateMultiplier = 1.25; // Example: 1.25x for overtime
+  return formatHoursAndMinutes(totalWorkingHours + totalOverTimeHours);
+});
 
-  // Calculate costs
-  const totalWorkingHoursCost = (totalWorkingMinutes / 60) * hourlyRate;
-  const totalOvertimeCost =
-    (totalOvertimeMinutes / 60) * hourlyRate * overtimeRateMultiplier;
-  const totalUndertimeCost = (totalUndertimeMinutes / 60) * hourlyRate; // Undertime reduces pay
+const sumTWHTOHCost = computed(() => {
+  const totalWorkingHours = parseHourMinute(
+    props.summaryData?.totalWorkingHoursFormatted
+  );
+  const totalOvertimeHours = parseHourMinute(
+    props.summaryData?.totalOvertimeFormatted
+  );
 
-  const totalHoursWithOvertimeMinutes =
-    totalWorkingMinutes + totalOvertimeMinutes;
-  const overallTotalSalary =
-    totalWorkingHoursCost + totalOvertimeCost - totalUndertimeCost; // Adjusted for undertime deduction
+  const sum = totalWorkingHours + totalOvertimeHours;
 
-  return {
-    totalWorkingHoursCost: totalWorkingHoursCost,
-    formattedTotalWorkingHoursCost: formatCurrency(totalWorkingHoursCost),
-
-    totalOvertimeCost: totalOvertimeCost,
-    formattedTotalOvertimeCost: formatCurrency(totalOvertimeCost),
-
-    totalUndertimeCost: totalUndertimeCost,
-    formattedTotalUndertimeCost: formatCurrency(totalUndertimeCost),
-
-    totalHoursWithOvertime: totalHoursWithOvertimeMinutes,
-    formattedTotalHoursWithOvertime: formatMinutesToHoursMinutes(
-      totalHoursWithOvertimeMinutes
-    ),
-
-    overallTotalSalary: overallTotalSalary,
-    formattedOverallTotalSalary: formatCurrency(overallTotalSalary),
-  };
+  return formatCurrency(sum * hourlyRate.value);
 });
 
 // Regular Pay Calculation (based on daily rate * number of days)
@@ -398,15 +414,6 @@ const regularPay = computed(() => {
   const calculatedExpectedSalary = ratePerDay * totalNumberOfDays;
   return formatCurrency(calculatedExpectedSalary);
 });
-
-// Helper function to format minutes to "Xh Ym" string (re-added for internal use if needed, or can be removed if only using formatted strings from prop)
-const formatMinutesToHoursMinutes = (totalMinutes) => {
-  if (totalMinutes === null || totalMinutes === undefined || totalMinutes < 0)
-    return "0h 0m";
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return `${hours}h ${minutes}m`;
-};
 </script>
 
 <style scoped>
