@@ -55,20 +55,6 @@ const props = defineProps(["dtrRows", "employeeData"]);
 
 const internalEmployeeData = ref(props.employeeData);
 
-// Watch for changes in employeeData prop and update internal ref
-// Also trigger summary emission when employeeData changes
-watch(
-  () => props.employeeData,
-  (newVal) => {
-    internalEmployeeData.value = newVal;
-    // The main watch below on both dtrRows and internalEmployeeData will handle re-emitting
-    // so we don't need an extra emit here.
-  },
-  {
-    immediate: true, // Run on component mount
-  }
-);
-
 const pagination = ref({
   rowsPerPage: 0,
 });
@@ -95,8 +81,7 @@ const parseTimeToDate = (timeString, dateObj) => {
 };
 
 const formatMinutesToHoursMinutes = (totalMinutes) => {
-  if (totalMinutes === null || totalMinutes === undefined || totalMinutes < 0)
-    return "0h 0m";
+  if (totalMinutes < 0) totalMinutes = 0;
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   return `${hours}h ${minutes}m`;
@@ -281,12 +266,10 @@ const emitCalculatedSummary = () => {
   // Ensure calculateGrandTotals.value is accessible and not null/undefined
   if (calculateGrandTotals.value) {
     emit("dtr-summary-calculated", {
-      // Emit the formatted strings directly
-      totalWorkingHoursFormatted: totalWorkingHoursFormatted.value, // <--- THIS IS THE KEY CHANGE
-      totalUndertimeFormatted: totalUndertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
-      totalOvertimeFormatted: totalOvertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
-      totalBreakFormatted: totalBreakFormatted.value, // <--- THIS IS THE KEY CHANGE
-      // Keep other raw values or formatted values as needed
+      totalWorkingMinutes: calculateGrandTotals.value.totalWorking,
+      totalUndertimeMinutes: calculateGrandTotals.value.totalUndertime,
+      totalOvertimeMinutes: calculateGrandTotals.value.totalOvertime,
+      totalBreakMinutes: calculateGrandTotals.value.totalBreak,
       totalPresentDays: calculateGrandTotals.value.totalPresentDays,
       totalLateDays: calculateGrandTotals.value.totalLateDays,
       totalAbsentDays: calculateGrandTotals.value.totalAbsentDays,
@@ -302,6 +285,20 @@ watch(
     emitCalculatedSummary();
   },
   { deep: true, immediate: true } // Deep watch for array/object changes; immediate for initial run
+);
+
+// Watch for changes in employeeData prop and update internal ref
+// This watch is now solely for updating internalEmployeeData and then triggering a summary emit.
+watch(
+  () => props.employeeData,
+  (newVal) => {
+    internalEmployeeData.value = newVal;
+    // The main watch above already covers emitting when internalEmployeeData changes.
+    // So, no need for an extra emit here, to avoid redundant calls.
+  },
+  {
+    immediate: true,
+  }
 );
 
 // Also ensure emission happens on initial mount if data is already there
@@ -328,7 +325,7 @@ const dtrColumns = computed(() => [
     align: "center",
     field: (row) => {
       if (row.time_in) {
-        const formattedDate = date.formatDate(row.time_in, "MMM. DD,YYYY");
+        const formattedDate = date.formatDate(row.time_in, "MMM. DD, YYYY");
         const formattedTime = date.formatDate(row.time_in, "h:mm A");
         return `${formattedDate} | | ${formattedTime}`;
       }
@@ -342,7 +339,7 @@ const dtrColumns = computed(() => [
     align: "center",
     field: (row) => {
       if (row.time_out) {
-        const formattedDate = date.formatDate(row.time_out, "MMM. DD,YYYY");
+        const formattedDate = date.formatDate(row.time_out, "MMM. DD, YYYY");
         const formattedTime = date.formatDate(row.time_out, "h:mm A");
         return `${formattedDate} | | ${formattedTime}`;
       }

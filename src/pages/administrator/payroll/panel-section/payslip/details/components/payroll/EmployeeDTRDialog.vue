@@ -23,7 +23,11 @@
 
       <q-card-section class="q-pt-sm">
         <div class="text-h6 q-mb-sm text-grey-8">Daily Time Records</div>
-        <DTRTable :dtr-rows="dtrRows" :employee-data="employeesData" />
+        <DTRTable
+          :dtr-rows="dtrRows"
+          :employee-data="employeesData"
+          @dtr-summary-calculated="handleDTRSummaryCalculated"
+        />
       </q-card-section>
 
       <q-card-section class="q-pt-sm q-pb-md">
@@ -31,6 +35,7 @@
           :dtr-rows="dtrRows"
           :employee-data="employeesData"
           :dtr-record="props.dtrRecord"
+          :summary-data="dtrSummaryData"
         />
         <q-card-section align="right"> </q-card-section>
       </q-card-section>
@@ -62,6 +67,15 @@ const dtrRows = props.dtrRecord.records || [];
 
 const maximizedToggle = ref(true);
 const loadingTable = ref(true); // Added for loading state of the table
+
+// --- State for summary data from DTRTable --- //
+const dtrSummaryData = ref(null); // Inittialize to null
+
+// --- Method to handle event from DTRTable --- //
+const handleDTRSummaryCalculated = (summary) => {
+  console.log("Parent received calculated DTR summary:", summary);
+  dtrSummaryData.value = summary; // Update the reactive state
+};
 
 // --- Data Fetching Functions ---
 const fetchEmployeeDetails = async () => {
