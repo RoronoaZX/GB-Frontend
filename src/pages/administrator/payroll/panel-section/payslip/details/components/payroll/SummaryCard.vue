@@ -46,20 +46,6 @@
         </q-item>
       </div>
 
-      <!-- <q-item class="q-mb-sm q-pa-none">
-        <q-item-section avatar class="q-mr-sm">
-          <q-icon name="money" color="blue-grey-7" size="sm" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-body1 text-weight-medium text-grey-8">
-            Rate / Day:
-            <span class="text-blue-grey-7 text-weight-semibold">{{
-              formatCurrency(employeesData?.employment_type?.salary)
-            }}</span>
-          </q-item-label>
-        </q-item-section>
-      </q-item> -->
-
       <div class="row q-col-gutter-y-sm">
         <q-item class="col-12 col-md-6 q-pa-none">
           <q-item-section avatar class="q-mr-sm">

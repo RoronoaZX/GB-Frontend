@@ -38,32 +38,27 @@
 
     <template v-slot:bottom-row>
       <q-tr class="modern-dtr-total-row">
-        <q-td class="text-center text-weight-bold text-grey-9 total-label"
+        <q-td class="text-left text-weight-bold text-grey-9 total-label"
           >Total</q-td
         >
         <q-td></q-td>
         <q-td></q-td>
 
-        <q-td class="text-center text-weight-bold text-teal-7">
+        <q-td class="text-center text-weight-bold text-primary-8">
           {{ totalWorkingHoursFormatted }}
         </q-td>
 
-        <q-td class="text-center text-weight-bold text-negative">
+        <q-td class="text-center text-weight-bold text-orange-8">
           {{ totalUndertimeFormatted }}
         </q-td>
 
-        <q-td class="text-center text-weight-bold text-orange-8">
+        <q-td class="text-center text-weight-bold text-positive-8">
           {{ totalOvertimeFormatted }}
         </q-td>
 
-        <q-td class="text-center text-weight-bold text-warning">
-          {{ totalNightDifferentialFormatted }}
-        </q-td>
-
-        <q-td class="text-center text-weight-bold text-warning">
+        <q-td class="text-center text-weight-bold text-blue-grey-8">
           {{ totalBreakFormatted }}
         </q-td>
-        <q-td></q-td>
       </q-tr>
     </template>
   </q-table>
@@ -76,9 +71,6 @@ import { date } from "quasar";
 const props = defineProps(["dtrRows", "employeeData"]);
 
 const internalEmployeeData = ref(props.employeeData);
-
-const NIGHT_DIFF_START_HOUR = 22; // 10 PM
-const NIGHT_DIFF_END_HOUR = 6;
 
 // Watch for changes in employeeData prop and update internal ref
 // Also trigger summary emission when employeeData changes
@@ -151,143 +143,6 @@ const calculateTotalBreakMinutesPure = (row) => {
   return totalBreak;
 };
 
-const calculateNightDifferentialMinutes = (inTime, outTime) => {
-  if (!inTime || !outTime || inTime >= outTime) {
-    return 0;
-  }
-
-  let totalNightDiffMinutes = 0;
-
-  const startShift = new Date(inTime);
-  const endShift = new Date(outTime);
-
-  let currentDay = date.startOfDate(startShift);
-
-  while (currentDay < endShift) {
-    // Define the ND window for the *current calendar day*
-    let ndStartCurrentDay = new Date(currentDay);
-    ndStartCurrentDay.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0);
-
-    let ndEndCurrentDay = new Date(currentDay);
-    ndEndCurrentDay.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0);
-
-    // Adjust ndEndCurrentDay if it spans midnight
-    if (ndEndCurrentDay <= ndStartCurrentDay) {
-      ndEndCurrentDay = date.addToDate(ndEndCurrentDay, { days: 1 });
-    }
-
-    // Calculate intersection with the current shift segment
-    const intersectionStart = Math.max(
-      startShift.getTime(),
-      ndStartCurrentDay.getTime()
-    );
-    const intersectionEnd = Math.min(
-      endShift.getTime(),
-      ndEndCurrentDay.getTime()
-    );
-
-    if (intersectionEnd > intersectionStart) {
-      totalNightDiffMinutes += Math.floor(
-        (intersectionEnd - intersectionStart) / (1000 * 60)
-      );
-    }
-
-    // Move to the start of the next calendar day for the next iteration
-    currentDay = date.addToDate(currentDay, { days: 1 });
-  }
-  // The 'while' loop closes here naturally. No extra '}' needed.
-
-  return totalNightDiffMinutes;
-};
-
-// Helper function to calculate minutes within the night differential period
-// This function needs to handle transitions across midnight.
-// const calculateNightDifferentialMinutes = (inTime, outTime) => {
-//   if (!inTime || !outTime || inTime >= outTime) {
-//     return 0;
-//   }
-
-//   let totalNightDiffMinutes = 0;
-//   const startOfDay = date.startOfDate(inTime); // Get the start of the 'in' day
-//   const endOfDay = date.endOfDate(inTime); // Get the end of the 'in' day
-
-//   // Define the night differential window for the 'current' day (could span into next)
-//   let ndStart = new Date(startOfDay);
-//   ndStart.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0); // 10 PM of the current day
-
-//   let ndEnd = new Date(startOfDay);
-//   ndEnd.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0); // 6 AM of the current day (which might be the *next* calendar day)
-
-//   // If the ND end time is before the start time, it means it spans midnight
-//   if (ndEnd <= ndStart) {
-//     ndEnd = date.addToDate(ndEnd, { days: 1 }); // Move ND end to the next day
-//   }
-
-//   // Handle shifts that start on one day and end on the next (common for night shifts)
-//   // We need to check for night diff on both the 'inTime' day and potentially the 'outTime' day.
-
-//   // Create segments for night differential relevant to the shift
-//   // A night differential period might span from Day 1 10PM to Day 2 6AM.
-//   // We need to check if the shift (inTime, outTime) overlaps with this period.
-
-//   // Let's simplify: Iterate day by day from inTime to outTime, check for ND hours.
-//   // This is more robust for shifts spanning multiple midnights, though typically DTR is daily.
-
-//   let currentCheckTime = new Date(inTime);
-//   while (currentCheckTime < outTime) {
-//     const nextDay = date.addToDate(date.startOfDate(currentCheckTime), {
-//       days: 1,
-//     });
-
-//     // Define ND interval for the day currentCheckTime is on
-//     let currentNDStart = new Date(currentCheckTime);
-//     currentNDStart.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0);
-
-//     let currentNDEnd = new Date(currentCheckTime);
-//     currentNDEnd.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0);
-
-//     if (currentNDEnd <= currentNDStart) {
-//       currentNDEnd = date.addToDate(currentNDEnd, { days: 1 }); // ND spans midnight
-//     }
-
-//     // Determine the actual intersection of the shift interval and this day's ND interval
-//     const intersectionStart = Math.max(
-//       inTime.getTime(),
-//       currentNDStart.getTime()
-//     );
-//     const intersectionEnd = Math.min(outTime.getTime(), currentNDEnd.getTime());
-
-//     if (intersectionEnd > intersectionStart) {
-//       totalNightDiffMinutes += Math.floor(
-//         (intersectionEnd - intersectionStart) / (1000 * 60)
-//       );
-//     }
-
-//     // Move to the next potential segment. If currentCheckTime is already past 6AM on its day,
-//     // we jump to 10PM on the next day, otherwise we just move to the end of the ND period
-//     // or the start of the next day.
-//     if (
-//       currentCheckTime.getHours() >= NIGHT_DIFF_END_HOUR &&
-//       currentCheckTime.getHours() < NIGHT_DIFF_START_HOUR
-//     ) {
-//       // If current check time is within the day non-ND period, jump to next ND start (10 PM)
-//       currentCheckTime = new Date(currentCheckTime); // Copy to avoid modifying original
-//       currentCheckTime.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0);
-//       // If 10 PM is before currentCheckTime, move to next day's 10 PM
-//       if (currentCheckTime <= inTime) {
-//         currentCheckTime = date.addToDate(currentCheckTime, { days: 1 });
-//       }
-//     } else {
-//       // If we were in the ND window or after it (but before next 10PM), jump to next day's 6AM.
-//       // This is a simplified jump to ensure we don't miss ND on the subsequent day.
-//       currentCheckTime = nextDay; // Move to the start of the next calendar day
-//       currentCheckTime.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0); // Jump to the end of the ND period (6 AM) of the *next* day.
-//     }
-//   }
-
-//   return totalNightDiffMinutes;
-// };
-
 /**
  * Calculates working hours, undertime, and overtime for a single DTR row.
  * Now dynamically deducts break time based on recorded breaks.
@@ -295,97 +150,51 @@ const calculateNightDifferentialMinutes = (inTime, outTime) => {
  * @param {Object} designation - The employee's designation data (with time_in, time_out).
  * @returns {Object} An object containing calculated times in minutes.
  */
-const calculateRowTimes = (row) => {
+const calculateRowTimes = (row, designation) => {
+  console.log("calculateRowTimes row:", row);
+  console.log("calculateRowTimes designation:", designation);
   let totalWorkingMinutes = 0;
   let undertimeMinutes = 0;
   let overtimeMinutes = 0;
-  let nightDifferentialMinutes = 0; // NEW VARIABLE
 
-  if (!row.time_in || !row.time_out || !row.schedule_in || !row.schedule_out) {
-    return {
-      totalWorkingMinutes,
-      undertimeMinutes,
-      overtimeMinutes,
-      nightDifferentialMinutes,
-    }; // Include ND here
+  if (!row.time_in || !row.time_out || !designation) {
+    return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
   }
 
   const actualIn = new Date(row.time_in);
   const actualOut = new Date(row.time_out);
 
   if (isNaN(actualIn.getTime()) || isNaN(actualOut.getTime())) {
-    return {
-      totalWorkingMinutes,
-      undertimeMinutes,
-      overtimeMinutes,
-      nightDifferentialMinutes,
-    }; // Include ND here
+    return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
   }
 
-  const scheduledIn = parseTimeToDate(row.schedule_in, actualIn);
-  const scheduledOut = parseTimeToDate(row.schedule_out, actualOut);
+  const scheduledIn = parseTimeToDate(designation.time_in, actualIn);
+  const scheduledOut = parseTimeToDate(designation.time_out, actualOut);
 
   if (!scheduledIn || !scheduledOut) {
-    return {
-      totalWorkingMinutes,
-      undertimeMinutes,
-      overtimeMinutes,
-      nightDifferentialMinutes,
-    }; // Include ND here
+    return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
   }
 
+  // --- Determine Actual Break Deduction ---
   const recordedBreakMinutes = calculateTotalBreakMinutesPure(row);
-  const breakDeduction = recordedBreakMinutes < 60 ? 60 : recordedBreakMinutes;
+  const breakDeduction = recordedBreakMinutes < 60 ? 60 : recordedBreakMinutes; // Dynamic deduction
 
   // --- Working Hours Calculation ---
-  // This logic is for core working hours, excluding any overtime and considering breaks.
   const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
   const effectiveOut = actualOut < scheduledOut ? actualOut : scheduledOut;
 
   if (effectiveOut > effectiveIn) {
     const totalMs = effectiveOut.getTime() - effectiveIn.getTime();
-    const adjustedMs = totalMs - breakDeduction * 60 * 1000;
+    const adjustedMs = totalMs - breakDeduction * 60 * 1000; // Deduct dynamic break
     if (adjustedMs > 0) {
       totalWorkingMinutes = Math.floor(adjustedMs / (1000 * 60));
     }
   }
 
-  // --- Night Differential Calculation (within regular and potentially overtime hours) ---
-  // You need to define how ND interacts with OT.
-  // Common approach: ND applies to *any* actual working hours (regular or approved OT) that fall in the window.
-
-  // Calculate ND for regular (scheduled) work period:
-  const regularWorkStart = Math.max(actualIn.getTime(), scheduledIn.getTime());
-  const regularWorkEnd = Math.min(actualOut.getTime(), scheduledOut.getTime());
-
-  if (regularWorkEnd > regularWorkStart) {
-    nightDifferentialMinutes += calculateNightDifferentialMinutes(
-      new Date(regularWorkStart),
-      new Date(regularWorkEnd)
-    );
-  }
-
-  // Calculate ND for approved Overtime period:
-  if (row.ot_status === "approved" && row.overtime_start && row.overtime_end) {
-    const otIn = new Date(row.overtime_start);
-    const otOut = new Date(row.overtime_end);
-
-    if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut > otIn) {
-      const otMs = otOut.getTime() - otIn.getTime();
-      overtimeMinutes = Math.floor(otMs / (1000 * 60)); // Keep this here for total overtime
-
-      // Add ND minutes from the overtime period
-      nightDifferentialMinutes += calculateNightDifferentialMinutes(
-        otIn,
-        otOut
-      );
-    }
-  }
-
-  // --- Undertime/Late Calculation --- (remains unchanged)
+  // --- Undertime/Late Calculation ---
   const expectedMs = scheduledOut.getTime() - scheduledIn.getTime();
   const expectedGrossMinutes = Math.floor(expectedMs / (1000 * 60));
-  const expectedWorkingMinutes = Math.max(0, expectedGrossMinutes - 60); // Assuming 1hr standard break
+  const expectedWorkingMinutes = Math.max(0, expectedGrossMinutes - 60); // Always deduct at least 1 hour for expected
 
   const actualCountedMinutes = totalWorkingMinutes;
   const calculatedUndertimeMins = expectedWorkingMinutes - actualCountedMinutes;
@@ -394,12 +203,18 @@ const calculateRowTimes = (row) => {
     undertimeMinutes = calculatedUndertimeMins;
   }
 
-  return {
-    totalWorkingMinutes,
-    undertimeMinutes,
-    overtimeMinutes,
-    nightDifferentialMinutes,
-  };
+  // --- Overtime Calculation ---
+  if (row.ot_status === "approved" && row.overtime_start && row.overtime_end) {
+    const otIn = new Date(row.overtime_start);
+    const otOut = new Date(row.overtime_end);
+
+    if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut > otIn) {
+      const otMs = otOut.getTime() - otIn.getTime();
+      overtimeMinutes = Math.floor(otMs / (1000 * 60));
+    }
+  }
+
+  return { totalWorkingMinutes, undertimeMinutes, overtimeMinutes };
 };
 
 // --- Computed Properties for Grand Totals ---
@@ -408,18 +223,20 @@ const calculateGrandTotals = computed(() => {
   let totalUndertime = 0;
   let totalOvertime = 0;
   let totalBreak = 0;
-  let totalNightDifferential = 0; // NEW TOTAL
   let totalPresentDays = 0;
   let totalLateDays = 0;
   let totalAbsentDays = 0;
 
-  if (!props.dtrRows || props.dtrRows.length === 0) {
+  if (
+    !props.dtrRows ||
+    props.dtrRows.length === 0 ||
+    !internalEmployeeData.value?.designation
+  ) {
     return {
       totalWorking,
       totalUndertime,
       totalOvertime,
       totalBreak,
-      totalNightDifferential, // Include in return
       totalPresentDays,
       totalLateDays,
       totalAbsentDays,
@@ -428,18 +245,13 @@ const calculateGrandTotals = computed(() => {
   }
 
   props.dtrRows.forEach((row) => {
-    const {
-      totalWorkingMinutes,
-      undertimeMinutes,
-      overtimeMinutes,
-      nightDifferentialMinutes,
-    } = calculateRowTimes(row); // Get ND here
+    const { totalWorkingMinutes, undertimeMinutes, overtimeMinutes } =
+      calculateRowTimes(row, internalEmployeeData.value.designation);
 
     totalWorking += totalWorkingMinutes;
     totalUndertime += undertimeMinutes;
     totalOvertime += overtimeMinutes;
     totalBreak += calculateTotalBreakMinutesPure(row);
-    totalNightDifferential += nightDifferentialMinutes; // Add to total
 
     if (row.status === "Present") {
       totalPresentDays++;
@@ -455,17 +267,11 @@ const calculateGrandTotals = computed(() => {
     totalUndertime,
     totalOvertime,
     totalBreak,
-    totalNightDifferential, // Include in return
     totalPresentDays,
     totalLateDays,
     totalAbsentDays,
     totalDaysInPeriod: props.dtrRows.length,
   };
-});
-
-const totalNightDifferentialFormatted = computed(() => {
-  const total = calculateGrandTotals.value.totalNightDifferential;
-  return total > 0 ? formatMinutesToHoursMinutes(total) : "—";
 });
 
 const totalWorkingHoursFormatted = computed(() => {
@@ -530,7 +336,7 @@ const dtrColumns = computed(() => [
   {
     name: "number_of_days",
     required: true,
-    label: "Number Of Days",
+    label: "Day",
     align: "center",
     field: "number_of_days",
   },
@@ -568,17 +374,13 @@ const dtrColumns = computed(() => [
     label: "Working Hours",
     align: "center",
     field: (row) => {
-      const { totalWorkingMinutes } = calculateRowTimes(row);
+      if (!internalEmployeeData.value?.designation) return "N/A";
+      const { totalWorkingMinutes } = calculateRowTimes(
+        row,
+        internalEmployeeData.value.designation
+      );
       return formatMinutesToHoursMinutes(totalWorkingMinutes);
     },
-    // field: (row) => {
-    //   if (!internalEmployeeData.value?.designation) return "N/A";
-    //   const { totalWorkingMinutes } = calculateRowTimes(
-    //     row,
-    //     internalEmployeeData.value.designation
-    //   );
-    //   return formatMinutesToHoursMinutes(totalWorkingMinutes);
-    // },
   },
   {
     name: "undertime_minutes",
@@ -586,21 +388,15 @@ const dtrColumns = computed(() => [
     label: "Undertime/Late",
     align: "center",
     field: (row) => {
-      const { undertimeMinutes } = calculateRowTimes(row);
+      if (!internalEmployeeData.value?.designation) return "N/A";
+      const { undertimeMinutes } = calculateRowTimes(
+        row,
+        internalEmployeeData.value.designation
+      );
       return undertimeMinutes > 0
         ? formatMinutesToHoursMinutes(undertimeMinutes)
         : "—";
     },
-    // field: (row) => {
-    //   if (!internalEmployeeData.value?.designation) return "N/A";
-    //   const { undertimeMinutes } = calculateRowTimes(
-    //     row,
-    //     internalEmployeeData.value.designation
-    //   );
-    //   return undertimeMinutes > 0
-    //     ? formatMinutesToHoursMinutes(undertimeMinutes)
-    //     : "—";
-    // },
   },
   {
     name: "over_time",
@@ -608,32 +404,13 @@ const dtrColumns = computed(() => [
     label: "Overtime",
     align: "center",
     field: (row) => {
-      const { overtimeMinutes } = calculateRowTimes(row);
+      if (!internalEmployeeData.value?.designation) return "N/A";
+      const { overtimeMinutes } = calculateRowTimes(
+        row,
+        internalEmployeeData.value.designation
+      );
       return overtimeMinutes > 0
         ? formatMinutesToHoursMinutes(overtimeMinutes)
-        : "—";
-    },
-
-    // field: (row) => {
-    //   if (!internalEmployeeData.value?.designation) return "N/A";
-    //   const { overtimeMinutes } = calculateRowTimes(
-    //     row,
-    //     internalEmployeeData.value.designation
-    //   );
-    //   return overtimeMinutes > 0
-    //     ? formatMinutesToHoursMinutes(overtimeMinutes)
-    //     : "—";
-    // },
-  },
-  {
-    name: "night_differential", // New column name
-    required: true,
-    label: "Night Diff.", // Label for the column
-    align: "center",
-    field: (row) => {
-      const { nightDifferentialMinutes } = calculateRowTimes(row); // Get ND for this row
-      return nightDifferentialMinutes > 0
-        ? formatMinutesToHoursMinutes(nightDifferentialMinutes)
         : "—";
     },
   },
@@ -647,25 +424,6 @@ const dtrColumns = computed(() => [
       return totalBreakMins > 0
         ? formatMinutesToHoursMinutes(totalBreakMins)
         : "—";
-    },
-  },
-  {
-    name: "schedule",
-    required: true,
-    label: "Schedule",
-    align: "center",
-    field: (row) => {
-      if (row.schedule_in && row.schedule_out) {
-        const scheduleInTime = parseTimeToDate(row.schedule_in, new Date());
-        const scheduleOutTime = parseTimeToDate(row.schedule_out, new Date());
-
-        if (scheduleInTime && scheduleOutTime) {
-          const formattedIn = date.formatDate(scheduleInTime, "h:mm A");
-          const formattedOut = date.formatDate(scheduleOutTime, "h:mm A");
-          return `${formattedIn} - ${formattedOut}`;
-        }
-      }
-      return "N/A";
     },
   },
 ]);

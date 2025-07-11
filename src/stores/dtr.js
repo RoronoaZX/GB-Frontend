@@ -113,6 +113,57 @@ export const useDTRStore = defineStore("dtrs", () => {
     return response.data;
   };
 
+  const updateDtrScheduleIn = async (data) => {
+    console.log("updateDtrScheduleIn in store:", data);
+    const id = data.id;
+
+    try {
+      const response = await api.put(`/api/update-dtr-schedule-in/${id}`, data);
+
+      Notify.create({
+        message: "Scheduled in updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update schedule in",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDtrSheduleOut = async (data) => {
+    console.log("updateDtrSheduleOut in store", data);
+    const id = data.id;
+
+    try {
+      const response = await api.put(
+        `/api/update-dtr-schedule-out/${id}`,
+        data
+      );
+
+      Notify.create({
+        message: "Scheduled out updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log(error);
+      Notify.create({
+        message: "Schedules out updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
   return {
     dtr,
     dtrs,
@@ -127,5 +178,7 @@ export const useDTRStore = defineStore("dtrs", () => {
     searchDTR,
     approveOvertime,
     declineOvertime,
+    updateDtrScheduleIn,
+    updateDtrSheduleOut,
   };
 });

@@ -296,6 +296,72 @@
         </q-td>
       </template>
 
+      <template v-slot:body-cell-schedule_in="props">
+        <q-td :props="props">
+          <div :class="{ 'editable-cell': props.row.schedule_in }">
+            {{ props.row.schedule_in || "N/A" }}
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Schedule In
+            </q-tooltip>
+          </div>
+
+          <q-popup-edit
+            @update:model-value="
+              (val) => updateEmployeeScheduleIn(props.row, val)
+            "
+            v-model="props.row.schedule_in"
+            buttons
+            title="Edit Employee Schedule In"
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              :model-value="scope.value"
+              @update:model-value="scope.value = $event"
+              dense
+              autofocus
+              mask="##:## AA"
+              :rules="[validateTimeFormat]"
+              hint="Format: 01:00 AM/PM"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-schedule_out="props">
+        <q-td :props="props">
+          <div :class="{ 'editable-cell': props.row.schedule_out }">
+            {{ props.row.schedule_out || "N/A" }}
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Schedule Out
+            </q-tooltip>
+          </div>
+
+          <q-popup-edit
+            @update:model-value="
+              (val) => updateEmployeeScheduleOut(props.row, val)
+            "
+            v-model="props.row.schedule_out"
+            buttons
+            title="Edit Employee Schedule Out"
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              :model-value="scope.value"
+              @update:model-value="scope.value = $event"
+              dense
+              autofocus
+              mask="##:## AA"
+              :rules="[validateTimeFormat]"
+              hint="Format: 01:00 AM/PM"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
@@ -333,6 +399,7 @@ const pagination = ref({
 });
 const filter = ref("");
 const loading = ref(false);
+
 const dtrStore = useDTRStore();
 const dtrData = computed(() => dtrStore.dtrs);
 const dtrRows = ref([]);
@@ -341,6 +408,55 @@ const dtrRows = ref([]);
 onMounted(async () => {
   await reloadTableData();
 });
+
+const validateTimeFormat = (val) => {
+  // Regex to match "HH:MM AM/PM" format.
+  // HH: 01-12
+  // MM: 00-59
+  // AM/PM: AM or PM
+  const timeRegex = /^(0[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/;
+  return (
+    timeRegex.test(val) || "Time format must be HH:MM AM/PM (e.g., 01:00 AM)"
+  );
+};
+
+const updateEmployeeScheduleIn = async (data, val) => {
+  console.log("updateEmployeeScheduleIn composables", data, val);
+
+  loading.value = true;
+  try {
+    const employeeScheduleIn = {
+      id: data.id,
+      schedule_in: val,
+    };
+    console.log("employeeScheduleIn", employeeScheduleIn);
+    await dtrStore.updateDtrScheduleIn(employeeScheduleIn);
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateEmployeeScheduleOut = async (data, val) => {
+  console.log("updateEmployeeScheduleOut composables", data, val);
+
+  loading.value = true;
+
+  try {
+    const employeeScheduleOut = {
+      id: data.id,
+      schedule_out: val,
+    };
+
+    console.log("employeeScheduleOut", employeeScheduleOut);
+    await dtrStore.updateDtrSheduleOut(employeeScheduleOut);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
+};
 
 /**
  * Fetches and reloads the DTR table data based on pagination and filter.
@@ -367,12 +483,6 @@ const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
     loading.value = false;
   }
 };
-
-// const getBadgeShiftStatus = (role) => {
-//   switch (role) {
-//     case ""
-//   }
-// }
 
 // Column definitions for the q-table
 const dtrColumns = [
@@ -584,13 +694,22 @@ const dtrColumns = [
     sortable: false,
   },
   {
-    name: "",
+    name: "schedule_in",
+    label: "Schedule In",
+    align: "center",
+    field: (row) => row.schedule_in,
   },
   {
-    name: "action",
-    label: "Action",
-    align: "right",
+    name: "schedule_out",
+    label: "Schedule Out",
+    align: "center",
+    field: (row) => row.schedule_out,
   },
+  // {
+  //   name: "action",
+  //   label: "Action",
+  //   align: "right",
+  // },
 ];
 
 /**
@@ -651,6 +770,13 @@ watch(filter, async (newVal) => {
   background: linear-gradient(135deg, #00c6ff, #0072ff);
   color: white !important;
   transition: 0.3s ease;
+}
+
+.editable-cell {
+  cursor: pointer;
+  /* Optional: add a subtle underline to invite clicks */
+  // border-bottom: 1px dashed #777;
+  padding-bottom: 2px;
 }
 
 .gradient-icon {
