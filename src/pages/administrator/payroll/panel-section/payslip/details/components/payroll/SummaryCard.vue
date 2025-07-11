@@ -28,7 +28,25 @@
 
       <q-separator spaced="md" class="q-my-md" />
 
-      <q-item class="q-mb-sm q-pa-none">
+      <div class="row q-mb-sm">
+        <!-- Wrap in a div.row and move margin here -->
+        <q-item class="col-12 q-pa-none">
+          <!-- Use col-12 for consistency -->
+          <q-item-section avatar class="q-mr-sm">
+            <q-icon name="money" color="blue-grey-7" size="sm" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              Rate / Day:
+              <span class="text-blue-grey-7 text-weight-semibold">{{
+                formatCurrency(employeesData?.employment_type?.salary)
+              }}</span>
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </div>
+
+      <!-- <q-item class="q-mb-sm q-pa-none">
         <q-item-section avatar class="q-mr-sm">
           <q-icon name="money" color="blue-grey-7" size="sm" />
         </q-item-section>
@@ -40,7 +58,7 @@
             }}</span>
           </q-item-label>
         </q-item-section>
-      </q-item>
+      </q-item> -->
 
       <div class="row q-col-gutter-y-sm">
         <q-item class="col-12 col-md-6 q-pa-none">
@@ -342,7 +360,7 @@ const totalOvertimeCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalOvertimeFormatted);
   // Assuming overtime is paid at 1.25x the regular hourly rate (common practice)
   // If not, simply multiply by hourlyRate.value
-  return formatCurrency(hours * hourlyRate.value * 1.25);
+  return formatCurrency(hours * hourlyRate.value * 1.0);
 });
 
 const totalUndertimeCost = computed(() => {
