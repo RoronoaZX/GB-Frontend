@@ -37,6 +37,18 @@
           <!-- <div class="text-caption text-grey-6">List & New Entries</div> -->
         </div>
       </q-route-tab>
+      <!-- Employees Tab -->
+      <q-route-tab :to="{ name: 'admin-payroll-holidays' }" exact>
+        <div class="q-pa-md q-gutter-sm flex flex-column items-center">
+          <q-icon
+            name="event"
+            size="md"
+            :class="tab === 'holidays' ? 'text-teal' : 'text-grey-7'"
+          />
+          <div class="text-weight-bold text-lg">Calendar Holidays</div>
+          <!-- <div class="text-caption text-grey-6">List & New Entries</div> -->
+        </div>
+      </q-route-tab>
 
       <!-- Salary Tab -->
       <q-route-tab

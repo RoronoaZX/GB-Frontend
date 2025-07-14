@@ -104,27 +104,21 @@
   </button>
 </template>
 
-<script>
-export default {
-  name: "SendButton",
-  data() {
-    return {
-      isSent: false,
-    };
-  },
-  methods: {
-    sendMessage() {
-      // Prevent multiple clicks while animation is running
-      if (this.isSent) return;
+<script setup>
+import { ref } from "vue";
 
-      this.isSent = true;
+const isSent = ref(false);
 
-      // Reset the button state after a delay (e.g., after animations complete)
-      setTimeout(() => {
-        this.isSent = false;
-      }, 2000); // Adjust this duration based on your longest animation
-    },
-  },
+const sendMessage = () => {
+  // Prevent multiple clicks while animation is running
+  if (isSent.value) return;
+
+  isSent.value = true;
+
+  // Reset the button state a delay (e.g., after animation complete)
+  setTimeout(() => {
+    isSent.value = false;
+  }, 2000); // Adjust this duration based on your longest animation
 };
 </script>
 

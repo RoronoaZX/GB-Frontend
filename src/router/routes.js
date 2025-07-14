@@ -102,6 +102,15 @@ const routes = [
                 "pages/administrator/payroll/panel-section/employees/EmployeesPage.vue"
               ),
           },
+          // Route for Holidays Tab
+          {
+            path: "holidays",
+            name: "admin-payroll-holidays",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/holidays/HolidaysPage.vue"
+              ),
+          },
           // Route for the Attendance Tab
           {
             path: "attendance",
