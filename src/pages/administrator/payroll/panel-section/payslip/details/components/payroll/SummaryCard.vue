@@ -87,7 +87,7 @@
               <q-item-label class="text-body1 text-weight-medium text-grey-8">
                 Total Working Hours:
                 <span class="text-teal-7 text-weight-semibold">
-                  {{ summaryData.totalWorkingHoursFormatted || "N/A" }}
+                  {{ totalWorkingHours }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -116,7 +116,7 @@
               <q-item-label class="text-body1 text-weight-medium text-grey-8">
                 Total Overtime Hours :
                 <span class="text-orange-7 text-weight-semibold">
-                  {{ summaryData.totalOvertimeFormatted || "N/A" }}
+                  {{ totalOvertimeHours }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -139,13 +139,42 @@
         <div class="row q-col-gutter-y-sm q-mt-sm">
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
+              <q-icon name="nights_stay" color="grey-10" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+                Total Night Diff. Hours :
+                <span class="text-blue-grey-10 text-weight-semibold">
+                  {{ totalNightDifferential }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item class="col-12 col-md-6 q-pa-none">
+            <q-item-section avatar class="q-mr-sm">
+              <q-icon name="currency_exchange" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-body1 text-weight-meduim text-grey-8">
+                Total Night Diff. Cost :
+                <span class="text-blue-grey-10 text-weight-semibold">
+                  {{ totalNightDifferentialCost }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </div>
+
+        <div class="row q-col-gutter-y-sm q-mt-sm">
+          <q-item class="col-12 col-md-6 q-pa-none">
+            <q-item-section avatar class="q-mr-sm">
               <q-icon name="trending_down" color="negative-7" size="sm" />
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-body1 text-weight-medium text-grey-8">
                 Total Undertime / Late :
                 <span class="text-negative-7 text-weight-semibold">
-                  {{ summaryData.totalUndertimeFormatted || "N/A" }}
+                  {{ totalUndertime }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -165,7 +194,7 @@
           </q-item>
         </div>
 
-        <div class="row q-col-gutter-y-sm q-mt-sm">
+        <!-- <div class="row q-col-gutter-y-sm q-mt-sm">
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
               <q-icon name="alarm_add" color="positive-7" size="sm" />
@@ -196,7 +225,7 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-        </div>
+        </div> -->
 
         <q-separator spaced="md" class="q-my-md" />
 
@@ -206,7 +235,7 @@
               <q-item-label class="text-h6 text-weight-bold text-green-9">
                 Total Income:
                 <span class="text-green-9">
-                  {{ sumTWHTOHCost || "N/A" }}
+                  {{ totalIncome || "N/A" }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -323,7 +352,7 @@ const hourlyRate = computed(() => {
 });
 
 const parseHourMinute = (str) => {
-  if (!str || typeof str !== "string") return 0;
+  if (!str || typeof str !== "string" || str.trim() === "—") return 0;
   const parts = str.split("h");
   const hours = parseInt(parts[0]?.trim() || 0);
   const minutes = parseInt(parts[1]?.replace("m", "").trim() || 0);
@@ -336,6 +365,40 @@ const formatHoursAndMinutes = (totalHours) => {
   const minutes = Math.round((totalHours - hours) * 60);
   return `${hours}h ${minutes}m`;
 };
+
+const totalWorkingHours = computed(() => {
+  const workingHours = parseHourMinute(
+    props.summaryData?.totalWorkingHoursFormatted
+  );
+  return formatHoursAndMinutes(workingHours);
+});
+
+const totalOvertimeHours = computed(() => {
+  const overtimeHours = parseHourMinute(
+    props.summaryData?.totalOvertimeFormatted
+  );
+
+  return formatHoursAndMinutes(overtimeHours);
+});
+
+const totalNightDifferential = computed(() => {
+  const nightDiff = parseHourMinute(props.summaryData?.totalNightDiffFormatted);
+
+  return formatHoursAndMinutes(nightDiff);
+});
+
+const totalNightDifferentialCost = computed(() => {
+  const hours = parseHourMinute(props.summaryData?.totalNightDiffFormatted);
+  return formatCurrency(hours * hourlyRate.value);
+});
+
+const totalUndertime = computed(() => {
+  const undertimeHours = parseHourMinute(
+    props.summaryData?.totalUndertimeFormatted
+  );
+
+  return formatHoursAndMinutes(undertimeHours);
+});
 
 const totalWorkingHoursCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalWorkingHoursFormatted);
@@ -354,26 +417,32 @@ const totalUndertimeCost = computed(() => {
   return formatCurrency(hours * hourlyRate.value);
 });
 
-const sumTWHTOH = computed(() => {
-  const totalWorkingHours = parseHourMinute(
+// const sumTWHTOH = computed(() => {
+//   const totalWorkingHours = parseHourMinute(
+//     props.summaryData?.totalWorkingHoursFormatted
+//   );
+//   console.log("total working hours:", totalWorkingHours);
+
+//   const totalOverTimeHours = parseHourMinute(
+//     props.summaryData?.totalOvertimeFormatted
+//   );
+//   console.log("totalOverTimeHours:", totalOverTimeHours);
+
+//   return formatHoursAndMinutes(totalWorkingHours + totalOverTimeHours);
+// });
+
+const totalIncome = computed(() => {
+  const workingHours = parseHourMinute(
     props.summaryData?.totalWorkingHoursFormatted
   );
-  const totalOverTimeHours = parseHourMinute(
+  const overtimeHours = parseHourMinute(
     props.summaryData?.totalOvertimeFormatted
   );
-
-  return formatHoursAndMinutes(totalWorkingHours + totalOverTimeHours);
-});
-
-const sumTWHTOHCost = computed(() => {
-  const totalWorkingHours = parseHourMinute(
-    props.summaryData?.totalWorkingHoursFormatted
-  );
-  const totalOvertimeHours = parseHourMinute(
-    props.summaryData?.totalOvertimeFormatted
+  const nightDiffHours = parseHourMinute(
+    props.summaryData?.totalNightDiffFormatted
   );
 
-  const sum = totalWorkingHours + totalOvertimeHours;
+  const sum = workingHours + overtimeHours + nightDiffHours;
 
   return formatCurrency(sum * hourlyRate.value);
 });

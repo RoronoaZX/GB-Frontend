@@ -359,10 +359,42 @@ const calculateRowTimes = (row) => {
   const regularWorkEnd = Math.min(actualOut.getTime(), scheduledOut.getTime());
 
   if (regularWorkEnd > regularWorkStart) {
-    nightDifferentialMinutes += calculateNightDifferentialMinutes(
-      new Date(regularWorkStart),
-      new Date(regularWorkEnd)
-    );
+    // nightDifferentialMinutes += calculateNightDifferentialMinutes(
+    //   new Date(regularWorkStart),
+    //   new Date(regularWorkEnd)
+    // );
+    const ndStart = new Date(regularWorkStart);
+    const ndEnd = new Date(regularWorkEnd);
+
+    let rawNDMinutes = calculateNightDifferentialMinutes(ndStart, ndEnd);
+
+    // Subtract any break time that overlaps with the ND period
+    const ndBreakMinutes = (() => {
+      let total = 0;
+
+      const breakPeriods = [
+        { start: row.lunch_break_start, end: row.lunch_break_end },
+        { start: row.break_start, end: row.break_end },
+      ];
+
+      for (const period of breakPeriods) {
+        if (period.start && period.end) {
+          const bStart = new Date(period.start);
+          const bEnd = new Date(period.end);
+
+          if (bStart < bEnd) {
+            const overlapStart = Math.max(bStart.getTime(), ndStart.getTime());
+            const overlapEnd = Math.min(bEnd.getTime(), ndEnd.getTime());
+
+            if (overlapEnd > overlapStart) {
+              total += Math.floor((overlapEnd - overlapStart) / (1000 * 60));
+            }
+          }
+        }
+      }
+      return total;
+    })();
+    nightDifferentialMinutes += Math.max(0, rawNDMinutes - ndBreakMinutes);
   }
 
   // Calculate ND for approved Overtime period:
@@ -499,6 +531,7 @@ const emitCalculatedSummary = () => {
       totalUndertimeFormatted: totalUndertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
       totalOvertimeFormatted: totalOvertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
       totalBreakFormatted: totalBreakFormatted.value, // <--- THIS IS THE KEY CHANGE
+      totalNightDiffFormatted: totalNightDifferentialFormatted.value, // <--- THIS IS THE KEY CHANGE
       // Keep other raw values or formatted values as needed
       totalPresentDays: calculateGrandTotals.value.totalPresentDays,
       totalLateDays: calculateGrandTotals.value.totalLateDays,

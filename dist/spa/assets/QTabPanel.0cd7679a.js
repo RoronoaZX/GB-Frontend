@@ -1,0 +1,1 @@
+import{u as e}from"./use-panel.bc525de7.js";import{g as r,j as o,k as s}from"./index.9c8a4528.js";var n=r({name:"QTabPanel",props:e,setup(t,{slots:a}){return()=>o("div",{class:"q-tab-panel",role:"tabpanel"},s(a.default))}});export{n as Q};

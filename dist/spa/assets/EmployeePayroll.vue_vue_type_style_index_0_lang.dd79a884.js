@@ -1,0 +1,1 @@
+import{d as o,r}from"./index.9c8a4528.js";import{api as a}from"./axios.d1cc2cbe.js";o("payroll",()=>{const _=r(null),t=r([]);return{payroll:_,payrollPerCutOff:t,fetchPayrollPerCutOff:async e=>{console.log("employee ID in fetfching payrol:",e);try{const l=await a.get(`/api/fetch-payroll-cut-off/${e}`)}catch{}}}});
