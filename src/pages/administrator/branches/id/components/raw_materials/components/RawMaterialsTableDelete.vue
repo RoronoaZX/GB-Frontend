@@ -109,7 +109,7 @@ const open_dialog = () => {
 }
 
 .text-body2 {
-  color: #666;
+  color: #667;
 }
 
 .q-elevate-2 {

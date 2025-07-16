@@ -5,7 +5,7 @@
         <!-- Close Button -->
         <q-btn icon="close" flat round dense v-close-popup class="close-btn" />
 
-        <q-card-section class="">
+        <q-card-section class="q-pa-lg">
           <div class="text-center q-mb-xl">
             <q-icon name="celebration" color="primary" size="3.5rem" />
             <div class="text-h4 text-weight-bold text-grey-9 q-mt-md">
@@ -21,9 +21,9 @@
           </div>
 
           <q-form
-            @submit.prevent="saveHoliday"
+            @submit.prevent="save"
             @reset="resetForm"
-            class="q-gutter-y-md"
+            class="q-gutter-y-lg"
           >
             <q-input
               outlined
@@ -75,7 +75,7 @@
               bg-color="grey-2"
             />
 
-            <div class="row q-gutter-md justify-center q-pt-sm">
+            <div class="row q-gutter-md justify-center q-pt-md">
               <q-btn
                 label="Reset"
                 type="reset"
@@ -133,7 +133,6 @@ const emit = defineEmits(["refreshHolidays"]);
 
 const dialog = ref(false);
 const holidaysStore = useHolidaysStore();
-const holidayOriginalData = props.holidayToEdit;
 const year = props.currentYear;
 const month = props.currentMonth;
 
@@ -173,24 +172,27 @@ watch(
   { immediate: true }
 );
 
-const saveHoliday = async () => {
+const save = async () => {
   Loading.show();
 
   try {
     if (props.editMode) {
+      console.log("Holiday Form Submitted:", holidayForm);
+      // Call your update API
       await holidaysStore.updateHoliday(
         holidayForm.id,
         holidayForm,
-        holidayOriginalData
+        props.holidayToEdit
       );
     } else {
-      await holidaysStore.createHoliday(holidayForm);
+      // Call your create API
+      await holidaysStore.createHolidays(holidayForm);
     }
-    emit("refreshHolidays");
+    emit("refreshHolidays"); // Tell the parent to refresh data
     resetForm();
     dialog.value = false;
   } catch (error) {
-    console.error("Error saving holiday:", error);
+    console.log(error);
   } finally {
     Loading.hide();
   }
