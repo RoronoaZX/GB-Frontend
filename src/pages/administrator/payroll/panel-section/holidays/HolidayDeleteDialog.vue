@@ -51,7 +51,7 @@ const openDialog = (data) => {
 };
 
 const closeDialog = () => {
-  dialog.value = true;
+  dialog.value = false;
 };
 
 const confirmDelete = async () => {
