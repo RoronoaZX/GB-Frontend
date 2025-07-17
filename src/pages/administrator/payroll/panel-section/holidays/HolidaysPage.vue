@@ -41,7 +41,15 @@
       </div>
       <div class="col-12 col-md-6">
         <q-scroll-area style="height: 320px" class="q-pa-sm">
-          <q-list>
+          <div
+            v-if="isLoading"
+            class="flex flex-center column q-pa-md"
+            style="min-height: 250px"
+          >
+            <q-spinner color="primary" size="3em" :thickness="10" />
+            <div class="text-h6 text-grey-7 q-mt-md">Loading Holidays...</div>
+          </div>
+          <q-list v-else>
             <div
               v-if="holidaysData.length === 0"
               class="flex flex-center column q-pa-md"
@@ -167,6 +175,7 @@ const isEditMode = ref(false);
 const currentHoliday = ref(null);
 const holidayDialogRef = ref(null);
 const deleteDialogRef = ref(null);
+const isLoading = ref(true);
 const selectedDate = ref(new Date().toISOString().substr(0, 10));
 
 const today = new Date();
@@ -185,10 +194,11 @@ const currentMonth = computed(() => {
 });
 
 const fetchHolidays = async (year, month) => {
+  isLoading.value = true;
   try {
     await holidaysStore.fetchHolidays({ year, month });
     const holidays = holidaysStore.holidays.map((holiday) => {
-      const date = new Date(`${holiday.date}T00:00:00`);
+      const date = new Date(holiday.date);
 
       if (isNaN(date.getTime())) {
         console.warn(
@@ -221,6 +231,8 @@ const fetchHolidays = async (year, month) => {
     holidaysData.value = holidays;
   } catch (error) {
     console.error("Error fetching holidays:", error);
+  } finally {
+    isLoading.value = false;
   }
 };
 

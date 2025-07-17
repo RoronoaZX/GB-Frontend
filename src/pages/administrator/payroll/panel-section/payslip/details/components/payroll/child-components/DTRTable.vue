@@ -1,4 +1,112 @@
 <template>
+  <!-- {{ calculateAdditionalHolidayPays }} -->
+  <q-card flat bordered class="q-mb-md employee-holiday-pay-card">
+    <q-card-section class="text-center q-pb-md">
+      <div class="text-h5 text-primary text-weight-bold">
+        Employee Holiday Pay
+      </div>
+    </q-card-section>
+
+    <q-list class="holiday-pay-list">
+      <q-item class="header-row bg-primary-1 text-weight-bold text-blue-grey-8">
+        <q-item-section class="col-3">Date</q-item-section>
+        <q-item-section class="col-6 text-center">Percentage</q-item-section>
+        <q-item-section class="col-3 text-right">Additional Pay</q-item-section>
+      </q-item>
+
+      <template
+        v-if="
+          calculateAdditionalHolidayPays &&
+          calculateAdditionalHolidayPays.length > 0
+        "
+      >
+        <q-item
+          v-for="(pay, index) in calculateAdditionalHolidayPays"
+          :key="pay.id"
+          class="data-row"
+          :class="{
+            'bg-white': index % 2 === 0,
+            'bg-blue-grey-0': index % 2 !== 0,
+          }"
+        >
+          <q-item-section
+            class="col-3 text-blue-7 text-weight-medium date-link"
+          >
+            {{ pay.date }}
+          </q-item-section>
+          <q-item-section
+            class="col-6 text-center text-weight-medium"
+            :class="{
+              'text-green-7': pay.holidayRateText === '+100%',
+              'text-amber-7': pay.holidayRateText === '+30%',
+            }"
+          >
+            {{ pay.holidayRateText }}
+          </q-item-section>
+          <q-item-section class="col-3 text-right text-grey-8">
+            ₱ {{ pay.additionalPay }}
+          </q-item-section>
+        </q-item>
+
+        <q-item
+          class="total-row bg-blue-grey-1 text-weight-bold text-blue-grey-9"
+        >
+          <q-item-section class="col-9 text-right text-subtitle1"
+            >Total</q-item-section
+          >
+          <q-item-section class="col-3 text-right text-h6 text-green-8">
+            ₱ {{ totalAdditionalHolidayPays }}
+          </q-item-section>
+        </q-item>
+      </template>
+      <template v-else>
+        <q-item>
+          <q-item-section class="text-center text-grey-6 q-py-md">
+            No holiday pay records found.
+          </q-item-section>
+        </q-item>
+      </template>
+    </q-list>
+  </q-card>
+  <!-- <q-list bordered separator class="q-mb-md modern-dtr-table">
+    <div class="text-h6 q-mb-sm text-grey-8 bg-grey-2" align="center">
+      Employee Holiday Pay
+    </div>
+    <div class="row bg-grey-2 text-weight-bold text-grey-8 q-px-md q-py-sm">
+      <div class="col-3">Date</div>
+      <div class="col-6 text-center">Percentage</div>
+      <div class="col-3 text-right">Additional Pays</div>
+    </div>
+    <template
+      v-if="
+        calculateAdditionalHolidayPays &&
+        calculateAdditionalHolidayPays.length > 0
+      "
+    >
+      <div
+        v-for="calculateAdditionalHolidayPay in calculateAdditionalHolidayPays"
+        :key="calculateAdditionalHolidayPay.id"
+        class="row q-hoverable q-px-md q-py-sm items-center"
+      >
+        <div class="col-3 text-primary">
+          {{ calculateAdditionalHolidayPay.date }}
+        </div>
+        <div class="col-6 text-center">
+          {{ calculateAdditionalHolidayPay.holidayRateText }}
+        </div>
+        <div class="col-3 text-right">
+          {{ calculateAdditionalHolidayPay.additionalPay }}
+        </div>
+      </div>
+      <div class="row bg-grey-1 q-px-md q-py-sm items-center text-weight-bold">
+        <div class="col-9 text-right">Total</div>
+        <div class="col-3 text-right">
+          {{ ` ₱ ${totalAdditionalHolidayPays}` }}
+        </div>
+      </div>
+    </template>
+    <template v-else> </template>
+  </q-list> -->
   <q-table
     flat
     bordered
@@ -24,16 +132,42 @@
       </q-tr>
     </template>
 
-    <template v-slot:body-cell="props">
-      <q-td :props="props" class="modern-dtr-table-cell">
-        <span class="text-body2 text-grey-8">{{ props.value }}</span>
-      </q-td>
-    </template>
-
-    <template v-slot:body-cell-number_of_days="props">
-      <q-td :props="props" class="modern-dtr-table-cell">
-        <span class="text-body2 text-grey-8">{{ props.rowIndex + 1 }}</span>
-      </q-td>
+    <template v-slot:body="rowProps">
+      <q-tr
+        :props="rowProps"
+        :class="getHolidayRowClass(rowProps.row.time_in)"
+        class="modern-dtr-table-row"
+      >
+        <q-td
+          v-for="col in rowProps.cols"
+          :key="col.name"
+          :props="rowProps"
+          class="modern-dtr-table-cell"
+        >
+          <template v-if="col.name === 'number_of_days'">
+            <span class="text-body2 text-grey-8">{{
+              rowProps.rowIndex + 1
+            }}</span>
+          </template>
+          <template v-else-if="col.name === 'time_in'">
+            <span
+              class="text-body2"
+              :class="getHolidayTimeInClass(rowProps.row.time_in)"
+            >
+              {{ col.field(rowProps.row) }}
+            </span>
+          </template>
+          <template v-else>
+            <span class="text-body2 text-grey-8">
+              {{
+                typeof col.field === "function"
+                  ? col.field(rowProps.row)
+                  : rowProps.row[col.field]
+              }}
+            </span>
+          </template>
+        </q-td>
+      </q-tr>
     </template>
 
     <template v-slot:bottom-row>
@@ -73,7 +207,8 @@
 import { ref, watch, computed, onMounted } from "vue";
 import { date } from "quasar";
 
-const props = defineProps(["dtrRows", "employeeData"]);
+const props = defineProps(["dtrRows", "employeeData", "dtrHolidays"]);
+console.log("dtrHolidays", props.dtrHolidays);
 
 const internalEmployeeData = ref(props.employeeData);
 
@@ -200,93 +335,89 @@ const calculateNightDifferentialMinutes = (inTime, outTime) => {
   return totalNightDiffMinutes;
 };
 
-// Helper function to calculate minutes within the night differential period
-// This function needs to handle transitions across midnight.
-// const calculateNightDifferentialMinutes = (inTime, outTime) => {
-//   if (!inTime || !outTime || inTime >= outTime) {
-//     return 0;
-//   }
+// --- NEW HOLIDAY LOGIC ---
+const isHoliday = (dateString) => {
+  if (!dateString || !props.dtrHolidays || props.dtrHolidays.length === 0) {
+    return null; // Not a holiday or no holidays provided
+  }
 
-//   let totalNightDiffMinutes = 0;
-//   const startOfDay = date.startOfDate(inTime); // Get the start of the 'in' day
-//   const endOfDay = date.endOfDate(inTime); // Get the end of the 'in' day
+  // Normalize the date string to YYYY-MM-DD for comparison
+  const dtrDate = date.formatDate(dateString, "YYYY-MM-DD");
 
-//   // Define the night differential window for the 'current' day (could span into next)
-//   let ndStart = new Date(startOfDay);
-//   ndStart.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0); // 10 PM of the current day
+  const holiday = props.dtrHolidays.find((h) => {
+    // Ensure the holiday.date is also normalized to YYYY-MM-DD
+    // If your dtrHolidays already has 'date' in YYYY-MM-DD, this step is redundant but safe.
+    const holidayDate = date.formatDate(h.date, "YYYY-MM-DD");
+    return holidayDate === dtrDate;
+  });
 
-//   let ndEnd = new Date(startOfDay);
-//   ndEnd.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0); // 6 AM of the current day (which might be the *next* calendar day)
+  return holiday ? holiday.type : null; // Return the type if it's a holiday, otherwise null
+};
 
-//   // If the ND end time is before the start time, it means it spans midnight
-//   if (ndEnd <= ndStart) {
-//     ndEnd = date.addToDate(ndEnd, { days: 1 }); // Move ND end to the next day
-//   }
+// Function to get the class for the entire row
+const getHolidayRowClass = (timeIn) => {
+  const holidayType = isHoliday(timeIn);
+  if (holidayType === "Regular Holiday") {
+    return "holiday-regular-row";
+  } else if (holidayType === "Special (Non-Working) Holiday") {
+    return "holiday-special-row";
+  }
+  return "";
+};
 
-//   // Handle shifts that start on one day and end on the next (common for night shifts)
-//   // We need to check for night diff on both the 'inTime' day and potentially the 'outTime' day.
+// Optional: Function to get a class for the time_in text itself (e.g., make it bold or different color)
+const getHolidayTimeInClass = (timeIn) => {
+  const holidayType = isHoliday(timeIn);
+  if (holidayType) {
+    return "text-weight-bold text-blue-8"; // Example: make date bold and a darker blue
+  }
+  return "text-grey-8"; // Default color
+};
 
-//   // Create segments for night differential relevant to the shift
-//   // A night differential period might span from Day 1 10PM to Day 2 6AM.
-//   // We need to check if the shift (inTime, outTime) overlaps with this period.
+// Calculate additional holiday pays
+const calculateAdditionalHolidayPays = computed(() => {
+  const results = [];
 
-//   // Let's simplify: Iterate day by day from inTime to outTime, check for ND hours.
-//   // This is more robust for shifts spanning multiple midnights, though typically DTR is daily.
+  if (!props.dtrRows || props.dtrRows.length === 0) return results;
 
-//   let currentCheckTime = new Date(inTime);
-//   while (currentCheckTime < outTime) {
-//     const nextDay = date.addToDate(date.startOfDate(currentCheckTime), {
-//       days: 1,
-//     });
+  const dailyRate = internalEmployeeData.value?.employment_type?.salary || 0;
+  const hourlyRate = dailyRate / 8;
 
-//     // Define ND interval for the day currentCheckTime is on
-//     let currentNDStart = new Date(currentCheckTime);
-//     currentNDStart.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0);
+  props.dtrRows.forEach((row) => {
+    const holidayType = isHoliday(row.time_in);
+    if (!holidayType || !row.time_in || !row.time_out) return;
 
-//     let currentNDEnd = new Date(currentCheckTime);
-//     currentNDEnd.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0);
+    // ✅ Use total working minutes from calculateRowTimes
+    const { totalWorkingMinutes } = calculateRowTimes(row);
+    if (totalWorkingMinutes <= 0) return;
 
-//     if (currentNDEnd <= currentNDStart) {
-//       currentNDEnd = date.addToDate(currentNDEnd, { days: 1 }); // ND spans midnight
-//     }
+    const workedHours = totalWorkingMinutes / 60;
 
-//     // Determine the actual intersection of the shift interval and this day's ND interval
-//     const intersectionStart = Math.max(
-//       inTime.getTime(),
-//       currentNDStart.getTime()
-//     );
-//     const intersectionEnd = Math.min(outTime.getTime(), currentNDEnd.getTime());
+    let additionalPay = 0;
+    let holidayRate = 0;
+    let holidayRateText = "";
 
-//     if (intersectionEnd > intersectionStart) {
-//       totalNightDiffMinutes += Math.floor(
-//         (intersectionEnd - intersectionStart) / (1000 * 60)
-//       );
-//     }
+    if (holidayType === "Regular Holiday") {
+      holidayRate = 1.0; // +100%
+      holidayRateText = "+100%";
+      additionalPay = workedHours * hourlyRate; // 100%
+    } else if (holidayType === "Special (Non-Working) Holiday") {
+      holidayRate = 0.3; // +30%
+      holidayRateText = "+30%";
+      additionalPay = workedHours * hourlyRate * 0.3; // +30%
+    }
 
-//     // Move to the next potential segment. If currentCheckTime is already past 6AM on its day,
-//     // we jump to 10PM on the next day, otherwise we just move to the end of the ND period
-//     // or the start of the next day.
-//     if (
-//       currentCheckTime.getHours() >= NIGHT_DIFF_END_HOUR &&
-//       currentCheckTime.getHours() < NIGHT_DIFF_START_HOUR
-//     ) {
-//       // If current check time is within the day non-ND period, jump to next ND start (10 PM)
-//       currentCheckTime = new Date(currentCheckTime); // Copy to avoid modifying original
-//       currentCheckTime.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0);
-//       // If 10 PM is before currentCheckTime, move to next day's 10 PM
-//       if (currentCheckTime <= inTime) {
-//         currentCheckTime = date.addToDate(currentCheckTime, { days: 1 });
-//       }
-//     } else {
-//       // If we were in the ND window or after it (but before next 10PM), jump to next day's 6AM.
-//       // This is a simplified jump to ensure we don't miss ND on the subsequent day.
-//       currentCheckTime = nextDay; // Move to the start of the next calendar day
-//       currentCheckTime.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0); // Jump to the end of the ND period (6 AM) of the *next* day.
-//     }
-//   }
+    results.push({
+      date: date.formatDate(row.time_in, "MMM. DD, YYYY"),
+      holidayType,
+      holidayRateText,
+      workedHours: workedHours.toFixed(2),
+      additionalPay: additionalPay.toFixed(2),
+    });
+  });
 
-//   return totalNightDiffMinutes;
-// };
+  return results;
+});
 
 /**
  * Calculates working hours, undertime, and overtime for a single DTR row.
@@ -349,10 +480,6 @@ const calculateRowTimes = (row) => {
       totalWorkingMinutes = Math.floor(adjustedMs / (1000 * 60));
     }
   }
-
-  // --- Night Differential Calculation (within regular and potentially overtime hours) ---
-  // You need to define how ND interacts with OT.
-  // Common approach: ND applies to *any* actual working hours (regular or approved OT) that fall in the window.
 
   // Calculate ND for regular (scheduled) work period:
   const regularWorkStart = Math.max(actualIn.getTime(), scheduledIn.getTime());
@@ -519,27 +646,56 @@ const totalBreakFormatted = computed(() => {
   return total > 0 ? formatMinutesToHoursMinutes(total) : "—";
 });
 
+const totalAdditionalHolidayPays = computed(() => {
+  return calculateAdditionalHolidayPays.value
+    .reduce((acc, item) => acc + parseFloat(item.additionalPay), 0)
+    .toFixed(2);
+});
+
 // --- NEW: Event Emission Logic (MOVED UP) ---
 const emit = defineEmits(["dtr-summary-calculated"]); // Define the custom event
 
 const emitCalculatedSummary = () => {
-  // Ensure calculateGrandTotals.value is accessible and not null/undefined
   if (calculateGrandTotals.value) {
     emit("dtr-summary-calculated", {
-      // Emit the formatted strings directly
-      totalWorkingHoursFormatted: totalWorkingHoursFormatted.value, // <--- THIS IS THE KEY CHANGE
-      totalUndertimeFormatted: totalUndertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
-      totalOvertimeFormatted: totalOvertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
-      totalBreakFormatted: totalBreakFormatted.value, // <--- THIS IS THE KEY CHANGE
-      totalNightDiffFormatted: totalNightDifferentialFormatted.value, // <--- THIS IS THE KEY CHANGE
-      // Keep other raw values or formatted values as needed
+      // Formatted Totals
+      totalWorkingHoursFormatted: totalWorkingHoursFormatted.value,
+      totalUndertimeFormatted: totalUndertimeFormatted.value,
+      totalOvertimeFormatted: totalOvertimeFormatted.value,
+      totalBreakFormatted: totalBreakFormatted.value,
+      totalNightDiffFormatted: totalNightDifferentialFormatted.value,
+
+      // Raw totals
       totalPresentDays: calculateGrandTotals.value.totalPresentDays,
       totalLateDays: calculateGrandTotals.value.totalLateDays,
       totalAbsentDays: calculateGrandTotals.value.totalAbsentDays,
       totalDaysInPeriod: calculateGrandTotals.value.totalDaysInPeriod,
+
+      // 🎯 Add holiday pays here
+      calculateAdditionalHolidayPays: calculateAdditionalHolidayPays.value,
+      totalAdditionalHolidayPays: totalAdditionalHolidayPays.value,
     });
   }
 };
+
+// const emitCalculatedSummary = () => {
+//   // Ensure calculateGrandTotals.value is accessible and not null/undefined
+//   if (calculateGrandTotals.value) {
+//     emit("dtr-summary-calculated", {
+//       // Emit the formatted strings directly
+//       totalWorkingHoursFormatted: totalWorkingHoursFormatted.value, // <--- THIS IS THE KEY CHANGE
+//       totalUndertimeFormatted: totalUndertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
+//       totalOvertimeFormatted: totalOvertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
+//       totalBreakFormatted: totalBreakFormatted.value, // <--- THIS IS THE KEY CHANGE
+//       totalNightDiffFormatted: totalNightDifferentialFormatted.value, // <--- THIS IS THE KEY CHANGE
+//       // Keep other raw values or formatted values as needed
+//       totalPresentDays: calculateGrandTotals.value.totalPresentDays,
+//       totalLateDays: calculateGrandTotals.value.totalLateDays,
+//       totalAbsentDays: calculateGrandTotals.value.totalAbsentDays,
+//       totalDaysInPeriod: calculateGrandTotals.value.totalDaysInPeriod,
+//     });
+//   }
+// };
 
 // Watch for changes in dtrRows and internalEmployeeData to re-emit summary
 watch(
@@ -817,6 +973,31 @@ const dtrColumns = computed(() => [
     }
   }
 
+  // --- NEW HOLIDAY ROW STYLES ---
+  .holiday-regular-row {
+    background-color: #e8f5e9; /* Very light green for regular holidays */
+    // You can also change text color for better contrast
+    .modern-dtr-table-cell {
+      color: #2e7d32; // Darker green text for cells in this row
+    }
+  }
+
+  .holiday-special-row {
+    background-color: #fff3e0; /* Very light orange/yellow for special holidays */
+    // You can also change text color for better contrast
+    .modern-dtr-table-cell {
+      color: #ef6c00; // Darker orange text for cells in this row
+    }
+  }
+
+  // Optional: Specific hover effects for holiday rows if desired
+  .q-tr.holiday-regular-row:hover {
+    background-color: #c8e6c9 !important; // Slightly darker green on hover
+  }
+  .q-tr.holiday-special-row:hover {
+    background-color: #ffe0b2 !important; // Slightly darker orange on hover
+  }
+
   // --- Color overrides for the total row values ---
   .text-primary-8 {
     color: #2196f3; // Deeper blue for working hours total
@@ -829,6 +1010,82 @@ const dtrColumns = computed(() => [
   }
   .text-blue-grey-8 {
     color: #607d8b; // Deeper blue-grey for break total
+  }
+}
+
+.q-hoverable:hover {
+  background-color: var(--q-primary-lighter, #e3f2fd) !important;
+  cursor: pointer;
+}
+
+.employee-holiday-pay-card {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  background-color: #f8fafc; /* Lighter background for the card */
+  overflow: hidden; // Ensures rounded corners are respected
+}
+
+.text-h5 {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  color: $blue-grey-9; // Darker primary color for the title
+}
+
+.holiday-pay-list {
+  padding-bottom: 0; // Remove default bottom padding if any
+
+  .header-row {
+    background-color: $blue-grey-2; /* Softer header background */
+    border-radius: 8px; /* Rounded corners for the header */
+    margin: 0 16px 10px; /* Adjust margin to create spacing around the header */
+    padding: 15px 20px; /* More padding for header items */
+    font-size: 14px;
+
+    .q-item-section {
+      &:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+      }
+      &:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+    }
+  }
+
+  .data-row {
+    background-color: white; /* Default background for rows */
+    border-radius: 8px; /* Rounded corners for data rows */
+    margin: 0 16px 10px; /* Spacing between rows */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* Subtle shadow for each row */
+    transition: all 0.2s ease-in-out;
+    padding: 18px 20px; /* More padding for data items */
+
+    &:hover {
+      transform: translateY(-2px); /* Slight lift on hover */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Enhanced shadow on hover */
+    }
+
+    .q-item-section {
+      font-size: 16px;
+      // Specific styling for text in data rows
+    }
+
+    .date-link {
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .total-row {
+    margin: 10px 16px 0; /* Align total row similarly */
+    padding: 25px 20px; /* Generous padding for the total row */
+    background-color: $blue-grey-1; /* Slightly different background for emphasis */
+    border-top: 1px solid $blue-grey-2; /* Subtle separator line */
+    border-radius: 8px; /* Rounded corners for the total row */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03); // Subtle top shadow for total
   }
 }
 </style>

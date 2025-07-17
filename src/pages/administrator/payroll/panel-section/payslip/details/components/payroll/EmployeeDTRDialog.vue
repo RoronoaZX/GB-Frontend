@@ -21,11 +21,16 @@
         </q-btn>
       </q-card-section>
 
+      <q-card-section>
+        <HolidayList :dtr-holidays="dtrHolidays" />
+      </q-card-section>
+
       <q-card-section class="q-pt-sm">
         <div class="text-h6 q-mb-sm text-grey-8">Daily Time Records</div>
         <DTRTable
           :dtr-rows="dtrRows"
           :employee-data="employeesData"
+          :dtr-holidays="dtrHolidays"
           @dtr-summary-calculated="handleDTRSummaryCalculated"
         />
       </q-card-section>
@@ -47,8 +52,9 @@ import { useDialogPluginComponent, useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { useEmployeeStore } from "src/stores/employee";
 import { useRoute } from "vue-router"; // No need for useRouter if not navigating programmatically
-import DTRTable from "./DTRTable.vue";
-import SummaryCard from "./SummaryCard.vue";
+import DTRTable from "./child-components/DTRTable.vue";
+import SummaryCard from "./child-components/SummaryCard.vue";
+import HolidayList from "./child-components/HolidayList.vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const $q = useQuasar(); // Quasar instance for notifications
@@ -64,6 +70,7 @@ const route = useRoute();
 const employee_id = route.params.employee_id || "";
 console.log("empoyee_id", employee_id);
 const dtrRows = props.dtrRecord.records || [];
+const dtrHolidays = props.dtrRecord.holidays || [];
 
 const maximizedToggle = ref(true);
 const loadingTable = ref(true); // Added for loading state of the table

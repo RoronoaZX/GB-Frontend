@@ -194,6 +194,25 @@
           </q-item>
         </div>
 
+        <div class="row q-col-gutter-y-sm q-mt-sm">
+          <q-item class="col-12 col-md-6 q-pa-none">
+            <span></span>
+          </q-item>
+          <q-item class="col-12 col-md-6 q-pa-none">
+            <q-item-section avatar class="q-mr-sm">
+              <q-icon name="payments" color="positive" size="sm" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+                Total Holiday Pay :
+                <span class="text-positive text-weight-semibold">
+                  {{ totalAdditionalHolidayPay }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </div>
+
         <!-- <div class="row q-col-gutter-y-sm q-mt-sm">
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
@@ -265,6 +284,8 @@ const props = defineProps({
     default: null, // Initialize as null or an empty object
   },
 });
+
+console.log("summaryData", props.summaryData);
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
@@ -417,6 +438,10 @@ const totalUndertimeCost = computed(() => {
   return formatCurrency(hours * hourlyRate.value);
 });
 
+const totalAdditionalHolidayPay = computed(() => {
+  return formatCurrency(props.summaryData?.totalAdditionalHolidayPays);
+});
+
 // const sumTWHTOH = computed(() => {
 //   const totalWorkingHours = parseHourMinute(
 //     props.summaryData?.totalWorkingHoursFormatted
@@ -442,9 +467,17 @@ const totalIncome = computed(() => {
     props.summaryData?.totalNightDiffFormatted
   );
 
+  const holidayCost = parseInt(props.summaryData?.totalAdditionalHolidayPays);
+  console.log("holidayCost", holidayCost);
+
   const sum = workingHours + overtimeHours + nightDiffHours;
 
-  return formatCurrency(sum * hourlyRate.value);
+  const initialIncome = sum * hourlyRate.value;
+  console.log("initialIncome", initialIncome);
+
+  const totalIncome = initialIncome + holidayCost;
+
+  return formatCurrency(totalIncome);
 });
 // Regular Pay Calculation (based on daily rate * number of days)
 const regularPay = computed(() => {
