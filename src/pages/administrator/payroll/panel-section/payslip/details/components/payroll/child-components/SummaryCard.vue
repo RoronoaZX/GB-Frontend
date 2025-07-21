@@ -285,8 +285,6 @@ const props = defineProps({
   },
 });
 
-console.log("summaryData", props.summaryData);
-
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const route = useRoute();
@@ -410,7 +408,11 @@ const totalNightDifferential = computed(() => {
 
 const totalNightDifferentialCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalNightDiffFormatted);
-  return formatCurrency(hours * hourlyRate.value);
+  const nightDiffRate = 0.1; // 10% additional
+  const basePay = hours * hourlyRate.value;
+  const nightDiffPay = basePay * nightDiffRate;
+
+  return formatCurrency(nightDiffPay);
 });
 
 const totalUndertime = computed(() => {
@@ -463,22 +465,56 @@ const totalIncome = computed(() => {
   const overtimeHours = parseHourMinute(
     props.summaryData?.totalOvertimeFormatted
   );
-  const nightDiffHours = parseHourMinute(
-    props.summaryData?.totalNightDiffFormatted
+  const holidayCost = parseFloat(
+    props.summaryData?.totalAdditionalHolidayPays || 0
+  );
+  const nightDiffCost = parseFloat(
+    totalNightDifferentialCost.value.replace(/[₱,]/g, "") || 0
   );
 
-  const holidayCost = parseInt(props.summaryData?.totalAdditionalHolidayPays);
-  console.log("holidayCost", holidayCost);
+  const totalHours = workingHours + overtimeHours;
+  const hourlyIncome = totalHours * hourlyRate.value;
 
-  const sum = workingHours + overtimeHours + nightDiffHours;
+  const finalIncome = hourlyIncome + holidayCost + nightDiffCost;
 
-  const initialIncome = sum * hourlyRate.value;
-  console.log("initialIncome", initialIncome);
-
-  const totalIncome = initialIncome + holidayCost;
-
-  return formatCurrency(totalIncome);
+  return formatCurrency(finalIncome);
 });
+
+// const totalIncome = computed(() => {
+//   const workingHours = parseHourMinute(
+//     props.summaryData?.totalWorkingHoursFormatted
+//   );
+//   const overtimeHours = parseHourMinute(
+//     props.summaryData?.totalOvertimeFormatted
+//   );
+//   const holidayCost = parseFloat(
+//     props.summaryData?.totalAdditionalHolidayPays || 0
+//   );
+//   const totalNDCost = parseFloat(
+//     totalNightDifferentialCost.value.replace(/[₱,]/g, "") || 0
+//   );
+
+//   console.log("workingHours", workingHours);
+//   console.log("overtimeHours", overtimeHours);
+//   console.log("holidayCost", holidayCost);
+
+//   const sum = workingHours + overtimeHours;
+
+//   console.log("sum", sum);
+//   console.log("summaryDatassss", props.summaryData);
+
+//   const initialIncome = sum * hourlyRate.value;
+//   console.log("initialIncome", initialIncome);
+
+//   const totalInitialIncomeAndHoliday = initialIncome + holidayCost;
+//   console.log("totalInitialIncomeAndHoliday", totalInitialIncomeAndHoliday);
+
+//   const totalIncome = totalInitialIncomeAndHoliday + totalNDCost;
+
+//   console.log("totalIncome", totalIncome);
+
+//   return formatCurrency(parseFloat(totalIncome).toFixed(2));
+// });
 // Regular Pay Calculation (based on daily rate * number of days)
 const regularPay = computed(() => {
   const salary = employeesData.value?.employment_type?.salary;

@@ -11,7 +11,9 @@
       <q-item class="header-row bg-primary-1 text-weight-bold text-blue-grey-8">
         <q-item-section class="col-3">Date</q-item-section>
         <q-item-section class="col-6 text-center">Percentage</q-item-section>
-        <q-item-section class="col-3 text-right">Additional Pay</q-item-section>
+        <q-item-section class="col-3 text-right"
+          >Daily Additional Pay</q-item-section
+        >
       </q-item>
 
       <template
@@ -37,14 +39,18 @@
           <q-item-section
             class="col-6 text-center text-weight-medium"
             :class="{
-              'text-green-7': pay.holidayRateText === '+100%',
-              'text-amber-7': pay.holidayRateText === '+30%',
+              'text-green-7':
+                pay.holidayRateText === '+100%' ||
+                pay.holidayRateText === '+100% (OT)',
+              'text-amber-7':
+                pay.holidayRateText === '+30%' ||
+                pay.holidayRateText === '+30% (OT)',
             }"
           >
             {{ pay.holidayRateText }}
           </q-item-section>
           <q-item-section class="col-3 text-right text-grey-8">
-            ₱ {{ pay.additionalPay }}
+            {{ pay.additionalPay }}
           </q-item-section>
         </q-item>
 
@@ -68,45 +74,7 @@
       </template>
     </q-list>
   </q-card>
-  <!-- <q-list bordered separator class="q-mb-md modern-dtr-table">
-    <div class="text-h6 q-mb-sm text-grey-8 bg-grey-2" align="center">
-      Employee Holiday Pay
-    </div>
-    <div class="row bg-grey-2 text-weight-bold text-grey-8 q-px-md q-py-sm">
-      <div class="col-3">Date</div>
-      <div class="col-6 text-center">Percentage</div>
-      <div class="col-3 text-right">Additional Pays</div>
-    </div>
-    <template
-      v-if="
-        calculateAdditionalHolidayPays &&
-        calculateAdditionalHolidayPays.length > 0
-      "
-    >
-      <div
-        v-for="calculateAdditionalHolidayPay in calculateAdditionalHolidayPays"
-        :key="calculateAdditionalHolidayPay.id"
-        class="row q-hoverable q-px-md q-py-sm items-center"
-      >
-        <div class="col-3 text-primary">
-          {{ calculateAdditionalHolidayPay.date }}
-        </div>
-        <div class="col-6 text-center">
-          {{ calculateAdditionalHolidayPay.holidayRateText }}
-        </div>
-        <div class="col-3 text-right">
-          {{ calculateAdditionalHolidayPay.additionalPay }}
-        </div>
-      </div>
-      <div class="row bg-grey-1 q-px-md q-py-sm items-center text-weight-bold">
-        <div class="col-9 text-right">Total</div>
-        <div class="col-3 text-right">
-          {{ ` ₱ ${totalAdditionalHolidayPays}` }}
-        </div>
-      </div>
-    </template>
-    <template v-else> </template>
-  </q-list> -->
+  <div class="text-h6 text-center q-mb-sm text-grey-8">Daily Time Records</div>
   <q-table
     flat
     bordered
@@ -374,7 +342,18 @@ const getHolidayTimeInClass = (timeIn) => {
   return "text-grey-8"; // Default color
 };
 
-// Calculate additional holiday pays
+const formatCurrency = (value) => {
+  const numValue = parseFloat(value);
+  if (isNaN(numValue) || numValue === 0) {
+    return "₱ 0.00";
+  }
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(numValue);
+};
+
+// NEW: Calculate additional holiday pays (REGULAR + OVERTIME)
 const calculateAdditionalHolidayPays = computed(() => {
   const results = [];
 
@@ -383,41 +362,158 @@ const calculateAdditionalHolidayPays = computed(() => {
   const dailyRate = internalEmployeeData.value?.employment_type?.salary || 0;
   const hourlyRate = dailyRate / 8;
 
-  props.dtrRows.forEach((row) => {
+  props.dtrRows.forEach((row, index) => {
     const holidayType = isHoliday(row.time_in);
-    if (!holidayType || !row.time_in || !row.time_out) return;
+    if (!holidayType) return;
 
-    // ✅ Use total working minutes from calculateRowTimes
-    const { totalWorkingMinutes } = calculateRowTimes(row);
-    if (totalWorkingMinutes <= 0) return;
+    const formattedDate = date.formatDate(row.time_in, "MMM. DD, YYYY");
 
-    const workedHours = totalWorkingMinutes / 60;
+    // --- Regular Holiday Hours Pay ---
+    if (row.time_in && row.time_out) {
+      const { totalWorkingMinutes } = calculateRowTimes(row);
+      if (totalWorkingMinutes > 0) {
+        const workedHours = totalWorkingMinutes / 60;
+        let additionalPay = 0;
+        let holidayRateText = "";
+        let id = `${formattedDate}-regular-${index}`; // Unique ID
 
-    let additionalPay = 0;
-    let holidayRate = 0;
-    let holidayRateText = "";
+        if (holidayType === "Regular Holiday") {
+          // DOLE mandates 200% for the first 8 hours, so 100% additional (already included in basic daily wage)
+          // The "additional" pay is the 100% premium.
+          holidayRateText = "+100%";
+          additionalPay = workedHours * hourlyRate;
+        } else if (holidayType === "Special (Non-Working) Holiday") {
+          // DOLE mandates 130% for regular hours, so 30% additional
+          holidayRateText = "+30%";
+          additionalPay = workedHours * hourlyRate * 0.3;
+        }
 
-    if (holidayType === "Regular Holiday") {
-      holidayRate = 1.0; // +100%
-      holidayRateText = "+100%";
-      additionalPay = workedHours * hourlyRate; // 100%
-    } else if (holidayType === "Special (Non-Working) Holiday") {
-      holidayRate = 0.3; // +30%
-      holidayRateText = "+30%";
-      additionalPay = workedHours * hourlyRate * 0.3; // +30%
+        results.push({
+          id,
+          date: formattedDate,
+          holidayType,
+          holidayRateText,
+          workedHours: workedHours.toFixed(2),
+          additionalPay: additionalPay.toFixed(2),
+          type: "regular", // Indicate this is for regular hours
+        });
+      }
     }
 
-    results.push({
-      date: date.formatDate(row.time_in, "MMM. DD, YYYY"),
-      holidayType,
-      holidayRateText,
-      workedHours: workedHours.toFixed(2),
-      additionalPay: additionalPay.toFixed(2),
-    });
+    // --- Holiday Overtime Pay ---
+    if (
+      row.ot_status === "approved" &&
+      row.overtime_start &&
+      row.overtime_end
+    ) {
+      const otIn = new Date(row.overtime_start);
+      const otOut = new Date(row.overtime_end);
+
+      if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut > otIn) {
+        const overtimeMinutes = Math.floor((otOut - otIn) / (1000 * 60));
+        if (overtimeMinutes > 0) {
+          const overtimeHours = overtimeMinutes / 60;
+          let additionalPay = 0;
+          let holidayRateText = "";
+          let id = `${formattedDate}-overtime-${index}`; // Unique ID for overtime
+
+          if (holidayType === "Regular Holiday") {
+            // DOLE mandates 260% for overtime on a regular holiday.
+            // This means an additional 160% on top of the 100% basic holiday pay already covered by regular hours.
+            // Or, simply put: (hourlyRate * 2.0 (for holiday base)) + (hourlyRate * 0.6 (for OT premium on holiday))
+            // The additional pay for OT is (regular OT rate for regular day (1.25) + Holiday premium)
+            // Simpler: 260% of basic hourly rate. So additional is 160% of hourlyRate.
+            holidayRateText = "+100% (OT)"; // Representing the additional premium for OT on a Regular Holiday
+            additionalPay = overtimeHours * hourlyRate; // 260% - 100% (already paid) = 160% additional for OT.
+          } else if (holidayType === "Special (Non-Working) Holiday") {
+            // DOLE mandates 169% for overtime on a special non-working holiday.
+            // This means an additional 69% on top of the 100% basic pay.
+            // Or, simply put: (hourlyRate * 1.3 (for holiday base)) + (hourlyRate * 0.39 (for OT premium on holiday))
+            // The additional pay for OT is (regular OT rate for regular day (1.25) + Holiday premium)
+            // Simpler: 169% of basic hourly rate. So additional is 69% of hourlyRate.
+            holidayRateText = "+30% (OT)"; // Representing the additional premium for OT on a Special Holiday
+            additionalPay = overtimeHours * hourlyRate * 0.3; // 169% - 100% (already paid) = 69% additional for OT.
+          }
+
+          results.push({
+            id,
+            date: formattedDate,
+            holidayType,
+            holidayRateText,
+            workedHours: overtimeHours.toFixed(2), // Renamed for clarity in this context
+            additionalPay: additionalPay.toFixed(2),
+            type: "overtime", // Indicate this is for overtime hours
+          });
+        }
+      }
+    }
   });
 
   return results;
 });
+
+// NEW: Calculate additional holiday pays for OVERTIME HOURS
+// const calculateHolidayOvertimePays = computed(() => {
+//   const results = [];
+
+//   if (!props.dtrRows || props.dtrRows.length === 0) return results;
+
+//   const dailyRate = internalEmployeeData.value?.employment_type?.salary || 0;
+//   const hourlyRate = dailyRate / 8;
+
+//   props.dtrRows.forEach((row) => {
+//     const holidayType = isHoliday(row.time_in);
+//     console.log("holidayType", holidayType);
+//     if (!holidayType) return;
+
+//     if (
+//       row.ot_status === "approved" &&
+//       row.overtime_start &&
+//       row.overtime_end
+//     ) {
+//       const otIn = new Date(row.overtime_start);
+//       console.log("otIn", otIn);
+//       const otOut = new Date(row.overtime_end);
+//       console.log("otOut", otOut);
+
+//       if (isNaN(otIn.getTime()) || isNaN(otOut.getTime()) || otOut <= otIn)
+//         return;
+
+//       const overtimeMinutes = Math.floor((otOut - otIn) / (1000 * 60));
+//       console.log("overtimeMinutes", overtimeMinutes);
+//       const overtimeHours = overtimeMinutes / 60;
+//       console.log("overtimeHours", overtimeHours);
+
+//       let additionalPay = 0;
+//       let holidayRate = 0;
+//       let holidayRateText = "";
+
+//       if (holidayType === "Regular Holiday") {
+//         // DOLE mandates 200% for the first 8 hrs, 260% for overtime
+//         holidayRate = 2.0; // +100%
+//         holidayRateText = "+100%";
+//         additionalPay = overtimeHours * hourlyRate;
+//       } else if (holidayType === "Special (Non-Working) Holiday") {
+//         // 130% for regular hours, 169% for overtime
+//         holidayRate = 0.3; // +30%
+//         holidayRateText = "+30%";
+//         additionalPay = overtimeHours * hourlyRate * 0.3; // +30%
+//       }
+
+//       results.push({
+//         date: date.formatDate(row.time_in, "MMM. DD, YYYY"),
+//         holidayType,
+//         holidayRateText,
+//         overtimeHours: overtimeHours.toFixed(2),
+//         additionalPay: additionalPay.toFixed(2),
+//       });
+//     }
+//   });
+
+//   return results;
+// });
+
+// console.log("calculateHolidayOvertimePays", calculateHolidayOvertimePays.value);
 
 /**
  * Calculates working hours, undertime, and overtime for a single DTR row.
@@ -647,9 +743,11 @@ const totalBreakFormatted = computed(() => {
 });
 
 const totalAdditionalHolidayPays = computed(() => {
-  return calculateAdditionalHolidayPays.value
+  const total = calculateAdditionalHolidayPays.value
     .reduce((acc, item) => acc + parseFloat(item.additionalPay), 0)
     .toFixed(2);
+
+  return total;
 });
 
 // --- NEW: Event Emission Logic (MOVED UP) ---

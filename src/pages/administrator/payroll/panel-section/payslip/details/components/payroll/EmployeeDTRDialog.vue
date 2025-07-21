@@ -26,7 +26,6 @@
       </q-card-section>
 
       <q-card-section class="q-pt-sm">
-        <div class="text-h6 q-mb-sm text-grey-8">Daily Time Records</div>
         <DTRTable
           :dtr-rows="dtrRows"
           :employee-data="employeesData"
