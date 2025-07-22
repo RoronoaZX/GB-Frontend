@@ -165,7 +165,10 @@
         <q-td class="text-center text-weight-bold text-warning">
           {{ totalBreakFormatted }}
         </q-td>
-        <q-td></q-td>
+        <q-td class="text-center text-weight-bold text-warning"></q-td>
+        <q-td class="text-center text-weight-bold text-warning">
+          {{ totalEmployeeAllowances }}
+        </q-td>
       </q-tr>
     </template>
   </q-table>
@@ -177,6 +180,7 @@ import { date } from "quasar";
 
 const props = defineProps(["dtrRows", "employeeData", "dtrHolidays"]);
 console.log("dtrHolidays", props.dtrHolidays);
+console.log("dtrRows", props.dtrRows);
 
 const internalEmployeeData = ref(props.employeeData);
 
@@ -303,6 +307,14 @@ const calculateNightDifferentialMinutes = (inTime, outTime) => {
   return totalNightDiffMinutes;
 };
 
+const totalEmployeeAllowances = computed(() => {
+  const total = (props.dtrRows || []).reduce((acc, row) => {
+    const allowance = parseFloat(row.employee_allowance || 0);
+    return acc + allowance;
+  }, 0);
+
+  return `₱${total.toFixed(2)}`;
+});
 // --- NEW HOLIDAY LOGIC ---
 const isHoliday = (dateString) => {
   if (!dateString || !props.dtrHolidays || props.dtrHolidays.length === 0) {
@@ -772,28 +784,12 @@ const emitCalculatedSummary = () => {
       // 🎯 Add holiday pays here
       calculateAdditionalHolidayPays: calculateAdditionalHolidayPays.value,
       totalAdditionalHolidayPays: totalAdditionalHolidayPays.value,
+
+      //allowances
+      employeeAllowances: totalEmployeeAllowances.value,
     });
   }
 };
-
-// const emitCalculatedSummary = () => {
-//   // Ensure calculateGrandTotals.value is accessible and not null/undefined
-//   if (calculateGrandTotals.value) {
-//     emit("dtr-summary-calculated", {
-//       // Emit the formatted strings directly
-//       totalWorkingHoursFormatted: totalWorkingHoursFormatted.value, // <--- THIS IS THE KEY CHANGE
-//       totalUndertimeFormatted: totalUndertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
-//       totalOvertimeFormatted: totalOvertimeFormatted.value, // <--- THIS IS THE KEY CHANGE
-//       totalBreakFormatted: totalBreakFormatted.value, // <--- THIS IS THE KEY CHANGE
-//       totalNightDiffFormatted: totalNightDifferentialFormatted.value, // <--- THIS IS THE KEY CHANGE
-//       // Keep other raw values or formatted values as needed
-//       totalPresentDays: calculateGrandTotals.value.totalPresentDays,
-//       totalLateDays: calculateGrandTotals.value.totalLateDays,
-//       totalAbsentDays: calculateGrandTotals.value.totalAbsentDays,
-//       totalDaysInPeriod: calculateGrandTotals.value.totalDaysInPeriod,
-//     });
-//   }
-// };
 
 // Watch for changes in dtrRows and internalEmployeeData to re-emit summary
 watch(
@@ -858,14 +854,6 @@ const dtrColumns = computed(() => [
       const { totalWorkingMinutes } = calculateRowTimes(row);
       return formatMinutesToHoursMinutes(totalWorkingMinutes);
     },
-    // field: (row) => {
-    //   if (!internalEmployeeData.value?.designation) return "N/A";
-    //   const { totalWorkingMinutes } = calculateRowTimes(
-    //     row,
-    //     internalEmployeeData.value.designation
-    //   );
-    //   return formatMinutesToHoursMinutes(totalWorkingMinutes);
-    // },
   },
   {
     name: "undertime_minutes",
@@ -878,16 +866,6 @@ const dtrColumns = computed(() => [
         ? formatMinutesToHoursMinutes(undertimeMinutes)
         : "—";
     },
-    // field: (row) => {
-    //   if (!internalEmployeeData.value?.designation) return "N/A";
-    //   const { undertimeMinutes } = calculateRowTimes(
-    //     row,
-    //     internalEmployeeData.value.designation
-    //   );
-    //   return undertimeMinutes > 0
-    //     ? formatMinutesToHoursMinutes(undertimeMinutes)
-    //     : "—";
-    // },
   },
   {
     name: "over_time",
@@ -900,17 +878,6 @@ const dtrColumns = computed(() => [
         ? formatMinutesToHoursMinutes(overtimeMinutes)
         : "—";
     },
-
-    // field: (row) => {
-    //   if (!internalEmployeeData.value?.designation) return "N/A";
-    //   const { overtimeMinutes } = calculateRowTimes(
-    //     row,
-    //     internalEmployeeData.value.designation
-    //   );
-    //   return overtimeMinutes > 0
-    //     ? formatMinutesToHoursMinutes(overtimeMinutes)
-    //     : "—";
-    // },
   },
   {
     name: "night_differential", // New column name
@@ -953,6 +920,15 @@ const dtrColumns = computed(() => [
         }
       }
       return "N/A";
+    },
+  },
+  {
+    name: "allowance",
+    required: true,
+    label: "Allowance",
+    align: "center",
+    field: (row) => {
+      return formatCurrency(row.employee_allowance);
     },
   },
 ]);

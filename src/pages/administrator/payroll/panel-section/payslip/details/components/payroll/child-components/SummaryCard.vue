@@ -2,7 +2,7 @@
   <q-card flat bordered class="summary-card q-pa-lg">
     <q-list dense>
       <div class="q-mb-lg text-center">
-        <q-item-label class="text-h5 text-weight-bold text-grey-9">
+        <q-item-label class="text-h6 text-weight-bold text-grey-9">
           Checking Earning Summary
         </q-item-label>
       </div>
@@ -10,10 +10,10 @@
       <div class="row items-center q-mb-md">
         <q-item class="col-grow q-pa-none">
           <q-item-section avatar class="q-mr-sm">
-            <q-icon name="schedule" color="indigo-7" size="sm" />
+            <q-icon name="schedule" color="indigo-7" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-body1 text-weight-medium text-grey-8">
+            <q-item-label class="text-body2 text-weight-medium text-grey-8">
               Schedule:
               <span class="text-indigo-7 text-weight-semibold">{{
                 employeeSchedule
@@ -28,18 +28,29 @@
 
       <q-separator spaced="md" class="q-my-md" />
 
-      <div class="row q-mb-sm">
-        <!-- Wrap in a div.row and move margin here -->
-        <q-item class="col-12 q-pa-none">
-          <!-- Use col-12 for consistency -->
+      <div class="row q-col-gutter-y-sm q-mb-sm">
+        <q-item class="col-12 col-md-6 q-pa-none">
           <q-item-section avatar class="q-mr-sm">
-            <q-icon name="money" color="blue-grey-7" size="sm" />
+            <q-icon name="money" color="blue-grey-7" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-body1 text-weight-medium text-grey-8">
+            <q-item-label class="text-body2 text-weight-medium text-grey-8">
               Rate / Day:
               <span class="text-blue-grey-7 text-weight-semibold">{{
                 formatCurrency(employeesData?.employment_type?.salary)
+              }}</span>
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item class="col-12 col-md-6 q-pa-none">
+          <q-item-section avatar class="q-mr-sm">
+            <q-icon name="redeem" color="deep-purple" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-body2 text-weight-medium text-grey-8">
+              Total Allowance:
+              <span class="text-deep-purple text-weight-semibold">{{
+                totalEmployeeAllowances
               }}</span>
             </q-item-label>
           </q-item-section>
@@ -49,10 +60,10 @@
       <div class="row q-col-gutter-y-sm">
         <q-item class="col-12 col-md-6 q-pa-none">
           <q-item-section avatar class="q-mr-sm">
-            <q-icon name="event_note" color="primary-7" size="sm" />
+            <q-icon name="event_note" color="primary-7" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-body1 text-weight-medium text-grey-8">
+            <q-item-label class="text-body2 text-weight-medium text-grey-8">
               Total Number Of Days:
               <span class="text-primary-7 text-weight-semibold">{{
                 dtrRows.length
@@ -60,12 +71,13 @@
             </q-item-label>
           </q-item-section>
         </q-item>
+
         <q-item class="col-12 col-md-6 q-pa-none">
           <q-item-section avatar class="q-mr-sm">
-            <q-icon name="wallet" color="primary-7" size="sm" />
+            <q-icon name="wallet" color="primary-7" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-body1 text-weight-medium text-grey-8">
+            <q-item-label class="text-body2 text-weight-medium text-grey-8">
               Expected Salary in {{ dtrRows.length }} days:
               <span class="text-primary-7 text-weight-semibold">{{
                 regularPay
@@ -81,10 +93,10 @@
         <div class="row q-col-gutter-y-sm">
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
-              <q-icon name="timer" color="teal-7" size="sm" />
+              <q-icon name="timer" color="teal-7" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Working Hours:
                 <span class="text-teal-7 text-weight-semibold">
                   {{ totalWorkingHours }}
@@ -94,10 +106,10 @@
           </q-item>
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
-              <q-icon name="payments" color="teal-7" size="sm" />
+              <q-icon name="payments" color="teal-7" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Working Hours Cost :
                 <span class="text-teal-7 text-weight-semibold">
                   {{ totalWorkingHoursCost || "N/A" }}
@@ -110,10 +122,10 @@
         <div class="row q-col-gutter-y-sm q-mt-sm">
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
-              <q-icon name="timelapse" color="orange-7" size="sm" />
+              <q-icon name="timelapse" color="orange-7" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Overtime Hours :
                 <span class="text-orange-7 text-weight-semibold">
                   {{ totalOvertimeHours }}
@@ -123,10 +135,10 @@
           </q-item>
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
-              <q-icon name="attach_money" color="orange-7" size="sm" />
+              <q-icon name="attach_money" color="orange-7" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Overtime Cost :
                 <span class="text-orange-7 text-weight-semibold">
                   {{ totalOvertimeCost || "N/A" }}
@@ -142,7 +154,7 @@
               <q-icon name="nights_stay" color="grey-10" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Night Diff. Hours :
                 <span class="text-blue-grey-10 text-weight-semibold">
                   {{ totalNightDifferential }}
@@ -155,7 +167,7 @@
               <q-icon name="currency_exchange" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-meduim text-grey-8">
+              <q-item-label class="text-body2 text-weight-meduim text-grey-8">
                 Total Night Diff. Cost :
                 <span class="text-blue-grey-10 text-weight-semibold">
                   {{ totalNightDifferentialCost }}
@@ -168,10 +180,10 @@
         <div class="row q-col-gutter-y-sm q-mt-sm">
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
-              <q-icon name="trending_down" color="negative-7" size="sm" />
+              <q-icon name="trending_down" color="negative-7" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Undertime / Late :
                 <span class="text-negative-7 text-weight-semibold">
                   {{ totalUndertime }}
@@ -181,10 +193,10 @@
           </q-item>
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
-              <q-icon name="money_off" color="negative-7" size="sm" />
+              <q-icon name="money_off" color="negative-7" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Undertime / Late Cost :
                 <span class="text-negative-7 text-weight-semibold">
                   {{ totalUndertimeCost || "N/A" }}
@@ -200,10 +212,10 @@
           </q-item>
           <q-item class="col-12 col-md-6 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
-              <q-icon name="payments" color="positive" size="sm" />
+              <q-icon name="payments" color="positive" />
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
+              <q-item-label class="text-body2 text-weight-medium text-grey-8">
                 Total Holiday Pay :
                 <span class="text-positive text-weight-semibold">
                   {{ totalAdditionalHolidayPay }}
@@ -212,39 +224,6 @@
             </q-item-section>
           </q-item>
         </div>
-
-        <!-- <div class="row q-col-gutter-y-sm q-mt-sm">
-          <q-item class="col-12 col-md-6 q-pa-none">
-            <q-item-section avatar class="q-mr-sm">
-              <q-icon name="alarm_add" color="positive-7" size="sm" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
-                TWH + TOH:
-                <span class="text-positive-7 text-weight-semibold">
-                  {{ sumTWHTOH || "N/A" }}
-                </span>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item class="col-12 col-md-6 q-pa-none">
-            <q-item-section avatar class="q-mr-sm">
-              <q-icon
-                name="account_balance_wallet"
-                color="positive-7"
-                size="sm"
-              />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-body1 text-weight-medium text-grey-8">
-                TWH + TOH Cost :
-                <span class="text-positive-7 text-weight-semibold">
-                  {{ sumTWHTOHCost || "N/A" }}
-                </span>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </div> -->
 
         <q-separator spaced="md" class="q-my-md" />
 
@@ -444,6 +423,10 @@ const totalAdditionalHolidayPay = computed(() => {
   return formatCurrency(props.summaryData?.totalAdditionalHolidayPays);
 });
 
+const totalEmployeeAllowances = computed(() => {
+  return props.summaryData?.employeeAllowances;
+});
+
 // const sumTWHTOH = computed(() => {
 //   const totalWorkingHours = parseHourMinute(
 //     props.summaryData?.totalWorkingHoursFormatted
@@ -472,10 +455,17 @@ const totalIncome = computed(() => {
     totalNightDifferentialCost.value.replace(/[₱,]/g, "") || 0
   );
 
+  const employeeAllowances = parseFloat(
+    totalEmployeeAllowances.value.replace(/[₱,]/g, "") || 0
+  );
+
+  console.log("employeeAllowances", employeeAllowances);
+
   const totalHours = workingHours + overtimeHours;
   const hourlyIncome = totalHours * hourlyRate.value;
 
-  const finalIncome = hourlyIncome + holidayCost + nightDiffCost;
+  const finalIncome =
+    hourlyIncome + holidayCost + nightDiffCost + employeeAllowances;
 
   return formatCurrency(finalIncome);
 });
@@ -603,6 +593,7 @@ const regularPay = computed(() => {
 }
 
 .q-icon {
+  font-size: 1.2rem;
   opacity: 0.8; /* Slightly less intense icons */
 }
 
@@ -614,5 +605,26 @@ const regularPay = computed(() => {
   .q-separator {
     margin: 20px 0; /* Adjust separator spacing */
   }
+}
+
+/* Custom font size adjustments */
+.text-h6 {
+  /* For "Checking Earning Summary" title */
+  font-size: 1.15rem; /* Slightly smaller than default h5 */
+}
+
+.text-body2 {
+  /* For all general labels like "Schedule:", "Rate / Day:", etc. */
+  font-size: 0.7rem; /* Smaller than default body1 */
+}
+
+.text-body2 span {
+  /* For the actual values like "09:00 AM - 06:00 PM", "₱480.00", etc. */
+  font-size: 0.7rem; /* Slightly larger than the label for emphasis, but still smaller overall */
+}
+
+.text-h6 span {
+  /* For the "Total Income" value */
+  font-size: 1rem; /* Slightly smaller than default h6 for the value itself */
 }
 </style>

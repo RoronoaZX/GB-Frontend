@@ -34,15 +34,21 @@
         />
       </q-card-section>
 
-      <q-card-section class="q-pt-sm q-pb-md">
-        <SummaryCard
-          :dtr-rows="dtrRows"
-          :employee-data="employeesData"
-          :dtr-record="props.dtrRecord"
-          :summary-data="dtrSummaryData"
-        />
+      <q-card-section class="row justify-between q-pt-sm q-pb-md">
+        <div class="col-6">
+          <SummaryCard
+            :dtr-rows="dtrRows"
+            :employee-data="employeesData"
+            :dtr-record="props.dtrRecord"
+            :summary-data="dtrSummaryData"
+          />
+        </div>
+        <div class="col-5">
+          <DeductionSummaryCard />
+        </div>
         <q-card-section align="right"> </q-card-section>
       </q-card-section>
+      <q-card-section> </q-card-section>
     </q-card>
   </q-dialog>
 </template>
@@ -53,6 +59,7 @@ import { useEmployeeStore } from "src/stores/employee";
 import { useRoute } from "vue-router"; // No need for useRouter if not navigating programmatically
 import DTRTable from "./child-components/DTRTable.vue";
 import SummaryCard from "./child-components/SummaryCard.vue";
+import DeductionSummaryCard from "./child-components/DeductionSummaryCard.vue";
 import HolidayList from "./child-components/HolidayList.vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
