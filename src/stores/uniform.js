@@ -13,6 +13,11 @@ export const useUniformStore = defineStore("uniform", () => {
     last_page: 1,
   });
 
+  const fetchUniformForDeduction = async () => {
+    try {
+    } catch (error) {}
+  };
+
   const fetchUniform = async (page, rowsPerPage, search) => {
     try {
       const response = await api.get("/api/uniform", {
@@ -92,5 +97,6 @@ export const useUniformStore = defineStore("uniform", () => {
     createUniforms,
     searchUniform,
     updateUnifrom,
+    fetchUniformForDeduction,
   };
 });

@@ -7,6 +7,18 @@ export const useCreditsStore = defineStore("employee-credits", () => {
   const credits = ref([]);
   const credit = ref(null);
 
+  const fetchCreditsPerCutOff = async (from, to, employee_id) => {
+    console.log("Fetching Employee per cut off Credits", from, to, employee_id);
+    try {
+      const response = await api.get(
+        `/api/fetch-employee-credits-per-cut-off/${from}/${to}/${employee_id}`
+      );
+      console.log("Credits Response", response.data);
+      credits.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const addingCredits = async (data) => {
     console.log("Employee Credits Data:", data);
     try {
@@ -52,5 +64,6 @@ export const useCreditsStore = defineStore("employee-credits", () => {
     credit,
     addingCredits,
     savingCredits,
+    fetchCreditsPerCutOff,
   };
 });

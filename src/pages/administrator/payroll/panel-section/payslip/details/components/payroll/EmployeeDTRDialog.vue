@@ -34,7 +34,7 @@
         />
       </q-card-section>
 
-      <q-card-section class="row justify-between q-pt-sm q-pb-md">
+      <q-card-section class="row q-gutter-x-md q-pt-sm q-pb-md">
         <div class="col-6">
           <SummaryCard
             :dtr-rows="dtrRows"
@@ -44,11 +44,16 @@
           />
         </div>
         <div class="col-5">
-          <DeductionSummaryCard />
+          <DeductionSummaryCard
+            :dtr-from="dtrRecord.from"
+            :dtr-to="dtrRecord.end"
+            :employee-data="employeesData"
+          />
         </div>
-        <q-card-section align="right"> </q-card-section>
       </q-card-section>
-      <q-card-section> </q-card-section>
+      <q-card-section align="right">
+        <ModifiedButton label="Proceed Payslip" />
+      </q-card-section>
     </q-card>
   </q-dialog>
 </template>
@@ -61,6 +66,7 @@ import DTRTable from "./child-components/DTRTable.vue";
 import SummaryCard from "./child-components/SummaryCard.vue";
 import DeductionSummaryCard from "./child-components/DeductionSummaryCard.vue";
 import HolidayList from "./child-components/HolidayList.vue";
+import ModifiedButton from "src/components/buttons/ModifiedButton.vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const $q = useQuasar(); // Quasar instance for notifications

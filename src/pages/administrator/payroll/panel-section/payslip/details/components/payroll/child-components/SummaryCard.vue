@@ -21,9 +21,7 @@
             </q-item-label>
           </q-item-section>
         </q-item>
-        <q-item class="q-pa-none">
-          <ModifiedButton label="Proceed Payslip" />
-        </q-item>
+        <q-item class="q-pa-none"> </q-item>
       </div>
 
       <q-separator spaced="md" class="q-my-md" />
@@ -252,7 +250,6 @@ import { useQuasar } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import ModifiedButton from "src/components/buttons/ModifiedButton.vue";
 
 const props = defineProps({
   dtrRows: Array,
