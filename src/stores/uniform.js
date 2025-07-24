@@ -13,9 +13,17 @@ export const useUniformStore = defineStore("uniform", () => {
     last_page: 1,
   });
 
-  const fetchUniformForDeduction = async () => {
+  const fetchUniformForDeduction = async (employee_id) => {
+    console.log("fetchUniformForDeduction", employee_id);
     try {
-    } catch (error) {}
+      const response = await api.get(
+        `/api/fetch-uniform-for-deduction/${employee_id}`
+      );
+      console.log("Uniform Response", response.data);
+      uniforms.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const fetchUniform = async (page, rowsPerPage, search) => {

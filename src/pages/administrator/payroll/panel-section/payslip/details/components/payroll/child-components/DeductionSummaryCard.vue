@@ -46,15 +46,15 @@
               <q-item-label class="text-body2 text-weight-meduim text-grey-8">
                 Uniforms Deductions :
                 <span class="text-negative text-weight-bold">
-                  {{ formatCurrency(calculatedCreditTotal) }}
+                  {{ formatCurrency(calculatedUniformTotal) }}
                 </span>
               </q-item-label>
             </q-item-section>
           </q-item>
           <div>
-            <!-- <OpenButton
-              @open-dialog="handleEmployeeCredit(allCreditProducts)"
-            /> -->
+            <OpenButton
+              @open-dialog="handleEmployeeUniforms(allUniformProducts)"
+            />
           </div>
         </div>
 
@@ -125,6 +125,7 @@ import { useCreditsStore } from "src/stores/employee-credits";
 import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import CreditList from "./CreditList.vue";
+import UniformList from "./UniformList.vue";
 import OpenButton from "src/components/buttons/OpenButton.vue";
 import { useUniformStore } from "src/stores/uniform";
 
@@ -136,7 +137,7 @@ const creditsStore = useCreditsStore();
 const credits = computed(() => creditsStore.credits);
 
 const uniformStore = useUniformStore();
-const uniformsDeduction = computed(() => uniformStore.uniforms);
+const uniformsData = computed(() => uniformStore.uniforms);
 const $q = useQuasar();
 
 // Calculate creditTotal directly from the 'credits' computed property
@@ -182,6 +183,48 @@ const allCreditProducts = computed(() => {
   });
 });
 
+// Calculate uniformTotal directly from the 'uniformsData' computed property
+const calculatedUniformTotal = computed(() => {
+  // 1. Check if uniformsData.value is a valid array; if not, return 0.
+  if (!Array.isArray(uniformsData.value)) {
+    return 0;
+  }
+
+  // 2. Use reduce for a cleaner summation.
+  return uniformsData.value.reduce((totalSum, uniformRecord) => {
+    // 3. Directly access payment_per_payroll as a number.
+    const amount = parseFloat(uniformRecord.payments_per_payroll);
+
+    // 4. Add the amount to the total if it's a valid number.
+    if (!isNaN(amount)) {
+      return totalSum + amount;
+    }
+
+    // Otherwise, just return the current total.
+    return totalSum;
+  }, 0); // Start the sum at 0.
+});
+console.log("calculatedUniformTotal", calculatedUniformTotal.value);
+
+const allUniformProducts = computed(() => {
+  if (!uniformsData.value || !Array.isArray(uniformsData.value)) {
+    return { pants: [], t_shirts: [] }; // Return an object with empty arrays if data isn't ready
+  }
+
+  const combinedPants = [];
+  const combinedTShirts = [];
+
+  uniformsData.value.forEach((uniformRecord) => {
+    if (Array.isArray(uniformRecord.pants)) {
+      combinedPants.push(...uniformRecord.pants);
+    }
+    if (Array.isArray(uniformRecord.t_shirt)) {
+      combinedTShirts.push(...uniformRecord.t_shirt);
+    }
+  });
+  return { pants: combinedPants, t_shirts: combinedTShirts };
+});
+
 // const allCreditProducts = computed(() => {
 //   if (!credits.value || !Array(credits.value.credit_records)) {
 //     return []; // Return an empty array if data isn't ready
@@ -199,6 +242,7 @@ const allCreditProducts = computed(() => {
 // If you want the dialog's emitted value to *ooverrid* or *specifically* effect the display, keep creditTotal ref
 // and display creditTotal. If the list in the dialog is the *same* as the credits from the store, this ref might be redundant.
 const creditTotalFromDialog = ref(0); // Renamed for clarity, if you decide to keep it for dialog-specific updates
+const uniformTotalFromDialog = ref(0);
 
 const fetchCreditsPerCutOff = async () => {
   await creditsStore.fetchCreditsPerCutOff(
@@ -211,9 +255,11 @@ const fetchCreditsPerCutOff = async () => {
 };
 onMounted(fetchCreditsPerCutOff);
 
-// const fetchUniformsDeductions = async () => {
-//   await
-// }
+const fetchUniformsDeduction = async () => {
+  await uniformStore.fetchUniformForDeduction(employeeID);
+  console.log("uniforms data", uniformsData.value);
+};
+onMounted(fetchUniformsDeduction);
 
 const handleEmployeeCredit = (credits) => {
   $q.dialog({
@@ -225,6 +271,21 @@ const handleEmployeeCredit = (credits) => {
       "update:total": (total) => {
         console.log("Total credit amount received from dialog:", total);
         creditTotalFromDialog.value = total; // Update this ref if you're using it
+      },
+    },
+  });
+};
+
+const handleEmployeeUniforms = (uniforms) => {
+  $q.dialog({
+    component: UniformList,
+    componentProps: {
+      uniformList: uniforms,
+    },
+    on: {
+      "update:total": (total) => {
+        console.log("Total credit amount received from dialog:", total);
+        uniformTotalFromDialog.value = total;
       },
     },
   });
