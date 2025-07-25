@@ -201,6 +201,7 @@ import { Notify } from "quasar";
 
 const emit = defineEmits(["edited"]);
 const props = defineProps(["edit"]);
+console.log("edit", props.edit);
 const uniformStore = useUniformStore();
 
 // Dialog and Loading state
@@ -211,6 +212,7 @@ const localEdit = reactive({ ...props.edit });
 // Uniform data state
 const uniform = reactive({
   numberOfPayments: 0,
+  remaining_payments: props.edit.remaining_payments || 0,
   tShirtsize: "",
   tShirtPcs: "",
   tShirtPrice: "",
@@ -286,6 +288,7 @@ const clearForm = () => {
   uniform.pantsPrice = "";
 
   uniform.numberOfPayments = "";
+  uniform.remaining_payments = 0;
 };
 
 /**
@@ -320,6 +323,9 @@ watch(
  * Saves the uniform changes to the backend.
  */
 const saveUniformChanges = async () => {
+  const finalRemainingPayments = isNaN(parseFloat(uniform.remaining_payments))
+    ? 0
+    : parseFloat(uniform.remaining_payments);
   const updated = {
     ...localEdit,
     t_shirt: tShirt.value
@@ -343,7 +349,9 @@ const saveUniformChanges = async () => {
     number_of_payments: uniform.numberOfPayments,
     total_amount: parseFloat(totalAmount.value),
     payments_per_payroll: parseFloat(paymentPerPayroll.value),
+    remaining_payments: finalRemainingPayments,
   };
+  console.log("Updated uniform data:", updated);
 
   try {
     loading.value = true;

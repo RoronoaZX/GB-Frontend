@@ -78,9 +78,10 @@ export const useUniformStore = defineStore("uniform", () => {
     console.log("Updating uniform with data:", form);
     const payload = {
       employee_id: form.employee.id,
-      numberOfPayments: parseInt(form.number_of_payments),
-      totalAmount: parseInt(form.total_amount),
-      paymentPerPayroll: parseInt(form.payments_per_payroll),
+      numberOfPayments: parseFloat(form.number_of_payments),
+      totalAmount: parseFloat(form.total_amount),
+      paymentPerPayroll: parseFloat(form.payments_per_payroll),
+      remaining_payments: form.remaining_payments,
       tShirtPcs: form.t_shirt?.[0]?.pcs || null,
       tShirtPrice: form.t_shirt?.[0]?.price || null,
       tShirtsize: form.t_shirt?.[0]?.size || null,

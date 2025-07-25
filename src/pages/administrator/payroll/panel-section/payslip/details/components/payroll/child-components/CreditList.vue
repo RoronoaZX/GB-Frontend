@@ -1,10 +1,8 @@
 <template>
   <q-dialog ref="dialogRef" persistent position="top">
-    <q-card class="q-dialog-card-dense-elegant">
-      <q-card-section
-        class="q-dialog-header-dense bg-deep-purple-7 text-white row items-center no-wrap"
-      >
-        <div class="text-h6 text-weight-bolder q-ml-sm">Credit Summary</div>
+    <q-card class="credit-list-card compact-card">
+      <q-card-section class="header-section compact-header">
+        <div class="text-h6 text-weight-bolder text-shadow">Credit Summary</div>
         <q-space />
         <q-btn
           icon="close"
@@ -12,65 +10,72 @@
           dense
           round
           v-close-popup
-          class="text-white q-mr-sm"
+          color="white"
+          class="close-btn"
         />
       </q-card-section>
 
-      <q-card-section class="q-pa-md">
-        <q-list class="q-list-dense-elegant">
-          <q-item class="q-item-header-dense text-weight-bold text-grey-7">
-            <q-item-section class="q-item-section-product"
-              >Product Name</q-item-section
+      <q-card-section class="scrollable-content-wrapper">
+        <div class="q-pt-sm q-pb-none compact-content-section">
+          <q-list
+            bordered
+            class="rounded-borders q-mt-xs list-container compact-list"
+          >
+            <q-item
+              class="list-header bg-grey-2 text-weight-medium compact-list-header"
             >
-            <q-item-section class="q-item-section-center">Price</q-item-section>
-            <q-item-section class="q-item-section-center">Qty</q-item-section>
-            <q-item-section side class="q-item-section-right"
-              >Amount</q-item-section
-            >
-          </q-item>
+              <q-item-section>Product Name</q-item-section>
+              <q-item-section>Price</q-item-section>
+              <q-item-section class="text-center">Qty</q-item-section>
+              <q-item-section side>Amount</q-item-section>
+            </q-item>
 
-          <q-scroll-area class="q-list-scroll-area-dense">
             <q-item
               v-for="(credit, index) in creditList"
               :key="index"
-              class="q-item-data-dense"
+              class="list-item compact-list-item"
             >
-              <q-item-section class="q-item-section-product">
-                <div class="text-body2 text-grey-8">
-                  {{ credit.product_name }}
-                </div>
+              <q-item-section class="item-size">
+                {{ credit.product_name }}
               </q-item-section>
-              <q-item-section
-                class="q-item-section-center text-caption text-grey-6"
-              >
+              <q-item-section class="item-price">
                 {{ formatCurrency(credit.price) }}
               </q-item-section>
-              <q-item-section
-                class="q-item-section-center text-caption text-grey-6"
-              >
+              <q-item-section class="item-qty text-center">
                 {{ credit.pieces }}
               </q-item-section>
-              <q-item-section
-                side
-                class="q-item-section-right text-body2 text-grey-8 text-weight-medium"
-              >
+              <q-item-section side class="item-price">
                 {{ formatCurrency(credit.total_price) }}
               </q-item-section>
             </q-item>
-          </q-scroll-area>
 
-          <q-item
-            class="q-item-total-dense bg-deep-purple-1 text-deep-purple-9 text-weight-bold"
-          >
-            <q-item-section class="text-subtitle1"> Total : </q-item-section>
-            <q-item-section />
-            <q-item-section />
-            <q-item-section side class="text-subtitle1">
-              {{ formatCurrency(totalAmount) }}
-            </q-item-section>
-          </q-item>
-        </q-list>
+            <!-- <q-item
+              class="list-total bg-accent-light text-weight-bold compact-list-total"
+            >
+              <q-item-section class="text-subtitle1 text-accent-dark">
+                Total :
+              </q-item-section>
+              <q-item-section />
+              <q-item-section />
+              <q-item-section side class="text-subtitle1 text-accent-dark">
+                {{ formatCurrency(totalAmount) }}
+              </q-item-section>
+            </q-item> -->
+          </q-list>
+        </div>
       </q-card-section>
+      <q-item-section
+        class="q-py-md q-px-lg total-summary-section compact-total-summary"
+      >
+        <div class="flex justify-between items-center total-grand">
+          <div class="text-subtitle1 text-weight-bold text-gradient">
+            Total :
+          </div>
+          <div class="text-h6 text-weight-bold text-gradient total-amount">
+            {{ formatCurrency(totalAmount) }}
+          </div>
+        </div>
+      </q-item-section>
     </q-card>
   </q-dialog>
 </template>
@@ -117,100 +122,238 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-// Denser, more elegant, eye-pleasing design
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");
 
-.q-dialog-card-dense-elegant {
-  width: 500px; // Slightly narrower card
-  max-width: 90vw;
-  border-radius: 12px; // Slightly less rounded for density
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); // A bit less prominent shadow
+// Define a richer color palette with SCSS variables
+
+// $primary-blue: #007bff;
+$primary-blue: #0267c5;
+$secondary-blue: #0c3154;
+$light-blue: #e6f3ff;
+$gray-light: #f8f9fa;
+$gray-medium: #e9ecef;
+$text-dark: #343a40;
+$text-medium: #343a40;
+$text-medium: #6c757d;
+$white: #ffffff;
+$shadow-color: rgba(0, 0, 0, 0.15);
+
+// Custom accent colors for totals
+$accent-light: #e0f2f7;
+$accent-dark: #004d40;
+
+.credit-list-card.compact-card {
+  width: 420px;
+  max-width: 95vw;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px $shadow-color;
+  font-family: "Montserrat", sans-serif;
   overflow: hidden;
-  background-color: #ffffff;
+  background: $white;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 }
 
-.q-dialog-header-dense {
-  padding: 16px 24px; // Reduced padding
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
+.header-section.compact-header {
+  background: linear-gradient(135deg, $primary-blue 0%, $secondary-blue 100%);
+  color: $white;
+  padding: 15px 20px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -40px;
+    left: -40px;
+    width: 150px;
+    height: 150%;
+    background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 70%
+    );
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
   .text-h6 {
-    font-size: 1.25rem; // Slightly smaller header font
-    line-height: 1.2;
-    letter-spacing: 0.3px; // Tighter letter spacing
+    letter-spacing: 0.3px;
+  }
+
+  .text-shadow {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .close-btn {
+    transition: transform 0.3s ease-in-out;
+    &:hover {
+      transform: rotate(90deg);
+    }
   }
 }
 
-.q-list-dense-elegant {
-  border: none;
-  padding: 0;
-}
-
-.q-list-scroll-area-dense {
-  height: 280px; // Reduced scroll area height to make content denser
-  max-height: 45vh;
-  .q-scrollarea__content {
-    padding-bottom: 0px; // No extra padding at the bottom of scroll area
+.scrollable-content-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 20px;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $primary-blue;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: $secondary-blue;
   }
 }
 
-.q-item-header-dense {
-  background-color: #f5f5f5; // Lighter grey for header background
-  padding: 10px 18px; // Reduced padding
-  border-bottom: 1px solid #e0e0e0; // Thinner, subtle line
-  font-size: 0.85em; // Smaller header font
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: #616161; // Slightly darker grey for better contrast
+.content-section.compact-content-section {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  &:not(:last-child) {
+    border-bottom: 1px solid $gray-medium;
+  }
 }
 
-.q-item-data-dense {
-  padding: 10px 18px; // Reduced padding for data rows
-  border-bottom: 1px solid #f8f8f8; // Even lighter separator
-  transition: background-color 0.2s ease-in-out;
-  &:hover {
-    background-color: #fdfdfd; // Very subtle hover
+.category-litle {
+  margin-bottom: 10px;
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  color: $secondary-blue;
+  position: relative;
+  font-size: 1.15rem;
+
+  &.animated-underline {
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 1.5px;
+      background: linear-gradient(90deg, $primary-blue 0%, $light-blue 100%);
+      transform: scaleX(0);
+      transform-origin: bottom left;
+      transition: transform 0.3s ease-out;
+    }
+    &:hover::after {
+      transform: scaleX(1);
+    }
   }
+}
+
+.list-container.compact-list {
+  border: 1px solid $gray-medium;
+  border-radius: 8px;
+  box-shadow: -2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.list-header.compact-list-header {
+  background-color: $gray-light;
+  font-weight: 600;
+  color: $text-dark;
+  padding: 10px 15px;
+  font-size: 0.9em;
+  letter-spacing: 0.2px;
+
+  .q-item-section {
+    padding: 0;
+  }
+}
+
+.list-item.compact-list-item {
+  padding: 8px 15px;
+  border-bottom: 1px solid $gray-medium;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  font-family: "Open Sans", sans-serif;
+  color: $text-medium;
+  font-size: 0.85em;
+
   &:last-child {
     border-bottom: none;
   }
-}
+  &:hover {
+    background-color: $light-blue;
+    transform: translateX(3px);
+  }
 
-// Specific column styling for better alignment and visual hierarchy
-.q-item-section-product {
-  flex: 2;
-  .text-body2 {
-    font-size: 0.9rem; // Smaller font for product names
-    color: #424242; // Slightly softer black
+  .q-itme-section {
+    padding: 0;
+  }
+  .item-size {
+    font-weight: 400;
+  }
+  .item-qty {
+    font-weight: 500;
+  }
+  .item-price {
+    font-weight: 500;
+    color: $text-dark;
   }
 }
 
-.q-item-section-center {
-  flex: 1;
-  text-align: center;
-  .text-caption {
-    font-size: 0.8rem; // Smaller font for price and quantity
-    color: #757575; // Softer grey
-  }
-}
+.list-total.compact-list-total {
+  background-color: $accent-light;
+  padding: 12px 15px;
+  font-weight: 700;
+  color: $accent-dark;
+  border-top: 1.5px solid $secondary-blue;
+  font-size: 0.95em;
 
-.q-item-section-right {
-  flex: 1;
-  text-align: right;
-  .text-body2 {
-    font-size: 0.9rem; // Smaller font for amount
-    color: #333; // Slightly darker for emphasis
+  .q-item-section {
+    padding: 0;
   }
-}
-
-.q-item-total-dense {
-  padding: 14px 24px; // Reduced padding for total row
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  background-color: #673ab7; // Still using deep purple for strong total
-  color: #ffffff;
-  font-size: 1.05rem; // Slightly smaller font for total
-  letter-spacing: 0.3px;
   .text-subtitle1 {
-    font-size: 1.05rem;
-    font-weight: bold;
+    letter-spacing: 0.3px;
   }
+}
+
+.total-summary-section.compact-total-summary {
+  background: linear-gradient(90deg, $light-blue 0%, $white 100%);
+  padding: 20px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-top: 1px solid $gray-medium;
+  flex-shrink: 0; // Prevent footer from shrinking
+}
+
+.total-grand {
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.text-gradient {
+  background: linear-gradient(45deg, $secondary-blue 30%, $primary-blue 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0.5px 1.5px rgba(0, 0, 0, 0.1));
+}
+
+.total-amount {
+  min-width: 120px;
+  text-align: right;
+  font-size: 1.75rem;
+}
+
+// Quasar dialog global styles
+.q-dialog__inner {
+  padding: 15px;
+  align-items: center;
+  justify-content: center;
 }
 </style>

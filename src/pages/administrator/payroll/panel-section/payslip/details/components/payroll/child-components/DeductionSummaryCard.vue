@@ -190,19 +190,17 @@ const calculatedUniformTotal = computed(() => {
     return 0;
   }
 
-  // 2. Use reduce for a cleaner summation.
-  return uniformsData.value.reduce((totalSum, uniformRecord) => {
-    // 3. Directly access payment_per_payroll as a number.
+  let totalSumInCentavos = 0;
+
+  uniformsData.value.forEach((uniformRecord) => {
     const amount = parseFloat(uniformRecord.payments_per_payroll);
-
-    // 4. Add the amount to the total if it's a valid number.
+    console.log("amount", amount);
     if (!isNaN(amount)) {
-      return totalSum + amount;
+      totalSumInCentavos += Math.round(amount * 100);
     }
+  });
 
-    // Otherwise, just return the current total.
-    return totalSum;
-  }, 0); // Start the sum at 0.
+  return (totalSumInCentavos / 100).toFixed(2);
 });
 console.log("calculatedUniformTotal", calculatedUniformTotal.value);
 
@@ -335,5 +333,20 @@ const formatCurrency = (value) => {
     background-color: var(--q-primary); // Fill with primary color on hover
     color: white !important; // Change text to white on hover
   }
+}
+
+.text-body2 {
+  /* For all general labels */
+  font-size: 0.7rem; /* Smaller then default body1 */
+}
+
+.text-body2 span {
+  /* For actual values */
+  font-size: 0.7rem; /* Slightly larger than label for emphasis, but still smaller overall */
+}
+
+.text-h6 span {
+  /* For the "" */
+  font-size: 1rem;
 }
 </style>

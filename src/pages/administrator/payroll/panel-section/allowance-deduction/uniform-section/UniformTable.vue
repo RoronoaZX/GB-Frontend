@@ -45,6 +45,22 @@
           </q-th>
         </q-tr>
       </template>
+
+      <template v-slot:body-cell-remaining_payments="props">
+        <q-td :props="props">
+          <span
+            v-if="props.row.remaining_payments === '0.00'"
+            class="text-green-8 text-bold q-px-sm q-py-xs rounded-borders"
+            style="background-color: #e0ffe0; border: 1px solid #a0f0a0"
+          >
+            Paid
+          </span>
+          <span v-else>
+            {{ formatCurrency(props.row.remaining_payments) }}
+          </span>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-t_shirt="props">
         <q-td :props="props">
           <q-chip
@@ -177,6 +193,7 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
     pagination.value.rowsNumber = total;
 
     uniformRows.value = data;
+    console.log("uniformss", uniformRows.value);
   } catch (error) {
     console.log("error fetching madepakeer", error);
   } finally {
@@ -277,6 +294,16 @@ const uniformColumns = [
     label: "Payments Per Payroll",
     align: "center",
     field: (row) => formatCurrency(row.payments_per_payroll),
+  },
+  {
+    name: "remaining_payments",
+    required: true,
+    label: "Remaining Payments",
+    align: "center",
+    field: (row) =>
+      row.remaining_payments === "0.00"
+        ? "Paid"
+        : formatCurrency(row.remaining_payments),
   },
   {
     name: "t_shirt",

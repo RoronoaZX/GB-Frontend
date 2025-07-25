@@ -1,10 +1,5 @@
 <template>
-  <q-dialog
-    ref="dialogRef"
-    persistent
-    transition-show="scale"
-    transition-hide="scale"
-  >
+  <q-dialog ref="dialogRef" persistent position="top">
     <q-card class="uniform-list-card compact-card">
       <q-card-section class="header-section compact-header">
         <div class="text-h6 text-weight-bold text-shadow">Uniform List</div>
@@ -147,13 +142,19 @@ const emit = defineEmits(["update:total"]);
 
 const tShirtTotal = computed(() => {
   return props.uniformList?.t_shirts?.reduce((sum, item) => {
-    return sum + parseFloat(item.price || 0);
+    const price = parseFloat(item.price || 0);
+    const pcs = parseInt(item.pcs || 0);
+    const product = price * pcs;
+    return sum + product;
   }, 0);
 });
 
 const pantsTotal = computed(() => {
   return props.uniformList?.pants?.reduce((sum, item) => {
-    return sum + parseFloat(item.price || 0);
+    const price = parseFloat(item.price || 0);
+    const pcs = parseInt(item.pcs || 0);
+    const product = price * pcs;
+    return sum + product;
   }, 0);
 });
 
@@ -177,8 +178,9 @@ const formatCurrency = (value) => {
 
 // Define a richer color palette with SCSS variables
 // #512da8
-$primary-blue: #007bff;
-$secondary-blue: #0056b3;
+// 565656
+$primary-blue: #0267c5;
+$secondary-blue: #0c3154;
 $light-blue: #e6f3ff;
 $gray-light: #f8f9fa;
 $gray-medium: #e9ecef;

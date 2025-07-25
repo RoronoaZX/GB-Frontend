@@ -342,9 +342,8 @@ watch(
 watch(
   [totalAmount, () => uniform.numberOfPayments],
   () => {
-    paymentPerPayroll.value = Math.round(
-      totalAmount.value / (uniform.numberOfPayments || 1)
-    ); // Round to nearest integer
+    paymentPerPayroll.value =
+      totalAmount.value / (uniform.numberOfPayments || 1); // Round to nearest integer
   },
   { immediate: true }
 );
@@ -363,6 +362,7 @@ const save = async () => {
     totalAmount: totalAmount.value,
     paymentPerPayroll: paymentPerPayroll.value,
     numberOfPayments: uniform.numberOfPayments,
+    remaining_payments: totalAmount.value,
   };
   console.log("payload", payload);
   try {
