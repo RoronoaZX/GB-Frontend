@@ -288,9 +288,27 @@ const cashAdvanceColumns = [
   },
   {
     name: "amount",
-    label: "Amount",
+    label: "Total Amount",
     align: "center",
     field: (row) => formatCurrency(row.amount),
+  },
+  {
+    name: "number_of_payments",
+    label: "Number of Payments",
+    align: "center",
+    field: (row) => (row.number_of_payments ? row.number_of_payments : 0),
+  },
+  {
+    name: "payment_per_payroll",
+    label: "Payment per Payroll",
+    align: "center",
+    field: (row) => formatCurrency(row.payment_per_payroll),
+  },
+  {
+    name: "remaining_payments",
+    label: "Remaining Payments",
+    align: "center",
+    field: (row) => formatCurrency(row.remaining_payments),
   },
   {
     name: "reason",
