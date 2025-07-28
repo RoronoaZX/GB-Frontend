@@ -35,6 +35,20 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
     }
   };
 
+  const fetchCashAdvanceForDeduction = async (id) => {
+    console.log("fetchCashAdvanceForDeduction", id);
+
+    try {
+      const response = await api.get(
+        "/api/fetch-cash-advance-for-deduction/" + id
+      );
+      console.log("response cash advancessss", response.data);
+      cashAdvances.value = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const searchCashAdvance = async (keyword) => {
     try {
       console.log("Searching for employee with keyword:", keyword);
@@ -49,6 +63,7 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
   };
 
   const createCashAdvance = async (data) => {
+    console.log("create cash advance", data);
     try {
       const response = await api.post("/api/cash-advance", data);
       console.log("response cash advance", response.data);
@@ -109,5 +124,6 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
     searchCashAdvance,
     updateAmount,
     updateReason,
+    fetchCashAdvanceForDeduction,
   };
 });

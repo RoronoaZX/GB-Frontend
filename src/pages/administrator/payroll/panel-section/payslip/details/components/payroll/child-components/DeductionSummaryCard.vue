@@ -60,6 +60,30 @@
 
         <q-separator spaced="sm" class="q-my-md" />
 
+        <div class="row justify-between">
+          <q-item class="col- q-pa-none">
+            <q-item-section avatar class="q-mr-sm">
+              <!-- <q-icon name="credit_score" color="primary-7" /> -->
+              <q-icon name="credit_score" color="primary-7" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-body2 text-weight-meduim text-grey-8">
+                Cash Advances :
+                <span class="text-negative text-weight-bold">
+                  {{ formatCurrency(calculateCashAdvanceTotal) }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <div>
+            <OpenButton
+              @open-dialog="handleEmployeeCashAdvance(cashAdvances)"
+            />
+          </div>
+        </div>
+
+        <q-separator spaced="sm" class="q-my-md" />
+
         <div class="row q-col-gutter-y-sm">
           <q-item class="col-12 q-pa-none">
             <q-item-section avatar class="q-mr-sm">
@@ -126,8 +150,10 @@ import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 import CreditList from "./CreditList.vue";
 import UniformList from "./UniformList.vue";
+import CashAdvanceList from "./CashAdvanceList.vue";
 import OpenButton from "src/components/buttons/OpenButton.vue";
 import { useUniformStore } from "src/stores/uniform";
+import { useCashAdvanceStore } from "src/stores/cash-advance";
 
 const props = defineProps(["dtrFrom", "dtrTo", "employeeData"]);
 const route = useRoute();
@@ -138,6 +164,9 @@ const credits = computed(() => creditsStore.credits);
 
 const uniformStore = useUniformStore();
 const uniformsData = computed(() => uniformStore.uniforms);
+const cashAdvanceStore = useCashAdvanceStore();
+const cashAdvances = computed(() => cashAdvanceStore.cashAdvances);
+
 const $q = useQuasar();
 
 // Calculate creditTotal directly from the 'credits' computed property
@@ -194,7 +223,7 @@ const calculatedUniformTotal = computed(() => {
 
   uniformsData.value.forEach((uniformRecord) => {
     const amount = parseFloat(uniformRecord.payments_per_payroll);
-    console.log("amount", amount);
+    console.log("amount uniforms", amount);
     if (!isNaN(amount)) {
       totalSumInCentavos += Math.round(amount * 100);
     }
@@ -211,6 +240,10 @@ const allUniformProducts = computed(() => {
 
   const combinedPants = [];
   const combinedTShirts = [];
+  let numberOfPayments = 0;
+  let paymentsPerPayroll = 0;
+  let remainingPayments = 0;
+  let totalAmount = 0;
 
   uniformsData.value.forEach((uniformRecord) => {
     if (Array.isArray(uniformRecord.pants)) {
@@ -220,7 +253,40 @@ const allUniformProducts = computed(() => {
       combinedTShirts.push(...uniformRecord.t_shirt);
     }
   });
-  return { pants: combinedPants, t_shirts: combinedTShirts };
+
+  uniformsData.value.forEach((uniformRecord) => {
+    console.log("uniformRecordssss", uniformRecord);
+    numberOfPayments = uniformRecord.number_of_payments;
+    paymentsPerPayroll = uniformRecord.payments_per_payroll;
+    remainingPayments = uniformRecord.remaining_payments;
+    totalAmount = uniformRecord.total_amount;
+  });
+  return {
+    pants: combinedPants,
+    t_shirts: combinedTShirts,
+    numberOfPayments,
+    paymentsPerPayroll,
+    remainingPayments,
+    totalAmount,
+  };
+});
+
+const calculateCashAdvanceTotal = computed(() => {
+  if (!Array.isArray(cashAdvances.value)) {
+    return 0;
+  }
+
+  let totalSum = 0;
+
+  cashAdvances.value.forEach((cashAdvances) => {
+    const amount = parseFloat(cashAdvances.payment_per_payroll);
+    console.log("amount cash advance", amount);
+    if (!isNaN(amount)) {
+      totalSum += Math.round(amount * 100);
+    }
+  });
+
+  return (totalSum / 100).toFixed(2);
 });
 
 // const allCreditProducts = computed(() => {
@@ -259,6 +325,12 @@ const fetchUniformsDeduction = async () => {
 };
 onMounted(fetchUniformsDeduction);
 
+const fetchCashAdvance = async () => {
+  await cashAdvanceStore.fetchCashAdvanceForDeduction(employeeID);
+  console.log("cash advances datasss", cashAdvances.value);
+};
+onMounted(fetchCashAdvance);
+
 const handleEmployeeCredit = (credits) => {
   $q.dialog({
     component: CreditList,
@@ -285,6 +357,15 @@ const handleEmployeeUniforms = (uniforms) => {
         console.log("Total credit amount received from dialog:", total);
         uniformTotalFromDialog.value = total;
       },
+    },
+  });
+};
+
+const handleEmployeeCashAdvance = (cashAdvances) => {
+  $q.dialog({
+    component: CashAdvanceList,
+    componentProps: {
+      cashAdvanceList: cashAdvances,
     },
   });
 };

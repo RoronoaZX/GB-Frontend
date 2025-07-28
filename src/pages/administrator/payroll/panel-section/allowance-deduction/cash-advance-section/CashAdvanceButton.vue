@@ -101,6 +101,24 @@
             </div>
             <div>
               <q-input
+                v-model="cashAdvance.number_of_payments"
+                type="number"
+                outlined
+                label="Number of Payments"
+              />
+            </div>
+            <div>
+              <q-input
+                v-model="cashAdvance.payment_per_payroll"
+                outlined
+                hint="Number of Payments"
+                dense
+                readonly
+                label="Number of Payments"
+              />
+            </div>
+            <div>
+              <q-input
                 v-model="cashAdvance.reason"
                 filled
                 type="textarea"
@@ -128,7 +146,7 @@
 
 <script setup>
 import { useEmployeeStore } from "stores/employee";
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useCashAdvanceStore } from "stores/cash-advance";
 
 const emit = defineEmits(["created"]);
@@ -167,21 +185,47 @@ const cashAdvance = reactive({
   employee_id: "",
   employee_name: "",
   employee_position: "",
-  amount: "",
+  amount: 0,
   reason: "",
+  number_of_payments: 0,
+  payment_per_payroll: 0,
+  remaining_payments: 0,
 });
+
+watch(
+  () => [cashAdvance.amount, cashAdvance.number_of_payments],
+  ([amount, number_of_payments]) => {
+    const amt = parseFloat(amount) || 0;
+    const num = parseInt(number_of_payments) || 0;
+    cashAdvance.payment_per_payroll = (num > 0 ? amt / num : 0).toFixed(2);
+  }
+);
+
+// const patment_per_payroll = computed(() => {
+//   const amount = parseFloat(cashAdvance.amount);
+//   const number_of_payments = parseFloat(cashAdvance.number_of_payments);
+
+//   return !isNaN(amount) && !isNaN(number_of_payments) && number_of_payments > 0
+//     ? (amount / number_of_payments).toFixed(2)
+//     : 0;
+// });
 
 const clearCashAdvanceForm = () => {
   (cashAdvance.employee_id = ""),
     (cashAdvance.employee_name = ""),
     (cashAdvance.employee_position = ""),
-    (cashAdvance.amount = ""),
+    (cashAdvance.amount = 0),
+    (cashAdvance.number_of_payments = 0),
+    (cashAdvance.payment_per_payroll = 0),
+    (cashAdvance.remaining_payments = 0),
     (cashAdvance.reason = "");
 };
 
 const save = async () => {
+  cashAdvance.remaining_payments = parseFloat(cashAdvance.amount) || 0;
   loading.value = true;
   try {
+    console.log("save cash advance", cashAdvance);
     await cashAdvanceStore.createCashAdvance(cashAdvance);
 
     emit("created"); // 🔥 trigger reload in parent

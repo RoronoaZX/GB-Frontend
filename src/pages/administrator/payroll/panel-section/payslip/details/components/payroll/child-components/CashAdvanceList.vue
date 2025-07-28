@@ -1,16 +1,10 @@
 <template>
-  <q-dialog
-    ref="dialogRef"
-    persistent
-    position="top"
-    transition-show="scale"
-    transition-hide="scale"
-  >
-    <q-card class="q-dialog-card-dense-elegant">
-      <q-card-section
-        class="q-dialog-header-dense bg-deep-purple-7 text-white row items-center no-wrap"
-      >
-        <div class="text-h6 text-weight-bolder q-ml-sm">Credit Summary</div>
+  <q-dialog ref="dialogRef" persistent position="top">
+    <q-card class="cash-advance-list-card compact-card">
+      <q-card-section class="header-section compact-header">
+        <div class="text-h6 text-weight-bold text-shadow">
+          Cash Advance List
+        </div>
         <q-space />
         <q-btn
           icon="close"
@@ -18,82 +12,77 @@
           dense
           round
           v-close-popup
-          class="text-white q-mr-sm"
+          color="white"
+          class="close-btn"
         />
       </q-card-section>
 
-      <q-card-section class="q-pa-md">
-        <q-list class="q-list-dense-elegant">
-          <q-item class="q-item-header-dense text-weight-bold text-grey-7">
-            <q-item-section class="q-item-section-product"
-              >Product Name</q-item-section
-            >
-            <q-item-section class="q-item-section-center">Price</q-item-section>
-            <q-item-section class="q-item-section-center">Qty</q-item-section>
-            <q-item-section side class="q-item-section-right"
-              >Amount</q-item-section
-            >
-          </q-item>
-
-          <q-scroll-area class="q-list-scroll-area-dense">
-            <q-item
-              v-for="(credit, index) in creditList"
-              :key="index"
-              class="q-item-data-dense"
-            >
-              <q-item-section class="q-item-section-product">
-                <div class="text-body2 text-grey-8">
-                  {{ credit.product_name }}
-                </div>
-              </q-item-section>
-              <q-item-section
-                class="q-item-section-center text-caption text-grey-6"
-              >
-                {{ formatCurrency(credit.price) }}
-              </q-item-section>
-              <q-item-section
-                class="q-item-section-center text-caption text-grey-6"
-              >
-                {{ credit.pieces }}
-              </q-item-section>
-              <q-item-section
-                side
-                class="q-item-section-right text-body2 text-grey-8 text-weight-medium"
-              >
-                {{ formatCurrency(credit.total_price) }}
-              </q-item-section>
-            </q-item>
-          </q-scroll-area>
-
+      <q-card-section class="scrollable-content-wrapper">
+        <q-list
+          bordered
+          class="rounded-borders q-mt-xs list-container compact-list"
+        >
           <q-item
-            class="q-item-total-dense bg-deep-purple-1 text-deep-purple-9 text-weight-bold"
+            class="list-header bg-grey-2 text-weight-medium compact-list-header"
           >
-            <q-item-section class="text-subtitle1"> Total : </q-item-section>
-            <q-item-section />
-            <q-item-section />
-            <q-item-section side class="text-subtitle1">
-              {{ formatCurrency(totalAmount) }}
+            <q-item-section>Credit Amount</q-item-section>
+            <q-item-section>Number of Payments</q-item-section>
+            <q-item-section>Payments Per Payroll</q-item-section>
+            <q-item-section>Remaining Payments</q-item-section>
+            <q-item-section side>Reason</q-item-section>
+          </q-item>
+          <q-item
+            v-for="(cashAdvance, index) in cashAdvanceList"
+            :key="index"
+            class="list-item compact-list-item"
+          >
+            <q-item-section class="item-size">
+              {{ cashAdvance.amount }}
+            </q-item-section>
+            <q-item-section>
+              {{ cashAdvance.number_of_payments }}
+            </q-item-section>
+            <q-item-section>
+              {{ cashAdvance.payment_per_payroll }}
+            </q-item-section>
+            <q-item-section>
+              {{ cashAdvance.remaining_payments }}
+            </q-item-section>
+            <q-item-section side>
+              {{ cashAdvance.reason }}
             </q-item-section>
           </q-item>
         </q-list>
       </q-card-section>
+      <q-item-section
+        class="q-py-md q-px-lg total-summary-section compact-total-summary"
+      >
+        <div class="flex justify-between items-center total-grand">
+          <div class="text-subtitle1 text-weight-bold text-gradient">
+            Overall Credit Total :
+          </div>
+          <div class="text-h6 text-weight-bold text-gradient total-amount">
+            {{ formatCurrency(totalAmount) }}
+          </div>
+        </div>
+      </q-item-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { useDialogPluginComponent } from "quasar";
-import { computed, watch } from "vue";
+import { format, useDialogPluginComponent } from "quasar";
+import { computed } from "vue";
 
-const { dialogRef, onDialogHide } = useDialogPluginComponent();
+const { dialogRef } = useDialogPluginComponent();
 
-const props = defineProps(["creditList"]);
+const props = defineProps(["cashAdvanceList"]);
 
 const emit = defineEmits(["update:total"]);
 
 const totalAmount = computed(() => {
-  return props.creditList?.reduce((sum, item) => {
-    return sum + parseFloat(item.total_price || 0);
+  return props.cashAdvanceList?.reduce((sum, item) => {
+    return sum + parseFloat(item.amount || 0);
   }, 0);
 });
 
@@ -106,32 +95,19 @@ const formatCurrency = (value) => {
     maximumFractionDigits: 2,
   }).format(number);
 };
-
-watch(
-  () => props.creditList,
-  (newList) => {
-    const rawTotal = newList?.reduce((acc, item) => {
-      return acc + parseFloat(item.total_price || 0);
-    }, 0);
-    emit("update:total", rawTotal);
-  },
-  {
-    immediate: true,
-    deep: true,
-  }
-);
 </script>
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");
 
 // Define a richer color palette with SCSS variables
-
-$primary-blue: #007bff;
-$second-blue: #0056b3;
+// #512da8
+// 67565656
+$primary-blue: #0267c5;
+$secondary-blue: #0c3154;
 $light-blue: #e6f3ff;
 $gray-light: #f8f9fa;
-$gray-meduim: #e9ecef;
+$gray-medium: #e9ecef;
 $text-dark: #343a40;
 $text-medium: #343a40;
 $text-medium: #6c757d;
@@ -142,7 +118,7 @@ $shadow-color: rgba(0, 0, 0, 0.15);
 $accent-light: #e0f2f7;
 $accent-dark: #004d40;
 
-.credit-list-card.compact-card {
+.cash-advance-list-card.compact-card {
   width: 420px;
   max-width: 95vw;
   border-radius: 12px;
@@ -151,12 +127,11 @@ $accent-dark: #004d40;
   overflow: hidden;
   background: $white;
   display: flex;
-  flex-direction: column;
   max-height: 90vh;
 }
 
 .header-section.compact-header {
-  background: linear-gradient(135deg, $primary-blue 0%, $second-blue 100%);
+  background: linear-gradient(135deg, $primary-blue, $secondary-blue 100%);
   color: $white;
   padding: 15px 20px;
   border-top-left-radius: 12px;
@@ -174,7 +149,7 @@ $accent-dark: #004d40;
     top: -40px;
     left: -40px;
     width: 150px;
-    height: 150%;
+    height: 150px;
     background: radial-gradient(
       circle at top left,
       rgba(255, 255, 255, 0.1) 0%,
@@ -212,7 +187,8 @@ $accent-dark: #004d40;
     border-radius: 10px;
   }
   &::-webkit-scrollbar-thumb {
-    background: $secondary-blue;
+    background: $primary-blue;
+    border-radius: 10px;
   }
   &::-webkit-scrollbar-thumb:hover {
     background: $secondary-blue;
@@ -231,7 +207,7 @@ $accent-dark: #004d40;
   margin-bottom: 10px;
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
-  color: $second-blue;
+  color: $secondary-blue;
   position: relative;
   font-size: 1.15rem;
 
@@ -244,7 +220,7 @@ $accent-dark: #004d40;
       width: 100%;
       height: 1.5px;
       background: linear-gradient(90deg, $primary-blue 0%, $light-blue 100%);
-      transform: scaleX();
+      transform: scaleX(0);
       transform-origin: bottom left;
       transition: transform 0.3s ease-out;
     }
@@ -260,7 +236,7 @@ $accent-dark: #004d40;
   box-shadow: -2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.list-header.compact-list-heder {
+.list-header.compact-list-header {
   background-color: $gray-light;
   font-weight: 600;
   color: $text-dark;
@@ -273,7 +249,7 @@ $accent-dark: #004d40;
   }
 }
 
-.list-item.compact.list-item {
+.list-item.compact-list-item {
   padding: 8px 15px;
   border-bottom: 1px solid $gray-medium;
   transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
@@ -289,7 +265,7 @@ $accent-dark: #004d40;
     transform: translateX(3px);
   }
 
-  .q-itme-section {
+  .q-item-section {
     padding: 0;
   }
   .item-size {
@@ -321,12 +297,12 @@ $accent-dark: #004d40;
 }
 
 .total-summary-section.compact-total-summary {
-  background: linear-gradient(90deg, $light-blue 0%, $white 100%);
+  background: linear-gradient(90deg, $light-blue 0%, white 1005);
   padding: 20px;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
   border-top: 1px solid $gray-medium;
-  flex-shrink: 0; // Prevent footer from shrinking
+  flex-shrink: 0;
 }
 
 .total-grand {
@@ -349,7 +325,6 @@ $accent-dark: #004d40;
   font-size: 1.75rem;
 }
 
-// Quasar dialog global styles
 .q-dialog__inner {
   padding: 15px;
   align-items: center;

@@ -290,7 +290,7 @@ $accent-dark: #004d40;
     transform: translateX(3px);
   }
 
-  .q-itme-section {
+  .q-item-section {
     padding: 0;
   }
   .item-size {
@@ -322,7 +322,7 @@ $accent-dark: #004d40;
 }
 
 .total-summary-section.compact-total-summary {
-  background: linear-gradient(90deg, $light-blue 0%, $white 100%);
+  background: linear-gradient(90deg, $light-blue 0%, white 100%);
   padding: 20px;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;

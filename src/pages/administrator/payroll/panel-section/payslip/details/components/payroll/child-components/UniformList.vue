@@ -16,6 +16,32 @@
       </q-card-section>
 
       <q-card-section class="scrollable-content-wrapper">
+        <q-card flat bordered class="q-mt-md payment-summary">
+          <div class="row q-col-gutter-md q-px-sm q-py-sm">
+            <div class="col-6 text-subtitle2 text-dark">
+              <div class="label">Total Amount</div>
+              <div class="value">
+                {{ formatCurrency(uniformList.totalAmount) }}
+              </div>
+            </div>
+            <div class="col-6 text-subtitle2 text-dark">
+              <div class="label">Number of Payments</div>
+              <div class="value">{{ uniformList.numberOfPayments }}</div>
+            </div>
+            <div class="col-6 text-subtitle2 text-dark">
+              <div class="label">Payments Per Payroll</div>
+              <div class="value">
+                {{ formatCurrency(uniformList.paymentsPerPayroll) }}
+              </div>
+            </div>
+            <div class="col-6 text-subtitle2 text-dark">
+              <div class="label">Remaining Payments</div>
+              <div class="value">
+                {{ formatCurrency(uniformList.remainingPayments) }}
+              </div>
+            </div>
+          </div>
+        </q-card>
         <div class="q-pt-sm q-pb-none compact-content-section">
           <div
             class="category-title text-subtitle1 text-primary animated-underline"
@@ -137,6 +163,7 @@ import { computed } from "vue";
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps(["uniformList"]);
+console.log("uniformList", props.uniformList);
 
 const emit = defineEmits(["update:total"]);
 
@@ -410,5 +437,26 @@ $accent-dark: #004d40;
   padding: 15px;
   align-items: center;
   justify-content: center;
+}
+
+.payment-summary {
+  background: #f9fbfd;
+  border: 1px solid #e0e6ed;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  font-family: "Open Sans", sans-serif;
+
+  .label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0c3154;
+  }
 }
 </style>
