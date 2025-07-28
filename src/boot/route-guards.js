@@ -146,7 +146,7 @@ export default boot(async ({ router }) => {
           } else if (role === "Cashier") {
             next("/branch/sales_lady/products");
           } else {
-            next();
+            next("/admin/dashboard"); // Or whatever your default logged-in page is
           }
         } else {
           next();
