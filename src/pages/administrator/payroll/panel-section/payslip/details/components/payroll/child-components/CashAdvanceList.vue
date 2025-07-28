@@ -102,14 +102,13 @@ const formatCurrency = (value) => {
 
 // Define a richer color palette with SCSS variables
 // #512da8
-// 67565656
+// 565656
 $primary-blue: #0267c5;
 $secondary-blue: #0c3154;
 $light-blue: #e6f3ff;
 $gray-light: #f8f9fa;
 $gray-medium: #e9ecef;
 $text-dark: #343a40;
-$text-medium: #343a40;
 $text-medium: #6c757d;
 $white: #ffffff;
 $shadow-color: rgba(0, 0, 0, 0.15);
@@ -118,20 +117,21 @@ $shadow-color: rgba(0, 0, 0, 0.15);
 $accent-light: #e0f2f7;
 $accent-dark: #004d40;
 
-.cash-advance-list-card.compact-card {
+.uniform-list-card.compact-card {
   width: 420px;
   max-width: 95vw;
   border-radius: 12px;
   box-shadow: 0 10px 20px $shadow-color;
   font-family: "Montserrat", sans-serif;
-  overflow: hidden;
+  overflow: hidden; // This is important for card's own rounded corners with content
   background: $white;
-  display: flex;
-  max-height: 90vh;
+  display: flex; // Use flexbox to manage layout
+  flex-direction: column; // Stack children vertically
+  max-height: 90vh; // Ensure dialog doesn't exceed viewport height
 }
 
 .header-section.compact-header {
-  background: linear-gradient(135deg, $primary-blue, $secondary-blue 100%);
+  background: linear-gradient(135deg, $primary-blue 0%, $secondary-blue 100%);
   color: $white;
   padding: 15px 20px;
   border-top-left-radius: 12px;
@@ -141,15 +141,15 @@ $accent-dark: #004d40;
   justify-content: space-between;
   position: relative;
   overflow: hidden;
-  flex-shrink: 0;
+  flex-shrink: 0; // Prevent header from shrinking when content scrolls
 
   &::before {
     content: "";
     position: absolute;
     top: -40px;
     left: -40px;
-    width: 150px;
-    height: 150px;
+    width: 150%;
+    height: 150%;
     background: radial-gradient(
       circle at top left,
       rgba(255, 255, 255, 0.1) 0%,
@@ -175,10 +175,12 @@ $accent-dark: #004d40;
   }
 }
 
+// NEW SCROLLABLE CONTENT WRAPPER
 .scrollable-content-wrapper {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 0 20px;
+  flex-grow: 1; // Allow this section to take up available space
+  overflow-y: auto; // THIS IS THE KEY! Enable vertical scrolling
+  padding: 0 20px; // Apply horizontal padding here to match card
+  // Use scrollbar styling for better aesthetics (optional, but recommended)
   &::-webkit-scrollbar {
     width: 8px;
   }
@@ -196,19 +198,21 @@ $accent-dark: #004d40;
 }
 
 .content-section.compact-content-section {
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding-top: 15px; // Add top padding here instead of wrapper
+  padding-bottom: 15px; // Add bottom padding here instead of wrapper
+  // Removed horizontal padding as it's now on the wrapper
   &:not(:last-child) {
     border-bottom: 1px solid $gray-medium;
   }
 }
 
-.category-litle {
+.category-title {
   margin-bottom: 10px;
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
   color: $secondary-blue;
   position: relative;
+  display: inline-block;
   font-size: 1.15rem;
 
   &.animated-underline {
@@ -233,7 +237,7 @@ $accent-dark: #004d40;
 .list-container.compact-list {
   border: 1px solid $gray-medium;
   border-radius: 8px;
-  box-shadow: -2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .list-header.compact-list-header {
@@ -269,10 +273,10 @@ $accent-dark: #004d40;
     padding: 0;
   }
   .item-size {
-    font-weight: 400;
+    font-weight: 500;
   }
   .item-qty {
-    font-weight: 500;
+    font-weight: 400;
   }
   .item-price {
     font-weight: 500;
@@ -297,12 +301,12 @@ $accent-dark: #004d40;
 }
 
 .total-summary-section.compact-total-summary {
-  background: linear-gradient(90deg, $light-blue 0%, white 1005);
+  background: linear-gradient(90deg, $light-blue 0%, $white 100%);
   padding: 20px;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
   border-top: 1px solid $gray-medium;
-  flex-shrink: 0;
+  flex-shrink: 0; // Prevent footer from shrinking
 }
 
 .total-grand {
@@ -325,9 +329,31 @@ $accent-dark: #004d40;
   font-size: 1.75rem;
 }
 
+// Quasar dialog global styles
 .q-dialog__inner {
   padding: 15px;
   align-items: center;
   justify-content: center;
+}
+
+.payment-summary {
+  background: #f9fbfd;
+  border: 1px solid #e0e6ed;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  font-family: "Open Sans", sans-serif;
+
+  .label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0c3154;
+  }
 }
 </style>
