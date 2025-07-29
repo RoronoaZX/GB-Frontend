@@ -1,5 +1,4 @@
 <template>
-  <!-- {{ calculateAdditionalHolidayPays }} -->
   <q-card flat bordered class="q-mb-md employee-holiday-pay-card">
     <q-card-section class="text-center q-pb-md">
       <div class="text-h5 text-primary text-weight-bold">
@@ -57,11 +56,12 @@
         <q-item
           class="total-row bg-blue-grey-1 text-weight-bold text-blue-grey-9"
         >
-          <q-item-section class="col-9 text-right text-subtitle1"
-            >Total</q-item-section
+          <q-item-section
+            class="text-h6 text-weight-bold text-grey-8 col-9 text-right"
+            >Total :</q-item-section
           >
           <q-item-section class="col-3 text-right text-h6 text-green-8">
-            ₱ {{ totalAdditionalHolidayPays }}
+            {{ formatCurrency(totalAdditionalHolidayPays || 0) }}
           </q-item-section>
         </q-item>
       </template>
@@ -187,14 +187,10 @@ const internalEmployeeData = ref(props.employeeData);
 const NIGHT_DIFF_START_HOUR = 22; // 10 PM
 const NIGHT_DIFF_END_HOUR = 6;
 
-// Watch for changes in employeeData prop and update internal ref
-// Also trigger summary emission when employeeData changes
 watch(
   () => props.employeeData,
   (newVal) => {
     internalEmployeeData.value = newVal;
-    // The main watch below on both dtrRows and internalEmployeeData will handle re-emitting
-    // so we don't need an extra emit here.
   },
   {
     immediate: true, // Run on component mount
@@ -233,7 +229,6 @@ const formatMinutesToHoursMinutes = (totalMinutes) => {
   const minutes = totalMinutes % 60;
   return `${hours}h ${minutes}m`;
 };
-
 // Helper to calculate the duration of a single break period
 const getBreakDuration = (startTime, endTime) => {
   if (!startTime || !endTime) {
@@ -257,7 +252,6 @@ const calculateTotalBreakMinutesPure = (row) => {
   totalBreak += getBreakDuration(row.break_start, row.break_end);
   return totalBreak;
 };
-
 const calculateNightDifferentialMinutes = (inTime, outTime) => {
   if (!inTime || !outTime || inTime >= outTime) {
     return 0;
@@ -320,13 +314,12 @@ const isHoliday = (dateString) => {
   if (!dateString || !props.dtrHolidays || props.dtrHolidays.length === 0) {
     return null; // Not a holiday or no holidays provided
   }
-
   // Normalize the date string to YYYY-MM-DD for comparison
   const dtrDate = date.formatDate(dateString, "YYYY-MM-DD");
 
   const holiday = props.dtrHolidays.find((h) => {
     // Ensure the holiday.date is also normalized to YYYY-MM-DD
-    // If your dtrHolidays already has 'date' in YYYY-MM-DD, this step is redundant but safe.
+    // If dtrHolidays already has 'date' in YYYY-MM-DD, this step is redundant but safe.
     const holidayDate = date.formatDate(h.date, "YYYY-MM-DD");
     return holidayDate === dtrDate;
   });
@@ -353,7 +346,6 @@ const getHolidayTimeInClass = (timeIn) => {
   }
   return "text-grey-8"; // Default color
 };
-
 const formatCurrency = (value) => {
   const numValue = parseFloat(value);
   if (isNaN(numValue) || numValue === 0) {
@@ -367,165 +359,71 @@ const formatCurrency = (value) => {
 
 // NEW: Calculate additional holiday pays (REGULAR + OVERTIME)
 const calculateAdditionalHolidayPays = computed(() => {
-  const results = [];
-
-  if (!props.dtrRows || props.dtrRows.length === 0) return results;
+  if (!props.dtrRows?.length) return [];
 
   const dailyRate = internalEmployeeData.value?.employment_type?.salary || 0;
   const hourlyRate = dailyRate / 8;
 
+  const holidayConfigs = {
+    "Regular Holiday": { multiplier: 1.0, label: "+100%" },
+    "Special (Non-Working) Holiday": { multiplier: 0.3, label: "+30%" },
+  };
+
+  const calcHours = (start, end) => {
+    const diffMins = (new Date(end) - new Date(start)) / 60000;
+    return diffMins > 0 ? diffMins / 60 : 0;
+  };
+
+  const results = [];
+
   props.dtrRows.forEach((row, index) => {
     const holidayType = isHoliday(row.time_in);
-    if (!holidayType) return;
+    if (!holidayType || !holidayConfigs[holidayType]) return;
 
+    const config = holidayConfigs[holidayType];
     const formattedDate = date.formatDate(row.time_in, "MMM. DD, YYYY");
 
-    // --- Regular Holiday Hours Pay ---
+    // Regular working hours
     if (row.time_in && row.time_out) {
       const { totalWorkingMinutes } = calculateRowTimes(row);
-      if (totalWorkingMinutes > 0) {
-        const workedHours = totalWorkingMinutes / 60;
-        let additionalPay = 0;
-        let holidayRateText = "";
-        let id = `${formattedDate}-regular-${index}`; // Unique ID
+      const hours = totalWorkingMinutes / 60;
 
-        if (holidayType === "Regular Holiday") {
-          // DOLE mandates 200% for the first 8 hours, so 100% additional (already included in basic daily wage)
-          // The "additional" pay is the 100% premium.
-          holidayRateText = "+100%";
-          additionalPay = workedHours * hourlyRate;
-        } else if (holidayType === "Special (Non-Working) Holiday") {
-          // DOLE mandates 130% for regular hours, so 30% additional
-          holidayRateText = "+30%";
-          additionalPay = workedHours * hourlyRate * 0.3;
-        }
-
+      if (hours > 0) {
         results.push({
-          id,
+          id: `${formattedDate}-regular-${index}`,
           date: formattedDate,
           holidayType,
-          holidayRateText,
-          workedHours: workedHours.toFixed(2),
-          additionalPay: additionalPay.toFixed(2),
-          type: "regular", // Indicate this is for regular hours
+          holidayRateText: config.label,
+          workedHours: hours.toFixed(2),
+          additionalPay: (hours * hourlyRate * config.multiplier).toFixed(2),
+          type: "regular",
         });
       }
     }
 
-    // --- Holiday Overtime Pay ---
+    // Overtime hours
     if (
       row.ot_status === "approved" &&
       row.overtime_start &&
       row.overtime_end
     ) {
-      const otIn = new Date(row.overtime_start);
-      const otOut = new Date(row.overtime_end);
-
-      if (!isNaN(otIn.getTime()) && !isNaN(otOut.getTime()) && otOut > otIn) {
-        const overtimeMinutes = Math.floor((otOut - otIn) / (1000 * 60));
-        if (overtimeMinutes > 0) {
-          const overtimeHours = overtimeMinutes / 60;
-          let additionalPay = 0;
-          let holidayRateText = "";
-          let id = `${formattedDate}-overtime-${index}`; // Unique ID for overtime
-
-          if (holidayType === "Regular Holiday") {
-            // DOLE mandates 260% for overtime on a regular holiday.
-            // This means an additional 160% on top of the 100% basic holiday pay already covered by regular hours.
-            // Or, simply put: (hourlyRate * 2.0 (for holiday base)) + (hourlyRate * 0.6 (for OT premium on holiday))
-            // The additional pay for OT is (regular OT rate for regular day (1.25) + Holiday premium)
-            // Simpler: 260% of basic hourly rate. So additional is 160% of hourlyRate.
-            holidayRateText = "+100% (OT)"; // Representing the additional premium for OT on a Regular Holiday
-            additionalPay = overtimeHours * hourlyRate; // 260% - 100% (already paid) = 160% additional for OT.
-          } else if (holidayType === "Special (Non-Working) Holiday") {
-            // DOLE mandates 169% for overtime on a special non-working holiday.
-            // This means an additional 69% on top of the 100% basic pay.
-            // Or, simply put: (hourlyRate * 1.3 (for holiday base)) + (hourlyRate * 0.39 (for OT premium on holiday))
-            // The additional pay for OT is (regular OT rate for regular day (1.25) + Holiday premium)
-            // Simpler: 169% of basic hourly rate. So additional is 69% of hourlyRate.
-            holidayRateText = "+30% (OT)"; // Representing the additional premium for OT on a Special Holiday
-            additionalPay = overtimeHours * hourlyRate * 0.3; // 169% - 100% (already paid) = 69% additional for OT.
-          }
-
-          results.push({
-            id,
-            date: formattedDate,
-            holidayType,
-            holidayRateText,
-            workedHours: overtimeHours.toFixed(2), // Renamed for clarity in this context
-            additionalPay: additionalPay.toFixed(2),
-            type: "overtime", // Indicate this is for overtime hours
-          });
-        }
+      const otHours = calcHours(row.overtime_start, row.overtime_end);
+      if (otHours > 0) {
+        results.push({
+          id: `${formattedDate}-overtime-${index}`,
+          date: formattedDate,
+          holidayType,
+          holidayRateText: `${config.label} (OT)`,
+          workedHours: otHours.toFixed(2),
+          additionalPay: (otHours * hourlyRate * config.multiplier).toFixed(2),
+          type: "overtime",
+        });
       }
     }
   });
 
   return results;
 });
-
-// NEW: Calculate additional holiday pays for OVERTIME HOURS
-// const calculateHolidayOvertimePays = computed(() => {
-//   const results = [];
-
-//   if (!props.dtrRows || props.dtrRows.length === 0) return results;
-
-//   const dailyRate = internalEmployeeData.value?.employment_type?.salary || 0;
-//   const hourlyRate = dailyRate / 8;
-
-//   props.dtrRows.forEach((row) => {
-//     const holidayType = isHoliday(row.time_in);
-//     console.log("holidayType", holidayType);
-//     if (!holidayType) return;
-
-//     if (
-//       row.ot_status === "approved" &&
-//       row.overtime_start &&
-//       row.overtime_end
-//     ) {
-//       const otIn = new Date(row.overtime_start);
-//       console.log("otIn", otIn);
-//       const otOut = new Date(row.overtime_end);
-//       console.log("otOut", otOut);
-
-//       if (isNaN(otIn.getTime()) || isNaN(otOut.getTime()) || otOut <= otIn)
-//         return;
-
-//       const overtimeMinutes = Math.floor((otOut - otIn) / (1000 * 60));
-//       console.log("overtimeMinutes", overtimeMinutes);
-//       const overtimeHours = overtimeMinutes / 60;
-//       console.log("overtimeHours", overtimeHours);
-
-//       let additionalPay = 0;
-//       let holidayRate = 0;
-//       let holidayRateText = "";
-
-//       if (holidayType === "Regular Holiday") {
-//         // DOLE mandates 200% for the first 8 hrs, 260% for overtime
-//         holidayRate = 2.0; // +100%
-//         holidayRateText = "+100%";
-//         additionalPay = overtimeHours * hourlyRate;
-//       } else if (holidayType === "Special (Non-Working) Holiday") {
-//         // 130% for regular hours, 169% for overtime
-//         holidayRate = 0.3; // +30%
-//         holidayRateText = "+30%";
-//         additionalPay = overtimeHours * hourlyRate * 0.3; // +30%
-//       }
-
-//       results.push({
-//         date: date.formatDate(row.time_in, "MMM. DD, YYYY"),
-//         holidayType,
-//         holidayRateText,
-//         overtimeHours: overtimeHours.toFixed(2),
-//         additionalPay: additionalPay.toFixed(2),
-//       });
-//     }
-//   });
-
-//   return results;
-// });
-
-// console.log("calculateHolidayOvertimePays", calculateHolidayOvertimePays.value);
 
 /**
  * Calculates working hours, undertime, and overtime for a single DTR row.
@@ -575,7 +473,6 @@ const calculateRowTimes = (row) => {
 
   const recordedBreakMinutes = calculateTotalBreakMinutesPure(row);
   const breakDeduction = recordedBreakMinutes < 60 ? 60 : recordedBreakMinutes;
-
   // --- Working Hours Calculation ---
   // This logic is for core working hours, excluding any overtime and considering breaks.
   const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
@@ -588,21 +485,15 @@ const calculateRowTimes = (row) => {
       totalWorkingMinutes = Math.floor(adjustedMs / (1000 * 60));
     }
   }
-
   // Calculate ND for regular (scheduled) work period:
   const regularWorkStart = Math.max(actualIn.getTime(), scheduledIn.getTime());
   const regularWorkEnd = Math.min(actualOut.getTime(), scheduledOut.getTime());
 
   if (regularWorkEnd > regularWorkStart) {
-    // nightDifferentialMinutes += calculateNightDifferentialMinutes(
-    //   new Date(regularWorkStart),
-    //   new Date(regularWorkEnd)
-    // );
     const ndStart = new Date(regularWorkStart);
     const ndEnd = new Date(regularWorkEnd);
 
     let rawNDMinutes = calculateNightDifferentialMinutes(ndStart, ndEnd);
-
     // Subtract any break time that overlaps with the ND period
     const ndBreakMinutes = (() => {
       let total = 0;
@@ -764,7 +655,6 @@ const totalAdditionalHolidayPays = computed(() => {
 
 // --- NEW: Event Emission Logic (MOVED UP) ---
 const emit = defineEmits(["dtr-summary-calculated"]); // Define the custom event
-
 const emitCalculatedSummary = () => {
   if (calculateGrandTotals.value) {
     emit("dtr-summary-calculated", {
@@ -791,7 +681,6 @@ const emitCalculatedSummary = () => {
   }
 };
 
-// Watch for changes in dtrRows and internalEmployeeData to re-emit summary
 watch(
   () => [props.dtrRows, internalEmployeeData.value],
   () => {
@@ -799,11 +688,7 @@ watch(
   },
   { deep: true, immediate: true } // Deep watch for array/object changes; immediate for initial run
 );
-
-// Also ensure emission happens on initial mount if data is already there
 onMounted(() => {
-  // The watch with immediate: true already handles initial emission if data is available.
-  // This explicit onMounted check is less critical now but harmless.
   if (props.dtrRows.length > 0 || internalEmployeeData.value) {
     emitCalculatedSummary();
   }
@@ -1103,6 +988,15 @@ const dtrColumns = computed(() => [
   font-family: "Inter", sans-serif;
   font-weight: 600;
   color: $blue-grey-9; // Darker primary color for the title
+}
+
+.text-h6 {
+  font-size: 1.15rem;
+}
+
+.text-grey-8 {
+  color: #555;
+  font-weight: 500;
 }
 
 .holiday-pay-list {

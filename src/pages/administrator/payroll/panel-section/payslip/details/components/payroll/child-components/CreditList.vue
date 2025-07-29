@@ -36,7 +36,7 @@
               class="list-item compact-list-item"
             >
               <q-item-section class="item-size">
-                {{ credit.product_name }}
+                {{ capitalizeFirstLetter(credit.product_name) }}
               </q-item-section>
               <q-item-section class="item-price">
                 {{ formatCurrency(credit.price) }}
@@ -95,6 +95,14 @@ const totalAmount = computed(() => {
     return sum + parseFloat(item.total_price || 0);
   }, 0);
 });
+
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const formatCurrency = (value) => {
   const number = parseFloat(value || 0);

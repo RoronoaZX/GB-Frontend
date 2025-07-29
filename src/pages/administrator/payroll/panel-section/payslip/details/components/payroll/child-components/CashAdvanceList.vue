@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { format, useDialogPluginComponent } from "quasar";
+import { useDialogPluginComponent } from "quasar";
 import { computed } from "vue";
 
 const { dialogRef } = useDialogPluginComponent();

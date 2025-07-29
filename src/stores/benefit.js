@@ -30,6 +30,14 @@ export const useEmployeeBenefitStore = defineStore("benefits", () => {
     }
   };
 
+  const fetchEmployeeBenefitsDeductions = async (employeeID) => {
+    const response = await api.get(
+      `/api/employee-benefits-for-deduction/${employeeID}`
+    );
+
+    benefits.value = response.data;
+  };
+
   const searchBenefit = async (keyword) => {
     try {
       console.log("Searching for employee with keyword:", keyword);
@@ -75,5 +83,6 @@ export const useEmployeeBenefitStore = defineStore("benefits", () => {
     fetchEmployeeBenefit,
     createEmployeeBenefit,
     searchBenefit,
+    fetchEmployeeBenefitsDeductions,
   };
 });

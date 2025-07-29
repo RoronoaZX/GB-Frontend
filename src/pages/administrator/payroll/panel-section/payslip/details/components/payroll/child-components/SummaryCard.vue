@@ -228,7 +228,7 @@
         <div class="row justify-end q-mt-md">
           <q-item class="col-auto q-pa-none">
             <q-item-section>
-              <q-item-label class="text-h6 text-weight-bold text-green-9">
+              <q-item-label class="text-h6 text-weight-bold text-grey-8">
                 Total Income:
                 <span class="text-green-9">
                   {{ totalIncome || "N/A" }}

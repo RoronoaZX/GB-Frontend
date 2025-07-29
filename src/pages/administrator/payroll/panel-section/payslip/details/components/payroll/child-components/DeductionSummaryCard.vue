@@ -8,12 +8,6 @@
           </q-item-label>
         </div>
 
-        <div align="right">
-          <div class="row q-gutter-x-sm q-mb-md">
-            <q-btn dense outline label="Penalties / Charges List" />
-          </div>
-        </div>
-
         <div class="row justify-between">
           <q-item class="col- q-pa-none">
             <q-item-section avatar class="q-mr-sm">
@@ -28,7 +22,7 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-          <div>
+          <div class="q-mt-md">
             <OpenButton
               @open-dialog="handleEmployeeCredit(allCreditProducts)"
             />
@@ -51,7 +45,7 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-          <div>
+          <div class="q-mt-md">
             <OpenButton
               @open-dialog="handleEmployeeUniforms(allUniformProducts)"
             />
@@ -75,7 +69,7 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-          <div>
+          <div class="q-mt-md">
             <OpenButton
               @open-dialog="handleEmployeeCashAdvance(cashAdvances)"
             />
@@ -84,56 +78,22 @@
 
         <q-separator spaced="sm" class="q-my-md" />
 
-        <div class="row q-col-gutter-y-sm">
-          <q-item class="col-12 q-pa-none">
-            <q-item-section avatar class="q-mr-sm">
-              <q-avatar rounded>
-                <img
-                  src="../../../../../../../../../assets/ssslogov2.png"
-                  style="width: 25px; height: auto"
-                />
-              </q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-body2 text-weight-meduim text-grey-8">
-                SSS ( Social Security System) : 300
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </div>
+        <EmployeeBenefits
+          :dtr-to="props.dtrTo"
+          :dtr-from="props.dtrFrom"
+          v-model:total="receivedTotalBenefits"
+        />
 
-        <div class="row q-col-gutter-y-sm">
-          <q-item class="col-12 q-pa-none">
-            <q-item-section avatar class="q-mr-sm">
-              <q-avatar>
-                <img
-                  src="../../../../../../../../../assets/pagibig_logo.png"
-                  alt=""
-                  style="width: 50px; height: auto"
-                />
-              </q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-body2 text-weight-meduim text-grey-8">
-                HDMF / Pad-IBIG (Housing): 300
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </div>
+        <q-separator spaced="sm" class="q-my-md" />
 
-        <div class="row q-col-gutter-y-sm">
-          <q-item class="col-12 q-pa-none">
-            <q-item-section avatar class="q-mr-sm">
-              <q-avatar rounded>
-                <img
-                  src="../../../../../../../../../assets/philhealth-removebg-preview.png"
-                  style="width: 60px; height: auto"
-                />
-              </q-avatar>
-            </q-item-section>
+        <div class="row justify-end q-mt-md">
+          <q-item class="col-auto q-pa-none">
             <q-item-section>
-              <q-item-label class="text-body2 text-weight-meduim text-grey-8">
-                PHIC / PhilHealth (Health Insurance) : 300
+              <q-item-label class="text-h6 text-weight-bold text-grey-8">
+                Total Deductions:
+                <span class="text-negative">{{
+                  formatCurrency(calculateTotalDeductions)
+                }}</span>
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -151,6 +111,7 @@ import { useQuasar } from "quasar";
 import CreditList from "./CreditList.vue";
 import UniformList from "./UniformList.vue";
 import CashAdvanceList from "./CashAdvanceList.vue";
+import EmployeeBenefits from "./EmployeeBenefits.vue";
 import OpenButton from "src/components/buttons/OpenButton.vue";
 import { useUniformStore } from "src/stores/uniform";
 import { useCashAdvanceStore } from "src/stores/cash-advance";
@@ -168,6 +129,17 @@ const cashAdvanceStore = useCashAdvanceStore();
 const cashAdvances = computed(() => cashAdvanceStore.cashAdvances);
 
 const $q = useQuasar();
+
+const receivedTotalBenefits = ref(0);
+
+const calculateTotalDeductions = computed(() => {
+  return (
+    parseFloat(calculatedCreditTotal.value) +
+    parseFloat(calculatedUniformTotal.value) +
+    parseFloat(calculateCashAdvanceTotal.value) +
+    parseFloat(receivedTotalBenefits.value) // Ensure this is also parsed as a float
+  );
+});
 
 // Calculate creditTotal directly from the 'credits' computed property
 const calculatedCreditTotal = computed(() => {
@@ -429,5 +401,10 @@ const formatCurrency = (value) => {
 .text-h6 span {
   /* For the "" */
   font-size: 1rem;
+}
+
+.text-grey-8 {
+  color: #555;
+  font-weight: 500;
 }
 </style>
