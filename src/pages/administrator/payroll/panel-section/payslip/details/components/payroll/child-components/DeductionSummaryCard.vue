@@ -78,6 +78,27 @@
 
         <q-separator spaced="sm" class="q-my-md" />
 
+        <div class="row justify-between">
+          <q-item class="col- q-pa-none">
+            <q-item-section avatar class="q-mr-sm">
+              <q-icon name="price_change" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-body2 text-weight-meduim text-grey-8">
+                Short / Charges :
+                <span class="text-negative text-weight-bold">
+                  {{ formatCurrency(calculateEmployeeChargesTotal) }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <div class="q-mt-md">
+            <OpenButton @open-dialog="handleEmployeeCharges(employeeCharges)" />
+          </div>
+        </div>
+
+        <q-separator spaced="sm" class="q-my-md" />
+
         <EmployeeBenefits
           :dtr-to="props.dtrTo"
           :dtr-from="props.dtrFrom"
@@ -112,9 +133,11 @@ import CreditList from "./CreditList.vue";
 import UniformList from "./UniformList.vue";
 import CashAdvanceList from "./CashAdvanceList.vue";
 import EmployeeBenefits from "./EmployeeBenefits.vue";
+import EmployeeCharges from "./EmployeeCharges.vue";
 import OpenButton from "src/components/buttons/OpenButton.vue";
 import { useUniformStore } from "src/stores/uniform";
 import { useCashAdvanceStore } from "src/stores/cash-advance";
+import { useEmployeeChargesStore } from "src/stores/employee-charges";
 
 const props = defineProps(["dtrFrom", "dtrTo", "employeeData"]);
 const route = useRoute();
@@ -127,6 +150,9 @@ const uniformStore = useUniformStore();
 const uniformsData = computed(() => uniformStore.uniforms);
 const cashAdvanceStore = useCashAdvanceStore();
 const cashAdvances = computed(() => cashAdvanceStore.cashAdvances);
+console.log("cashssssss advances data", cashAdvances.value);
+const employeeChargesStore = useEmployeeChargesStore();
+const employeeCharges = computed(() => employeeChargesStore.employeeCharges);
 
 const $q = useQuasar();
 
@@ -261,6 +287,23 @@ const calculateCashAdvanceTotal = computed(() => {
   return (totalSum / 100).toFixed(2);
 });
 
+const calculateEmployeeChargesTotal = computed(() => {
+  if (!Array.isArray(employeeCharges.value)) {
+    return 0;
+  }
+
+  let totalSum = 0;
+
+  employeeCharges.value.forEach((employeeCharges) => {
+    const amount = parseFloat(employeeCharges.charges_amount);
+    console.log("amount employee charges", amount);
+    if (!isNaN(amount)) {
+      totalSum += Math.round(amount * 100);
+    }
+  });
+  return (totalSum / 100).toFixed(2);
+});
+
 // const allCreditProducts = computed(() => {
 //   if (!credits.value || !Array(credits.value.credit_records)) {
 //     return []; // Return an empty array if data isn't ready
@@ -303,6 +346,18 @@ const fetchCashAdvance = async () => {
 };
 onMounted(fetchCashAdvance);
 
+const fetchEmployeeCharges = async () => {
+  const dataToBeSent = {
+    employeeID: employeeID,
+    fromDate: props.dtrFrom,
+    toDate: props.dtrTo,
+  };
+
+  await employeeChargesStore.fetchEmployeeCharges(dataToBeSent);
+  console.log("employee charges data", employeeCharges.value);
+};
+onMounted(fetchEmployeeCharges);
+
 const handleEmployeeCredit = (credits) => {
   $q.dialog({
     component: CreditList,
@@ -338,6 +393,15 @@ const handleEmployeeCashAdvance = (cashAdvances) => {
     component: CashAdvanceList,
     componentProps: {
       cashAdvanceList: cashAdvances,
+    },
+  });
+};
+
+const handleEmployeeCharges = (charges) => {
+  $q.dialog({
+    component: EmployeeCharges,
+    componentProps: {
+      chargesAmountList: charges,
     },
   });
 };

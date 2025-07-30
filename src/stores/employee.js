@@ -29,6 +29,13 @@ export const useEmployeeStore = defineStore("employees", () => {
     employees.value = response.data;
     console.log("employees.value", employees.value);
   };
+
+  const fetchEmployeeUserID = async (employee_id) => {
+    const response = await api.get(`/api/fetchEmployeeUserID/${employee_id}`);
+    employees.value = response.data;
+    console.log("employees.value fetchEmployeeUserIDsssssss", employees.value);
+  };
+
   const fetchEmployeeWithEmploymentTypeAndDesignation = async (
     page,
     rowsPerPage,
@@ -412,6 +419,7 @@ export const useEmployeeStore = defineStore("employees", () => {
     fetchEmployee,
     searchEmployeesWithDesignation,
     fetchAllEmployee,
+    fetchEmployeeUserID,
     fetchEmployeeWithEmploymentType,
     searchCertainEmployee,
     searchEmployeeWithBranchID,

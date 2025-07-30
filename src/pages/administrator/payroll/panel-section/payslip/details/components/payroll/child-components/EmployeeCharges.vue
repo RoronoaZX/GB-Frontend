@@ -1,8 +1,10 @@
 <template>
   <q-dialog ref="dialogRef" persistent position="top">
-    <q-card class="credit-list-card compact-card">
+    <q-card class="charges-list-card compact-card">
       <q-card-section class="header-section compact-header">
-        <div class="text-h6 text-weight-bolder text-shadow">Credit Summary</div>
+        <div class="text-h6 text-weight-bolder text-shadow">
+          Charges Summary
+        </div>
         <q-space />
         <q-btn
           icon="close"
@@ -24,50 +26,30 @@
             <q-item
               class="list-header bg-grey-2 text-weight-medium compact-list-header"
             >
-              <q-item-section>Date</q-item-section>
-              <q-item-section>Product Name</q-item-section>
-              <q-item-section>Price</q-item-section>
-              <q-item-section class="text-center">Qty</q-item-section>
-              <q-item-section side>Amount</q-item-section>
+              <q-item-section>Report Date </q-item-section>
+              <q-item-section> Branch </q-item-section>
+              <q-item-section side> Amount </q-item-section>
             </q-item>
 
             <q-item
-              v-for="(credit, index) in creditList"
+              v-for="(item, index) in chargesAmountList"
               :key="index"
               class="list-item compact-list-item"
             >
               <q-item-section class="item-size">
-                {{ formatDateString(credit.created_at) }}
+                {{ formatDateString(item.created_at) }}
               </q-item-section>
               <q-item-section class="item-size">
-                {{ capitalizeFirstLetter(credit.product_name) }}
-              </q-item-section>
-              <q-item-section class="item-price">
-                {{ formatCurrency(credit.price) }}
-              </q-item-section>
-              <q-item-section class="item-qty text-center">
-                {{ credit.pieces }}
+                {{ capitalizeFirstLetter(item.branch.name) }}
               </q-item-section>
               <q-item-section side class="item-price">
-                {{ formatCurrency(credit.total_price) }}
+                {{ item.charges_amount }}
               </q-item-section>
             </q-item>
-
-            <!-- <q-item
-              class="list-total bg-accent-light text-weight-bold compact-list-total"
-            >
-              <q-item-section class="text-subtitle1 text-accent-dark">
-                Total :
-              </q-item-section>
-              <q-item-section />
-              <q-item-section />
-              <q-item-section side class="text-subtitle1 text-accent-dark">
-                {{ formatCurrency(totalAmount) }}
-              </q-item-section>
-            </q-item> -->
           </q-list>
         </div>
       </q-card-section>
+
       <q-item-section
         class="q-py-md q-px-lg total-summary-section compact-total-summary"
       >
@@ -76,7 +58,7 @@
             Total :
           </div>
           <div class="text-h6 text-weight-bold text-gradient total-amount">
-            {{ formatCurrency(totalAmount) }}
+            {{ formatCurrency(totalChargesAmount) }}
           </div>
         </div>
       </q-item-section>
@@ -86,12 +68,12 @@
 
 <script setup>
 import { useDialogPluginComponent, date } from "quasar";
-import { computed, watch } from "vue";
+import { computed } from "vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const props = defineProps(["creditList"]);
-console.log("creditList", props.creditList);
+const props = defineProps(["chargesAmountList"]);
+console.log("chargesAmountList", props.chargesAmountList);
 
 const emit = defineEmits(["update:total"]);
 
@@ -101,9 +83,9 @@ const formatDateString = (dateStr) => {
   return date.formatDate(dateStr, "MMM. DD, YYYY");
 };
 
-const totalAmount = computed(() => {
-  return props.creditList?.reduce((sum, item) => {
-    return sum + parseFloat(item.total_price || 0);
+const totalChargesAmount = computed(() => {
+  return props.chargesAmountList?.reduce((sum, item) => {
+    return sum + parseFloat(item.charges_amount || 0);
   }, 0);
 });
 
@@ -124,20 +106,6 @@ const formatCurrency = (value) => {
     maximumFractionDigits: 2,
   }).format(number);
 };
-
-watch(
-  () => props.creditList,
-  (newList) => {
-    const rawTotal = newList?.reduce((acc, item) => {
-      return acc + parseFloat(item.total_price || 0);
-    }, 0);
-    emit("update:total", rawTotal);
-  },
-  {
-    immediate: true,
-    deep: true,
-  }
-);
 </script>
 
 <style lang="scss" scoped>
@@ -161,7 +129,7 @@ $shadow-color: rgba(0, 0, 0, 0.15);
 $accent-light: #e0f2f7;
 $accent-dark: #004d40;
 
-.credit-list-card.compact-card {
+.charges-list-card.compact-card {
   width: 420px;
   max-width: 95vw;
   border-radius: 12px;
@@ -247,7 +215,7 @@ $accent-dark: #004d40;
   }
 }
 
-.category-litle {
+.category-title {
   margin-bottom: 10px;
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
