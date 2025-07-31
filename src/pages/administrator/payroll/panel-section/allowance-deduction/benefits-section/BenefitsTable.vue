@@ -47,6 +47,38 @@
           </q-th>
         </q-tr>
       </template>
+
+      <template v-slot:body-cell-sss_number="props">
+        <q-td :props="props">
+          <span>
+            {{ props.row.sss_number ? props.row.sss_number : " - - -" }}
+            <q-tooltip class="bg-blue-grey-8">Edit SSS Number</q-tooltip>
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updateSSSNumber(props.row, val)"
+            v-model="props.row.sss_number"
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            v-slot="scope"
+          >
+            <div>Edit SSS Number</div>
+            <div>Name: {{ formatFullname(props.row.employee) }}</div>
+            <q-input
+              v-mode="scope.value"
+              :model-value="scope.value"
+              @update:model-value="scope.value = $event"
+              type="text"
+              mask="##-#######-###"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            >
+            </q-input>
+          </q-popup-edit>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-sss="props">
         <q-td :props="props">
           <span>
@@ -78,6 +110,38 @@
           </q-popup-edit>
         </q-td>
       </template>
+
+      <template v-slot:body-cell-hdmf_number="props">
+        <q-td :props="props">
+          <span>
+            {{ props.row.hdmf_number ? props.row.hdmf_number : " - - -" }}
+            <q-tooltip class="bg-blue-grey-8">Edit HDMF Number</q-tooltip>
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updateHDMFNumber(props.row, val)"
+            v-model="props.row.hdmf_number"
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            v-slot="scope"
+          >
+            <div>Edit HDMF Number</div>
+            <div>Name: {{ formatFullname(props.row.employee) }}</div>
+            <q-input
+              v-model="scope.value"
+              :model-value="scope.value"
+              @update:model-value="scope.value = $event"
+              type="text"
+              mask="####-####-####"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            >
+            </q-input>
+          </q-popup-edit>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-hdmf="props">
         <q-td :props="props">
           <span>
@@ -108,6 +172,38 @@
           </q-popup-edit>
         </q-td>
       </template>
+
+      <template v-slot:body-cell-phic_number="props">
+        <q-td :props="props">
+          <span>
+            {{ props.row.phic_number ? props.row.phic_number : " - - -" }}
+            <q-tooltip class="bg-blue-grey-8">Edit PHIC Number</q-tooltip>
+          </span>
+          <q-popup-edit
+            @update:model-value="(val) => updatePHICNumber(props.row, val)"
+            v-model="props.row.phic_number"
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            v-slot="scope"
+          >
+            <div>Edit HDMF Number</div>
+            <div>Name: {{ formatFullname(props.row.employee) }}</div>
+            <q-input
+              v-model="scope.value"
+              :model-value="scope.value"
+              @value:model-value="scope.value = $event"
+              type="text"
+              mask="##-#########-##"
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            >
+            </q-input>
+          </q-popup-edit>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-phic="props">
         <q-td :props="props">
           <span>
@@ -178,6 +274,34 @@ function formatForEdit(val) {
   return Number.isInteger(num) ? String(parseInt(num)) : String(num);
 }
 
+async function updateSSSNumber(data, val) {
+  console.log("Updating SSS Number for", data, "to", val);
+  try {
+    tableLoading.value = true;
+    await api.put("/api/update-employee-sss-number-benefit/" + data.id, {
+      sss_number: val,
+    });
+
+    Notify.create({
+      message: "SSS Number updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.log(error);
+
+    Notify.create({
+      message: "Error updating SSS Number",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+}
+
 async function updateSSS(data, val) {
   console.log("Updating SSS for", data, "to", val);
   try {
@@ -205,6 +329,34 @@ async function updateSSS(data, val) {
   }
 }
 
+async function updateHDMFNumber(data, val) {
+  console.log("Updating HDMF Number for", data, "to", val);
+  try {
+    tableLoading.value = true;
+    await api.put("/api/update-employee-hdmf-number-benefit/" + data.id, {
+      hdmf_number: val,
+    });
+
+    Notify.create({
+      message: "HDMF Number updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error(error);
+
+    Notify.create({
+      message: "Error updating HDMF Number",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+}
+
 async function updateHDMF(data, val) {
   console.log("Updating HDMF for", data, "to", val);
   try {
@@ -220,6 +372,34 @@ async function updateHDMF(data, val) {
     });
   } catch (error) {
     console.error("ERROR updating HDMF:", error);
+  } finally {
+    tableLoading.value = false;
+  }
+}
+
+async function updatePHICNumber(data, val) {
+  console.log("Updating PHIC Number for", data, "to", val);
+  try {
+    tableLoading.value = true;
+    await api.put("/api/update-employee-phic-number-benefit/" + data.id, {
+      phic_number: val,
+    });
+
+    Notify.create({
+      message: "PHIC Number updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error(error);
+
+    Notify.create({
+      message: "Error updating PHIC Number",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
   } finally {
     tableLoading.value = false;
   }
@@ -346,16 +526,34 @@ const employeeBenefitColumns = [
     field: (row) => formatFullname(row.employee),
   },
   {
+    name: "sss_number",
+    label: "SSS Number",
+    align: "center",
+    field: (row) => row.sss_number,
+  },
+  {
     name: "sss",
     label: "Social Security System (SSS)",
     align: "center",
     field: (row) => formatCurrency(row.sss),
   },
   {
+    name: "hdmf_number",
+    label: "Pag-IBIG Number",
+    align: "center",
+    field: (row) => row.hdmf_number,
+  },
+  {
     name: "hdmf",
     label: "Pag-IBIG Fund (HDMF)",
     align: "center",
     field: (row) => formatCurrency(row.hdmf),
+  },
+  {
+    name: "phic_number",
+    label: "Phil - Health Number",
+    align: "center",
+    field: (row) => row.phic_number,
   },
   {
     name: "phic",

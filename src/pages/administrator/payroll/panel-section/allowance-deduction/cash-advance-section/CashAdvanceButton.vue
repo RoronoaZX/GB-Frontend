@@ -15,124 +15,122 @@
       position="right"
       backdrop-filter="blur(4px) saturate(150%)"
     >
-      <q-card style="width: 400px; max-width: 80vw">
-        <q-card-section
-          class="row items-center q-px-md q-py-sm gradient-btn text-white"
-        >
+      <q-card class="cash-advance-dialog-card">
+        <!-- Header -->
+        <q-card-section class="dialog-header row items-center no-wrap">
           <div class="text-h5 q-mr-md">💲 Add Cash Advance</div>
           <q-space />
           <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
         </q-card-section>
-        <q-card-section>
-          <q-input
-            v-model="searchKeyword"
-            @update:model-value="search"
-            label="Search Employee"
-            outlined
-            rounded
-            dense
-            debounce="500"
-            placeholder="Enter name"
-          >
-            <template v-slot:append>
-              <q-icon v-if="!searchLoading" name="search" />
-              <q-spinner v-else color="grey" size="sm" />
-            </template>
-            <div v-if="searchKeyword" class="custom-list z-top">
-              <q-card>
-                <q-list separator>
-                  <q-item v-if="!employees?.length">
-                    No Employee record
-                  </q-item>
-                  <template v-else>
-                    <q-item
-                      @click="autoFillEmployee(employee)"
-                      v-for="employee in employees"
-                      :key="employee.id"
-                      clickable
-                    >
-                      <q-item-section>
-                        {{
-                          `${employee.firstname} ${
-                            employee.middlename
-                              ? employee.middlename.charAt(0) + "."
-                              : ""
-                          } ${employee.lastname}`
-                        }}
-                      </q-item-section>
-                    </q-item>
-                  </template>
-                </q-list>
-              </q-card>
-            </div>
-          </q-input>
-        </q-card-section>
-        <q-card-section>
-          <div class="row q-gutter-md text-subtitle1">
-            <div>Name:</div>
-            <div class="text-weight-meduim">
-              {{
-                cashAdvance.employee_name
-                  ? cashAdvance.employee_name
-                  : "-------"
-              }}
+
+        <!-- Search -->
+        <q-card-section class="q-px-lg q-pt-md">
+          <div style="position: relative">
+            <q-input
+              v-model="searchKeyword"
+              @update:model-value="search"
+              label="Search Employee"
+              outlined
+              rounded
+              dense
+              debounce="500"
+              placeholder="Enter name"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="grey" size="sm" />
+              </template>
+            </q-input>
+
+            <!-- Custom Dropdown List -->
+            <div v-if="searchKeyword" class="dropdown-list">
+              <q-list separator>
+                <q-item v-if="!employees?.length">
+                  <q-item-section class="text-grey-7"
+                    >No employee record</q-item-section
+                  >
+                </q-item>
+                <q-item
+                  v-for="employee in employees"
+                  :key="employee.id"
+                  clickable
+                  @click="autoFillEmployee(employee)"
+                >
+                  <q-item-section>
+                    {{
+                      `${employee.firstname} ${
+                        employee.middlename
+                          ? employee.middlename.charAt(0) + "."
+                          : ""
+                      } ${employee.lastname}`
+                    }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
             </div>
           </div>
-          <div class="row q-gutter-md text-subtitle1">
-            <div>Position:</div>
-            <div class="text-weight-meduim">
-              {{
-                cashAdvance.employee_position
-                  ? cashAdvance.employee_position
-                  : "-------"
-              }}
+
+          <div class="row q-col-gutter-md q-mt-lg">
+            <div class="col-12 col-sm-6">
+              <div class="text-subtitle2 text-grey-7 q-mb-xs">
+                Employee Name:
+              </div>
+              <div class="text-body1 text-weight-medium">
+                {{ cashAdvance.employee_name || "----------" }}
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="text-subtitle2 text-grey-7 q-mb-xs">Position:</div>
+              <div class="text-body1 text-weight-medium">
+                {{ cashAdvance.employee_position || "----------" }}
+              </div>
             </div>
           </div>
         </q-card-section>
+
+        <q-separator inset class="q-mx-lg q-my-md" />
+
+        <!-- Inputs -->
         <q-card-section>
           <div class="q-gutter-y-md">
-            <div>
-              <q-input
-                v-model="cashAdvance.amount"
-                type="number"
-                outlined
-                label="Amount"
-              />
-            </div>
-            <div>
-              <q-input
-                v-model="cashAdvance.number_of_payments"
-                type="number"
-                outlined
-                label="Number of Payments"
-              />
-            </div>
-            <div>
-              <q-input
-                v-model="cashAdvance.payment_per_payroll"
-                outlined
-                hint="Number of Payments"
-                dense
-                readonly
-                label="Number of Payments"
-              />
-            </div>
-            <div>
-              <q-input
-                v-model="cashAdvance.reason"
-                filled
-                type="textarea"
-                outlined
-                label="Reason"
-              />
-            </div>
+            <q-input
+              dense
+              v-model="cashAdvance.amount"
+              type="number"
+              outlined
+              label="Amount"
+            />
+            <q-input
+              dense
+              v-model="cashAdvance.number_of_payments"
+              type="number"
+              outlined
+              label="Number of Payments"
+            />
+            <q-input
+              v-model="cashAdvance.payment_per_payroll"
+              outlined
+              dense
+              readonly
+              label="Per Payroll"
+            />
+            <q-input
+              dense
+              v-model="cashAdvance.reason"
+              filled
+              type="textarea"
+              outlined
+              label="Reason"
+            />
           </div>
         </q-card-section>
-        <q-card-actions>
+
+        <!-- Actions -->
+        <q-card-actions align="right" class="q-px-lg q-pb-lg">
           <q-btn
             size="md"
             padding="xs md"
-            label="save"
+            label="Save"
             icon-right="send"
             class="gradient-btn text-white"
             :loading="loading"
@@ -153,11 +151,11 @@ const emit = defineEmits(["created"]);
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const cashAdvanceStore = useCashAdvanceStore();
-const cashAdvanceRows = computed(() => cashAdvanceStore.cashAdvances);
 const searchKeyword = ref("");
 const loading = ref(false);
 const searchLoading = ref(false);
 const dialog = ref(false);
+
 const openDialog = () => {
   dialog.value = true;
 };
@@ -171,14 +169,12 @@ const search = async () => {
 };
 
 const autoFillEmployee = (employee) => {
-  console.log("Selected Employee:", employee);
   cashAdvance.employee_id = employee.id;
   cashAdvance.employee_name = `${employee.firstname} ${
     employee.middlename ? employee.middlename.charAt(0) + "." : ""
-  } ${employee.lastname} `;
-  (cashAdvance.employee_position = employee.position),
-    (searchKeyword.value = "");
-  console.log("Filled Designation Data:", cashAdvance);
+  } ${employee.lastname}`;
+  cashAdvance.employee_position = employee.position;
+  searchKeyword.value = "";
 };
 
 const cashAdvance = reactive({
@@ -194,55 +190,80 @@ const cashAdvance = reactive({
 
 watch(
   () => [cashAdvance.amount, cashAdvance.number_of_payments],
-  ([amount, number_of_payments]) => {
+  ([amount, numPayments]) => {
     const amt = parseFloat(amount) || 0;
-    const num = parseInt(number_of_payments) || 0;
-    cashAdvance.payment_per_payroll = (num > 0 ? amt / num : 0).toFixed(2);
+    const num = parseInt(numPayments) || 0;
+    cashAdvance.payment_per_payroll = num > 0 ? (amt / num).toFixed(2) : 0;
   }
 );
 
-// const patment_per_payroll = computed(() => {
-//   const amount = parseFloat(cashAdvance.amount);
-//   const number_of_payments = parseFloat(cashAdvance.number_of_payments);
-
-//   return !isNaN(amount) && !isNaN(number_of_payments) && number_of_payments > 0
-//     ? (amount / number_of_payments).toFixed(2)
-//     : 0;
-// });
-
 const clearCashAdvanceForm = () => {
-  (cashAdvance.employee_id = ""),
-    (cashAdvance.employee_name = ""),
-    (cashAdvance.employee_position = ""),
-    (cashAdvance.amount = 0),
-    (cashAdvance.number_of_payments = 0),
-    (cashAdvance.payment_per_payroll = 0),
-    (cashAdvance.remaining_payments = 0),
-    (cashAdvance.reason = "");
+  Object.assign(cashAdvance, {
+    employee_id: "",
+    employee_name: "",
+    employee_position: "",
+    amount: 0,
+    reason: "",
+    number_of_payments: 0,
+    payment_per_payroll: 0,
+    remaining_payments: 0,
+  });
 };
 
 const save = async () => {
   cashAdvance.remaining_payments = parseFloat(cashAdvance.amount) || 0;
   loading.value = true;
   try {
-    console.log("save cash advance", cashAdvance);
     await cashAdvanceStore.createCashAdvance(cashAdvance);
-
-    emit("created"); // 🔥 trigger reload in parent
-
+    emit("created");
     dialog.value = false;
     clearCashAdvanceForm();
   } catch (error) {
-    console.log(error);
+    console.error(error);
   } finally {
     loading.value = false;
   }
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
+.cash-advance-dialog-card {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+}
+
+.dialog-header {
+  background: linear-gradient(90deg, #6c5ce7, #8e44ad);
+  color: white;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .gradient-btn {
-  background: linear-gradient(90deg, #a621a6, #502a33);
-  border: none;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+  transition: all 0.3s ease;
+}
+
+.gradient-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 </style>

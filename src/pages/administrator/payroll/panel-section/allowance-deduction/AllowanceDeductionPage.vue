@@ -83,7 +83,7 @@ const tab = ref("allowance");
 
 <style lang="scss" scoped>
 .gradient-btn {
-  background: linear-gradient(45deg, #502a33, #a621a6);
+  background: linear-gradient(150deg, #342f55 0%, #353269 100%);
   border: none;
 }
 </style>

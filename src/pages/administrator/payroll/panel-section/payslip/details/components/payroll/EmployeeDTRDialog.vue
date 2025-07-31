@@ -34,7 +34,7 @@
         />
       </q-card-section>
 
-      <q-card-section class="row justify-around q-pt-sm q-pb-md">
+      <q-card-section class="row justify-around q-pt-sm q-pb-md q-mt-lg">
         <div class="col-6">
           <SummaryCard
             :dtr-rows="dtrRows"

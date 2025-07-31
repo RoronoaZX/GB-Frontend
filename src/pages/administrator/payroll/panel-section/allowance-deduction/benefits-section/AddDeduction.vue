@@ -2,10 +2,10 @@
   <div>
     <q-btn
       padding="sm md"
-      label="Add Benefits"
+      label="Add Employee Benefits"
       icon="add_circle"
       size="md"
-      class="gradient-btn text-white"
+      class="q-px-lg q-py-md text-white button-gradient"
       @click="openDialog"
     />
 
@@ -14,117 +14,207 @@
       persistent
       position="right"
       backdrop-filter="blur(4px) saturate(150%)"
+      class="full-height-dialog"
     >
-      <q-card style="width: 500px; max-width: 80vw">
-        <q-card-section
-          class="row items-center q-px-md q-py-sm gradient-btn text-white"
-        >
-          <div class="text-h5 q-mr-md">💼 Add Employee Deductions</div>
-          <q-space />
-          <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
-        </q-card-section>
-        <q-card-section>
-          <q-input
-            v-model="searchKeyword"
-            @update:model-value="search"
-            label="Search Employee"
-            outlined
-            rounded
-            dense
-            debounce="500"
-            placeholder="Enter name"
-          >
-            <template v-slot:append>
-              <q-icon v-if="!searchLoading" name="search" />
-              <q-spinner v-else color="grey" size="sm" />
-            </template>
-            <div v-if="searchKeyword" class="custom-list z-top">
-              <q-card>
+      <q-card class="dialog-card">
+        <q-scroll-area class="fit">
+          <!-- Header -->
+          <q-card-section class="dialog-header row items-center no-wrap">
+            <q-icon name="work" size="md" class="q-mr-sm" />
+            <div class="text-h6 text-weight-bold">Add Employee Benefits</div>
+            <q-space />
+            <q-btn
+              icon="close"
+              flat
+              dense
+              round
+              v-close-popup
+              class="text-white"
+            />
+          </q-card-section>
+
+          <!-- Search & Info -->
+          <q-card-section class="q-pt-lg q-pb-md q-px-lg">
+            <div style="position: relative">
+              <q-input
+                v-model="searchKeyword"
+                @update:model-value="search"
+                label="Search Employee"
+                outlined
+                rounded
+                dense
+                debounce="500"
+                placeholder="Enter employee name"
+                clearable
+              >
+                <template v-slot:prepend>
+                  <q-icon name="search" />
+                </template>
+                <template v-slot:append>
+                  <q-spinner v-if="searchLoading" color="primary" size="sm" />
+                </template>
+              </q-input>
+
+              <div v-if="searchKeyword" class="dropdown-list">
                 <q-list separator>
                   <q-item v-if="!employees?.length">
-                    No employee record
-                  </q-item>
-                  <template v-else>
-                    <q-item
-                      @click="autoFillEmployee(employee)"
-                      v-for="employee in employees"
-                      :key="employee.id"
-                      clickable
+                    <q-item-section class="text-grey-7"
+                      >No employee found.</q-item-section
                     >
-                      <q-item-section>
-                        {{
-                          `${employee.firstname} ${
-                            employee.middlename
-                              ? employee.middlename.charAt(0) + "."
-                              : ""
-                          } ${employee.lastname}`
-                        }}
-                      </q-item-section>
-                    </q-item>
-                  </template>
+                  </q-item>
+                  <q-item
+                    v-for="employee in employees"
+                    :key="employee.id"
+                    clickable
+                    @click="autoFillEmployee(employee)"
+                  >
+                    <q-item-section>
+                      {{
+                        `${employee.firstname} ${
+                          employee.middlename
+                            ? employee.middlename.charAt(0) + "."
+                            : ""
+                        } ${employee.lastname}`
+                      }}
+                    </q-item-section>
+                  </q-item>
                 </q-list>
-              </q-card>
+              </div>
             </div>
-          </q-input>
-        </q-card-section>
-        <q-card-section>
-          <div class="row q-gutter-md text-subtitle1">
-            <div>Name:</div>
-            <div class="text-weight-medium">
-              {{
-                employeeDeduction.employee_name
-                  ? employeeDeduction.employee_name
-                  : "-------"
-              }}
+
+            <div class="row q-col-gutter-md q-mt-lg">
+              <div class="col-12 col-sm-6">
+                <div class="text-subtitle2 text-grey-7 q-mb-xs">
+                  Employee Name:
+                </div>
+                <div class="text-body1 text-weight-medium">
+                  {{ employeeDeduction.employee_name || "----------" }}
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <div class="text-subtitle2 text-grey-7 q-mb-xs">Position:</div>
+                <div class="text-body1 text-weight-medium">
+                  {{ employeeDeduction.employee_position || "----------" }}
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="row q-gutter-md text-subtitle1">
-            <div>Position:</div>
-            <div class="text-weight-medium">
-              {{
-                employeeDeduction.employee_position
-                  ? employeeDeduction.employee_position
-                  : "-------"
-              }}
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-section>
-          <div class="q-gutter-y-md">
+          </q-card-section>
+
+          <q-separator inset class="q-mx-lg q-my-md" />
+
+          <!-- Deductions -->
+          <q-card-section class="q-gutter-y-lg q-px-lg">
+            <!-- SSS -->
             <div>
-              <q-input
-                v-model="employeeDeduction.sss"
-                outlined
-                label="SSS (Social Security System )"
-              />
+              <div class="text-subtitle1 text-weight-bold text-primary q-mb-md">
+                <q-icon name="paid" class="q-mr-xs" /> SSS (Social Security
+                System)
+              </div>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    outlined
+                    v-model="employeeDeduction.sss_number"
+                    label="SSS Number"
+                    mask="##-#######-##"
+                    placeholder="00-0000000-00"
+                    clearable
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    outlined
+                    v-model="employeeDeduction.sss"
+                    label="Amount"
+                    type="number"
+                    prefix="₱"
+                    clearable
+                  />
+                </div>
+              </div>
             </div>
+
+            <!-- HDMF -->
             <div>
-              <q-input
-                v-model="employeeDeduction.hdmf"
-                outlined
-                label="HDMF (Pag-IBIG Fund)"
-              />
+              <div class="text-subtitle1 text-weight-bold text-primary q-mb-md">
+                <q-icon name="home" class="q-mr-xs" /> HDMF (Pag-IBIG Fund)
+              </div>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    outlined
+                    dense
+                    v-model="employeeDeduction.hdmf_number"
+                    label="HDMF Number"
+                    mask="####-####-####"
+                    placeholder="0000-0000-0000"
+                    clearable
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    v-model="employeeDeduction.hdmf"
+                    outlined
+                    label="Amount"
+                    type="number"
+                    prefix="₱"
+                    clearable
+                  />
+                </div>
+              </div>
             </div>
+
+            <!-- PHIC -->
             <div>
-              <q-input
-                v-model="employeeDeduction.phic"
-                outlined
-                label="PHIC (Philippine Health Insurance Corporation)"
-              />
+              <div class="text-subtitle1 text-weight-bold text-primary q-mb-md">
+                <q-icon name="local_hospital" class="q-mr-xs" /> PHIC
+                (PhilHealth)
+              </div>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    v-model="employeeDeduction.phic_number"
+                    outlined
+                    mask="##-#########-##"
+                    placeholder="00-00000000-00"
+                    label="PHIC Number"
+                    clearable
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    v-model="employeeDeduction.phic"
+                    outlined
+                    label="Amount"
+                    type="number"
+                    prefix="₱"
+                    clearable
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </q-card-section>
-        <q-card-actions>
-          <q-btn
-            size="md"
-            padding="xs md"
-            label="save"
-            icon-right="send"
-            class="gradient-btn text-white"
-            @click="save"
-            :loading="loading"
-          />
-        </q-card-actions>
+          </q-card-section>
+
+          <q-separator inset class="q-mx-lg q-my-md" />
+
+          <!-- Footer -->
+          <q-card-actions align="right" class="q-px-lg q-pb-lg">
+            <q-btn
+              size="md"
+              padding="sm lg"
+              label="Save Deductions"
+              icon-right="save"
+              class="text-white button-gradient"
+              @click="save"
+              :loading="loading"
+            />
+          </q-card-actions>
+        </q-scroll-area>
       </q-card>
     </q-dialog>
   </div>
@@ -138,7 +228,6 @@ import { ref, computed, reactive } from "vue";
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const employeeBenefitStore = useEmployeeBenefitStore();
-const employeeBenefitRows = computed(() => employeeBenefitStore.benefits);
 const searchKeyword = ref("");
 const loading = ref(false);
 const searchLoading = ref(false);
@@ -159,56 +248,102 @@ const search = async () => {
 };
 
 const autoFillEmployee = (employee) => {
-  console.log("Selected Employee:", employee);
   employeeDeduction.employee_id = employee.id;
   employeeDeduction.employee_name = `${employee.firstname} ${
     employee.middlename ? employee.middlename.charAt(0) + "." : ""
-  } ${employee.lastname} `;
+  } ${employee.lastname}`;
   employeeDeduction.employee_position = employee.position;
   searchKeyword.value = "";
-  console.log("Filled Designation Data:", employeeDeduction);
 };
 
 const employeeDeduction = reactive({
   employee_id: "",
   employee_name: "",
   employee_position: "",
+  sss_number: "",
+  hdmf_number: "",
+  phic_number: "",
   sss: "",
   hdmf: "",
   phic: "",
 });
 
 const clearEmployeeDeductionForm = () => {
-  (employeeDeduction.employee_id = ""),
-    (employeeDeduction.employee_name = ""),
-    (employeeDeduction.employee_position = ""),
-    (employeeDeduction.sss = ""),
-    (employeeDeduction.hdmf = ""),
-    (employeeDeduction.phic = "");
+  employeeDeduction.employee_id = "";
+  employeeDeduction.employee_name = "";
+  employeeDeduction.employee_position = "";
+  employeeDeduction.sss_number = "";
+  employeeDeduction.hdmf_number = "";
+  employeeDeduction.phic_number = "";
+  employeeDeduction.sss = "";
+  employeeDeduction.hdmf = "";
+  employeeDeduction.phic = "";
 };
 
 const save = async () => {
-  console.log("deductionssss:", employeeDeduction);
   loading.value = true;
   try {
-    const deduction = await employeeBenefitStore.createEmployeeBenefit(
-      employeeDeduction
-    );
-    console.log("deduction", deduction);
-    emit("created"); // 🔥 trigger reload in parent
+    await employeeBenefitStore.createEmployeeBenefit(employeeDeduction);
+    emit("created");
     dialog.value = false;
     clearEmployeeDeductionForm();
   } catch (error) {
-    console.log("error", error);
+    console.error("Error saving deductions:", error);
   } finally {
     loading.value = false;
   }
 };
 </script>
 
-<style lang="scss" scoped>
-.gradient-btn {
-  background: linear-gradient(45deg, #502a33, #a621a6);
-  border: none;
+<style scoped lang="scss">
+.full-height-dialog {
+  height: 100vh !important;
+  max-height: 100vh;
+}
+
+.dialog-card {
+  width: 600px;
+  max-width: 90vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.q-scroll-area.fit {
+  height: 100%;
+}
+
+.dialog-header {
+  background: linear-gradient(90deg, #6c5ce7, #8e44ad);
+  color: white;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.button-gradient {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
+  }
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 </style>

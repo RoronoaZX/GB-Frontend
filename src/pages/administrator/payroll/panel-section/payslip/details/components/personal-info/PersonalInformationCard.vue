@@ -3,7 +3,7 @@
     <q-card-section class="row items-center justify-between">
       <div class="row items-center q-gutter-x-sm">
         <q-icon name="person_outline" size="sm" color="grey-8" />
-        <div class="text-h6 text-weight-regular">Personassl Information</div>
+        <div class="text-h6 text-weight-regular">Personal Information</div>
       </div>
       <q-btn
         outline
