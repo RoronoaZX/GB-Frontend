@@ -20,8 +20,7 @@
         <q-scroll-area class="fit">
           <!-- Header -->
           <q-card-section class="dialog-header row items-center no-wrap">
-            <q-icon name="work" size="md" class="q-mr-sm" />
-            <div class="text-h6 text-weight-bold">Add Employee Benefits</div>
+            <div class="text-h6 text-weight-bold">💰 Add Employee Benefits</div>
             <q-space />
             <q-btn
               icon="close"
@@ -207,8 +206,8 @@
             <q-btn
               size="md"
               padding="sm lg"
-              label="Save Deductions"
-              icon-right="save"
+              label="Save"
+              icon-right="send"
               class="text-white button-gradient"
               @click="save"
               :loading="loading"
@@ -317,20 +316,20 @@ const save = async () => {
 }
 
 .dialog-header {
-  background: linear-gradient(90deg, #6c5ce7, #8e44ad);
+  background: linear-gradient(90deg, #0194ae, #0e7490);
   color: white;
   padding: 16px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .button-gradient {
-  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+  background: linear-gradient(135deg, #0194ae, #0e7490);
+  // box-shadow: 0 2px 8px rgba(19, 141, 163, 0.711);
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
+    box-shadow: 0 6px 10px rgba(12, 157, 201, 0.6);
   }
 }
 

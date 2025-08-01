@@ -206,21 +206,21 @@ const save = async () => {
 }
 
 .dialog-header {
-  background: linear-gradient(90deg, #6c5ce7, #8e44ad);
+  background: linear-gradient(90deg, #0194ae, #0e7490);
   color: white;
   padding: 16px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(45, 224, 203, 0.2);
 }
 
 .gradient-btn {
-  background: linear-gradient(140deg, #27234b 0%, #353269 100%);
-  box-shadow: 0 2px 8px rgba(45, 36, 111, 0.711);
+  background: linear-gradient(135deg, #0194ae, #0e7490);
+  // box-shadow: 0 2px 8px rgba(19, 141, 163, 0.711);
   transition: all 0.3s ease;
 }
 
 .gradient-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(34, 29, 73, 0.6);
+  box-shadow: 0 6px 10px rgba(12, 157, 201, 0.6);
 }
 
 .dropdown-list {

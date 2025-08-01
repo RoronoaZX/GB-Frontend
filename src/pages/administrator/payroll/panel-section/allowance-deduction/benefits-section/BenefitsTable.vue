@@ -575,7 +575,7 @@ const employeeBenefitColumns = [
 }
 
 .gradient-header {
-  background: linear-gradient(135deg, #444444, #111111);
+  background: #155e75;
 }
 .gradient-loader {
   background: linear-gradient(135deg, #42a5f5, #478ed1, #5c6bc0);

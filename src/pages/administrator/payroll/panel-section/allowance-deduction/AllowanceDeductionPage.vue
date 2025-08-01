@@ -83,7 +83,29 @@ const tab = ref("allowance");
 
 <style lang="scss" scoped>
 .gradient-btn {
-  background: linear-gradient(150deg, #342f55 0%, #353269 100%);
+  /*16. Charcoal to Slate */
+  // background: linear-gradient(to right, #1e293b, #334155);
+
+  /*17. Black to Dark Purple */
+  // background: linear-gradient(to right, #0f172a, #312e81);
+
+  /*18. Gray to Graphite */
+  // background: linear-gradient(to right, #6b7280, #111827);
+
+  // /*19. Navy to Midnight */
+  // background: linear-gradient(to right, #1e3a8a, #0f172a);
+  background: #0e7490;
+  // background: #6b7280;
+
+  // /*20. Smoky Blue to Ink */
+  // background: linear-gradient(to right, #475569, #1e293b);
+
+  // /* 9. Pale Blue to Aqua */
+  // background: linear-gradient(to right, #1e909f, #26c6da);
+  /* 2. Slate to Navy */
+  // background: linear-gradient(to right, #64748b, #1e3a8a);
+
+  // background: linear-gradient(to right, #64748b, #1e293b);
   border: none;
 }
 </style>

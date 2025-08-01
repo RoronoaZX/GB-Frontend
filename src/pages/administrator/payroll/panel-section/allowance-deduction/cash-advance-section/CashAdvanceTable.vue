@@ -329,7 +329,7 @@ const cashAdvanceColumns = [
   //   #2a2a72,
   //   #009efd
   // ); /* You can change colors */
-  background: linear-gradient(135deg, #444444, #111111);
+  background: #155e75;
   // background: linear-gradient(135deg, #555555, #2f2f2f);
   // background: linear-gradient(135deg, #3c3c3c, #1e1e1e);
   // background: linear-gradient(135deg, #4e4e4e, #2b2b2b);

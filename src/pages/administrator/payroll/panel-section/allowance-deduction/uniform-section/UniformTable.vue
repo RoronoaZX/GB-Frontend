@@ -63,23 +63,70 @@
 
       <template v-slot:body-cell-t_shirt="props">
         <q-td :props="props">
-          <q-chip
-            square
-            outline
-            color="red-6"
-            text-color="white"
-            clickable
-            @click="openUniformDialog(props.row.t_shirt, 'T-Shirt')"
-          >
-            T-Shirt
-            <q-tooltip class="bg-indigo" :offset="[10, 10]">
-              Click to view T-shirt details!
-            </q-tooltip>
-          </q-chip>
+          <div v-if="props.row.t_shirt[0]">
+            <div class="q-mb-sm q-pb-sm">
+              <div class="q-ml-sm">
+                <p class="q-my-none text-caption">
+                  <span class="text-bold">Size:</span>
+                  {{ props.row.t_shirt[0].size }}
+                </p>
+                <p class="q-my-none text-caption">
+                  <span class="text-bold">Qty:</span>
+                  {{ props.row.t_shirt[0].pcs }} pcs
+                </p>
+                <p class="q-my-none text-caption">
+                  <span class="text-bold">Price:</span>
+                  {{ formatCurrency(props.row.t_shirt[0].price) }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- <div v-if="props.row.t_shirt[0]">
+            <div class="q-mb-sm q-pb-sm" style="border-bottom: 1px dashed #ccc">
+              <div class="q-ml-sm">
+                <p class="q-my-none text-caption">
+                  <span class="text-bold">Size:</span>
+                  {{ props.row.t_shirt[0].size }} |
+                  <span class="text-bold">Qty:</span>
+                  {{ props.row.t_shirt[0].pcs }} pcs
+                </p>
+                <p class="q-my-none text-caption">
+                  <span class="text-bold">Price:</span>
+                  {{ formatCurrency(props.row.t_shirt[0].price) }}
+                </p>
+              </div>
+              <strong>Size:</strong> {{ props.row.t_shirt[0].size }} <br />
+              <strong>Qty:</strong> {{ props.row.t_shirt[0].pcs }} pcs <br />
+              <strong>Price:</strong> {{ props.row.t_shirt[0].price }} <br />
+            </div>
+          </div> -->
+          <div v-else>👕 No Data</div>
         </q-td>
       </template>
 
       <template v-slot:body-cell-pants="props">
+        <q-td :props="props">
+          <div v-if="props.row.pants[0]">
+            <div class="q-ml-sm">
+              <p class="q-my-none text-caption">
+                <span class="text-bold">Size:</span>
+                {{ props.row.pants[0].size }}
+              </p>
+              <p class="q-my-none text-caption">
+                <span class="text-bold">Qty:</span>
+                {{ props.row.pants[0].pcs }} pcs
+              </p>
+              <p class="q-my-none text-caption">
+                <span class="text-bold">Price:</span>
+                {{ formatCurrency(props.row.pants[0].price) }}
+              </p>
+            </div>
+          </div>
+          <div v-else>👖 No Data</div>
+        </q-td>
+      </template>
+
+      <!-- <template v-slot:body-cell-pants="props">
         <q-td :props="props">
           <q-chip
             square
@@ -90,12 +137,12 @@
             @click="openUniformDialog(props.row.pants, 'Pants')"
           >
             Pants
-            <q-tooltip class="bg-indigo" :offset="[10, 10]">
+            <q-tooltip :offset="[10, 10]" style="background-color: #155e75">
               Click to view pants details!
             </q-tooltip>
           </q-chip>
         </q-td>
-      </template>
+      </template> -->
 
       <template v-slot:body-cell-actions="props">
         <q-td :props="props">
@@ -307,13 +354,13 @@ const uniformColumns = [
   },
   {
     name: "t_shirt",
-    label: "T-Shirt",
+    label: "👕 T-Shirt",
     align: "center",
     field: "t_shirt",
   },
   {
     name: "pants",
-    label: "Pants",
+    label: "👖 Pants",
     align: "center",
     field: "pants",
   },
@@ -327,7 +374,24 @@ const uniformColumns = [
 </script>
 
 <style lang="scss" scoped>
+.custom-table {
+  border-radius: 15px;
+  background: #fff;
+  color: #333;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
+}
+
 .gradient-header {
-  background: linear-gradient(135deg, #444444, #111111);
+  background: #155e75;
+}
+
+.gradient-loader {
+  background: linear-gradient(135deg, #42a5f5, #478ed1, #5c6bc0);
+  color: white;
+  z-index: 10;
+  opacity: 0.85;
 }
 </style>

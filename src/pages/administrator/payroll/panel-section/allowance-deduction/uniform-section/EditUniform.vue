@@ -19,40 +19,31 @@
   >
     <q-card style="width: 600px; max-width: 90vw">
       <q-card-section
-        class="row items-center gradient-btn text-white rounded-borders-top q-pa-md"
+        class="row items-center dialog-header text-white rounded-borders-top q-pa-md"
       >
         <div class="text-h6">🧥 Edit Uniform</div>
         <q-space />
         <q-btn icon="close" flat dense round v-close-popup class="text-white" />
       </q-card-section>
 
-      <q-card-section class="q-gutter-y-sm">
-        <q-item>
-          <q-item-section avatar>
-            <q-icon name="person" color="primary" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-subtitle2 text-grey-8">Name</q-item-label>
-            <q-item-label class="text-subtitle1 text-weight-medium">
+      <q-card-section class="q-pb-lg q-px-lg">
+        <div class="row q-col-gutter-md q-mt-lg">
+          <div class="col-12 col-sm-6">
+            <div class="text-subtitle2 text-grey-7 q-md-xs">Employee Name:</div>
+            <div class="text-body1 text-weight-medium">
               {{ edit.employee ? formatFullname(edit.employee) : "----" }}
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-item>
-          <q-item-section avatar>
-            <q-icon name="badge" color="primary" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-subtitle2 text-grey-8"
-              >Position</q-item-label
-            >
-            <q-item-label class="text-subtitle1 text-weight-medium">
+            </div>
+          </div>
+          <div class="col-12 col-sm-6">
+            <div class="text-subtitle2 text-grey-7 q-md-xs">Position:</div>
+            <div class="text-body1 text-weight-medium">
               {{ edit.employee.position ? edit.employee.position : "-----" }}
-            </q-item-label>
-          </q-item-section>
-        </q-item>
+            </div>
+          </div>
+        </div>
       </q-card-section>
+
+      <q-separator inset class="q-mx-lg q-my-md" />
 
       <q-card-section class="q-gutter-md row">
         <div class="col-5">
@@ -381,19 +372,30 @@ const saveUniformChanges = async () => {
 </script>
 
 <style lang="scss" scoped>
-.q-btn {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.uniform-dialog-card {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
 }
-.q-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+.dialog-header {
+  background: linear-gradient(90deg, #0194ae, #0e7490);
+  color: white;
+  padding: 19px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .gradient-btn {
-  background: linear-gradient(45deg, #502a33, #a621a6);
-  border: none;
+  background: linear-gradient(135deg, #0194ae, #0e7490);
+  box-shadow: 0 2px 8px rgba(19, 141, 163, 0.711);
+  transition: all 0.3s ease;
 }
-.cancel-btn {
-  background: linear-gradient(45deg, #0c0e0e, #85888f);
-  border: none;
+
+.gradient-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(12, 157, 201, 0.6);
 }
 </style>
