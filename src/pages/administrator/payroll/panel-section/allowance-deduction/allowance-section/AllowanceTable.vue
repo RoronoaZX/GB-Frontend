@@ -53,38 +53,42 @@
             <q-tooltip class="bg-blue-grey-8">Edit Amount</q-tooltip>
           </span>
           <q-popup-edit
-            @update:model-value="(val) => updateAmount(props.row, val)"
             v-model="props.row.amount"
-            buttons
-            label-set="Save"
-            label-cancel="Close"
+            @update:model-value="(val) => updateAmount(props.row, val)"
             v-slot="scope"
           >
-            <div class="text-h6 text-primary text-center q-mb-xs">
-              Edit Amount
-            </div>
+            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Amount
+              </div>
 
-            <!-- Show name inside the popup -->
-            <div class="text-subtitle2 q-mb-sm">
-              Name: {{ formatFullname(props.row.employee) }}
+              <div class="text-subtitle2 q-mb-md">
+                Name: {{ formatFullname(props.row.employee) }}
+              </div>
+
+              <q-input
+                v-model="scope.value"
+                type="text"
+                outlined
+                dense
+                autofocus
+                counter
+                :model-value="formatForEdit(scope.value)"
+                @update:model-value="scope.value = $event"
+                @keyup.enter="scope.set"
+              />
+
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
             </div>
-            <q-input
-              v-model="scope.value"
-              :model-value="formatForEdit(scope.value)"
-              @update:model-value="scope.value = $event"
-              type="text"
-              autofocus
-              counter
-              @keyup.enter="scope.set"
-            />
           </q-popup-edit>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-actions="props">
-        <q-td :props="props">
-          <q-btn color="positive" icon="edit" size="sm" flat round dense>
-            <q-tooltip class="bg-positive" :delay="200">Edit</q-tooltip>
-          </q-btn>
         </q-td>
       </template>
       <template #loading>
@@ -260,24 +264,13 @@ const employeeAllowanceColumns = [
 }
 
 .gradient-header {
-  // background: linear-gradient(135deg, #8e2de2, #f27121);
-  // background: linear-gradient(135deg, #11998e, #38ef7d);
-  // background: linear-gradient(135deg, #ff7e5f, #feb47b);
-  // background: linear-gradient(
-  //   135deg,
-  //   #2a2a72,
-  //   #009efd
-  // ); /* You can change colors */
-  // background: #155e75;
   background: #155e75;
-  // background: linear-gradient(135deg, #555555, #2f2f2f);
-  // background: linear-gradient(135deg, #3c3c3c, #1e1e1e);
-  // background: linear-gradient(135deg, #4e4e4e, #2b2b2b);
-  // background: linear-gradient(135deg, #3d3d3d, #232323);
-  // background: linear-gradient(135deg, #5a5a5a, #363636);
-  // background: linear-gradient(135deg, #606060, #404040);
-  // background: linear-gradient(135deg, #585858, #1f1f1f);
-  // background: linear-gradient(135deg, #494949, #2a2a2a);
-  // background: linear-gradient(135deg, #666666, #333333);
+}
+
+.elegant-popup {
+  min-width: 300px;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 q0px 30px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 </style>

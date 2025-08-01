@@ -76,6 +76,23 @@
               </q-list>
             </div>
           </div>
+
+          <div class="row q-col-gutter-md q-mt-lg">
+            <div class="col-12 col-sm-6">
+              <div class="text-subtitle2 text-grey-7 q-mb-xs">
+                Employee Name:
+              </div>
+              <div class="text-body1 text-weight-medium">
+                {{ employeeAllowance.employee_name || "----------" }}
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="text-subtitle2 text-grey-7 q-mb-xs">Position:</div>
+              <div class="text-body1 text-weight-medium">
+                {{ employeeAllowance.employee_position || "----------" }}
+              </div>
+            </div>
+          </div>
         </q-card-section>
 
         <!-- Name and Position -->
