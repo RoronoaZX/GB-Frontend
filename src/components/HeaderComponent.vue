@@ -157,6 +157,13 @@ const menuItems = [
     label: "Payroll",
     toolbarDisplay: "💰 Payroll Management",
   },
+  {
+    name: "settings",
+    icon: "fa-solid fa-gear",
+    to: "/admin/settings",
+    label: "Settings",
+    toolbarDisplay: "⚙️ General Settings",
+  },
 ];
 
 // Sync with localStorage on mount

@@ -8,6 +8,7 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
     reportToView: [],
     reports: [],
     rawmaterials: [],
+    employeeInShift: [],
     user: {},
   }),
   // could also be defined as
@@ -128,25 +129,38 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
     },
 
     async createReports() {
+      console.log("data to send:", this.reports);
+      console.log("employeeInShift", this.employeeInShift);
+      console.log("overallkilo:", this.overallKilo);
       try {
         console.log("data to send:", this.reports);
 
         Loading.show();
         const response = await api.post("/api/initial-baker-report", {
           reports: this.reports,
+          employee_in_shift: this.employeeInShift,
+          overall_kilo: this.overallKilo,
+          total_employees: this.totalEmployeesInShift,
         });
         Notify.create({
           type: "positive",
           message: "Report successfully send",
           timeout: 1000,
         });
-        console.log("Reports to be saved:", this.reports);
+        console.log("Reports to be saved reports:", this.reports);
+        console.log(
+          "Reports to be saved employeeInShift:",
+          this.employeeInShift
+        );
         this.reports = [];
+        this.employeeInShift = [];
+        this.overallKilo = 0;
+        this.totalEmployeesInShift = 0;
       } catch (error) {
         console.error("Error saving report:", error);
         Notify.create({
           type: "negative",
-          message: "Error sending report",
+          message: error.response.data.message || "ERROR",
           timeout: 1000,
         });
       } finally {
@@ -188,6 +202,19 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", {
       } catch (error) {
         console.error("Error declining report:", error);
       }
+    },
+  },
+
+  getters: {
+    overallKilo(state) {
+      return state.reports.reduce((acc, report) => {
+        const kiloValue = parseFloat(report.kilo) || 0;
+        return acc + kiloValue;
+      }, 0);
+    },
+
+    totalEmployeesInShift(state) {
+      return state.employeeInShift.length;
     },
   },
 });

@@ -35,24 +35,11 @@
           <!-- Search & Info -->
           <q-card-section class="q-pt-lg q-pb-md q-px-lg">
             <div style="position: relative">
-              <q-input
+              <SearchComponent
                 v-model="searchKeyword"
+                :search-loading="searchLoading"
                 @update:model-value="search"
-                label="Search Employee"
-                outlined
-                rounded
-                dense
-                debounce="500"
-                placeholder="Enter employee name"
-                clearable
-              >
-                <template v-slot:prepend>
-                  <q-icon name="search" />
-                </template>
-                <template v-slot:append>
-                  <q-spinner v-if="searchLoading" color="primary" size="sm" />
-                </template>
-              </q-input>
+              />
 
               <div v-if="searchKeyword" class="dropdown-list">
                 <q-list separator>
@@ -223,6 +210,7 @@
 import { useEmployeeBenefitStore } from "stores/benefit";
 import { useEmployeeStore } from "stores/employee";
 import { ref, computed, reactive } from "vue";
+import SearchComponent from "../components/SearchComponent.vue";
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);

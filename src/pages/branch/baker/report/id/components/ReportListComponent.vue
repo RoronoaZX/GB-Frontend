@@ -1,107 +1,123 @@
 <template>
-  <div class="text-h6" align="center">Report List</div>
-  <div class="q-pa-md row wrap justify-center">
-    <q-virtual-scroll
-      :items="bakerReport"
-      scroll-target="body"
-      virtual-scroll-horizontal
-      class="my-virtual-scroll"
-    >
-      <template v-slot="{ item: report, index }">
-        <q-card flat bordered class="q-gutter-sm my-card" :key="index">
-          <q-card-section>
-            <div class="row justify-between q-gutter-x-md">
-              <div class="row items-center">
-                <q-icon name="assignment" color="primary" />
-                <div class="text-subtitle1 q-ml-sm">
-                  {{ capitalizeFirstLetter(report.recipe_name) }} -
-                  {{ report.recipe_category }}
+  <div v-if="bakerReport.length > 0" class="text-h6 q-mb-md" align="center">
+    Report List
+  </div>
+  <div v-if="bakerReport.length > 0" class="row wrap justify-center">
+    <div>
+      <q-virtual-scroll
+        :items="bakerReport"
+        scroll-target="body"
+        virtual-scroll-horizontal
+        class="my-virtual-scroll"
+      >
+        <template v-slot="{ item: report, index }">
+          <q-card flat bordered class="q-gutter-sm my-card" :key="index">
+            <q-card-section>
+              <div class="row justify-between q-gutter-x-md">
+                <div class="row items-center">
+                  <q-icon name="assignment" color="primary" />
+                  <div class="text-subtitle1 q-ml-sm">
+                    {{ capitalizeFirstLetter(report.recipe_name) }} -
+                    {{ report.recipe_category }}
+                  </div>
+                </div>
+                <div>
+                  <q-btn
+                    flat
+                    round
+                    icon="close"
+                    @click="removeReports(index)"
+                    class="text-negative close-btn"
+                  />
                 </div>
               </div>
-              <div>
-                <q-btn
-                  flat
-                  round
-                  icon="close"
-                  @click="removeReports(index)"
-                  class="text-negative close-btn"
-                />
-              </div>
-            </div>
-          </q-card-section>
-          <q-separator />
-          <q-card-section>
-            <div class="content-section">
-              <div class="q-mt-xs row justify-between">
-                <div>Kilo</div>
-                <div>{{ report.kilo }} kgs</div>
-              </div>
-              <div class="q-mt-xs row justify-between">
-                <div>Short</div>
-                <div>{{ report.short }} pcs</div>
-              </div>
-              <div class="q-mt-xs row justify-between">
-                <div>Over</div>
-                <div>{{ report.over }} pcs</div>
-              </div>
-              <div class="q-mt-xs row justify-between">
-                <div>Actual Target</div>
-                <div>{{ report.actual_target }} pcs</div>
-              </div>
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+              <div class="content-section">
+                <div class="q-mt-xs row justify-between">
+                  <div>Kilo</div>
+                  <div>{{ report.kilo }} kgs</div>
+                </div>
+                <div class="q-mt-xs row justify-between">
+                  <div>Short</div>
+                  <div>{{ report.short }} pcs</div>
+                </div>
+                <div class="q-mt-xs row justify-between">
+                  <div>Over</div>
+                  <div>{{ report.over }} pcs</div>
+                </div>
+                <div class="q-mt-xs row justify-between">
+                  <div>Actual Target</div>
+                  <div>{{ report.actual_target }} pcs</div>
+                </div>
 
-              <q-expansion-item
-                :key="'breads-' + index"
-                label="Breads"
-                dense
-                class=""
-              >
-                <ul class="q-pl-md">
-                  <li
-                    v-for="(bread, breadIndex) in report.breads"
-                    :key="'bread-' + breadIndex"
-                    class="q-my-sm"
-                  >
-                    <div class="row justify-between">
-                      <div>{{ bread.bread_name }}</div>
-                      <div>{{ bread.bread_production }}</div>
-                    </div>
-                  </li>
-                </ul>
-              </q-expansion-item>
-              <q-expansion-item
-                :key="'ingredients-' + index"
-                label="Ingredients"
-                dense
-                class=""
-              >
-                <ul class="q-pl-md">
-                  <li
-                    v-for="(ingredient, ingredientIndex) in report.ingredients"
-                    :key="'ingredient-' + ingredientIndex"
-                    class="q-my-sm"
-                  >
-                    <div class="row justify-between">
-                      <div>
-                        {{ ingredient.code }}
+                <q-expansion-item
+                  :key="'breads-' + index"
+                  label="Breads"
+                  dense
+                  class=""
+                >
+                  <ul class="q-pl-md">
+                    <li
+                      v-for="(bread, breadIndex) in report.breads"
+                      :key="'bread-' + breadIndex"
+                      class="q-my-sm"
+                    >
+                      <div class="row justify-between">
+                        <div>{{ bread.bread_name }}</div>
+                        <div>{{ bread.bread_production }}</div>
                       </div>
-                      <div>
-                        {{ ingredient.quantity }}
-                        {{ ingredient.unit }}
+                    </li>
+                  </ul>
+                </q-expansion-item>
+                <q-expansion-item
+                  :key="'ingredients-' + index"
+                  label="Ingredients"
+                  dense
+                  class=""
+                >
+                  <ul class="q-pl-md">
+                    <li
+                      v-for="(
+                        ingredient, ingredientIndex
+                      ) in report.ingredients"
+                      :key="'ingredient-' + ingredientIndex"
+                      class="q-my-sm"
+                    >
+                      <div class="row justify-between">
+                        <div>
+                          {{ ingredient.code }}
+                        </div>
+                        <div>
+                          {{ ingredient.quantity }}
+                          {{ ingredient.unit }}
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                </ul>
-              </q-expansion-item>
-            </div>
-          </q-card-section>
-        </q-card>
-      </template>
-    </q-virtual-scroll>
+                    </li>
+                  </ul>
+                </q-expansion-item>
+              </div>
+            </q-card-section>
+          </q-card>
+        </template>
+      </q-virtual-scroll>
+    </div>
   </div>
+  <div v-else class="flex flex-center column q-pa-md" style="min-height: 250px">
+    <q-icon
+      name="sentiment_very_dissatisfied"
+      color="grey-5"
+      size="80px"
+      class="q-md-sm"
+    />
+    <div class="text-h6 text-grey-7 q-mb-xs">No reports list</div>
+    <div class="text-subtitle2 text-grey-6 text-center">
+      Type a report to see it here
+    </div>
+  </div>
+
   <!-- v-if="bakerReportStore.reports > 0" -->
-  <div align="right">
-    <q-btn color="red-6" icon="edit" label="Create" @click="saveReports" />
-  </div>
 </template>
 
 <script setup>
@@ -122,10 +138,6 @@ const capitalizeFirstLetter = (location) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
-};
-
-const saveReports = async () => {
-  bakerReportStore.createReports();
 };
 </script>
 

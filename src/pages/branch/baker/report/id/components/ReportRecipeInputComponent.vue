@@ -159,7 +159,7 @@ import { is, Loading, Notify } from "quasar";
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-// console.log("erw:", userData);
+console.log("ersssssw:", userData.value);
 const isLoading = ref(false);
 const recipe = computed(() => bakerReportStore.recipes);
 console.log("erwe:", recipe.value);

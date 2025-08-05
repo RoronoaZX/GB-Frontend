@@ -33,22 +33,11 @@
         <!-- Search -->
         <q-card-section class="q-px-lg q-pt-md">
           <div style="position: relative">
-            <q-input
+            <SearchAllowance
               v-model="searchKeyword"
+              :search-loading="searchLoading"
               @update:model-value="search"
-              label="Search Employee"
-              outlined
-              dense
-              rounded
-              debounce="500"
-              placeholder="Enter employee name"
-              clearable
-            >
-              <template v-slot:append>
-                <q-icon v-if="!searchLoading" name="search" />
-                <q-spinner v-else color="primary" size="sm" />
-              </template>
-            </q-input>
+            />
 
             <div v-if="searchKeyword" class="dropdown-list">
               <q-list separator>
@@ -95,30 +84,6 @@
           </div>
         </q-card-section>
 
-        <!-- Name and Position -->
-        <q-card-section class="q-px-lg q-pt-md">
-          <div class="row q-col-gutter-md">
-            <div class="col-12 col-sm-6">
-              <q-input
-                v-model="employeeAllowance.employee_name"
-                outlined
-                dense
-                readonly
-                label="Name"
-              />
-            </div>
-            <div class="col-12 col-sm-6">
-              <q-input
-                v-model="employeeAllowance.employee_position"
-                outlined
-                dense
-                readonly
-                label="Position"
-              />
-            </div>
-          </div>
-        </q-card-section>
-
         <!-- Allowance Amount -->
         <q-card-section class="q-px-lg q-pt-md">
           <q-input
@@ -153,6 +118,7 @@
 import { useEmployeeAllowance } from "src/stores/allowance";
 import { useEmployeeStore } from "stores/employee";
 import { computed, reactive, ref } from "vue";
+import SearchAllowance from "../components/SearchComponent.vue";
 
 const emit = defineEmits(["created"]);
 const employeeStore = useEmployeeStore();

@@ -26,21 +26,11 @@
         <!-- Search -->
         <q-card-section class="q-px-lg q-pt-md">
           <div style="position: relative">
-            <q-input
+            <SearchComponent
               v-model="searchKeyword"
+              :search-loading="searchLoading"
               @update:model-value="search"
-              label="Search Employee"
-              outlined
-              rounded
-              dense
-              debounce="500"
-              placeholder="Enter name"
-            >
-              <template v-slot:append>
-                <q-icon v-if="!searchLoading" name="search" />
-                <q-spinner v-else color="grey" size="sm" />
-              </template>
-            </q-input>
+            />
 
             <!-- Custom Dropdown List -->
             <div v-if="searchKeyword" class="dropdown-list">
@@ -146,6 +136,7 @@
 import { useEmployeeStore } from "stores/employee";
 import { computed, reactive, ref, watch } from "vue";
 import { useCashAdvanceStore } from "stores/cash-advance";
+import SearchComponent from "../components/SearchComponent.vue";
 
 const emit = defineEmits(["created"]);
 const employeeStore = useEmployeeStore();

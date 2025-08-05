@@ -253,6 +253,11 @@ const routes = [
         component: () =>
           import("pages/administrator/history_log/HistoryLogPage.vue"),
       },
+      {
+        path: "settings",
+        component: () =>
+          import("pages/administrator/settings/GeneralSettingsPage.vue"),
+      },
     ],
   },
 
@@ -275,6 +280,7 @@ const routes = [
       },
     ],
   },
+
   {
     path: "/branch/sales_lady",
     meta: { requiresAuth: true },
@@ -319,6 +325,7 @@ const routes = [
       },
     ],
   },
+
   {
     path: "/branch/baker",
     meta: { requiresAuth: true },
@@ -353,6 +360,7 @@ const routes = [
       },
     ],
   },
+
   {
     path: "/branch/cake_maker",
     meta: { requiresAuth: true },
@@ -379,6 +387,7 @@ const routes = [
       },
     ],
   },
+
   {
     path: "/warehouse",
     component: () => import("layouts/WarehouseLayout.vue"),

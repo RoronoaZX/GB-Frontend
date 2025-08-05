@@ -4,23 +4,7 @@
       <div class="row q-gutter-md">
         <CashAdvanceButton @created="reloadTableData" />
       </div>
-      <q-input
-        v-model="filter"
-        outlined
-        dense
-        debounce="300"
-        flat
-        label="Search"
-        style="width: 300px"
-      >
-        <template v-slot:append>
-          <div>
-            <!-- v-if="!loading" -->
-            <q-icon name="search" />
-            <!-- <q-spinner v-else color="grey" size="sm" /> -->
-          </div>
-        </template>
-      </q-input>
+      <TableFilter v-model="filter" @update:model-value="filter" />
     </div>
     <q-table
       :rows="cashAdvanceRows"
@@ -127,6 +111,7 @@ import CashAdvanceButton from "./CashAdvanceButton.vue";
 import { useCashAdvanceStore } from "stores/cash-advance";
 import SearchCashAdvance from "./SearchCashAdvance.vue";
 import { Notify } from "quasar";
+import TableFilter from "../components/TableFilter.vue";
 
 const cashAdvanceStore = useCashAdvanceStore();
 const cashAdvance = computed(() => cashAdvanceStore.cashAdvances);
@@ -321,23 +306,6 @@ const cashAdvanceColumns = [
 
 <style lang="scss" scoped>
 .gradient-header {
-  // background: linear-gradient(135deg, #8e2de2, #f27121);
-  // background: linear-gradient(135deg, #11998e, #38ef7d);
-  // background: linear-gradient(135deg, #ff7e5f, #feb47b);
-  // background: linear-gradient(
-  //   135deg,
-  //   #2a2a72,
-  //   #009efd
-  // ); /* You can change colors */
   background: #155e75;
-  // background: linear-gradient(135deg, #555555, #2f2f2f);
-  // background: linear-gradient(135deg, #3c3c3c, #1e1e1e);
-  // background: linear-gradient(135deg, #4e4e4e, #2b2b2b);
-  // background: linear-gradient(135deg, #3d3d3d, #232323);
-  // background: linear-gradient(135deg, #5a5a5a, #363636);
-  // background: linear-gradient(135deg, #606060, #404040);
-  // background: linear-gradient(135deg, #585858, #1f1f1f);
-  // background: linear-gradient(135deg, #494949, #2a2a2a);
-  // background: linear-gradient(135deg, #666666, #333333);
 }
 </style>

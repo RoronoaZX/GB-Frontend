@@ -1,7 +1,7 @@
 <template>
   <q-input
-    v-model="searchKeyword"
-    @update:model-value="emit('update:model-value', $event)"
+    model-value="modelValue"
+    @update:model-value="(val) => emit('update:model-value', val)"
     @clear="emit('clear')"
     label="Search Employee"
     outlined
@@ -32,5 +32,3 @@ const props = defineProps({
 
 const emit = defineEmits(["update:model-value", "clear"]);
 </script>
-
-<style lang="scss" scoped></style>

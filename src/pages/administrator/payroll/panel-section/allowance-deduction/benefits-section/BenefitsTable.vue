@@ -6,21 +6,7 @@
           <AddDeduction @created="reloadTableData" />
         </div>
       </div>
-      <q-input
-        v-model="filter"
-        outlined
-        dense
-        debounce="300"
-        flat
-        label="Search"
-        style="width: 300px"
-      >
-        <template v-slot:append>
-          <div>
-            <q-icon name="search" />
-          </div>
-        </template>
-      </q-input>
+      <TableFilter v-model="filter" @update:model-value="filter" />
     </div>
     <q-table
       :rows="employeeBenefitRows"
@@ -310,7 +296,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import AddDeduction from "./AddDeduction.vue";
 import { useEmployeeBenefitStore } from "stores/benefit";
-import SearchBenefit from "./SearchBenefit.vue";
+import TableFilter from "../components/TableFilter.vue";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 

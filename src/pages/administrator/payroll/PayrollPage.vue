@@ -101,26 +101,9 @@
 </template>
 
 <script setup>
-import DashboardPage from "./panel-section/dashboard/DashboardPage.vue";
-import EmployeeesPage from "./panel-section/employees/EmployeesPage.vue";
-import AttendancePage from "./panel-section/attendance/AttendancePage.vue";
-import AllowanceDeductionPage from "./panel-section/allowance-deduction/AllowanceDeductionPage.vue";
-import PayslipPage from "./panel-section/payslip/PayslipPage.vue";
 import { ref } from "vue";
 
 const brancheStatusDialog = ref();
-
-const open_branch_status_dialog = () => {
-  brancheStatusDialog.value = true;
-};
-
-const searchTerm = ref("");
-
-// const filterCards = computed(() => {
-//     return cards.filter(card =>{
-//         return card.title.toLowerCase().includes(searchTerm.value.toLowerCase()) || card.description.toLowerCase().includes(searchTerm.value.toLowerCase)
-//     })
-// })
 
 const tab = ref("dashboard");
 </script>

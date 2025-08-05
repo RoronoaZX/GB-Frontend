@@ -4,21 +4,8 @@
       <div>
         <AddAllowance @created="reloadTableData" />
       </div>
-      <q-input
-        v-model="filter"
-        outlined
-        dense
-        debounce="300"
-        flat
-        label="Search"
-        style="width: 300px"
-      >
-        <template v-slot:append>
-          <div>
-            <q-icon name="search" />
-          </div>
-        </template>
-      </q-input>
+
+      <TableFilter v-model="filter" @update:model-value="filter" />
     </div>
     <q-table
       flat
@@ -104,8 +91,9 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useEmployeeAllowance } from "stores/allowance";
 import AddAllowance from "./AddAllowance.vue";
-import SearchAllowance from "./SearchAllowance.vue";
+// import SearchAllowance from "../components/SearchComponent.vue";
 import { Notify } from "quasar";
+import TableFilter from "../components/TableFilter.vue";
 
 const employeeAllowanceStore = useEmployeeAllowance();
 const employeeAllowance = computed(() => employeeAllowanceStore.allowances);
@@ -265,12 +253,5 @@ const employeeAllowanceColumns = [
 
 .gradient-header {
   background: #155e75;
-}
-
-.elegant-popup {
-  min-width: 300px;
-  max-width: 400px;
-  border-radius: 8px;
-  box-shadow: 0 q0px 30px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 </style>
