@@ -25,6 +25,19 @@
         </div>
       </q-route-tab>
 
+      <!-- Incentives Tab -->
+      <q-route-tab :to="{ name: 'admin-payroll-incentives' }" exact>
+        <div class="q-pa-md q-gutter-sm flex flex-column items-center">
+          <q-icon
+            name="attach_money"
+            size="md"
+            :class="tab === 'incentives' ? 'text-teal' : 'text-grey-7'"
+          />
+          <div class="text-weight-bold text-lg">Incentives</div>
+          <!-- <div class="text-caption text-grey-6">List & New Entries</div> -->
+        </div>
+      </q-route-tab>
+
       <!-- Employees Tab -->
       <q-route-tab :to="{ name: 'admin-payroll-employees' }" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">

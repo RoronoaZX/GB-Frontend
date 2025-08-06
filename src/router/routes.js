@@ -93,6 +93,16 @@ const routes = [
                 "pages/administrator/payroll/panel-section/dashboard/DashboardPage.vue"
               ),
           },
+          // Route for Incentives
+          {
+            path: "incentives",
+            name: "admin-payroll-incentives",
+            component: () =>
+              import(
+                "pages/administrator/payroll/panel-section/incentives/IncentivesPage.vue"
+              ),
+          },
+
           // Route for the Employees Tab
           {
             path: "employees",
