@@ -223,6 +223,10 @@
           </q-item>
         </div>
 
+        <div class="row q-col-gutter-y-sm q-mt-sm">
+          <TotalIncentivesData :dtr-from="dtrFrom" :dtr-to="dtrTo" />
+        </div>
+
         <q-separator spaced="md" class="q-my-md" />
 
         <div class="row justify-end q-mt-md">
@@ -250,8 +254,11 @@ import { useQuasar } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import TotalIncentivesData from "./TotalIncentiveData.vue";
 
 const props = defineProps({
+  dtrFrom: String,
+  dtrTo: String,
   dtrRows: Array,
   employeeData: Object,
   dtrRecord: Object,
@@ -260,6 +267,8 @@ const props = defineProps({
     default: null, // Initialize as null or an empty object
   },
 });
+
+console.log("Summary Data:", props.summaryData);
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);

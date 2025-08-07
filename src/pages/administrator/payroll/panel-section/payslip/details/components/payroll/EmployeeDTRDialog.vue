@@ -41,6 +41,8 @@
             :employee-data="employeesData"
             :dtr-record="props.dtrRecord"
             :summary-data="dtrSummaryData"
+            :dtr-from="dtrRecord.from"
+            :dtr-to="dtrRecord.end"
           />
         </div>
         <div class="col-5">

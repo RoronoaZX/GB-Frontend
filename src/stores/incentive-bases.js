@@ -3,16 +3,30 @@ import { ref } from "vue";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 
-export const useIncentivesStore = defineStore("incentives", () => {
-  const incentive = ref(null);
-  const incentives = ref([]);
+export const useIncentivesBasesStore = defineStore("incentives-bases", () => {
+  const incentiveBase = ref(null);
+  const incentivesBases = ref([]);
 
-  const fetchIncentives = async () => {
+  const fetchIncentivesBases = async () => {
     try {
       const response = await api.get("/api/incentives-bases");
-      incentives.value = response.data;
+      console.log("fetchIncentivesBases", response.data);
+      incentivesBases.value = response.data;
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const fetchIncentivesPerCutOff = async (employee_id) => {
+    console.log("fetchIncentivesPerCutOff", employee_id);
+    try {
+      const response = await api.get(
+        `/api/fetch-employee-incentives-per-cut-off/${employee_id}`
+      );
+      console.log("Incentives Response", response.data);
+      incentives.value = response.data;
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -55,10 +69,11 @@ export const useIncentivesStore = defineStore("incentives", () => {
   };
 
   return {
-    incentive,
-    incentives,
+    incentiveBase,
+    incentivesBases,
     createIncentives,
-    fetchIncentives,
+    fetchIncentivesBases,
     updateNumberEmployee,
+    fetchIncentivesPerCutOff,
   };
 });
