@@ -11,17 +11,54 @@
         Total Incentives :
         <span class="text-cyan-7 text-weight-semibold">000.00</span>
       </q-item-label>
-      {{ dtrFrom }} - {{ dtrTo }}sss
-      {{ employeeIncentives }}
+
+      <q-item-label class="text-body2 text-weight-medium text-grey-8">
+        <span class="text-cyan-7 text-weight-semibold">
+          <OpenButton
+            @open-dialog="
+              handleEmployeeIncentives(employeeIncentives, dtrFrom, dtrTo)
+            "
+          />
+        </span>
+      </q-item-label>
     </q-item-section>
   </q-item>
 </template>
+
+<!-- <template>
+  <q-item class="col-12 col-md-6 q-pa-more">
+    <span></span>
+  </q-item>
+  <q-item class="col-12 col-md-6 q-pa-none">
+    <q-item-section avatar class="q-mr-sm">
+      <q-icon name="paid" color="cyan-7" />
+    </q-item-section>
+    <q-item-section>
+      <q-item-label
+        class="text-body2 text-weight-medium text-grey-8 row items-center justify-between"
+      >
+        <div>
+          Total Incentives :
+          <span class="text-cyan-7 text-weight-semibold">000.00</span>
+        </div>
+        <div>
+          <OpenButton
+            @open-dialog="handleEmployeeIncentives(employeeIncentives)"
+          />
+        </div>
+      </q-item-label>
+    </q-item-section>
+  </q-item>
+</template> -->
 
 <script setup>
 import { useEmployeeIncentivesStore } from "src/stores/employee-incentives";
 import { useIncentivesBasesStore } from "src/stores/incentive-bases";
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import OpenButton from "src/components/buttons/OpenButton.vue";
+import TotalIncentiveDataDialog from "./TotalIncentiveDataDialog.vue";
+import { useQuasar } from "quasar";
 
 const props = defineProps(["dtrFrom", "dtrTo"]);
 const route = useRoute();
@@ -33,6 +70,9 @@ const employeeIncentivesStore = useEmployeeIncentivesStore();
 const employeeIncentives = computed(
   () => employeeIncentivesStore.employeeIncentives
 );
+console.log("employeeIncentivessss", employeeIncentives.value);
+
+const $q = useQuasar();
 
 const fetchIncentivesBases = async () => {
   await incentivesBasesStore.fetchIncentivesBases();
@@ -46,7 +86,18 @@ const fetchEmployeeIncentives = async () => {
     props.dtrTo,
     employeeId
   );
-  console.log("employeeIncentives", employeeIncentives.value);
+  console.log("employeeIncentivessss", employeeIncentives.value);
 };
 onMounted(fetchEmployeeIncentives);
+
+const handleEmployeeIncentives = (incentive, dtrFrom, dtrTo) => {
+  $q.dialog({
+    component: TotalIncentiveDataDialog,
+    componentProps: {
+      incentiveDatas: incentive,
+      dtrFrom: dtrFrom,
+      dtrTo: dtrTo,
+    },
+  });
+};
 </script>
