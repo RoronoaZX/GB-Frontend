@@ -51,10 +51,22 @@
                   incentiveData.branch.name
                 }}</span>
               </div>
-              <div class="detail-item total-kilo">
-                <span class="detail-label">Total Kilo:</span>
+              <div class="detail-item">
+                <span class="detail-label">Number of Employees:</span>
+                <span class="detail-value">{{
+                  incentiveData.number_of_employees
+                }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Total Production Kilo:</span>
                 <span class="detail-value"
                   >{{ incentiveData.baker_kilo_total }} kgs</span
+                >
+              </div>
+              <div class="detail-item total-kilo">
+                <span class="detail-label">Incentive Kilo:</span>
+                <span class="detail-value"
+                  >{{ incentiveData.excess_kilo }} kgs</span
                 >
               </div>
             </div>
@@ -113,12 +125,21 @@
       <q-card-section
         class="q-py-md q-px-lg total-summary-section compact-total-summary"
       >
-        <div class="flex justify-between items-center total-grand">
+        <!-- <div class="flex justify-between items-center total-grand">
           <div class="text-subtitle1 text-weight-bold text-gradient">
-            Overall Kilo :
+            Overall Prod. Kilo :
           </div>
           <div class="text-h6 text-weight-bold text-gradient total-kilo">
-            {{ overallkilo }} kgs
+            {{ overallProductionKilo }} kgs
+          </div>
+        </div> -->
+
+        <div class="flex justify-between items-center total-grand">
+          <div class="text-subtitle1 text-weight-bold text-gradient">
+            Total Incentives Kilo :
+          </div>
+          <div class="text-h6 text-weight-bold text-gradient total-kilo">
+            {{ overAllExcessKilo }} kgs
           </div>
         </div>
       </q-card-section>
@@ -149,9 +170,15 @@ const capitalizeFirstLetter = (word) => {
     .join(" ");
 };
 
-const overallkilo = computed(() => {
+const overallProductionKilo = computed(() => {
   return props.incentiveDatas.reduce((total, item) => {
     return total + (parseFloat(item.baker_kilo_total) || 0);
+  }, 0);
+});
+
+const overAllExcessKilo = computed(() => {
+  return props.incentiveDatas.reduce((total, item) => {
+    return total + (parseFloat(item.excess_kilo) || 0);
   }, 0);
 });
 </script>
