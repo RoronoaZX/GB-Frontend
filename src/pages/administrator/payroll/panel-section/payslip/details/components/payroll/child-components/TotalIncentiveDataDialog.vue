@@ -16,14 +16,15 @@
           class="close-btn"
         />
       </q-card-section>
+
       <q-card-section class="scrollable-content-wrapper">
         <div
-          v-if="incentiveDatas.length > 0"
+          v-if="props.incentiveDatas.length > 0"
           class="q-pt-sm q-pb-none compact-content-section"
         >
           <div
             class="q-my-md incentive-data-card"
-            v-for="(incentiveData, index) in incentiveDatas"
+            v-for="(incentiveData, index) in props.incentiveDatas"
             :key="index"
           >
             <div class="incentive-details-grid">
@@ -48,7 +49,7 @@
               <div class="detail-item">
                 <span class="detail-label">Branch:</span>
                 <span class="detail-value">{{
-                  incentiveData.branch.name
+                  incentiveData.branch?.name
                 }}</span>
               </div>
               <div class="detail-item">
@@ -64,10 +65,20 @@
                 >
               </div>
               <div class="detail-item total-kilo">
-                <span class="detail-label">Incentive Kilo:</span>
-                <span class="detail-value"
-                  >{{ incentiveData.excess_kilo }} kgs</span
-                >
+                <span class="detail-label">Incentive</span>
+                <span class="detail-value">
+                  {{
+                    incentiveData.designation?.toLowerCase() === "hornero"
+                      ? `${props.formatCurrencyProp(
+                          incentiveData.incentive_value
+                        )}`
+                      : `${incentiveData.excess_kilo} kgs x ${
+                          incentiveData.multiplier_used
+                        } = ${props.formatCurrencyProp(
+                          incentiveData.incentive_value
+                        )}`
+                  }}
+                </span>
               </div>
             </div>
             <div class="q-pt-sm q-pb-none compact-content-section">
@@ -88,7 +99,9 @@
                 >
                   <q-item-section>
                     {{
-                      capitalizeFirstLetter(incentive.branch_recipe.recipe.name)
+                      capitalizeFirstLetter(
+                        incentive.branch_recipe?.recipe?.name
+                      )
                     }}
                   </q-item-section>
                   <q-item-section side>
@@ -112,7 +125,7 @@
             class="q-mb-sm"
           />
           <div class="text-h6 text-grey-7 q-mb-xs">
-            Employee have no incentives for this cut-off.
+            Employee has no incentives for this cut-off.
           </div>
           <div class="text-subtitle2 text-grey-6 text-center">
             It looks like there are no incentives recorded for
@@ -125,21 +138,16 @@
       <q-card-section
         class="q-py-md q-px-lg total-summary-section compact-total-summary"
       >
-        <!-- <div class="flex justify-between items-center total-grand">
-          <div class="text-subtitle1 text-weight-bold text-gradient">
-            Overall Prod. Kilo :
-          </div>
-          <div class="text-h6 text-weight-bold text-gradient total-kilo">
-            {{ overallProductionKilo }} kgs
-          </div>
-        </div> -->
-
         <div class="flex justify-between items-center total-grand">
           <div class="text-subtitle1 text-weight-bold text-gradient">
-            Total Incentives Kilo :
+            Total Incentives :
           </div>
           <div class="text-h6 text-weight-bold text-gradient total-kilo">
-            {{ overAllExcessKilo }} kgs
+            {{
+              totalIncentiveValue > 0
+                ? props.formatCurrencyProp(totalIncentiveValue)
+                : "₱ 0.00"
+            }}
           </div>
         </div>
       </q-card-section>
@@ -153,12 +161,19 @@ import { computed } from "vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const props = defineProps(["incentiveDatas", "dtrFrom", "dtrTo"]);
-console.log("incentiveDatasssss", props.incentiveDatas);
+const props = defineProps({
+  incentiveDatas: Array,
+  dtrFrom: String,
+  dtrTo: String,
+  formatCurrencyProp: {
+    type: Function,
+    required: true,
+  },
+});
+console.log("incentiveDatas in the dailog", props.incentiveDatas);
 
 const formatDateString = (dateStr) => {
   if (!dateStr) return "";
-
   return date.formatDate(dateStr, "MMM. DD, YYYY");
 };
 
@@ -170,15 +185,9 @@ const capitalizeFirstLetter = (word) => {
     .join(" ");
 };
 
-const overallProductionKilo = computed(() => {
-  return props.incentiveDatas.reduce((total, item) => {
-    return total + (parseFloat(item.baker_kilo_total) || 0);
-  }, 0);
-});
-
-const overAllExcessKilo = computed(() => {
-  return props.incentiveDatas.reduce((total, item) => {
-    return total + (parseFloat(item.excess_kilo) || 0);
+const totalIncentiveValue = computed(() => {
+  return props.incentiveDatas.reduce((sum, item) => {
+    return sum + (Number(item.incentive_value) || 0);
   }, 0);
 });
 </script>
@@ -297,7 +306,7 @@ $total-kilo-color: #00796b; // A slightly darker teal for the text
   .detail-label {
     font-weight: 600;
     color: $text-dark;
-    font-size: 0.85em;
+    font-size: 0.65em;
     opacity: 0.8;
     margin-bottom: 2px;
   }
@@ -326,7 +335,7 @@ $total-kilo-color: #00796b; // A slightly darker teal for the text
     .detail-value {
       font-weight: 700;
       color: $total-kilo-color;
-      font-size: 1.2em;
+      font-size: 0.7em;
     }
   }
 }

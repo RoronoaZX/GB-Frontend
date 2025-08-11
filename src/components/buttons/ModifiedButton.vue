@@ -38,20 +38,20 @@
         </svg>
       </div>
       <p>
-        <span style="--i: 0">P</span>
-        <span style="--i: 1">r</span>
-        <span style="--i: 2">o</span>
-        <span style="--i: 3">c</span>
-        <span style="--i: 4">e</span>
-        <span style="--i: 5">e</span>
-        <span style="--i: 6">d</span>
-        <span style="--i: 7">P</span>
-        <span style="--i: 8">a</span>
+        <span style="--i: 0">C</span>
+        <span style="--i: 1">o</span>
+        <span style="--i: 2">n</span>
+        <span style="--i: 3">t</span>
+        <span style="--i: 4">i</span>
+        <span style="--i: 5">n</span>
+        <span style="--i: 6">u</span>
+        <span style="--i: 7">e</span>
+        <!-- <span style="--i: 8">a</span>
         <span style="--i: 9">y</span>
         <span style="--i: 10">s</span>
         <span style="--i: 11">l</span>
         <span style="--i: 12">i</span>
-        <span style="--i: 13">p</span>
+        <span style="--i: 13">p</span> -->
       </p>
       <!-- <p>
         <span style="--i: 0">P</span>
@@ -95,9 +95,9 @@
         </svg>
       </div>
       <p>
-        <span style="--i: 5">S</span>
+        <span style="--i: 5">n</span>
         <span style="--i: 6">e</span>
-        <span style="--i: 7">n</span>
+        <span style="--i: 7">x</span>
         <span style="--i: 8">t</span>
       </p>
     </div>
@@ -108,6 +108,7 @@
 import { ref } from "vue";
 
 const isSent = ref(false);
+const emit = defineEmits(["click"]);
 
 const sendMessage = () => {
   // Prevent multiple clicks while animation is running
@@ -119,6 +120,8 @@ const sendMessage = () => {
   setTimeout(() => {
     isSent.value = false;
   }, 2000); // Adjust this duration based on your longest animation
+
+  emit("click");
 };
 </script>
 
@@ -402,7 +405,7 @@ const sendMessage = () => {
   position: relative;
 }
 .state--default span:nth-child(7) {
-  margin-right: 5px;
+  // margin-right: 5px;
 }
 .state--sent {
   /* This will be controlled by v-show */

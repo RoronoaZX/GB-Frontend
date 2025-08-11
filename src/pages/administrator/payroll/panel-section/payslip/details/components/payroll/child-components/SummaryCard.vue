@@ -224,7 +224,11 @@
         </div>
 
         <div class="row q-col-gutter-y-sm q-mt-sm">
-          <TotalIncentivesData :dtr-from="dtrFrom" :dtr-to="dtrTo" />
+          <TotalIncentivesData
+            :dtr-from="dtrFrom"
+            :dtr-to="dtrTo"
+            @update:totalIncentive="parentTotalIncentive = $event"
+          />
         </div>
 
         <q-separator spaced="md" class="q-my-md" />
@@ -276,6 +280,16 @@ const route = useRoute();
 const $q = useQuasar();
 const employee_id = route.params.employee_id || "";
 const employeesData = ref(null); // This will hold the fetched employee data
+const parentTotalIncentive = ref(0);
+
+watch(parentTotalIncentive, (newValue) => {
+  console.log("Parent total incentive updated:", newValue);
+});
+
+// You can also log anytime, e.g. on button click
+const logIncentive = () => {
+  console.log("Parent total incentive now:", parentTotalIncentive.value);
+};
 
 // Computed property for employee's schedule display
 const employeeSchedule = computed(() => {
@@ -471,7 +485,11 @@ const totalIncome = computed(() => {
   const hourlyIncome = totalHours * hourlyRate.value;
 
   const finalIncome =
-    hourlyIncome + holidayCost + nightDiffCost + employeeAllowances;
+    hourlyIncome +
+    holidayCost +
+    nightDiffCost +
+    employeeAllowances +
+    parentTotalIncentive.value;
 
   return formatCurrency(finalIncome);
 });
