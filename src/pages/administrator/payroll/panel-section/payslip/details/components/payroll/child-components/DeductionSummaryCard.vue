@@ -127,7 +127,7 @@
 <script setup>
 import { useRoute } from "vue-router";
 import { useCreditsStore } from "src/stores/employee-credits";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import { useQuasar } from "quasar";
 import CreditList from "./CreditList.vue";
 import UniformList from "./UniformList.vue";
@@ -140,6 +140,9 @@ import { useCashAdvanceStore } from "src/stores/cash-advance";
 import { useEmployeeChargesStore } from "src/stores/employee-charges";
 
 const props = defineProps(["dtrFrom", "dtrTo", "employeeData"]);
+
+const emit = defineEmits(["dtr-deductions-summary-calculated"]);
+
 const route = useRoute();
 
 const employeeID = route.params.employee_id;
@@ -150,38 +153,32 @@ const uniformStore = useUniformStore();
 const uniformsData = computed(() => uniformStore.uniforms);
 const cashAdvanceStore = useCashAdvanceStore();
 const cashAdvances = computed(() => cashAdvanceStore.cashAdvances);
-console.log("cashssssss advances data", cashAdvances.value);
 const employeeChargesStore = useEmployeeChargesStore();
 const employeeCharges = computed(() => employeeChargesStore.employeeCharges);
 
 const $q = useQuasar();
 
-const receivedTotalBenefits = ref(0);
+const receivedTotalBenefits = ref({ total: 0, sss: 0, hdmf: 0, phic: 0 });
 
 const calculateTotalDeductions = computed(() => {
   return (
     parseFloat(calculatedCreditTotal.value) +
     parseFloat(calculatedUniformTotal.value) +
     parseFloat(calculateCashAdvanceTotal.value) +
-    parseFloat(receivedTotalBenefits.value) // Ensure this is also parsed as a float
+    parseFloat(calculateEmployeeChargesTotal.value) + // Added Employee Charges to the total
+    parseFloat(receivedTotalBenefits.value.total)
   );
 });
 
 // Calculate creditTotal directly from the 'credits' computed property
 const calculatedCreditTotal = computed(() => {
-  // 1. Check if credits.value exists and has credit_records
   if (!credits.value || !Array.isArray(credits.value.credit_records)) {
     return 0;
   }
   let totalSum = 0;
-
-  // 2. Iterate through each credit record
   credits.value.credit_records.forEach((creditRecord) => {
-    // 3. Ensure creditRecord.products exists and is an array
     if (Array.isArray(creditRecord.products)) {
-      // 4. Iterate through eac product within the credit record
       creditRecord.products.forEach((product) => {
-        // 5. Parse the total_price and to the sum
         const amount = parseFloat(product.total_price);
         if (!isNaN(amount)) {
           totalSum += amount;
@@ -192,50 +189,41 @@ const calculatedCreditTotal = computed(() => {
   return totalSum;
 });
 
-console.log("calculatedCreditTotal", calculatedCreditTotal.value);
-
-// Add this new computed property
 const allCreditProducts = computed(() => {
-  // Defensive check: Ensure credits.value exists and credit_records is an array
   if (!credits.value || !Array.isArray(credits.value.credit_records)) {
-    return []; // Return an empty array if the data isn't in the expected shape yet
+    return [];
   }
-
-  // Use flatMap to iterate over each 'creditRecord' in 'credit_records'
-  // and for each 'creditRecord', return its 'products' array.
-  // flatMap then flattens all these individual 'products' arrays into one single array.
-  return credits.value.credit_records.flatMap((creditRecord) => {
-    // Another defensive check: Ensure 'products' exists and is an array within each 'creditRecord'
-    return Array.isArray(creditRecord.products) ? creditRecord.products : [];
-  });
+  return credits.value.credit_records.flatMap((creditRecord) =>
+    Array.isArray(creditRecord.products) ? creditRecord.products : []
+  );
 });
 
 // Calculate uniformTotal directly from the 'uniformsData' computed property
 const calculatedUniformTotal = computed(() => {
-  // 1. Check if uniformsData.value is a valid array; if not, return 0.
   if (!Array.isArray(uniformsData.value)) {
     return 0;
   }
-
   let totalSumInCentavos = 0;
-
   uniformsData.value.forEach((uniformRecord) => {
     const amount = parseFloat(uniformRecord.payments_per_payroll);
-    console.log("amount uniforms", amount);
     if (!isNaN(amount)) {
       totalSumInCentavos += Math.round(amount * 100);
     }
   });
-
   return (totalSumInCentavos / 100).toFixed(2);
 });
-console.log("calculatedUniformTotal", calculatedUniformTotal.value);
 
 const allUniformProducts = computed(() => {
   if (!uniformsData.value || !Array.isArray(uniformsData.value)) {
-    return { pants: [], t_shirts: [] }; // Return an object with empty arrays if data isn't ready
+    return {
+      pants: [],
+      t_shirts: [],
+      numberOfPayments: 0,
+      paymentsPerPayroll: 0,
+      remainingPayments: 0,
+      totalAmount: 0,
+    };
   }
-
   const combinedPants = [];
   const combinedTShirts = [];
   let numberOfPayments = 0;
@@ -250,15 +238,12 @@ const allUniformProducts = computed(() => {
     if (Array.isArray(uniformRecord.t_shirt)) {
       combinedTShirts.push(...uniformRecord.t_shirt);
     }
-  });
-
-  uniformsData.value.forEach((uniformRecord) => {
-    console.log("uniformRecordssss", uniformRecord);
     numberOfPayments = uniformRecord.number_of_payments;
     paymentsPerPayroll = uniformRecord.payments_per_payroll;
     remainingPayments = uniformRecord.remaining_payments;
     totalAmount = uniformRecord.total_amount;
   });
+
   return {
     pants: combinedPants,
     t_shirts: combinedTShirts,
@@ -273,17 +258,13 @@ const calculateCashAdvanceTotal = computed(() => {
   if (!Array.isArray(cashAdvances.value)) {
     return 0;
   }
-
   let totalSum = 0;
-
-  cashAdvances.value.forEach((cashAdvances) => {
-    const amount = parseFloat(cashAdvances.payment_per_payroll);
-    console.log("amount cash advance", amount);
+  cashAdvances.value.forEach((cashAdvance) => {
+    const amount = parseFloat(cashAdvance.payment_per_payroll);
     if (!isNaN(amount)) {
       totalSum += Math.round(amount * 100);
     }
   });
-
   return (totalSum / 100).toFixed(2);
 });
 
@@ -291,12 +272,9 @@ const calculateEmployeeChargesTotal = computed(() => {
   if (!Array.isArray(employeeCharges.value)) {
     return 0;
   }
-
   let totalSum = 0;
-
-  employeeCharges.value.forEach((employeeCharges) => {
-    const amount = parseFloat(employeeCharges.charges_amount);
-    console.log("amount employee charges", amount);
+  employeeCharges.value.forEach((charge) => {
+    const amount = parseFloat(charge.charges_amount);
     if (!isNaN(amount)) {
       totalSum += Math.round(amount * 100);
     }
@@ -304,23 +282,7 @@ const calculateEmployeeChargesTotal = computed(() => {
   return (totalSum / 100).toFixed(2);
 });
 
-// const allCreditProducts = computed(() => {
-//   if (!credits.value || !Array(credits.value.credit_records)) {
-//     return []; // Return an empty array if data isn't ready
-//   }
-
-//   // use flatMap to flatten the array of arrays into a single array
-//   return credits.value.credit_records.flatMap((creditRecord) => {
-//     // Ensure products exists and is an array, otherwise return an empty array
-//     return Array.isArray(creditRecord.products) ? creditRecord.products : [];
-//   });
-// });
-
-// The `creditTotal` ref is now only needed if you want to store the value specificcally emitted by the dialog
-// For the peimary display, `calculatedCreditTotal` is more direct.
-// If you want the dialog's emitted value to *ooverrid* or *specifically* effect the display, keep creditTotal ref
-// and display creditTotal. If the list in the dialog is the *same* as the credits from the store, this ref might be redundant.
-const creditTotalFromDialog = ref(0); // Renamed for clarity, if you decide to keep it for dialog-specific updates
+const creditTotalFromDialog = ref(0);
 const uniformTotalFromDialog = ref(0);
 
 const fetchCreditsPerCutOff = async () => {
@@ -329,20 +291,16 @@ const fetchCreditsPerCutOff = async () => {
     props.dtrTo,
     employeeID
   );
-  // Optional: If you want to initialize creditTotalFromDialog with the initial calculated total
-  // creditTotalFromDialog.value = calculatedCreditTotal.value;
 };
 onMounted(fetchCreditsPerCutOff);
 
 const fetchUniformsDeduction = async () => {
   await uniformStore.fetchUniformForDeduction(employeeID);
-  console.log("uniforms data", uniformsData.value);
 };
 onMounted(fetchUniformsDeduction);
 
 const fetchCashAdvance = async () => {
   await cashAdvanceStore.fetchCashAdvanceForDeduction(employeeID);
-  console.log("cash advances datasss", cashAdvances.value);
 };
 onMounted(fetchCashAdvance);
 
@@ -352,9 +310,7 @@ const fetchEmployeeCharges = async () => {
     fromDate: props.dtrFrom,
     toDate: props.dtrTo,
   };
-
   await employeeChargesStore.fetchEmployeeCharges(dataToBeSent);
-  console.log("employee charges data", employeeCharges.value);
 };
 onMounted(fetchEmployeeCharges);
 
@@ -366,8 +322,7 @@ const handleEmployeeCredit = (credits) => {
     },
     on: {
       "update:total": (total) => {
-        console.log("Total credit amount received from dialog:", total);
-        creditTotalFromDialog.value = total; // Update this ref if you're using it
+        creditTotalFromDialog.value = total;
       },
     },
   });
@@ -381,7 +336,6 @@ const handleEmployeeUniforms = (uniforms) => {
     },
     on: {
       "update:total": (total) => {
-        console.log("Total credit amount received from dialog:", total);
         uniformTotalFromDialog.value = total;
       },
     },
@@ -414,6 +368,31 @@ const formatCurrency = (value) => {
     minimumFractionDigits: 2,
   }).format(number);
 };
+
+// This watchEffect will run initially and any time its dependencies change.
+watchEffect(() => {
+  // Create a summary object with all the calculated data.
+  const deductionsSummary = {
+    creditTotal: calculatedCreditTotal.value,
+    uniformTotal: calculatedUniformTotal.value,
+    cashAdvanceTotal: calculateCashAdvanceTotal.value,
+    employeeChargesTotal: calculateEmployeeChargesTotal.value,
+    benefitsTotal: receivedTotalBenefits.value.total, // This is from a ref
+    totalDeductions: calculateTotalDeductions.value,
+
+    // You can also include the detailed data if the parent component needs it
+    details: {
+      credits: allCreditProducts.value,
+      uniforms: allUniformProducts.value,
+      cashAdvances: cashAdvances.value,
+      employeeCharges: employeeCharges.value,
+      employeeBenefits: receivedTotalBenefits.value,
+    },
+  };
+
+  // Emit the event with the summary payload.
+  emit("dtr-deductions-summary-calculated", deductionsSummary);
+});
 </script>
 
 <style lang="scss" scoped>

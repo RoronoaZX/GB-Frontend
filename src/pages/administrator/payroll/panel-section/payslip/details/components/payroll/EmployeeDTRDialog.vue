@@ -43,6 +43,9 @@
             :summary-data="dtrSummaryData"
             :dtr-from="dtrRecord.from"
             :dtr-to="dtrRecord.end"
+            @dtr-earnings-summary-calculated="
+              handleDTREarningsSummaryCalculated
+            "
           />
         </div>
         <div class="col-5">
@@ -50,6 +53,9 @@
             :dtr-from="dtrRecord.from"
             :dtr-to="dtrRecord.end"
             :employee-data="employeesData"
+            @dtr-deductions-summary-calculated="
+              handleDTRDeductionsSummaryCalculated
+            "
           />
         </div>
       </q-card-section>
@@ -62,8 +68,8 @@
 
       <q-card-section align="right">
         <ModifiedButton
-          label="Proceed Payslip"
-          @click="handleOverAllSummaryDialog"
+          :disable="!isDTRSummaryReady"
+          @click="handleOverAllSummaryDialog(employeesData, props.dtrRecord)"
         />
       </q-card-section>
     </q-card>
@@ -102,8 +108,20 @@ const loadingTable = ref(true); // Added for loading state of the table
 
 // --- State for summary data from DTRTable --- //
 const dtrSummaryData = ref(null); // Inittialize to null
+const dtrEarningsData = ref(null);
+const dtrDeductionsData = ref(null);
 
 // --- Method to handle event from DTRTable --- //
+
+const handleDTREarningsSummaryCalculated = (summary) => {
+  console.log("Parent received earnings calculated DTR summary:", summary);
+  dtrEarningsData.value = summary; // Update the reactive state
+};
+
+const handleDTRDeductionsSummaryCalculated = (summary) => {
+  console.log("Parent received deductions calculated DTR summary:", summary);
+  dtrDeductionsData.value = summary;
+};
 const handleDTRSummaryCalculated = (summary) => {
   console.log("Parent received calculated DTR summary:", summary);
   dtrSummaryData.value = summary; // Update the reactive state
@@ -162,9 +180,30 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`;
 };
 
+const formatCurrency = (value) => {
+  const numValue = parseFloat(value);
+  if (isNaN(numValue) || numValue === 0) {
+    return "₱ 0.00";
+  }
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(numValue);
+};
+
 const handleOverAllSummaryDialog = () => {
   $q.dialog({
     component: OverAllSummaryDialog,
+    componentProps: {
+      // Use componentProps to define the props
+      employeesData: employeesData.value,
+      dtrRecord: props.dtrRecord,
+      dtrSummaryData: dtrSummaryData.value,
+      dtrEarningsData: dtrEarningsData.value,
+      dtrDeductionsData: dtrDeductionsData.value,
+      formatFullnameProps: formatFullname,
+      formatCurrencyProps: formatCurrency,
+    },
   });
 };
 </script>

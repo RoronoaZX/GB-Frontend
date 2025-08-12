@@ -121,14 +121,33 @@ const totalBenefits = computed(() => {
 });
 
 // Watch for changes in totalBenefits and emit the value
+// watch(
+//   totalBenefits,
+//   (newValue) => {
+//     emit("update:total", {
+//       total: totalBenefits.value,
+//       breakdown: newValue,
+//     });
+//   },
+//   {
+//     immediate: true,
+//   }
+// );
 watch(
   totalBenefits,
-  (newValue) => {
-    emit("update:total", newValue);
+  () => {
+    const sss = Number(benefits.value.sss || 0);
+    const hdmf = Number(benefits.value.hdmf || 0);
+    const phic = Number(benefits.value.phic || 0);
+
+    emit("update:total", {
+      total: sss + hdmf + phic,
+      sss,
+      hdmf,
+      phic,
+    });
   },
-  {
-    immediate: true,
-  }
+  { immediate: true }
 );
 
 const fetchEmployeeBenefits = async () => {

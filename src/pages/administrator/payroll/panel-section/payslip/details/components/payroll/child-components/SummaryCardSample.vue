@@ -256,7 +256,7 @@
 <script setup>
 import { useQuasar } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
-import { computed, onMounted, ref, watch, watchEffect } from "vue"; // Import watchEffect
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import TotalIncentivesData from "./TotalIncentiveData.vue";
 
@@ -268,30 +268,30 @@ const props = defineProps({
   dtrRecord: Object,
   summaryData: {
     type: Object,
-    default: null,
+    default: null, // Initialize as null or an empty object
   },
 });
 
-// Define the emits for the component.
-// 'summaryUpdated' will be used to send all calculated data to the parent.
-const emit = defineEmits(["dtr-earnings-summary-calculated"]);
+console.log("Summary Data:", props.summaryData);
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const route = useRoute();
 const $q = useQuasar();
 const employee_id = route.params.employee_id || "";
-const employeesData = ref(null);
+const employeesData = ref(null); // This will hold the fetched employee data
 const parentTotalIncentive = ref(0);
 
 watch(parentTotalIncentive, (newValue) => {
   console.log("Parent total incentive updated:", newValue);
 });
 
+// You can also log anytime, e.g. on button click
 const logIncentive = () => {
   console.log("Parent total incentive now:", parentTotalIncentive.value);
 };
 
+// Computed property for employee's schedule display
 const employeeSchedule = computed(() => {
   const designation = employeesData.value?.designation;
   if (designation?.time_in && designation?.time_out) {
@@ -305,7 +305,7 @@ const fetchEmployeeDetails = async () => {
     await employeeStore.fetchCertianEmployeeWithEmploymentTypeAndDesignation(
       employee_id
     );
-    employeesData.value = employees.value;
+    employeesData.value = employees.value; // Assign fetched data
     if (
       !(
         employeesData.value &&
@@ -329,6 +329,8 @@ const fetchEmployeeDetails = async () => {
 };
 
 onMounted(async () => {
+  // If employeeData is already provided via props, use it directly.
+  // Otherwise, fetch it.
   if (props.employeeData) {
     employeesData.value = props.employeeData;
   } else {
@@ -336,6 +338,7 @@ onMounted(async () => {
   }
 });
 
+// Watch for changes in props.employeeData in case it's loaded asynchronously
 watch(
   () => props.employeeData,
   (newVal) => {
@@ -344,8 +347,8 @@ watch(
     }
   },
   {
-    immediate: true,
-    deep: true,
+    immediate: true, // Run handler immediately on component mount
+    deep: true, // Watch for deep changes in the object
   }
 );
 
@@ -361,15 +364,9 @@ const formatCurrency = (value) => {
   }).format(numValue);
 };
 
-// Helper function to parse currency string back to a number
-const parseCurrency = (value) => {
-  if (typeof value !== "string") return 0;
-  return parseFloat(value.replace(/[₱,]/g, "")) || 0;
-};
-
 const hourlyRate = computed(() => {
   const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
-  return salary > 0 ? salary / 8 : 0; // Assuming 8 working hours per day
+  return salary > 0 ? salary / 8 : 0; // Assuming 9 working hours per day
 });
 
 const parseHourMinute = (str) => {
@@ -398,11 +395,13 @@ const totalOvertimeHours = computed(() => {
   const overtimeHours = parseHourMinute(
     props.summaryData?.totalOvertimeFormatted
   );
+
   return formatHoursAndMinutes(overtimeHours);
 });
 
 const totalNightDifferential = computed(() => {
   const nightDiff = parseHourMinute(props.summaryData?.totalNightDiffFormatted);
+
   return formatHoursAndMinutes(nightDiff);
 });
 
@@ -411,6 +410,7 @@ const totalNightDifferentialCost = computed(() => {
   const nightDiffRate = 0.1; // 10% additional
   const basePay = hours * hourlyRate.value;
   const nightDiffPay = basePay * nightDiffRate;
+
   return formatCurrency(nightDiffPay);
 });
 
@@ -418,6 +418,7 @@ const totalUndertime = computed(() => {
   const undertimeHours = parseHourMinute(
     props.summaryData?.totalUndertimeFormatted
   );
+
   return formatHoursAndMinutes(undertimeHours);
 });
 
@@ -428,8 +429,8 @@ const totalWorkingHoursCost = computed(() => {
 
 const totalOvertimeCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalOvertimeFormatted);
-  // Assuming overtime is paid at 1.0x (or 100%) the regular hourly rate.
-  // Adjust the multiplier (e.g., 1.25) as per your company policy.
+  // Assuming overtime is paid at 1.25x the regular hourly rate (common practice)
+  // If not, simply multiply by hourlyRate.value
   return formatCurrency(hours * hourlyRate.value * 1.0);
 });
 
@@ -446,6 +447,20 @@ const totalEmployeeAllowances = computed(() => {
   return props.summaryData?.employeeAllowances;
 });
 
+// const sumTWHTOH = computed(() => {
+//   const totalWorkingHours = parseHourMinute(
+//     props.summaryData?.totalWorkingHoursFormatted
+//   );
+//   console.log("total working hours:", totalWorkingHours);
+
+//   const totalOverTimeHours = parseHourMinute(
+//     props.summaryData?.totalOvertimeFormatted
+//   );
+//   console.log("totalOverTimeHours:", totalOverTimeHours);
+
+//   return formatHoursAndMinutes(totalWorkingHours + totalOverTimeHours);
+// });
+
 const totalIncome = computed(() => {
   const workingHours = parseHourMinute(
     props.summaryData?.totalWorkingHoursFormatted
@@ -456,8 +471,15 @@ const totalIncome = computed(() => {
   const holidayCost = parseFloat(
     props.summaryData?.totalAdditionalHolidayPays || 0
   );
-  const nightDiffCost = parseCurrency(totalNightDifferentialCost.value);
-  const employeeAllowances = parseCurrency(totalEmployeeAllowances.value);
+  const nightDiffCost = parseFloat(
+    totalNightDifferentialCost.value.replace(/[₱,]/g, "") || 0
+  );
+
+  const employeeAllowances = parseFloat(
+    totalEmployeeAllowances.value.replace(/[₱,]/g, "") || 0
+  );
+
+  console.log("employeeAllowances", employeeAllowances);
 
   const totalHours = workingHours + overtimeHours;
   const hourlyIncome = totalHours * hourlyRate.value;
@@ -472,6 +494,42 @@ const totalIncome = computed(() => {
   return formatCurrency(finalIncome);
 });
 
+// const totalIncome = computed(() => {
+//   const workingHours = parseHourMinute(
+//     props.summaryData?.totalWorkingHoursFormatted
+//   );
+//   const overtimeHours = parseHourMinute(
+//     props.summaryData?.totalOvertimeFormatted
+//   );
+//   const holidayCost = parseFloat(
+//     props.summaryData?.totalAdditionalHolidayPays || 0
+//   );
+//   const totalNDCost = parseFloat(
+//     totalNightDifferentialCost.value.replace(/[₱,]/g, "") || 0
+//   );
+
+//   console.log("workingHours", workingHours);
+//   console.log("overtimeHours", overtimeHours);
+//   console.log("holidayCost", holidayCost);
+
+//   const sum = workingHours + overtimeHours;
+
+//   console.log("sum", sum);
+//   console.log("summaryDatassss", props.summaryData);
+
+//   const initialIncome = sum * hourlyRate.value;
+//   console.log("initialIncome", initialIncome);
+
+//   const totalInitialIncomeAndHoliday = initialIncome + holidayCost;
+//   console.log("totalInitialIncomeAndHoliday", totalInitialIncomeAndHoliday);
+
+//   const totalIncome = totalInitialIncomeAndHoliday + totalNDCost;
+
+//   console.log("totalIncome", totalIncome);
+
+//   return formatCurrency(parseFloat(totalIncome).toFixed(2));
+// });
+// Regular Pay Calculation (based on daily rate * number of days)
 const regularPay = computed(() => {
   const salary = employeesData.value?.employment_type?.salary;
   const totalNumberOfDays = props?.dtrRows?.length || 0;
@@ -485,60 +543,7 @@ const regularPay = computed(() => {
   return formatCurrency(calculatedExpectedSalary);
 });
 
-// Use watchEffect to automatically track dependencies and emit the updated data.
-watchEffect(() => {
-  // We only emit if summaryData is available to avoid sending incomplete calculations.
-  if (props.summaryData && employeesData.value) {
-    const summaryPayload = {
-      schedule: employeeSchedule.value,
-      ratePerDay: formatCurrency(employeesData.value?.employment_type?.salary),
-      totalDays: props.dtrRows.length,
-      expectedSalary: regularPay.value,
-
-      // Detailed breakdown
-      workingHours: {
-        formatted: totalWorkingHours.value,
-        cost: totalWorkingHoursCost.value,
-        costRaw: parseCurrency(totalWorkingHoursCost.value),
-      },
-      overtime: {
-        formatted: totalOvertimeHours.value,
-        cost: totalOvertimeCost.value,
-        costRaw: parseCurrency(totalOvertimeCost.value),
-      },
-      nightDifferential: {
-        formatted: totalNightDifferential.value,
-        cost: totalNightDifferentialCost.value,
-        costRaw: parseCurrency(totalNightDifferentialCost.value),
-      },
-      undertime: {
-        formatted: totalUndertime.value,
-        cost: totalUndertimeCost.value,
-        costRaw: parseCurrency(totalUndertimeCost.value),
-      },
-      holidayPay: {
-        cost: totalAdditionalHolidayPay.value,
-        costRaw: parseCurrency(totalAdditionalHolidayPay.value),
-      },
-      allowances: {
-        cost: totalEmployeeAllowances.value,
-        costRaw: parseCurrency(totalEmployeeAllowances.value),
-      },
-      incentives: {
-        cost: formatCurrency(parentTotalIncentive.value),
-        costRaw: parentTotalIncentive.value,
-      },
-      // Grand Total
-      totalIncome: {
-        formatted: totalIncome.value,
-        raw: parseCurrency(totalIncome.value),
-      },
-    };
-
-    // Emit the event with the payload
-    emit("dtr-earnings-summary-calculated", summaryPayload);
-  }
-});
+const emit = defineEmits(["dtr-earnings-summary-calculated"]);
 </script>
 
 <style scoped>
