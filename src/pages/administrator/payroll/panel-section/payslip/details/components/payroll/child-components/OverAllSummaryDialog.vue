@@ -119,9 +119,8 @@
                 :key="earning"
               >
                 <span>{{ earning.label }}</span>
-                <span class="text-decoration-custom">{{
-                  earning.formatted
-                }}</span>
+                <!-- class="text-decoration-custom" -->
+                <span>{{ earning.formatted }}</span>
               </div>
               <div class="summary-total">
                 <span class="text-uppercase">Total Income:</span>
@@ -161,14 +160,6 @@
             </div>
           </div>
         </q-card-section>
-
-        <!-- <q-separator /> -->
-
-        <!-- <q-card-section>
-          <div>Uniform Balance : __________</div>
-          <div>Credit Balance As Of Today : __________</div>
-          <div>Cash Advance Balance : __________</div>
-        </q-card-section> -->
       </q-scroll-area>
 
       <!-- Footer -->
@@ -178,15 +169,21 @@
           <div class="col-12 col-md-4 balances-section">
             <div>
               <span>Uniform Balance:</span>
-              <span class="balance-value">P 1,500.00</span>
+              <span class="balance-value">{{
+                formatCurrencyProps(uniformBalance)
+              }}</span>
             </div>
             <div>
               <span>Credit Balance:</span>
-              <span class="balance-value">P 350.50</span>
+              <span class="balance-value">{{
+                formatCurrencyProps(creditBalance)
+              }}</span>
             </div>
             <div>
               <span>Cash Advance Balance:</span>
-              <span class="balance-value">P 5,000.00</span>
+              <span class="balance-value">{{
+                formatCurrencyProps(cashAdvanceBalance)
+              }}</span>
             </div>
           </div>
 
@@ -200,30 +197,221 @@
 
           <!-- Column 3: Action Button -->
           <div class="col-12 col-md-4 action-section">
-            <q-btn label="Proceed" unelevated class="proceed-btn" />
+            <q-btn
+              label="Proceed"
+              unelevated
+              class="proceed-btn"
+              @click="proceed"
+            />
           </div>
         </div>
       </q-card-actions>
-
-      <!-- <q-card-actions class="row justify-between elegant-footer">
-        <div>NET Income:</div>
-        <div>
-          <q-btn
-            label="Proceed"
-            color="white"
-            text-color="primary"
-            class="q-px-lg text-weight-bolder"
-            unelevated
-          />
-        </div>
-      </q-card-actions> -->
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
 import { useDialogPluginComponent, date } from "quasar";
-import { computed } from "vue";
+import { computed, reactive } from "vue";
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+const props = defineProps({
+  formatFullnameProps: Function,
+  formatCurrencyProps: Function,
+  employeesData: Object,
+  dtrRecord: Object,
+  dtrSummaryData: Object,
+  dtrEarningsData: Object,
+  dtrDeductionsData: Object,
+});
+
+console.log("props", props);
+
+const holidays = props.dtrRecord?.holidays || [];
+console.log("holidays", holidays);
+
+// ------------------ Payroll Release ------------------
+const payrollCycles = [
+  { fromDay: 26, toDay: 10, releaseDay: 20, monthOffset: 0 },
+  { fromDay: 11, toDay: 25, releaseDay: 5, monthOffset: 1 },
+];
+
+const getPayrollReleaseDate = (from, end) => {
+  const fromDate = date.extractDate(from, "MMMM DD, YYYY");
+  const endDate = date.extractDate(end, "MMMM DD, YYYY");
+
+  if (!fromDate || !endDate) return null;
+
+  const cycle = payrollCycles.find(
+    (c) => fromDate.getDate() === c.fromDay && endDate.getDate() === c.toDay
+  );
+
+  if (!cycle) return null;
+
+  const releaseDate = new Date(endDate);
+  releaseDate.setMonth(releaseDate.getMonth() + cycle.monthOffset);
+  releaseDate.setDate(cycle.releaseDay);
+
+  return date.formatDate(releaseDate, "MMMM DD, YYYY");
+};
+
+console.log(
+  "Payroll Release:",
+  getPayrollReleaseDate(props.dtrRecord.from, props.dtrRecord.end)
+);
+
+// ------------------ Computed Balances ------------------
+const uniformBalance = computed(() => {
+  const details = props.dtrDeductionsData?.details?.uniforms || {};
+  return (
+    (parseFloat(details.remainingPayments) || 0) -
+    (parseFloat(details.paymentsPerPayroll) || 0)
+  );
+});
+
+const totalCredits = computed(() => {
+  return (props.dtrDeductionsData?.details?.credits || []).reduce(
+    (sum, item) => sum + Number(item.total_price || 0),
+    0
+  );
+});
+
+const creditBalance = computed(() => {
+  return (
+    totalCredits.value - (parseFloat(props.dtrDeductionsData?.creditTotal) || 0)
+  );
+});
+
+const cashAdvanceBalance = computed(() => {
+  const advances = props.dtrDeductionsData?.details?.cashAdvances || [];
+  const paid = advances.reduce(
+    (sum, a) => sum + parseFloat(a.payment_per_payroll || 0),
+    0
+  );
+  const remaining = advances.reduce(
+    (sum, a) => sum + parseFloat(a.remaining_payments || 0),
+    0
+  );
+  return remaining - paid;
+});
+
+const netIncome = computed(() => {
+  return (
+    (parseFloat(props.dtrEarningsData?.totalIncome?.raw) || 0) -
+    (parseFloat(props.dtrDeductionsData?.totalDeductions) || 0)
+  );
+});
+
+// ------------------ Earnings & Deductions Arrays ------------------
+const earnings = [
+  { label: "Regular Pay", value: props.dtrEarningsData?.workingHours?.cost },
+  { label: "Overtime Pay", value: props.dtrEarningsData?.overtime?.cost },
+  { label: "Holiday Pay", value: props.dtrEarningsData?.holidayPay?.cost },
+  {
+    label: "Night Differential",
+    value: props.dtrEarningsData?.nightDifferential?.cost,
+  },
+  { label: "Total Allowance", value: props.dtrEarningsData?.allowances?.cost },
+  { label: "Quota Incentive", value: props.dtrEarningsData?.incentives?.cost },
+];
+
+const deductions = [
+  { label: "Credits", value: props.dtrDeductionsData?.creditTotal },
+  { label: "Uniform", value: props.dtrDeductionsData?.uniformTotal },
+  { label: "Penalty", value: props.dtrDeductionsData?.penaltyTotal },
+  { label: "Cash Advance", value: props.dtrDeductionsData?.cashAdvanceTotal },
+  {
+    label: "Shorts / Charges",
+    value: props.dtrDeductionsData?.employeeChargesTotal,
+  },
+  {
+    label: "SSS",
+    value: props.dtrDeductionsData?.details?.employeeBenefits?.sss,
+  },
+  {
+    label: "Pag-IBIG Housing Fund",
+    value: props.dtrDeductionsData?.details?.employeeBenefits?.hdmf,
+  },
+  {
+    label: "PhilHealth Insurance",
+    value: props.dtrDeductionsData?.details?.employeeBenefits?.phic,
+  },
+];
+
+// ------------------ Reactive Data for Sending ------------------
+const payslipDataToBeSend = reactive({
+  employee_id: props.employeesData?.id,
+  fromDate: props.dtrRecord?.from,
+  toDate: props.dtrRecord?.end,
+  payroll_release_date: getPayrollReleaseDate(
+    props.dtrRecord?.from,
+    props.dtrRecord?.end
+  ),
+  rate_per_day: props.employeesData?.employment_type?.salary,
+  total_days: props.dtrEarningsData?.totalDays,
+  uniform_balance: uniformBalance.value,
+  credit_balance: creditBalance.value,
+  cash_advance_balance: cashAdvanceBalance,
+  total_earnings: props.dtrEarningsData?.totalIncome?.raw,
+  total_deductions: props.dtrDeductionsData?.totalDeductions,
+  net_income: netIncome,
+});
+
+const payslipEarnings = reactive({
+  allowances_pay: props.dtrEarningsData?.allowances?.costRaw,
+  holidays_pay: props.dtrEarningsData?.holidayPay?.costRaw,
+  incentives_pay: props.dtrEarningsData?.incentives?.costRaw,
+  night_diff_pay: props.dtrEarningsData?.nightDifferential?.costRaw,
+  overtime_pay: props.dtrEarningsData?.overtime?.costRaw,
+  undertime_pay: props.dtrEarningsData?.undertime?.costRaw,
+  working_hours_pay: props.dtrEarningsData?.workingHours?.costRaw,
+});
+
+const payslipDeductions = reactive({
+  benefits_total: props.dtrDeductionsData?.benefitsTotal,
+  cash_advance_total: props.dtrDeductionsData?.cashAdvanceTotal,
+  credit_total: props.dtrDeductionsData?.creditTotal,
+  employee_change_total: props.dtrDeductionsData?.employeeChargesTotal,
+  total_deductions: props.dtrDeductionsData?.totalDeductions,
+  uniform_total: props.dtrDeductionsData?.uniformTotal,
+  details: props.dtrDeductionsData?.details,
+  payslip_deduction_ca: props.dtrDeductionsData?.details?.cashAdvances,
+  payslip_deduction_credits: props.dtrDeductionsData?.details?.credits,
+  payslip_deduction_benefits: props.dtrDeductionsData?.details?.benefits,
+  payslip_deduction_charges: props.dtrDeductionsData?.details?.charges,
+  payslip_deduction_uniforms: props.dtrDeductionsData?.details?.uniforms,
+});
+
+const payslipDtr = reactive({
+  from: props.dtrRecord?.from,
+  end: props.dtrRecord?.end,
+  release_date: getPayrollReleaseDate(
+    props.dtrRecord?.from,
+    props.dtrRecord?.end
+  ),
+  holidays: holidays,
+  payslip_dtr_record: props.dtrRecord?.records,
+});
+
+const payslipHolidaySummary = reactive({
+  dtr_summary: props.dtrSummaryData?.calculateAdditionalHolidayPays,
+});
+
+// ------------------ Proceed Action ------------------
+const proceed = () => {
+  console.log("payslipDataToBeSend", payslipDataToBeSend);
+  console.log("payslipEarnings", payslipEarnings);
+  console.log("payslipDeductions", payslipDeductions);
+  console.log("payslipDtr", payslipDtr);
+  console.log("payslipHolidaySummary", payslipHolidaySummary);
+};
+</script>
+
+<!-- <script setup>
+import { useDialogPluginComponent, date } from "quasar";
+import { computed, reactive } from "vue";
+
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps({
@@ -241,33 +429,32 @@ console.log("props", props);
 const holidays = props.dtrRecord.holidays || [];
 console.log("holidays", holidays);
 
+const payrollCycles = [
+  // From day, To day, Release day, Release month offset (relative to end date)
+  { fromDay: 26, toDay: 10, releaseDay: 20, monthOffset: 0 }, // same month as "to" date
+  { fromDay: 11, toDay: 25, releaseDay: 5, monthOffset: 1 }, // next month after "to" date
+];
+
 const getPayrollReleaseDate = (from, end) => {
   const fromDate = date.extractDate(from, "MMMM DD, YYYY");
   const endDate = date.extractDate(end, "MMMM DD, YYYY");
 
   if (!fromDate || !endDate) return null;
 
-  // Check: May 26 → June 10 → June 20
-  if (
-    fromDate.getMonth() === 4 &&
-    fromDate.getDate() === 26 && // May is month 4 (0-based)
-    endDate.getMonth() === 5 &&
-    endDate.getDate() === 10 // June is month 5
-  ) {
-    return date.formatDate(new Date(2025, 5, 20), "MMMM DD, YYYY");
+  for (const cycle of payrollCycles) {
+    if (
+      fromDate.getDate() === cycle.fromDay &&
+      endDate.getDate() === cycle.toDay
+    ) {
+      let releaseDate = new Date(endDate);
+      releaseDate.setMonth(releaseDate.getMonth() + cycle.monthOffset);
+      releaseDate.setDate(cycle.releaseDay);
+
+      return date.formatDate(releaseDate, "MMMM DD, YYYY");
+    }
   }
 
-  // Check: June 11 → June 25 → July 5
-  if (
-    fromDate.getMonth() === 5 &&
-    fromDate.getDate() === 11 && // June
-    endDate.getMonth() === 5 &&
-    endDate.getDate() === 25
-  ) {
-    return date.formatDate(new Date(2025, 6, 5), "MMMM DD, YYYY"); // July
-  }
-
-  return null;
+  return null; // No matching cycle
 };
 
 const earnings = [
@@ -375,6 +562,17 @@ const deductions = [
   // "PhilHealth Insurance",
 ];
 
+const uniformBalance = computed(() => {
+  const paymentsPerPayroll = parseFloat(
+    props.dtrDeductionsData?.details?.uniforms?.paymentsPerPayroll || 0.0
+  );
+  const remainingPayments = parseFloat(
+    props.dtrDeductionsData?.details?.uniforms?.remainingPayments || 0.0
+  );
+
+  return remainingPayments - paymentsPerPayroll;
+});
+
 // Example run
 console.log(
   "Payroll Release:",
@@ -391,28 +589,113 @@ const netIncome = computed(() => {
   return totalEarnings - totalDeductions;
 });
 
-// const totalDeductions = computed(() => {
-//   const credit = parseFloat(props.dtrDeductionsData?.creditTotal || 0.0);
-//   const uniform = parseFloat(props.dtrDeductionsData?.uniformTotal || 0.0);
-//   const penalty = parseFloat(props.dtrDeductionsData?.penaltyTotal || 0.0);
-//   const cashAdvance = parseFloat(
-//     props.dtrDeductionsData?.cashAdvanceTotal || 0.0
-//   );
-//   const shorts = parseFloat(
-//     props.dtrDeductionsData?.employeeChargesTotal || 0.0
-//   );
-//   const sss = parseFloat(
-//     props.dtrDeductionsData?.details?.employeeBenefits?.sss || 0.0
-//   );
-//   const hdmf = parseFloat(
-//     props.dtrDeductionsData?.details?.employeeBenefits?.hdmf || 0.0
-//   );
-//   const phic = parseFloat(
-//     props.dtrDeductionsData?.details?.employeeBenefits?.phic || 0.0
-//   );
-//   return credit + uniform + penalty + cashAdvance + shorts + sss + hdmf + phic;
-// });
-</script>
+const totalCredits = computed(() => {
+  return (props.dtrDeductionsData?.details?.credits || []).reduce(
+    (sum, item) => sum + Number(item.total_price || 0),
+    0
+  );
+});
+
+const creditBalance = computed(() => {
+  const computedTotalCredits = totalCredits.value;
+  const rawTotalCredits = parseFloat(
+    props.dtrDeductionsData?.creditTotal || 0.0
+  );
+  return computedTotalCredits - rawTotalCredits;
+});
+
+const cashAdvanceBalance = computed(() => {
+  const cashAdvance = Array.isArray(
+    props.dtrDeductionsData?.details?.cashAdvances
+  )
+    ? props.dtrDeductionsData.details.cashAdvances
+    : [];
+
+  console.log("cashAdvancesss", cashAdvance);
+
+  const totalCAPaymentsPerPayroll = cashAdvance.reduce(
+    (sum, item) => sum + parseFloat(item.payment_per_payroll || 0),
+    0
+  );
+
+  console.log("totalCAPaymentsPerPayroll", totalCAPaymentsPerPayroll);
+
+  const totalRemainingPayments = cashAdvance.reduce(
+    (sum, item) => sum + parseFloat(item.remaining_payments || 0),
+    0
+  );
+
+  console.log("totalRemainingPayments", totalRemainingPayments);
+
+  return totalRemainingPayments - totalCAPaymentsPerPayroll;
+});
+
+const payslipDataToBeSend = reactive({
+  employee_id: props.employeesData.id,
+  fromDate: props.dtrRecord.from,
+  toDate: props.dtrRecord.end,
+  payroll_release_date: getPayrollReleaseDate(
+    props.dtrRecord.from,
+    props.dtrRecord.end
+  ),
+  rate_per_day: props.employeesData.employment_type.salary,
+  total_days: props.dtrEarningsData.totalDays,
+  uniform_balance: uniformBalance.value,
+  credit_balance: creditBalance.value,
+  cash_advance_balance: cashAdvanceBalance.value,
+  total_earnings: props.dtrEarningsData.totalIncome.raw,
+  total_deductions: props.dtrDeductionsData.totalDeductions,
+  net_income: netIncome.value,
+});
+
+const payslipEarnings = reactive({
+  allowances_pay: props.dtrEarningsData.allowances.costRaw,
+  holidays_pay: props.dtrEarningsData.holidayPay.costRaw,
+  incentives_pay: props.dtrEarningsData.incentives.costRaw,
+  night_diff_pay: props.dtrEarningsData.nightDifferential.costRaw,
+  overtime_pay: props.dtrEarningsData.overtime.costRaw,
+  undertime_pay: props.dtrEarningsData.undertime.costRaw,
+  working_hours_pay: props.dtrEarningsData.workingHours.costRaw,
+});
+
+const payslipDeductions = reactive({
+  benefits_total: props.dtrDeductionsData.benefitsTotal,
+  cash_advance_total: props.dtrDeductionsData.cashAdvanceTotal,
+  credit_total: props.dtrDeductionsData.creditTotal,
+  employee_change_total: props.dtrDeductionsData.employeeChargesTotal,
+  total_deductions: props.dtrDeductionsData.totalDeductions,
+  uniform_total: props.dtrDeductionsData.uniformTotal,
+  details: props.dtrDeductionsData.details,
+  payslip_deduction_ca: props.dtrDeductionsData.details.cashAdvances,
+  payslip_deduction_credits: props.dtrDeductionsData.details.credits,
+  payslip_deduction_benefits: props.dtrDeductionsData.details.benefits,
+  payslip_deduction_charges: props.dtrDeductionsData.details.charges,
+  payslip_deduction_uniforms: props.dtrDeductionsData.details.uniforms,
+});
+
+const payslipDtr = reactive({
+  from: props.dtrRecord.from,
+  end: props.dtrRecord.end,
+  release_date: getPayrollReleaseDate(
+    props.dtrRecord.from,
+    props.dtrRecord.end
+  ),
+  holidays: props.dtrRecord.holidays,
+  payslip_dtr_record: props.dtrRecord.records,
+});
+
+const payslipHolidaySummary = reactive({
+  dtr_summary: props.dtrSummaryData.calculateAdditionalHolidayPays,
+});
+
+const proceed = () => {
+  console.log("payslipDataToBeSend", payslipDataToBeSend);
+  console.log("payslipEarnings", payslipEarnings);
+  console.log("payslipDeductions", payslipDeductions);
+  console.log("payslipDtr", payslipDtr);
+  console.log("payslipHolidaySummary", payslipHolidaySummary);
+};
+</script> -->
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");

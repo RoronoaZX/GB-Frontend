@@ -218,6 +218,9 @@ const allUniformProducts = computed(() => {
     return {
       pants: [],
       t_shirts: [],
+      id: 0,
+      date: "",
+      employee_id: 0,
       numberOfPayments: 0,
       paymentsPerPayroll: 0,
       remainingPayments: 0,
@@ -226,6 +229,9 @@ const allUniformProducts = computed(() => {
   }
   const combinedPants = [];
   const combinedTShirts = [];
+  let id = 0;
+  let date = "";
+  let employee_id = 0;
   let numberOfPayments = 0;
   let paymentsPerPayroll = 0;
   let remainingPayments = 0;
@@ -238,6 +244,9 @@ const allUniformProducts = computed(() => {
     if (Array.isArray(uniformRecord.t_shirt)) {
       combinedTShirts.push(...uniformRecord.t_shirt);
     }
+    id = uniformRecord.id;
+    date = uniformRecord.created_at;
+    employee_id = uniformRecord.employee_id;
     numberOfPayments = uniformRecord.number_of_payments;
     paymentsPerPayroll = uniformRecord.payments_per_payroll;
     remainingPayments = uniformRecord.remaining_payments;
@@ -247,6 +256,9 @@ const allUniformProducts = computed(() => {
   return {
     pants: combinedPants,
     t_shirts: combinedTShirts,
+    id,
+    date,
+    employee_id,
     numberOfPayments,
     paymentsPerPayroll,
     remainingPayments,
@@ -296,6 +308,7 @@ onMounted(fetchCreditsPerCutOff);
 
 const fetchUniformsDeduction = async () => {
   await uniformStore.fetchUniformForDeduction(employeeID);
+  console.log("Uniforms Deduction", uniformsData.value);
 };
 onMounted(fetchUniformsDeduction);
 

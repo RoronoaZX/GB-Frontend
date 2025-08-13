@@ -120,22 +120,11 @@ const totalBenefits = computed(() => {
   return sss + hdmf + phic;
 });
 
-// Watch for changes in totalBenefits and emit the value
-// watch(
-//   totalBenefits,
-//   (newValue) => {
-//     emit("update:total", {
-//       total: totalBenefits.value,
-//       breakdown: newValue,
-//     });
-//   },
-//   {
-//     immediate: true,
-//   }
-// );
 watch(
   totalBenefits,
   () => {
+    if (!showBenefitsUI.value) return;
+
     const sss = Number(benefits.value.sss || 0);
     const hdmf = Number(benefits.value.hdmf || 0);
     const phic = Number(benefits.value.phic || 0);
