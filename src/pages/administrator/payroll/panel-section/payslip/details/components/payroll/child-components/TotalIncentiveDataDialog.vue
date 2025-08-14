@@ -157,6 +157,66 @@
 
 <script setup>
 import { date, useDialogPluginComponent } from "quasar";
+import { computed, watch } from "vue";
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+const props = defineProps({
+  incentiveDatas: Array,
+  dtrFrom: String,
+  dtrTo: String,
+  formatCurrencyProp: {
+    type: Function,
+    required: true,
+  },
+});
+console.log("incentiveDatas", props.incentiveDatas);
+
+// ✅ Define the emitter
+const emit = defineEmits(["update:totalIncentive", "update:incentiveData"]);
+
+console.log("incentiveDatas in the dialog", props.incentiveDatas);
+
+const formatDateString = (dateStr) => {
+  if (!dateStr) return "";
+  return date.formatDate(dateStr, "MMM. DD, YYYY");
+};
+
+const capitalizeFirstLetter = (word) => {
+  if (!word) return "";
+  return word
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+const totalIncentiveValue = computed(() => {
+  return props.incentiveDatas.reduce((sum, item) => {
+    return sum + (Number(item.incentive_value) || 0);
+  }, 0);
+});
+
+// ✅ Watch for changes and emit automatically
+watch(
+  () => totalIncentiveValue.value,
+  (newVal) => {
+    emit("update:totalIncentive", newVal);
+  },
+  { immediate: true }
+);
+
+// ✅ Also emit the full incentive data if needed
+watch(
+  () => props.incentiveDatas,
+  (newData) => {
+    emit("update:incentiveData", newData);
+  },
+  { deep: true, immediate: true }
+);
+</script>
+
+<!-- <script setup>
+import { date, useDialogPluginComponent } from "quasar";
 import { computed } from "vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
@@ -190,7 +250,7 @@ const totalIncentiveValue = computed(() => {
     return sum + (Number(item.incentive_value) || 0);
   }, 0);
 });
-</script>
+</script> -->
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");

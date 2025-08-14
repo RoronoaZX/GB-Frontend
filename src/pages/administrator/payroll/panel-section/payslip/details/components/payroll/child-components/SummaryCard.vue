@@ -228,6 +228,7 @@
             :dtr-from="dtrFrom"
             :dtr-to="dtrTo"
             @update:totalIncentive="parentTotalIncentive = $event"
+            @incentives-data-calculated="incentiveDatasFromChild = $event"
           />
         </div>
 
@@ -283,6 +284,7 @@ const $q = useQuasar();
 const employee_id = route.params.employee_id || "";
 const employeesData = ref(null);
 const parentTotalIncentive = ref(0);
+const incentiveDatasFromChild = ref([]);
 
 watch(parentTotalIncentive, (newValue) => {
   console.log("Parent total incentive updated:", newValue);
@@ -494,6 +496,7 @@ watchEffect(() => {
       ratePerDay: formatCurrency(employeesData.value?.employment_type?.salary),
       totalDays: props.dtrRows.length,
       expectedSalary: regularPay.value,
+      incentiveDatasFromChild: incentiveDatasFromChild.value,
 
       // Detailed breakdown
       workingHours: {

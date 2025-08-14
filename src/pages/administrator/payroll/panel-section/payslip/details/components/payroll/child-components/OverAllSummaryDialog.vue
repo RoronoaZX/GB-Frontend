@@ -210,7 +210,7 @@
   </q-dialog>
 </template>
 
-<script setup>
+<!-- <script setup>
 import { useDialogPluginComponent, date } from "quasar";
 import { computed, reactive } from "vue";
 
@@ -406,13 +406,16 @@ const proceed = () => {
   console.log("payslipDtr", payslipDtr);
   console.log("payslipHolidaySummary", payslipHolidaySummary);
 };
-</script>
+</script> -->
 
-<!-- <script setup>
+<script setup>
 import { useDialogPluginComponent, date } from "quasar";
 import { computed, reactive } from "vue";
+import { usePayslipStore } from "src/stores/payslip";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+const payslipStore = usePayslipStore();
 
 const props = defineProps({
   formatFullnameProps: Function,
@@ -630,24 +633,6 @@ const cashAdvanceBalance = computed(() => {
   return totalRemainingPayments - totalCAPaymentsPerPayroll;
 });
 
-const payslipDataToBeSend = reactive({
-  employee_id: props.employeesData.id,
-  fromDate: props.dtrRecord.from,
-  toDate: props.dtrRecord.end,
-  payroll_release_date: getPayrollReleaseDate(
-    props.dtrRecord.from,
-    props.dtrRecord.end
-  ),
-  rate_per_day: props.employeesData.employment_type.salary,
-  total_days: props.dtrEarningsData.totalDays,
-  uniform_balance: uniformBalance.value,
-  credit_balance: creditBalance.value,
-  cash_advance_balance: cashAdvanceBalance.value,
-  total_earnings: props.dtrEarningsData.totalIncome.raw,
-  total_deductions: props.dtrDeductionsData.totalDeductions,
-  net_income: netIncome.value,
-});
-
 const payslipEarnings = reactive({
   allowances_pay: props.dtrEarningsData.allowances.costRaw,
   holidays_pay: props.dtrEarningsData.holidayPay.costRaw,
@@ -656,6 +641,7 @@ const payslipEarnings = reactive({
   overtime_pay: props.dtrEarningsData.overtime.costRaw,
   undertime_pay: props.dtrEarningsData.undertime.costRaw,
   working_hours_pay: props.dtrEarningsData.workingHours.costRaw,
+  payslip_incentives: props.dtrEarningsData.incentiveDatasFromChild,
 });
 
 const payslipDeductions = reactive({
@@ -688,14 +674,39 @@ const payslipHolidaySummary = reactive({
   dtr_summary: props.dtrSummaryData.calculateAdditionalHolidayPays,
 });
 
-const proceed = () => {
-  console.log("payslipDataToBeSend", payslipDataToBeSend);
-  console.log("payslipEarnings", payslipEarnings);
-  console.log("payslipDeductions", payslipDeductions);
-  console.log("payslipDtr", payslipDtr);
-  console.log("payslipHolidaySummary", payslipHolidaySummary);
+const payslipDataToBeSend = reactive({
+  employee_id: props.employeesData.id,
+  from: props.dtrRecord.from,
+  to: props.dtrRecord.end,
+  payroll_release_date: getPayrollReleaseDate(
+    props.dtrRecord.from,
+    props.dtrRecord.end
+  ),
+  rate_per_day: props.employeesData.employment_type.salary,
+  total_days: props.dtrEarningsData.totalDays,
+  uniform_balance: uniformBalance.value,
+  credit_balance: creditBalance.value,
+  cash_advance_balance: cashAdvanceBalance.value,
+  total_earnings: props.dtrEarningsData.totalIncome.raw,
+  total_deductions: props.dtrDeductionsData.totalDeductions,
+  net_income: netIncome.value,
+
+  // nested objects
+  payslip_earnings: {
+    ...payslipEarnings,
+  },
+
+  // nested objects
+  payslip_dtr: {
+    ...payslipDtr,
+  },
+});
+
+const proceed = async () => {
+  console.log("payslipFullData", payslipDataToBeSend);
+  await payslipStore.createPayslip(payslipDataToBeSend);
 };
-</script> -->
+</script>
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");

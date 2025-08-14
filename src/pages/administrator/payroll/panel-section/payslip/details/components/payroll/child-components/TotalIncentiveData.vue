@@ -26,14 +26,17 @@
 <script setup>
 import { useEmployeeIncentivesStore } from "src/stores/employee-incentives";
 import { useIncentivesBasesStore } from "src/stores/incentive-bases";
-import { computed, onMounted, watch, ref } from "vue";
+import { computed, onMounted, watch, ref, toRaw } from "vue";
 import { useRoute } from "vue-router";
 import OpenButton from "src/components/buttons/OpenButton.vue";
 import TotalIncentiveDataDialog from "./TotalIncentiveDataDialog.vue";
 import { useQuasar } from "quasar";
 
 const props = defineProps(["dtrFrom", "dtrTo"]);
-const emit = defineEmits(["update:totalIncentive"]);
+const emit = defineEmits([
+  "update:totalIncentive",
+  "incentives-data-calculated",
+]);
 const route = useRoute();
 const employeeId = route.params.employee_id || "";
 console.log("employee incentives ID", employeeId);
@@ -162,6 +165,16 @@ watch(
 watch(totalIncentiveValue, (newValue) => {
   emit("update:totalIncentive", newValue);
 });
+
+watch(
+  incentiveDatasWithValue,
+  (newValue) => {
+    emit("incentives-data-calculated", toRaw(newValue));
+  },
+  {
+    immediate: true,
+  }
+);
 
 const handleEmployeeIncentives = (dtrFrom, dtrTo) => {
   $q.dialog({
