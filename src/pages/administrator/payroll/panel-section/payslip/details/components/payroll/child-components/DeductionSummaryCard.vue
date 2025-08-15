@@ -390,6 +390,7 @@ watchEffect(() => {
     uniformTotal: calculatedUniformTotal.value,
     cashAdvanceTotal: calculateCashAdvanceTotal.value,
     employeeChargesTotal: calculateEmployeeChargesTotal.value,
+    employeeCharges: employeeCharges.value,
     benefitsTotal: receivedTotalBenefits.value.total, // This is from a ref
     totalDeductions: calculateTotalDeductions.value,
 

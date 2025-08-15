@@ -12,7 +12,7 @@
             <q-item-section>
               <q-item-label class="text-subtitle2 text-weight-medium text-dark">
                 SSS (Social Security System) :
-                <span class="benefit-amount">{{ benefits.sss }}</span>
+                <span class="benefit-amount">{{ benefits.sss || 0 }}</span>
               </q-item-label>
             </q-item-section>
           </q-item>

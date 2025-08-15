@@ -273,6 +273,8 @@ const props = defineProps({
   },
 });
 
+console.log("Summary Data:", props);
+
 // Define the emits for the component.
 // 'summaryUpdated' will be used to send all calculated data to the parent.
 const emit = defineEmits(["dtr-earnings-summary-calculated"]);

@@ -648,14 +648,14 @@ const payslipDeductions = reactive({
   benefits_total: props.dtrDeductionsData.benefitsTotal,
   cash_advance_total: props.dtrDeductionsData.cashAdvanceTotal,
   credit_total: props.dtrDeductionsData.creditTotal,
-  employee_change_total: props.dtrDeductionsData.employeeChargesTotal,
+  employee_charge_total: props.dtrDeductionsData.employeeChargesTotal,
   total_deductions: props.dtrDeductionsData.totalDeductions,
   uniform_total: props.dtrDeductionsData.uniformTotal,
-  details: props.dtrDeductionsData.details,
+  // details: props.dtrDeductionsData.details,
   payslip_deduction_ca: props.dtrDeductionsData.details.cashAdvances,
+  payslip_deduction_charges: props.dtrDeductionsData.details.employeeCharges,
   payslip_deduction_credits: props.dtrDeductionsData.details.credits,
-  payslip_deduction_benefits: props.dtrDeductionsData.details.benefits,
-  payslip_deduction_charges: props.dtrDeductionsData.details.charges,
+  payslip_deduction_benefits: props.dtrDeductionsData.details.employeeBenefits,
   payslip_deduction_uniforms: props.dtrDeductionsData.details.uniforms,
 });
 
@@ -691,14 +691,24 @@ const payslipDataToBeSend = reactive({
   total_deductions: props.dtrDeductionsData.totalDeductions,
   net_income: netIncome.value,
 
-  // nested objects
+  // nested Earnings objects
   payslip_earnings: {
     ...payslipEarnings,
   },
 
-  // nested objects
+  // nested DTR objects
   payslip_dtr: {
     ...payslipDtr,
+  },
+
+  // nested Holiday Summary objects
+  payslip_holiday_summary: {
+    ...payslipHolidaySummary,
+  },
+
+  // nested Deductions Summary objects
+  payslip_deductions: {
+    ...payslipDeductions,
   },
 });
 
