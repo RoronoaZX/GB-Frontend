@@ -1,6 +1,394 @@
 <template>
   <q-dialog ref="dialogRef" persistent position="top">
     <q-card class="uniform-list-card compact-card">
+      <!-- ... (header section is unchanged) ... -->
+      <q-card-section class="header-section compact-header">
+        <div class="text-h6 text-weight-bold text-shadow">Uniform List</div>
+        <q-space />
+        <q-btn
+          icon="close"
+          flat
+          dense
+          round
+          v-close-popup
+          color="white"
+          class="close-btn"
+        />
+      </q-card-section>
+
+      <q-card-section class="scrollable-content-wrapper q-pa-none">
+        <!-- This loop creates a separate card for each order -->
+        <q-card
+          v-for="(uniformList, index) in uniformLists"
+          :key="index"
+          class="uniform-order-card q-mb-lg shadow-4"
+        >
+          <!-- ... (payment summary section is unchanged) ... -->
+          <q-card-section class="q-pa-md payment-summary-section">
+            <div class="row q-col-gutter-md q-px-sm q-py-sm">
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Total Amount</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.total_amount) }}
+                </div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Number of Payments</div>
+                <div class="value">{{ uniformList.number_of_payments }}</div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Payments Per Payroll</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.payments_per_payroll) }}
+                </div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Remaining Payments</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.remaining_payments) }}
+                </div>
+              </div>
+            </div>
+          </q-card-section>
+          <q-separator />
+
+          <!-- T-Shirts Section for this specific order -->
+          <q-card-section class="q-pt-sm q-pb-none compact-content-section">
+            <div
+              class="category-title text-subtitle1 text-primary animated-underline"
+            >
+              T-Shirts
+            </div>
+            <q-list
+              bordered
+              class="rounded-borders q-mt-xs list-container compact-list"
+            >
+              <!-- ... (list header) ... -->
+              <q-item
+                class="list-header bg-grey-2 text-weight-medium compact-list-header"
+              >
+                <q-item-section>Size</q-item-section>
+                <q-item-section class="text-center">Qty</q-item-section>
+                <q-item-section side>Price</q-item-section>
+              </q-item>
+              <q-item
+                v-for="(uniform, idx) in uniformList.t_shirt"
+                :key="idx"
+                class="list-item compact-list-item"
+              >
+                <q-item-section class="item-size">{{
+                  uniform.size
+                }}</q-item-section>
+                <q-item-section class="item-qty text-center">{{
+                  uniform.pcs
+                }}</q-item-section>
+                <q-item-section side class="item-price">{{
+                  formatCurrency(uniform.price)
+                }}</q-item-section>
+              </q-item>
+              <!-- List Total for T-Shirts -->
+              <q-item
+                class="list-total bg-accent-light text-weight-bold compact-list-total"
+              >
+                <q-item-section class="text-subtitle1 text-accent-dark"
+                  >Total :</q-item-section
+                >
+                <q-item-section side class="text-subtitle1 text-accent-dark">
+                  <!-- S O L U T I O N : Call the method with this order's t_shirt data -->
+                  {{
+                    formatCurrency(calculateCategoryTotal(uniformList.t_shirt))
+                  }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <!-- Pants Section for this specific order -->
+          <q-card-section class="q-pt-sm q-pb-sm compact-content-section">
+            <div
+              class="category-title text-subtitle1 text-primary animated-underline"
+            >
+              Pants
+            </div>
+            <q-list
+              bordered
+              class="rounded-borders q-mt-xs list-container compact-list"
+            >
+              <!-- ... (list header) ... -->
+              <q-item
+                class="list-header bg-grey-2 text-weight-medium compact-list-header"
+              >
+                <q-item-section>Size</q-item-section>
+                <q-item-section class="text-center">Qty</q-item-section>
+                <q-item-section side>Price</q-item-section>
+              </q-item>
+              <q-item
+                v-for="(uniform, idx) in uniformList.pants"
+                :key="idx"
+                class="list-item compact-list-item"
+              >
+                <q-item-section class="item-size">{{
+                  uniform.size
+                }}</q-item-section>
+                <q-item-section class="item-qty text-center">{{
+                  uniform.pcs
+                }}</q-item-section>
+                <q-item-section side class="item-price">{{
+                  formatCurrency(uniform.price)
+                }}</q-item-section>
+              </q-item>
+              <!-- List Total for Pants -->
+              <q-item
+                class="list-total bg-accent-light text-weight-bold compact-list-total"
+              >
+                <q-item-section class="text-subtitle1 text-accent-dark"
+                  >Total :</q-item-section
+                >
+                <q-item-section side class="text-subtitle1 text-accent-dark">
+                  <!-- S O L U T I O N : Call the method with this order's pants data -->
+                  {{
+                    formatCurrency(calculateCategoryTotal(uniformList.pants))
+                  }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </q-card-section>
+
+      <!-- Grand Total Section at the very bottom -->
+      <q-card-section
+        class="q-py-md q-px-lg total-summary-section compact-total-summary"
+      >
+        <div class="flex justify-between items-center total-grand">
+          <div class="text-subtitle1 text-weight-bold text-gradient">
+            Grand Total :
+          </div>
+          <div class="text-h6 text-weight-bold text-gradient total-amount">
+            <!-- This remains correct as it sums everything -->
+            {{ formatCurrency(grandTotal) }}
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script setup>
+import { useDialogPluginComponent } from "quasar";
+import { computed } from "vue";
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
+const props = defineProps(["uniformLists"]);
+const emit = defineEmits(["update:total"]);
+
+// S O L U T I O N : A method to calculate total for a specific category within a single order.
+const calculateCategoryTotal = (items) => {
+  // Guard against cases where items might not exist
+  if (!items || !Array.isArray(items)) {
+    return 0;
+  }
+
+  return items.reduce((sum, item) => {
+    const price = parseFloat(item.price || 0);
+    const pcs = parseInt(item.pcs || 0);
+    return sum + price * pcs;
+  }, 0);
+};
+
+// The computed properties below are now used ONLY for the final "Grand Total".
+const tShirtGrandTotal = computed(() => {
+  return props.uniformLists?.reduce((sum, uniformList) => {
+    return sum + calculateCategoryTotal(uniformList.t_shirt);
+  }, 0);
+});
+
+const pantsGrandTotal = computed(() => {
+  return props.uniformLists?.reduce((sum, uniformList) => {
+    return sum + calculateCategoryTotal(uniformList.pants);
+  }, 0);
+});
+
+const grandTotal = computed(() => {
+  return tShirtGrandTotal.value + pantsGrandTotal.value;
+});
+
+const formatCurrency = (value) => {
+  const number = parseFloat(value || 0);
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(number);
+};
+</script>
+<!-- <template>
+  <q-dialog ref="dialogRef" persistent position="top">
+    <q-card class="uniform-list-card compact-card">
+      <q-card-section class="header-section compact-header">
+        <div class="text-h6 text-weight-bold text-shadow">Uniform List</div>
+        <q-space />
+        <q-btn
+          icon="close"
+          flat
+          dense
+          round
+          v-close-popup
+          color="white"
+          class="close-btn"
+        />
+      </q-card-section>
+
+      <q-card-section class="scrollable-content-wrapper q-pa-none">
+        <q-card
+          v-for="(uniformList, index) in uniformLists"
+          :key="index"
+          class="uniform-order-card q-mb-lg shadow-4"
+        >
+          <q-card-section class="q-pa-md payment-summary-section">
+            <div class="row q-col-gutter-md q-px-sm q-py-sm">
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Total Amount</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.total_amount) }}
+                </div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Number of Payments</div>
+                <div class="value">{{ uniformList.number_of_payments }}</div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Payments Per Payroll</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.payments_per_payroll) }}
+                </div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Remaining Payments</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.remaining_payments) }}
+                </div>
+              </div>
+            </div>
+          </q-card-section>
+          <q-separator />
+
+          <q-card-section class="q-pt-sm q-pb-none compact-content-section">
+            <div
+              class="category-title text-subtitle1 text-primary animated-underline"
+            >
+              T-Shirts
+            </div>
+            <q-list
+              bordered
+              class="rounded-borders q-mt-xs list-container compact-list"
+            >
+              <q-item
+                class="list-header bg-grey-2 text-weight-medium compact-list-header"
+              >
+                <q-item-section>Size</q-item-section>
+                <q-item-section class="text-center">Qty</q-item-section>
+                <q-item-section side>Price</q-item-section>
+              </q-item>
+              <q-item
+                v-for="(uniform, idx) in uniformList.t_shirt"
+                :key="idx"
+                class="list-item compact-list-item"
+              >
+                <q-item-section class="item-size">{{
+                  uniform.size
+                }}</q-item-section>
+                <q-item-section class="item-qty text-center">{{
+                  uniform.pcs
+                }}</q-item-section>
+                <q-item-section side class="item-price">{{
+                  formatCurrency(uniform.price)
+                }}</q-item-section>
+              </q-item>
+              <q-item
+                class="list-total bg-accent-light text-weight-bold compact-list-total"
+              >
+                <q-item-section class="text-subtitle1 text-accent-dark"
+                  >Total :</q-item-section
+                >
+                <q-item-section />
+                <q-item-section />
+                <q-item-section side class="text-subtitle1 text-accent-dark">
+                  {{ formatCurrency(tShirtTotal) }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <q-card-section class="q-pt-sm q-pb-sm compact-content-section">
+            <div
+              class="category-title text-subtitle1 text-primary animated-underline"
+            >
+              Pants
+            </div>
+            <q-list
+              bordered
+              class="rounded-borders q-mt-xs list-container compact-list"
+            >
+              <q-item
+                class="list-header bg-grey-2 text-weight-medium compact-list-header"
+              >
+                <q-item-section>Size</q-item-section>
+                <q-item-section class="text-center">Qty</q-item-section>
+                <q-item-section side>Price</q-item-section>
+              </q-item>
+              <q-item
+                v-for="(uniform, idx) in uniformList.pants"
+                :key="idx"
+                class="list-item compact-list-item"
+              >
+                <q-item-section class="item-size">{{
+                  uniform.size
+                }}</q-item-section>
+                <q-item-section class="item-qty text-center">{{
+                  uniform.pcs
+                }}</q-item-section>
+                <q-item-section side class="item-price">{{
+                  formatCurrency(uniform.price)
+                }}</q-item-section>
+              </q-item>
+              <q-item
+                class="list-total bg-accent-light text-weight-bold compact-list-total"
+              >
+                <q-item-section class="text-subtitle1 text-accent-dark"
+                  >Total :</q-item-section
+                >
+                <q-item-section />
+                <q-item-section />
+                <q-item-section side class="text-subtitle1 text-accent-dark">
+                  {{ formatCurrency(pantsTotal) }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </q-card-section>
+
+      <q-card-section
+        class="q-py-md q-px-lg total-summary-section compact-total-summary"
+      >
+        <div class="flex justify-between items-center total-grand">
+          <div class="text-subtitle1 text-weight-bold text-gradient">
+            Grand Total :
+          </div>
+          <div class="text-h6 text-weight-bold text-gradient total-amount">
+            {{ formatCurrency(grandTotal) }}
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
+</template> -->
+
+<!-- <template>
+  <q-dialog ref="dialogRef" persistent position="top">
+    <q-card class="uniform-list-card compact-card">
       <q-card-section class="header-section compact-header">
         <div class="text-h6 text-weight-bold text-shadow">Uniform List</div>
         <q-space />
@@ -16,128 +404,130 @@
       </q-card-section>
 
       <q-card-section class="scrollable-content-wrapper">
-        <q-card flat bordered class="q-mt-md payment-summary">
-          <div class="row q-col-gutter-md q-px-sm q-py-sm">
-            <div class="col-6 text-subtitle2 text-dark">
-              <div class="label">Total Amount</div>
-              <div class="value">
-                {{ formatCurrency(uniformList.totalAmount) }}
+        <div v-for="(uniformList, index) in uniformLists" :key="index">
+          <q-card flat bordered class="q-mt-md payment-summary">
+            <div class="row q-col-gutter-md q-px-sm q-py-sm">
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Total Amount</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.total_amount) }}
+                </div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Number of Payments</div>
+                <div class="value">{{ uniformList.number_of_payments }}</div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Payments Per Payroll</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.payments_per_payroll) }}
+                </div>
+              </div>
+              <div class="col-6 text-subtitle2 text-dark">
+                <div class="label">Remaining Payments</div>
+                <div class="value">
+                  {{ formatCurrency(uniformList.remaining_payments) }}
+                </div>
               </div>
             </div>
-            <div class="col-6 text-subtitle2 text-dark">
-              <div class="label">Number of Payments</div>
-              <div class="value">{{ uniformList.numberOfPayments }}</div>
-            </div>
-            <div class="col-6 text-subtitle2 text-dark">
-              <div class="label">Payments Per Payroll</div>
-              <div class="value">
-                {{ formatCurrency(uniformList.paymentsPerPayroll) }}
-              </div>
-            </div>
-            <div class="col-6 text-subtitle2 text-dark">
-              <div class="label">Remaining Payments</div>
-              <div class="value">
-                {{ formatCurrency(uniformList.remainingPayments) }}
-              </div>
-            </div>
-          </div>
-        </q-card>
-        <div class="q-pt-sm q-pb-none compact-content-section">
-          <div
-            class="category-title text-subtitle1 text-primary animated-underline"
-          >
-            T-Shirts
-          </div>
-          <q-list
-            bordered
-            class="rounded-borders q-mt-xs list-container compact-list"
-          >
-            <q-item
-              class="list-header bg-grey-2 text-weight-medium compact-list-header"
+          </q-card>
+          <div class="q-pt-sm q-pb-none compact-content-section">
+            <div
+              class="category-title text-subtitle1 text-primary animated-underline"
             >
-              <q-item-section>Size</q-item-section>
-              <q-item-section class="text-center">Qty</q-item-section>
-              <q-item-section side>Price</q-item-section>
-            </q-item>
-
-            <q-item
-              v-for="(uniform, index) in uniformList.t_shirts"
-              :key="index"
-              class="list-item compact-list-item"
+              T-Shirts
+            </div>
+            <q-list
+              bordered
+              class="rounded-borders q-mt-xs list-container compact-list"
             >
-              <q-item-section class="item-size">{{
-                uniform.size
-              }}</q-item-section>
-              <q-item-section class="item-qty text-center">{{
-                uniform.pcs
-              }}</q-item-section>
-              <q-item-section side class="item-price">{{
-                formatCurrency(uniform.price)
-              }}</q-item-section>
-            </q-item>
-
-            <q-item
-              class="list-total bg-accent-light text-weight-bold compact-list-total"
-            >
-              <q-item-section class="text-subtitle1 text-accent-dark"
-                >Total :</q-item-section
+              <q-item
+                class="list-header bg-grey-2 text-weight-medium compact-list-header"
               >
-              <q-item-section />
-              <q-item-section />
-              <q-item-section side class="text-subtitle1 text-accent-dark">
-                {{ formatCurrency(tShirtTotal) }}
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </div>
+                <q-item-section>Size</q-item-section>
+                <q-item-section class="text-center">Qty</q-item-section>
+                <q-item-section side>Price</q-item-section>
+              </q-item>
 
-        <div class="q-pt-sm q-pb-sm compact-content-section">
-          <div
-            class="category-title text-subtitle1 text-primary animated-underline"
-          >
-            Pants
-          </div>
-          <q-list
-            bordered
-            class="rounded-borders q-mt-xs list-container compact-list"
-          >
-            <q-item
-              class="list-header bg-grey-2 text-weight-medium compact-list-header"
-            >
-              <q-item-section>Size</q-item-section>
-              <q-item-section class="text-center">Qty</q-item-section>
-              <q-item-section side>Price</q-item-section>
-            </q-item>
-
-            <q-item
-              v-for="(uniform, index) in uniformList.pants"
-              :key="index"
-              class="list-item compact-list-item"
-            >
-              <q-item-section class="item-size">{{
-                uniform.size
-              }}</q-item-section>
-              <q-item-section class="item-qty text-center">{{
-                uniform.pcs
-              }}</q-item-section>
-              <q-item-section side class="item-price">{{
-                formatCurrency(uniform.price)
-              }}</q-item-section>
-            </q-item>
-
-            <q-item
-              class="list-total bg-accent-light text-weight-bold compact-list-total"
-            >
-              <q-item-section class="text-subtitle1 text-accent-dark"
-                >Total :</q-item-section
+              <q-item
+                v-for="(uniform, index) in uniformList.t_shirt"
+                :key="index"
+                class="list-item compact-list-item"
               >
-              <q-item-section />
-              <q-item-section />
-              <q-item-section side class="text-subtitle1 text-accent-dark">
-                {{ formatCurrency(pantsTotal) }}
-              </q-item-section>
-            </q-item>
-          </q-list>
+                <q-item-section class="item-size">{{
+                  uniform.size
+                }}</q-item-section>
+                <q-item-section class="item-qty text-center">{{
+                  uniform.pcs
+                }}</q-item-section>
+                <q-item-section side class="item-price">{{
+                  formatCurrency(uniform.price)
+                }}</q-item-section>
+              </q-item>
+
+              <q-item
+                class="list-total bg-accent-light text-weight-bold compact-list-total"
+              >
+                <q-item-section class="text-subtitle1 text-accent-dark"
+                  >Total :</q-item-section
+                >
+                <q-item-section />
+                <q-item-section />
+                <q-item-section side class="text-subtitle1 text-accent-dark">
+                  {{ formatCurrency(tShirtTotal) }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+
+          <div class="q-pt-sm q-pb-sm compact-content-section">
+            <div
+              class="category-title text-subtitle1 text-primary animated-underline"
+            >
+              Pants
+            </div>
+            <q-list
+              bordered
+              class="rounded-borders q-mt-xs list-container compact-list"
+            >
+              <q-item
+                class="list-header bg-grey-2 text-weight-medium compact-list-header"
+              >
+                <q-item-section>Size</q-item-section>
+                <q-item-section class="text-center">Qty</q-item-section>
+                <q-item-section side>Price</q-item-section>
+              </q-item>
+
+              <q-item
+                v-for="(uniform, index) in uniformList.pants"
+                :key="index"
+                class="list-item compact-list-item"
+              >
+                <q-item-section class="item-size">{{
+                  uniform.size
+                }}</q-item-section>
+                <q-item-section class="item-qty text-center">{{
+                  uniform.pcs
+                }}</q-item-section>
+                <q-item-section side class="item-price">{{
+                  formatCurrency(uniform.price)
+                }}</q-item-section>
+              </q-item>
+
+              <q-item
+                class="list-total bg-accent-light text-weight-bold compact-list-total"
+              >
+                <q-item-section class="text-subtitle1 text-accent-dark"
+                  >Total :</q-item-section
+                >
+                <q-item-section />
+                <q-item-section />
+                <q-item-section side class="text-subtitle1 text-accent-dark">
+                  {{ formatCurrency(pantsTotal) }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
         </div>
       </q-card-section>
       <q-card-section
@@ -154,34 +544,64 @@
       </q-card-section>
     </q-card>
   </q-dialog>
-</template>
+</template> -->
 
-<script setup>
+<!-- <script setup>
 import { useDialogPluginComponent } from "quasar";
 import { computed } from "vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const props = defineProps(["uniformList"]);
-console.log("uniformList", props.uniformList);
+const props = defineProps(["uniformLists"]);
+console.log("uniformList", props.uniformLists);
 
 const emit = defineEmits(["update:total"]);
 
 const tShirtTotal = computed(() => {
-  return props.uniformList?.t_shirts?.reduce((sum, item) => {
-    const price = parseFloat(item.price || 0);
-    const pcs = parseInt(item.pcs || 0);
-    const product = price * pcs;
-    return sum + product;
+  return props.uniformLists?.reduce((sum, uniformList) => {
+    return (
+      sum +
+      (uniformList.t_shirt?.reduce((sum, uniformList) => {
+        const price = parseFloat(uniformList.price || 0);
+        console.log("price", price);
+        const pcs = parseInt(uniformList.price || 0);
+        const product = price * pcs;
+        return sum + product;
+      }, 0) || 0)
+    );
   }, 0);
 });
+console.log("tShirtTotal", tShirtTotal.value);
 
 const pantsTotal = computed(() => {
-  return props.uniformList?.pants?.reduce((sum, item) => {
-    const price = parseFloat(item.price || 0);
-    const pcs = parseInt(item.pcs || 0);
-    const product = price * pcs;
-    return sum + product;
+  console.log(
+    "🔥 props.uniformLists (raw):",
+    JSON.stringify(props.uniformLists, null, 2)
+  );
+
+  return props.uniformLists?.reduce((sum, uniformList, listIndex) => {
+    console.log(`👉 Uniform List [${listIndex}]:`, uniformList);
+
+    const pantsArray = uniformList.pants || [];
+    console.log(`   👖 Pants array for list [${listIndex}]:`, pantsArray);
+
+    const pantsSum = pantsArray.reduce((s, item, itemIndex) => {
+      console.log(`      📦 Item [${itemIndex}] in pants:`, item);
+
+      const price = parseFloat(item.price || 0);
+      const pcs = parseInt(item.pcs || 0);
+      const product = price * pcs;
+
+      console.log(
+        `         ➡ price: ${price}, pcs: ${pcs}, product: ${product}`
+      );
+
+      return s + product;
+    }, 0);
+
+    console.log(`   ✅ Subtotal for list [${listIndex}]:`, pantsSum);
+
+    return sum + pantsSum;
   }, 0);
 });
 
@@ -198,7 +618,7 @@ const formatCurrency = (value) => {
     maximumFractionDigits: 2,
   }).format(number);
 };
-</script>
+</script> -->
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");
@@ -219,6 +639,42 @@ $shadow-color: rgba(0, 0, 0, 0.15);
 // Custom accent colors for totals
 $accent-light: #e0f2f7;
 $accent-dark: #004d40;
+
+.uniform-order-card {
+  border-radius: 10px;
+  border: 1px solid #e0e6ed;
+  background-color: #fcfdfe;
+
+  &:not(:last-child) {
+    margin-bottom: 24px;
+  }
+}
+
+.payment-summary-section {
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+}
+
+.scrollable-content-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px !important; // Adjust padding to create space around the cards
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #0267c5;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #0c3154;
+  }
+}
 
 .uniform-list-card.compact-card {
   width: 420px;

@@ -614,24 +614,60 @@ const cashAdvanceBalance = computed(() => {
     ? props.dtrDeductionsData.details.cashAdvances
     : [];
 
-  console.log("cashAdvancesss", cashAdvance);
-
   const totalCAPaymentsPerPayroll = cashAdvance.reduce(
     (sum, item) => sum + parseFloat(item.payment_per_payroll || 0),
     0
   );
-
-  console.log("totalCAPaymentsPerPayroll", totalCAPaymentsPerPayroll);
 
   const totalRemainingPayments = cashAdvance.reduce(
     (sum, item) => sum + parseFloat(item.remaining_payments || 0),
     0
   );
 
-  console.log("totalRemainingPayments", totalRemainingPayments);
+  let balance = totalRemainingPayments - totalCAPaymentsPerPayroll;
 
-  return totalRemainingPayments - totalCAPaymentsPerPayroll;
+  // ✅ Clamp tiny negatives to 0
+  if (balance < 0 && balance > -1) {
+    balance = 0;
+  }
+
+  // ✅ If balance is -1 or less, throw an error or return a flag
+  if (balance <= -1) {
+    console.error(
+      "❌ Cash advance balance error: balance is below -1",
+      balance
+    );
+    return "Error"; // or return `null`, or even throw an Error depending on UX
+  }
+
+  return balance;
 });
+
+// const cashAdvanceBalance = computed(() => {
+//   const cashAdvance = Array.isArray(
+//     props.dtrDeductionsData?.details?.cashAdvances
+//   )
+//     ? props.dtrDeductionsData.details.cashAdvances
+//     : [];
+
+//   console.log("cashAdvancesss", cashAdvance);
+
+//   const totalCAPaymentsPerPayroll = cashAdvance.reduce(
+//     (sum, item) => sum + parseFloat(item.payment_per_payroll || 0),
+//     0
+//   );
+
+//   console.log("totalCAPaymentsPerPayroll", totalCAPaymentsPerPayroll);
+
+//   const totalRemainingPayments = cashAdvance.reduce(
+//     (sum, item) => sum + parseFloat(item.remaining_payments || 0),
+//     0
+//   );
+
+//   console.log("totalRemainingPayments", totalRemainingPayments);
+
+//   return totalRemainingPayments - totalCAPaymentsPerPayroll;
+// });
 
 const payslipEarnings = reactive({
   allowances_pay: props.dtrEarningsData.allowances.costRaw,

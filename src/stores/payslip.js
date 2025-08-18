@@ -18,6 +18,11 @@ export const usePayslipStore = defineStore("payslips", () => {
       });
       return response.data;
     } catch (error) {
+      Notify.create({
+        type: "negative",
+        message: "Error creating payslip",
+        setTimeout: 1000,
+      });
       console.log("payslip error", error);
     }
   };

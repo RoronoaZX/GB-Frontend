@@ -46,9 +46,7 @@
             </q-item-section>
           </q-item>
           <div class="q-mt-md">
-            <OpenButton
-              @open-dialog="handleEmployeeUniforms(allUniformProducts)"
-            />
+            <OpenButton @open-dialog="handleEmployeeUniforms(uniformsData)" />
           </div>
         </div>
 
@@ -345,7 +343,7 @@ const handleEmployeeUniforms = (uniforms) => {
   $q.dialog({
     component: UniformList,
     componentProps: {
-      uniformList: uniforms,
+      uniformLists: uniforms,
     },
     on: {
       "update:total": (total) => {
@@ -397,7 +395,7 @@ watchEffect(() => {
     // You can also include the detailed data if the parent component needs it
     details: {
       credits: allCreditProducts.value,
-      uniforms: allUniformProducts.value,
+      uniforms: uniformsData.value,
       cashAdvances: cashAdvances.value,
       employeeCharges: employeeCharges.value,
       employeeBenefits: receivedTotalBenefits.value,
