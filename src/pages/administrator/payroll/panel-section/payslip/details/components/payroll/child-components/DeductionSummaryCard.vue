@@ -191,9 +191,19 @@ const allCreditProducts = computed(() => {
   if (!credits.value || !Array.isArray(credits.value.credit_records)) {
     return [];
   }
-  return credits.value.credit_records.flatMap((creditRecord) =>
-    Array.isArray(creditRecord.products) ? creditRecord.products : []
-  );
+  return credits.value.credit_records.flatMap((creditRecord) => {
+    if (!Array.isArray(creditRecord.products)) {
+      return [];
+    }
+
+    return creditRecord.products.map((product) => ({
+      ...product,
+      branch_id: creditRecord.branch_id,
+      employee_id: creditRecord.employee_id,
+      employee_credit_id: creditRecord.id,
+      sales_report_id: creditRecord.sales_report_id,
+    }));
+  });
 });
 
 // Calculate uniformTotal directly from the 'uniformsData' computed property
@@ -301,6 +311,7 @@ const fetchCreditsPerCutOff = async () => {
     props.dtrTo,
     employeeID
   );
+  console.log("Creditssss", credits.value);
 };
 onMounted(fetchCreditsPerCutOff);
 
@@ -330,6 +341,8 @@ const handleEmployeeCredit = (credits) => {
     component: CreditList,
     componentProps: {
       creditList: credits,
+      dtrFrom: props.dtrFrom,
+      dtrTo: props.dtrTo,
     },
     on: {
       "update:total": (total) => {
@@ -344,6 +357,8 @@ const handleEmployeeUniforms = (uniforms) => {
     component: UniformList,
     componentProps: {
       uniformLists: uniforms,
+      dtrFrom: props.dtrFrom,
+      dtrTo: props.dtrTo,
     },
     on: {
       "update:total": (total) => {
@@ -358,6 +373,8 @@ const handleEmployeeCashAdvance = (cashAdvances) => {
     component: CashAdvanceList,
     componentProps: {
       cashAdvanceList: cashAdvances,
+      dtrFrom: props.dtrFrom,
+      dtrTo: props.dtrTo,
     },
   });
 };
@@ -385,6 +402,7 @@ watchEffect(() => {
   // Create a summary object with all the calculated data.
   const deductionsSummary = {
     creditTotal: calculatedCreditTotal.value,
+    // creditTotal: credits.value,
     uniformTotal: calculatedUniformTotal.value,
     cashAdvanceTotal: calculateCashAdvanceTotal.value,
     employeeChargesTotal: calculateEmployeeChargesTotal.value,

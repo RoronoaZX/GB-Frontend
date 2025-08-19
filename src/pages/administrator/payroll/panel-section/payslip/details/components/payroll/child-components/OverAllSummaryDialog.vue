@@ -427,7 +427,7 @@ const props = defineProps({
   dtrDeductionsData: Object,
 });
 
-console.log("props", props);
+console.log("propssss", props);
 
 const holidays = props.dtrRecord.holidays || [];
 console.log("holidays", holidays);
@@ -566,14 +566,26 @@ const deductions = [
 ];
 
 const uniformBalance = computed(() => {
-  const paymentsPerPayroll = parseFloat(
-    props.dtrDeductionsData?.details?.uniforms?.paymentsPerPayroll || 0.0
-  );
-  const remainingPayments = parseFloat(
-    props.dtrDeductionsData?.details?.uniforms?.remainingPayments || 0.0
-  );
+  const uniforms = Array.isArray(props.dtrDeductionsData?.details?.uniforms)
+    ? props.dtrDeductionsData?.details?.uniforms
+    : [];
 
-  return remainingPayments - paymentsPerPayroll;
+  return uniforms.reduce((sum, uniform) => {
+    const paymentsPerPayroll = parseFloat(uniform.payments_per_payroll || 0.0);
+    const remainingPayments = parseFloat(uniform.remaining_payments || 0.0);
+    let diff = remainingPayments - paymentsPerPayroll;
+
+    // ✅ Handle floating point tolerances
+    if (diff < 0 && diff >= -0.25) {
+      diff = 0;
+    } else if (diff < -0.25) {
+      throw new Error(
+        `Uniform balance error: Invalid negative value (${diff.toFixed(2)})`
+      );
+    }
+
+    return sum + diff;
+  }, 0);
 });
 
 // Example run
@@ -667,6 +679,29 @@ const cashAdvanceBalance = computed(() => {
 //   console.log("totalRemainingPayments", totalRemainingPayments);
 
 //   return totalRemainingPayments - totalCAPaymentsPerPayroll;
+// });
+
+// const uniformBalance = computed(() => {
+//   const uniforms = Array.isArray(props.dtrDeductionsData?.details?.uniforms)
+//     ? props.dtrDeductionsData.details.uniforms
+//     : [];
+
+//   return uniforms.reduce((sum, uniform) => {
+//     const paymentsPerPayroll = parseFloat(uniform.payments_per_payroll || 0.0);
+//     const remainingPayments = parseFloat(uniform.remaining_payments || 0.0);
+//     let diff = remainingPayments - paymentsPerPayroll;
+
+//     // ✅ Handle floating point tolerances
+//     if (diff < 0 && diff >= -0.25) {
+//       diff = 0; // clamp small negatives to zero
+//     } else if (diff < -0.25) {
+//       throw new Error(
+//         `Uniform balance error: invalid negative value (${diff.toFixed(2)})`
+//       );
+//     }
+
+//     return sum + diff;
+//   }, 0);
 // });
 
 const payslipEarnings = reactive({

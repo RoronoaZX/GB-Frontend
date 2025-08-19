@@ -17,55 +17,67 @@
 
       <q-card-section class="scrollable-content-wrapper">
         <div class="q-pt-sm q-pb-none compact-content-section">
-          <q-list
-            bordered
-            class="rounded-borders q-mt-xs list-container compact-list"
+          <div
+            v-if="creditList.length > 0"
+            class="q-pt-sm q-pb-none compact-content-section"
           >
-            <q-item
-              class="list-header bg-grey-2 text-weight-medium compact-list-header"
+            <q-list
+              bordered
+              class="rounded-borders q-mt-xs list-container compact-list"
             >
-              <q-item-section>Date</q-item-section>
-              <q-item-section>Product Name</q-item-section>
-              <q-item-section>Price</q-item-section>
-              <q-item-section class="text-center">Qty</q-item-section>
-              <q-item-section side>Amount</q-item-section>
-            </q-item>
+              <q-item
+                class="list-header bg-grey-2 text-weight-medium compact-list-header"
+              >
+                <q-item-section>Date</q-item-section>
+                <q-item-section>Product Name</q-item-section>
+                <q-item-section>Price</q-item-section>
+                <q-item-section class="text-center">Qty</q-item-section>
+                <q-item-section side>Amount</q-item-section>
+              </q-item>
 
-            <q-item
-              v-for="(credit, index) in creditList"
-              :key="index"
-              class="list-item compact-list-item"
-            >
-              <q-item-section class="item-size">
-                {{ formatDateString(credit.created_at) }}
-              </q-item-section>
-              <q-item-section class="item-size">
-                {{ capitalizeFirstLetter(credit.product_name) }}
-              </q-item-section>
-              <q-item-section class="item-price">
-                {{ formatCurrency(credit.price) }}
-              </q-item-section>
-              <q-item-section class="item-qty text-center">
-                {{ credit.pieces }}
-              </q-item-section>
-              <q-item-section side class="item-price">
-                {{ formatCurrency(credit.total_price) }}
-              </q-item-section>
-            </q-item>
-
-            <!-- <q-item
-              class="list-total bg-accent-light text-weight-bold compact-list-total"
-            >
-              <q-item-section class="text-subtitle1 text-accent-dark">
-                Total :
-              </q-item-section>
-              <q-item-section />
-              <q-item-section />
-              <q-item-section side class="text-subtitle1 text-accent-dark">
-                {{ formatCurrency(totalAmount) }}
-              </q-item-section>
-            </q-item> -->
-          </q-list>
+              <q-item
+                v-for="(credit, index) in creditList"
+                :key="index"
+                class="list-item compact-list-item"
+              >
+                <q-item-section class="item-size">
+                  {{ formatDateString(credit.created_at) }}
+                </q-item-section>
+                <q-item-section class="item-size">
+                  {{ capitalizeFirstLetter(credit.product_name) }}
+                </q-item-section>
+                <q-item-section class="item-price">
+                  {{ formatCurrency(credit.price) }}
+                </q-item-section>
+                <q-item-section class="item-qty text-center">
+                  {{ credit.pieces }}
+                </q-item-section>
+                <q-item-section side class="item-price">
+                  {{ formatCurrency(credit.total_price) }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div
+            v-else
+            class="flex flex-center column q-pa-md"
+            style="min-height: 250px"
+          >
+            <q-icon
+              name="sentiment_very_satisfied"
+              color="grey-5"
+              size="80px"
+              class="q-mb-sm"
+            />
+            <div class="text-h6 text-grey-7 q-mb-xs">
+              Employee has no credits for this cut-off.
+            </div>
+            <div class="text-subtitle2 text-grey-6 text-center">
+              It looks like there are no credits recorded for
+              <br />
+              {{ dtrFrom }} to {{ dtrTo }}
+            </div>
+          </div>
         </div>
       </q-card-section>
       <q-item-section
@@ -90,7 +102,7 @@ import { computed, watch } from "vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const props = defineProps(["creditList"]);
+const props = defineProps(["creditList", "dtrFrom", "dtrTo"]);
 console.log("creditList", props.creditList);
 
 const emit = defineEmits(["update:total"]);

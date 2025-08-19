@@ -18,41 +18,67 @@
       </q-card-section>
 
       <q-card-section class="scrollable-content-wrapper">
-        <q-list
-          bordered
-          class="rounded-borders q-mt-xs list-container compact-list"
+        <div
+          v-if="cashAdvanceList.length > 0"
+          class="q-pt-sm q-pb-none compact-content-section"
         >
-          <q-item
-            class="list-header bg-grey-2 text-weight-medium compact-list-header"
+          <q-list
+            bordered
+            class="rounded-borders q-mt-xs list-container compact-list"
           >
-            <q-item-section>Credit Amount</q-item-section>
-            <q-item-section>Number of Payments</q-item-section>
-            <q-item-section>Payments Per Payroll</q-item-section>
-            <q-item-section>Remaining Payments</q-item-section>
-            <q-item-section side>Reason</q-item-section>
-          </q-item>
-          <q-item
-            v-for="(cashAdvance, index) in cashAdvanceList"
-            :key="index"
-            class="list-item compact-list-item"
-          >
-            <q-item-section class="item-size">
-              {{ cashAdvance.amount }}
-            </q-item-section>
-            <q-item-section>
-              {{ cashAdvance.number_of_payments }}
-            </q-item-section>
-            <q-item-section>
-              {{ cashAdvance.payment_per_payroll }}
-            </q-item-section>
-            <q-item-section>
-              {{ cashAdvance.remaining_payments }}
-            </q-item-section>
-            <q-item-section side>
-              {{ cashAdvance.reason }}
-            </q-item-section>
-          </q-item>
-        </q-list>
+            <q-item
+              class="list-header bg-grey-2 text-weight-medium compact-list-header"
+            >
+              <q-item-section>Credit Amount</q-item-section>
+              <q-item-section>Number of Payments</q-item-section>
+              <q-item-section>Payments Per Payroll</q-item-section>
+              <q-item-section>Remaining Payments</q-item-section>
+              <q-item-section side>Reason</q-item-section>
+            </q-item>
+            <q-item
+              v-for="(cashAdvance, index) in cashAdvanceList"
+              :key="index"
+              class="list-item compact-list-item"
+            >
+              <q-item-section class="item-size">
+                {{ cashAdvance.amount }}
+              </q-item-section>
+              <q-item-section>
+                {{ cashAdvance.number_of_payments }}
+              </q-item-section>
+              <q-item-section>
+                {{ cashAdvance.payment_per_payroll }}
+              </q-item-section>
+              <q-item-section>
+                {{ cashAdvance.remaining_payments }}
+              </q-item-section>
+              <q-item-section side>
+                {{ cashAdvance.reason }}
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+        <div
+          v-else
+          class="flex flex-center column q-pa-md"
+          style="min-height: 250px"
+        >
+          <q-icon
+            name="sentiment_very_satisfied"
+            color="grey-5"
+            size="80px"
+            class="q-mb-sm"
+          />
+
+          <div class="text-subtitle2 text-grey-7 q-mb-xs text-center">
+            Employee has no cash advances for this cut-off.
+          </div>
+          <div class="text-subtitle2 text-grey-6 text-center">
+            It looks like there are no cash advances recorded for
+            <br />
+            {{ dtrFrom }} to {{ dtrTo }}
+          </div>
+        </div>
       </q-card-section>
       <q-item-section
         class="q-py-md q-px-lg total-summary-section compact-total-summary"
@@ -76,7 +102,7 @@ import { computed } from "vue";
 
 const { dialogRef } = useDialogPluginComponent();
 
-const props = defineProps(["cashAdvanceList"]);
+const props = defineProps(["cashAdvanceList", "dtrFrom", "dtrTo"]);
 
 const emit = defineEmits(["update:total"]);
 

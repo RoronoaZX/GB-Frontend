@@ -18,7 +18,10 @@
       </q-card-section>
 
       <q-card-section class="scrollable-content-wrapper">
-        <div class="q-pt-sm q-pb-none compact-content-section">
+        <div
+          v-if="chargesAmountList.length > 0"
+          class="q-pt-sm q-pb-none compact-content-section"
+        >
           <q-list
             bordered
             class="rounded-borders q-mt-xs list-container compact-list"
@@ -47,6 +50,26 @@
               </q-item-section>
             </q-item>
           </q-list>
+        </div>
+        <div
+          v-else
+          class="flex flex-center column q-pa-md"
+          style="min-height: 250px"
+        >
+          <q-icon
+            name="sentiment_very_satisfied"
+            color="grey-5"
+            size="80px"
+            class="q-mb-sm"
+          />
+          <div class="text-h6 text-grey-7 q-mb-xs">
+            Employee has no credits for this cut-off.
+          </div>
+          <div class="text-subtitle2 text-grey-6 text-center">
+            It looks like there are no charges recorded for
+            <br />
+            {{ dtrfrom }} to {{ dtrTo }}
+          </div>
         </div>
       </q-card-section>
 
