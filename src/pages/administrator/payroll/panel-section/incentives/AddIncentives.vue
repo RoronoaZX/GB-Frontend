@@ -120,6 +120,7 @@ import { Notify } from "quasar";
 
 const useIncenivesStore = useIncentivesBasesStore();
 const incentivesData = computed(() => useIncenivesStore.incentivesBases);
+const emit = defineEmits(["created"]);
 
 const dialog = ref(false);
 const openDialog = () => {
@@ -146,6 +147,8 @@ const save = async () => {
   try {
     await useIncenivesStore.createIncentives(incentivesDataToBePass);
 
+    emit("created");
+
     Notify.create({
       message: "Data saved successfully",
       color: "green",
@@ -153,8 +156,8 @@ const save = async () => {
       timeout: 2000,
     });
 
-    clear();
     dialog.value = false;
+    clear();
   } catch (error) {
     console.log("error", error);
 
@@ -176,7 +179,7 @@ const save = async () => {
 }
 
 .gradient-btn {
-  background: linear-gradient(135deg, #ccaf70, #926400);
+  background: linear-gradient(135deg, #c68900, #926400);
   // box-shadow: 0 2px 8px rgba(19, 141, 163, 0.711);
   transition: all 0.3s ease;
 }

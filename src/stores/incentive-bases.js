@@ -41,7 +41,7 @@ export const useIncentivesBasesStore = defineStore("incentives-bases", () => {
   };
 
   const updateNumberEmployee = async (data, val) => {
-    console.log("data from store", data);
+    console.log("data from storessss", data);
     try {
       const response = await api.put(
         "/api/incentives-bases/update-number-employee/" + data.id,
@@ -68,12 +68,120 @@ export const useIncentivesBasesStore = defineStore("incentives-bases", () => {
     }
   };
 
+  const updateTargetKilo = async (data, val) => {
+    console.log("data from storessss", data);
+    try {
+      const response = await api.put(
+        "/api/incentives-bases/update-target/" + data.id,
+        {
+          target: val,
+        }
+      );
+      console.log("sssss", response);
+
+      Notify.create({
+        type: "positive",
+        message: `${response.data.message}`,
+        timeout: 1000,
+      });
+      return response;
+    } catch (error) {
+      console.error(error);
+
+      Notify.create({
+        type: "negative",
+        message: `${error.response.data.error}`,
+        timeout: 5000,
+      });
+    }
+  };
+
+  const updateBakerMultiplier = async (data, val) => {
+    console.log("data from storessss", data);
+    try {
+      const response = await api.put(
+        "/api/incentives-bases/update-baker-multipier/" + data.id,
+        {
+          baker_multiplier: val,
+        }
+      );
+      console.log("sssss", response);
+
+      Notify.create({
+        type: "positive",
+        message: `${response.data.message}`,
+        timeout: 1000,
+      });
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const updateLamesadorMultiplier = async (data, val) => {
+    console.log("data from storessss", data);
+    try {
+      const response = await api.put(
+        "/api/incentives-bases/update-lamesador-multipier/" + data.id,
+        {
+          lamesador_multiplier: val,
+        }
+      );
+
+      Notify.create({
+        type: "positive",
+        message: `${response.data.message}`,
+        timeout: 1000,
+      });
+      return response;
+    } catch (error) {
+      console.error(error);
+
+      Notify.create({
+        type: "negative",
+        message: `${error.response.data.error}`,
+        timeout: 5000,
+      });
+    }
+  };
+
+  const updateHorneroIncentives = async (data, val) => {
+    console.log("data from storessss", data);
+    try {
+      const response = await api.put(
+        "/api/incentives-bases/update-hornero-multipier/" + data.id,
+        {
+          hornero_multiplier: val,
+        }
+      );
+
+      Notify.create({
+        type: "positive",
+        message: `${response.data.message}`,
+        timeout: 1000,
+      });
+      return response;
+    } catch (error) {
+      console.error(error);
+
+      Notify.create({
+        type: "negative",
+        message: `${error.response.data.error}`,
+        timeout: 5000,
+      });
+    }
+  };
+
   return {
     incentiveBase,
     incentivesBases,
     createIncentives,
     fetchIncentivesBases,
-    updateNumberEmployee,
     fetchIncentivesPerCutOff,
+    updateNumberEmployee,
+    updateTargetKilo,
+    updateBakerMultiplier,
+    updateLamesadorMultiplier,
+    updateHorneroIncentives,
   };
 });
