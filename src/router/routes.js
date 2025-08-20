@@ -263,11 +263,11 @@ const routes = [
         component: () =>
           import("pages/administrator/history_log/HistoryLogPage.vue"),
       },
-      {
-        path: "settings",
-        component: () =>
-          import("pages/administrator/settings/GeneralSettingsPage.vue"),
-      },
+      // {
+      //   path: "settings",
+      //   component: () =>
+      //     import("pages/administrator/settings/GeneralSettingsPage.vue"),
+      // },
     ],
   },
 

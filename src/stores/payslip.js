@@ -18,11 +18,22 @@ export const usePayslipStore = defineStore("payslips", () => {
       });
       return response.data;
     } catch (error) {
-      Notify.create({
-        type: "negative",
-        message: "Error creating payslip",
-        setTimeout: 1000,
-      });
+      console.log("payslipsss error", error);
+
+      if (error.response.data.message === "Payslip already exists") {
+        Notify.create({
+          type: "warning",
+          message: `Duplicate payslip detected. A payslip with the same details already exists! `,
+          setTimeout: 5000,
+        });
+      } else {
+        Notify.create({
+          type: "negative",
+          message: `${error.response.data.message}! `,
+          setTimeout: 5000,
+        });
+      }
+
       console.log("payslip error", error);
     }
   };

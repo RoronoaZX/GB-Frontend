@@ -138,7 +138,7 @@ import { reactive, ref, computed, watch, onMounted } from "vue";
 import { useQuasar } from "quasar";
 import SearchEmployee from "./SearchEmployee.vue";
 import { useBakerReportsStore } from "src/stores/baker-report";
-import { useIncentivesStore } from "src/stores/incentives";
+import { useIncentivesBasesStore } from "src/stores/incentive-bases";
 
 const employeesStore = useEmployeeStore();
 const employees = computed(() => employeesStore.employees);
@@ -146,8 +146,8 @@ const bakerReportsStore = useBakerReportsStore();
 const employeeWithInShiftList = computed(
   () => bakerReportsStore.employeeInShift
 );
-const useIncentiveStore = useIncentivesStore();
-const incentivesBase = computed(() => useIncentiveStore.incentives);
+const useIncentiveStore = useIncentivesBasesStore();
+const incentivesBase = computed(() => useIncentiveStore.incentivesBases);
 console.log("incentivesBase", incentivesBase.value);
 const userData = computed(() => bakerReportsStore.user);
 console.log("userData in EmployeeWithInShiftsComponent:", userData.value);
@@ -161,7 +161,7 @@ let employeeSelected = false;
 const $q = useQuasar();
 
 const fetchIncentiveBases = async () => {
-  await useIncentiveStore.fetchIncentives();
+  await useIncentiveStore.fetchIncentivesBases();
   console.log("incentivesBase", incentivesBase.value);
 };
 onMounted(fetchIncentiveBases);

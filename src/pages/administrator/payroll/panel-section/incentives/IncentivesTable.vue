@@ -62,12 +62,12 @@
 </template>
 
 <script setup>
-import { useIncentivesStore } from "src/stores/incentives";
+import { useIncentivesBasesStore } from "src/stores/incentive-bases";
 import { computed, onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
 
-const incentivesStore = useIncentivesStore();
-const incentives = computed(() => incentivesStore.incentives);
+const incentivesStore = useIncentivesBasesStore();
+const incentives = computed(() => incentivesStore.incentivesBases);
 const $q = useQuasar();
 const editedValue = ref(null);
 
@@ -114,7 +114,7 @@ const updateNumberEmployee = async (row, val) => {
 };
 
 const fetchIncentivesData = async () => {
-  await incentivesStore.fetchIncentives();
+  await incentivesStore.fetchIncentivesBases();
 };
 onMounted(fetchIncentivesData);
 

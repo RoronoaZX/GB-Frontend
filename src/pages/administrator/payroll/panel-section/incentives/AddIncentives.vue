@@ -115,11 +115,11 @@
 
 <script setup>
 import { computed, reactive, ref } from "vue";
-import { useIncentivesStore } from "src/stores/incentives";
+import { useIncentivesBasesStore } from "src/stores/incentive-bases";
 import { Notify } from "quasar";
 
-const useIncenivesStore = useIncentivesStore();
-const incentivesData = computed(() => useIncenivesStore.incentives);
+const useIncenivesStore = useIncentivesBasesStore();
+const incentivesData = computed(() => useIncenivesStore.incentivesBases);
 
 const dialog = ref(false);
 const openDialog = () => {
