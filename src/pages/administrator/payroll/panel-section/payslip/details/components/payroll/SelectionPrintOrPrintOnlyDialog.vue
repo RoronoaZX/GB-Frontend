@@ -235,7 +235,9 @@ const generatePayslip = (payslipData) => {
                     [
                       { text: "TOTAL INCOME", bold: true, color: "#2A9D8F" },
                       {
-                        text: `${formatCurrency(payslipData.net_income || 0)}`,
+                        text: `${formatCurrency(
+                          payslipData.total_earnings || 0
+                        )}`,
                         bold: true,
                         color: "#2A9D8F",
                       },
