@@ -134,7 +134,7 @@
           <!-- Deductions -->
           <div class="col-12 col-md-6">
             <div class="summary-card">
-              <div class="summary-header">
+              <div class="deduction-header">
                 <q-icon
                   name="remove_circle"
                   color="negative"
@@ -467,6 +467,7 @@ const payslipEarnings = reactive({
   night_diff_pay: props.dtrEarningsData.nightDifferential.costRaw,
   overtime_pay: props.dtrEarningsData.overtime.costRaw,
   undertime_pay: props.dtrEarningsData.undertime.costRaw,
+  undertime_hours: props.dtrEarningsData.undertime.formatted,
   working_hours_pay: props.dtrEarningsData.workingHours.costRaw,
   payslip_incentives: props.dtrEarningsData.incentiveDatasFromChild,
 });
@@ -507,6 +508,7 @@ const payslipHolidaySummary = reactive({
 // };
 
 const payslipDataToBeSend = reactive({
+  employeeData: props.employeesData,
   employee_id: props.employeesData.id,
   from: props.dtrRecord.from,
   to: props.dtrRecord.end,
@@ -558,12 +560,14 @@ const proceed = () => {
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");
 
 $primary-blue: #0ca289;
+$primary-red: #d64545;
 $secondary-blue: #105f73;
 $light-blue: #e6f3ff;
 $gray-light: #f8f9fa;
 $gray-medium: #e9ecef;
 $text-dark: #343a40;
 $text-medium: #6c757d;
+
 $white: #ffffff;
 $shadow-color: rgba(0, 0, 0, 0.15);
 
@@ -660,6 +664,16 @@ $shadow-color: rgba(0, 0, 0, 0.15);
   font-weight: 600;
   font-size: 1rem;
   color: $primary-blue;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #e0f4f1;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+.deduction-header {
+  font-weight: 600;
+  font-size: 1rem;
+  color: $primary-red;
   display: flex;
   align-items: center;
   border-bottom: 2px solid #e0f4f1;
