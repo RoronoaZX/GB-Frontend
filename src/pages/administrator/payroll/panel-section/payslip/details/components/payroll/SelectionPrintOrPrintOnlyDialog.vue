@@ -101,10 +101,31 @@ const generatePayslip = (payslipData) => {
     content: [
       // Header
       {
+        text: "GB-Bakeshop",
+        style: "header",
+        alignment: "center",
+        color: "#F44336",
+        margin: [0, 0, 0, 2], // smaller bottom margin
+      },
+      {
         text: "Payslip",
         style: "header",
         alignment: "center",
-        margin: [0, 0, 0, 5],
+        margin: [0, 0, 0, 8], // slightly adjusted if you want a bit of space
+      },
+      {
+        canvas: [
+          {
+            type: "line",
+            x1: 0, // start at far left
+            y1: 0,
+            x2: 555, // full page width (A4 is ~515 units wide in PDFMake default)
+            y2: 0,
+            lineWidth: 2, // thickness (bold)
+            lineColor: "black",
+          },
+        ],
+        margin: [0, 4, 0, 10], // spacing around line
       },
 
       // Employee Info
@@ -370,9 +391,11 @@ const generatePayslip = (payslipData) => {
             },
             {
               text: [
-                { text: `Penalty Balance: `, bold: true, fontSize: 9 },
+                { text: `Cash Advance Balance: `, bold: true, fontSize: 9 },
                 {
-                  text: `${formatCurrency(payslipData.penalty_balance || 0)}`,
+                  text: `${formatCurrency(
+                    payslipData.cash_advance_balance || 0
+                  )}`,
                   bold: true,
                   fontSize: 9,
                   color: "#FB8C00",
@@ -393,6 +416,20 @@ const generatePayslip = (payslipData) => {
         alignment: "left",
         margin: [0, 3, 0, 0],
       },
+      {
+        canvas: [
+          {
+            type: "line",
+            x1: 0, // start at far left
+            y1: 0,
+            x2: 555, // full page width (A4 is ~515 units wide in PDFMake default)
+            y2: 0,
+            lineWidth: 2, // thickness (bold)
+            lineColor: "black",
+          },
+        ],
+        margin: [0, 4, 0, 10], // spacing around line
+      },
     ],
 
     styles: {
@@ -402,8 +439,8 @@ const generatePayslip = (payslipData) => {
       netIncome: {
         fontSize: 12,
         bold: true,
-        color: "green",
-        fillColor: "#e6ffe6",
+        color: "#00695C",
+        fillColor: "#00695C",
       },
     },
   };
