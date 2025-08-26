@@ -1,1 +1,0 @@
-import{_ as e}from"./plugin-vue_export-helper.21dcd24c.js";import{o as r,a3 as o}from"./index.5e04e3c1.js";const t={};function a(c,n){return r(),o("div",null,"THIS IS BIR REPORTDS")}var f=e(t,[["render",a]]);export{f as default};

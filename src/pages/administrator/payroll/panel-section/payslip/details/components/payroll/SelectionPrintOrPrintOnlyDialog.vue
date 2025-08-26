@@ -343,22 +343,43 @@ const generatePayslip = (payslipData) => {
         columns: [
           [
             {
-              text: `Uniform Balance: ${formatCurrency(
-                payslipData.uniform_balance
-              )}`,
-              fontSize: 9,
+              text: [
+                { text: `Uniform Balance: `, bold: true, fontSize: 9 },
+                {
+                  text: `${formatCurrency(payslipData.uniform_balance || 0)}`,
+                  bold: true,
+                  fontSize: 9,
+                  color: "#FB8C00",
+                  // color: "#F2C037",
+                  // color: "#FF5722",
+                },
+              ],
             },
             {
-              text: `Credit Balance: ${formatCurrency(
-                payslipData.credit_balance
-              )}`,
-              fontSize: 9,
+              text: [
+                { text: `Credit Balance: `, bold: true, fontSize: 9 },
+                {
+                  text: `${formatCurrency(payslipData.credit_balance || 0)}`,
+                  bold: true,
+                  fontSize: 9,
+                  color: "#FB8C00",
+                  // color: "#F2C037",
+                  // color: "#FF5722",
+                },
+              ],
             },
             {
-              text: `Cash Advance Balance: ${formatCurrency(
-                payslipData.cash_advance_balance
-              )}`,
-              fontSize: 9,
+              text: [
+                { text: `Penalty Balance: `, bold: true, fontSize: 9 },
+                {
+                  text: `${formatCurrency(payslipData.penalty_balance || 0)}`,
+                  bold: true,
+                  fontSize: 9,
+                  color: "#FB8C00",
+                  // color: "#F2C037",
+                  // color: "#FF5722",
+                },
+              ],
             },
           ],
         ],
