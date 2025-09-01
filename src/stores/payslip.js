@@ -11,11 +11,7 @@ export const usePayslipStore = defineStore("payslips", () => {
     console.log("data payslip data", data);
     try {
       const response = await api.post("/api/payslip", data);
-      Notify.create({
-        type: "positive",
-        message: "Payslip successfully created",
-        setTimeout: 1000,
-      });
+
       return response.data;
     } catch (error) {
       console.log("payslipsss error", error);
