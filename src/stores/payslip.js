@@ -35,6 +35,8 @@ export const usePayslipStore = defineStore("payslips", () => {
       }
 
       console.log("payslip error", error);
+
+      throw error;
     }
   };
 

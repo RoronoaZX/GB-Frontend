@@ -57,7 +57,10 @@
 import { useDialogPluginComponent } from "quasar";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import { usePayslipStore } from "src/stores/payslip";
 pdfMake.vfs = pdfFonts.default;
+
+const payslipStore = usePayslipStore();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -133,22 +136,20 @@ const generatePayslip = (payslipData) => {
         columns: [
           [
             {
-              text: `Employee Name: ${formatFullname(
-                payslipData.employeeData
-              )}`,
+              text: `Employee : ${formatFullname(payslipData.employeeData)}`,
               fontSize: 10,
             },
             {
-              text: `Rate/Day: ${formatCurrency(payslipData.rate_per_day)}`,
+              text: `Rate/Day : ${formatCurrency(payslipData.rate_per_day)}`,
               fontSize: 10,
             },
             {
-              text: `Total Days: ${payslipData.total_days}`,
+              text: `Total Days : ${payslipData.total_days}`,
               fontSize: 10,
             },
             // { text: `ID: ${payslipData.employee_id}`, fontSize: 10 },
             {
-              text: `Period: ${payslipData.from} - ${payslipData.to}`,
+              text: `Period : ${payslipData.from} - ${payslipData.to}`,
               fontSize: 10,
             },
           ],
@@ -159,7 +160,7 @@ const generatePayslip = (payslipData) => {
             //   fontSize: 10,
             // },
             {
-              text: `Payroll Date: ${payslipData.payroll_release_date}`,
+              text: `Payroll Date : ${payslipData.payroll_release_date}`,
               alignment: "right",
               fontSize: 10,
             },
@@ -172,7 +173,7 @@ const generatePayslip = (payslipData) => {
             {
               text: [
                 {
-                  text: "Total Hours: ",
+                  text: "Total Hours : ",
                   fontSize: 10,
                 },
                 {
@@ -186,7 +187,7 @@ const generatePayslip = (payslipData) => {
             },
             {
               text: [
-                { text: "Cost :", fontSize: 10 },
+                { text: "Cost : ", fontSize: 10 },
                 {
                   text: `${formatCurrency(
                     payslipData.payslip_earnings.undertime_pay || 0
@@ -411,10 +412,21 @@ const generatePayslip = (payslipData) => {
 
       // Net Income Highlight
       {
-        text: `NET INCOME: ${formatCurrency(payslipData.net_income)}`,
-        style: "netIncome",
-        alignment: "left",
-        margin: [0, 3, 0, 0],
+        columns: [
+          {
+            text: `NET INCOME: ${formatCurrency(payslipData.net_income)}`,
+            style: "netIncome",
+            alignment: "left",
+            margin: [0, 3, 0, 0],
+          },
+          {
+            text: "Received By: ______________________",
+            alignment: "right",
+            fontSize: 10,
+            margin: [0, 3, 0, 0],
+          },
+        ],
+        columnGap: 10,
       },
       {
         canvas: [
@@ -448,354 +460,24 @@ const generatePayslip = (payslipData) => {
   pdfMake.createPdf(docDefinition).open();
 };
 
-// const generatePayslip = (payslipData) => {
-//   const docDefinition = {
-//     content: [
-//       // Header
-//       {
-//         text: "Payslip",
-//         style: "header",
-//         alignment: "center",
-//         margin: [0, 0, 0, 5],
-//       },
+const onOKClick = async () => {
+  try {
+    const response = await payslipStore.createPayslip(
+      props.payslipDataToBeSend
+    );
 
-//       // Employee Info
-//       {
-//         columns: [
-//           [
-//             {
-//               text: `Employee Name: ${payslipData.employee_name}`,
-//               style: "subheader",
-//             },
-//             {
-//               text: `ID: ${payslipData.employee_id}`,
-//               fontSize: 10,
-//             },
-//             {
-//               text: `Period: ${payslipData.from} - ${payslipData.to}`,
-//               fontSize: 10,
-//             },
-//           ],
-//           [
-//             {
-//               text: `Rate/Day: ₱${payslipData.rate_per_day}`,
-//               alignment: "right",
-//               fontSize: 10,
-//             },
-//             {
-//               text: `Payroll Date: ${payslipData.payroll_release_date}`,
-//               alignment: "right",
-//               fontSize: 10,
-//             },
-//           ],
-//         ],
-//         margin: [0, 0, 0, 15],
-//       },
-
-//       // Earnings vs Deductions
-//       {
-//         columns: [
-//           {
-//             width: "50%",
-//             stack: [
-//               {
-//                 text: "Earning Summary",
-//                 alignment: "center",
-//                 style: "tableHeader",
-//               },
-//               {
-//                 table: {
-//                   widths: ["*", "auto"],
-//                   body: [
-//                     [
-//                       "Basic Pay",
-//                       `₱${payslipData.total_days * payslipData.rate_per_day}`,
-//                     ],
-//                     ["Overtime Pay", "₱0.00"],
-//                     ["Holiday Pay", "₱0.00"],
-//                     ["Night Differential Pay", "₱0.00"],
-//                     ["Total Allowance", "₱0.00"],
-//                     ["Quota Incentives", "₱0.00"],
-//                     [
-//                       { text: "TOTAL INCOME", bold: true },
-//                       { text: "₱0.00", bold: true },
-//                     ],
-//                   ],
-//                 },
-//                 layout: "lightHorizontalLines",
-//                 margin: [0, 5, 10, 10],
-//                 fontSize: 10, // ✅ Table body text size
-//               },
-//             ],
-//           },
-//           {
-//             width: "50%",
-//             stack: [
-//               {
-//                 text: "Deductions Summary",
-//                 alignment: "center",
-//                 style: "tableHeader",
-//               },
-//               {
-//                 table: {
-//                   widths: ["*", "auto"],
-//                   body: [
-//                     ["Credit", "₱0.00"],
-//                     ["Uniform", "₱0.00"],
-//                     ["Penalty", "₱0.00"],
-//                     ["Cash Advance", "₱0.00"],
-//                     ["Short / Charges", "₱0.00"],
-//                     ["SSS", "₱0.00"],
-//                     ["Pag-IBIG", "₱0.00"],
-//                     ["PhilHealth Insurance", "₱0.00"],
-//                     [
-//                       { text: "TOTAL DEDUCTIONS", bold: true },
-//                       { text: "₱0.00", bold: true },
-//                     ],
-//                   ],
-//                 },
-//                 layout: "lightHorizontalLines",
-//                 margin: [10, 5, 0, 10],
-//                 fontSize: 8, // ✅ Table body text size
-//               },
-//             ],
-//           },
-//         ],
-//       },
-
-//       // Balances
-//       {
-//         columns: [
-//           [
-//             {
-//               text: `Uniform Balance: ${payslipData.employee_name}`,
-//               fontSize: 10,
-//             },
-//             {
-//               text: `Credit Balance: ${payslipData.employee_id}`,
-//               fontSize: 10,
-//             },
-//             {
-//               text: `Cash Advance Balance: ${payslipData.from} - ${payslipData.to}`,
-//               fontSize: 10,
-//             },
-//           ],
-//         ],
-//         margin: [0, 0, 0, 15],
-//       },
-
-//       // Net Income Highlight
-//       {
-//         text: `NET INCOME: ₱${payslipData.net_income || "0.00"}`,
-//         style: "netIncome",
-//         alignment: "left",
-//         margin: [0, 15, 0, 0],
-//       },
-//     ],
-//     styles: {
-//       header: {
-//         fontSize: 16,
-//         bold: true,
-//       },
-//       subheader: {
-//         fontSize: 10,
-//         bold: true,
-//       },
-//       tableHeader: {
-//         fontSize: 10,
-//         bold: true,
-//         fillColor: "#f2f2f2",
-//         margin: [0, 0, 0, 5],
-//       },
-//       netIncome: {
-//         fontSize: 14,
-//         bold: true,
-//         color: "green",
-//         fillColor: "#e6ffe6",
-//         margin: [0, 5, 0, 0],
-//       },
-//     },
-//   };
-
-//   pdfMake.createPdf(docDefinition).open();
-// };
-
-// const generatePayslip = (payslipData) => {
-//   const docDefinition = {
-//     content: [
-//       // Header
-//       {
-//         text: "Payslip",
-//         style: "header",
-//         alignment: "center",
-//         margin: [0, 0, 0, 10],
-//       },
-
-//       // Employee Info
-//       {
-//         columns: [
-//           [
-//             {
-//               text: `Employee Name: ${payslipData.employee_name}`,
-//               style: "subheader",
-//             },
-//             {
-//               text: `ID: ${payslipData.employee_id}`,
-//             },
-//             {
-//               text: `Period: ${payslipData.from} - ${payslipData.to}`,
-//             },
-//           ],
-//           [
-//             {
-//               text: `Rate/Day: ₱${payslipData.rate_per_day}`,
-//               alignment: "right",
-//             },
-//             {
-//               text: `Payroll Date: ${payslipData.payroll_release_date}`,
-//               alignment: "right",
-//             },
-//           ],
-//         ],
-//         margin: [0, 0, 0, 15],
-//       },
-
-//       // Earnings vs Deductions
-//       {
-//         columns: [
-//           {
-//             width: "50%",
-//             stack: [
-//               {
-//                 text: "Earning Summary",
-//                 alignment: "center",
-//                 style: "tableHeader",
-//               },
-//               {
-//                 table: {
-//                   widths: ["*", "auto"],
-//                   body: [
-//                     [
-//                       "Basic Pay",
-//                       `₱${payslipData.total_days * payslipData.rate_per_day}`,
-//                     ],
-//                     ["Overtime Pay", "₱0.00"],
-//                     ["Holiday Pay", "₱0.00"],
-//                     ["Night Differential Pay", "₱0.00"],
-//                     ["Total Allowance", "₱0.00"],
-//                     ["Quota Incentives", "₱0.00"],
-//                     [
-//                       { text: "TOTAL INCOME", bold: true },
-//                       { text: "₱0.00", bold: true },
-//                     ],
-//                   ],
-//                 },
-//                 layout: "lightHorizontalLines",
-//                 margin: [0, 5, 10, 10],
-//               },
-//             ],
-//           },
-//           {
-//             width: "50%",
-//             stack: [
-//               {
-//                 text: "Deductions Summary",
-//                 alignment: "center",
-//                 style: "tableHeader",
-//               },
-//               {
-//                 table: {
-//                   widths: ["*", "auto"],
-//                   body: [
-//                     ["Credit", "₱0.00"],
-//                     ["Uniform", "₱0.00"],
-//                     ["Panalty", "₱0.00"],
-//                     ["Cash Advance", "₱0.00"],
-//                     ["Short / Charges", "₱0.00"],
-//                     ["SSS", "₱0.00"],
-//                     ["Pag-IBIG", "₱0.00"],
-//                     ["PhilHealth Insurance", "₱0.00"],
-//                     [
-//                       { text: "TOTAL DEDUCTIONS", bold: true },
-//                       { text: "₱0.00", bold: true },
-//                     ],
-//                   ],
-//                 },
-//                 layout: "lightHorizontalLines",
-//                 margin: [10, 5, 0, 10],
-//               },
-//             ],
-//           },
-//         ],
-//       },
-
-//       {
-//         columns: [
-//           [
-//             {
-//               text: `Uniform Balance: ${payslipData.employee_name}`,
-//             },
-//             {
-//               text: `Credit Balance: ${payslipData.employee_id}`,
-//             },
-//             {
-//               text: `Cash Advance Balance: ${payslipData.from} - ${payslipData.to}`,
-//             },
-//           ],
-//           // [
-//           //   {
-//           //     text: `Rate/Day: ₱${payslipData.rate_per_day}`,
-//           //     alignment: "right",
-//           //   },
-//           //   {
-//           //     text: `Payroll Date: ${payslipData.payroll_release_date}`,
-//           //     alignment: "right",
-//           //   },
-//           // ],
-//         ],
-//         margin: [0, 0, 0, 15],
-//       },
-
-//       // Net Income Highlight
-//       {
-//         text: `NET INCOME: ₱${payslipData.net_income || "0.00"}`,
-//         style: "netIncome",
-//         alignment: "left",
-//         margin: [0, 15, 0, 0],
-//       },
-//     ],
-//     styles: {
-//       header: {
-//         fontSize: 18,
-//         bold: true,
-//       },
-//       subheader: {
-//         fontSize: 10,
-//         bold: true,
-//       },
-//       tableHeader: {
-//         fontSize: 10,
-//         bold: true,
-//         fillColor: "#f2f2f2",
-//         margin: [0, 0, 0, 5],
-//       },
-//       netIncome: {
-//         fontSize: 14,
-//         bold: true,
-//         color: "green",
-//         fillColor: "#e6ffe6",
-//         margin: [0, 5, 0, 0],
-//       },
-//     },
-//   };
-
-//   pdfMake.createPdf(docDefinition).open(); // opens in new tab
-//   // pdfMake.createPdf(docDefinition).download("payslip.pdf"); // if you want auto-download
-// };
-
-const onOKClick = () => {
-  generatePayslip(props.payslipDataToBeSend);
-  onDialogOK("save_and_print");
+    console.log("Payslip saved successfully:", response);
+    // ✅ only continue to print if backend confirms succuess
+    if (response?.message === "Payslip saved successfully") {
+      generatePayslip(props.payslipDataToBeSend);
+      onDialogOK("save_and_print");
+      return;
+    } else {
+      console.warn("Payslip not created, skipping print.");
+    }
+  } catch (error) {
+    console.error("Error saving payslip:", error);
+  }
 };
 
 const onCancelClick = () => {
