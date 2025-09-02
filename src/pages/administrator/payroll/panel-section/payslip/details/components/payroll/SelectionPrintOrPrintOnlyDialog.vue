@@ -58,7 +58,9 @@
     transition-show="slide-up"
     transition-hide="slide-down"
   >
-    <div class="q-ma-sm" style="width: 100%; max-width: 1000px">
+    <div class="q-ma-sm" style="width: 100%; max-width: 800px">
+      <!-- in the electron -->
+      <!-- max-width: 1000px -->
       <!-- max-width: 800px -->
       <q-card class="bg-dark">
         <q-card-section
@@ -879,17 +881,17 @@ const closePrintDialog = () => {
 };
 
 const onOKClick = async () => {
-  openPrintDialog(props.payslipDataToBeSend);
-  // try {
-  //   const response = await payslipStore.createPayslip(
-  //     props.payslipDataToBeSend
-  //   );
-  //   if (response?.message === "Payslip saved successfully") {
-  //     openPrintDialog(props.payslipDataToBeSend);
-  //   }
-  // } catch (err) {
-  //   console.error("Save failed", err);
-  // }
+  // openPrintDialog(props.payslipDataToBeSend);
+  try {
+    const response = await payslipStore.createPayslip(
+      props.payslipDataToBeSend
+    );
+    if (response?.message === "Payslip saved successfully") {
+      openPrintDialog(props.payslipDataToBeSend);
+    }
+  } catch (err) {
+    console.error("Save failed", err);
+  }
 };
 
 const onCancelClick = () => {
