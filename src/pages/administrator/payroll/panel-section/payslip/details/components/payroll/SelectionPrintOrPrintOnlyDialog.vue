@@ -58,7 +58,7 @@
     transition-show="slide-up"
     transition-hide="slide-down"
   >
-    <div class="q-ma-sm" style="width: 100%; max-width: 800px">
+    <div class="q-ma-sm" style="width: 100%; max-width: 900px">
       <!-- in the electron -->
       <!-- max-width: 1000px -->
       <!-- max-width: 800px -->
