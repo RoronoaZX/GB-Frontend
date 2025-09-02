@@ -353,7 +353,7 @@ const save = async () => {
 
 .gradient-btn {
   background: linear-gradient(135deg, #0194ae, #0e7490);
-  box-shadow: 0 2px 8px rgba(19, 141, 163, 0.711);
+  // box-shadow: 0 2px 8px rgba(19, 141, 163, 0.711);
   transition: all 0.3s ease;
 }
 .gradient-btn:hover {

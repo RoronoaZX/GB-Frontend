@@ -2,11 +2,13 @@
   <div>
     <q-input
       v-model="searchKeyword"
-      @update:model-value="onInput"
+      @update:model-value="emit('update:model-value', $event)"
+      @clear="emit('clear')"
+      label="Search Employeess"
       outlined
       dense
       flat
-      label="Search"
+      debounce="500"
       style="width: 300px"
     >
       <template v-slot:append>

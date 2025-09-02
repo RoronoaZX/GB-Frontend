@@ -6,7 +6,7 @@
           <AddDeduction @created="reloadTableData" />
         </div>
       </div>
-      <TableFilter v-model="filter" @update:model-value="filter" />
+      <SearchBenefit v-model="filter" @update:model-value="filter" />
     </div>
     <q-table
       :rows="employeeBenefitRows"
@@ -296,7 +296,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import AddDeduction from "./AddDeduction.vue";
 import { useEmployeeBenefitStore } from "stores/benefit";
-import TableFilter from "../components/TableFilter.vue";
+import SearchBenefit from "./SearchBenefit.vue";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 

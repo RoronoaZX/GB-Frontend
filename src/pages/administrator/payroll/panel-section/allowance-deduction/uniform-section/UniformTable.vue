@@ -4,7 +4,7 @@
       <div class="row q-gutter-md">
         <AddUniform @created="reloadTableData" />
       </div>
-      <TableFilter v-model="filter" @update:model-value="filter" />
+      <SearchUniform v-model="filter" @update:model-value="filter" />
     </div>
     <q-table
       :filter="filter"
@@ -157,7 +157,7 @@ import { Notify } from "quasar";
 import { api } from "src/boot/axios";
 import EditUniform from "./EditUniform.vue";
 import ViewUniformDetails from "./ViewUniformDetails.vue";
-import TableFilter from "../components/TableFilter.vue";
+import SearchUniform from "./SearchUniform.vue";
 
 const uniformStore = useUniformStore();
 const filter = ref("");

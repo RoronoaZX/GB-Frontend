@@ -1,6 +1,6 @@
 <template>
   <q-input
-    v-model="filter"
+    v-model="searchKeyword"
     @update:model-value="emit('update:model-value', $events)"
     @clear="emit('clear')"
     outlined
@@ -11,9 +11,8 @@
     style="width: 300px"
   >
     <template v-slot:append>
-      <div>
-        <q-icon name="search" />
-      </div>
+      <q-icon v-if="!searchLoading" name="search" />
+      <q-spinner v-else color="primary" size="sm" />
     </template>
   </q-input>
 </template>
@@ -23,6 +22,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     default: "",
+  },
+  searchLoading: {
+    type: Boolean,
+    default: false,
   },
 });
 

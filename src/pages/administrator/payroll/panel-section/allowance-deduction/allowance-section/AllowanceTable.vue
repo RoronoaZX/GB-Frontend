@@ -5,7 +5,7 @@
         <AddAllowance @created="reloadTableData" />
       </div>
 
-      <TableFilter v-model="filter" @update:model-value="filter" />
+      <SearchAllowance v-model="filter" @update:model-value="filter" />
     </div>
     <q-table
       flat
@@ -91,9 +91,8 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useEmployeeAllowance } from "stores/allowance";
 import AddAllowance from "./AddAllowance.vue";
-// import SearchAllowance from "../components/SearchComponent.vue";
+import SearchAllowance from "./SearchAllowance.vue";
 import { Notify } from "quasar";
-import TableFilter from "../components/TableFilter.vue";
 
 const employeeAllowanceStore = useEmployeeAllowance();
 const employeeAllowance = computed(() => employeeAllowanceStore.allowances);

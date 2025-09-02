@@ -3,13 +3,12 @@
     v-model="searchKeyword"
     @update:model-value="emit('update:model-value', $event)"
     @clear="emit('clear')"
-    label="Search Employee"
+    label="Search Employeess"
     outlined
     dense
-    rounded
+    flat
     debounce="500"
-    placeholder="Enter employee name"
-    clearable
+    style="width: 300px"
   >
     <template v-slot:append>
       <q-icon v-if="!searchLoading" name="search" />

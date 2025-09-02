@@ -4,7 +4,7 @@
       <div class="row q-gutter-md">
         <CashAdvanceButton @created="reloadTableData" />
       </div>
-      <TableFilter v-model="filter" @update:model-value="filter" />
+      <SearchCashAdvance v-model="filter" @update:model-value="filter" />
     </div>
     <q-table
       :rows="cashAdvanceRows"
@@ -111,7 +111,6 @@ import CashAdvanceButton from "./CashAdvanceButton.vue";
 import { useCashAdvanceStore } from "stores/cash-advance";
 import SearchCashAdvance from "./SearchCashAdvance.vue";
 import { Notify } from "quasar";
-import TableFilter from "../components/TableFilter.vue";
 
 const cashAdvanceStore = useCashAdvanceStore();
 const cashAdvance = computed(() => cashAdvanceStore.cashAdvances);

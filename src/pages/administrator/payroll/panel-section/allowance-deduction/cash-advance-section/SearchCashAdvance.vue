@@ -1,37 +1,35 @@
 <template>
-  <div>
-    <q-input
-      v-model="searchKeyword"
-      @update:model-value="search"
-      outlined
-      dense
-      flat
-      label="Search"
-      style="width: 300px"
-    >
-      <template v-slot:append>
-        <div>
-          <q-icon v-if="!loading" name="search" />
-          <q-spinner v-else color="grey" size="sm" />
-        </div>
-      </template>
-    </q-input>
-  </div>
+  <q-input
+    v-model="searchKeyword"
+    @update:model-value="emit('update:model-value', $event)"
+    @clear="emit('clear')"
+    label="Search Employeess"
+    outlined
+    dense
+    flat
+    debounce="500"
+    style="width: 300px"
+  >
+    <template v-slot:append>
+      <q-icon v-if="!searchLoading" name="search" />
+      <q-spinner v-else color="primary" size="sm" />
+    </template>
+  </q-input>
 </template>
 
 <script setup>
-import { useCashAdvanceStore } from "stores/cash-advance";
-import { ref } from "vue";
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: "",
+  },
+  searchLoading: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-const cashAdvanceStore = useCashAdvanceStore();
-const searchKeyword = ref("");
-const loading = ref(false);
-
-const search = async () => {
-  loading.value = true;
-  await cashAdvanceStore.searchCashAdvance(searchKeyword.value);
-  loading.value = false;
-};
+const emit = defineEmits(["update:model-value", "clear"]);
 </script>
 
 <style lang="scss" scoped></style>
