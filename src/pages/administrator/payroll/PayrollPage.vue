@@ -33,7 +33,7 @@
             size="md"
             :class="tab === 'incentives' ? 'text-teal' : 'text-grey-7'"
           />
-          <div class="text-weight-bold text-lg">Incentives</div>
+          <div class="text-weight-bold text-lg">Salary & Incentives</div>
           <!-- <div class="text-caption text-grey-6">List & New Entries</div> -->
         </div>
       </q-route-tab>
