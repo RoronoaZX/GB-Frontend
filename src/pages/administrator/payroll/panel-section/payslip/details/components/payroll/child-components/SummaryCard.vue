@@ -33,7 +33,11 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-body2 text-weight-medium text-grey-8">
-              Rate / Day:
+              {{
+                employeesData?.employment_type?.category === "Part-time"
+                  ? "Rate / Hour:"
+                  : "Rate / Day:"
+              }}
               <span class="text-blue-grey-7 text-weight-semibold">{{
                 formatCurrency(employeesData?.employment_type?.salary)
               }}</span>
@@ -371,9 +375,23 @@ const parseCurrency = (value) => {
   return parseFloat(value.replace(/[₱,]/g, "")) || 0;
 };
 
+// const hourlyRate = computed(() => {
+//   const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
+//   return salary > 0 ? salary / 8 : 0; // Assuming 8 working hours per day
+// });
 const hourlyRate = computed(() => {
+  const category = employeesData.value?.employment_type?.category;
   const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
-  return salary > 0 ? salary / 8 : 0; // Assuming 8 working hours per day
+
+  if (salary <= 0) return 0;
+
+  if (category === "Part-time") {
+    // For part-time, salary is directly the hourly rate
+    return salary;
+  }
+
+  // For regular/full-time, salary is per day, so divide by 8 hours
+  return salary / 8;
 });
 
 const parseHourMinute = (str) => {
@@ -410,12 +428,28 @@ const totalNightDifferential = computed(() => {
   return formatHoursAndMinutes(nightDiff);
 });
 
+// const totalNightDifferentialCost = computed(() => {
+//   const hours = parseHourMinute(props.summaryData?.totalNightDiffFormatted);
+//   const nightDiffRate = 0.1; // 10% additional
+//   const basePay = hours * hourlyRate.value;
+//   const nightDiffPay = basePay * nightDiffRate;
+//   return formatCurrency(nightDiffPay);
+// });
+
 const totalNightDifferentialCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalNightDiffFormatted);
+  const category = employeesData.value?.employment_type?.category;
+  const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
+
   const nightDiffRate = 0.1; // 10% additional
+
+  if (category === "Part-time") {
+    const basePay = hours * salary;
+    return formatCurrency(basePay * nightDiffRate);
+  }
+
   const basePay = hours * hourlyRate.value;
-  const nightDiffPay = basePay * nightDiffRate;
-  return formatCurrency(nightDiffPay);
+  return formatCurrency(basePay * nightDiffRate);
 });
 
 const totalUndertime = computed(() => {
@@ -427,18 +461,54 @@ const totalUndertime = computed(() => {
 
 const totalWorkingHoursCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalWorkingHoursFormatted);
+
+  const category = employeesData.value?.employment_type?.category;
+  const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
+
+  if (category === "Part-time") {
+    // Part-time → Directly multiply hours × salary
+
+    return formatCurrency(hours * salary);
+  }
+  // Regular → Use hourlyRate
   return formatCurrency(hours * hourlyRate.value);
 });
 
+// const totalOvertimeCost = computed(() => {
+//   const hours = parseHourMinute(props.summaryData?.totalOvertimeFormatted);
+//   // Assuming overtime is paid at 1.0x (or 100%) the regular hourly rate.
+//   // Adjust the multiplier (e.g., 1.25) as per your company policy.
+//   return formatCurrency(hours * hourlyRate.value * 1.0);
+// });
+
 const totalOvertimeCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalOvertimeFormatted);
-  // Assuming overtime is paid at 1.0x (or 100%) the regular hourly rate.
-  // Adjust the multiplier (e.g., 1.25) as per your company policy.
+  const category = employeesData.value?.employment_type?.category;
+  const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
+
+  if (category === "Part-time") {
+    // Part-time: salary is peer-hour
+    return formatCurrency(hours * salary);
+  }
+
+  // Regular: apply hourlyRate (adjust multiplier if needed)
   return formatCurrency(hours * hourlyRate.value * 1.0);
 });
 
+// const totalUndertimeCost = computed(() => {
+//   const hours = parseHourMinute(props.summaryData?.totalUndertimeFormatted);
+//   return formatCurrency(hours * hourlyRate.value);
+// });
+
 const totalUndertimeCost = computed(() => {
   const hours = parseHourMinute(props.summaryData?.totalUndertimeFormatted);
+  const category = employeesData.value?.employment_type?.category;
+  const salary = parseFloat(employeesData.value?.employment_type?.salary || 0);
+
+  if (category === "Part-time") {
+    return formatCurrency(hours * salary);
+  }
+
   return formatCurrency(hours * hourlyRate.value);
 });
 
@@ -449,6 +519,42 @@ const totalAdditionalHolidayPay = computed(() => {
 const totalEmployeeAllowances = computed(() => {
   return props.summaryData?.employeeAllowances;
 });
+
+// const totalIncome = computed(() => {
+//   const workingHours = parseHourMinute(
+//     props.summaryData?.totalWorkingHoursFormatted
+//   );
+//   const overtimeHours = parseHourMinute(
+//     props.summaryData?.totalOvertimeFormatted
+//   );
+//   const holidayCost = parseFloat(
+//     props.summaryData?.totalAdditionalHolidayPays || 0
+//   );
+//   const nightDiffCost = parseCurrency(totalNightDifferentialCost.value);
+//   const employeeAllowances = parseCurrency(totalEmployeeAllowances.value);
+//   const category = employeesData.value?.employment_type?.category
+
+//   let hourlyIncome = 0
+
+//   if (category === "Part-time") {
+//     // Part-time: salary is per hour, no schedule considered
+//     const perHourRate = parseFloat(employeesData.value?.employment_type?.salary || 0)
+//     hourlyIncome = workingHours * perHourRate
+//   } else {
+//     // Regular logic: working hours + overtime × hourlyRate
+//     const totalHours = workingHours + overtimeHours;
+//     hourlyIncome = totalHours * hourlyRate.value
+//   }
+
+//   const finalIncome =
+//     hourlyIncome +
+//     holidayCost +
+//     nightDiffCost +
+//     employeeAllowances +
+//     parentTotalIncentive.value;
+
+//   return formatCurrency(finalIncome);
+// });
 
 const totalIncome = computed(() => {
   const workingHours = parseHourMinute(
@@ -462,9 +568,21 @@ const totalIncome = computed(() => {
   );
   const nightDiffCost = parseCurrency(totalNightDifferentialCost.value);
   const employeeAllowances = parseCurrency(totalEmployeeAllowances.value);
+  const category = employeesData.value?.employment_type?.category;
 
-  const totalHours = workingHours + overtimeHours;
-  const hourlyIncome = totalHours * hourlyRate.value;
+  let hourlyIncome = 0;
+
+  if (category === "Part-time") {
+    // Part-time: salary is per hour, no schedule considered
+    const perHourRate = parseFloat(
+      employeesData.value?.employment_type?.salary || 0
+    );
+    hourlyIncome = workingHours * perHourRate;
+  } else {
+    // Regular logic: working hours + overtime × hourlyRate
+    const totalHours = workingHours + overtimeHours;
+    hourlyIncome = totalHours * hourlyRate.value;
+  }
 
   const finalIncome =
     hourlyIncome +
@@ -476,71 +594,210 @@ const totalIncome = computed(() => {
   return formatCurrency(finalIncome);
 });
 
-const regularPay = computed(() => {
-  const salary = employeesData.value?.employment_type?.salary;
-  const totalNumberOfDays = props?.dtrRows?.length || 0;
-  const ratePerDay = parseFloat(salary || "0");
+// const regularPay = computed(() => {
+//   const salary = parseFloat(
+//     employeesData.value?.employment_type?.salary || "0"
+//   );
+//   const totalNumberOfDays = props?.dtrRows?.length || 0;
+//   const ratePerDay = parseFloat(salary || "0");
 
-  if (isNaN(ratePerDay) || ratePerDay <= 0 || totalNumberOfDays === 0) {
+//   if (isNaN(ratePerDay) || ratePerDay <= 0 || totalNumberOfDays === 0) {
+//     return "₱ 0.00";
+//   }
+
+//   const calculatedExpectedSalary = ratePerDay * totalNumberOfDays;
+//   return formatCurrency(calculatedExpectedSalary);
+// });
+
+const regularPay = computed(() => {
+  const salary = parseFloat(
+    employeesData.value?.employment_type?.salary || "0"
+  );
+  const category = employeesData.value?.employment_type?.category || "";
+  const totalNumberOfDays = props?.dtrRows?.length || 0;
+  const totalHours = parseHourMinute(
+    props.summaryData?.totalWorkingHoursFormatted || "0"
+  );
+
+  if (isNaN(salary) || salary <= 0) {
     return "₱ 0.00";
   }
 
-  const calculatedExpectedSalary = ratePerDay * totalNumberOfDays;
-  return formatCurrency(calculatedExpectedSalary);
+  if (category === "Part-time") {
+    // Part-time → hourly rate × total hours (from summaryData)
+    return formatCurrency(salary * totalHours);
+  } else {
+    // Regular → daily rate × days
+    return formatCurrency(salary * totalNumberOfDays);
+  }
 });
 
 // Use watchEffect to automatically track dependencies and emit the updated data.
+// watchEffect(() => {
+//   // We only emit if summaryData is available to avoid sending incomplete calculations.
+//   if (props.summaryData && employeesData.value) {
+//     const summaryPayload = {
+//       schedule: employeeSchedule.value,
+//       ratePerDay: formatCurrency(employeesData.value?.employment_type?.salary),
+//       totalDays: props.dtrRows.length,
+//       expectedSalary: regularPay.value,
+//       incentiveDatasFromChild: incentiveDatasFromChild.value,
+
+//       // Detailed breakdown
+//       workingHours: {
+//         formatted: totalWorkingHours.value,
+//         cost: totalWorkingHoursCost.value,
+//         costRaw: parseCurrency(totalWorkingHoursCost.value),
+//       },
+//       overtime: {
+//         formatted: totalOvertimeHours.value,
+//         cost: totalOvertimeCost.value,
+//         costRaw: parseCurrency(totalOvertimeCost.value),
+//       },
+//       nightDifferential: {
+//         formatted: totalNightDifferential.value,
+//         cost: totalNightDifferentialCost.value,
+//         costRaw: parseCurrency(totalNightDifferentialCost.value),
+//       },
+//       undertime: {
+//         formatted: totalUndertime.value,
+//         cost: totalUndertimeCost.value,
+//         costRaw: parseCurrency(totalUndertimeCost.value),
+//       },
+//       holidayPay: {
+//         cost: totalAdditionalHolidayPay.value,
+//         costRaw: parseCurrency(totalAdditionalHolidayPay.value),
+//       },
+//       allowances: {
+//         cost: totalEmployeeAllowances.value,
+//         costRaw: parseCurrency(totalEmployeeAllowances.value),
+//       },
+//       incentives: {
+//         cost: formatCurrency(parentTotalIncentive.value),
+//         costRaw: parentTotalIncentive.value,
+//       },
+//       // Grand Total
+//       totalIncome: {
+//         formatted: totalIncome.value,
+//         raw: parseCurrency(totalIncome.value),
+//       },
+//     };
+
+//     // Emit the event with the payload
+//     emit("dtr-earnings-summary-calculated", summaryPayload);
+//   }
+// });
+
 watchEffect(() => {
-  // We only emit if summaryData is available to avoid sending incomplete calculations.
   if (props.summaryData && employeesData.value) {
+    const category = employeesData.value?.employment_type?.category;
+    const salary = parseFloat(
+      employeesData.value?.employment_type?.salary || 0
+    );
+
+    // Working Hours
+    const workingHoursRaw = parseHourMinute(
+      props.summaryData?.totalWorkingHoursFormatted
+    );
+    const workingHoursCost =
+      category === "Part-time"
+        ? workingHoursRaw * salary
+        : workingHoursRaw * hourlyRate.value;
+
+    // Overtime
+    const overtimeRaw = parseHourMinute(
+      props.summaryData?.totalOvertimeFormatted
+    );
+    const overtimeCost =
+      category === "Part=time"
+        ? overtimeRaw * salary
+        : overtimeRaw * hourlyRate.value * 1.0;
+
+    // Night Differential
+    const nightDiffRaw = parseHourMinute(
+      props.summaryData?.totalNightDiffFormatted
+    );
+    const nightDiffCost =
+      category === "Part-time"
+        ? nightDiffRaw * salary * 0.1
+        : nightDiffRaw * hourlyRate.value * 0.1;
+
+    // Undertime
+    const undertimeRaw = parseHourMinute(
+      props.summaryData?.totalUndertimeFormatted
+    );
+    const undertimeCost =
+      category === "Part-time"
+        ? undertimeRaw * salary
+        : undertimeRaw * hourlyRate.value;
+
+    // Holiday Py + Allowances
+    const holidayCost = parseFloat(
+      props.summaryData?.totalAdditionalHolidayPays || 0
+    );
+    const allowances = parseCurrency(totalEmployeeAllowances.value);
+
+    // Incentives
+    const incentives = parentTotalIncentive.value;
+
+    // Final Income
+    const finalIncome =
+      workingHoursCost +
+      overtimeCost +
+      nightDiffCost +
+      holidayCost +
+      allowances +
+      incentives -
+      undertimeCost;
+
     const summaryPayload = {
       schedule: employeeSchedule.value,
-      ratePerDay: formatCurrency(employeesData.value?.employment_type?.salary),
+      ratePerDayOrHour:
+        category === "Part-time"
+          ? `Rate / Hour: ${formatCurrency(salary)}`
+          : `Rate / Day : ${formatCurrency(salary)}`,
       totalDays: props.dtrRows.length,
       expectedSalary: regularPay.value,
       incentiveDatasFromChild: incentiveDatasFromChild.value,
 
-      // Detailed breakdown
       workingHours: {
-        formatted: totalWorkingHours.value,
-        cost: totalWorkingHoursCost.value,
-        costRaw: parseCurrency(totalWorkingHoursCost.value),
+        formatted: formatHoursAndMinutes(workingHoursRaw),
+        cost: formatCurrency(workingHoursCost),
+        costRaw: workingHoursCost,
       },
       overtime: {
-        formatted: totalOvertimeHours.value,
-        cost: totalOvertimeCost.value,
-        costRaw: parseCurrency(totalOvertimeCost.value),
+        formatted: formatHoursAndMinutes(overtimeRaw),
+        cost: formatCurrency(overtimeCost),
+        costRaw: overtimeCost,
       },
       nightDifferential: {
-        formatted: totalNightDifferential.value,
-        cost: totalNightDifferentialCost.value,
-        costRaw: parseCurrency(totalNightDifferentialCost.value),
+        formatted: formatHoursAndMinutes(nightDiffRaw),
+        cost: formatCurrency(nightDiffCost),
+        costRaw: nightDiffCost,
       },
       undertime: {
-        formatted: totalUndertime.value,
-        cost: totalUndertimeCost.value,
-        costRaw: parseCurrency(totalUndertimeCost.value),
+        formatted: formatHoursAndMinutes(undertimeRaw),
+        cost: formatCurrency(undertimeCost),
+        costRaw: undertimeCost,
       },
       holidayPay: {
-        cost: totalAdditionalHolidayPay.value,
-        costRaw: parseCurrency(totalAdditionalHolidayPay.value),
+        cost: formatCurrency(holidayCost),
+        costRaw: holidayCost,
       },
       allowances: {
-        cost: totalEmployeeAllowances.value,
-        costRaw: parseCurrency(totalEmployeeAllowances.value),
+        cost: formatCurrency(allowances),
+        costRaw: allowances,
       },
       incentives: {
-        cost: formatCurrency(parentTotalIncentive.value),
-        costRaw: parentTotalIncentive.value,
+        cost: formatCurrency(incentives),
+        costRaw: incentives,
       },
-      // Grand Total
       totalIncome: {
-        formatted: totalIncome.value,
-        raw: parseCurrency(totalIncome.value),
+        formatted: formatCurrency(finalIncome),
+        raw: finalIncome,
       },
     };
 
-    // Emit the event with the payload
     emit("dtr-earnings-summary-calculated", summaryPayload);
   }
 });

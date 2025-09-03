@@ -179,8 +179,9 @@ import { ref, watch, computed, onMounted } from "vue";
 import { date } from "quasar";
 
 const props = defineProps(["dtrRows", "employeeData", "dtrHolidays"]);
-console.log("dtrHolidays", props.dtrHolidays);
-console.log("dtrRows", props.dtrRows);
+console.log("dtrHolidaysssss", props.dtrHolidays);
+console.log("dtrRowssssss", props.dtrRows);
+console.log("employeeDataaaaaaa", props.employeeData);
 
 const internalEmployeeData = ref(props.employeeData);
 
@@ -358,11 +359,87 @@ const formatCurrency = (value) => {
 };
 
 // NEW: Calculate additional holiday pays (REGULAR + OVERTIME)
+// const calculateAdditionalHolidayPays = computed(() => {
+//   if (!props.dtrRows?.length) return [];
+
+//   const dailyRate = internalEmployeeData.value?.employment_type?.salary || 0;
+//   const hourlyRate = dailyRate / 8;
+
+//   const holidayConfigs = {
+//     "Regular Holiday": { multiplier: 1.0, label: "+100%" },
+//     "Special (Non-Working) Holiday": { multiplier: 0.3, label: "+30%" },
+//   };
+
+//   const calcHours = (start, end) => {
+//     const diffMins = (new Date(end) - new Date(start)) / 60000;
+//     return diffMins > 0 ? diffMins / 60 : 0;
+//   };
+
+//   const results = [];
+
+//   props.dtrRows.forEach((row, index) => {
+//     const holidayType = isHoliday(row.time_in);
+//     if (!holidayType || !holidayConfigs[holidayType]) return;
+
+//     const config = holidayConfigs[holidayType];
+//     const formattedDate = date.formatDate(row.time_in, "MMM. DD, YYYY");
+
+//     // Regular working hours
+//     if (row.time_in && row.time_out) {
+//       const { totalWorkingMinutes } = calculateRowTimes(row);
+//       const hours = totalWorkingMinutes / 60;
+
+//       if (hours > 0) {
+//         results.push({
+//           id: `${formattedDate}-regular-${index}`,
+//           date: formattedDate,
+//           holidayType,
+//           holidayRateText: config.label,
+//           workedHours: hours.toFixed(2),
+//           additionalPay: (hours * hourlyRate * config.multiplier).toFixed(2),
+//           type: "regular",
+//         });
+//       }
+//     }
+
+//     // Overtime hours
+//     if (
+//       row.ot_status === "approved" &&
+//       row.overtime_start &&
+//       row.overtime_end
+//     ) {
+//       const otHours = calcHours(row.overtime_start, row.overtime_end);
+//       if (otHours > 0) {
+//         results.push({
+//           id: `${formattedDate}-overtime-${index}`,
+//           date: formattedDate,
+//           holidayType,
+//           holidayRateText: `${config.label} (OT)`,
+//           workedHours: otHours.toFixed(2),
+//           additionalPay: (otHours * hourlyRate * config.multiplier).toFixed(2),
+//           type: "overtime",
+//         });
+//       }
+//     }
+//   });
+
+//   return results;
+// });
+
+// NEW: Calculate additional holiday pays (REGULAR + OVERTIME)
 const calculateAdditionalHolidayPays = computed(() => {
   if (!props.dtrRows?.length) return [];
 
-  const dailyRate = internalEmployeeData.value?.employment_type?.salary || 0;
-  const hourlyRate = dailyRate / 8;
+  const category = internalEmployeeData.value?.employment_type?.category || "";
+  const salary = parseFloat(
+    internalEmployeeData.value?.employment_type?.salary || 0
+  );
+
+  // Determine hourly rate depending on employment type
+  const hourlyRate =
+    category === "Part-time"
+      ? salary // salary is already per hour
+      : salary / 8; // Regular: daily rate ÷ 8
 
   const holidayConfigs = {
     "Regular Holiday": { multiplier: 1.0, label: "+100%" },
@@ -381,7 +458,7 @@ const calculateAdditionalHolidayPays = computed(() => {
     if (!holidayType || !holidayConfigs[holidayType]) return;
 
     const config = holidayConfigs[holidayType];
-    const formattedDate = date.formatDate(row.time_in, "MMM. DD, YYYY");
+    const formattedDate = date.formatDate(row.time_in, "MM. DD, YYYY");
 
     // Regular working hours
     if (row.time_in && row.time_out) {
@@ -421,7 +498,6 @@ const calculateAdditionalHolidayPays = computed(() => {
       }
     }
   });
-
   return results;
 });
 
