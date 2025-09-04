@@ -41,16 +41,182 @@
         </q-td>
       </template>
 
+      <template v-slot:body-cell-where_in="props">
+        <q-td :props="props" class="cursor-pointer">
+          <span>
+            {{ props.row.device_in_reference_name || "N/A" }}
+            <q-tooltip class="bg-blue-grey-8">Edit Where IN</q-tooltip>
+          </span>
+          <q-popup-edit
+            v-model="props.row.device_in_reference_name"
+            @update:model-value="(val) => updateDTRWhereIN(props.row, val)"
+            v-slot="scope"
+          >
+            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Where IN
+              </div>
+
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+
+              <q-select
+                v-model="scope.value"
+                :options="branchWithWarehousesOptions"
+                autofucos
+                option-label="label"
+                option-value="value"
+                emit-value
+                map-options
+                outlined
+                dense
+                counter
+                behavior="menu"
+                :model-value="scope.value"
+                @update:model-value="scope.value = $event"
+                @keyup.enter="scope.set"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
+          </q-popup-edit>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-where_out="props">
+        <q-td :props="props" class="cursor-pointer">
+          <span>
+            {{ props.row.device_out_reference_name || "N/A" }}
+            <q-tooltip>Edit Where OUT</q-tooltip>
+          </span>
+
+          <q-popup-edit
+            v-model="props.row.device_out_reference_name"
+            @update:model-value="(val) => updateDTRWhereOUT(props.row, val)"
+            v-slot="scope"
+          >
+            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Where OUT
+              </div>
+
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+
+              <q-select
+                v-model="scope.value"
+                :options="branchWithWarehousesOptions"
+                autofucos
+                option-label="label"
+                option-value="value"
+                emit-value
+                map-options
+                outlined
+                dense
+                counter
+                behavior="menu"
+                :model-value="scope.value"
+                @update:model-value="scope.value = $event"
+                @keyup.enter="scope.set"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
+          </q-popup-edit>
+        </q-td>
+      </template>
+
       <template v-slot:body-cell-shift_status="props">
-        <q-td :props="props">
+        <q-td :props="props" class="cursor-pointer">
           <q-chip
-            :label="props.row.shift_status || 'Regular Day'"
-            :color="props.row.shift_status === 'half day' ? 'orange' : 'green'"
+            :color="getShiftStatusChip(props.row.shift_status).color"
             text-color="white"
             dense
-            square
-            class="text-capitalize"
-          />
+          >
+            {{ getShiftStatusChip(props.row.shift_status).label }}
+            <q-tooltip> Edit Shift Status </q-tooltip>
+          </q-chip>
+
+          <q-popup-edit
+            v-model="props.row.shiftStatus"
+            @update:model-value="(val) => updateDTRShiftStatus(props.row, val)"
+            v-slot="scope"
+          >
+            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Shift Status
+              </div>
+
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+
+              <q-select
+                v-model="scope.value"
+                :options="[
+                  { label: 'Regular Day', value: 'Regular Day' },
+                  { label: 'Half Day', value: 'Half Day' },
+                ]"
+                option-label="label"
+                option-value="value"
+                emit-value
+                map-options
+                autofocus
+                outlined
+                dense
+                counter
+                behavior="menu"
+                :model-value="scope.value"
+                @keyup.enter="scope.set"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
+          </q-popup-edit>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-date_in="props">
+        <q-td :props="props">
+          <span v-if="props.row.time_in">
+            {{ helpers.formatDate(props.row.time_in) }}
+          </span>
+          <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.dateOnly"
+            title="Edit Date"
+            buttons
+            persistent
+            @before-show="initDate(props.row.time_in, props.row)"
+            @save="(val) => updateDTRTimeINDateOnly(props.row, val)"
+          >
+            <!-- @save="(val) => updateDTRTimeINDateOnly(props.row, val)" -->
+            <q-date v-model="props.row._dateOnly" mask="YYYY-MM-DD" />
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -59,9 +225,61 @@
           <q-badge v-if="props.row.time_in" outline color="positive">
             {{ helpers.formatTime(props.row.time_in) }}
           </q-badge>
+
           <span v-else> - - - </span>
+
+          <!-- edit icon, so row is still clickable -->
+          <q-icon
+            name="edit"
+            size="16px"
+            color="primary"
+            class="q-ml-sm cursor-pointer"
+          >
+            <q-popup-edit
+              v-model="props.row.time_in"
+              title="Edit Date"
+              buttons
+              persistent
+              @save="(val) => updateDateOnly(props.row, val)"
+            >
+              <q-input filled v-model="dateOnly" mask="date" :rules="['date']">
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date v-model="dateOnly" mask="YYYY-MM-DD" />
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </q-popup-edit>
+          </q-icon>
         </q-td>
       </template>
+
+      <!-- <template v-slot:body-cell-time_in="props">
+        <q-td :props="props">
+          <q-badge v-if="props.row.time_in" outline color="positive">
+            {{ helpers.formatTime(props.row.time_in) }}
+            <q-popup-edit v-model="props.row.time_in" title="Edit Date" buttons persistent @save="(val) => updateDTRTimeINDateOnly(props.row, val)">
+              <q-input
+                filled
+                v-model="dateOnly"
+                mask="date"
+                :rules="['date']"
+              >
+                <template v-slot:append>
+                  <q-icon>
+                </template>
+              </q-input>
+            </q-popup-edit>
+          </q-badge>
+          <span v-else> - - - </span>
+        </q-td>
+      </template> -->
 
       <template v-slot:body-cell-time_out="props">
         <q-td :props="props">
@@ -402,7 +620,11 @@ const loading = ref(false);
 
 const dtrStore = useDTRStore();
 const dtrData = computed(() => dtrStore.dtrs);
+const branchWithWarehousesList = computed(() => dtrStore.branchWithWarehouses);
+
 const dtrRows = ref([]);
+
+const dateOnly = ref("");
 
 // Fetch data on component mount
 onMounted(async () => {
@@ -458,6 +680,129 @@ const updateEmployeeScheduleOut = async (data, val) => {
   }
 };
 
+const getBranchWithWarehouses = async () => {
+  try {
+    const response = await dtrStore.getBranchWithWarehouses();
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+onMounted(getBranchWithWarehouses);
+
+const branchWithWarehousesOptions = computed(() => {
+  return branchWithWarehousesList.value.data.map((list) => ({
+    label: list.name,
+    value: list.devices[0]?.uuid,
+  }));
+});
+
+const updateDTRWhereIN = async (data, val) => {
+  console.log("updateDTRWhereIN composables", data, val);
+
+  loading.value = true;
+  try {
+    const dtrWhereIN = {
+      id: data.id,
+      device_uuid_in: val,
+    };
+
+    await dtrStore.updateDTRWhereIN(dtrWhereIN);
+
+    // 🔑 Lookup the device label (name) from your options
+    const match = branchWithWarehousesOptions.value.find(
+      (opt) => opt.value === val
+    );
+    if (match) {
+      data.device_in_reference_name = match.label; // update the row's display field
+    }
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateDTRWhereOUT = async (data, val) => {
+  console.log("updateDTRWhereOUT composables", data, val);
+
+  loading.value = true;
+  try {
+    const dtrWhereOUT = {
+      id: data.id,
+      device_uuid_out: val,
+    };
+
+    await dtrStore.updateDTRWhereOUT(dtrWhereOUT);
+
+    // 🔑 Lookup the device label (name) from your options
+    const match = branchWithWarehousesOptions.value.find(
+      (opt) => opt.value === val
+    );
+
+    if (match) {
+      data.device_out_reference_name = match.label; // update the row's display field
+    }
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateDTRShiftStatus = async (data, val) => {
+  console.log("updateDTRShiftStatus composables", data, val);
+
+  loading.value = true;
+  try {
+    const shiftStatus = {
+      id: data.id,
+      shift_status: val,
+    };
+
+    await dtrStore.updateDTRShiftStatus(shiftStatus);
+
+    // Update the row's display field directly
+    data.shift_status = val;
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const initDate = (dateTime, row) => {
+  if (!dateTime) return;
+  const d = new Date(dateTime);
+  row._dateOnly = d.toISOString().slice(0, 10); // row-specific
+};
+
+const updateDTRTimeINDateOnly = async (row, newDate) => {
+  console.log("updateDTRTimeINDateOnly composables", row, newDate);
+
+  if (!row.time_in) return;
+
+  const current = new Date(row.time_in);
+
+  // keep existing time
+  const hours = current.getHours();
+  const minutes = current.getMinutes();
+  const seconds = current.getSeconds();
+
+  // apply new date
+  const mergedDate = new Date(newDate);
+  mergedDate.setHours(hours, minutes, seconds);
+
+  try {
+    const isoDate = mergedDate.toISOString();
+    await dtrStore.updateDTRDateIN(row.id, isoDate);
+
+    row.time_in = isoDate;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+// console.log("branchWithWarehousesOptions", branchWithWarehousesOptions.value);
+
 /**
  * Fetches and reloads the DTR table data based on pagination and filter.
  * @param {number} page - The current page number.
@@ -482,6 +827,17 @@ const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   } finally {
     loading.value = false;
   }
+};
+
+const getShiftStatusChip = (status) => {
+  const val = status || "Regular Day";
+
+  if (val === "Half Day") {
+    return { label: val, color: "orange" };
+  } else if (val === "Regular Day") {
+    return { label: val, color: "green" };
+  }
+  return { label: val, color: "grey-4" };
 };
 
 // Column definitions for the q-table
@@ -737,6 +1093,18 @@ watch(filter, async (newVal) => {
 </script>
 
 <style lang="scss" scoped>
+.q-btn {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.q-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gradient-header {
+  background: #155e75;
+}
 .elegant-container {
   background: #f7f8fc;
   padding: 1rem;

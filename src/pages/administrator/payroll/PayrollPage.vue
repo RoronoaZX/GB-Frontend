@@ -58,7 +58,8 @@
             size="md"
             :class="tab === 'holidays' ? 'text-teal' : 'text-grey-7'"
           />
-          <div class="text-weight-bold text-lg">Calendar Holidays</div>
+          <div class="text-weight-bold text-lg">Holidays</div>
+          <!-- Calendar Holidays -->
           <!-- <div class="text-caption text-grey-6">List & New Entries</div> -->
         </div>
       </q-route-tab>

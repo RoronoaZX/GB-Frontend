@@ -8,6 +8,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   const dtr = ref(null);
   const dtrs = ref([]);
   const dtrCutOffData = ref([]);
+  const branchWithWarehouses = ref([]);
   const user = ref({});
 
   const setUser = (newUser) => {
@@ -164,10 +165,91 @@ export const useDTRStore = defineStore("dtrs", () => {
     }
   };
 
+  const getBranchWithWarehouses = async () => {
+    try {
+      const response = await api.get("/api/getBranchWithWarehouses");
+      console.log("getBranchWithWarehouses response", response);
+      branchWithWarehouses.value = response.data;
+    } catch (error) {
+      console.log("getBranchWithWarehouses error", error);
+    }
+  };
+
+  const updateDTRWhereIN = async (data) => {
+    console.log("updateDTRWhereIN in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRWhereIN`, data);
+      Notify.create({
+        message: "DTR Where IN updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Where IN",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRWhereOUT = async (data) => {
+    console.log("updateDTRWhereOUT in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRWhereOUT`, data);
+      Notify.create({
+        message: "DTR Where OUT updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Where OUT",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRShiftStatus = async (data) => {
+    console.log("updateDTRShiftStatus in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRShiftStatus`, data);
+      Notify.create({
+        message: "DTR Shift Status updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Shift Status",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRDateIN = async (data) => {
+    console.log("updateDTRDateIN in store:", data);
+  };
+
   return {
     dtr,
     dtrs,
     dtrCutOffData,
+    branchWithWarehouses,
     user,
     setUser,
     fetchDTR,
@@ -180,5 +262,10 @@ export const useDTRStore = defineStore("dtrs", () => {
     declineOvertime,
     updateDtrScheduleIn,
     updateDtrSheduleOut,
+    getBranchWithWarehouses,
+    updateDTRWhereIN,
+    updateDTRWhereOUT,
+    updateDTRShiftStatus,
+    updateDTRDateIN,
   };
 });
