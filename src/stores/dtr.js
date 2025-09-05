@@ -243,6 +243,90 @@ export const useDTRStore = defineStore("dtrs", () => {
 
   const updateDTRDateIN = async (data) => {
     console.log("updateDTRDateIN in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRDateIN`, data);
+      Notify.create({
+        message: "DTR Date IN updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Date IN",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRTimeIN = async (data) => {
+    console.log("updateDTRTimeIN in store", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRTimeIN`, data);
+      Notify.create({
+        message: "DTR Time IN updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Time IN",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRDateOUT = async (data) => {
+    console.log("updateDTRDateOUT in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTROUT`, data);
+      Notify.create({
+        message: "DTR Date OUT updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Date OUT",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRTimeOUT = async (data) => {
+    console.log("updateDTRTimeOUT in store", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRTimeOUT`, data);
+      Notify.create({
+        message: "DTR Time OUT updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Time OUT",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
   };
 
   return {
@@ -267,5 +351,8 @@ export const useDTRStore = defineStore("dtrs", () => {
     updateDTRWhereOUT,
     updateDTRShiftStatus,
     updateDTRDateIN,
+    updateDTRDateOUT,
+    updateDTRTimeIN,
+    updateDTRTimeOUT,
   };
 });

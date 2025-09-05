@@ -199,6 +199,15 @@
         </q-td>
       </template>
 
+      <!-- <template v-slot:body-cell-date_in="props">
+        <q-td :props="props">
+          <span v-if="props.row.time_in">
+            {{ helpers.formatDate(props.row.time_in) }}
+          </span>
+          <span v-else> - - - </span>
+        </q-td>
+      </template> -->
+
       <template v-slot:body-cell-date_in="props">
         <q-td :props="props">
           <span v-if="props.row.time_in">
@@ -207,15 +216,45 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.dateOnly"
-            title="Edit Date"
+            v-model="props.row.time_in"
+            v-slot="scope"
             buttons
             persistent
-            @before-show="initDate(props.row.time_in, props.row)"
-            @save="(val) => updateDTRTimeINDateOnly(props.row, val)"
+            @update:model-value="
+              (newValue) => updateDTRTimeINDateOnly(props.row, newValue, 'date')
+            "
           >
-            <!-- @save="(val) => updateDTRTimeINDateOnly(props.row, val)" -->
-            <q-date v-model="props.row._dateOnly" mask="YYYY-MM-DD" />
+            <q-date
+              v-model="scope.value"
+              mask="MMM. DD, YYYY, hh:mm A"
+              today-btn
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-date_out="props">
+        <q-td :props="props">
+          <span v-if="props.row.time_out">
+            {{ helpers.formatDate(props.row.time_out) }}
+          </span>
+          <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.time_out"
+            v-slot="scope"
+            buttons
+            persistent
+            @update:model-value="
+              (newValue) =>
+                updateDTRTimeOUTDateOnly(props.row, newValue, 'date')
+            "
+          >
+            <q-date
+              v-model="scope.value"
+              mask="MMM. DD, YYYY, hh:mm A"
+              today-btn
+            />
           </q-popup-edit>
         </q-td>
       </template>
@@ -225,61 +264,25 @@
           <q-badge v-if="props.row.time_in" outline color="positive">
             {{ helpers.formatTime(props.row.time_in) }}
           </q-badge>
-
           <span v-else> - - - </span>
 
-          <!-- edit icon, so row is still clickable -->
-          <q-icon
-            name="edit"
-            size="16px"
-            color="primary"
-            class="q-ml-sm cursor-pointer"
+          <q-popup-edit
+            v-model="props.row.time_in"
+            v-slot="scope"
+            buttons
+            persistent
+            @save="(newValue) => updateDTRTimeOnly(props.row, newValue, 'time')"
           >
-            <q-popup-edit
-              v-model="props.row.time_in"
-              title="Edit Date"
-              buttons
-              persistent
-              @save="(val) => updateDateOnly(props.row, val)"
-            >
-              <q-input filled v-model="dateOnly" mask="date" :rules="['date']">
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy
-                      cover
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-date v-model="dateOnly" mask="YYYY-MM-DD" />
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
-            </q-popup-edit>
-          </q-icon>
+            <!-- Native time input -->
+            <q-input
+              v-model="scope.value"
+              type="time"
+              filled
+              hint="Edit Time"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
-
-      <!-- <template v-slot:body-cell-time_in="props">
-        <q-td :props="props">
-          <q-badge v-if="props.row.time_in" outline color="positive">
-            {{ helpers.formatTime(props.row.time_in) }}
-            <q-popup-edit v-model="props.row.time_in" title="Edit Date" buttons persistent @save="(val) => updateDTRTimeINDateOnly(props.row, val)">
-              <q-input
-                filled
-                v-model="dateOnly"
-                mask="date"
-                :rules="['date']"
-              >
-                <template v-slot:append>
-                  <q-icon>
-                </template>
-              </q-input>
-            </q-popup-edit>
-          </q-badge>
-          <span v-else> - - - </span>
-        </q-td>
-      </template> -->
 
       <template v-slot:body-cell-time_out="props">
         <q-td :props="props">
@@ -287,6 +290,23 @@
             {{ helpers.formatTime(props.row.time_out) }}
           </q-badge>
           <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.time_out"
+            v-slot="scope"
+            buttons
+            persistent
+            @save="
+              (newValue) => updateDTRTimeOutOnly(props.row, newValue, 'time')
+            "
+          >
+            <q-input
+              v-model="scope.value"
+              type="time"
+              filled
+              hint="Edit Time"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -770,38 +790,194 @@ const updateDTRShiftStatus = async (data, val) => {
   }
 };
 
-const initDate = (dateTime, row) => {
-  if (!dateTime) return;
-  const d = new Date(dateTime);
-  row._dateOnly = d.toISOString().slice(0, 10); // row-specific
-};
+// const initDate = (dateTime, row) => {
+//   if (!dateTime) return;
+//   const d = new Date(dateTime);
+//   row._dateOnly = d.toISOString().slice(0, 10); // row-specific
+// };
 
-const updateDTRTimeINDateOnly = async (row, newDate) => {
-  console.log("updateDTRTimeINDateOnly composables", row, newDate);
+const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
+  console.log("updateDTRTimeINDateOnly composables", row, newDateTime, type);
 
-  if (!row.time_in) return;
+  // Example: If you want to keep the original time when only date is changed
+  let updatedDateTime;
+  if (row.time_in && type === "date") {
+    const originalDate = new Date(row.time_in);
+    const newDate = new Date(newDateTime);
 
-  const current = new Date(row.time_in);
+    // Keep the original time part, but update the date part
+    originalDate.setFullYear(newDate.getFullYear());
+    originalDate.setMonth(newDate.getMonth());
+    originalDate.setDate(newDate.getDate());
 
-  // keep existing time
-  const hours = current.getHours();
-  const minutes = current.getMinutes();
-  const seconds = current.getSeconds();
+    updatedDateTime = originalDate.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
 
-  // apply new date
-  const mergedDate = new Date(newDate);
-  mergedDate.setHours(hours, minutes, seconds);
+    updatedDateTime = updatedDateTime.replace(
+      /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/,
+      "$1."
+    );
+  } else {
+    updatedDateTime = newDateTime; // If no original time or type is not date
+  }
+
+  // --- Send updatedDateTime to your backend ---
+  console.log("Updating row with new time_in:", updatedDateTime);
+  // Example API call (replace with your actual API integration)
 
   try {
-    const isoDate = mergedDate.toISOString();
-    await dtrStore.updateDTRDateIN(row.id, isoDate);
+    const dtrDateIN = {
+      id: row.id,
+      time_in: updatedDateTime,
+    };
 
-    row.time_in = isoDate;
+    const response = await dtrStore.updateDTRDateIN(dtrDateIN);
   } catch (error) {
     console.log("error", error);
   }
+
+  // For demonstration, directly update the row (in a real app, this would be done after successful API response)
+  row.time_in = updatedDateTime;
 };
+
+const updateDTRTimeOnly = async (row, newTime, type) => {
+  console.log("updateDTRTimeOnly composables", row, newTime, type);
+
+  let updatedDateTime;
+
+  if (row.time_in && type === "time") {
+    // Extract only the "Jul. 21, 2025" part (date only, no old time)
+    const datePart = row.time_in.split(",").slice(0, 2).join(",");
+    // -> "Jul. 21, 2025"
+
+    // Convert "HH:mm" (24h) to 12h AM/PM
+    const [hours, minutes] = newTime.split(":");
+    let h = parseInt(hours, 10);
+    const m = minutes.padStart(2, "0");
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12; // 00 → 12 AM
+    else if (h > 12) h -= 12; // 13..23 → 1..11 PM
+
+    const formattedTime = `${h}:${m} ${ampm}`;
+
+    // Combine date with new time
+    updatedDateTime = `${datePart}, ${formattedTime}`;
+    // -> "Jul. 21, 2025, 11:24 AM"
+  } else {
+    updatedDateTime = newTime;
+  }
+
+  console.log("Updating row with new time_in:", updatedDateTime);
+
+  try {
+    const dtrTimeIN = {
+      id: row.id,
+      time_in: updatedDateTime,
+    };
+    await dtrStore.updateDTRTimeIN(dtrTimeIN);
+
+    // Update UI
+    row.time_in = updatedDateTime;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  }
+};
+
 // console.log("branchWithWarehousesOptions", branchWithWarehousesOptions.value);
+
+const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
+  console.log("updateDTRTimeOUTDateOnly composables", row, newDateTime, type);
+
+  // Example: If you want to keep the original time when only date is changed
+  let updatedDateTime;
+  if (row.time_out && type === "date") {
+    const originalDate = new Date(row.time_out);
+    const newDate = new Date(newDateTime);
+
+    // Keep the original time part, but update the date part
+    originalDate.setFullYear(newDate.getFullYear());
+    originalDate.setMonth(newDate.getMonth());
+    originalDate.setDate(newDate.getDate());
+
+    updatedDateTime = originalDate.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+
+    updatedDateTime = updatedDateTime.replace(
+      /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/,
+      "$1."
+    );
+  } else {
+    updatedDateTime = newDateTime; // If no original time or type is not date
+  }
+
+  // --- Send updatedDateTime to your backend ---
+  console.log("Updating row with new time_out:", updatedDateTime);
+
+  try {
+    const dtrDateOUT = {
+      id: row.id,
+      time_out: updatedDateTime,
+    };
+
+    const response = await dtrStore.updateDTRDateOUT(dtrDateOUT);
+  } catch (error) {
+    console.log("error", error);
+  }
+
+  row.time_out = updatedDateTime;
+};
+
+const updateDTRTimeOutOnly = async (row, newTime, type) => {
+  console.log("updateDTRTimeOutOnly composables", row, newTime, type);
+
+  let updatedDateTime;
+  if (row.time_out && type === "time") {
+    // Extract only the "Jul. 21, 2025" part (date only, no old time)
+    const datePart = row.time_out.split(",").slice(0, 2).join(",");
+
+    // Convert "HH:mm" (24h) to 12 AM/PM
+    const [hours, minutes] = newTime.split(":");
+    let h = parseInt(hours, 10);
+    const m = minutes.padStart(2, 0);
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12; // 00 → 12 AM
+    else if (h > 12) h -= 12; // 13..23 → 1..11 PM
+
+    const formattedTime = `${h}:${m} ${ampm}`;
+
+    // Conbine date with new time
+    updatedDateTime = `${datePart}, ${formattedTime}`;
+  } else {
+    updatedDateTime = newTime;
+  }
+
+  console.log("Updating row with new time_out:", updatedDateTime);
+
+  try {
+    const dtrTimeOUT = {
+      id: row.id,
+      time_out: updatedDateTime,
+    };
+    await dtrStore.updateDTRTimeOUT(dtrTimeOUT);
+
+    // Update UI
+    row.time_out = updatedDateTime;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  }
+};
 
 /**
  * Fetches and reloads the DTR table data based on pagination and filter.
