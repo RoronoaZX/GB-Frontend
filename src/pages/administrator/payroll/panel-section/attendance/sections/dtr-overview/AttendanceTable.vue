@@ -199,15 +199,6 @@
         </q-td>
       </template>
 
-      <!-- <template v-slot:body-cell-date_in="props">
-        <q-td :props="props">
-          <span v-if="props.row.time_in">
-            {{ helpers.formatDate(props.row.time_in) }}
-          </span>
-          <span v-else> - - - </span>
-        </q-td>
-      </template> -->
-
       <template v-slot:body-cell-date_in="props">
         <q-td :props="props">
           <span v-if="props.row.time_in">
