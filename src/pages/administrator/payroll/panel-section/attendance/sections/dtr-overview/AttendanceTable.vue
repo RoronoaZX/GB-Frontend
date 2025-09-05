@@ -790,12 +790,6 @@ const updateDTRShiftStatus = async (data, val) => {
   }
 };
 
-// const initDate = (dateTime, row) => {
-//   if (!dateTime) return;
-//   const d = new Date(dateTime);
-//   row._dateOnly = d.toISOString().slice(0, 10); // row-specific
-// };
-
 const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
   console.log("updateDTRTimeINDateOnly composables", row, newDateTime, type);
 
@@ -888,8 +882,6 @@ const updateDTRTimeOnly = async (row, newTime, type) => {
     console.error("Error updating DTR:", error);
   }
 };
-
-// console.log("branchWithWarehousesOptions", branchWithWarehousesOptions.value);
 
 const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
   console.log("updateDTRTimeOUTDateOnly composables", row, newDateTime, type);
