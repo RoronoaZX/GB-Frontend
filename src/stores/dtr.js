@@ -329,6 +329,102 @@ export const useDTRStore = defineStore("dtrs", () => {
     }
   };
 
+  const updateDTRLunchBreakStart = async (data) => {
+    console.log("updateDTRLunchBreakStart in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRLunchBreakStart`, data);
+
+      Notify.create({
+        message: "DTR Lunch Break Start updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Lunch Break Start",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRLunchBreakEnd = async (data) => {
+    console.log("updateDTRLunchBreakEnd in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRLunchBreakEnd`, data);
+
+      Notify.create({
+        message: "DTR Lunch Break End updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Lunch Break End",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTRBreakStart = async (data) => {
+    console.log("updateDTRBreakStart in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRBreakStart`, data);
+
+      Notify.create({
+        message: "DTR Break Start updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Break Start",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updatedDTRBreakEnd = async (data) => {
+    console.log("updateDTRBreakEnd in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTRBreakEnd`, data);
+
+      Notify.create({
+        message: "DTR Break End updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Break End",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updatedDTROvertimeStart = async (data) => {
+    console.log("updateDTROvertimeStart in store:", data);
+  };
+
   return {
     dtr,
     dtrs,
@@ -354,5 +450,10 @@ export const useDTRStore = defineStore("dtrs", () => {
     updateDTRDateOUT,
     updateDTRTimeIN,
     updateDTRTimeOUT,
+    updateDTRLunchBreakStart,
+    updateDTRLunchBreakEnd,
+    updateDTRBreakStart,
+    updatedDTRBreakEnd,
+    updatedDTROvertimeStart,
   };
 });

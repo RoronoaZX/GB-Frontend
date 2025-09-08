@@ -307,6 +307,24 @@
             {{ helpers.formatTime(props.row.lunch_break_start) }}
           </q-badge>
           <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.lunch_break_start"
+            v-slot="scope"
+            buttons
+            persistent
+            @save="
+              (newValue) =>
+                updateDTRLunchBreakStart(props.row, newValue, 'time')
+            "
+          >
+            <q-input
+              v-model="scope.value"
+              type="time"
+              filled
+              hint="Edit Time"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -316,6 +334,23 @@
             {{ helpers.formatTime(props.row.lunch_break_end) }}
           </q-badge>
           <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.lunch_break_end"
+            v-slot="scope"
+            buttons
+            persistent
+            @save="
+              (newValue) => updateDTRLunchBreakEnd(props.row, newValue, 'time')
+            "
+          >
+            <q-input
+              v-model="scope.value"
+              type="time"
+              filled
+              hint="Edit Time"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -325,6 +360,23 @@
             {{ helpers.formatTime(props.row.break_start) }}
           </q-badge>
           <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.break_start"
+            v-slot="scope"
+            buttons
+            persistent
+            @save="
+              (newValue) => updateDTRBreakStart(props.row, newValue, 'time')
+            "
+          >
+            <q-input
+              v-model="scope.value"
+              type="time"
+              filled
+              hint="Edit Time"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -334,6 +386,21 @@
             {{ helpers.formatTime(props.row.break_end) }}
           </q-badge>
           <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.break_end"
+            v-slot="scope"
+            buttons
+            persistent
+            @save="(newValue) => updateDTRBreakEnd(props.row, newValue, 'time')"
+          >
+            <q-input
+              v-model="scope.value"
+              type="time"
+              filled
+              hint="Edit Time"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -464,6 +531,87 @@
           <span v-else> - - - </span>
         </q-td>
       </template>
+
+      <template v-slot:body-cell-overtime_start="props">
+        <q-td :props="props">
+          <!-- Show badge if there's data -->
+          <q-badge v-if="props.row.overtime_start" outline color="black">
+            {{ props.row.overtime_start }}
+          </q-badge>
+          <span v-else> - - - </span>
+
+          <!-- Popup editor -->
+          <q-popup-edit
+            v-model="props.row.overtime_start"
+            v-slot="scope"
+            buttons
+            persistent
+            @before-show="initDateTime(props.row.overtime_start)"
+            @save="() => saveDateTime(props.row, scope)"
+          >
+            <div class="q-gutter-md row items-start">
+              <q-input
+                v-model="datePart"
+                type="date"
+                filled
+                hint="mm/dd/yyyy"
+              />
+              <q-input
+                v-model="timePart"
+                type="time"
+                filled
+                hint="hh:mm AM/PM"
+              />
+            </div>
+          </q-popup-edit>
+        </q-td>
+      </template>
+      <!--
+      <template v-slot:body-cell-overtime_start="props">
+        <q-td :props="props">
+          <q-badge v-if="props.row.overtime_start" outline color="black">
+            {{ props.row.overtime_start }}
+          </q-badge>
+          <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.overtime_start"
+            v-slot="scope"
+            persistent
+            @before-show="initDateTime(props.row.overtime_start)"
+          >
+            <div class="q-gutter-md row items-start">
+              <q-input
+                v-model="datePart"
+                type="date"
+                filled
+                hint="mm/dd/yyyy"
+              />
+              <q-input
+                v-model="timePart"
+                type="time"
+                filled
+                hint="hh:mm AM/PM"
+              />
+            </div>
+
+            <div class="row justify-end q-gutter-sm">
+              <q-btn
+                flat
+                label="Cancel"
+                color="negative"
+                @click="scope.cancel"
+              />
+              <q-btn
+                flat
+                label="Save"
+                color="primary"
+                @click="() => saveDateTime(props.row, scope)"
+              />
+            </div>
+          </q-popup-edit>
+        </q-td>
+      </template> -->
 
       <template v-slot:body-cell-ot_status="props">
         <q-td :props="props" class="row">
@@ -635,7 +783,66 @@ const branchWithWarehousesList = computed(() => dtrStore.branchWithWarehouses);
 
 const dtrRows = ref([]);
 
-const dateOnly = ref("");
+const datePart = ref(null);
+const timePart = ref(null);
+
+// initialize date + time fields
+function initDateTime(original) {
+  if (!original) {
+    datePart.value = null;
+    timePart.value = null;
+    return;
+  }
+
+  const d = new Date(original);
+
+  console.log("🔹 Original datetime:", original);
+
+  // yyyy-MM-dd for <input type="date">
+  datePart.value = d.toISOString().split("T")[0];
+
+  // hh:mm for <input type="time">
+  timePart.value = `${String(d.getHours()).padStart(2, "0")}:${String(
+    d.getMinutes()
+  ).padStart(2, "0")}`;
+}
+
+// merge and update
+function saveDateTime(row, scope) {
+  if (datePart.value && timePart.value) {
+    const combined = `${datePart.value}T${timePart.value}`;
+    const newDate = new Date(combined);
+
+    // formatted output
+    const formatted = newDate.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    console.log("🔹 Formatted datetime:", formatted);
+
+    // update popup value
+    scope.value = formatted;
+
+    // build payload
+    const payload = {
+      id: row.id,
+      overtime_start: formatted,
+    };
+
+    // log before sending
+    console.log("🔹 Payload ready to send:", payload);
+
+    // ⛔ Commented out for now (only log)
+    // updateDTROvertimeStart(payload);
+  }
+}
+
+// simplified function, no 'type' anymo
 
 // Fetch data on component mount
 onMounted(async () => {
@@ -788,12 +995,13 @@ const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
   let updatedDateTime;
   if (row.time_in && type === "date") {
     const originalDate = new Date(row.time_in);
-    const newDate = new Date(newDateTime);
 
-    // Keep the original time part, but update the date part
-    originalDate.setFullYear(newDate.getFullYear());
-    originalDate.setMonth(newDate.getMonth());
-    originalDate.setDate(newDate.getDate());
+    // Extract only the date part (ignore the midnight time from q-date)
+    const pickedDate = new Date(newDateTime);
+
+    originalDate.setFullYear(pickedDate.getFullYear());
+    originalDate.setMonth(pickedDate.getMonth());
+    originalDate.setDate(pickedDate.getDate());
 
     updatedDateTime = originalDate.toLocaleString("en-US", {
       month: "short",
@@ -881,12 +1089,12 @@ const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
   let updatedDateTime;
   if (row.time_out && type === "date") {
     const originalDate = new Date(row.time_out);
-    const newDate = new Date(newDateTime);
+    const pickedDate = new Date(newDateTime);
 
     // Keep the original time part, but update the date part
-    originalDate.setFullYear(newDate.getFullYear());
-    originalDate.setMonth(newDate.getMonth());
-    originalDate.setDate(newDate.getDate());
+    originalDate.setFullYear(pickedDate.getFullYear());
+    originalDate.setMonth(pickedDate.getMonth());
+    originalDate.setDate(pickedDate.getDate());
 
     updatedDateTime = originalDate.toLocaleString("en-US", {
       month: "short",
@@ -898,7 +1106,7 @@ const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
     });
 
     updatedDateTime = updatedDateTime.replace(
-      /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/,
+      /^(JAn|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/,
       "$1."
     );
   } else {
@@ -959,6 +1167,315 @@ const updateDTRTimeOutOnly = async (row, newTime, type) => {
     row.time_out = updatedDateTime;
   } catch (error) {
     console.error("Error updating DTR:", error);
+  }
+};
+
+const updateDTRLunchBreakStart = async (row, newTime, type) => {
+  console.log("updateDTRLunchBreakStart composables", row, newTime, type);
+
+  let updatedDateTime;
+
+  if (type === "time") {
+    let datePart;
+
+    if (!row.lunch_break_start) {
+      // Case 1: lunch_break_start is null → use time_in's date
+      datePart = row.time_in.split(",").slice(0, 2).join(",").trim();
+    } else {
+      // Case 2: lunch_break_start has a value → use that date
+      datePart = row.lunch_break_start.split(",").slice(0, 2).join(",").trim();
+    }
+
+    // Convert "HH:mm" (24h) to 12h AM/PM
+    const [hours, minutes] = newTime.split(":");
+    let h = parseInt(hours, 10);
+    const m = minutes.padStart(2, "0");
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+
+    const formattedTime = `${h}:${m} ${ampm}`;
+
+    // Combine date with new time
+    updatedDateTime = `${datePart}, ${formattedTime}`;
+  } else {
+    updatedDateTime = newTime;
+  }
+
+  console.log("Updating row with new lunch_break_start:", updatedDateTime);
+
+  try {
+    const dtrLunchBreakStart = {
+      id: row.id,
+      lunch_break_start: updatedDateTime,
+    };
+
+    await dtrStore.updateDTRLunchBreakStart(dtrLunchBreakStart);
+
+    // Update UI
+    row.lunch_break_start = updatedDateTime;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  }
+};
+
+const updateDTRLunchBreakEnd = async (row, newTime, type) => {
+  console.log("updateDTRLunchBreakEnd composables", row, newTime, type);
+
+  let updatedDateTime;
+
+  if (type === "time") {
+    let datePart;
+
+    if (!row.lunch_break_end) {
+      // Case 1: lunch_break_end is null → use time_in's date
+      datePart = row.time_in.split(",").slice(0, 2).join(",").trim();
+    } else {
+      // Case 2: lunch_break_end has a value → use that date
+      datePart = row.lunch_break_end.split(",").slice(0, 2).join(",").trim();
+    }
+
+    // Convert "HH:mm" (24h) to 12h AM/PM
+    const [hours, minutes] = newTime.split(":");
+    let h = parseInt(hours, 10);
+    const m = minutes.padStart(2, "0");
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+
+    const formattedTime = `${h}:${m} ${ampm}`;
+
+    // Combine date with new time
+    updatedDateTime = `${datePart}, ${formattedTime}`;
+  } else {
+    updatedDateTime = newTime;
+  }
+
+  console.log("Updating row with new lunch_break_end:", updatedDateTime);
+
+  try {
+    const dtrLunchBreakEnd = {
+      id: row.id,
+      lunch_break_end: updatedDateTime,
+    };
+
+    await dtrStore.updateDTRLunchBreakEnd(dtrLunchBreakEnd);
+
+    // Update UI
+    row.lunch_break_end = updatedDateTime;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  }
+};
+
+// const updateDTRLunchBreakStart = async (row, newTime, type) => {
+//   console.log("updateDTRLunchBreakStart composables", row, newTime, type);
+//   console.log("row updateDTRLunchBreakStart", row.lunch_break_start);
+
+//   let updatedDateTime;
+
+//   if (row.time_in && type === "time") {
+//     // Extract only the "Jul. 21, 2025" part (date only, no old time)
+//     const datePart = row.time_in.split(",").slice(0, 2).join(",");
+//     // -> "Jul. 21, 2025"
+
+//     // Convert "HH:mm" (24h) to 12h AM/PM
+//     const [hours, minutes] = newTime.split(":");
+//     let h = parseInt(hours, 10);
+//     const m = minutes.padStart(2, "0");
+//     const ampm = h >= 12 ? "PM" : "AM";
+//     if (h === 0) h = 12; // 00 → 12 AM
+//     else if (h > 12) h -= 12;
+
+//     const formattedTime = `${h}:${m} ${ampm}`;
+
+//     // Combine date with new time
+//     updatedDateTime = `${datePart}, ${formattedTime}`;
+//     // -> "Jul. 21, 2025, 11:24 AM"
+//   } else {
+//     updatedDateTime = newTime;
+//   }
+
+//   console.log("Updatping row with new lunch_break_start:", updatedDateTime);
+
+//   try {
+//     const dtrLunchBreakStart = {
+//       id: row.id,
+//       lunch_break_start: updatedDateTime,
+//     };
+
+//     await dtrStore.updateDTRLunchBreakStart(dtrLunchBreakStart);
+
+//     // Update UI
+//     row.lunch_break_start = updatedDateTime;
+//   } catch (error) {
+//     console.error("Error updating DTR:", error);
+//   }
+// };
+
+// const updateDTRLunchBreakEnd = async (row, newTime, type) => {
+//   console.log("updateDTRLunchBreakEnd composables", row, newTime, type);
+//   console.log("row updateDTRLunchBreakEnd", row.lunch_break_end);
+
+//   let updatedDateTime;
+
+//   if (row.time_in && type === "time") {
+//     // Extract only the "Jul. 21, 2025" part (daate only, no old time)
+//     const datePart = row.time_in.split(",").slice(0, 2).join(",");
+//     // -> "Jul. 21, 2025"
+
+//     // Convert "HH:mm" (24h) to 12h AM/PM
+//     const [hours, minutes] = newTime.split(":");
+//     let h = parseInt(hours, 10);
+//     const m = minutes.padStart(2, "0");
+//     const ampm = h >= 12 ? "PM" : "AM";
+//     if (h === 0) h = 12;
+//     else if (h > 12) h -= 12;
+
+//     const formattedTime = `${h}:${m} ${ampm}`;
+
+//     // Combine date with new time
+//     updatedDateTime = `${datePart}, ${formattedTime}`;
+//     // -> "Jul. 21, 2025, 11:24 AM"
+//   } else {
+//     updatedDateTime = newTime;
+//   }
+
+//   console.log("Updating row with new lunch_break_end:", updatedDateTime);
+
+//   try {
+//     const dtrLunchBreakEnd = {
+//       id: row.id,
+//       lunch_break_end: updatedDateTime,
+//     };
+
+//     await dtrStore.updateDTRLunchBreakEnd(dtrLunchBreakEnd);
+
+//     // Update UI
+//     row.lunch_break_end = updatedDateTime;
+//   } catch (error) {
+//     console.error("Error updating DTR:", error);
+//   }
+// };
+
+const updateDTRBreakStart = async (row, newTime, type) => {
+  console.log("updateDTRBreakStart composables", row, newTime, type);
+  console.log("row updateDTRBreakStart", row.break_start);
+
+  let updatedDateTime;
+
+  if (type === "time") {
+    let datePart;
+
+    if (!row.lunch_break_end) {
+      // Case 1: lunch_break_end is null → use time_in's date
+      datePart = row.time_in.split(",").slice(0, 2).join(",").trim();
+    } else {
+      // Case 2: lunch_break_end has a value → use that date
+      datePart = row.lunch_break_end.split(",").slice(0, 2).join(",").trim();
+    }
+
+    // Convert "HH:mm" (24h) to 12h AM/PM
+    const [hours, minutes] = newTime.split(":");
+    let h = parseInt(hours, 10);
+    const m = minutes.padStart(2, "0");
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+
+    const formattedTime = `${h}:${m} ${ampm}`;
+
+    // Combine date with new time
+    updatedDateTime = `${datePart}, ${formattedTime}`;
+  } else {
+    updatedDateTime = newTime;
+  }
+
+  console.log("Updating row with new break_start:", updatedDateTime);
+
+  try {
+    const dtrLunchBreakEnd = {
+      id: row.id,
+      break_start: updatedDateTime,
+    };
+
+    await dtrStore.updateDTRBreakStart(dtrLunchBreakEnd);
+
+    row.break_start = updatedDateTime;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  }
+};
+
+const updateDTRBreakEnd = async (row, newTime, type) => {
+  console.log("updateDTRBreakEnd composables", row, newTime, type);
+  console.log("row updateDTRBreakEnd", row.break_end);
+
+  let updatedDateTime;
+
+  if (type === "time") {
+    let datePart;
+
+    if (!row.break_end) {
+      // Case 1: break_end is null → use time_in's date
+      datePart = row.time_in.split(",").slice(0, 2).join(",").trim();
+    } else {
+      // Case 2: break_end has a value → use that date
+      datePart = row.break_end.split(",").slice(0, 2).join(",").trim();
+    }
+
+    // Convert "HH:mm" (24h) to 12h AM/PM
+
+    const [hours, minutes] = newTime.split(":");
+    let h = parseInt(hours, 10);
+    const m = minutes.padStart(2, "0");
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+
+    const formattedTime = `${h}:${m} ${ampm}`;
+
+    // Combine date withnew time
+    updatedDateTime = `${datePart}, ${formattedTime}`;
+  } else {
+    updatedDateTime = newTime;
+  }
+
+  console.log("Updating row with new break_end:", updatedDateTime);
+
+  try {
+    const dtrBreakEnd = {
+      id: row.id,
+      break_end: updatedDateTime,
+    };
+
+    await dtrStore.updatedDTRBreakEnd(dtrBreakEnd);
+
+    row.break_end = updatedDateTime;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  }
+};
+
+const updateDTROvertimeStart = async (row, newTime) => {
+  console.log("updateDTROvertimeStart composables", row, newTime, type);
+
+  if (datePart.value && timePart.value) {
+    const combined = `${datePart.value}T${timePart.value}`;
+    const newDate = new Date(combined);
+
+    // format back to something like "Jul. 22, 2025, 5:07 PM"
+    const formatted = newDate.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    scope.value = formatted;
+    updateDTROvertimeStart(row, formatted, "datetime");
   }
 };
 
