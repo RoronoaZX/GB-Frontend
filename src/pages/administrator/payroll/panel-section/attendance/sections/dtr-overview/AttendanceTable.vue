@@ -549,6 +549,7 @@
             @before-show="initDateTime(props.row.overtime_start)"
             @save="() => saveDateTime(props.row, scope)"
           >
+            <div>Edit Overtime Start</div>
             <div class="q-gutter-md row items-start">
               <q-input
                 v-model="datePart"
@@ -786,6 +787,9 @@ const dtrRows = ref([]);
 const datePart = ref(null);
 const timePart = ref(null);
 
+// ✅ Toggle this flag
+const debugMode = ref(true); // true = log only, false = send to API
+
 // initialize date + time fields
 function initDateTime(original) {
   if (!original) {
@@ -795,8 +799,6 @@ function initDateTime(original) {
   }
 
   const d = new Date(original);
-
-  console.log("🔹 Original datetime:", original);
 
   // yyyy-MM-dd for <input type="date">
   datePart.value = d.toISOString().split("T")[0];
@@ -834,11 +836,14 @@ function saveDateTime(row, scope) {
       overtime_start: formatted,
     };
 
-    // log before sending
-    console.log("🔹 Payload ready to send:", payload);
+    console.log("🔹 Payload ready:", payload);
 
-    // ⛔ Commented out for now (only log)
-    // updateDTROvertimeStart(payload);
+    // ✅ Only send API if debugMode is false
+    if (!debugMode.value) {
+      updateDTROvertimeStart(payload);
+    } else {
+      console.log("⚠️ Debug Mode ON → Not sending to API");
+    }
   }
 }
 
