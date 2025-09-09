@@ -262,7 +262,9 @@
             v-slot="scope"
             buttons
             persistent
-            @save="(newValue) => updateDTRTimeOnly(props.row, newValue, 'time')"
+            @save="
+              (newValue) => updateDTRTimeINOnly(props.row, newValue, 'time')
+            "
           >
             <!-- Native time input -->
             <q-input
@@ -534,88 +536,68 @@
 
       <template v-slot:body-cell-overtime_start="props">
         <q-td :props="props">
-          <!-- Show badge if there's data -->
+          <!-- Display value -->
           <q-badge v-if="props.row.overtime_start" outline color="black">
             {{ props.row.overtime_start }}
           </q-badge>
           <span v-else> - - - </span>
 
-          <!-- Popup editor -->
           <q-popup-edit
             v-model="props.row.overtime_start"
             v-slot="scope"
             buttons
             persistent
-            @before-show="initDateTime(props.row.overtime_start)"
-            @save="() => saveDateTime(props.row, scope)"
+            @save="(newVal) => updateDTROvertimeStart(props.row, newVal)"
           >
             <div>Edit Overtime Start</div>
             <div class="q-gutter-md row items-start">
               <q-input
-                v-model="datePart"
-                type="date"
+                v-model="scope.value"
+                type="datetime-local"
                 filled
-                hint="mm/dd/yyyy"
-              />
-              <q-input
-                v-model="timePart"
-                type="time"
-                filled
-                hint="hh:mm AM/PM"
+                :model-value="convertDisplayToInput(props.row.overtime_start)"
+                @update:model-value="scope.value = $event"
+                hint="Select date & time"
               />
             </div>
           </q-popup-edit>
         </q-td>
       </template>
-      <!--
-      <template v-slot:body-cell-overtime_start="props">
+
+      <template v-slot:body-cell-overtime_end="props">
         <q-td :props="props">
-          <q-badge v-if="props.row.overtime_start" outline color="black">
-            {{ props.row.overtime_start }}
+          <!-- Display value -->
+          <q-badge v-if="props.row.overtime_end" outline color="black">
+            {{ props.row.overtime_end }}
           </q-badge>
           <span v-else> - - - </span>
 
+          <!-- Popup editor -->
           <q-popup-edit
-            v-model="props.row.overtime_start"
+            v-model="props.row.overtime_end"
             v-slot="scope"
+            buttons
             persistent
-            @before-show="initDateTime(props.row.overtime_start)"
+            @save="(newVal) => updateDTROvertimeEnd(props.row, newVal)"
           >
+            <div>Edit Overtime End</div>
             <div class="q-gutter-md row items-start">
               <q-input
-                v-model="datePart"
-                type="date"
+                v-model="scope.value"
+                type="datetime-local"
                 filled
-                hint="mm/dd/yyyy"
-              />
-              <q-input
-                v-model="timePart"
-                type="time"
-                filled
-                hint="hh:mm AM/PM"
-              />
-            </div>
-
-            <div class="row justify-end q-gutter-sm">
-              <q-btn
-                flat
-                label="Cancel"
-                color="negative"
-                @click="scope.cancel"
-              />
-              <q-btn
-                flat
-                label="Save"
-                color="primary"
-                @click="() => saveDateTime(props.row, scope)"
+                :model-value="convertDisplayToInput(props.row.overtime_end)"
+                @update:model-value="scope.value = $event"
+                hint="Select date & time"
               />
             </div>
           </q-popup-edit>
         </q-td>
-      </template> -->
+      </template>
 
       <template v-slot:body-cell-ot_status="props">
-        <q-td :props="props" class="row">
+        <q-td :props="props" class="row items-center">
+          <!-- APPROVED -->
           <q-chip
             v-if="props.row.ot_status === 'approved'"
             size="sm"
@@ -625,6 +607,8 @@
             icon="check_circle"
             :label="helpers.capitalize(props.row.ot_status)"
           />
+
+          <!-- DECLINED -->
           <q-chip
             v-else-if="props.row.ot_status === 'declined'"
             size="sm"
@@ -634,11 +618,78 @@
             icon="cancel"
             :label="helpers.capitalize(props.row.ot_status)"
           />
-          <span v-else-if="!props.row.ot_status"> - - - </span>
-          <div v-else class="q-gutter-x-sm">
+
+          <!-- PENDING -->
+          <div
+            v-else-if="props.row.ot_status === 'pending'"
+            class="q-gutter-x-sm"
+          >
             <DeclineOTButton :decline="props.row" />
             <ApproveOTButton :approve="props.row" />
           </div>
+
+          <!-- NO STATUS OR OTHER VALUES -->
+          <span v-else> - - - </span>
+
+          <!-- EDIT ICON (only visible if not pending) -->
+          <q-popup-edit
+            v-if="props.row.ot_status !== 'pending'"
+            v-model="props.row.ot_status"
+            @update:model-value="(val) => updateDTROTStatus(props.row, val)"
+          >
+            <template v-slot="scope">
+              <!-- Trigger button -->
+              <q-btn
+                flat
+                round
+                dense
+                size="sm"
+                icon="edit"
+                color="primary"
+                @click.stop="scope.set"
+                class="q-ml-sm"
+              />
+
+              <!-- Popup content -->
+              <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
+                <div class="text-h6 text-primary text-center q-mb-sm">
+                  Edit OT Status
+                </div>
+
+                <div class="text-subtitle2 q-mb-sm">
+                  Name: {{ helpers.formatFullname(props.row.employee) }}
+                </div>
+
+                <q-select
+                  v-model="scope.value"
+                  :options="[
+                    { label: 'Approved', value: 'approved' },
+                    { label: 'Declined', value: 'declined' },
+                  ]"
+                  option-label="label"
+                  option-value="value"
+                  emit-value
+                  map-options
+                  autofocus
+                  outlined
+                  dense
+                  counter
+                  behavior="menu"
+                  @keyup.enter="scope.set"
+                />
+
+                <div class="row justify-end q-mt-md">
+                  <q-btn
+                    flat
+                    label="Close"
+                    color="primary"
+                    @click="scope.cancel"
+                  />
+                  <q-btn flat label="Save" color="primary" @click="scope.set" />
+                </div>
+              </div>
+            </template>
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -655,6 +706,40 @@
             </q-tooltip>
           </span>
           <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.overtime_reason"
+            @update:model-value="
+              (val) => updateDTROvertimeReasons(props.row, val)
+            "
+            v-slot="scope"
+          >
+            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Overtime Reason
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+
+              <q-input
+                v-model="scope.value"
+                filled
+                :model-value="scope.value"
+                @keyup.enter="scope.set"
+                hint="Enter Overtime Reason"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -671,6 +756,97 @@
             </q-tooltip>
           </span>
           <span v-else> - - - </span>
+
+          <q-popup-edit
+            v-model="props.row.declined_reason"
+            @update:model-value="
+              (val) => updateDTRDeclineReasons(props.row, val)
+            "
+            v-slot="scope"
+          >
+            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Overtime Decline Reason
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+
+              <q-input
+                v-model="scope.value"
+                filled
+                :model-value="scope.value"
+                @keyup.enter="scope.set"
+                hint="Enter Overtime Decline Reason"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
+          </q-popup-edit>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-approved_by="props">
+        <q-td :props="props">
+          <span v-if="props.row.approvedBy">
+            {{ helpers.formatFullname(props.row.approvedBy) }}
+          </span>
+          <span v-else>- - -</span>
+
+          <q-popup-edit
+            v-model="props.row.approvedBy"
+            v-slot="scope"
+            persistent
+            buttons
+            @save="(val) => updateDTROTApprovedBy(props.row, val)"
+          >
+            <q-input
+              v-model="searchKeyword"
+              debounce="400"
+              placeholder="Search employee"
+              clearable
+              outlined
+              dense
+              @update:model-value="search"
+            >
+              <template v-slot:append>
+                <q-icon v-if="!searchLoading" name="search" />
+                <q-spinner v-else color="primary" size="sm" />
+              </template>
+            </q-input>
+
+            <q-list separator v-if="searchKeyword">
+              <q-item
+                v-for="employee in employees"
+                :key="employee.id"
+                clickable
+                @click="() => selectEmployee(employee, scope)"
+              >
+                <q-item-section>
+                  {{
+                    `${employee.firstname} ${
+                      employee.middlename
+                        ? employee.middlename.charAt(0) + "."
+                        : ""
+                    } ${employee.lastname}`
+                  }}
+                </q-item-section>
+              </q-item>
+
+              <q-item v-if="!employees.length">
+                <q-item-section class="text-grey-7">
+                  No employee found
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-popup-edit>
         </q-td>
       </template>
 
@@ -759,15 +935,20 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+import { date } from "quasar";
 import { useDTRStore } from "stores/dtr";
 import OvertimeButton from "./OvertimeButton.vue";
 import EditDTR from "./EditDTR.vue";
+import { useEmployeeStore } from "stores/employee";
 import DeclineOTButton from "./DeclineOTButton.vue";
 import ApproveOTButton from "./ApproveOTButton.vue";
 import { useAttendanceHelpers } from "src/composables/attendance/useAttendanceHelpers";
 
 // Initialize attendance helpers
 const helpers = useAttendanceHelpers();
+
+const employeeStore = useEmployeeStore();
+const employees = computed(() => employeeStore.employees);
 
 // Reactive variables
 const pagination = ref({
@@ -777,78 +958,43 @@ const pagination = ref({
 });
 const filter = ref("");
 const loading = ref(false);
+const searchLoading = ref(false);
+const searchKeyword = ref("");
 
 const dtrStore = useDTRStore();
 const dtrData = computed(() => dtrStore.dtrs);
 const branchWithWarehousesList = computed(() => dtrStore.branchWithWarehouses);
+const selectedEmployee = ref(null);
 
 const dtrRows = ref([]);
 
-const datePart = ref(null);
-const timePart = ref(null);
+const search = async () => {
+  const keyword = searchKeyword.value?.trim();
+  if (!keyword) return;
 
-// ✅ Toggle this flag
-const debugMode = ref(true); // true = log only, false = send to API
-
-// initialize date + time fields
-function initDateTime(original) {
-  if (!original) {
-    datePart.value = null;
-    timePart.value = null;
-    return;
+  searchLoading.value = true;
+  try {
+    await employeeStore.searchEmployee(keyword); // fills employeeStore.employees
+  } finally {
+    searchLoading.value = false;
   }
+};
 
-  const d = new Date(original);
+const selectEmployee = (employee, scope) => {
+  selectedEmployee.value = employee;
 
-  // yyyy-MM-dd for <input type="date">
-  datePart.value = d.toISOString().split("T")[0];
+  // Fill input visually
+  const name = `${employee.firstname} ${
+    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+  } ${employee.lastname}`;
+  searchKeyword.value = name;
 
-  // hh:mm for <input type="time">
-  timePart.value = `${String(d.getHours()).padStart(2, "0")}:${String(
-    d.getMinutes()
-  ).padStart(2, "0")}`;
-}
+  // Assign to scope for popup save
+  scope.value = employee; // or employee.id if you want just the id
 
-// merge and update
-function saveDateTime(row, scope) {
-  if (datePart.value && timePart.value) {
-    const combined = `${datePart.value}T${timePart.value}`;
-    const newDate = new Date(combined);
-
-    // formatted output
-    const formatted = newDate.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    console.log("🔹 Formatted datetime:", formatted);
-
-    // update popup value
-    scope.value = formatted;
-
-    // build payload
-    const payload = {
-      id: row.id,
-      overtime_start: formatted,
-    };
-
-    console.log("🔹 Payload ready:", payload);
-
-    // ✅ Only send API if debugMode is false
-    if (!debugMode.value) {
-      updateDTROvertimeStart(payload);
-    } else {
-      console.log("⚠️ Debug Mode ON → Not sending to API");
-    }
-  }
-}
-
-// simplified function, no 'type' anymo
-
+  // Clear employees list in the store
+  employeeStore.employees = []; // ✅ resets list
+};
 // Fetch data on component mount
 onMounted(async () => {
   await reloadTableData();
@@ -904,10 +1050,13 @@ const updateEmployeeScheduleOut = async (data, val) => {
 };
 
 const getBranchWithWarehouses = async () => {
+  loading.value = true;
   try {
     const response = await dtrStore.getBranchWithWarehouses();
   } catch (error) {
     console.log("error", error);
+  } finally {
+    loading.value = false;
   }
 };
 onMounted(getBranchWithWarehouses);
@@ -1028,7 +1177,7 @@ const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
   // --- Send updatedDateTime to your backend ---
   console.log("Updating row with new time_in:", updatedDateTime);
   // Example API call (replace with your actual API integration)
-
+  loading.value = true;
   try {
     const dtrDateIN = {
       id: row.id,
@@ -1038,53 +1187,12 @@ const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
     const response = await dtrStore.updateDTRDateIN(dtrDateIN);
   } catch (error) {
     console.log("error", error);
+  } finally {
+    loading.value = false;
   }
 
   // For demonstration, directly update the row (in a real app, this would be done after successful API response)
   row.time_in = updatedDateTime;
-};
-
-const updateDTRTimeOnly = async (row, newTime, type) => {
-  console.log("updateDTRTimeOnly composables", row, newTime, type);
-
-  let updatedDateTime;
-
-  if (row.time_in && type === "time") {
-    // Extract only the "Jul. 21, 2025" part (date only, no old time)
-    const datePart = row.time_in.split(",").slice(0, 2).join(",");
-    // -> "Jul. 21, 2025"
-
-    // Convert "HH:mm" (24h) to 12h AM/PM
-    const [hours, minutes] = newTime.split(":");
-    let h = parseInt(hours, 10);
-    const m = minutes.padStart(2, "0");
-    const ampm = h >= 12 ? "PM" : "AM";
-    if (h === 0) h = 12; // 00 → 12 AM
-    else if (h > 12) h -= 12; // 13..23 → 1..11 PM
-
-    const formattedTime = `${h}:${m} ${ampm}`;
-
-    // Combine date with new time
-    updatedDateTime = `${datePart}, ${formattedTime}`;
-    // -> "Jul. 21, 2025, 11:24 AM"
-  } else {
-    updatedDateTime = newTime;
-  }
-
-  console.log("Updating row with new time_in:", updatedDateTime);
-
-  try {
-    const dtrTimeIN = {
-      id: row.id,
-      time_in: updatedDateTime,
-    };
-    await dtrStore.updateDTRTimeIN(dtrTimeIN);
-
-    // Update UI
-    row.time_in = updatedDateTime;
-  } catch (error) {
-    console.error("Error updating DTR:", error);
-  }
 };
 
 const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
@@ -1135,6 +1243,53 @@ const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
   row.time_out = updatedDateTime;
 };
 
+const updateDTRTimeINOnly = async (row, newTime, type) => {
+  console.log("updateDTRTimeINOnly composables", row, newTime, type);
+
+  let updatedDateTime;
+
+  if (row.time_in && type === "time") {
+    // Extract only the "Jul. 21, 2025" part (date only, no old time)
+    const datePart = row.time_in.split(",").slice(0, 2).join(",");
+    // -> "Jul. 21, 2025"
+
+    // Convert "HH:mm" (24h) to 12h AM/PM
+    const [hours, minutes] = newTime.split(":");
+    let h = parseInt(hours, 10);
+    const m = minutes.padStart(2, "0");
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12; // 00 → 12 AM
+    else if (h > 12) h -= 12; // 13..23 → 1..11 PM
+
+    const formattedTime = `${h}:${m} ${ampm}`;
+
+    // Combine date with new time
+    updatedDateTime = `${datePart}, ${formattedTime}`;
+    // -> "Jul. 21, 2025, 11:24 AM"
+  } else {
+    updatedDateTime = newTime;
+  }
+
+  console.log("Updating row with new time_in:", updatedDateTime);
+
+  loading.value = true;
+
+  try {
+    const dtrTimeIN = {
+      id: row.id,
+      time_in: updatedDateTime,
+    };
+    await dtrStore.updateDTRTimeIN(dtrTimeIN);
+
+    // Update UI
+    row.time_in = updatedDateTime;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 const updateDTRTimeOutOnly = async (row, newTime, type) => {
   console.log("updateDTRTimeOutOnly composables", row, newTime, type);
 
@@ -1160,7 +1315,7 @@ const updateDTRTimeOutOnly = async (row, newTime, type) => {
   }
 
   console.log("Updating row with new time_out:", updatedDateTime);
-
+  loading.value = true;
   try {
     const dtrTimeOUT = {
       id: row.id,
@@ -1172,6 +1327,8 @@ const updateDTRTimeOutOnly = async (row, newTime, type) => {
     row.time_out = updatedDateTime;
   } catch (error) {
     console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -1208,7 +1365,7 @@ const updateDTRLunchBreakStart = async (row, newTime, type) => {
   }
 
   console.log("Updating row with new lunch_break_start:", updatedDateTime);
-
+  loading.value = true;
   try {
     const dtrLunchBreakStart = {
       id: row.id,
@@ -1221,6 +1378,8 @@ const updateDTRLunchBreakStart = async (row, newTime, type) => {
     row.lunch_break_start = updatedDateTime;
   } catch (error) {
     console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -1257,7 +1416,7 @@ const updateDTRLunchBreakEnd = async (row, newTime, type) => {
   }
 
   console.log("Updating row with new lunch_break_end:", updatedDateTime);
-
+  loading.value = true;
   try {
     const dtrLunchBreakEnd = {
       id: row.id,
@@ -1270,98 +1429,10 @@ const updateDTRLunchBreakEnd = async (row, newTime, type) => {
     row.lunch_break_end = updatedDateTime;
   } catch (error) {
     console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
   }
 };
-
-// const updateDTRLunchBreakStart = async (row, newTime, type) => {
-//   console.log("updateDTRLunchBreakStart composables", row, newTime, type);
-//   console.log("row updateDTRLunchBreakStart", row.lunch_break_start);
-
-//   let updatedDateTime;
-
-//   if (row.time_in && type === "time") {
-//     // Extract only the "Jul. 21, 2025" part (date only, no old time)
-//     const datePart = row.time_in.split(",").slice(0, 2).join(",");
-//     // -> "Jul. 21, 2025"
-
-//     // Convert "HH:mm" (24h) to 12h AM/PM
-//     const [hours, minutes] = newTime.split(":");
-//     let h = parseInt(hours, 10);
-//     const m = minutes.padStart(2, "0");
-//     const ampm = h >= 12 ? "PM" : "AM";
-//     if (h === 0) h = 12; // 00 → 12 AM
-//     else if (h > 12) h -= 12;
-
-//     const formattedTime = `${h}:${m} ${ampm}`;
-
-//     // Combine date with new time
-//     updatedDateTime = `${datePart}, ${formattedTime}`;
-//     // -> "Jul. 21, 2025, 11:24 AM"
-//   } else {
-//     updatedDateTime = newTime;
-//   }
-
-//   console.log("Updatping row with new lunch_break_start:", updatedDateTime);
-
-//   try {
-//     const dtrLunchBreakStart = {
-//       id: row.id,
-//       lunch_break_start: updatedDateTime,
-//     };
-
-//     await dtrStore.updateDTRLunchBreakStart(dtrLunchBreakStart);
-
-//     // Update UI
-//     row.lunch_break_start = updatedDateTime;
-//   } catch (error) {
-//     console.error("Error updating DTR:", error);
-//   }
-// };
-
-// const updateDTRLunchBreakEnd = async (row, newTime, type) => {
-//   console.log("updateDTRLunchBreakEnd composables", row, newTime, type);
-//   console.log("row updateDTRLunchBreakEnd", row.lunch_break_end);
-
-//   let updatedDateTime;
-
-//   if (row.time_in && type === "time") {
-//     // Extract only the "Jul. 21, 2025" part (daate only, no old time)
-//     const datePart = row.time_in.split(",").slice(0, 2).join(",");
-//     // -> "Jul. 21, 2025"
-
-//     // Convert "HH:mm" (24h) to 12h AM/PM
-//     const [hours, minutes] = newTime.split(":");
-//     let h = parseInt(hours, 10);
-//     const m = minutes.padStart(2, "0");
-//     const ampm = h >= 12 ? "PM" : "AM";
-//     if (h === 0) h = 12;
-//     else if (h > 12) h -= 12;
-
-//     const formattedTime = `${h}:${m} ${ampm}`;
-
-//     // Combine date with new time
-//     updatedDateTime = `${datePart}, ${formattedTime}`;
-//     // -> "Jul. 21, 2025, 11:24 AM"
-//   } else {
-//     updatedDateTime = newTime;
-//   }
-
-//   console.log("Updating row with new lunch_break_end:", updatedDateTime);
-
-//   try {
-//     const dtrLunchBreakEnd = {
-//       id: row.id,
-//       lunch_break_end: updatedDateTime,
-//     };
-
-//     await dtrStore.updateDTRLunchBreakEnd(dtrLunchBreakEnd);
-
-//     // Update UI
-//     row.lunch_break_end = updatedDateTime;
-//   } catch (error) {
-//     console.error("Error updating DTR:", error);
-//   }
-// };
 
 const updateDTRBreakStart = async (row, newTime, type) => {
   console.log("updateDTRBreakStart composables", row, newTime, type);
@@ -1397,7 +1468,7 @@ const updateDTRBreakStart = async (row, newTime, type) => {
   }
 
   console.log("Updating row with new break_start:", updatedDateTime);
-
+  loading.value = true;
   try {
     const dtrLunchBreakEnd = {
       id: row.id,
@@ -1409,6 +1480,8 @@ const updateDTRBreakStart = async (row, newTime, type) => {
     row.break_start = updatedDateTime;
   } catch (error) {
     console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -1447,7 +1520,7 @@ const updateDTRBreakEnd = async (row, newTime, type) => {
   }
 
   console.log("Updating row with new break_end:", updatedDateTime);
-
+  loading.value = true;
   try {
     const dtrBreakEnd = {
       id: row.id,
@@ -1459,29 +1532,165 @@ const updateDTRBreakEnd = async (row, newTime, type) => {
     row.break_end = updatedDateTime;
   } catch (error) {
     console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
+const convertDisplayToInput = (displayVal) => {
+  if (!displayVal) return "";
+
+  const parsed = new Date(displayVal);
+  if (isNaN(parsed)) return "";
+
+  // "YYYY-MM-DDTHH:mm" → fits <input type="datetime-local">
+  return date.formatDate(parsed, "YYYY-MM-DDTHH:mm");
+};
+
 const updateDTROvertimeStart = async (row, newTime) => {
-  console.log("updateDTROvertimeStart composables", row, newTime, type);
+  console.log("updateDTROvertimeStart composables", row, newTime);
 
-  if (datePart.value && timePart.value) {
-    const combined = `${datePart.value}T${timePart.value}`;
-    const newDate = new Date(combined);
+  // Parse the string inti Date
+  const parsed = new Date(newTime);
 
-    // format back to something like "Jul. 22, 2025, 5:07 PM"
-    const formatted = newDate.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    scope.value = formatted;
-    updateDTROvertimeStart(row, formatted, "datetime");
+  if (isNaN(parsed)) {
+    console.log("⚠️ Invalid datetime:", newTime);
+    return;
   }
+
+  // Format inti "Jul. 22, 2025, 11:11 AM"
+  const formatted = date.formatDate(parsed, "MMM. DD, YYYY, hh:mm A");
+
+  // Build backend payload (keep ISO for)
+  console.log("🔹 Formatted for display:", formatted);
+  loading.value = true;
+  try {
+    const dtrOvertimeStart = {
+      id: row.id,
+      overtime_start: formatted,
+    };
+
+    await dtrStore.updatedDTROvertimeStart(dtrOvertimeStart);
+
+    row.overtime_start = formatted;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateDTROvertimeEnd = async (row, newTime) => {
+  console.log("updateDTROvertimeOver composables", row, newTime);
+
+  // Parse the string intial date
+  const parsed = new Date(newTime);
+
+  if (isNaN(parsed)) {
+    console.log("⚠️ Invalid datetime:", newTime);
+    return;
+  }
+
+  // Format inti "Jul. 22, 2025, 11:11 AM"
+  const formatted = date.formatDate(parsed, "MMM. DD, YYYY, hh:mm A");
+
+  // Build backend payload (keep ISO for)
+  console.log("🔹 Formatted for display:", formatted);
+  loading.value = true;
+  try {
+    const dtrOvertimeEnd = {
+      id: row.id,
+      overtime_end: formatted,
+    };
+
+    await dtrStore.updatedDTROvertimeEnd(dtrOvertimeEnd);
+
+    row.overtime_end = formatted;
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateDTROvertimeReasons = async (row, newReason) => {
+  console.log("updateDTRReasons composables", row, newReason);
+
+  loading.value = true;
+  try {
+    const overtimeReasons = {
+      id: row.id,
+      overtime_reason: newReason,
+    };
+
+    await dtrStore.updateDTROvertimeReasons(overtimeReasons);
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateDTRDeclineReasons = async (row, newReason) => {
+  console.log("updateDTRDeclineReasons composables", row, newReason);
+  loading.value = true;
+  try {
+    const declineReasons = {
+      id: row.id,
+      declined_reason: newReason,
+    };
+    await dtrStore.updateDTROvertimeDeclinedReasons(declineReasons);
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateDTROTStatus = async (row, newStatus) => {
+  console.log("updateDTROTStatus composables", row, newStatus);
+  loading.value = true;
+  try {
+    const overtimeStatus = {
+      id: row.id,
+      ot_status: newStatus,
+    };
+    await dtrStore.updateDTROTStatus(overtimeStatus);
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const updateDTROTApprovedBy = async (row, val) => {
+  // `val` here is what you assigned to scope.value (employee object or id)
+  const emp = typeof val === "object" ? val : selectedEmployee.value;
+
+  if (!emp) return;
+
+  // Call your API here with emp.id
+  console.log("updateDTROTApprovedBy composables", row, emp);
+  loading.value = true;
+  try {
+    const approvedBy = {
+      id: row.id,
+      approved_by: emp.id,
+    };
+
+    await dtrStore.updateDTROTApprovedBy(approvedBy);
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+  } finally {
+    loading.value = false;
+  }
+
+  // update UI
+  row.approvedBy = emp;
+
+  // cleanup
+  selectedEmployee.value = null;
+  searchKeyword.value = "";
 };
 
 /**
@@ -1839,5 +2048,18 @@ watch(filter, async (newVal) => {
 
 .gradient-btn:hover {
   filter: brightness(1.1);
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 </style>

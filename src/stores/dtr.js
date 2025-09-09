@@ -423,6 +423,132 @@ export const useDTRStore = defineStore("dtrs", () => {
 
   const updatedDTROvertimeStart = async (data) => {
     console.log("updateDTROvertimeStart in store:", data);
+
+    try {
+      const response = await api.put(`/api/updatedDTROvertimeStart`, data);
+
+      Notify.create({
+        message: "DTR Overtime Start updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Overtime Start",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updatedDTROvertimeEnd = async (data) => {
+    console.log("updateDTROvertimeEnd in store:", data);
+
+    try {
+      const response = await api.put(`/api/updatedDTROvertimeEnd`, data);
+
+      Notify.create({
+        message: "DTR Overtime End updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Overtime End",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTROvertimeReasons = async (data) => {
+    console.log("updateDTROvertimeReason in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTROvertimeReasons`, data);
+
+      Notify.create({
+        message: "DTR Overtime Reason updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        message: "Failed to update DTR Overtime Reason",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
+  };
+
+  const updateDTROvertimeDeclinedReasons = async (data) => {
+    console.log("updateDTROvertimeDeclinedReason in store:", data);
+
+    try {
+      const response = await api.put(
+        `/api/updatedDTROvertimeDeclineReasons`,
+        data
+      );
+
+      Notify.create({
+        message: "DTR Overtime Declined Reason updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const updateDTROTStatus = async (data) => {
+    console.log("updateDTRStatus in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTROTStatus`, data);
+
+      Notify.create({
+        message: "DTR Status updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const updateDTROTApprovedBy = async (data) => {
+    console.log("updateDTRApprovedBy in store:", data);
+
+    try {
+      const response = await api.put(`/api/updateDTROTApprovedBy`, data);
+
+      Notify.create({
+        message: "DTR Approved By updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.log("error", error);
+
+      Notify.create({
+        message: "Failed to update DTR Approved By",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+    }
   };
 
   return {
@@ -455,5 +581,10 @@ export const useDTRStore = defineStore("dtrs", () => {
     updateDTRBreakStart,
     updatedDTRBreakEnd,
     updatedDTROvertimeStart,
+    updatedDTROvertimeEnd,
+    updateDTROvertimeReasons,
+    updateDTROvertimeDeclinedReasons,
+    updateDTROTStatus,
+    updateDTROTApprovedBy,
   };
 });
