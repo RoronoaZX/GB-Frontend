@@ -66,6 +66,26 @@ export const useDTRStore = defineStore("dtrs", () => {
     }
   };
 
+  const saveEmployeeDtr = async (data) => {
+    console.log("Saving employee DTR with data:", data);
+
+    try {
+      const response = await api.post("/api/saveEmployeeDtr", data);
+
+      Notify.create({
+        type: "positive",
+        message: "DTR Save",
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error saving employee DTR:", error);
+      Notify.create({
+        type: "negative",
+        message: "Failed to save DTR",
+      });
+    }
+  };
+
   const saveOvertime = async (data) => {
     const response = await api.post("/api/saveOvertime", data);
     dtrs.value = response.data;
@@ -562,6 +582,7 @@ export const useDTRStore = defineStore("dtrs", () => {
     fetchDTRRange,
     fetchEmployeeDTRRange,
     fetchDTRPayrollPerCutOff,
+    saveEmployeeDtr,
     saveOvertime,
     searchDTR,
     approveOvertime,

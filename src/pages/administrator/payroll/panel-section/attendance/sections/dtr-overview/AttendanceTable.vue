@@ -1,7 +1,12 @@
 <template>
   <div class="row justify-between q-my-md" align="right">
-    <div>
-      <OvertimeButton />
+    <div class="row q-gutter-md">
+      <div>
+        <AddDTRButton @created="reloadTableData" />
+      </div>
+      <!-- <div>
+        <OvertimeButton />
+      </div> -->
     </div>
     <q-input
       v-model="filter"
@@ -200,34 +205,53 @@
       </template>
 
       <template v-slot:body-cell-date_in="props">
-        <q-td :props="props">
+        <q-td :props="props" class="cursor-pointer">
           <span v-if="props.row.time_in">
             {{ helpers.formatDate(props.row.time_in) }}
+            <q-tooltip class="bg-blue-grey-8">Edit Date IN</q-tooltip>
           </span>
           <span v-else> - - - </span>
 
           <q-popup-edit
             v-model="props.row.time_in"
             v-slot="scope"
-            buttons
             persistent
             @update:model-value="
               (newValue) => updateDTRTimeINDateOnly(props.row, newValue, 'date')
             "
           >
-            <q-date
-              v-model="scope.value"
-              mask="MMM. DD, YYYY, hh:mm A"
-              today-btn
-            />
+            <div style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Date IN
+              </div>
+
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+              <q-date
+                v-model="scope.value"
+                mask="MMM. DD, YYYY, hh:mm A"
+                today-btn
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
 
       <template v-slot:body-cell-date_out="props">
-        <q-td :props="props">
+        <q-td :props="props" class="cursor-pointer">
           <span v-if="props.row.time_out">
             {{ helpers.formatDate(props.row.time_out) }}
+            <q-tooltip class="bg-blue-grey-8">Edit Date OUT</q-tooltip>
           </span>
           <span v-else> - - - </span>
 
@@ -241,11 +265,28 @@
                 updateDTRTimeOUTDateOnly(props.row, newValue, 'date')
             "
           >
-            <q-date
-              v-model="scope.value"
-              mask="MMM. DD, YYYY, hh:mm A"
-              today-btn
-            />
+            <div style="min-width: 300px; max-width: 400px">
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Date OUT
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+              <q-date
+                v-model="scope.value"
+                mask="MMM. DD, YYYY, hh:mm A"
+                today-btn
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -254,25 +295,41 @@
         <q-td :props="props">
           <q-badge v-if="props.row.time_in" outline color="positive">
             {{ helpers.formatTime(props.row.time_in) }}
+            <q-tooltip class="bg-blue-grey-8"> Edit Time IN </q-tooltip>
           </q-badge>
           <span v-else> - - - </span>
 
           <q-popup-edit
             v-model="props.row.time_in"
             v-slot="scope"
-            buttons
             persistent
             @save="
               (newValue) => updateDTRTimeINOnly(props.row, newValue, 'time')
             "
           >
-            <!-- Native time input -->
-            <q-input
-              v-model="scope.value"
-              type="time"
-              filled
-              hint="Edit Time"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Time IN
+              </div>
+
+              <div>Name: {{ helpers.formatFullname(props.row.employee) }}</div>
+
+              <q-input
+                v-model="scope.value"
+                type="time"
+                filled
+                hint="(e.g. 01:00 AM)"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -281,24 +338,40 @@
         <q-td :props="props">
           <q-badge v-if="props.row.time_out" outline color="purple-12">
             {{ helpers.formatTime(props.row.time_out) }}
+            <q-tooltip class="bg-blue-grey-8"> Edit Time OUT </q-tooltip>
           </q-badge>
           <span v-else> - - - </span>
 
           <q-popup-edit
             v-model="props.row.time_out"
             v-slot="scope"
-            buttons
             persistent
             @save="
               (newValue) => updateDTRTimeOutOnly(props.row, newValue, 'time')
             "
           >
-            <q-input
-              v-model="scope.value"
-              type="time"
-              filled
-              hint="Edit Time"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Time OUT
+              </div>
+
+              <div>Name: {{ helpers.formatFullname(props.row.employee) }}</div>
+              <q-input
+                v-model="scope.value"
+                type="time"
+                filled
+                hint="(e.g 01:00 AM)"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -307,25 +380,42 @@
         <q-td :props="props">
           <q-badge v-if="props.row.lunch_break_start" outline color="amber-7">
             {{ helpers.formatTime(props.row.lunch_break_start) }}
+            <q-tooltip class="bg-blue-grey-8">Edit lunch break start</q-tooltip>
           </q-badge>
           <span v-else> - - - </span>
 
           <q-popup-edit
             v-model="props.row.lunch_break_start"
             v-slot="scope"
-            buttons
             persistent
             @save="
               (newValue) =>
                 updateDTRLunchBreakStart(props.row, newValue, 'time')
             "
           >
-            <q-input
-              v-model="scope.value"
-              type="time"
-              filled
-              hint="Edit Time"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit lunch break start
+              </div>
+
+              <div>Name: {{ helpers.formatFullname(props.row.employee) }}</div>
+              <q-input
+                v-model="scope.value"
+                type="time"
+                filled
+                hint="(e.g 01:00 AM)"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -334,24 +424,41 @@
         <q-td :props="props">
           <q-badge v-if="props.row.lunch_break_end" outline color="amber-4">
             {{ helpers.formatTime(props.row.lunch_break_end) }}
+            <q-tooltip class="bg-blue-grey-8">Edit lunch break end</q-tooltip>
           </q-badge>
           <span v-else> - - - </span>
 
           <q-popup-edit
             v-model="props.row.lunch_break_end"
             v-slot="scope"
-            buttons
             persistent
             @save="
               (newValue) => updateDTRLunchBreakEnd(props.row, newValue, 'time')
             "
           >
-            <q-input
-              v-model="scope.value"
-              type="time"
-              filled
-              hint="Edit Time"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit lunch break end
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+              <q-input
+                v-model="scope.value"
+                type="time"
+                filled
+                hint="(e.g 01:00 AM)"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Cancel"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -366,18 +473,32 @@
           <q-popup-edit
             v-model="props.row.break_start"
             v-slot="scope"
-            buttons
             persistent
             @save="
               (newValue) => updateDTRBreakStart(props.row, newValue, 'time')
             "
           >
-            <q-input
-              v-model="scope.value"
-              type="time"
-              filled
-              hint="Edit Time"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit break start
+              </div>
+              <div>Name: {{ helpers.formatFullname(props.row.employee) }}</div>
+              <q-input
+                v-model="scope.value"
+                type="time"
+                filled
+                hint="(e.g 01:00 AM)"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Cancel"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -386,22 +507,39 @@
         <q-td :props="props">
           <q-badge v-if="props.row.break_end" outline color="blue-4">
             {{ helpers.formatTime(props.row.break_end) }}
+            <q-tooltip class="bg-blue-grey-8">Edit break end</q-tooltip>
           </q-badge>
           <span v-else> - - - </span>
 
           <q-popup-edit
             v-model="props.row.break_end"
             v-slot="scope"
-            buttons
             persistent
             @save="(newValue) => updateDTRBreakEnd(props.row, newValue, 'time')"
           >
-            <q-input
-              v-model="scope.value"
-              type="time"
-              filled
-              hint="Edit Time"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit break end
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+              <q-input
+                v-model="scope.value"
+                type="time"
+                filled
+                hint="(e.g 01:00 AM)"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Cancel"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -539,18 +677,23 @@
           <!-- Display value -->
           <q-badge v-if="props.row.overtime_start" outline color="black">
             {{ props.row.overtime_start }}
+            <q-tooltip class="bg-blue-grey-8"> Edit Overtime Start </q-tooltip>
           </q-badge>
           <span v-else> - - - </span>
 
           <q-popup-edit
             v-model="props.row.overtime_start"
             v-slot="scope"
-            buttons
             persistent
             @save="(newVal) => updateDTROvertimeStart(props.row, newVal)"
           >
-            <div>Edit Overtime Start</div>
-            <div class="q-gutter-md row items-start">
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Overtime Start
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
               <q-input
                 v-model="scope.value"
                 type="datetime-local"
@@ -559,6 +702,15 @@
                 @update:model-value="scope.value = $event"
                 hint="Select date & time"
               />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Cancel"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
             </div>
           </q-popup-edit>
         </q-td>
@@ -569,6 +721,7 @@
           <!-- Display value -->
           <q-badge v-if="props.row.overtime_end" outline color="black">
             {{ props.row.overtime_end }}
+            <q-tooltip class="bg-blue-grey-8"> Edit Overtime End </q-tooltip>
           </q-badge>
           <span v-else> - - - </span>
 
@@ -576,12 +729,16 @@
           <q-popup-edit
             v-model="props.row.overtime_end"
             v-slot="scope"
-            buttons
             persistent
             @save="(newVal) => updateDTROvertimeEnd(props.row, newVal)"
           >
-            <div>Edit Overtime End</div>
-            <div class="q-gutter-md row items-start">
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Overtime End
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
               <q-input
                 v-model="scope.value"
                 type="datetime-local"
@@ -590,6 +747,15 @@
                 @update:model-value="scope.value = $event"
                 hint="Select date & time"
               />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Cancel"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
             </div>
           </q-popup-edit>
         </q-td>
@@ -804,48 +970,65 @@
             v-model="props.row.approvedBy"
             v-slot="scope"
             persistent
-            buttons
             @save="(val) => updateDTROTApprovedBy(props.row, val)"
           >
-            <q-input
-              v-model="searchKeyword"
-              debounce="400"
-              placeholder="Search employee"
-              clearable
-              outlined
-              dense
-              @update:model-value="search"
-            >
-              <template v-slot:append>
-                <q-icon v-if="!searchLoading" name="search" />
-                <q-spinner v-else color="primary" size="sm" />
-              </template>
-            </q-input>
-
-            <q-list separator v-if="searchKeyword">
-              <q-item
-                v-for="employee in employees"
-                :key="employee.id"
-                clickable
-                @click="() => selectEmployee(employee, scope)"
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit OT Approved By
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+              <q-input
+                v-model="searchKeyword"
+                debounce="400"
+                placeholder="Search employee"
+                clearable
+                outlined
+                dense
+                @update:model-value="search"
               >
-                <q-item-section>
-                  {{
-                    `${employee.firstname} ${
-                      employee.middlename
-                        ? employee.middlename.charAt(0) + "."
-                        : ""
-                    } ${employee.lastname}`
-                  }}
-                </q-item-section>
-              </q-item>
+                <template v-slot:append>
+                  <q-icon v-if="!searchLoading" name="search" />
+                  <q-spinner v-else color="primary" size="sm" />
+                </template>
+              </q-input>
 
-              <q-item v-if="!employees.length">
-                <q-item-section class="text-grey-7">
-                  No employee found
-                </q-item-section>
-              </q-item>
-            </q-list>
+              <q-list separator v-if="searchKeyword">
+                <q-item
+                  v-for="employee in employees"
+                  :key="employee.id"
+                  clickable
+                  @click="() => selectEmployee(employee, scope)"
+                >
+                  <q-item-section>
+                    {{
+                      `${employee.firstname} ${
+                        employee.middlename
+                          ? employee.middlename.charAt(0) + "."
+                          : ""
+                      } ${employee.lastname}`
+                    }}
+                  </q-item-section>
+                </q-item>
+
+                <q-item v-if="!employees.length">
+                  <q-item-section class="text-grey-7">
+                    No employee found
+                  </q-item-section>
+                </q-item>
+              </q-list>
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Close"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -864,21 +1047,38 @@
               (val) => updateEmployeeScheduleIn(props.row, val)
             "
             v-model="props.row.schedule_in"
-            buttons
-            title="Edit Employee Schedule In"
             v-slot="scope"
           >
-            <q-input
-              v-model="scope.value"
-              :model-value="scope.value"
-              @update:model-value="scope.value = $event"
-              dense
-              autofocus
-              mask="##:## AA"
-              :rules="[validateTimeFormat]"
-              hint="Format: 01:00 AM/PM"
-              @keyup.enter="scope.set"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Schedule In
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+              <q-input
+                v-model="scope.value"
+                :model-value="scope.value"
+                @update:model-value="scope.value = $event"
+                dense
+                outlined
+                autofocus
+                mask="##:## AA"
+                :rules="[validateTimeFormat]"
+                hint="Format: 01:00 AM/PM"
+                @keyup.enter="scope.set"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Cancel"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -897,21 +1097,38 @@
               (val) => updateEmployeeScheduleOut(props.row, val)
             "
             v-model="props.row.schedule_out"
-            buttons
-            title="Edit Employee Schedule Out"
             v-slot="scope"
           >
-            <q-input
-              v-model="scope.value"
-              :model-value="scope.value"
-              @update:model-value="scope.value = $event"
-              dense
-              autofocus
-              mask="##:## AA"
-              :rules="[validateTimeFormat]"
-              hint="Format: 01:00 AM/PM"
-              @keyup.enter="scope.set"
-            />
+            <div>
+              <div class="text-h6 text-primary text-center q-mb-sm">
+                Edit Schedule Out
+              </div>
+              <div class="text-subtitle2 q-mb-sm">
+                Name: {{ helpers.formatFullname(props.row.employee) }}
+              </div>
+              <q-input
+                v-model="scope.value"
+                :model-value="scope.value"
+                @update:model-value="scope.value = $event"
+                dense
+                autofocus
+                outlined
+                mask="##:## AA"
+                :rules="[validateTimeFormat]"
+                hint="Format: 01:00 AM/PM"
+                @keyup.enter="scope.set"
+              />
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  flat
+                  label="Cancel"
+                  color="primary"
+                  @click="scope.cancel"
+                />
+
+                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              </div>
+            </div>
           </q-popup-edit>
         </q-td>
       </template>
@@ -938,6 +1155,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import { date } from "quasar";
 import { useDTRStore } from "stores/dtr";
 import OvertimeButton from "./OvertimeButton.vue";
+import AddDTRButton from "./AddDTRButton.vue";
 import EditDTR from "./EditDTR.vue";
 import { useEmployeeStore } from "stores/employee";
 import DeclineOTButton from "./DeclineOTButton.vue";
@@ -1195,16 +1413,66 @@ const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
   row.time_in = updatedDateTime;
 };
 
+// const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
+//   console.log("updateDTRTimeOUTDateOnly composables", row, newDateTime, type);
+
+//   // Example: If you want to keep the original time when only date is changed
+//   let updatedDateTime;
+//   if (row.time_out && type === "date") {
+//     const originalDate = new Date(row.time_out);
+
+//     // Extract only the date part (ignore the midnight time from q-date)
+//     const pickedDate = new Date(newDateTime);
+
+//     originalDate.setFullYear(pickedDate.getFullYear());
+//     originalDate.setMonth(pickedDate.getMonth());
+//     originalDate.setDate(pickedDate.getDate());
+
+//     updatedDateTime = originalDate.toLocaleString("en-US", {
+//       month: "short",
+//       day: "numeric",
+//       year: "numeric",
+//       hour: "numeric",
+//       minute: "numeric",
+//       hour12: true,
+//     });
+
+//     updatedDateTime = updatedDateTime.replace(
+//       /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/,
+//       "$1."
+//     );
+//   } else {
+//     updatedDateTime = newDateTime; // If no original time or type is not date
+//   }
+
+//   // --- Send updatedDateTime to your backend ---
+//   console.log("Updating row with new time_out:", updatedDateTime);
+//   loading.value = true;
+//   try {
+//     const dtrDateOUT = {
+//       id: row.id,
+//       time_out: updatedDateTime,
+//     };
+
+//     const response = await dtrStore.updateDTRDateOUT(dtrDateOUT);
+//   } catch (error) {
+//     console.log("error", error);
+//   } finally {
+//     loading.value = false;
+//   }
+
+//   row.time_out = updatedDateTime;
+// };
+
 const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
   console.log("updateDTRTimeOUTDateOnly composables", row, newDateTime, type);
 
-  // Example: If you want to keep the original time when only date is changed
   let updatedDateTime;
   if (row.time_out && type === "date") {
     const originalDate = new Date(row.time_out);
     const pickedDate = new Date(newDateTime);
 
-    // Keep the original time part, but update the date part
+    // Replace only the date, keep the original time
     originalDate.setFullYear(pickedDate.getFullYear());
     originalDate.setMonth(pickedDate.getMonth());
     originalDate.setDate(pickedDate.getDate());
@@ -1219,28 +1487,24 @@ const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
     });
 
     updatedDateTime = updatedDateTime.replace(
-      /^(JAn|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/,
+      /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/,
       "$1."
     );
   } else {
-    updatedDateTime = newDateTime; // If no original time or type is not date
+    updatedDateTime = newDateTime;
   }
 
-  // --- Send updatedDateTime to your backend ---
   console.log("Updating row with new time_out:", updatedDateTime);
 
+  loading.value = true;
   try {
-    const dtrDateOUT = {
-      id: row.id,
-      time_out: updatedDateTime,
-    };
-
-    const response = await dtrStore.updateDTRDateOUT(dtrDateOUT);
+    await dtrStore.updateDTRDateOUT({ id: row.id, time_out: updatedDateTime });
+    row.time_out = updatedDateTime;
   } catch (error) {
     console.log("error", error);
+  } finally {
+    loading.value = false;
   }
-
-  row.time_out = updatedDateTime;
 };
 
 const updateDTRTimeINOnly = async (row, newTime, type) => {

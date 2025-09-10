@@ -236,7 +236,7 @@ const save = async () => {
 
 <style lang="scss" scoped>
 .gradient-btn {
-  background: linear-gradient(45deg, #103432, #2575fc);
+  background: linear-gradient(45deg, #263238, #244c5e);
   border: none;
 }
 .cancel-btn {
