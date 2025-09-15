@@ -105,6 +105,13 @@ const menuItems = [
     toolbarDisplay: "📜 Recipe",
   },
   {
+    name: "stocks",
+    icon: "local_shipping",
+    to: "/admin/stocks",
+    label: "Stocks",
+    toolbarDisplay: "🚚 Stocks",
+  },
+  {
     name: "warehouse",
     icon: "factory",
     to: "/admin/warehouse",

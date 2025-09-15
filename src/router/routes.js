@@ -37,6 +37,10 @@ const routes = [
         component: () => import("pages/administrator/recipe/RecipePage.vue"),
       },
       {
+        path: "stocks",
+        component: () => import("pages/administrator/stocks/StocksPage.vue"),
+      },
+      {
         path: "warehouse",
         component: () =>
           import("pages/administrator/warehouse/WarehousePage.vue"),
