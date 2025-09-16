@@ -23,6 +23,7 @@
         <q-card-section>
           <h6>This is a dialog for delivering stock in branch or warehouse</h6>
         </q-card-section>
+        <q-card-section> </q-card-section>
         <q-card-actions align="right">
           <q-btn outline>Cancel</q-btn>
           <q-btn>Proceed</q-btn>
