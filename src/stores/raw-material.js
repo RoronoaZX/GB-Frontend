@@ -20,6 +20,8 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
     // Loading.show();
     const response = await api.get("/api/raw-materials");
     rawMaterials.value = response.data;
+
+    console.log("Raw Materialssss", rawMaterials.value);
     // Loading.hide();
   };
 

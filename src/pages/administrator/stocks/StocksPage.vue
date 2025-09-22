@@ -250,7 +250,7 @@
 
 <script setup>
 import { ref } from "vue";
-import DeliveryCardDialog from "./components/DeliveryCardDialog.vue";
+import DeliveryCardDialog from "./components/StocksDeliveryButton.vue";
 
 const orderList = ref([
   {
