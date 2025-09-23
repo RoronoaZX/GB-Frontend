@@ -25,7 +25,17 @@
             <div>
               <div>
                 From:
-                <div class="q-gutter-sm">
+                <q-select
+                  v-model="from"
+                  :options="fromOptions"
+                  emit-value
+                  map-options
+                  label="Select Source"
+                  outlined
+                  dense
+                  style="width: 200px"
+                />
+                <!-- <div class="q-gutter-sm">
                   <q-radio
                     keep-color
                     v-model="from"
@@ -47,15 +57,16 @@
                     label="Branch"
                     color="red"
                   />
-                </div>
+                </div> -->
               </div>
-              <div>
+              <div class="q-mt-md">
                 <q-input
                   v-if="from === 'Supplier'"
                   v-model="deliveryStocks.supplier_name"
                   outlined
                   dense
                   label="Enter Supplier Company Name"
+                  style="width: 350px"
                 />
                 <q-select
                   v-if="from === 'Warehouse'"
@@ -87,13 +98,24 @@
                   @filter="filteredBranches"
                   behavior="menu"
                   hide-dropdown-icon
+                  style="width: 350px"
                 />
               </div>
             </div>
             <div>
               <div>
                 To:
-                <div>
+                <q-select
+                  v-model="to"
+                  :options="toOptions"
+                  emit-value
+                  map-options
+                  label="Select Destination"
+                  outlined
+                  dense
+                  style="width: 200px"
+                />
+                <!-- <div>
                   <q-radio
                     keep-color
                     v-model="to"
@@ -108,8 +130,8 @@
                     label="Branch"
                     color="red"
                   />
-                </div>
-                <div>
+                </div> -->
+                <div class="q-mt-md">
                   <q-select
                     v-if="to === 'Warehouse'"
                     v-model="deliveryStocks.to"
@@ -124,6 +146,7 @@
                     @filter="filteredWarehouse"
                     hide-dropdown-icon
                     behavior="menu"
+                    style="width: 350px"
                   />
                   <q-select
                     v-if="to === 'Branch'"
@@ -139,6 +162,7 @@
                     @filter="filteredBranches"
                     behavior="menu"
                     hide-dropdown-icon
+                    style="width: 350px"
                   />
                 </div>
               </div>
@@ -195,26 +219,36 @@
               </template>
             </q-select>
           </div>
-          <div class="row q-gutter-y-lg justify-between">
+          <div>
             <div>
-              <div class="q-my-sm" align="center">Quantity</div>
-              <q-input
-                type="number"
-                outlined
-                dense
-                style="width: 300px; max-width: 250px; min-width: none"
-              />
-            </div>
-            <div>
-              <div class="q-my-sm" align="center">Unit</div>
               <q-select
-                v-model="selectedRawMaterials.unit"
-                :options="unitOptions"
+                v-model="stocksCategory"
+                :options="stocksCategoryOptions"
+                emit-value
+                map-options
                 outlined
                 behavior="menu"
                 dense
-                style="width: 350px; max-width: 250px; min-width: none"
+                label="Select Category"
               />
+            </div>
+
+            <div v-if="selectedCategoryConfig" class="row q-mt-md q-gutter-md">
+              <div
+                v-for="field in selectedCategoryConfig.fields"
+                :key="field.model"
+              >
+                <q-input
+                  v-model.number="stocks[field.model]"
+                  :label="field.label"
+                  :type="field.type || 'text'"
+                  :readonly="field.readonly || false"
+                  outlined
+                  flat
+                  dense
+                  :style="{ width: field.width || '150px' }"
+                />
+              </div>
             </div>
           </div>
           <div class="q-mt-sm" align="right">
@@ -253,9 +287,127 @@ const selectedRawMaterials = reactive({
   unit: "",
 });
 
+const fromOptions = [
+  { label: "Supplier", value: "Supplier" },
+  { label: "Warehouse", value: "Warehouse" },
+  { label: "Branch", value: "Branch" },
+];
+
+const toOptions = [
+  { label: "Warehouse", value: "Warehouse" },
+  { label: "Branch", value: "Branch" },
+];
+
 const isFormValid = computed(() => {
   return rawMaterialsGroups.value.length > 0;
 });
+
+const stocksCategory = ref("");
+
+const stocksCategoryOptions = [
+  { label: "Sack", value: "sack" },
+  { label: "Can", value: "can" },
+  { label: "Bottle", value: "bottle" },
+  { label: "Box", value: "box" },
+  { label: "Margarine Tub", value: "baro" },
+  { label: "Gallon", value: "gallon" },
+  { label: "Kilo", value: "kilo" },
+  { label: "Gram", value: "gram" },
+  { label: "Pieces", value: "pcs" },
+];
+
+const stocks = ref({
+  // shared fields
+  quantity: 0,
+  kilo: 0,
+  gram: 0,
+  price: 0,
+  pricePerGram: 0,
+  pcs: 0,
+});
+
+const categoryConfigs = {
+  sack: {
+    fields: [
+      { model: "quantity", label: "Sack Quantity", type: "number" },
+      { model: "kilo", label: "Kilo per Sack", type: "number" },
+      { model: "gram", label: "Grams", type: "number", readonly: true },
+      { model: "price", label: "Price per Sack", type: "number" },
+      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
+  can: {
+    fields: [
+      { model: "quantity", label: "Can Quantity", type: "number" },
+      { model: "kilo", label: "Kilo per Can", type: "number" },
+      { model: "gram", label: "Grams", readonly: true },
+      { model: "price", label: "Price per Can", type: "number" },
+      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
+  bottle: {
+    fields: [
+      { model: "quantity", label: "Bottle Quantity", type: "number" },
+      { model: "kilo", label: "Kilo per Bottle", type: "number" },
+      { model: "gram", label: "Grams" },
+      // readonly: true
+      { model: "price", label: "Price per Bottle", type: "number" },
+      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
+  box: {
+    fields: [
+      { model: "quantity", label: "Box Quantity", type: "number" },
+      { model: "pcs", label: "Pieces per Box", type: "number" },
+      { model: "kilo", label: "Kilo per Box", type: "number" },
+      { model: "gram", label: "Grams", readonly: true },
+      { model: "price", label: "Price per Box", type: "number" },
+      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
+  gallon: {
+    fields: [
+      { model: "quantity", label: "Gallon Quantity", type: "number" },
+      { model: "kilo", label: "Kilo per Gallon", type: "number" },
+      { model: "gram", label: "Grams" },
+      // readonly: true
+      { model: "price", label: "Price per Gallon", type: "number" },
+      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
+  baro: {
+    fields: [
+      { model: "quantity", label: "Tub Quantity", type: "number" },
+      { model: "kilo", label: "Kilo per Tub", type: "number" },
+      { model: "gram", label: "Grams", readonly: true },
+      { model: "price", label: "Price per Tub", type: "number" },
+      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
+};
+
+const selectedCategoryConfig = computed(() => {
+  return categoryConfigs[stocksCategory.value] || null;
+});
+
+// 🧮 CALCULATIONS
+watch(
+  stocks,
+  (val) => {
+    // always sync grams with kilo
+    if (val.kilo && !isNaN(val.kilo)) {
+      val.gram = val.kilo * 1000;
+    }
+
+    // compute price per gram if we have price & gram
+    if (val.price > 0 && val.gram > 0) {
+      val.pricePerGram = (val.price / val.gram).toFixed(2);
+    } else {
+      val.pricePerGram = 0;
+    }
+  },
+  { deep: true }
+);
 
 const unitOptions = [
   { label: "Sack (25 kg each)", value: "sack" },
