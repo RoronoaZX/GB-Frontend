@@ -555,15 +555,27 @@ watch(to, (newVal) => {
 
 const save = async () => {
   const payload = {
-    ...deliveryStocks,
-    from: deliveryStocks.from.value,
-    from_designation: from.value,
-    supplier_name: deliveryStocks.from.label,
-    to: deliveryStocks.from.value,
-    to_designation: to.value,
-  };
+    raw_materials_id: selectedRawMaterials.name?.value || 0, // id from q-select
+    raw_materials_name: selectedRawMaterials.name?.label || "",
+    from_designation: from.value, // Supplier | Warehouse | Branch
+    from_id: deliveryStocks.from?.value || null, // warehouse_id or branch_id
+    supplier_name:
+      from.value === "Supplier" ? deliveryStocks.supplier_name : null,
+    to_designation: to.value, // Warehouse | Branch
+    to_id: deliveryStocks.to?.value || null,
+    remarks: deliveryStocks.remarks,
+    status: "Pending",
 
-  console.log("save payload", payload);
+    // stocks-specific fields
+    categry: stocksCategory.value, // sack, box, can, etc.
+    quantity: stocks.value.quantity,
+    kilo: stocks.value.kilo,
+    gram: stocks.value.gram,
+    pcs: stocks.value.pcs,
+    price_per_unit: stocks.value.price,
+    price_per_gram: stocks.value.pricePerGram,
+  };
+  console.log("DSFSDAFSADF", payload);
 };
 </script>
 
