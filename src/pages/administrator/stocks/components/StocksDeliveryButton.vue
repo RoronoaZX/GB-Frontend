@@ -35,29 +35,6 @@
                   dense
                   style="width: 200px"
                 />
-                <!-- <div class="q-gutter-sm">
-                  <q-radio
-                    keep-color
-                    v-model="from"
-                    val="Supplier"
-                    label="Supplier"
-                    color="teal"
-                  />
-                  <q-radio
-                    keep-color
-                    v-model="from"
-                    val="Warehouse"
-                    label="Warehouse"
-                    color="orange"
-                  />
-                  <q-radio
-                    keep-color
-                    v-model="from"
-                    val="Branch"
-                    label="Branch"
-                    color="red"
-                  />
-                </div> -->
               </div>
               <div class="q-mt-md">
                 <q-input
@@ -78,8 +55,18 @@
                   clearable
                   input-debounce="0"
                   :options="filterWarehouseOptions"
+                  emit-value
+                  map-options
                   label="Search Warehouse"
                   @filter="filteredWarehouse"
+                  @update:model-value="
+                    (val) => {
+                      const opt = filterWarehouseOptions.find(
+                        (o) => o.value === val
+                      );
+                      deliveryStocks.from_name = opt?.label || '';
+                    }
+                  "
                   behavior="menu"
                   hide-dropdown-icon
                   style="width: 350px"
@@ -94,8 +81,18 @@
                   clearable
                   input-debounce="0"
                   :options="filterBranchOptions"
+                  emit-value
+                  map-options
                   label="Search Branch"
                   @filter="filteredBranches"
+                  @update:model-value="
+                    (val) => {
+                      const opt = filterBranchOptions.find(
+                        (o) => o.value === val
+                      );
+                      deliveryStocks.from_name = opt?.label || '';
+                    }
+                  "
                   behavior="menu"
                   hide-dropdown-icon
                   style="width: 350px"
@@ -182,11 +179,66 @@
                   </q-item-section>
                   <q-item-section>
                     <q-item-label class="text-overline">
+                      Stocks Category
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-overline">
                       Quantity
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-overline">
+                      Price per Unit
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-overline">
+                      Price per Gram
                     </q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <!-- for the remove button -->
+                    <q-item-label>Action</q-item-label>
+                  </q-item-section>
+                </q-item>
+
+                <q-item v-for="item in rawMaterialsGroups" :key="item.id">
+                  <q-item-section>
+                    <q-item-label>
+                      {{ item.raw_materials_name }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ item.category }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ item.quantity }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label> ₱ {{ item.price_per_unit }} </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label> ₱ {{ item.price_per_gram }} </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      dense
+                      flat
+                      round
+                      icon="delete"
+                      color="red"
+                      @click="
+                        rawMaterialsGroups.splice(
+                          rawMaterialsGroups.indexOf(item),
+                          1
+                        )
+                      "
+                    />
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -243,6 +295,7 @@
                   :label="field.label"
                   :type="field.type || 'text'"
                   :readonly="field.readonly || false"
+                  :prefix="field.prefix || ''"
                   outlined
                   flat
                   dense
@@ -252,7 +305,14 @@
             </div>
           </div>
           <div class="q-mt-sm" align="right">
-            <q-btn padding="sm lg" outline dense icon="add" color="purple" />
+            <q-btn
+              padding="sm lg"
+              outline
+              dense
+              icon="add"
+              color="purple"
+              @click="addToList"
+            />
           </div>
         </q-card-section>
         <q-separator class="q-my-md" />
@@ -270,7 +330,9 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useBranchesStore } from "src/stores/branch";
 import { useRawMaterialsStore } from "src/stores/raw-material";
+import { useStockDelivery } from "src/stores/stock-delivery";
 
+const stocksDeliveryStore = useStockDelivery();
 const branchesStore = useBranchesStore();
 const branchOptions = ref([]);
 const filterBranchOptions = ref(branchOptions.value);
@@ -332,17 +394,32 @@ const categoryConfigs = {
       { model: "quantity", label: "Sack Quantity", type: "number" },
       { model: "kilo", label: "Kilo per Sack", type: "number" },
       { model: "gram", label: "Grams", type: "number", readonly: true },
-      { model: "price", label: "Price per Sack", type: "number" },
-      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+      { model: "price", label: "Price per Sack", type: "number", prefix: "₱" },
+      {
+        model: "pricePerGram",
+        label: "Price per Gram",
+        readonly: true,
+        prefix: "₱",
+      },
     ],
   },
   can: {
     fields: [
       { model: "quantity", label: "Can Quantity", type: "number" },
       { model: "kilo", label: "Kilo per Can", type: "number" },
-      { model: "gram", label: "Grams", readonly: true },
-      { model: "price", label: "Price per Can", type: "number" },
-      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+      { model: "gram", label: "Grams", type: "number" },
+      {
+        model: "price",
+        label: "Price per Can",
+        type: "number",
+        prefix: "₱",
+      },
+      {
+        model: "pricePerGram",
+        label: "Price per Gram",
+        readonly: true,
+        prefix: "₱",
+      },
     ],
   },
   bottle: {
@@ -351,18 +428,33 @@ const categoryConfigs = {
       { model: "kilo", label: "Kilo per Bottle", type: "number" },
       { model: "gram", label: "Grams" },
       // readonly: true
-      { model: "price", label: "Price per Bottle", type: "number" },
-      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+      {
+        model: "price",
+        label: "Price per Bottle",
+        type: "number",
+        prefix: "₱",
+      },
+      {
+        model: "pricePerGram",
+        label: "Price per Gram",
+        readonly: true,
+        prefix: "₱",
+      },
     ],
   },
   box: {
     fields: [
       { model: "quantity", label: "Box Quantity", type: "number" },
       { model: "pcs", label: "Pieces per Box", type: "number" },
-      { model: "kilo", label: "Kilo per Box", type: "number" },
-      { model: "gram", label: "Grams", readonly: true },
-      { model: "price", label: "Price per Box", type: "number" },
-      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+      { model: "kilo", label: "Kilo per Piece", type: "number" },
+      { model: "gram", label: "Grams" },
+      { model: "price", label: "Price per Box", type: "number", prefix: "₱" },
+      {
+        model: "pricePerGram",
+        label: "Price per Gram",
+        readonly: true,
+        prefix: "₱",
+      },
     ],
   },
   gallon: {
@@ -418,6 +510,40 @@ const unitOptions = [
 
 const loading = ref(false);
 const searchLoading = ref(false);
+
+const addToList = () => {
+  if (!selectedRawMaterials.name || !stocksCategory.value) {
+    return; // don't add if incomplete
+  }
+
+  rawMaterialsGroups.value.push({
+    raw_materials_id: selectedRawMaterials.name.value,
+    raw_materials_name: selectedRawMaterials.name.label,
+    unit_type: selectedRawMaterials.name.suffix,
+    category: stocksCategory.value,
+    quantity: stocks.value.quantity,
+    kilo: stocks.value.kilo,
+    gram: stocks.value.gram,
+    pcs: stocks.value.pcs,
+    price_per_unit: stocks.value.price,
+    price_per_gram: stocks.value.pricePerGram,
+  });
+
+  // log the updated list
+  console.log("📦 rawMaterialsGroups:", rawMaterialsGroups.value);
+
+  // clear after add
+  selectedRawMaterials.name = "";
+  stocksCategory.value = "";
+  stocks.value = {
+    quantity: 0,
+    kilo: 0,
+    gram: 0,
+    price: 0,
+    pricePerGram: 0,
+    pcs: 0,
+  };
+};
 
 const dialog = ref(false);
 
@@ -519,8 +645,10 @@ const filterRawMaterials = (val, update) => {
 const deliveryStocks = reactive({
   raw_material_id: 0,
   from: "",
+  from_name: "",
   from_designation: "",
   to: "",
+  to_name: "",
   to_designation: "",
   supplier_name: "",
   quantity: 0.0,
@@ -535,11 +663,14 @@ watch(from, (newVal) => {
 
   if (newVal === "Supplier") {
     deliveryStocks.from = "";
+    deliveryStocks.from_name = "";
     deliveryStocks.supplier_name = "";
   } else if (newVal === "Warehouse") {
     deliveryStocks.from = "";
+    deliveryStocks.from_name = "";
   } else if (newVal === "Branch") {
     deliveryStocks.from = "";
+    deliveryStocks.from_name = "";
   }
 });
 
@@ -555,27 +686,23 @@ watch(to, (newVal) => {
 
 const save = async () => {
   const payload = {
-    raw_materials_id: selectedRawMaterials.name?.value || 0, // id from q-select
-    raw_materials_name: selectedRawMaterials.name?.label || "",
     from_designation: from.value, // Supplier | Warehouse | Branch
     from_id: deliveryStocks.from?.value || null, // warehouse_id or branch_id
-    supplier_name:
-      from.value === "Supplier" ? deliveryStocks.supplier_name : null,
+    from_name:
+      from.value === "Supplier"
+        ? deliveryStocks.supplier_name
+        : deliveryStocks.from_name,
     to_designation: to.value, // Warehouse | Branch
     to_id: deliveryStocks.to?.value || null,
     remarks: deliveryStocks.remarks,
     status: "Pending",
 
     // stocks-specific fields
-    categry: stocksCategory.value, // sack, box, can, etc.
-    quantity: stocks.value.quantity,
-    kilo: stocks.value.kilo,
-    gram: stocks.value.gram,
-    pcs: stocks.value.pcs,
-    price_per_unit: stocks.value.price,
-    price_per_gram: stocks.value.pricePerGram,
+    raw_materials_groups: rawMaterialsGroups.value || [],
   };
   console.log("DSFSDAFSADF", payload);
+
+  await stocksDeliveryStore.createDeliveryStock(payload);
 };
 </script>
 
