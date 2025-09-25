@@ -3,6 +3,7 @@
     flat
     class="bg-amber-4 q-pa-md rounded-borders-lg row items-center justify-center cursor-pointer custom-shadow-light"
     @click="openDialog"
+    style="width: 300px"
   >
     <q-icon name="add_circle" size="md" color="white" class="q-mr-sm" />
     <div class="text-h6 text-weight-bold text-white">
@@ -551,6 +552,11 @@ const openDialog = () => {
   dialog.value = true;
 };
 
+const closeDialog = () => {
+  dialog.value = false;
+  clearData();
+};
+
 const from = ref("");
 const to = ref("");
 
@@ -624,9 +630,44 @@ const fetchRawMaterials = async () => {
 onMounted(fetchRawMaterials);
 
 const clearData = () => {
+  // reset selected raw materials
   (selectedRawMaterials.name = ""),
     (selectedRawMaterials.quantity = ""),
     (selectedRawMaterials.unit = "");
+
+  // reset stock category
+  stocksCategory.value = "";
+
+  // reset stocks values
+  stocks.value = {
+    quantity: 0,
+    kilo: 0,
+    gram: 0,
+    price: 0,
+    pricePerGram: 0,
+    pcs: 0,
+  };
+
+  // reset raw materials list
+  rawMaterialsGroups.value = [];
+
+  // reset delivery stocks
+  deliveryStocks.raw_material_id = 0;
+  deliveryStocks.from = "";
+  deliveryStocks.from_name = "";
+  deliveryStocks.from_designation = "";
+  deliveryStocks.to = "";
+  deliveryStocks.to_name = "";
+  deliveryStocks.to_designation = "";
+  deliveryStocks.supplier_name = "";
+  deliveryStocks.quantity = 0.0;
+  deliveryStocks.price_per_unit = 0.0;
+  deliveryStocks.remarks = "";
+  deliveryStocks.status = "pending";
+
+  // also reset dropdowns
+  from.value = "";
+  to.value = "";
 };
 
 const filterRawMaterials = (val, update) => {
@@ -695,14 +736,27 @@ const save = async () => {
     to_designation: to.value, // Warehouse | Branch
     to_id: deliveryStocks.to?.value || null,
     remarks: deliveryStocks.remarks,
-    status: "Pending",
+    status: "pending",
 
     // stocks-specific fields
     raw_materials_groups: rawMaterialsGroups.value || [],
   };
-  console.log("DSFSDAFSADF", payload);
 
-  await stocksDeliveryStore.createDeliveryStock(payload);
+  try {
+    console.log("Payload : ", payload);
+    const response = await stocksDeliveryStore.createDeliveryStock(payload);
+
+    // if your backend sends a success flag/message, check it
+    if (response && response.success) {
+      // ✅ close dialog only when backend confirms success
+      closeDialog();
+    } else {
+      console.error("❌ Failed to save delivery: ", response.message);
+      return; // exit if not successful
+    }
+  } catch (error) {
+    console.error("❌ Failed to save delivery:", error);
+  }
 };
 </script>
 

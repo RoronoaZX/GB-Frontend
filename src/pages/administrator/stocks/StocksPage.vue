@@ -1,52 +1,9 @@
-<template>
+<!-- <template>
   <q-page class="q-pa-md bg-grey-2">
+    <div class="q-mb-md" align="right">
+      <DeliveryCardDialog />
+    </div>
     <div class="row q-col-gutter-md">
-      <div class="col-xs-12 col-sm-6 col-md-3">
-        <q-card
-          flat
-          class="bg-teal-7 text-white text-center q-pa-md rounded-borders-lg custom-shadow-light"
-        >
-          <div class="text-h4 text-weight-bold">16</div>
-          <div class="text-subtitle1 text-weight-bold">New Delivery</div>
-          <div class="text-caption">
-            <q-icon name="check_circle_outline" class="q-mr-xs" />Updated every
-            new delivery
-          </div>
-        </q-card>
-      </div>
-
-      <div class="col-xs-12 col-sm-6 col-md-3">
-        <q-card
-          flat
-          class="bg-white q-pa-md rounded-borders-lg custom-shadow-light"
-        >
-          <div class="row justify-between items-center q-mb-xs">
-            <div class="text-h6 text-grey-6">Total Delivery</div>
-            <q-icon name="analytics" color="grey-5" size="sm" />
-          </div>
-          <div class="text-h4 text-weight-bold">86</div>
-          <!-- <div class="text-caption text-grey-6">+2.5% than usual</div> -->
-        </q-card>
-      </div>
-
-      <div class="col-xs-12 col-sm-6 col-md-3">
-        <q-card
-          flat
-          class="bg-white q-pa-md rounded-borders-lg custom-shadow-light"
-        >
-          <div class="row justify-between items-center q-mb-xs">
-            <div class="text-h6 text-grey-6">Waiting List</div>
-            <q-icon name="access_time" color="grey-5" size="sm" />
-          </div>
-          <div class="text-h4 text-weight-bold">9</div>
-          <!-- <div class="text-caption text-grey-6">+3.2% than usual</div> -->
-        </q-card>
-      </div>
-
-      <div class="col-xs-12 col-sm-6 col-md-3">
-        <DeliveryCardDialog />
-      </div>
-
       <div class="col-xs-12 col-md-4">
         <q-card
           flat
@@ -69,52 +26,71 @@
             </template>
           </q-input>
           <q-list separator>
-            <q-item v-for="order in orderList" :key="order.id" class="q-py-md">
-              <q-item-section avatar>
-                <q-avatar
-                  rounded
-                  :color="order.color"
-                  text-color="white"
-                  class="text-weight-bold"
-                >
-                  {{ order.id }}
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label
-                  class="text-subtitle1 text-weight-bold text-grey-8"
-                  >{{ order.customerName }}</q-item-label
-                >
-                <q-item-label caption class="text-grey-6"
-                  >{{ order.itemCount }} items</q-item-label
-                >
-              </q-item-section>
-              <q-item-section side>
-                <div
-                  class="row items-center text-caption"
-                  :class="`text-${order.statusColor}`"
-                >
-                  <q-icon
-                    name="fiber_manual_record"
-                    :color="order.statusColor"
-                    size="8px"
-                    class="q-mr-xs"
-                  />
-                  {{ order.statusText }}
-                </div>
-              </q-item-section>
-            </q-item>
+            <template v-if="loading">
+              <q-item>
+                <q-item-section>
+                  <q-skeleton type="text" width="80%" />
+                  <q-skeleton type="text" width="40%" />
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-skeleton type="text" width="70%" />
+                  <q-skeleton type="text" width="30%" />
+                </q-item-section>
+              </q-item>
+            </template>
+
+            <template v-else>
+              <q-item
+                v-for="delivery in deliveryList.data"
+                :key="delivery.id"
+                class="q-py-md"
+                clickable
+                @click="openDialog(delivery)"
+                :class="{
+                  'selected-delivery-item':
+                    selectedDelivery && delivery.id === selectedDelivery.id,
+                }"
+              >
+                <q-item-section>
+                  <q-item-label
+                    class="text-subtitle1 text-weight-bold text-grey-8"
+                  >
+                    {{ delivery.to_data?.name || "" }}
+                  </q-item-label>
+                  <q-item-label caption class="text-grey-6">
+                    {{ delivery.items.length }} items
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <div class="row items-center text-caption">
+                    <q-icon
+                      name="fiber_manual_record"
+                      :color="
+                        delivery.status
+                          ? getStatusColor(delivery.status)
+                          : 'grey-6'
+                      "
+                      size="8px"
+                      class="q-mr-xs"
+                    />
+                    {{ delivery.status || "No Status" }}
+                  </div>
+                </q-item-section>
+              </q-item>
+            </template>
           </q-list>
         </q-card>
       </div>
 
-      <div class="col-xs-12 col-md-4">
+      <div class="col-xs-12 col-md-8">
         <q-card
           flat
           class="bg-white q-pa-md rounded-borders-lg custom-shadow-light"
         >
           <div class="text-h6 text-weight-bold q-mb-sm text-grey-8">
-            Warehouse / Branch Stocks
+            Items / Raw materials Delivery Details
           </div>
           <q-input
             outlined
@@ -129,119 +105,399 @@
               <q-icon name="search" color="grey-6" />
             </template>
           </q-input>
-          <q-list separator>
-            <q-item
-              v-for="payment in paymentList"
-              :key="payment.id"
-              class="q-py-md"
-            >
-              <q-item-section avatar>
-                <q-avatar
-                  rounded
-                  :color="payment.color"
-                  text-color="white"
-                  class="text-weight-bold"
-                >
-                  {{ payment.id }}
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label
-                  class="text-subtitle1 text-weight-bold text-grey-8"
-                  >{{ payment.customerName }}</q-item-label
-                >
-                <q-item-label caption class="text-grey-6">{{
-                  payment.orderId
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  unelevated
-                  :color="payment.buttonColor"
-                  text-color="white"
-                  label="View Stocks"
-                  size="sm"
-                  class="rounded-borders-sm"
-                />
-                <!-- :label="payment.buttonText" -->
-              </q-item-section>
-            </q-item>
-          </q-list>
+          <q-card-section>
+            <div v-if="selectedDelivery">
+              <div class="row q-col-gutter-md">
+                <div class="q-mb-sm">
+                  <span class="text-grey-7 text-caption">From:</span>
+                  <div class="text-subtitle1 text-weight-bold">
+                    {{ selectedDelivery.from_name || "No Name" }}
+                  </div>
+                </div>
+                <div class="q-mb-sm">
+                  <span class="text-grey-7 text-caption">To:</span>
+                  <div class="text-subtitle1 text-weight-bold">
+                    {{ selectedDelivery.to_data?.name || "No Name" }}
+                  </div>
+                </div>
+
+                <div class="q-mb-sm">
+                  <span class="text-grey-7 text-caption">Status:</span>
+                  <div class="row items-center">
+                    <q-icon
+                      name="fiber_manual_record"
+                      :color="getStatusColor(selectedDelivery.status)"
+                      size="10px"
+                      class="q-mr-xs"
+                    />
+                    {{ selectedDelivery.status || "No Status" }}
+                  </div>
+                </div>
+
+                <div class="q-mb-sm">
+                  <span class="text-grey-7 text-caption">Items:</span>
+                  <q-list dense separator class="box">
+                    <q-item>
+                      <q-item-section>
+                        <q-item-label class="text-overline">
+                          Raw Materials Name
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label> Raw Materials Code </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-overline">
+                          Stock Category
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label> Quantity </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label> Price per Unit </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label> Price per Gram </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item
+                      v-for="(item, index) in selectedDelivery.items"
+                      :key="index"
+                    >
+                      <q-item-section>
+                        <q-item-label>
+                          {{ item.raw_material?.name || "No Name" }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ item.raw_material?.code || "No Code" }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ item.category || "No Category" }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ formatQuantity(item.quantity || "No Quantity") }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ formatPrice(item.price_per_unit || "No Price") }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ formatPrice(item.price_per_gram || "No Price") }}
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </div>
+              </div>
+            </div>
+          </q-card-section>
         </q-card>
       </div>
+    </div>
+  </q-page>
+</template> -->
 
+<template>
+  <q-page class="q-pa-md bg-grey-2">
+    <div class="q-mb-md" align="right">
+      <DeliveryCardDialog />
+    </div>
+    <div class="row q-col-gutter-md">
       <div class="col-xs-12 col-md-4">
         <q-card
           flat
           class="bg-white q-pa-md rounded-borders-lg custom-shadow-light"
         >
-          <div class="row justify-between items-center q-mb-sm">
-            <div class="text-h6 text-weight-bold text-grey-8">Activity</div>
-            <div
-              class="text-primary text-caption cursor-pointer text-weight-medium"
-            >
-              View All
-            </div>
+          <div class="text-h6 text-weight-bold q-mb-sm text-grey-8">
+            Delivery Transaction List
           </div>
-          <div class="row text-grey-6 q-mb-sm text-caption text-weight-medium">
-            <div class="col-1">Rank</div>
-            <div class="col-grow q-ml-sm">Name</div>
-            <div class="col-3 text-right">Orders</div>
-          </div>
+          <q-input
+            outlined
+            dense
+            placeholder="Search delivery"
+            class="q-mb-sm"
+            bg-color="grey-1"
+            input-class="text-grey-8"
+            label-color="grey-6"
+            v-model="searchQuery"
+            @update:model-value="onSearch"
+          >
+            <template v-slot:append>
+              <q-icon name="search" color="grey-6" />
+            </template>
+          </q-input>
           <q-list separator>
-            <q-item
-              v-for="(dish, index) in popularDishes"
-              :key="dish.name"
-              class="q-py-md"
-            >
-              <q-item-section class="col-1 text-weight-bold text-grey-8">{{
-                index + 1
-              }}</q-item-section>
-              <q-item-section avatar>
-                <q-avatar size="40px" rounded>
-                  <img :src="dish.image" />
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label
-                  class="text-subtitle1 text-weight-bold text-grey-8"
-                  >{{ dish.name }}</q-item-label
-                >
-              </q-item-section>
-              <q-item-section side class="text-weight-bold text-grey-6">{{
-                dish.orders
-              }}</q-item-section>
-            </q-item>
+            <template v-if="loading">
+              <q-item v-for="n in pagination.per_page" :key="n">
+                <q-item-section>
+                  <q-skeleton type="text" width="80%" />
+                  <q-skeleton type="text" width="40%" />
+                </q-item-section>
+              </q-item>
+            </template>
+
+            <template v-else>
+              <q-item
+                v-for="delivery in deliveryList"
+                :key="delivery.id"
+                class="q-py-md"
+                clickable
+                @click="openDialog(delivery)"
+                :class="{
+                  'selected-delivery-item':
+                    selectedDelivery && delivery.id === selectedDelivery.id,
+                }"
+              >
+                <q-item-section>
+                  <q-item-label
+                    class="text-subtitle1 text-weight-bold text-grey-8"
+                  >
+                    {{ delivery.to_data?.name || "N/A" }}
+                  </q-item-label>
+                  <q-item-label caption class="text-grey-6">
+                    {{ delivery.items.length }} items
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <div class="row items-center text-caption">
+                    <q-icon
+                      name="fiber_manual_record"
+                      :color="
+                        delivery.status
+                          ? getStatusColor(delivery.status)
+                          : 'grey-6'
+                      "
+                      size="8px"
+                      class="q-mr-xs"
+                    />
+                    {{ delivery.status || "No Status" }}
+                  </div>
+                </q-item-section>
+              </q-item>
+
+              <!-- Pagination Controls -->
+              <!-- <q-item v-if="pagination.last_page > 1" class="q-pt-md">
+                <q-item-section>
+                  <q-pagination
+                    v-model="pagination.current_page"
+                    :max="pagination.last_page"
+                    :max-pages="5"
+                    boundary-numbers
+                    direction-links
+                    icon-first="skip_previous"
+                    icon-last="skip_next"
+                    icon-prev="fast_rewind"
+                    icon-next="fast_forward"
+                    @update:model-value="onPageChange"
+                  />
+                </q-item-section>
+              </q-item> -->
+            </template>
           </q-list>
         </q-card>
+      </div>
 
+      <div class="col-xs-12 col-md-8">
         <q-card
           flat
-          class="bg-white q-pa-md rounded-borders-lg q-mt-md custom-shadow-light"
+          class="bg-white q-pa-md rounded-borders-lg custom-shadow-light"
         >
-          <div class="row justify-between items-center q-mb-sm">
-            <div class="text-h6 text-weight-bold text-grey-8">Out of Stock</div>
-            <div
-              class="text-primary text-caption cursor-pointer text-weight-medium"
-            >
-              View All
-            </div>
+          <div class="text-h6 text-weight-bold q-mb-sm text-grey-8">
+            Items / Raw materials Delivery Details
           </div>
-          <q-list separator>
-            <q-item v-for="item in outOfStock" :key="item.name">
-              <q-item-section>
-                <q-item-label
-                  class="text-subtitle1 text-weight-bold text-grey-8"
-                  >{{ item.name }}</q-item-label
-                >
-              </q-item-section>
-              <q-item-section side class="text-caption text-weight-medium">
-                <div :class="`text-${item.color}`">
-                  Available: {{ item.available }}
+          <!-- Search input for details section if needed, currently not connected to backend -->
+          <q-input
+            outlined
+            dense
+            placeholder="Search warehouse / branch"
+            class="q-mb-sm"
+            bg-color="grey-1"
+            input-class="text-grey-8"
+            label-color="grey-6"
+          >
+            <template v-slot:append>
+              <q-icon name="search" color="grey-6" />
+            </template>
+          </q-input>
+          <q-card-section>
+            <div v-if="selectedDelivery">
+              <div class="row q-col-gutter-md q-mb-md">
+                <div class="col-xs-12 col-sm-4">
+                  <span class="text-grey-7 text-caption">From:</span>
+                  <div class="text-subtitle1 text-weight-bold">
+                    {{ selectedDelivery.from_name || "No Name" }}
+                  </div>
                 </div>
-              </q-item-section>
-            </q-item>
-          </q-list>
+                <div class="col-xs-12 col-sm-4">
+                  <span class="text-grey-7 text-caption">To:</span>
+                  <div class="text-subtitle1 text-weight-bold">
+                    {{ selectedDelivery.to_data?.name || "No Name" }}
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4">
+                  <span class="text-grey-7 text-caption">Status:</span>
+                  <div class="row items-center">
+                    <q-icon
+                      name="fiber_manual_record"
+                      :color="getStatusColor(selectedDelivery.status)"
+                      size="10px"
+                      class="q-mr-xs"
+                    />
+                    {{ selectedDelivery.status || "No Status" }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div>
+                <span class="text-grey-7 text-caption">Items:</span>
+                <q-list dense separator class="box">
+                  <q-item class="bg-grey-1 text-weight-bold">
+                    <q-item-section>
+                      <q-item-label>Raw Materials Name</q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Raw Materials Code</q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Stock Category</q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Quantity</q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Price per Unit</q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Price per Gram</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item
+                    v-for="(item, index) in selectedDelivery.items"
+                    :key="index"
+                  >
+                    <q-item-section>
+                      <q-item-label>
+                        {{ item.raw_material?.name || "No Name" }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>
+                        {{ item.raw_material?.code || "No Code" }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>
+                        {{ item.category || "No Category" }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>
+                        {{ formatQuantity(item.quantity) }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>
+                        {{ formatPrice(item.price_per_unit) }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>
+                        {{ formatPrice(item.price_per_gram) }}
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+                <div v-else class="text-caption text-grey-6 q-mt-md">
+                  No items in this delivery.
+                </div>
+              </div> -->
+
+              <div>
+                <span class="text-grey-7 text-caption">Items:</span>
+
+                <template
+                  v-if="selectedDelivery.items && selectedDelivery.items.length"
+                >
+                  <q-list dense separator class="box">
+                    <q-item class="bg-grey-1 text-weight-bold">
+                      <q-item-section>
+                        <q-item-label>Raw Materials Name</q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Raw Materials Code</q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Stock Category</q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Quantity</q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Price per Unit</q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>Price per Gram</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item
+                      v-for="(item, index) in selectedDelivery.items"
+                      :key="index"
+                    >
+                      <q-item-section>
+                        <q-item-label>
+                          {{ item.raw_material?.name || "No Name" }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ item.raw_material?.code || "No Code" }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ item.category || "No Category" }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ formatQuantity(item.quantity) }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ formatPrice(item.price_per_unit) }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>
+                          {{ formatPrice(item.price_per_gram) }}
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </template>
+
+                <div v-else class="text-caption text-grey-6 q-mt-md">
+                  No items in this delivery.
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-h6 text-grey-6 q-mt-xl text-center">
+              Select a delivery from the list to see details.
+            </div>
+          </q-card-section>
         </q-card>
       </div>
     </div>
@@ -249,8 +505,233 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import DeliveryCardDialog from "./components/StocksDeliveryButton.vue";
+import { useStockDelivery } from "src/stores/stock-delivery";
+import { useQuasar } from "quasar"; // Import useQuasar for potential loading bar/notifications
+
+const stocksDeliveryStore = useStockDelivery();
+const $q = useQuasar(); // Initialize Quasar
+
+// Computed properties to access store state
+const deliveryList = computed(() => stocksDeliveryStore.deliveryStocks.data);
+const loading = computed(() => stocksDeliveryStore.loading);
+const pagination = computed(
+  () => stocksDeliveryStore.deliveryStocks.pagination
+);
+
+const selectedDelivery = ref(null);
+const searchQuery = ref(""); // New ref for search input
+
+// Debounce for search input to prevent too many API calls
+let searchTimeout = null;
+// const onSearch = () => {
+//   if (searchTimeout) {
+//     clearTimeout(searchTimeout);
+//   }
+//   searchTimeout = setTimeout(() => {
+//     fetchDeliveryStocks(1); // Reset to page 1 on new search
+//   }, 500); // 500ms debounce
+// };
+
+// Function to fetch deliveries with current pagination and search parameters
+// const fetchDeliveryStocks = async (page = 1) => {
+//   $q.loading.show(); // Show loading indicator
+//   try {
+//     await stocksDeliveryStore.fetchDeliveryStocks(
+//       page,
+//       pagination.value.per_page,
+//       searchQuery.value
+//     );
+//     // If deliveryList becomes empty after search/pagination, clear selected delivery
+//     if (!deliveryList.value.length && selectedDelivery.value) {
+//       selectedDelivery.value = null;
+//     }
+//     // If there's a selected delivery and it's no longer in the current page, deselect it
+//     if (
+//       selectedDelivery.value &&
+//       !deliveryList.value.some((d) => d.id === selectedDelivery.value.id)
+//     ) {
+//       selectedDelivery.value = null;
+//     }
+//     // Automatically select the first delivery if none is selected and list is not empty
+//     if (!selectedDelivery.value && deliveryList.value.length > 0) {
+//       selectedDelivery.value = deliveryList.value[0];
+//     }
+//   } catch (error) {
+//     console.error("Error fetching delivery stocks in component:", error);
+//     $q.notify({
+//       type: "negative",
+//       message: "Failed to load deliveries. Please try again.",
+//     });
+//   } finally {
+//     $q.loading.hide(); // Hide loading indicator
+//   }
+// };
+
+// onMounted(() => {
+//   fetchDeliveryStocks(pagination.value.current_page); // Fetch initial data
+// });
+
+// Watch for changes in the delivery list from the store
+// No longer needed to directly watch deliveryStocks for `deliveryList.value = deliveryStocks.value;`
+// as `deliveryList` is now a computed property directly accessing `stocksDeliveryStore.deliveryStocks.data`
+
+const openDialog = (delivery) => {
+  selectedDelivery.value = delivery;
+  // deliveryDialog.value = true; // Uncomment if you still use this dialog
+};
+
+// const onPageChange = (newPage) => {
+//   fetchDeliveryStocks(newPage);
+// };
+
+const formatQuantity = (val) => {
+  if (val == null || isNaN(parseFloat(val))) return "No Quantity";
+  return parseFloat(val);
+};
+
+const formatPrice = (val) => {
+  if (val == null || isNaN(Number(val))) return "No Price";
+  return `₱${Number(val).toFixed(2)}`;
+};
+
+const getStatusColor = (status) => {
+  switch ((status || "").toLowerCase()) {
+    case "pending":
+      return "orange-7";
+    case "in progress":
+      return "blue-7";
+    case "completed":
+      return "green-7";
+    case "cancelled":
+      return "red-6";
+    default:
+      return "grey-6";
+  }
+};
+
+// Removed unused refs like orderList, paymentList, popularDishes, outOfStock
+</script>
+
+<style scoped>
+.selected-delivery-item {
+  background-color: #e3f2fd !important;
+  border-left: 5px solid #1976d2;
+  transition: all 0.2s ease;
+}
+
+.selected-delivery-item:hover {
+  background-color: #bbdefb !important;
+}
+
+.gradient-btn {
+  background: linear-gradient(45deg, #103432, #d2bd00);
+  border: none;
+}
+
+.q-btn {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.q-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-cancel {
+  background: linear-gradient(45deg, #ef5350, #e53935);
+  color: #fff;
+  font-weight: bold;
+}
+
+.rounded-borders-lg {
+  border-radius: 12px;
+}
+
+.rounded-borders-sm {
+  border-radius: 6px;
+}
+
+.custom-shadow-light {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.bg-grey-2 {
+  background-color: #f5f7fa !important;
+}
+
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+</style>
+
+<!-- <script setup>
+import { computed, onMounted, ref, watch } from "vue";
+import DeliveryCardDialog from "./components/StocksDeliveryButton.vue";
+import { useStockDelivery } from "src/stores/stock-delivery";
+
+const stocksDeliveryStore = useStockDelivery();
+const deliveryStocks = computed(() => stocksDeliveryStore.deliveryStocks);
+console.log("Delivery Stocks (computed):", deliveryStocks.value);
+const deliveryList = ref([]);
+const loading = ref(false); // loading flag
+
+// const dialog = ref(false)
+const deliveryDialog = ref(false);
+const selectedDelivery = ref(null);
+const openDialog = (delivery) => {
+  // Logic to open the dialog
+  console.log("Open Delivery Dialog");
+  selectedDelivery.value = delivery || null;
+  deliveryDialog.value = true;
+};
+
+const fetchDeliveryStocks = async () => {
+  try {
+    loading.value = true;
+    await stocksDeliveryStore.fetchDeliveryStocks();
+    console.log("Delivery Stocks:", deliveryStocks.value);
+    deliveryList.value = deliveryStocks.value;
+  } catch (error) {
+    console.error("Error fetching delivery stocks:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+onMounted(fetchDeliveryStocks);
+
+// 🔎 Watch for updates
+watch(deliveryStocks, (newVal) => {
+  console.log("Delivery Stocks updated:", newVal);
+});
+
+const formatQuantity = (val) => {
+  if (val == null) return "No Quantity";
+  return parseFloat(val);
+};
+
+const formatPrice = (val) => {
+  if (val == null) return "No Price";
+  // return `₱${parseFloat(val).toFixed(2)}`
+  return `₱${Number(val).toFixed(2)}`; // always show 2 decimals
+};
+
+const getStatusColor = (status) => {
+  switch ((status || "").toLowerCase()) {
+    case "pending":
+      return "orange-7";
+    case "in progress":
+      return "blue-7";
+    case "completed":
+      return "green-7";
+    case "cancelled":
+      return "red-6";
+    default:
+      return "grey-6";
+  }
+};
 
 const orderList = ref([
   {
@@ -387,9 +868,19 @@ const outOfStock = ref([
   { name: "Raw Materials 3", available: "04:20 PM", color: "orange-7" },
   { name: "Raw Materials 4", available: "Tomorrow", color: "grey-6" },
 ]);
-</script>
+</script> -->
 
-<style scoped>
+<!-- <style scoped>
+.selected-delivery-item {
+  background-color: #e3f2fd !important;
+  border-left: 5px solid #1976d2;
+  transition: all 0.2s ease;
+}
+
+.selected-delivery-item:hover {
+  background-color: #bbdefb !important;
+}
+
 .gradient-btn {
   background: linear-gradient(45deg, #103432, #d2bd00);
   border: none;
@@ -426,4 +917,9 @@ const outOfStock = ref([
 .bg-grey-2 {
   background-color: #f5f7fa !important; /* A very light grey background for the page */
 }
-</style>
+
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+</style> -->
