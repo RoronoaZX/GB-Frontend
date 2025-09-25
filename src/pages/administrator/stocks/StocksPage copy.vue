@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="q-mb-md" align="right">
       <DeliveryCardDialog />
@@ -198,7 +198,7 @@
             </div>
           </q-card-section>
 
-          <!-- <q-list separator>
+           <q-list separator>
             <q-item
               v-for="payment in paymentList"
               :key="payment.id"
@@ -234,11 +234,11 @@
                 />
               </q-item-section>
             </q-item>
-          </q-list> -->
+          </q-list>
         </q-card>
       </div>
     </div>
-    <!-- <div>
+     <div>
       <q-dialog v-model="deliveryDialog">
         <q-card style="min-width: 1200px; max-width: 1500px">
 
@@ -348,9 +348,9 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-    </div> -->
+    </div>
   </q-page>
-</template>
+</template> -->
 
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
@@ -721,7 +721,7 @@ export const useStockDelivery = defineStore('stock-delivery', {
   },
 }); -->
 
-<!-- <template>
+<template>
   <q-page class="q-pa-md bg-grey-2">
     <div class="q-mb-md" align="right">
       <DeliveryCardDialog />
@@ -799,7 +799,7 @@ export const useStockDelivery = defineStore('stock-delivery', {
                 </q-item-section>
               </q-item>
 
-              Pagination Controls
+              <!-- Pagination Controls -->
               <q-item v-if="pagination.last_page > 1" class="q-pt-md">
                 <q-item-section>
                   <q-pagination
@@ -829,7 +829,7 @@ export const useStockDelivery = defineStore('stock-delivery', {
           <div class="text-h6 text-weight-bold q-mb-sm text-grey-8">
             Items / Raw materials Delivery Details
           </div>
-           Search input for details section if needed, currently not connected to backend
+          <!-- Search input for details section if needed, currently not connected to backend -->
           <q-input
             outlined
             dense
@@ -945,7 +945,7 @@ export const useStockDelivery = defineStore('stock-delivery', {
       </div>
     </div>
   </q-page>
-</template> -->
+</template>
 
 <!-- <script setup>
 import { computed, onMounted, ref, watch } from "vue";
