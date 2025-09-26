@@ -746,8 +746,12 @@ const save = async () => {
     console.log("Payload : ", payload);
     const response = await stocksDeliveryStore.createDeliveryStock(payload);
 
+    console.log("Response : ", response);
     // if your backend sends a success flag/message, check it
-    if (response && response.success) {
+    if (
+      response &&
+      response.message === "Raw materials delivery created successfully"
+    ) {
       // ✅ close dialog only when backend confirms success
       closeDialog();
     } else {

@@ -1,17 +1,39 @@
 import { defineStore } from "pinia";
-import { Notify } from "quasar";
+import { Loading, Notify } from "quasar";
 import { api } from "src/boot/axios";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 
 export const useStockDelivery = defineStore("stock-delivery", () => {
   const deliveryStock = ref(null);
-  const deliveryStocks = ref([]);
 
-  const fetchDeliveryStocks = async () => {
+  const deliveryStocks = reactive({
+    data: [],
+    pagination: {
+      total: 0,
+      per_page: 5,
+      current_page: 1,
+      last_page: 1,
+      from: 0,
+      to: 0,
+    },
+  });
+
+  const loading = false;
+  const error = null;
+
+  const fetchDeliveryStocks = async (page = 1, per_page = 5, search = "") => {
     try {
-      const response = await api.get("/api/raw-materials-delivery");
-      deliveryStocks.value = response.data;
+      const response = await api.get("/api/raw-materials-delivery", {
+        params: {
+          page: page,
+          per_page: per_page,
+          search: search,
+        },
+      });
+      deliveryStocks.data = response.data;
+      deliveryStocks.pagination = response.data.pagination;
       console.log("response", response.data);
+      console.log("  deliveryStocks.data", deliveryStocks.data);
     } catch (error) {
       console.log("error", error);
     }
@@ -45,6 +67,8 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
   return {
     deliveryStock,
     deliveryStocks,
+    loading,
+    error,
     createDeliveryStock,
     fetchDeliveryStocks,
   };
