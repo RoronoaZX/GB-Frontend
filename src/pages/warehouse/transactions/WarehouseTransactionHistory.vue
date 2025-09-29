@@ -1,7 +1,6 @@
 <template>
   <q-card flat>
     <q-card-section class="text-h6"> Transaction History </q-card-section>
-    <q-separator />
     <div class="q-gutter-y-sm">
       <q-tabs
         v-model="tab"
@@ -11,73 +10,21 @@
         inline-label
         dense
         align="justify"
-        class=""
       >
-        <!-- class="gradient-btn" -->
+        <q-tab class="text-dark" name="premix" label="Premix" />
         <q-tab
           class="text-dark"
-          name="pendingReports"
-          label="🟡Pending Premix"
+          name="stocks_delivery"
+          label="Stocks Delivery"
         />
-        <!-- icon="autorenew" -->
-        <q-tab
-          class="text-dark"
-          name="confirmReports"
-          label="🟢Confirm Premix"
-        />
-        <!-- icon="check_circle" -->
-        <q-tab
-          class="text-dark"
-          name="declineReports"
-          label="🛑Decline Premix"
-        />
-        <q-tab
-          class="text-dark"
-          name="processReports"
-          label="🔵Process Premix"
-        />
-        <q-tab
-          class="text-dark"
-          name="completedReports"
-          label="⚫Completed Premix"
-        />
-        <q-tab
-          class="text-dark"
-          name="toDeliverReports"
-          label="🟤To Deliver Premix"
-        />
-        <q-tab
-          class="text-dark"
-          name="toReceiveReports"
-          label="🟠To Receive Premix"
-        />
-        <q-tab class="text-dark" name="receive" label="🟢Receive Premix" />
       </q-tabs>
     </div>
     <q-tab-panels v-model="tab" animated>
-      <q-tab-panel name="pendingReports">
-        <PendingPage />
+      <q-tab-panel name="premix">
+        <PremixTab />
       </q-tab-panel>
-      <q-tab-panel name="confirmReports">
-        <ConfirmPage />
-      </q-tab-panel>
-      <q-tab-panel name="declineReports">
-        <DeclinedPage />
-      </q-tab-panel>
-      <q-tab-panel name="processReports">
-        <ProcessPage />
-      </q-tab-panel>
-      <q-tab-panel name="completedReports">
-        <CompletedPage />
-      </q-tab-panel>
-      <q-tab-panel name="toDeliverReports">
-        <ToDeliverPage />
-      </q-tab-panel>
-      <q-tab-panel name="toReceiveReports">
-        <ToReceivePage />
-      </q-tab-panel>
-      <q-tab-panel name="receive">
-        <ReceivedPage />
+      <q-tab-panel name="stocks_delivery">
+        <StocksDeliveryPage />
       </q-tab-panel>
     </q-tab-panels>
   </q-card>
@@ -85,33 +32,19 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import PendingPage from "./pending/PendingPage.vue";
-import ConfirmPage from "./confirm/ConfirmPage.vue";
-import DeclinedPage from "./decline/DeclinePage.vue";
-import ProcessPage from "./process/ProcessPage.vue";
-import CompletedPage from "./completed/CompletedPage.vue";
-import ToDeliverPage from "./to-deliver/ToDeliverPage.vue";
-import ToReceivePage from "./to-receive/ToReceivePage.vue";
-import ReceivedPage from "./received/ReceivedPage.vue";
+import PremixTab from "./premix_transaction/PremixTab.vue";
+import StocksDeliveryPage from "./stocks_delivery/StocksDeliveryPage.vue";
 
-const tab = ref("pendingReports");
+const tab = ref("premix");
+
 const currentIndicatorColor = computed(() => {
   switch (tab.value) {
-    case "pendingReports":
+    case "premix":
       return "warning"; // Color for pending reports
-    case "confirmReports":
+    case "stocks_delivery":
       return "green-13"; // Color for confirm reports
-    case "declineReports":
-      return "red-6"; // Color for decline reports
     default:
       return "light-green-13"; // Fallback color
   }
 });
 </script>
-
-<style lang="scss" scoped>
-.gradient-btn {
-  background: linear-gradient(45deg, #103432, #186f6b);
-  border: none;
-}
-</style>

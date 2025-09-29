@@ -17,6 +17,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       to: 0,
     },
   });
+  const pendingStocks = ref([]);
 
   const loading = false;
   const error = null;
@@ -34,6 +35,32 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       deliveryStocks.pagination = response.data.pagination;
       console.log("response", response.data);
       console.log("  deliveryStocks.data", deliveryStocks.data);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const fetchPendingDeliveryReports = async (
+    warehouseId,
+    status,
+    to_designation
+  ) => {
+    console.log("warehouseIdsss", warehouseId);
+    console.log("categoryss", status);
+    console.log("to_designationss", to_designation);
+
+    try {
+      const pending = await api.get(
+        `/api/raw-materials-delivery-pending/${warehouseId}`,
+        {
+          params: {
+            status: status,
+            to_designation: to_designation,
+          },
+        }
+      );
+      console.log("pendingsss", pending.data);
+      pendingStocks.value = pending.data;
     } catch (error) {
       console.log("error", error);
     }
@@ -69,7 +96,9 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     deliveryStocks,
     loading,
     error,
+    pendingStocks,
     createDeliveryStock,
     fetchDeliveryStocks,
+    fetchPendingDeliveryReports,
   };
 });
