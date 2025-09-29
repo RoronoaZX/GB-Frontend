@@ -15,6 +15,7 @@
       @request="handleRequest"
       flat
       bordered
+      v-else
     >
       <template v-slot:body-cell-status="props">
         <q-td :props="props">

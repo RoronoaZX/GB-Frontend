@@ -40,9 +40,9 @@ const tab = ref("premix");
 const currentIndicatorColor = computed(() => {
   switch (tab.value) {
     case "premix":
-      return "warning"; // Color for pending reports
+      return "brown"; // Color for pending reports
     case "stocks_delivery":
-      return "green-13"; // Color for confirm reports
+      return "teal-5"; // Color for confirm reports
     default:
       return "light-green-13"; // Fallback color
   }

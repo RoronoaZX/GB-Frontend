@@ -28,7 +28,7 @@
         <q-tab
           class="text-dark"
           name="declineReports"
-          label="🛑Decline Premix"
+          label="🔴Decline Premix"
         />
         <q-tab
           class="text-dark"
@@ -48,9 +48,9 @@
         <q-tab
           class="text-dark"
           name="toReceiveReports"
-          label="🟠To Receive Premix"
+          label="⚪To Receive Premix"
         />
-        <q-tab class="text-dark" name="receive" label="🟢Receive Premix" />
+        <q-tab class="text-dark" name="receive" label="🟠Receive Premix" />
       </q-tabs>
     </div>
     <q-tab-panels v-model="tab" animated>
@@ -102,6 +102,16 @@ const currentIndicatorColor = computed(() => {
       return "green-13"; // Color for confirm reports
     case "declineReports":
       return "red-6"; // Color for decline reports
+    case "processReports":
+      return "blue-9";
+    case "completedReports":
+      return "blue-grey-10";
+    case "toDeliverReports":
+      return "brown-6";
+    case "toReceiveReports":
+      return "purple-1";
+    case "receive":
+      return "orange-7";
     default:
       return "light-green-13"; // Fallback color
   }
