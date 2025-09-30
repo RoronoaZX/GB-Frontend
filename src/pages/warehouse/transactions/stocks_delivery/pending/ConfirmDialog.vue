@@ -3,9 +3,18 @@
     <q-card class="q-pa-md q-rounded q-elevate-2 bg-white text-grey-9">
       <q-card-section class="q-pt-none q-pb-sm">
         <div class="text-h5 q-mb-xs">Confirm Report</div>
-        <p>Are you sure you want to confirm this report?</p>
+        <p v-if="!showConfirm">Are you sure you want to confirm this report?</p>
       </q-card-section>
+
+      <!-- Optional: show a success confirmation step -->
+      <q-card-section v-if="showConfirm">
+        <div class="text-positive text-subtitle1">
+          Please confirm again to finalize this report.
+        </div>
+      </q-card-section>
+
       <q-separator class="q-mb-md" />
+
       <q-card-section>
         <q-card-actions align="right" class="q-pt-none">
           <q-btn
@@ -18,10 +27,10 @@
           />
           <q-btn
             dense
-            label="Yes! Confirm"
+            :label="showConfirm ? 'Confirm' : 'Yes! Confirm'"
             color="positive"
             class="q-btn-rounded q-px-lg"
-            @click="confirmSave"
+            @click="handleConfirm"
           />
         </q-card-actions>
       </q-card-section>
@@ -31,12 +40,22 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
+import { ref } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-const confirmSave = () => {
-  onDialogOK(); // ✅ tells parent "Yes"
+const showConfirm = ref(false);
+
+const handleConfirm = () => {
+  if (!showConfirm.value) {
+    // first click -> show final confirmation step
+    showConfirm.value = true;
+  } else {
+    // Second click -> submit
+
+    onDialogOK(); // ✅ tells parent "Yes"
+  }
 };
 </script>
 

@@ -76,9 +76,12 @@
 
 <script setup>
 import { useDialogPluginComponent, useQuasar } from "quasar";
+import { useStockDelivery } from "src/stores/stock-delivery";
 import { ref } from "vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import DeclinePage from "./DeclinedDialog.vue";
+
+const stocksDeliveryStore = useStockDelivery();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -103,19 +106,14 @@ const formatQuantity = (val) => {
   return parseFloat(val);
 };
 
-const confirmReport = async () => {
-  console.log("Confirmed Save logic here APIIIIII...");
-  try {
-  } catch (error) {}
-};
-
 const openConfirmDialog = () => {
   $q.dialog({
     component: ConfirmDialog,
   })
-    .onOk(() => {
+    .onOk((data) => {
       // ✅ Called when confirm button is clicked
-      confirmReport();
+      console.log("Remarks from child:", data);
+      confirmReport(props.report);
       // Call your save function here
     })
     .onCancel(() => {
@@ -123,17 +121,48 @@ const openConfirmDialog = () => {
     });
 };
 
+const confirmReport = async (data) => {
+  try {
+    console.log("Confirming report", data);
+
+    const confirmData = {
+      ...data,
+      status: "confirmed",
+    };
+    await stocksDeliveryStore.confirmDeliveryStocks(confirmData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const openDeclineDialog = () => {
   $q.dialog({
     component: DeclinePage,
   })
-    .onOk(() => {
+    .onOk((data) => {
       // ✅ Called when confirm button is clicked
-      console.log("Confirmed decline logic here...");
+      console.log("Remarks from child:", data.remarks);
+      declineReport(props.report.id, data.remarks);
     })
     .onCancel(() => {
       console.log("Cancelled");
     });
+};
+
+const declineReport = async (reportId, remarks) => {
+  try {
+    console.log("Declining report", reportId, "with remarks:", remarks);
+
+    const declineData = {
+      id: reportId,
+      status: "declined",
+      remarks: remarks,
+    };
+
+    await stocksDeliveryStore.declineDeliveryStocks(declineData);
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>
 

@@ -66,6 +66,54 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     }
   };
 
+  // const confirmDeliveryStock
+
+  const confirmDeliveryStocks = async (data) => {
+    console.log("data in store", data);
+
+    try {
+      const response = await api.post(
+        `/api/raw-materials-delivery-confirmed`,
+        data
+      );
+
+      console.log("response", response.data);
+      Notify.create({
+        type: "positive",
+        message: "Stocks Delivery Confirmed Successfully",
+        timeout: 3000,
+      });
+    } catch (error) {
+      console.log("error", error);
+      Notify.create({
+        type: "negative",
+        message: "Failed to Confirm the Stocks Delivery",
+        timeout: 3000,
+      });
+    }
+  };
+
+  const declineDeliveryStocks = async (data) => {
+    console.log("data in store", data);
+    try {
+      await api.post(`/api/raw-materials-delivery-declined`, data);
+
+      Notify.create({
+        type: "positive",
+        message: "Stocks Delivery Declined Successfully",
+        timeout: 3000,
+      });
+    } catch (error) {
+      console.log("error", error);
+
+      Notify.create({
+        type: "negative",
+        message: "Failed to Decline the Stocks Delivery",
+        timeout: 3000,
+      });
+    }
+  };
+
   const createDeliveryStock = async (stock) => {
     console.log("stock", stock);
 
@@ -100,5 +148,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     createDeliveryStock,
     fetchDeliveryStocks,
     fetchPendingDeliveryReports,
+    declineDeliveryStocks,
+    confirmDeliveryStocks,
   };
 });

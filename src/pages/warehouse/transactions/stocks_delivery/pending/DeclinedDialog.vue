@@ -1,9 +1,23 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
+  <q-dialog ref="dialogRef" @hide="onDialogHide" persistent>
     <q-card class="q-pa-md q-rounded q-elevate-2 bg-white text-grey-9">
       <q-card-section class="q-pt-none q-pb-sm">
         <div class="text-h5 q-mb-xs">Decline Report</div>
-        <p>Are you sure you want to decline this report?</p>
+        <p v-if="!showRemarks">Are you sure you want to decline this report?</p>
+      </q-card-section>
+
+      <!-- Textarea appears after clicking "Yes! Decline" -->
+      <q-card-section v-if="showRemarks">
+        <q-input
+          v-model="remarks"
+          type="textarea"
+          label="Reason for declining"
+          filled
+          autogrow
+          dense
+          ref="remarksInput"
+          :rules="[(val) => !!val || 'Remarks are required']"
+        />
       </q-card-section>
       <q-separator class="q-mb-md" />
       <q-card-section>
@@ -18,10 +32,10 @@
           />
           <q-btn
             dense
-            label="Yes! Decline"
+            :label="showRemarks ? 'Submit Decline' : 'Yes! Decline'"
             color="negative"
             class="q-btn-rounded q-px-lg"
-            @click="confirmDeclined"
+            @click="handleDecline"
           />
         </q-card-actions>
       </q-card-section>
@@ -31,13 +45,26 @@
 
 <script setup>
 import { useDialogPluginComponent } from "quasar";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-const confirmDeclined = () => {
-  onDialogOK();
+const showRemarks = ref(false);
+
+const remarks = ref("");
+const remarksInput = ref(null);
+
+const handleDecline = () => {
+  if (!showRemarks.value) {
+    // First click -> show textarea
+    showRemarks.value = true;
+  } else {
+    // Validate before submitting
+    if (remarksInput.value.validate()) {
+      onDialogOK({ remarks: remarks.value });
+    }
+  }
 };
 </script>
 

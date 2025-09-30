@@ -38,7 +38,6 @@ import { useWarehousesStore } from "src/stores/warehouse";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
-import ConfirmDialog from "./ConfirmDialog.vue";
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
