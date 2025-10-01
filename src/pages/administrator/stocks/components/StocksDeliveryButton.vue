@@ -728,13 +728,13 @@ watch(to, (newVal) => {
 const save = async () => {
   const payload = {
     from_designation: from.value, // Supplier | Warehouse | Branch
-    from_id: deliveryStocks.from?.value || null, // warehouse_id or branch_id
+    from_id: deliveryStocks.from || null, // warehouse_id or branch_id
     from_name:
       from.value === "Supplier"
         ? deliveryStocks.supplier_name
         : deliveryStocks.from_name,
     to_designation: to.value, // Warehouse | Branch
-    to_id: deliveryStocks.to?.value || null,
+    to_id: deliveryStocks.to.value || null,
     remarks: deliveryStocks.remarks,
     status: "pending",
 

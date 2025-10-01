@@ -125,9 +125,29 @@ const confirmReport = async (data) => {
   try {
     console.log("Confirming report", data);
 
+    // Add total grams for each item
+    const itemsWithTotals = data.items.map((item) => {
+      const qty = parseFloat(item.quantity) || 0;
+      const gramsPerUnit = parseFloat(item.gram) || 0;
+
+      return {
+        ...item,
+        total_grams: qty * gramsPerUnit,
+      };
+    });
+
+    // Compute the overall grams
+    // const totalGrams = itemsWithTotals.reduce(
+    //   (sum, item) => sum + item.total_grams,
+    //   0
+    // );
+
+    console.log("Per Item Totals:", itemsWithTotals);
+
     const confirmData = {
       ...data,
       status: "confirmed",
+      items: itemsWithTotals,
     };
     await stocksDeliveryStore.confirmDeliveryStocks(confirmData);
   } catch (error) {
