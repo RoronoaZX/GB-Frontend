@@ -16,9 +16,14 @@
         </div>
       </q-card-section>
       <q-card-section>
+        Status:
+        <q-badge color="green">
+          {{ report.status }}
+        </q-badge>
+      </q-card-section>
+      <q-card-section>
         <div>
           <span class="text-grey-7 text-caption">Items:</span>
-
           <template v-if="report.items && report.items.length">
             <q-list dense separator class="box">
               <q-item class="bg-grey-1 text-weight-bold">
@@ -56,32 +61,13 @@
           </div>
         </div>
       </q-card-section>
-      <q-card-actions class="report-actions q-ma-sm q-gutter-sm" align="right">
-        <q-btn
-          color="negative"
-          label="Decline"
-          class="action-btn"
-          @click="openDeclineDialog"
-        />
-        <q-btn
-          color="positive"
-          label="Confirm"
-          class="action-btn"
-          @click="openConfirmDialog"
-        />
-      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { useDialogPluginComponent, useQuasar } from "quasar";
-import { useStockDelivery } from "src/stores/stock-delivery";
+import { useDialogPluginComponent } from "quasar";
 import { ref } from "vue";
-import ConfirmDialog from "./ConfirmDialog.vue";
-import DeclinePage from "./DeclinedDialog.vue";
-
-const stocksDeliveryStore = useStockDelivery();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -91,16 +77,8 @@ const props = defineProps({
     required: true,
   },
 });
-
 console.log("report", props.report);
-
 const dialog = ref(false);
-const $q = useQuasar();
-
-const openDialog = () => {
-  dialog.value = true;
-};
-
 const capitalize = (str) => {
   if (!str) return "";
   return str
@@ -109,89 +87,9 @@ const capitalize = (str) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
-
 const formatQuantity = (val) => {
   if (val == null) return "No Quantity";
   return parseFloat(val);
-};
-
-const openConfirmDialog = () => {
-  $q.dialog({
-    component: ConfirmDialog,
-  })
-    .onOk((data) => {
-      // ✅ Called when confirm button is clicked
-      console.log("Remarks from child:", data);
-      confirmReport(props.report);
-      // Call your save function here
-    })
-    .onCancel(() => {
-      console.log("Cancelled");
-    });
-};
-
-const confirmReport = async (data) => {
-  try {
-    console.log("Confirming report", data);
-
-    // Add total grams for each item
-    const itemsWithTotals = data.items.map((item) => {
-      const qty = parseFloat(item.quantity) || 0;
-      const gramsPerUnit = parseFloat(item.gram) || 0;
-
-      return {
-        ...item,
-        total_grams: qty * gramsPerUnit,
-      };
-    });
-
-    // Compute the overall grams
-    // const totalGrams = itemsWithTotals.reduce(
-    //   (sum, item) => sum + item.total_grams,
-    //   0
-    // );
-
-    console.log("Per Item Totals:", itemsWithTotals);
-
-    const confirmData = {
-      ...data,
-      status: "confirmed",
-      items: itemsWithTotals,
-    };
-    await stocksDeliveryStore.confirmDeliveryStocks(confirmData);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const openDeclineDialog = () => {
-  $q.dialog({
-    component: DeclinePage,
-  })
-    .onOk((data) => {
-      // ✅ Called when confirm button is clicked
-      console.log("Remarks from child:", data.remarks);
-      declineReport(props.report.id, data.remarks);
-    })
-    .onCancel(() => {
-      console.log("Cancelled");
-    });
-};
-
-const declineReport = async (reportId, remarks) => {
-  try {
-    console.log("Declining report", reportId, "with remarks:", remarks);
-
-    const declineData = {
-      id: reportId,
-      status: "declined",
-      remarks: remarks,
-    };
-
-    await stocksDeliveryStore.declineDeliveryStocks(declineData);
-  } catch (error) {
-    console.log(error);
-  }
 };
 </script>
 

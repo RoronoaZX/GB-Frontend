@@ -18,6 +18,8 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     },
   });
   const pendingStocks = ref([]);
+  const confirmStocks = ref([]);
+  const declinedStocks = ref([]);
 
   const loading = false;
   const error = null;
@@ -66,7 +68,57 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     }
   };
 
-  // const confirmDeliveryStock
+  const fetchConfirmedDeliveryReports = async (
+    warehouseId,
+    status,
+    to_designation
+  ) => {
+    console.log("fetchConfirmedDeliveryReportswarehouseId", warehouseId);
+    console.log("fetchConfirmedDeliveryReportsstatus", status);
+    console.log("fetchConfirmedDeliveryReportsto_designation", to_designation);
+
+    try {
+      const confirm = await api.get(
+        `/api/raw-materials-delivery-confirmed/${warehouseId}`,
+        {
+          params: {
+            status: status,
+            to_designation: to_designation,
+          },
+        }
+      );
+      console.log("confirm", confirm.data);
+      confirmStocks.value = confirm.data;
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const fetchDeclinedDeliveryReports = async (
+    warehouseId,
+    status,
+    to_designation
+  ) => {
+    console.log("warehouseId", warehouseId);
+    console.log("category", status);
+    console.log("to_designation", to_designation);
+
+    try {
+      const declined = await api.get(
+        `/api/raw-materials-delivery-declined/${warehouseId}`,
+        {
+          params: {
+            status: status,
+            to_designation: to_designation,
+          },
+        }
+      );
+      console.log("declined", declined.data);
+      declinedStocks.value = declined.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const confirmDeliveryStocks = async (data) => {
     console.log("data in store", data);
@@ -145,10 +197,14 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     loading,
     error,
     pendingStocks,
+    confirmStocks,
+    declinedStocks,
     createDeliveryStock,
     fetchDeliveryStocks,
     fetchPendingDeliveryReports,
     declineDeliveryStocks,
     confirmDeliveryStocks,
+    fetchDeclinedDeliveryReports,
+    fetchConfirmedDeliveryReports,
   };
 });

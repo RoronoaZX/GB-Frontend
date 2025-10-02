@@ -15,7 +15,7 @@
           @click="handleDialog(pending)"
         >
           <q-card-section class="q-gutter-sm">
-            <div class="text-h6">From: {{ pending.from_name }}</div>
+            <div class="text-h6">From: {{ capitalize(pending.from_name) }}</div>
             <div class="row justify-between">
               <div class="text-subtitle1">
                 {{ formatTimeStamp(pending.created_at) }}
@@ -52,6 +52,15 @@ const to_designation = ref("Warehouse");
 const loading = ref(true);
 const showNoDataMessage = ref(false);
 const $q = useQuasar();
+
+const capitalize = (str) => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
 const formatTimeStamp = (val) => {
   return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
