@@ -42,6 +42,34 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     }
   };
 
+  const fetchDeliveryStocksBranch = async (
+    branchId,
+    page = 1,
+    per_page = 5,
+    search = ""
+  ) => {
+    console.log("branchId in store: ", branchId);
+
+    try {
+      const response = await api.get(
+        `/api/raw-materials-delivery-branch/${branchId}`,
+        {
+          params: {
+            page: page,
+            per_page: per_page,
+            search: search,
+          },
+        }
+      );
+      deliveryStocks.data = response.data;
+      deliveryStocks.pagination = response.data.pagination;
+      console.log("responsesss", response.data);
+      console.log("  deliveryStocks.data", deliveryStocks.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchPendingDeliveryReports = async (
     warehouseId,
     status,
@@ -201,6 +229,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     declinedStocks,
     createDeliveryStock,
     fetchDeliveryStocks,
+    fetchDeliveryStocksBranch,
     fetchPendingDeliveryReports,
     declineDeliveryStocks,
     confirmDeliveryStocks,

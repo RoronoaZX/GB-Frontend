@@ -356,6 +356,13 @@ const routes = [
           import("pages/branch/baker/transaction/TransactionPage.vue"),
       },
       {
+        path: "raw_materials_delivery",
+        component: () =>
+          import(
+            "pages/branch/baker/raw_materials_delivery/RawMaterialsDelivery.vue"
+          ),
+      },
+      {
         path: "premix",
         component: () => import("pages/branch/baker/premix/PremixPage.vue"),
       },

@@ -226,6 +226,13 @@ const menuItems = [
   //   separator: true,
   // },
   {
+    name: "raw_materials_delivery",
+    icon: "local_shipping",
+    to: "/branch/baker/raw_materials_delivery",
+    label: "Raw Material Delivery",
+    separator: true,
+  },
+  {
     name: "premix",
     icon: "scale",
     to: "/branch/baker/premix",
