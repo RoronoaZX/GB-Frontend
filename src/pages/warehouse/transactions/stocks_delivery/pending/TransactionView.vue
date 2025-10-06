@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { useDialogPluginComponent, useQuasar } from "quasar";
+import { Notify, useDialogPluginComponent, useQuasar } from "quasar";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { ref } from "vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
@@ -85,12 +85,15 @@ const stocksDeliveryStore = useStockDelivery();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
+
 const props = defineProps({
   report: {
     type: Object,
     required: true,
   },
 });
+
+const emit = defineEmits(["fetchAgain"]);
 
 console.log("report", props.report);
 
@@ -132,6 +135,7 @@ const openConfirmDialog = () => {
 
 const confirmReport = async (data) => {
   try {
+    $q.loading.show();
     console.log("Confirming report", data);
 
     // Add total grams for each item
@@ -158,9 +162,43 @@ const confirmReport = async (data) => {
       status: "confirmed",
       items: itemsWithTotals,
     };
-    await stocksDeliveryStore.confirmDeliveryStocks(confirmData);
+    const response = await stocksDeliveryStore.confirmDeliveryStocks(
+      confirmData
+    );
+
+    console.log("responsesss", response);
+
+    // ✅ Check backend response for success
+    if (
+      response?.data ||
+      response?.data?.message === "Delivery confirmed successfully."
+    ) {
+      Notify.create({
+        type: "positive",
+        message: response.data.message || "Delivery Confirmed Successfully",
+      });
+
+      // Only close if backend confirms success
+      if (response?.status === 200) {
+        onDialogOK({ action: "confirmed" }); // ✅ Notify parent
+        dialog.value = false;
+      }
+    } else {
+      Notify.create({
+        type: "negative",
+        message: response?.data?.message || "Failed to Confirm deliveryq",
+      });
+    }
+
+    console.log("responssssse", response);
   } catch (error) {
     console.log(error);
+    Notify.create({
+      type: "negative",
+      message: error?.response?.data?.message || "Failed to Confirm delivery",
+    });
+  } finally {
+    $q.loading.hide();
   }
 };
 
@@ -180,6 +218,7 @@ const openDeclineDialog = () => {
 
 const declineReport = async (reportId, remarks) => {
   try {
+    $q.loading.show();
     console.log("Declining report", reportId, "with remarks:", remarks);
 
     const declineData = {
@@ -188,9 +227,42 @@ const declineReport = async (reportId, remarks) => {
       remarks: remarks,
     };
 
-    await stocksDeliveryStore.declineDeliveryStocks(declineData);
+    const response = await stocksDeliveryStore.declineDeliveryStocks(
+      declineData
+    );
+
+    // ✅ Check backend response for success
+    if (
+      response?.data ||
+      response?.data?.message === "Delivery declined successfully."
+    ) {
+      Notify.create({
+        type: "positive",
+        message: response?.data?.message || "Delivery Declined Successfully",
+      });
+
+      // Only close if backend confirms success
+      if (response?.status === 200) {
+        onDialogOK({ action: "declined" }); // ✅ Emit action
+        dialog.value = false;
+      }
+    } else {
+      Notify.create({
+        type: "negative",
+        message: response?.data?.message || "Failed to Decline delivery",
+      });
+    }
+    console.log("responsessssss", response);
   } catch (error) {
     console.log(error);
+    Notify.create({
+      type: "negative",
+      message:
+        error?.response?.data?.message ||
+        "Failed to decline delivery. Please try again.",
+    });
+  } finally {
+    $q.loading.hide();
   }
 };
 </script>

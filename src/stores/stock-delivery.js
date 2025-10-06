@@ -19,7 +19,17 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
   });
   const pendingStocks = ref([]);
   const confirmStocks = ref([]);
-  const declinedStocks = ref([]);
+  const declinedStocks = ref({
+    data: [],
+    pagination: {
+      total: 0,
+      per_page: 3,
+      current_page: 1,
+      last_page: 1,
+      from: 0,
+      to: 0,
+    },
+  });
 
   const loading = false;
   const error = null;
@@ -125,11 +135,17 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
   const fetchDeclinedDeliveryReports = async (
     warehouseId,
     status,
-    to_designation
+    to_designation,
+    page = 1,
+    per_page = 3,
+    search = ""
   ) => {
     console.log("warehouseId", warehouseId);
     console.log("category", status);
     console.log("to_designation", to_designation);
+    console.log("page", page);
+    console.log("per_page", per_page);
+    console.log("search", search);
 
     try {
       const declined = await api.get(
@@ -138,10 +154,13 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
           params: {
             status: status,
             to_designation: to_designation,
+            page: page,
+            per_page: per_page,
+            search: search,
           },
         }
       );
-      console.log("declined", declined.data);
+      console.log("declinedssss", declined.data);
       declinedStocks.value = declined.data;
     } catch (error) {
       console.log(error);
@@ -157,12 +176,8 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
         data
       );
 
-      console.log("response", response.data);
-      Notify.create({
-        type: "positive",
-        message: "Stocks Delivery Confirmed Successfully",
-        timeout: 3000,
-      });
+      console.log("response", response);
+      return response;
     } catch (error) {
       console.log("error", error);
       Notify.create({
@@ -176,13 +191,14 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
   const declineDeliveryStocks = async (data) => {
     console.log("data in store", data);
     try {
-      await api.post(`/api/raw-materials-delivery-declined`, data);
+      const response = await api.post(
+        `/api/raw-materials-delivery-declined`,
+        data
+      );
 
-      Notify.create({
-        type: "positive",
-        message: "Stocks Delivery Declined Successfully",
-        timeout: 3000,
-      });
+      console.log("responsessss", response);
+
+      return response;
     } catch (error) {
       console.log("error", error);
 

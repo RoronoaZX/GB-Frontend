@@ -12,7 +12,7 @@
         <q-card
           v-for="(pending, index) in stockDelivery.data"
           :key="index"
-          @click="handleDialog(pending)"
+          @click="handleDialog(pending, index)"
         >
           <q-card-section class="q-gutter-sm">
             <div class="text-h6">From: {{ capitalize(pending.from_name) }}</div>
@@ -91,12 +91,24 @@ onMounted(async () => {
   }
 });
 
-const handleDialog = (data) => {
+const handleDialog = (data, index) => {
   $q.dialog({
     component: TransactionView,
     componentProps: {
       report: data,
     },
+  }).onOk((res) => {
+    // ✅ if child returns { action: 'declined' }
+    console.log("response from child:", res);
+    if (res?.action === "declined" || res?.action === "confirmed") {
+      const list = stocksDeliveryStore.pendingStocks?.data;
+      if (Array.isArray(list)) {
+        const idx = list.findIndex((item) => item.id === data.id);
+        if (idx !== -1) {
+          list.splice(idx, 1);
+        }
+      }
+    }
   });
 };
 </script>

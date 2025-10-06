@@ -33,6 +33,21 @@
         </q-card>
       </div>
     </q-scroll-area>
+
+    <div v-if="pagination.last_page > 1" class="q-pt-md flex flex-center">
+      <q-pagination
+        v-model="pagination.current_page"
+        :max="pagination.last_page"
+        :max-pages="3"
+        boundary-numbers
+        direction-links
+        icon-first="skip_previous"
+        icon-last="skip_next"
+        icon-prev="fast_rewind"
+        icon-next="fast_forward"
+        @update:model-value="onPageChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -57,6 +72,18 @@ const loading = ref(true);
 const showNoDataMessage = ref(false);
 const $q = useQuasar();
 
+const searchQuery = ref();
+
+const pagination = computed(() => {
+  return (
+    stocksDeliveryStore.declinedStocks?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: 3,
+    }
+  );
+});
+
 const capitalize = (str) => {
   if (!str) return "";
   return str
@@ -70,19 +97,22 @@ const formatTimeStamp = (val) => {
   return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
 };
 
-const fetchDeclinedStocks = async () => {
+const fetchDeclinedStocks = async (page = 1) => {
   try {
     loading.value = true;
 
     await stocksDeliveryStore.fetchDeclinedDeliveryReports(
       warehouseId,
       status.value,
-      to_designation.value
+      to_designation.value,
+      page,
+      pagination.value.current_page,
+      searchQuery.value
     );
     if (!stockDelivery.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("stockDeliveryDeclined", stockDelivery.value);
+    console.log("stockDeliveryDeclinedsss", stockDelivery.value);
   } catch (error) {
     console.log(error);
   } finally {
@@ -92,9 +122,18 @@ const fetchDeclinedStocks = async () => {
 
 onMounted(async () => {
   if (warehouseId) {
-    await fetchDeclinedStocks(warehouseId, status.value, to_designation.value);
+    await fetchDeclinedStocks(
+      warehouseId,
+      status.value,
+      to_designation.value,
+      pagination.value.current_page
+    );
   }
 });
+
+const onPageChange = async (page) => {
+  fetchDeclinedStocks(page);
+};
 
 const handleDialog = (data) => {
   $q.dialog({

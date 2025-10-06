@@ -54,12 +54,14 @@ const showRemarks = ref(false);
 
 const remarks = ref("");
 const remarksInput = ref(null);
+const loading = ref(false);
 
-const handleDecline = () => {
+const handleDecline = async () => {
   if (!showRemarks.value) {
     // First click -> show textarea
     showRemarks.value = true;
   } else {
+    loading.value = true;
     // Validate before submitting
     if (remarksInput.value.validate()) {
       onDialogOK({ remarks: remarks.value });

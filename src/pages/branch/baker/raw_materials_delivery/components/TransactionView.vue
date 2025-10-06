@@ -13,7 +13,7 @@
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section>
         <div class="row justify-between">
-          <div class="text-h6">{{ report.from_name }}</div>
+          <div class="text-h6">{{ capitalize(report.from_name) }}</div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -27,6 +27,17 @@
       </q-card-section>
       <q-card-section>
         <div>
+          <span>Date: {{ formatDate(report.created_at) }}</span>
+        </div>
+        <div>
+          <span>
+            Status:
+            <q-badge :color="getStatusColor(report.status)">
+              {{ capitalize(report.status) }}
+            </q-badge>
+          </span>
+        </div>
+        <div class="q-mt-md">
           <span class="text-grey-7 text-caption">Items: </span>
           <template v-if="report.items && report.items.length">
             <q-list dense separator class="box">
@@ -65,7 +76,11 @@
           </div>
         </div>
       </q-card-section>
-      <q-card-actions class="report-actions q-ma-sm q-gutter-sm" align="right">
+      <q-card-actions
+        v-if="report.status === 'pending'"
+        class="report-actions q-ma-sm q-gutter-sm"
+        align="right"
+      >
         <q-btn
           color="negative"
           label="Decline"
@@ -84,19 +99,40 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useQuasar } from "quasar";
+import { computed, ref } from "vue";
+import { Notify, date as quasarDate, useQuasar } from "quasar";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import DeclinedDialog from "./DeclinedDialog.vue";
+import { useStockDelivery } from "src/stores/stock-delivery";
+
+const stocksDeliveryStore = useStockDelivery();
+
+const loading = computed(() => stocksDeliveryStore.loading);
+const declineReportMessage = computed(() => stocksDeliveryStore.declinedStocks);
 
 const props = defineProps({ report: { type: Object, required: true } });
 console.log("props in Transaction view:", props.report);
+
+const emit = defineEmits(["fetchAgain"]);
 
 const dialog = ref(false);
 const $q = useQuasar();
 
 const openDialog = () => {
   dialog.value = true;
+};
+
+const capitalize = (str) => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+const formatDate = (date) => {
+  return quasarDate.formatDate(date, "MMMM D, YYYY - hh:mm A");
 };
 
 const formatQuantity = (val) => {
@@ -126,8 +162,8 @@ const openDeclineDialog = () => {
     .onOk((data) => {
       // ✅ Called when decline button is clicked
       console.log("Decliene remark from child:", data);
+      // const message = declineReportMessage.value;
       declineReport(props.report.id, data);
-      // Call your bsave function here
     })
     .onCancel(() => {
       console.log("Cancelled");
@@ -136,10 +172,68 @@ const openDeclineDialog = () => {
 
 const confirmReport = async (data) => {
   console.log("Confirming report", data);
+
+  try {
+    $q.loading.show();
+
+    // Add total grams for each item
+    const itemsWithTotals = data.items.map((item) => {
+      const qty = parseFloat(item.quantity) || 0;
+      const gramsPerUnit = parseFloat(item.gram) || 0;
+
+      return {
+        ...item,
+        total_grams: qty * gramsPerUnit,
+      };
+    });
+
+    console.log("Per Item Totals:", itemsWithTotals);
+
+    const confirmData = {
+      ...data,
+      status: "confirmed",
+      items: itemsWithTotals,
+    };
+
+    const response = await stocksDeliveryStore.confirmDeliveryStocks(
+      confirmData
+    );
+
+    console.log("responsesssssss", response);
+    // ✅ Check backend response for success
+    if (response?.data || response?.data?.message === "Delivery confirmed.") {
+      Notify.create({
+        type: "positive",
+        message: response.data.message || "Delivery Confirmed Successfully",
+      });
+
+      // Only close if backend confirms success
+      if (response?.status === 200) {
+        dialog.value = false;
+        emit("fetchAgain");
+      }
+    } else {
+      Notify.create({
+        type: "negative",
+        message: response?.data?.message || "Failed to Confirm Delivery",
+      });
+    }
+
+    console.log("responsesss", response);
+  } catch (error) {
+    console.log(error);
+    Notify.create({
+      type: "negative",
+      message: error?.response?.data?.message || "Failed to Confirm Delivery",
+    });
+  } finally {
+    $q.loading.hide();
+  }
 };
 
 const declineReport = async (reportId, remarks) => {
   try {
+    $q.loading.show();
     console.log("declining report", reportId, "with remarks:", remarks);
 
     const declineData = {
@@ -149,8 +243,57 @@ const declineReport = async (reportId, remarks) => {
     };
 
     console.log("declineData", declineData);
+
+    const response = await stocksDeliveryStore.declineDeliveryStocks(
+      declineData
+    );
+
+    // ✅ Check backend response for success
+    if (
+      response?.data ||
+      response?.data?.message === "Delivery declined successfully."
+    ) {
+      Notify.create({
+        type: "positive",
+        message: response.data.message || "Delivery Declined Successfully",
+      });
+
+      // Only close if backend confirms success
+      if (response?.status === 200) {
+        dialog.value = false;
+        emit("fetchAgain");
+      }
+    } else {
+      Notify.create({
+        type: "negative",
+        message: response?.data?.message || "Failed to decline delivery",
+      });
+    }
+
+    console.log("responsesssss", response);
   } catch (error) {
     console.log(error);
+    Notify.create({
+      type: "negative",
+      message:
+        error?.response?.data?.message ||
+        "Failed to decline delivery. Please try again.",
+    });
+  } finally {
+    $q.loading.hide();
+  }
+};
+
+const getStatusColor = (status) => {
+  switch ((status || "").toLowerCase()) {
+    case "pending":
+      return "orange-7";
+    case "confirmed":
+      return "green-7";
+    case "declined":
+      return "red-6";
+    default:
+      return "grey-6";
   }
 };
 </script>
