@@ -1,12 +1,45 @@
 <template>
-  <div class="spinner-wrapper" v-if="loading">
+  <div>
+    <q-input
+      outlined
+      dense
+      placeholder="Search delivery"
+      class="q-mb-sm"
+      bg-color="grey-1"
+      input-class="text-grey-8"
+      label-color="grey-6"
+      v-model="searchQuery"
+      @update:model-value="onSearch"
+    >
+      <template v-slot:append>
+        <q-icon name="search" />
+      </template>
+    </q-input>
+  </div>
+  <div v-if="loading" class="spinner-wrapper">
     <q-spinner-dots size="50px" color="primary" />
   </div>
-  <div v-else>
-    <div v-if="stockDelivery.length === 0" class="data-error">
-      <q-icon name="warning" color="warning" size="4em" />
-      <div class="q-ml-sm text-h6">No data available</div>
+
+  <div v-else class="q-mt-xl">
+    <!-- 🔹 When there are no results -->
+    <div
+      v-if="stockDelivery.data.length === 0"
+      class="column items-center justify-center text-center q-pa-lg"
+    >
+      <q-icon name="search_off" size="60px" color="grey-6" />
+      <div class="text-h6 text-grey-7 q-mt-sm">
+        {{
+          searchQuery
+            ? "No deliveries found for your search."
+            : "No deliveries available."
+        }}
+      </div>
+      <div class="text-caption text-grey-6 q-mt-xs">
+        {{ searchQuery ? "Try another search term." : "Check again later." }}
+      </div>
     </div>
+
+    <!-- 🔹 When there are results -->
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
         <q-card
@@ -29,6 +62,20 @@
         </q-card>
       </div>
     </q-scroll-area>
+  </div>
+  <div v-if="pagination.last_page > 1" class="q-pt-md flex flex-center">
+    <q-pagination
+      v-model="pagination.current_page"
+      :max="pagination.last_page"
+      :max-pages="3"
+      boundary-links
+      direction-links
+      icon-first="skip_previous"
+      icon-last="skip_next"
+      icon-prev="fast_rewind"
+      icon-next="fast_forward"
+      @click="onPageChange"
+    />
   </div>
 </template>
 
@@ -53,6 +100,21 @@ const loading = ref(true);
 const showNoDataMessage = ref(false);
 const $q = useQuasar();
 
+const selectedDelivery = ref(null);
+const searchQuery = ref();
+
+let searchTimeout = null;
+
+const pagination = computed(() => {
+  return (
+    stocksDeliveryStore.confirmStocks?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: 3,
+    }
+  );
+});
+
 const capitalize = (str) => {
   if (!str) return "";
   return str
@@ -71,7 +133,10 @@ const fetchConfirmStocksDelivery = async () => {
     await stocksDeliveryStore.fetchConfirmedDeliveryReports(
       warehouseId,
       status.value,
-      to_designation.value
+      to_designation.value,
+      pagination.value.current_page,
+      pagination.value.per_page,
+      searchQuery.value
     );
     if (!stockDelivery.value.length) {
       showNoDataMessage.value = true;
@@ -89,10 +154,29 @@ onMounted(async () => {
     await fetchConfirmStocksDelivery(
       warehouseId,
       status.value,
-      to_designation.value
+      to_designation.value,
+      pagination.value.current_page
     );
   }
 });
+
+const onPageChange = async () => {
+  fetchConfirmStocksDelivery(
+    warehouseId,
+    status.value,
+    to_designation.value,
+    pagination.value.current_page
+  );
+};
+
+const onSearch = () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  searchTimeout = setTimeout(() => {
+    fetchConfirmStocksDelivery(1);
+  }, 500);
+};
 
 const handleDialog = (data) => {
   $q.dialog({

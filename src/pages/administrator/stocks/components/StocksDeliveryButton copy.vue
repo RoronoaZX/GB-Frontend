@@ -34,6 +34,7 @@
                   label="Select Source"
                   outlined
                   dense
+                  behavior="menu"
                   style="width: 200px"
                 />
               </div>
@@ -111,6 +112,7 @@
                   label="Select Destination"
                   outlined
                   dense
+                  behavior="menu"
                   style="width: 200px"
                 />
                 <!-- <div>
@@ -328,11 +330,11 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from "vue";
+import { useQuasar } from "quasar";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useBranchesStore } from "src/stores/branch";
 import { useRawMaterialsStore } from "src/stores/raw-material";
 import { useStockDelivery } from "src/stores/stock-delivery";
-import { useQuasar } from "quasar";
 
 const stocksDeliveryStore = useStockDelivery();
 const branchesStore = useBranchesStore();
@@ -344,7 +346,6 @@ const filterWarehouseOptions = ref(warehouseOptions.value);
 const rawMaterialsStore = useRawMaterialsStore();
 const rawMaterialsGroups = ref([]);
 const rawMaterialsOptions = ref([]);
-const emit = defineEmits(["reFetchDelivery"]);
 
 const $q = useQuasar();
 
@@ -746,8 +747,8 @@ const save = async () => {
     raw_materials_groups: rawMaterialsGroups.value || [],
   };
 
-  $q.loading.show();
   try {
+    loading.value = true;
     console.log("Payload : ", payload);
     const response = await stocksDeliveryStore.createDeliveryStock(payload);
 
@@ -758,7 +759,6 @@ const save = async () => {
       response.message === "Raw materials delivery created successfully"
     ) {
       // ✅ close dialog only when backend confirms success
-      emit("reFetchDelivery");
       closeDialog();
     } else {
       console.error("❌ Failed to save delivery: ", response.message);
@@ -767,7 +767,7 @@ const save = async () => {
   } catch (error) {
     console.error("❌ Failed to save delivery:", error);
   } finally {
-    $q.loading.hide();
+    loading.value = false;
   }
 };
 </script>

@@ -3,7 +3,7 @@
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section>
         <div class="row justify-between">
-          <div>From: {{ capitalize(report.from_name) }}</div>
+          <div class="text-h6">From: {{ capitalize(report.from_name) }}</div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -17,7 +17,7 @@
       </q-card-section>
       <q-card-section>
         Status:
-        <q-badge color="green">
+        <q-badge color="negative">
           {{ report.status }}
         </q-badge>
       </q-card-section>

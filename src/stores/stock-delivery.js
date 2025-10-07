@@ -18,7 +18,17 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     },
   });
   const pendingStocks = ref([]);
-  const confirmStocks = ref([]);
+  const confirmStocks = ref({
+    data: [],
+    pagination: {
+      total: 0,
+      per_page: 3,
+      current_page: 1,
+      last_page: 1,
+      from: 0,
+      to: 0,
+    },
+  });
   const declinedStocks = ref({
     data: [],
     pagination: {
@@ -109,11 +119,17 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
   const fetchConfirmedDeliveryReports = async (
     warehouseId,
     status,
-    to_designation
+    to_designation,
+    page = 1,
+    per_page = 3,
+    search = ""
   ) => {
     console.log("fetchConfirmedDeliveryReportswarehouseId", warehouseId);
     console.log("fetchConfirmedDeliveryReportsstatus", status);
     console.log("fetchConfirmedDeliveryReportsto_designation", to_designation);
+    console.log("fetchConfirmedDeliveryReportspage", page);
+    console.log("fetchConfirmedDeliveryReportsper_page", per_page);
+    console.log("fetchConfirmedDeliveryReportssearch", search);
 
     try {
       const confirm = await api.get(
@@ -122,6 +138,9 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
           params: {
             status: status,
             to_designation: to_designation,
+            page: page,
+            per_page: per_page,
+            search: search,
           },
         }
       );
