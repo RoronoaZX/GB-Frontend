@@ -215,6 +215,9 @@
                       <q-item-section>
                         <q-item-label> Price per Gram </q-item-label>
                       </q-item-section>
+                      <q-item-section side>
+                        <q-item-label> Action </q-item-label>
+                      </q-item-section>
                     </q-item>
 
                     <q-item
@@ -249,6 +252,21 @@
                       <q-item-section>
                         <q-item-label>
                           {{ formatPrice(item.price_per_gram) }}
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-item-label>
+                          <q-btn
+                            color="dark"
+                            flat
+                            round
+                            dense
+                            icon="edit"
+                            @click="openEditDialog(item, selectedDelivery)"
+                          />
+                          <q-tooltip>
+                            <span>Edit</span>
+                          </q-tooltip>
                         </q-item-label>
                       </q-item-section>
                     </q-item>
@@ -357,12 +375,14 @@ onMounted(() => {
 // No longer needed to directly watch delliveryStocks for `deliveryList.value = deliveryStocks.value;`
 // as `deliveryList` is now a computed property directly accessing `stocksDeliveryStore.deliveryStocks.data`
 
-const openEditDialog = (delivery) => {
-  if (!delivery) return;
+const openEditDialog = (item, delivery) => {
+  console.log("Editing item:", item);
+  console.log("Parent delivery:", delivery);
 
   $q.dialog({
     component: EditDialog,
     componentProps: {
+      item,
       delivery,
     },
   });
@@ -469,12 +489,18 @@ const getItemClass = (delivery) => {
 }
 
 .q-btn {
-  transform: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease-in-out;
+  transform: translateY(0);
 }
 
 .q-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.q-btn:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-cancel {

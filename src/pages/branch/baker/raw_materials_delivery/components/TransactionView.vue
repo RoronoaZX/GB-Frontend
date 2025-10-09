@@ -195,6 +195,8 @@ const confirmReport = async (data) => {
       items: itemsWithTotals,
     };
 
+    console.log("Confirm Datasss:", confirmData);
+
     const response = await stocksDeliveryStore.confirmDeliveryStocks(
       confirmData
     );

@@ -187,7 +187,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
   };
 
   const confirmDeliveryStocks = async (data) => {
-    console.log("data in store", data);
+    console.log("data in storesss", data);
 
     try {
       const response = await api.post(
@@ -204,6 +204,19 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
         message: "Failed to Confirm the Stocks Delivery",
         timeout: 3000,
       });
+    }
+  };
+
+  const updateDeliveryStocks = async (data) => {
+    console.log("data in store", data);
+
+    try {
+      const response = await api.put(`/api/editDeliveryStocks`, data);
+
+      console.log("response", response);
+      return response;
+    } catch (error) {
+      console.log("error", error);
     }
   };
 
@@ -270,5 +283,6 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     confirmDeliveryStocks,
     fetchDeclinedDeliveryReports,
     fetchConfirmedDeliveryReports,
+    updateDeliveryStocks,
   };
 });
