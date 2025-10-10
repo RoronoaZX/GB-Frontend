@@ -130,7 +130,7 @@
                 Items / Raw materials Delivery Details
               </div>
 
-              <q-btn v-if="selectedDelivery" flat round dense icon="more_vert">
+              <!-- <q-btn v-if="selectedDelivery" flat round dense icon="more_vert">
                 <q-menu>
                   <q-list style="min-width: 100px">
                     <q-item
@@ -145,7 +145,7 @@
                     </q-item>
                   </q-list>
                 </q-menu>
-              </q-btn>
+              </q-btn> -->
             </div>
           </q-card-section>
 

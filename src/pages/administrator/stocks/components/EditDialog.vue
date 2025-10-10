@@ -235,30 +235,50 @@ const stocks = reactive({
 });
 
 watch(
-  () => [stocks.kilo, stocks.quantity],
-  ([kilo, quantity]) => {
-    const totalGrams = parseFloat(kilo || 0) * 1000 * parseFloat(quantity || 1);
-    stocks.gram = formatToTwoDecimals(totalGrams);
-  },
-  { deep: true }
-);
+  stocks,
+  (val) => {
+    // Always sync grams with kilo
+    if (val.kilo && val.quantity && !isNaN(val.kilo) && !isNaN(val.quantity)) {
+      val.gram = val.kilo * 1000;
+    } else if (val.kilo && !isNaN(val.kilo)) {
+      val.gram = val.kilo * 1000;
+    }
 
-watch(
-  () => [stocks.price, stocks.kilo, stocks.gram, stocks.quantity],
-  ([price, kilo, gram, quantity]) => {
-    const totalGrams =
-      parseFloat(kilo || 0) * 1000 * parseFloat(quantity || 1) +
-      parseFloat(gram || 0);
-
-    if (totalGrams > 0) {
-      const computedPricePerGram = parseFloat(price || 0) / totalGrams;
-      stocks.pricePerGram = formatNumber(computedPricePerGram);
+    // Compute price per gram if we have price & gram
+    if (val.price > 0 && val.gram > 0) {
+      val.pricePerGram = (val.price / val.gram).toFixed(2);
     } else {
-      stocks.pricePerGram = 0;
+      val.pricePerGram = 0;
     }
   },
   { deep: true }
 );
+
+// watch(
+//   () => [stocks.kilo, stocks.quantity],
+//   ([kilo, quantity]) => {
+//     const totalGrams = parseFloat(kilo || 0) * 1000 * parseFloat(quantity || 1);
+//     stocks.gram = formatToTwoDecimals(totalGrams);
+//   },
+//   { deep: true }
+// );
+
+// watch(
+//   () => [stocks.price, stocks.kilo, stocks.gram, stocks.quantity],
+//   ([price, kilo, gram, quantity]) => {
+//     const totalGrams =
+//       parseFloat(kilo || 0) * 1000 * parseFloat(quantity || 1) +
+//       parseFloat(gram || 0);
+
+//     if (totalGrams > 0) {
+//       const computedPricePerGram = parseFloat(price || 0) / totalGrams;
+//       stocks.pricePerGram = formatNumber(computedPricePerGram);
+//     } else {
+//       stocks.pricePerGram = 0;
+//     }
+//   },
+//   { deep: true }
+// );
 
 const save = async () => {
   // ✅ 1️⃣ Get raw edited data first (unformatted)
