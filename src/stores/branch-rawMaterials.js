@@ -19,16 +19,6 @@ export const useBranchRawMaterialsStore = defineStore(
       branchRawMaterials.value = response.data;
     };
 
-    // const searchBranchRawMaterials = async (searchKeyword, branchId) => {
-    //   const response = await api.post(`/api/search-branch-rawMaterials`, {
-    //     keyword: searchKeyword,
-    //     branch_id: branchId,
-    //   });
-
-    //   console.log("branch raw materials", response.data);
-    //   branchRawMaterials.value = response.data;
-    // };
-
     const createBranchRawMaterials = async (data) => {
       Loading.show();
       try {

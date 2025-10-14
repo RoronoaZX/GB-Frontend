@@ -251,7 +251,7 @@
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>
-                          {{ formatPrice(item.price_per_gram) }}
+                          {{ formatPricePerGram(item.price_per_gram) }}
                         </q-item-label>
                       </q-item-section>
                       <q-item-section side>
@@ -418,6 +418,11 @@ const formatPrice = (val) => {
   if (val == null) return "No Price";
   // return `₱${parseFloat(val).toFixed(2)}`
   return `₱${Number(val).toFixed(2)}`; // always show 2 decimals
+};
+const formatPricePerGram = (val) => {
+  if (val == null) return "No Price";
+  // return `₱${parseFloat(val).toFixed(2)}`
+  return `₱${Number(val).toFixed(4)}`; // always show 2 decimals
 };
 
 const getStatusColor = (status) => {

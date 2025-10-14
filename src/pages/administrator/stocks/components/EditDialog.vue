@@ -107,7 +107,7 @@ watch(editableItem, (newVal) => {
     if (
       ["gram", "kilo", "pcs", "price_per_gram", "price_per_unit"].includes(key)
     ) {
-      editableItem.value[key] = formatToTwoDecimals(newVal[key]);
+      editableItem.value[key] = newVal[key];
     }
   });
 });
@@ -225,13 +225,18 @@ const formatNumber = (value) => {
   return num % 1 === 0 ? num.toFixed(0) : num.toFixed(3).replace(/\.?0+$/, "");
 };
 
+const trimTrailingZeros = (value) => {
+  if (value == null || isNaN(value)) return 0;
+  return parseFloat(parseFloat(value).toString());
+};
+
 const stocks = reactive({
   quantity: formatNumber(props.item.quantity || 0),
   kilo: formatNumber(props.item.kilo || 0),
   gram: formatNumber(props.item.gram || 0),
   pcs: formatNumber(props.item.pcs || 0),
-  price: formatToTwoDecimals(props.item.price_per_unit || 0),
-  pricePerGram: formatToTwoDecimals(props.item.price_per_gram || 0),
+  price: trimTrailingZeros(props.item.price_per_unit || 0),
+  pricePerGram: trimTrailingZeros(props.item.price_per_gram || 0),
 });
 
 watch(
@@ -246,7 +251,7 @@ watch(
 
     // Compute price per gram if we have price & gram
     if (val.price > 0 && val.gram > 0) {
-      val.pricePerGram = (val.price / val.gram).toFixed(2);
+      val.pricePerGram = val.price / val.gram;
     } else {
       val.pricePerGram = 0;
     }

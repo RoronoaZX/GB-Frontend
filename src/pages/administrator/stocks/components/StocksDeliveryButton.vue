@@ -498,7 +498,7 @@ watch(
 
     // compute price per gram if we have price & gram
     if (val.price > 0 && val.gram > 0) {
-      val.pricePerGram = (val.price / val.gram).toFixed(2);
+      val.pricePerGram = val.price / val.gram;
     } else {
       val.pricePerGram = 0;
     }

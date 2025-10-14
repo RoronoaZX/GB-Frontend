@@ -6,7 +6,7 @@
     position="right"
     backdrop-filter="blur(4px) saturate(150%)"
   >
-    <q-card style="width: 500px; max-width: 120vw">
+    <q-card style="width: 700px; max-width: 120vw">
       <!-- {{ breadGroups }} -->
       <q-card-section class="row bg-backgroud text-h6">
         <div class="text-h6 text-white">
@@ -31,12 +31,15 @@
             <q-item-section>
               <q-item-label class="text-overline">Code</q-item-label>
             </q-item-section>
-            <q-item-section side>
+            <q-item-section>
               <q-item-label class="text-overline">Quantity</q-item-label>
             </q-item-section>
-            <!-- <q-item-section>
-                  <q-item-label class="text-overline">Unit</q-item-label>
-                </q-item-section> -->
+            <q-item-section>
+              <q-item-label class="text-overline">PPG</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-item-label class="text-overline"> TCPI </q-item-label>
+            </q-item-section>
           </q-item>
           <q-item
             v-for="(ingredient, index) in ingredientGroups.ingredient_groups"
@@ -44,27 +47,36 @@
           >
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.ingredient_name }}
+                {{ ingredient.ingredient_name || "0.00000" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.code }}
+                {{ ingredient.code || "0.00000" }}
+              </q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-caption">
+                {{ formatQuantity(ingredient) || "0.00000" }}
+              </q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-caption">
+                {{ formatPrice(ingredient.price_per_gram) || "0.00000" }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-item-label class="text-caption">
-                {{ formatQuantity(ingredient) }}
+                {{ calculateTotalCostPerIngredient(ingredient) }}
               </q-item-label>
             </q-item-section>
           </q-item>
         </q-list>
-        <!-- <div
-          v-for="(ingredient, index) in ingredientGroups.ingredient_groups"
-          :key="index"
-        >
-          <div class="row">{{ ingredient }}</div>
-        </div> -->
+        <!-- ✅ Overall total section -->
+        <div class="q-mt-md text-right text-subtitle1">
+          <strong>Total Cost:</strong>
+          {{ calculateTotalCost(ingredientGroups) }}
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -77,7 +89,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["ingredientGroups"]);
-console.log("ingredientGroups", props.ingredientGroups);
+console.log("ingredientGroupsss", props.ingredientGroups);
 
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";
@@ -104,39 +116,46 @@ const formatQuantity = (ingredient) => {
   }
 };
 
-// const formatQuantity = (ingredient) => {
-//   const formattedQuantity = ingredient.quantity || 0; // Access quantity directly
-//   const unit = ingredient.unit || ""; // Access unit directly
+const formatPrice = (value) => {
+  if (value == null || isNaN(value)) return "0.00";
 
-//   if (formattedQuantity > 1000) {
-//     const formattedQuantityInKg = parseFloat(
-//       (formattedQuantity / 1000).toFixed(3)
-//     ); // Remove trailing zeros
-//     return `${formattedQuantityInKg} kg`;
-//   } else if (formattedQuantity > 1) {
-//     return `${formattedQuantity.toFixed(3)} ${unit}${unit ? "s" : ""}`; // Pluralize unit
-//   } else {
-//     return `${formattedQuantity.toFixed(3)} ${unit}`; // Keep decimal formatting
-//   }
-// };
+  // Convert to number first
+  const num = Number(value);
 
-// const formatQuantity = (ingredient) => {
-//   const formattedQuantity = ingredient.quantity || 0; // Access `quantity` directly
-//   const unit = ingredient.unit || ""; // Access `unit` directly
+  // Format with comma separators
 
-//   if (formattedQuantity > 1000) {
-//     const formattedQuantityInKg = (formattedQuantity / 1000).toFixed(3);
-//     if (formattedQuantityInKg.endsWith(".000")) {
-//       return `${Math.round(formattedQuantity / 1000)} kg`;
-//     } else {
-//       return `${formattedQuantityInKg} kg`;
-//     }
-//   } else if (formattedQuantity > 1) {
-//     return `${formattedQuantity} ${unit}`; // ${unit ? "s" : ""} Pluralize unit if applicable
-//   } else {
-//     return `${formattedQuantity} ${unit}`;
-//   }
-// };
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 6,
+  });
+};
+
+// ✅ Calculate total cost of all price_per_gram
+const calculateTotalCostPerIngredient = (ingredient) => {
+  const quantity = parseFloat(ingredient.quantity) || 0;
+  const pricePerGram = parseFloat(ingredient.price_per_gram) || 0;
+  const total = quantity * pricePerGram;
+
+  return `₱${parseFloat(total.toFixed(4)).toLocaleString("en-PH", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 6,
+  })}`;
+};
+// ✅ Calculate total cost of all price_per_gram
+const calculateTotalCost = (group) => {
+  if (!group || !group.ingredient_groups) return "₱0.00";
+
+  const total = group.ingredient_groups.reduce((sum, ing) => {
+    const quantity = parseFloat(ing.quantity) || 0;
+    const pricePerGram = parseFloat(ing.price_per_gram) || 0;
+    return sum + quantity * pricePerGram; // ✅ Correct summation
+  }, 0);
+
+  return `₱${total.toFixed(2).toLocaleString("en-PH", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
+};
 </script>
 
 <style lang="scss" scoped>

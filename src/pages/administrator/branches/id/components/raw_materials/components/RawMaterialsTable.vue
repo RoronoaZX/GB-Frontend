@@ -43,13 +43,6 @@
       hide-bottom
       style="height: 420px"
     >
-      <!-- <template v-slot:body-cell-unit="props">
-        <q-td key="name" :props="props">
-          <q-badge :color="getBadgeUnitColor(props.row.unit)">
-            {{ props.row.unit }}
-          </q-badge>
-        </q-td>
-      </template> -->
       <template v-slot:body-cell-total_quantity="props">
         <q-td :props="props">
           <q-badge
@@ -127,6 +120,13 @@ const pagination = ref({
 const branchRawMaterialsRows = computed(
   () => branchRawMaterialsStore.branchRawMaterials
 );
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "PHP",
+  }).format(price);
+};
 
 const filteredRows = computed(() => {
   if (!filter.value) {
@@ -236,33 +236,6 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
-// const getRawMaterialBadgeColor = (row) => {
-//   const totalQuantity = row.total_quantity;
-//   const unit = row.ingredients.unit;
-//   if (unit === "Grams" && totalQuantity < 1000) {
-//     return "bg-red";
-//   }
-
-//   let stockValue;
-//   if (totalQuantity >= 1000) {
-//     stockValue = totalQuantity / 1000;
-//   } else {
-//     stockValue = totalQuantity;
-//   }
-
-//   if (stockValue < 5) {
-//     if (stockValue <= 2) {
-//       return "bg-red";
-//     } else if (stockValue <= 3) {
-//       return "bg-warning";
-//     } else {
-//       return "bg-warning";
-//     }
-//   } else {
-//     return "bg-positive";
-//   }
-// };
-
 const getRawMaterialBadgeColor = (row) => {
   const totalQuantity = row.total_quantity;
   const unit = row.ingredients?.unit || "Grams"; // Default to "Grams" or other fallback
@@ -305,23 +278,6 @@ const formatTotalQuantity = (row) => {
   }
 };
 
-// const formatTotalQuantity = (row) => {
-//   const totalQuantity = row.total_quantity;
-//   const unit = row.ingredients.unit;
-
-//   if (totalQuantity > 1000) {
-//     const totalQuantityKilo = (totalQuantity / 1000).toFixed(2);
-//     if (totalQuantityKilo.endsWith(".00")) {
-//       return `${Math.round(totalQuantity / 1000)} kilos`;
-//     } else {
-//       return `${totalQuantityKilo} kilos`;
-//     }
-//   } else if (totalQuantity > 1) {
-//     return `${totalQuantity} ${unit}`;
-//   } else {
-//     return `${totalQuantity} ${unit}`;
-//   }
-// };
 const ingredientsColumns = [
   {
     name: "code",
@@ -345,6 +301,14 @@ const ingredientsColumns = [
     align: "center",
     field: "total_quantity",
     sortable: true,
+  },
+  {
+    name: "price_per_gram",
+    label: "Price Per Gram",
+    align: "center",
+    field: (row) =>
+      formatPrice(row?.oldest_non_zero_stock?.price_per_gram ?? "0.00"),
+    format: (val) => `${val}`,
   },
   {
     name: "action",

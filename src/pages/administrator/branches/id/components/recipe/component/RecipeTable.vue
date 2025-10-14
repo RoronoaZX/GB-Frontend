@@ -147,13 +147,13 @@
           </q-btn>
         </q-td>
       </template>
-      <template v-slot:body-cell-action="props">
+      <!-- <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
             <RecipeDelete :delete="props" />
           </div>
         </q-td>
-      </template>
+      </template> -->
     </q-table>
   </div>
 </template>
@@ -169,7 +169,6 @@ import RecipeIngredientGroups from "./RecipeIngredientGroups.vue";
 import { api } from "src/boot/axios";
 import { Notify, useQuasar } from "quasar";
 import { useUsersStore } from "src/stores/user";
-import { tiControlStop } from "@quasar/extras/themify";
 
 const route = useRoute();
 
@@ -397,6 +396,25 @@ const branchRecipeColumns = [
     field: (row) => formatNumber(row.target),
   },
   {
+    name: "price_per_kilo",
+    label: "Price per Kilo",
+    align: "center",
+    field: (row) => {
+      if (!row.ingredient_groups || row.ingredient_groups.length === 0)
+        return "₱0.00";
+      // Calculate total = sum of (quantity * price_per_gram)
+      const total = row.ingredient_groups.reduce((sum, ing) => {
+        const quantity = parseFloat(ing.quantity) || 0;
+        const pricePerGram = parseFloat(ing.price_per_gram) || 0;
+        return sum + quantity * pricePerGram;
+      }, 0);
+      return `₱${total.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    },
+  },
+  {
     name: "status",
     label: "Status",
     align: "center",
@@ -414,12 +432,12 @@ const branchRecipeColumns = [
     align: "center",
     field: "ingredient_groups",
   },
-  {
-    name: "action",
-    label: "Action",
-    align: "center",
-    sortable: true,
-  },
+  // {
+  //   name: "action",
+  //   label: "Action",
+  //   align: "center",
+  //   sortable: true,
+  // },
 ];
 
 const $q = useQuasar();
