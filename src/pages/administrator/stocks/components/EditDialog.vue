@@ -65,10 +65,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, readonly, watch } from "vue";
+import { ref, computed, reactive, watch } from "vue";
 import { Notify, useDialogPluginComponent, useQuasar } from "quasar";
-import { useWarehousesStore } from "src/stores/warehouse";
-import { useBranchesStore } from "src/stores/branch";
 import { useStockDelivery } from "src/stores/stock-delivery";
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
@@ -259,32 +257,6 @@ watch(
   { deep: true }
 );
 
-// watch(
-//   () => [stocks.kilo, stocks.quantity],
-//   ([kilo, quantity]) => {
-//     const totalGrams = parseFloat(kilo || 0) * 1000 * parseFloat(quantity || 1);
-//     stocks.gram = formatToTwoDecimals(totalGrams);
-//   },
-//   { deep: true }
-// );
-
-// watch(
-//   () => [stocks.price, stocks.kilo, stocks.gram, stocks.quantity],
-//   ([price, kilo, gram, quantity]) => {
-//     const totalGrams =
-//       parseFloat(kilo || 0) * 1000 * parseFloat(quantity || 1) +
-//       parseFloat(gram || 0);
-
-//     if (totalGrams > 0) {
-//       const computedPricePerGram = parseFloat(price || 0) / totalGrams;
-//       stocks.pricePerGram = formatNumber(computedPricePerGram);
-//     } else {
-//       stocks.pricePerGram = 0;
-//     }
-//   },
-//   { deep: true }
-// );
-
 const save = async () => {
   // ✅ 1️⃣ Get raw edited data first (unformatted)
   const rawData = {
@@ -358,7 +330,6 @@ const save = async () => {
   }
 
   // Example of next step:
-  // await stockDeliveryStore.updateDeliveryItem(cleanedData)
-  // onDialogOK(cleanedData)
+  // await stockDeliveryStore.updateDeli
 };
 </script>
