@@ -25,6 +25,7 @@
             <q-tab name="products" label="Products" />
             <q-tab name="rawMaterials" label="Raw Materials" />
             <q-tab name="recipe" label="Recipe" />
+            <q-tab name="recipe-cost" label="Recipe Cost" />
             <q-tab name="premix" label="Premix" />
             <q-tab name="production" label="Production" />
             <q-tab name="transaction" label="Transactions" />
@@ -44,6 +45,10 @@
 
             <q-tab-panel name="recipe">
               <RecipePage />
+            </q-tab-panel>
+
+            <q-tab-panel name="recipe-cost">
+              <RecipeCostPage />
             </q-tab-panel>
 
             <q-tab-panel name="premix">
@@ -74,6 +79,7 @@ import TransactionPage from "./components/transactions/TransactionPage.vue";
 import RecipePage from "./components/recipe/RecipePage.vue";
 import PremixPage from "./components/premix/PremixPage.vue";
 import BirReportsPage from "./components/bir-reports/BirReportsPage.vue";
+import RecipeCostPage from "./components/recipe_cost/RecipeCostPage.vue";
 
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
