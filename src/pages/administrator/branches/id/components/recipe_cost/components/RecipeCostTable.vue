@@ -88,7 +88,7 @@ const pagination = ref({
 
 const filter = ref("");
 
-const fetchRecipeCosts = async (page = 1, rowsPerPage = 3, search = "") => {
+const fetchRecipeCosts = async (page = 0, rowsPerPage = 3, search = "") => {
   try {
     // ✅ If it's the first load (page just opened), show full spinner
     if (recipeCostData.value.length === 0 && !search) {
