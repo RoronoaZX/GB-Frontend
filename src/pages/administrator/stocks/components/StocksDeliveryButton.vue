@@ -453,7 +453,7 @@ const categoryConfigs = {
       { model: "pcs", label: "Pieces per Box", type: "number" },
       { model: "kilo", label: "Kilo per Piece", type: "number" },
       { model: "gram", label: "Grams" },
-      { model: "price", label: "Price per Box", type: "number", prefix: "₱" },
+      { model: "price", label: "Price per Pcs", type: "number", prefix: "₱" },
       {
         model: "pricePerGram",
         label: "Price per Gram",
@@ -749,6 +749,7 @@ const save = async () => {
   $q.loading.show();
   try {
     console.log("Payload : ", payload);
+
     const response = await stocksDeliveryStore.createDeliveryStock(payload);
 
     console.log("Response : ", response);

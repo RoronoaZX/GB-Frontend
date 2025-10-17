@@ -1,15 +1,14 @@
 <template>
   <q-dialog
-    ref="dailogRef"
+    ref="dialogRef"
     @hide="onDialogHide"
     persistent
-    position="right"
     backdrop-filter="blur(4px) saturate(150%)"
   >
     <q-card style="width: 820px; max-width: 80vw">
       <q-card-section class="row bg-background text-h6">
         <div class="text-h6 text-white">
-          {{ capitalizeFirstLetter(props.row.recipe_name || "N/A") }}
+          {{ capitalizeFirstLetter(row.supplier_name || "N/A") }}
         </div>
         <q-space />
         <div>
@@ -17,7 +16,10 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="text-h6" align="center">Ingredients Cost List</div>
+        <div>Status: {{ row.status || "N/A" }}</div>
+      </q-card-section>
+      <q-card-section>
+        <div class="text-h6" align="center">Ingredients List</div>
       </q-card-section>
       <q-card-section>
         <q-list dense separator class="box">
@@ -31,52 +33,46 @@
               <q-item-label class="text-overline"> Code </q-item-label>
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-overline">
-                Ingredient Status</q-item-label
-              >
+              <q-item-label class="text-overline"> Quantity </q-item-label>
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-overline"> Quantity Used </q-item-label>
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label class="text-overline"> PPG </q-item-label>
-            </q-item-section>
-            <q-item-section side>
               <q-item-label class="text-overline"> TCPI </q-item-label>
             </q-item-section>
+            <q-item-section side>
+              <q-item-label class="text-overline"> Total Cost </q-item-label>
+            </q-item-section>
           </q-item>
-          <q-item v-for="(ingredient, index) in props.row.items" :key="index">
+
+          <q-item
+            v-for="(ingredient, index) in props.row.supplier_ingredients"
+            :key="index"
+          >
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.raw_material_name || "N/A" }}
+                {{ ingredient.raw_materials?.name || "N/A" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.raw_material_code || "N/A" }}
+                {{ ingredient.raw_materials?.code || "N/A" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.status || "N/A" }}</q-item-label
-              >
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ parseFloat(ingredient.quantity_used || "N/A") }}
+                {{ parseFloat(ingredient.quantity || "N/A") }}
+                {{ ingredient.category || "" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
                 {{
-                  formatPrice(parseFloat(ingredient.price_per_gram || "N/A"))
+                  formatPrice(parseFloat(ingredient.price_per_unit || "N/A"))
                 }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-item-label class="text-caption">
-                {{ formatPrice(calculateTotalCostPerIngredient(ingredient)) }}
+                {{ formatPrice(calculateTotalCost(ingredient) || "N/A") }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -84,16 +80,20 @@
       </q-card-section>
       <q-card-section class="q-mt-md text-right text-subtitle1">
         <strong>Total Cost:</strong>
-        {{ calculateTotalCost(props.row) || "₱0.00" }}
+        {{
+          formatPrice(
+            calculateOverallTotalCost(props.row.supplier_ingredients) || "₱0.00"
+          )
+        }}
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
-<script setup>
-import { useDialogPluginComponent } from "quasar";
 
-const { dailogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+<script setup>
+import { useDialogPluginComponent, date as quasarDate } from "quasar";
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps({
   row: {
@@ -104,41 +104,38 @@ const props = defineProps({
 
 console.log("props", props.row);
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
+const capitalizeFirstLetter = (data) => {
+  if (!data) return "";
 
-  return location
+  return data
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 };
 
 const formatPrice = (value) => {
-  if (value == null || isNaN(value)) return "0.00";
-
-  return `₱${Number(value)}`;
-};
-
-const calculateTotalCostPerIngredient = (ingredient) => {
-  const quantity = parseFloat(ingredient.quantity_used);
-  const pricePerGram = parseFloat(ingredient.price_per_gram);
-
-  return quantity * pricePerGram;
+  const num = parseFloat(value);
+  if (isNaN(num)) return "₱0.00";
+  return `₱${num.toLocaleString("en-PH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 };
 
 const calculateTotalCost = (ingredient) => {
-  if (!ingredient || !ingredient.items) return "₱0.00";
+  const quantity = parseFloat(ingredient.quantity) || 0;
+  const pricePerUnit = parseFloat(ingredient.price_per_unit) || 0;
+  return quantity * pricePerUnit;
+};
 
-  const total = ingredient.items.reduce((sum, ing) => {
-    const quantity = parseFloat(ing.quantity_used) || 0;
-    const pricePerGram = parseFloat(ing.price_per_gram) || 0;
-    return sum + quantity * pricePerGram; // ✅ Correct summation
+const calculateOverallTotalCost = (ingredient) => {
+  const total = ingredient.reduce((sum, ing) => {
+    const quantity = parseFloat(ing.quantity) || 0;
+    const pricePerUnit = parseFloat(ing.price_per_unit) || 0;
+    return sum + quantity * pricePerUnit;
   }, 0);
 
-  return `₱${total.toFixed(2).toLocaleString("en-PH", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })}`;
+  return total;
 };
 </script>
 
