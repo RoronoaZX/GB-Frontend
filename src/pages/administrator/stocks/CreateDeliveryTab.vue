@@ -7,7 +7,7 @@
     <div class="col-xs-12 col-md-4">
       <q-card
         flat
-        class="bg-white q-pa-md rounded- borders-lg custom-shadow-light"
+        class="bg-white q-pa-md rounded-borders-lg custom-shadow-light"
       >
         <div class="text-h6 text-weight-bold q-mb-sm text-grey-8">
           Delivery Transaction List
