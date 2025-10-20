@@ -44,8 +44,13 @@
           @click="handleDialog(declined)"
         >
           <q-card-section class="q-gutter-sm">
-            <div class="text-h6">
-              From: {{ capitalize(declined.from_name) }}
+            <div class="row justify-between text-grey-7">
+              <div class="text-h6">
+                From: {{ capitalize(declined.from_name) }}
+              </div>
+              <div class="text-subtitle1 text-bold">
+                Declined by: {{ capitalize(declined.from_name) }}
+              </div>
             </div>
             <div class="row justify-between">
               <div class="text-subtitle1">
@@ -56,6 +61,12 @@
               </div>
               <div>
                 <q-badge color="negative"> Declined </q-badge>
+              </div>
+            </div>
+            <div class="q-mt-md">
+              <div class="text-caption text-grey-7 q-mt-sm">
+                <span class="text-bold">Remark:</span>
+                {{ declined.remarks || "-" }}
               </div>
             </div>
           </q-card-section>

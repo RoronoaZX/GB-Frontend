@@ -2,10 +2,22 @@
   <div class="spinner-wrapper" v-if="loading">
     <q-spinner-dots size="50px" color="primary" />
   </div>
-  <div v-else>
-    <div v-if="stockDelivery.length === 0" class="data-error">
-      <q-icon name="warning" color="warning" size="4em" />
-      <div class="q-ml-sm text-h6">No data available</div>
+  <div class="q-mt-xl" v-else>
+    <div
+      v-if="stockDelivery.data.length === 0"
+      class="column items-center justify-center text-center q-pa-lg"
+    >
+      <q-icon name="search_off" size="60px" color="grey-6" />
+      <div class="text-h6 text-grey-7 q-mt-sm">
+        {{
+          searchQuery
+            ? "No deliveries found for your search."
+            : "No deliveries available."
+        }}
+      </div>
+      <div>
+        {{ searchQuery ? "Try another search term." : "Check again later." }}
+      </div>
     </div>
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
@@ -15,12 +27,21 @@
           @click="handleDialog(pending, index)"
         >
           <q-card-section class="q-gutter-sm">
-            <div class="text-h6">From: {{ capitalize(pending.from_name) }}</div>
+            <div class="row justify-between text-grey-7">
+              <div class="text-h6">
+                From: {{ capitalize(pending.from_name) || "-" }}
+              </div>
+              <div class="text-subtitle1 text-bold">
+                Processed by: {{ formatFullname(pending.employee) || "-" }}
+              </div>
+            </div>
             <div class="row justify-between">
               <div class="text-subtitle1">
-                {{ formatTimeStamp(pending.created_at) }}
+                {{ formatTimeStamp(pending.created_at) || "-" }}
               </div>
-              <div class="text-subtitle1">{{ pending.items.length }} items</div>
+              <div class="text-subtitle1">
+                {{ pending.items.length || "-" }} items
+              </div>
               <div>
                 <q-badge color="warning" outlined> Pending </q-badge>
               </div>
@@ -60,6 +81,19 @@ const capitalize = (str) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
 };
 
 const formatTimeStamp = (val) => {

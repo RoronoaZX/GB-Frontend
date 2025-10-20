@@ -48,12 +48,22 @@
           @click="handleDialog(confirm)"
         >
           <q-card-section class="q-gutter-sm">
-            <div class="text-h6">From: {{ capitalize(confirm.from_name) }}</div>
+            <div class="row justify-between text-grey-7">
+              <div class="text-h6">
+                <span class="">From:</span>
+                {{ capitalize(confirm.from_name) || "-" }}
+              </div>
+              <div class="text-subtitle1 text-bold">
+                Confirmed by: {{ formatFullname(confirm.employee) || "-" }}
+              </div>
+            </div>
             <div class="row justify-between">
               <div class="text-subtitle1">
-                {{ formatTimeStamp(confirm.created_at) }}
+                {{ formatTimeStamp(confirm.created_at) || "-" }}
               </div>
-              <div class="text-subtitle1">{{ confirm.items.length }} items</div>
+              <div class="text-subtitle1">
+                {{ confirm.items.length || "-" }} items
+              </div>
               <div>
                 <q-badge color="positive">Confirm</q-badge>
               </div>
@@ -123,6 +133,20 @@ const capitalize = (str) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
+};
+
 const formatTimeStamp = (val) => {
   return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
 };

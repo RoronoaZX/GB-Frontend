@@ -150,14 +150,14 @@
 
         <q-card-section>
           <div v-if="selectedDelivery">
-            <div class="row q-col-gutter-md q-mb-md">
+            <div class="row justify-between q-col-gutter-md q-mb-md">
               <div class="col-xs-12 col-sm-4">
                 <span class="text-grey-7 text-caption">From:</span>
                 <div class="text-subtitle1 text-weight-bold">
                   {{ capitalize(selectedDelivery.from_name || "No Name") }}
                 </div>
               </div>
-              <div class="col-xs-12 col-sm-4">
+              <div class="">
                 <span class="text-grey-7 text-caption">To:</span>
                 <div class="text-subtitle1 text-weight-bold">
                   {{ capitalize(selectedDelivery.to_data?.name || "No Name") }}
@@ -165,24 +165,32 @@
               </div>
             </div>
 
-            <div class="col-xs-12 col-sm-4 q-mb-md">
-              <span class="text-grey-7 text-caption">Status:</span>
-              <div class="row items-center">
-                <q-icon
-                  name="fiber_manual_record"
-                  :color="getStatusColor(selectedDelivery.status)"
-                  size="10px"
-                  class="q-mr-xs"
-                />
-                <span
-                  :class="
-                    selectedDelivery.status
-                      ? `text-${getStatusColor(selectedDelivery.status)}`
-                      : 'text-grey-6'
-                  "
-                >
-                  {{ capitalize(selectedDelivery.status || "No Status") }}
-                </span>
+            <div class="row justify-between col-xs-12 col-sm-4 q-mb-md">
+              <div class="">
+                <span class="text-grey-7 text-caption">Status:</span>
+                <div class="row items-center">
+                  <q-icon
+                    name="fiber_manual_record"
+                    :color="getStatusColor(selectedDelivery.status)"
+                    size="10px"
+                    class="q-mr-xs"
+                  />
+                  <span
+                    :class="
+                      selectedDelivery.status
+                        ? `text-${getStatusColor(selectedDelivery.status)}`
+                        : 'text-grey-6'
+                    "
+                  >
+                    {{ capitalize(selectedDelivery.status || "No Status") }}
+                  </span>
+                </div>
+              </div>
+              <div v-if="selectedDelivery.status === 'declined'">
+                <span class="text-grey-7 text-caption">Remarks:</span>
+                <div>
+                  {{ selectedDelivery.remarks || "No Remarks" }}
+                </div>
               </div>
             </div>
 

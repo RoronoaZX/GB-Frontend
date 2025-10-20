@@ -333,6 +333,14 @@ import { useBranchesStore } from "src/stores/branch";
 import { useRawMaterialsStore } from "src/stores/raw-material";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { useQuasar } from "quasar";
+import { useUsersStore } from "src/stores/user";
+
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+
+console.log("producttable user data", userData.value);
+
+const employeeId = userData.value?.data?.employee?.id || "0";
 
 const stocksDeliveryStore = useStockDelivery();
 const branchesStore = useBranchesStore();
@@ -612,10 +620,16 @@ const filteredWarehouse = (val, update) => {
 const filterRawMaterialsOptions = ref(rawMaterialsOptions.value);
 
 const fetchRawMaterials = async () => {
+  const to_designation = to.value; // Warehouse | Branch
+  const to_id = deliveryStocks.to.value || null;
   try {
     loading.value = true;
+    // fetchBranchWarehouseRawMaterials
     // fetchRawMaterials
-    await rawMaterialsStore.fetchRawMaterials();
+    await rawMaterialsStore.fetchBranchWarehouseRawMaterials(
+      to_designation,
+      to_id
+    );
 
     rawMaterialsOptions.value = rawMaterialsStore.rawMaterials.map((val) => ({
       label: val.name,
@@ -729,8 +743,16 @@ watch(to, (newVal) => {
   }
 });
 
+watch([to, () => deliveryStocks.to], async ([newToDesignation, newToValue]) => {
+  if (newToDesignation && newToValue) {
+    console.log("📦 Fetching raw materials for:", newToDesignation, newToValue);
+    await fetchRawMaterials();
+  }
+});
+
 const save = async () => {
   const payload = {
+    employee_id: userData.value?.data?.employee_id || "0",
     from_designation: from.value, // Supplier | Warehouse | Branch
     from_id: deliveryStocks.from || null, // warehouse_id or branch_id
     from_name:
@@ -745,6 +767,8 @@ const save = async () => {
     // stocks-specific fields
     raw_materials_groups: rawMaterialsGroups.value || [],
   };
+
+  console.log("Payloadssss : ", payload);
 
   $q.loading.show();
   try {

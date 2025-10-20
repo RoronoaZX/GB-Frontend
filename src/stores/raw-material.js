@@ -16,6 +16,27 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
     console.log("Search rawe materials", response.data);
   };
 
+  const fetchBranchWarehouseRawMaterials = async (designation, id) => {
+    console.log("designation", designation);
+    console.log("id", id);
+
+    try {
+      const response = await api.get(
+        `/api/fetchrawMaterialsBranchWarehouse/${id}`,
+        {
+          params: {
+            designation: designation,
+          },
+        }
+      );
+
+      console.log("Raw Materialsss", response.data);
+      rawMaterials.value = response.data.data;
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const fetchRawMaterials = async () => {
     // Loading.show();
     const response = await api.get("/api/raw-materials");
@@ -139,5 +160,6 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
     updateRawMaterials,
     deleteRawMaterials,
     fetchIngredients,
+    fetchBranchWarehouseRawMaterials,
   };
 });

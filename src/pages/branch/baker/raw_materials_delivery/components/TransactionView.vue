@@ -37,6 +37,9 @@
             </q-badge>
           </span>
         </div>
+        <div v-if="report.status === 'declined'">
+          <span>Remarks: {{ report.remarks || "No Remarks" }}</span>
+        </div>
         <div class="q-mt-md">
           <span class="text-grey-7 text-caption">Items: </span>
           <template v-if="report.items && report.items.length">
@@ -104,6 +107,13 @@ import { Notify, date as quasarDate, useQuasar } from "quasar";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import DeclinedDialog from "./DeclinedDialog.vue";
 import { useStockDelivery } from "src/stores/stock-delivery";
+import { useBakerReportsStore } from "src/stores/baker-report";
+
+const bakerReportStore = useBakerReportsStore();
+const userData = computed(() => bakerReportStore.user);
+console.log("userData in RawMaterialsTable:", userData.value);
+const employeeId = userData.value?.data?.employee_id || "";
+console.log("employeeIdsssssssssssssss:", employeeId);
 
 const stocksDeliveryStore = useStockDelivery();
 
@@ -191,6 +201,7 @@ const confirmReport = async (data) => {
 
     const confirmData = {
       ...data,
+      employee_id: employeeId || "0",
       status: "confirmed",
       items: itemsWithTotals,
     };
@@ -240,6 +251,7 @@ const declineReport = async (reportId, remarks) => {
 
     const declineData = {
       id: reportId,
+      employee_id: employeeId || "0",
       status: "declined",
       remarks: remarks.remarks,
     };

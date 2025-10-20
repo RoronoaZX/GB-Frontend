@@ -15,12 +15,18 @@
           />
         </div>
       </q-card-section>
-      <q-card-section>
-        Status:
+      <q-card-section class="text-caption text-grey-7 q-mt-sm">
+        <span class="text-bold">Status:</span>
+
         <q-badge color="negative">
           {{ report.status }}
         </q-badge>
+        <div>
+          <span class="text-bold">Remark:</span>
+          {{ report.remarks || "No Remark" }}
+        </div>
       </q-card-section>
+
       <q-card-section>
         <div>
           <span class="text-grey-7 text-caption">Items:</span>

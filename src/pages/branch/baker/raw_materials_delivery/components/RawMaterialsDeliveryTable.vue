@@ -79,6 +79,8 @@ import TransactionView from "./TransactionView.vue";
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
+console.log("userData in RawMaterialsTable:", userData.value);
+
 const branchId = userData.value?.device?.reference_id || "";
 const stocksDeliveryStore = useStockDelivery();
 const $q = useQuasar();
@@ -110,6 +112,19 @@ const capitalize = (str) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+};
+
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`;
 };
 
 const onSearch = () => {
@@ -176,10 +191,22 @@ const deliveryListColumns = [
     sortable: true,
   },
   {
+    name: "process_by",
+    label: "Process By",
+    align: "left",
+    field: (row) => formatFullname(row?.employee || "undefined"),
+    sortable: true,
+  },
+  {
     name: "from",
     label: "From",
     align: "left",
-    field: (row) => capitalize(row.from_name),
+    field: (row) => {
+      if (row.from_designation === "Supplier") {
+        return "Supplier";
+      }
+      return capitalize(row.from_name);
+    },
     sortable: true,
   },
   {

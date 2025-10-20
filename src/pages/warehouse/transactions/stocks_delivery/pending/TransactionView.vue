@@ -77,9 +77,14 @@
 <script setup>
 import { Notify, useDialogPluginComponent, useQuasar } from "quasar";
 import { useStockDelivery } from "src/stores/stock-delivery";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import DeclinePage from "./DeclinedDialog.vue";
+import { useUsersStore } from "src/stores/user";
+
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("userData in TransactionView:", userData.value);
 
 const stocksDeliveryStore = useStockDelivery();
 
@@ -156,9 +161,11 @@ const confirmReport = async (data) => {
     // );
 
     console.log("Per Item Totals:", itemsWithTotals);
+    console.log("employueee id:", userData.value?.data?.employee?.id);
 
     const confirmData = {
       ...data,
+      employee_id: userData.value?.data?.employee?.id || "0",
       status: "confirmed",
       items: itemsWithTotals,
     };
@@ -223,6 +230,7 @@ const declineReport = async (reportId, remarks) => {
 
     const declineData = {
       id: reportId,
+      employee_id: userData.value?.data?.employee?.id || "0",
       status: "declined",
       remarks: remarks,
     };
