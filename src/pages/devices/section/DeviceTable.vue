@@ -51,7 +51,6 @@
 </template>
 
 <script setup>
-import { format } from "quasar";
 import DeviceDelete from "./DeviceDelete.vue";
 import DeviceEdit from "./DeviceEdit.vue";
 import { useDeviceStore } from "src/stores/device";

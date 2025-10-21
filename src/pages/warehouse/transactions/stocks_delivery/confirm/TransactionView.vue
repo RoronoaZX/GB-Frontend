@@ -1,7 +1,7 @@
 <template>
   <q-dialog ref="dialogRef" v-model="dialog" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section class="emphasized-header">
         <div class="row justify-between">
           <div class="text-h6">From: {{ capitalize(report.from_name) }}</div>
           <q-btn
@@ -101,5 +101,9 @@ const formatQuantity = (val) => {
 .box {
   border: 1px dashed grey;
   border-radius: 10px;
+}
+
+.emphasized-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
 }
 </style>

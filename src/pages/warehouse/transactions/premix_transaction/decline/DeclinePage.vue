@@ -3,9 +3,17 @@
     <q-spinner-dots size="50px" color="primary" />
   </div>
   <div v-else>
-    <div v-if="declinedPremixData.length === 0" class="data-error">
-      <q-icon name="warning" color="warning" size="4em" />
-      <div class="q-ml-sm text-h6">No data available</div>
+    <div
+      v-if="declinedPremixData.length === 0"
+      class="column items-center text-center q-pa-lg no-data-message"
+    >
+      <q-icon name="search_off" size="60px" color="grey-5" />
+      <div class="text-h6 text-grey-7 q-mt-md">
+        {{ "No Premixes available." }}
+      </div>
+      <div class="text-body1 text-grey-6 q-mt-sm">
+        {{ "Check again later." }}
+      </div>
     </div>
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
@@ -13,31 +21,47 @@
           v-for="(decline, index) in declinedPremixData"
           :key="index"
           @click="handleDialog(decline)"
+          class="elegant-card emphasized-card"
         >
-          <q-card-section class="q-gutter-sm">
-            <div class="row justify-between">
-              <div class="text-h6">
-                {{ decline.name }}
-              </div>
-              <div>
-                <q-badge color="red-6" outlined>
-                  {{ decline.status }}
-                </q-badge>
-              </div>
-            </div>
-            <div class="row justify-between">
-              <div class="text-subtitle1">
-                {{ formatTimestamp(decline.created_at) }}
+          <q-card-section class="q-pa-lg enhanced-card-section">
+            <div class="row items-start justify-between">
+              <div class="col-8 column q-gutter-y-xs">
+                <div class="text-body1 text-weight-bold text-primary-dark">
+                  Premix: {{ capitalize(decline.name) || "-" }}
+                </div>
+                <div class="text-caption text-grey-6 text-weight-medium">
+                  {{ formatTimestamp(decline.created_at) }}
+                </div>
               </div>
 
-              <div class="text-subtitle1">
-                {{ decline.branch_premix.branch_recipe.branch.name }} -
-                {{ formatFullname(decline.employee) }}
+              <div class="col-4 column items-end q-gutter-y-xs">
+                <div>
+                  <q-badge
+                    class="text-weight-bold q-px-md q-py-sm declined-badge text-uppercase"
+                  >
+                    {{ decline.status }}
+                  </q-badge>
+                </div>
+                <div class="text-body2 text-weight-bold text-grey-8 q-pt-sm">
+                  {{ decline.branch_premix.branch_recipe.branch.name || "-" }}
+                </div>
               </div>
-              <div class="row q-gutter-x-md">
-                <div class="text-subtitle1">Declined By:</div>
-                <div class="text-overline text-weight-bold">
-                  {{ formatFullname(decline.history[0].employee) }}
+            </div>
+
+            <q-separator class="q-my-md divider-elegant" />
+
+            <div class="row items-end justify-between">
+              <div class="column q-gutter-y-xs">
+                <div class="text-caption text-grey-7">Baker:</div>
+                <div class="text-body2 text-weight-semibold text-grey-9">
+                  {{ formatFullname(decline.employee) || "-" }}
+                </div>
+              </div>
+
+              <div class="col-5 column">
+                <div class="text-caption text-grey-7">Declined By:</div>
+                <div class="text-body2 text-weight-semibold text-grey-9">
+                  {{ formatFullname(decline.history[0].employee) || "-" }}
                 </div>
               </div>
             </div>
@@ -85,6 +109,15 @@ const formatTimestamp = (val) => {
   return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
 };
 
+const capitalize = (str) => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -123,11 +156,112 @@ const handleDialog = (data) => {
 </script>
 
 <style lang="scss" scoped>
+$primary-dark: #2c3e50;
+$accent-red: #e74c3c;
+$light-grey-bg: #f9fafb;
+$border-grey: #6d6363;
+$text-dark: #37474f;
+$text-muted: #90a4ae;
+
+// 🌀 Spinner Center (No change)
 .spinner-wrapper {
   min-height: 40vh; /* Minimum height of 50% viewport height */
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+// 📭 No Data Message (Small changes to align text size)
+.no-data-message {
+  padding: 60px 20px;
+  color: $text-muted;
+
+  .q-icon {
+    color: $border-grey;
+    opacity: 0.8;
+  }
+
+  .text-h6 {
+    font-size: 1rem;
+    color: $text-dark;
+    font-weight: 600;
+  }
+
+  .text-body1 {
+    font-size: 0.8rem;
+    color: $text-muted;
+  }
+}
+
+// 💳 Card Styling (Added Font Family, Reduced Base Size)
+.elegant-card {
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  font-family: "Inter", sans-serif; /* 🚀 New Font Family */
+  font-size: 0.8rem; /* ⬇️ Reduced from 0.85rem */
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.emphasized-card {
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+
+.enhanced-card-section {
+  padding: 14px; /* ⬇️ Reduced from 18px */
+}
+
+// 🏷️ Text Styles (Reduced Font Sizes)
+.text-primary-dark {
+  color: $primary-dark;
+  font-size: 0.85rem; /* ⬇️ Reduced from 0.9rem */
+  font-weight: 600;
+}
+
+.text-caption {
+  font-size: 0.7rem; /* ⬇️ Reduced from 0.75rem */
+  color: $text-muted;
+}
+
+.text-body2 {
+  font-size: 0.75rem; /* ⬇️ Reduced from 0.8rem */
+  color: $text-dark;
+}
+
+// ❌ Declined Badge
+.declined-badge {
+  border-radius: 16px;
+  font-size: 0.7rem;
+  padding: 1px 8px; /* ⬇️ Reduced padding slightly */
+  background-color: $accent-red !important;
+  color: white;
+  letter-spacing: 0.6px;
+  box-shadow: 0 2px 5px rgba($accent-red, 0.4);
+}
+
+// 📝 Remarks Text
+.remarks-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.7rem; /* ⬇️ Reduced from 0.75rem */
+  color: $text-muted;
+  max-width: 100%;
+}
+
+// ➖ Divider
+.divider-elegant {
+  background-color: $border-grey;
+  height: 1px;
+  opacity: 0.6;
+  margin: 8px 0; /* ⬇️ Reduced from 10px 0 */
 }
 
 .data-error {

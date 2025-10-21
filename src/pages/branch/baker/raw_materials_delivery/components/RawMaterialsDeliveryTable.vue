@@ -118,11 +118,11 @@ const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const firstname = row.firstname ? capitalize(row.firstname) : "Null";
   const middlename = row.middlename
     ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+    : "Null";
+  const lastname = row.lastname ? capitalize(row.lastname) : "Null";
 
   return `${firstname} ${middlename} ${lastname}`;
 };
@@ -195,6 +195,19 @@ const deliveryListColumns = [
     label: "Process By",
     align: "left",
     field: (row) => formatFullname(row?.employee || "undefined"),
+    sortable: true,
+  },
+  {
+    name: "approved_by",
+    label: "Approved By",
+    align: "left",
+    field: (row) => {
+      if (row.status === "pending") {
+        return "N/A";
+      } else {
+        return formatFullname(row?.approved_by || "N/A");
+      }
+    },
     sortable: true,
   },
   {
