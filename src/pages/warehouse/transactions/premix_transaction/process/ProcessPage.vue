@@ -214,7 +214,7 @@ $text-muted: #90a4ae;
 
 .emphasized-card {
   border: 1px solid rgba(0, 0, 0, 0.04);
-  background: linear-gradient(180deg, #ffffff, #cdd2ff);
+  background: linear-gradient(180deg, #ffffff, #9fc1ff);
 }
 
 .enhanced-card-section {

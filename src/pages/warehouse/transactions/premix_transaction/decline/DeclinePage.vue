@@ -1,4 +1,20 @@
 <template>
+  <div>
+    <q-input
+      outlined
+      dense
+      placeholder="Search declined delivery"
+      class="q-mb-md"
+      bg-color="grey-1"
+      input-class="text-grey-8"
+      label-color="grey-6"
+    >
+      <template v-slot:prepend>
+        <q-icon name="search" color="grey-6" />
+      </template>
+    </q-input>
+  </div>
+
   <div class="spinner-wrapper" v-if="loading">
     <q-spinner-dots size="50px" color="primary" />
   </div>
@@ -18,7 +34,7 @@
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
       <div class="q-gutter-md q-ma-md">
         <q-card
-          v-for="(decline, index) in declinedPremixData"
+          v-for="(decline, index) in declinedPremixData.data"
           :key="index"
           @click="handleDialog(decline)"
           class="elegant-card emphasized-card"
@@ -70,6 +86,24 @@
       </div>
     </q-scroll-area>
   </div>
+  <div class="q-pt-lg flex flex-center">
+    <q-pagination
+      v-model="pagination.current_page"
+      :max="pagination.last_page"
+      :max-pages="3"
+      boundary-links
+      direction-links
+      icon-first="first_page"
+      icon-last="last_page"
+      icon-prev="chevron_left"
+      icon-next="chevron_right"
+      color="primary"
+      active-color="white"
+      active-text-color="primary"
+      class="elegant-pagination"
+      @update:model-value="onPageChange"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -83,6 +117,7 @@ const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
 const warehouseId = userData.value.device.reference_id;
 console.log("warehouseId", warehouseId);
+
 const premixStore = usePremixStore();
 const declinedPremixData = computed(() => premixStore.declinePremixData);
 console.log("declinedPremixData", declinedPremixData.value);
@@ -91,11 +126,21 @@ const loading = ref(true);
 const showNoDataMessage = ref(false);
 const $q = useQuasar();
 
-onMounted(async () => {
-  if (warehouseId) {
-    await fetchDeclinedPremix(warehouseId);
-  }
+const searchQuery = ref("");
+
+let searchTimeout = null;
+
+const pagination = computed(() => {
+  return (
+    premixStore.declinePremixData?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: 3,
+    }
+  );
 });
+
+console.log("pagination", pagination.value);
 
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");
@@ -131,18 +176,41 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`;
 };
 
-const fetchDeclinedPremix = async () => {
+const fetchDeclinedPremix = async (page = 1) => {
   try {
     loading.value = true;
-    await premixStore.fetchDeclinePremix(warehouseId, status.value);
+
+    await premixStore.fetchDeclinePremix(
+      warehouseId,
+      status.value,
+      pagination.value.current_page,
+      pagination.value.per_page,
+      searchQuery.value
+    );
     if (!declinedPremixData.value.length) {
       showNoDataMessage.value = true;
     }
+
+    console.log("declinedPremixData", declinedPremixData.value);
   } catch (error) {
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;
   }
+};
+
+onMounted(async () => {
+  if (warehouseId) {
+    await fetchDeclinedPremix(
+      warehouseId,
+      status.value,
+      pagination.value.current_page
+    );
+  }
+});
+
+const onPageChange = async () => {
+  fetchDeclinedPremix(warehouseId, status.value, pagination.value.current_page);
 };
 
 const handleDialog = (data) => {

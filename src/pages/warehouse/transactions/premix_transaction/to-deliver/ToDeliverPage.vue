@@ -147,7 +147,7 @@ const handleDialog = (data) => {
 
 <style lang="scss" scoped>
 $primary-dark: #2c3e50;
-$accent-red: #000000;
+$accent-brown: #795548;
 $light-grey-bg: #f9fafb;
 $border-grey: #6d6363;
 $text-dark: #37474f;
@@ -201,7 +201,7 @@ $text-muted: #90a4ae;
 
 .emphasized-card {
   border: 1px solid rgba(0, 0, 0, 0.04);
-  background: linear-gradient(180deg, #ffffff, #cbcbcb);
+  background: linear-gradient(180deg, #ffffff, #bda49b);
 }
 
 .enhanced-card-section {
@@ -230,10 +230,10 @@ $text-muted: #90a4ae;
   border-radius: 16px;
   font-size: 0.7rem;
   padding: 1px 8px; /* ⬇️ Reduced padding slightly */
-  background-color: $accent-red !important;
+  background-color: $accent-brown !important;
   color: white;
   letter-spacing: 0.6px;
-  box-shadow: 0 2px 5px rgba($accent-red, 0.4);
+  box-shadow: 0 2px 5px rgba($accent-brown, 0.4);
 }
 
 // 📝 Remarks Text

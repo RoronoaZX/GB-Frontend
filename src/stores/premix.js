@@ -8,7 +8,17 @@ export const usePremixStore = defineStore("premix", () => {
   const premixes = ref([]);
   const pendingPremixData = ref([]);
   const confirmPremixData = ref([]);
-  const declinePremixData = ref([]);
+  const declinePremixData = ref({
+    data: [],
+    pagination: {
+      total: 0,
+      per_page: 3,
+      current_page: 1,
+      last_page: 1,
+      from: 0,
+      to: 0,
+    },
+  });
   const processPremixData = ref([]);
   const completedPremixData = ref([]);
   const toDeliverPremixData = ref([]);
@@ -285,13 +295,37 @@ export const usePremixStore = defineStore("premix", () => {
     }
   };
 
-  const fetchDeclinePremix = async (warehouseId) => {
+  const fetchDeclinePremix = async (
+    warehouseId,
+    status,
+    page = 3,
+    per_page = 1,
+    search = ""
+  ) => {
     console.log("fetchDeclinePremix warehouseId", warehouseId);
     console.log("status", status);
+    console.log("page", page);
+    console.log("per_page", per_page);
+    console.log("search", search);
 
-    const decline = await api.get(`/api/get-decline-premix/${warehouseId}`);
-    console.log("decline.data", decline.data);
-    declinePremixData.value = decline.data;
+    try {
+      const decline = await api.get(`/api/get-decline-premix/${warehouseId}`, {
+        params: {
+          status: status,
+          page: page,
+          per_page: per_page,
+          search: search,
+        },
+      });
+
+      console.log("decline.data", decline.data);
+      declinePremixData.value = decline.data;
+    } catch (error) {
+      console.log(error);
+    }
+
+    // console.log("decline.data", decline.data);
+    // declinePremixData.value = decline.data;
   };
 
   const declinePremix = async (data) => {
