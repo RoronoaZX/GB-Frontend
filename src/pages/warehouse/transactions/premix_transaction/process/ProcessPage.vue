@@ -61,7 +61,7 @@
               </div>
 
               <div class="col-5 column">
-                <div class="text-caption text-grey-7">Process By:</div>
+                <div class="text-caption text-grey-7">Scaler:</div>
                 <div class="text-body2 text-weight-semibold text-grey-9">
                   {{ formatFullname(process.history[0].employee) || "-" }}
                 </div>

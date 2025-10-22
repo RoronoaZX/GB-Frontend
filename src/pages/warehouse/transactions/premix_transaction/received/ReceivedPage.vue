@@ -85,6 +85,15 @@ const capitalizeFirstLetter = (location) => {
     .join(" ");
 };
 
+const capitalize = (str) => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 const formatFullname = (row) => {
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -162,7 +171,7 @@ const receivedPremixColumns = [
     name: "premix_name",
     label: "Premix Name",
     align: "left",
-    field: (row) => row.name || "Not Available",
+    field: (row) => capitalize(row.name) || "Not Available",
     sortable: true,
   },
   {

@@ -137,16 +137,18 @@ export default boot(async ({ router }) => {
 
         // Role-based routing
         if (to.path === "/") {
-          if (role === "Admin") {
+          if (role === "Admin" || role === "Super Admin") {
             next("/admin/dashboard");
           } else if (role === "Baker") {
             next("/branch/baker");
           } else if (role === "Cake Maker") {
             next("/branch/cake_maker");
-          } else if (role === "Cashier") {
+          } else if (role === "Cashier" || role === "Sales Clerk") {
             next("/branch/sales_lady/products");
+          } else if (role === "Scaler") {
+            next("/warehouse"); // Or whatever your default logged-in page is
           } else {
-            next("/admin/dashboard"); // Or whatever your default logged-in page is
+            next("/");
           }
         } else {
           next();

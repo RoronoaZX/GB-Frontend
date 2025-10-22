@@ -14,7 +14,7 @@
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section>
         <div class="row justify-between">
-          <div class="text-h6">{{ report.name }}</div>
+          <div class="text-h6">{{ capitalize(report.name) || "-" }}</div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -27,14 +27,18 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Baker: {{ formatFullname(report.employee) }}</div>
+        <div>Date: {{ formatTimestamp(report.created_at) || "-" }}</div>
+        <div>Baker: {{ formatFullname(report.employee) || "-" }}</div>
         <div>
           Branch:
-          {{ report.branch_premix.branch_recipe.branch.name }}
+          {{ report.branch_premix.branch_recipe.branch.name || "-" }}
         </div>
         <div>
           Status:
-          <q-badge color="green" outlined> {{ report.status }} </q-badge>
+          <q-badge color="green" outlined> {{ report.status || "-" }} </q-badge>
+        </div>
+        <div>
+          Received By: {{ formatFullname(report.history[0]?.employee) || "-" }}
         </div>
       </q-card-section>
       <q-card-section>
@@ -56,7 +60,7 @@
             <q-item>
               <q-item-section>
                 <q-item-label class="text-h6">
-                  {{ report.name }}
+                  {{ capitalize(report.name) || "-" }}
                 </q-item-label>
               </q-item-section>
               <q-item-section side>
@@ -117,6 +121,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { date as quasarDate, useQuasar } from "quasar";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
 
@@ -135,6 +140,15 @@ const openDialog = () => {
 const ingredientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
 console.log("ingrdientsData", ingredientsData);
+
+const capitalize = (str) => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
@@ -175,6 +189,10 @@ const formatQuantity = (quantity, unit) => {
   }
 
   return `${quantity} ${unit}`; // Default case if unit is different
+};
+
+const formatTimestamp = (val) => {
+  return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
 };
 
 const computedIngredients = computed(() =>

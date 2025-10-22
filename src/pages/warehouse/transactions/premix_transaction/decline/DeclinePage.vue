@@ -86,7 +86,7 @@
       </div>
     </q-scroll-area>
   </div>
-  <div class="q-pt-lg flex flex-center">
+  <div v-if="pagination.last_page > 1" class="q-pt-lg flex flex-center">
     <q-pagination
       v-model="pagination.current_page"
       :max="pagination.last_page"

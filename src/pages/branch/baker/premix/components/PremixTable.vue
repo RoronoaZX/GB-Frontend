@@ -158,6 +158,15 @@ const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };
 
+const capitalize = (str) => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 const getBadgeStatusColor = (status) => {
   switch (status) {
     case "pending":
@@ -186,7 +195,7 @@ const transactionListColumns = [
     name: "name",
     label: "Transactions Name",
     align: "left",
-    field: (row) => row.name,
+    field: (row) => (row.name ? capitalize(row.name) : "N/A"),
     format: (val) => `${val}`,
     sortable: true,
   },
