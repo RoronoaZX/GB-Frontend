@@ -18,7 +18,7 @@
       <q-card-section>
         Status:
         <q-badge color="green">
-          {{ report.status }}
+          {{ capitalize(report.status || "No Status") }}
         </q-badge>
       </q-card-section>
       <q-card-section>

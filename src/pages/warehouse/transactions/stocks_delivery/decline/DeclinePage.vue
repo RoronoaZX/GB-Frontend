@@ -85,7 +85,7 @@
               <div class="col-5 column">
                 <div class="text-caption text-grey-7">Remark:</div>
                 <div class="text-body2 text-grey-8 remarks-text">
-                  {{ declined.remarks || "— No remark provided —" }}
+                  {{ capitalize(declined.remarks || "— No remark provided —") }}
                 </div>
               </div>
             </div>

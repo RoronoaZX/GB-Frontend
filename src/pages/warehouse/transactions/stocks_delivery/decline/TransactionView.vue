@@ -19,11 +19,11 @@
         <span class="text-bold">Status:</span>
 
         <q-badge color="negative">
-          {{ report.status }}
+          {{ capitalize(report.status || "No Status") }}
         </q-badge>
         <div>
           <span class="text-bold">Remark:</span>
-          {{ report.remarks || "No Remark" }}
+          {{ capitalize(report.remarks || "No Remark") }}
         </div>
       </q-card-section>
 

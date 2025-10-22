@@ -8,6 +8,8 @@
       bg-color="grey-1"
       input-class="text-grey-8"
       label-color="grey-6"
+      v-model="searchQuery"
+      @update:model-value="onSearch"
     >
       <template v-slot:prepend>
         <q-icon name="search" color="grey-6" />
@@ -211,6 +213,19 @@ onMounted(async () => {
 
 const onPageChange = async () => {
   fetchDeclinedPremix(warehouseId, status.value, pagination.value.current_page);
+};
+
+const onSearch = async () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  searchTimeout = setTimeout(() => {
+    fetchDeclinedPremix(
+      warehouseId,
+      status.value,
+      pagination.value.current_page
+    );
+  });
 };
 
 const handleDialog = (data) => {
