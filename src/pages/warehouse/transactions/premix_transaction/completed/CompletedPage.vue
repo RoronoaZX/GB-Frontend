@@ -27,7 +27,7 @@
             <div class="row items-start justify-between">
               <div class="col-8 column q-gutter-y-xs">
                 <div class="text-body1 text-weight-bold text-primary-dark">
-                  Premix: {{ capitalize(completed.name) || "-" }}
+                  Premix: {{ capitalizeFirstLetter(completed.name) || "-" }}
                 </div>
                 <div class="text-caption text-grey-6 text-weight-dark">
                   {{ formatTimestamp(completed.created_at) || "-" }}
@@ -43,7 +43,11 @@
                   </q-badge>
                 </div>
                 <div class="text-body2 text-weight-bold text-grey-8 q-pt-sm">
-                  {{ completed.branch_premix.branch_recipe.branch.name || "-" }}
+                  {{
+                    capitalizeFirstLetter(
+                      completed.branch_premix?.branch_recipe?.branch?.name
+                    ) || "-"
+                  }}
                 </div>
               </div>
             </div>
@@ -54,13 +58,13 @@
               <div class="column q-gutter-y-xs">
                 <div class="text-caption text-grey-7">Baker:</div>
                 <div class="text-body2 text-weight-semibold text-grey-9">
-                  {{ formatFullname(completed.employee) }}
+                  {{ formatFullname(completed.employee) || "-" }}
                 </div>
               </div>
               <div class="col-5 column">
                 <div class="text-caption text-grey-7">Scaler:</div>
                 <div class="text-body2 text-weight-semibold text-grey-9">
-                  {{ formatFullname(completed.history[0].employee) }}
+                  {{ formatFullname(completed.history[0].employee) || "-" }}
                 </div>
               </div>
             </div>
@@ -74,9 +78,13 @@
 <script setup>
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
-import { date as quasarDate, useQuasar } from "quasar";
+import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
+  typographyFormat();
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
@@ -95,40 +103,6 @@ onMounted(async () => {
     await fetchCompletedPremix(warehouseId);
   }
 });
-
-const formatDate = (dateString) => {
-  return quasarDate.formatDate(dateString, "MMMM D, YYYY");
-};
-
-const formatTime = (timeString) => {
-  return quasarDate.formatDate(timeString, "hh:mm A");
-};
-
-const formatTimestamp = (timeString) => {
-  return quasarDate.formatDate(timeString, "MMM DD, YYYY || hh:mm A");
-};
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
 
 const fetchCompletedPremix = async () => {
   try {

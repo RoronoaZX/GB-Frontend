@@ -19,7 +19,7 @@
     >
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
-          <q-badge color="green">
+          <q-badge color="orange-7">
             {{ capitalizeFirstLetter(props.row.status) }}
           </q-badge>
         </q-td>
@@ -39,7 +39,10 @@ import { usePremixStore } from "src/stores/premix";
 import { date as quasarDate } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
-import { preFetch } from "quasar/wrappers";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
+  typographyFormat();
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
@@ -66,46 +69,6 @@ onMounted(async () => {
   }
   console.log("receivePremixData", receivePremixData.value);
 });
-
-const formatDate = (dateString) => {
-  return quasarDate.formatDate(dateString, "MMMM D, YYYY");
-};
-
-const formatTime = (timeString) => {
-  return quasarDate.formatDate(timeString, "hh:mm A");
-};
-const formatTimestamp = (val) => {
-  return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
-};
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
 
 const fetchReceivePremix = async (warehouseId, page = 0, rowsPerPage = 5) => {
   try {
@@ -164,14 +127,15 @@ const receivedPremixColumns = [
     label: "Branch Name",
     align: "left",
     field: (row) =>
-      row.branch_premix.branch_recipe.branch.name || "Not Available",
+      capitalizeFirstLetter(row?.branch_premix?.branch_recipe?.branch?.name) ||
+      "Not Available",
     sortable: true,
   },
   {
     name: "premix_name",
     label: "Premix Name",
     align: "left",
-    field: (row) => capitalize(row.name) || "Not Available",
+    field: (row) => capitalizeFirstLetter(row.name) || "Not Available",
     sortable: true,
   },
   {

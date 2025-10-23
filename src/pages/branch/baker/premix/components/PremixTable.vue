@@ -77,9 +77,10 @@
 import { computed, reactive, ref, watch, onMounted, watchEffect } from "vue";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { usePremixStore } from "src/stores/premix";
-import { date as quasarDate } from "quasar";
 import TransactionView from "./TransactionView.vue";
-// import { useRequestPremixStore } from "src/stores/request-premix";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatTimestamp } = typographyFormat();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -128,6 +129,7 @@ const fetchRequestBranchEmployeePremix = async () => {
       descending
     );
     rows.value = premix.data;
+    console.log("rows.value", rows.value);
     maxPages.value = premix.last_page;
     pagination.value.rowsPerPage = premix.per_page || 10;
     showNoDataMessage.value = rows.value.length === 0;
@@ -150,29 +152,13 @@ watch(filter, () => {
     loadingSearchIcon.value = false;
   });
 });
-const formatDate = (dateString) => {
-  return quasarDate.formatDate(dateString, "MMMM D, YYYY - hh:mm A");
-};
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-};
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
 
 const getBadgeStatusColor = (status) => {
   switch (status) {
     case "pending":
       return "warning";
     case "declined":
-      return "red-6";
+      return "negative";
     case "confirmed":
       return "green";
     case "process":
@@ -195,7 +181,7 @@ const transactionListColumns = [
     name: "name",
     label: "Transactions Name",
     align: "left",
-    field: (row) => (row.name ? capitalize(row.name) : "N/A"),
+    field: (row) => (row.name ? capitalizeFirstLetter(row.name) : "N/A"),
     format: (val) => `${val}`,
     sortable: true,
   },
@@ -204,7 +190,7 @@ const transactionListColumns = [
     align: "center",
     label: "Date",
     field: "created_at",
-    format: (val) => formatDate(val),
+    format: (val) => formatTimestamp(val),
     sortable: true,
   },
   {
@@ -223,6 +209,7 @@ const transactionListColumns = [
   },
 ];
 </script>
+
 <style scoped>
 .loading-overlay {
   position: absolute;

@@ -80,6 +80,13 @@
 
             <div class="row justify-between items-end">
               <div class="column q-gutter-y-xs">
+                <div class="text-caption text-grey-7">Created By:</div>
+                <div class="text-body2 text-weight-semibold text-grey-9">
+                  {{ formatFullname(confirm.employee) || "-" }}
+                </div>
+              </div>
+
+              <div class="col-5 column">
                 <div class="text-caption text-grey-7">Confirmed By:</div>
                 <div class="text-body2 text-weight-semibold text-grey-9">
                   {{ formatFullname(confirm.approved_by) || "-" }}

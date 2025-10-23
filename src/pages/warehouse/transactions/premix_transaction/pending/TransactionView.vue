@@ -1,9 +1,11 @@
 <template>
   <q-dialog ref="dialogRef" v-model="dialog" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section class="emphasized-header">
         <div class="row justify-between">
-          <div class="text-h6">{{ report.name }}</div>
+          <div class="text-h6">
+            {{ capitalizeFirstLetter(report.name) || "-" }}
+          </div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -16,14 +18,20 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Baker: {{ formatFullname(report.employee) }}</div>
+        <div>Baker: {{ formatFullname(report.employee) || "-" }}</div>
         <div>
           Branch:
-          {{ report.branch_premix.branch_recipe.branch.name }}
+          {{
+            capitalizeFirstLetter(
+              report.branch_premix?.branch_recipe?.branch?.name
+            ) || "-"
+          }}
         </div>
         <div>
           Status:
-          <q-badge color="warning" outlined> {{ report.status }} </q-badge>
+          <q-badge color="warning" outlined>
+            {{ capitalizeFirstLetter(report.status) || "No Status" }}
+          </q-badge>
         </div>
       </q-card-section>
       <q-card-section>
@@ -44,12 +52,12 @@
           <q-item>
             <q-item-section>
               <q-item-label class="text-h6">
-                {{ report.name }}
+                {{ capitalizeFirstLetter(report.name) || "-" }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-item-label class="text-h6">
-                {{ report.quantity }}
+                {{ formatRequestQuantity(report.quantity) || "-" }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -103,9 +111,14 @@ import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
 import { Notify } from "quasar";
 import { useDialogPluginComponent } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname, formatRequestQuantity } =
+  typographyFormat();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
+
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
 console.log("userdata", userData.value);
@@ -132,19 +145,6 @@ const remarkDialog = ref(false);
 
 const openRemarkDialog = () => {
   remarkDialog.value = true;
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
 };
 
 const confirmReport = async () => {
@@ -193,5 +193,9 @@ const declineReports = async () => {
 .box {
   border: 1px dashed grey;
   border-radius: 10px;
+}
+
+.emphasized-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
 }
 </style>

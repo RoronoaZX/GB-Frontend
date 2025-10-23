@@ -31,7 +31,7 @@
             <div class="row items-start justify-between">
               <div class="col-8 column q-gutter-y-xs">
                 <div class="text-body1 text-weight-bold text-primary-dark">
-                  From: {{ capitalize(pending.from_name) || "-" }}
+                  From: {{ capitalizeFirstLetter(pending.from_name) || "-" }}
                 </div>
                 <div class="text-caption text-grey-6 text-weight-meduim">
                   {{ formatTimeStamp(pending.created_at) || "-" }}
@@ -53,26 +53,16 @@
               </div>
             </div>
 
-            <!-- <q-separator class="q-my-md divider-elegant" />
+            <q-separator class="q-my-md divider-elegant" />
 
             <div class="row justify-between items-end">
               <div class="column q-gutter-y-xs">
-                <div></div>
+                <div class="text-caption text-grey-7">Created By:</div>
+                <div class="text-body2 text-weight-semibold text-grey-9">
+                  {{ formatFullname(pending.employee) || "-" }}
+                </div>
               </div>
             </div>
-
-            <div class="text-subtitle1 text-bold">
-              Processed by: {{ formatFullname(pending.employee) || "-" }}
-            </div>
-            <div class="row justify-between">
-
-              <div class="text-subtitle1">
-
-              </div>
-              <div>
-                <q-badge color="warning" outlined> Pending </q-badge>
-              </div>
-            </div> -->
           </q-card-section>
         </q-card>
       </div>
@@ -86,6 +76,9 @@ import { useWarehousesStore } from "src/stores/warehouse";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
@@ -100,28 +93,6 @@ const to_designation = ref("Warehouse");
 const loading = ref(true);
 const showNoDataMessage = ref(false);
 const $q = useQuasar();
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
 
 const formatTimeStamp = (val) => {
   return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
@@ -281,7 +252,7 @@ $text-muted: #90a4ae;
   background-color: $border-grey;
   height: 1px;
   opacity: 0.6;
-  margin: 8px 0; /* ⬇️ Reduced from 10px 0 */
+  margin: 8px 0; /* ⬇️ Reduced margin */
 }
 
 // 🔢 Psagination (No change, sizes are already compact)

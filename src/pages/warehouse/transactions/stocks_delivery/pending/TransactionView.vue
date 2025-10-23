@@ -3,7 +3,9 @@
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section class="emphasized-header">
         <div class="row justify-between">
-          <div class="text-h6">From: {{ capitalize(report.from_name) }}</div>
+          <div class="text-h6">
+            From: {{ capitalizeFirstLetter(report.from_name) }}
+          </div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -15,8 +17,22 @@
           />
         </div>
       </q-card-section>
-      <q-card-section>
+      <q-card-section class="text-caption text-grey-7 q-mt-sm">
         <div>
+          <span class="text-bold">Date:</span>
+          {{ formatTimestamp(report.created_at) || "-" }}
+        </div>
+        <div>
+          <span class="text-bold">Created By:</span>
+          {{ formatFullname(report.employee) || "-" }}
+        </div>
+        <div>
+          <span class="text-bold">Status:</span>
+          <q-badge color="warning" outlined>
+            {{ capitalizeFirstLetter(report.status) || "-" }}
+          </q-badge>
+        </div>
+        <div class="q-mt-md">
           <span class="text-grey-7 text-caption">Items:</span>
 
           <template v-if="report.items && report.items.length">
@@ -81,6 +97,10 @@ import { computed, ref } from "vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import DeclinePage from "./DeclinedDialog.vue";
 import { useUsersStore } from "src/stores/user";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
+  typographyFormat();
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
@@ -108,16 +128,6 @@ const $q = useQuasar();
 const openDialog = () => {
   dialog.value = true;
 };
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
 const formatQuantity = (val) => {
   if (val == null) return "No Quantity";
   return parseFloat(val);
@@ -153,12 +163,6 @@ const confirmReport = async (data) => {
         total_grams: qty * gramsPerUnit,
       };
     });
-
-    // Compute the overall grams
-    // const totalGrams = itemsWithTotals.reduce(
-    //   (sum, item) => sum + item.total_grams,
-    //   0
-    // );
 
     console.log("Per Item Totals:", itemsWithTotals);
     console.log("employueee id:", userData.value?.data?.employee?.id);

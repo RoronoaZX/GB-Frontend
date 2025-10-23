@@ -1,9 +1,11 @@
 <template>
   <q-dialog ref="dialogRef" v-model="dialog" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section class="emphasized-header">
         <div class="row justify-between">
-          <div class="text-h6">{{ report.name }}</div>
+          <div class="text-h6">
+            {{ capitalizeFirstLetter(report.name) || "-" }}
+          </div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -16,14 +18,20 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Baker: {{ formatFullname(report.employee) }}</div>
+        <div>Baker: {{ formatFullname(report.employee) || "-" }}</div>
         <div>
           Branch:
-          {{ report.branch_premix.branch_recipe.branch.name }}
+          {{
+            capitalizeFirstLetter(
+              report.branch_premix?.branch_recipe?.branch?.name
+            ) || "-"
+          }}
         </div>
         <div>
           Status:
-          <q-badge color="green" outlined> {{ report.status }} </q-badge>
+          <q-badge color="green" outlined>
+            {{ capitalizeFirstLetter(report.status) || "-" }}
+          </q-badge>
         </div>
       </q-card-section>
       <q-card-section class="q-gutter-y-md">
@@ -43,12 +51,12 @@
             <q-item>
               <q-item-section>
                 <q-item-label class="text-h6">
-                  {{ report.name }}
+                  {{ capitalizeFirstLetter(report.name) || "-" }}
                 </q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-item-label class="text-h6">
-                  {{ formatRequestQuantity(report.quantity) }}
+                  {{ formatRequestQuantity(report.quantity) || "-" }}
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -111,7 +119,14 @@ import { computed, ref } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { usePremixStore } from "src/stores/premix";
 import { Notify, useDialogPluginComponent } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
 
+const {
+  capitalizeFirstLetter,
+  formatFullname,
+  formatQuantity,
+  formatRequestQuantity,
+} = typographyFormat();
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 const dialog = ref(false);
@@ -132,51 +147,11 @@ const props = defineProps({
   },
 });
 
-const formatRequestQuantity = (quantity) => {
-  const num = Number(quantity); // Convert to number
-  if (isNaN(num)) return ""; // Handle invalid values
-
-  if (num % 1 === 0) {
-    return num.toString(); // Whole numbers (remove decimals)
-  }
-  return num.toString(); // Keep decimals as is
-};
-
-const formatQuantity = (quantity, unit) => {
-  if (unit === "Pcs") {
-    return `${quantity} pcs`; // Keep as is for pieces
-  }
-
-  if (unit === "Grams") {
-    if (quantity >= 1000) {
-      let kg = quantity / 1000;
-      let formattedKg =
-        kg % 1 === 0 ? kg.toString() : kg.toString().replace(/^0+/, "");
-      return `${formattedKg} kgs`;
-    }
-    return `${quantity} g`;
-  }
-
-  return `${quantity} ${unit}`; // Default case if unit is different
-};
-
 const ingrdientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
 console.log("ingrdientsData", ingrdientsData);
 
 console.log("report to proceed", props.report);
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
 
 const processPremix = async () => {
   try {
@@ -203,4 +178,13 @@ const processPremix = async () => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+
+.emphasized-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+</style>

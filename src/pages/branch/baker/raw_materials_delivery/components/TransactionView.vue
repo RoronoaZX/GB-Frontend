@@ -13,7 +13,9 @@
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section>
         <div class="row justify-between">
-          <div class="text-h6">{{ capitalize(report.from_name) }}</div>
+          <div class="text-h6">
+            {{ capitalizeFirstLetter(report.from_name) || "-" }}
+          </div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -27,13 +29,16 @@
       </q-card-section>
       <q-card-section>
         <div>
-          <span>Date: {{ formatDate(report.created_at) }}</span>
+          <span>Date: {{ formatTimestamp(report.created_at) || "-" }}</span>
+        </div>
+        <div>
+          <span>Created By: {{ formatFullname(report.employee) || "-" }}</span>
         </div>
         <div>
           <span>
             Status:
             <q-badge :color="getStatusColor(report.status)">
-              {{ capitalize(report.status) }}
+              {{ capitalizeFirstLetter(report.status) || "-" }}
             </q-badge>
           </span>
         </div>
@@ -108,6 +113,10 @@ import ConfirmDialog from "./ConfirmDialog.vue";
 import DeclinedDialog from "./DeclinedDialog.vue";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { useBakerReportsStore } from "src/stores/baker-report";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
+  typographyFormat();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -130,19 +139,6 @@ const $q = useQuasar();
 
 const openDialog = () => {
   dialog.value = true;
-};
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-const formatDate = (date) => {
-  return quasarDate.formatDate(date, "MMMM D, YYYY - hh:mm A");
 };
 
 const formatQuantity = (val) => {

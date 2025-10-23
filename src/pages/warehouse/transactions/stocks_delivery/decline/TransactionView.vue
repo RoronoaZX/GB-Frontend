@@ -1,9 +1,11 @@
 <template>
   <q-dialog ref="dialogRef" v-model="dialog" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section class="emphasized-header">
         <div class="row justify-between">
-          <div class="text-h6">From: {{ capitalize(report.from_name) }}</div>
+          <div class="text-h6">
+            From: {{ capitalizeFirstLetter(report.from_name) }}
+          </div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -16,14 +18,22 @@
         </div>
       </q-card-section>
       <q-card-section class="text-caption text-grey-7 q-mt-sm">
+        <div>
+          <span class="text-bold">Date:</span>
+          {{ formatTimestamp(report.created_at) }}
+        </div>
+        <div>
+          <span class="text-bold">Created By:</span>
+          {{ formatFullname(report.employee) || "-" }}
+        </div>
         <span class="text-bold">Status:</span>
 
         <q-badge color="negative">
-          {{ capitalize(report.status || "No Status") }}
+          {{ capitalizeFirstLetter(report.status || "No Status") }}
         </q-badge>
         <div>
           <span class="text-bold">Remark:</span>
-          {{ capitalize(report.remarks || "No Remark") }}
+          {{ capitalizeFirstLetter(report.remarks || "No Remark") }}
         </div>
       </q-card-section>
 
@@ -74,6 +84,10 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 import { ref } from "vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
+  typographyFormat();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -86,15 +100,6 @@ const props = defineProps({
 console.log("report", props.report);
 
 const dialog = ref(false);
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
 
 const formatQuantity = (val) => {
   if (val == null) return "No Quantity";
@@ -110,5 +115,9 @@ const formatQuantity = (val) => {
 .box {
   border: 1px dashed grey;
   border-radius: 10px;
+}
+
+.emphasized-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
 }
 </style>

@@ -13,9 +13,11 @@
 
   <q-dialog v-model="dialog">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section :class="getHeaderClass(report.status)">
         <div class="row justify-between">
-          <div class="text-h6">{{ report.name }}</div>
+          <div class="text-h6">
+            {{ capitalizeFirstLetter(report.name) || "-" }}
+          </div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -27,17 +29,21 @@
           />
         </div>
       </q-card-section>
-      {{ report.id }}
       <q-card-section>
-        <div>Baker: {{ formatFullname(report.employee) }}</div>
+        <div>Date: {{ formatTimestamp(report.created_at) || "-" }}</div>
+        <div>Baker: {{ formatFullname(report.employee) || "-" }}</div>
         <div>
           Branch:
-          {{ report.branch_premix.branch_recipe.branch.name }}
+          {{
+            capitalizeFirstLetter(
+              report?.branch_premix?.branch_recipe?.branch.name
+            ) || "-"
+          }}
         </div>
         <div>
           Status:
           <q-badge :color="getStatusColor(report.status)" outlined>
-            {{ report.status }}
+            {{ capitalizeFirstLetter(report.status) || "-" }}
           </q-badge>
         </div>
       </q-card-section>
@@ -58,7 +64,7 @@
             <q-item>
               <q-item-section>
                 <q-item-label class="text-h6">
-                  {{ report.name }}
+                  {{ capitalizeFirstLetter(report.name) || "-" }}
                 </q-item-label>
               </q-item-section>
               <q-item-section side>
@@ -92,11 +98,6 @@
                   {{ ingredients.ingredient.code }}
                 </q-item-label>
               </q-item-section>
-              <!-- <q-item-section>
-                <q-item-label class="text-subtitle1" align="left">
-                  {{ ingredients.ingredient.name }}
-                </q-item-label>
-              </q-item-section> -->
               <q-item-section side>
                 <q-item-label class="text-subtitle1">
                   {{
@@ -155,6 +156,15 @@ import { ref, computed } from "vue";
 import { useQuasar } from "quasar";
 import { usePremixStore } from "src/stores/premix";
 import { useBakerReportsStore } from "src/stores/baker-report";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const {
+  capitalizeFirstLetter,
+  formatTimestamp,
+  formatFullname,
+  formatRequestQuantity,
+  formatQuantity,
+} = typographyFormat();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -163,30 +173,40 @@ const employeeId = userData.value?.data?.employee_id || "";
 const branchId = userData.value?.device?.reference_id || "";
 console.log("employeeId in PremixPage:", employeeId);
 console.log("branchId in PremixPage:", branchId);
-// console.log("warehouseId in PremixPage:", warehouseId);
 const premixStore = usePremixStore();
 
 const $q = useQuasar();
 const dialog = ref(false);
 const loading = ref(false);
 const props = defineProps({ report: { type: Object, required: true } });
-console.log("props in TransactionView:", props.report);
+console.log("props in TransactionViewss:", props.report);
 const emit = defineEmits(["update-history"]);
 
 const openDialog = () => {
   dialog.value = true;
 };
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  return `${capitalize(row.firstname || "No Firstname")} ${
-    row.middlename ? capitalize(row.middlename).charAt(0) + "." : ""
-  } ${capitalize(row.lastname || "No Lastname")}`;
-};
-const capitalizeFirstLetter = (string) => {
-  if (!string) return "";
-  return string.charAt(0).toUpperCase() + string.slice(1);
+const getHeaderClass = (status) => {
+  switch (status) {
+    case "pending":
+      return "pending-header";
+    case "confirmed":
+      return "confirm-header";
+    case "declined":
+      return "decline-header";
+    case "process":
+      return "process-header";
+    case "completed":
+      return "completed-header";
+    case "to deliver":
+      return "to-deliver-header";
+    case "to receive":
+      return "to-receive-header";
+    case "received":
+      return "receive-header";
+    default:
+      return "";
+  }
 };
 
 const statusSteps = [
@@ -207,14 +227,6 @@ const filteredSteps = computed(() => {
   );
 });
 
-// const getStepCaption = (status) => {
-//   const historyEntry = props.report.history.find((h) => h.status === status);
-//   return historyEntry
-//     ? `${capitalizeFirstLetter(historyEntry.status)} by: ${formatFullname(
-//         historyEntry.employee
-//       )}`
-//     : "No handler";
-// };
 const getStepCaption = (status) => {
   const historyEntry = props.report.history.find((h) => h.status === status);
 
@@ -228,34 +240,6 @@ const getStepCaption = (status) => {
     return `Requested by: ${formatFullname(historyEntry.employee)}`;
   }
   return `Handled by: ${formatFullname(historyEntry.employee)}`;
-};
-
-const formatRequestQuantity = (quantity) => {
-  const num = Number(quantity); // Convert to number
-  if (isNaN(num)) return ""; // Handle invalid values
-
-  if (num % 1 === 0) {
-    return num.toString(); // Whole numbers (remove decimals)
-  }
-  return num.toString(); // Keep decimals as is
-};
-
-const formatQuantity = (quantity, unit) => {
-  if (unit === "Pcs") {
-    return `${quantity} pcs`; // Keep as is for pieces
-  }
-
-  if (unit === "Grams") {
-    if (quantity >= 1000) {
-      let kg = quantity / 1000;
-      let formattedKg =
-        kg % 1 === 0 ? kg.toString() : kg.toString().replace(/^0+/, "");
-      return `${formattedKg} kgs`;
-    }
-    return `${quantity} g`;
-  }
-
-  return `${quantity} ${unit}`; // Default case if unit is different
 };
 
 const ingredientsData =
@@ -293,7 +277,7 @@ const isStepDone = (stepValue) =>
 const getStatusColor = (status) =>
   ({
     pending: "warning",
-    declined: "red-6",
+    declined: "negative",
     confirmed: "green",
     process: "primary",
     completed: "dark",
@@ -325,3 +309,35 @@ const confirmReceived = async () => {
   dialog.value = false;
 };
 </script>
+
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+.process-header {
+  background: linear-gradient(180deg, #ffffff, #9fc1ff);
+}
+.completed-header {
+  background: linear-gradient(180deg, #ffffff, #cbcbcb);
+}
+.to-deliver-header {
+  background: linear-gradient(180deg, #ffffff, #bda49b);
+}
+.to-receive-header {
+  background: linear-gradient(180deg, #ffffff, #ffd29c);
+}
+.receive-header {
+  background: linear-gradient(180deg, #ffffff, #8ff7ed);
+}
+</style>

@@ -76,6 +76,10 @@ import { useBakerReportsStore } from "src/stores/baker-report";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
+  typographyFormat();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -104,28 +108,6 @@ const selectedDelivery = ref(null);
 const searchQuery = ref("");
 
 let searchTimeout = null;
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "Null";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "Null";
-  const lastname = row.lastname ? capitalize(row.lastname) : "Null";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
 
 const onSearch = () => {
   if (searchTimeout) {
@@ -187,7 +169,7 @@ const deliveryListColumns = [
     label: "Date",
     align: "left",
     field: "created_at",
-    format: (val) => formatDate(val),
+    format: (val) => formatTimestamp(val),
     sortable: true,
   },
   {
@@ -218,7 +200,7 @@ const deliveryListColumns = [
       if (row.from_designation === "Supplier") {
         return "Supplier";
       }
-      return capitalize(row.from_name);
+      return capitalizeFirstLetter(row.from_name);
     },
     sortable: true,
   },
@@ -244,13 +226,6 @@ const deliveryListColumns = [
   },
 ];
 
-const formatDate = (val) => {
-  return quasarDate.formatDate(val, "MMMM D, YYYY - hh:mm A");
-};
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-};
 const getStatusColor = (status) => {
   switch ((status || "").toLowerCase()) {
     case "pending":
