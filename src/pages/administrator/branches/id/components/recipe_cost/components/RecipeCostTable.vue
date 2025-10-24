@@ -50,7 +50,7 @@
               round
               dense
               @click="openRecipeIngredients(props.row)"
-            ></q-btn>
+            />
           </div>
         </q-td>
       </template>
@@ -66,8 +66,12 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { useRecipeCostStore } from "src/stores/recipe-cost";
 import { useRoute } from "vue-router";
-import { date as quasarDate, useQuasar, Notify } from "quasar";
+import { useQuasar, Notify } from "quasar";
 import RecipeIngredientsView from "./RecipeIngredientsView.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatFullname, formatTimestamp, capitalizeFirstLetter } =
+  typographyFormat();
 
 const route = useRoute();
 const branchId = route.params.branch_id;
@@ -130,22 +134,6 @@ const fetchRecipeCosts = async (page = 0, rowsPerPage = 3, search = "") => {
 };
 onMounted(fetchRecipeCosts);
 
-const formatTimeStamp = (val) => {
-  return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
 const trimTrailingZeros = (value) => {
   if (value == null || isNaN(value)) return 0;
   return parseFloat(parseFloat(value).toString());
@@ -154,7 +142,7 @@ const trimTrailingZeros = (value) => {
 const formatPrice = (val) => {
   if (val == null) return "No Price";
 
-  return `₱${Number(val)}`;
+  return `₱${Number(val).toFixed(2)}`;
 };
 
 const openRecipeIngredients = (row) => {
@@ -190,7 +178,7 @@ const recipeCostColumn = [
     name: "date",
     label: "Date",
     align: "center",
-    field: (row) => formatTimeStamp(row.created_at || "N/A"),
+    field: (row) => formatTimestamp(row.created_at || "N/A"),
   },
   {
     name: "baker_name",
@@ -202,7 +190,7 @@ const recipeCostColumn = [
     name: "recipe_name",
     label: "Recipe name",
     align: "center",
-    field: (row) => row.recipe_name || "N/A",
+    field: (row) => capitalizeFirstLetter(row.recipe_name) || "N/A",
   },
   {
     name: "total_cost",

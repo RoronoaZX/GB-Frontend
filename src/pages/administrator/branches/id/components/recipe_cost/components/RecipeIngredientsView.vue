@@ -1,6 +1,6 @@
 <template>
   <q-dialog
-    ref="dailogRef"
+    ref="dialogRef"
     @hide="onDialogHide"
     persistent
     position="right"
@@ -92,7 +92,7 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 
-const { dailogRef, onDialogHide, onDialogOK, onDialogCancel } =
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps({
@@ -116,7 +116,9 @@ const capitalizeFirstLetter = (location) => {
 const formatPrice = (value) => {
   if (value == null || isNaN(value)) return "0.00";
 
-  return `₱${Number(value)}`;
+  return `₱${parseFloat(value)
+    .toFixed(2)
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };
 
 const calculateTotalCostPerIngredient = (ingredient) => {
