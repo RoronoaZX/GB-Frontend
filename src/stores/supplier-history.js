@@ -6,7 +6,7 @@ export const useSupplierHistoryStore = defineStore("supplier-history", () => {
   const supplierHistory = ref(null);
   const supplierHistories = ref([]);
 
-  const fetchSupplierHistory = async (page = 1, per_page = 3, search = "") => {
+  const fetchSupplierHistory = async (page = 1, per_page = 5, search = "") => {
     console.log("store history");
 
     try {
@@ -27,9 +27,19 @@ export const useSupplierHistoryStore = defineStore("supplier-history", () => {
     }
   };
 
+  const updateSupplierHistoriesDateTime = async (deliveryId, newDateTime) => {
+    console.log(
+      "Updating date time for delivery:",
+      deliveryId,
+      "to new time:",
+      newDateTime
+    );
+  };
+
   return {
     supplierHistory,
     supplierHistories,
     fetchSupplierHistory,
+    updateSupplierHistoriesDateTime,
   };
 });

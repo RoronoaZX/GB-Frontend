@@ -267,6 +267,21 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     }
   };
 
+  const updateDeliveryDate = async (deliveryId, newDate) => {
+    try {
+      console.log("Updating delivery date:", deliveryId, newDate);
+      const response = await api.put(
+        `/api/update-delivery-date/${deliveryId}`,
+        {
+          created_at: newDate,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error updating delivery date:", error);
+    }
+  };
+
   return {
     deliveryStock,
     deliveryStocks,
@@ -284,5 +299,6 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     fetchDeclinedDeliveryReports,
     fetchConfirmedDeliveryReports,
     updateDeliveryStocks,
+    updateDeliveryDate,
   };
 });

@@ -12,13 +12,18 @@
       </q-card-section>
 
       <q-card-section>
-        <div>From: {{ delivery.from_name || "N/A" }}</div>
-        <div>To: {{ delivery.to_data.name || "N/A" }}</div>
+        <div>
+          From: {{ capitalizeFirstLetter(delivery.from_name) || "N/A" }}
+        </div>
+        <div>
+          To: {{ capitalizeFirstLetter(delivery.to_data.name) || "N/A" }}
+        </div>
       </q-card-section>
 
       <q-card-section>
         <div class="q-mb-md">
-          Raw Materials Name: {{ item.raw_material.name || "N/A" }}
+          Raw Materials Name:
+          {{ capitalizeFirstLetter(item.raw_material.name) || "N/A" }}
         </div>
 
         <div>
@@ -68,6 +73,9 @@
 import { ref, computed, reactive, watch } from "vue";
 import { Notify, useDialogPluginComponent, useQuasar } from "quasar";
 import { useStockDelivery } from "src/stores/stock-delivery";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();

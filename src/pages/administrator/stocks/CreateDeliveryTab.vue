@@ -64,7 +64,7 @@
                 <q-item-label
                   class="text-subtitle1 text-weight-bold text-grey-8"
                 >
-                  {{ capitalize(delivery.to_data?.name || "N/A") }}
+                  {{ capitalizeFirstLetter(delivery.to_data?.name || "N/A") }}
                 </q-item-label>
                 <q-item-label caption class="text-grey-6">
                   {{ delivery.items.length || "N/A" }} items
@@ -73,7 +73,7 @@
 
               <q-item-section side>
                 <q-item-label>
-                  {{ formatTimeStamp(delivery.created_at) || "N/A" }}
+                  {{ formatTimestamp(delivery.created_at) || "N/A" }}
                 </q-item-label>
                 <div class="row items-center text-caption">
                   <q-icon
@@ -94,7 +94,7 @@
                         : 'text-grey-6'
                     "
                   >
-                    {{ capitalize(delivery.status || "No Status") }}
+                    {{ capitalizeFirstLetter(delivery.status || "No Status") }}
                   </span>
                 </div>
               </q-item-section>
@@ -150,17 +150,77 @@
 
         <q-card-section>
           <div v-if="selectedDelivery">
+            <div class="q-mb-md">
+              <div class="row items-center">
+                <div>
+                  <span class="text-grey-7 text-caption">Delivery Date:</span>
+                  <div v-if="!isEditingDate">
+                    {{ formatTimestamp(selectedDelivery.created_at) }}
+                  </div>
+
+                  <q-input
+                    v-else
+                    outlined
+                    dense
+                    type="date"
+                    v-model="editableDate"
+                    class="q-mt-xs"
+                    hint="MM/DD/YYYY"
+                  />
+                </div>
+
+                <div class="q-ml-md">
+                  <q-btn
+                    v-if="!isEditingDate"
+                    flat
+                    round
+                    dense
+                    icon="edit"
+                    color="primary"
+                    @click="startEditingDate"
+                  >
+                    <q-tooltip>Edit Date & Time</q-tooltip>
+                  </q-btn>
+                  <div v-else class="row q-gutter-sm">
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="check"
+                      color="positive"
+                      @click="saveEditedDate"
+                    />
+                    <q-btn
+                      flat
+                      round
+                      dense
+                      icon="close"
+                      color="negative"
+                      @click="cancelEditingDate"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="row justify-between q-col-gutter-md q-mb-md">
               <div class="col-xs-12 col-sm-4">
                 <span class="text-grey-7 text-caption">From:</span>
                 <div class="text-subtitle1 text-weight-bold">
-                  {{ capitalize(selectedDelivery.from_name || "No Name") }}
+                  {{
+                    capitalizeFirstLetter(
+                      selectedDelivery.from_name || "No Name"
+                    )
+                  }}
                 </div>
               </div>
               <div class="">
                 <span class="text-grey-7 text-caption">To:</span>
                 <div class="text-subtitle1 text-weight-bold">
-                  {{ capitalize(selectedDelivery.to_data?.name || "No Name") }}
+                  {{
+                    capitalizeFirstLetter(
+                      selectedDelivery.to_data?.name || "No Name"
+                    )
+                  }}
                 </div>
               </div>
             </div>
@@ -182,7 +242,11 @@
                         : 'text-grey-6'
                     "
                   >
-                    {{ capitalize(selectedDelivery.status || "No Status") }}
+                    {{
+                      capitalizeFirstLetter(
+                        selectedDelivery.status || "No Status"
+                      )
+                    }}
                   </span>
                 </div>
               </div>
@@ -297,12 +361,42 @@ import { useStockDelivery } from "src/stores/stock-delivery";
 import DeliveryCard from "./components/StocksDeliveryButton.vue";
 import EditDialog from "./components/EditDialog.vue";
 import { date as quasarDate, useQuasar } from "quasar";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const {
+  formatTimestamp,
+  capitalizeFirstLetter,
+  formatPricePerGram,
+  formatPrice,
+  getStatusColor,
+} = typographyFormat();
 
 const stocksDeliveryStore = useStockDelivery();
 const $q = useQuasar();
 
 const openMenu = ref(false);
+
+// For editing delivery date
+const isEditingDate = ref(false);
+const editableDate = ref("");
+
+// Start editing the current delivery date
+const startEditingDate = () => {
+  if (selectedDelivery.value) {
+    // Convert timestamp to YYYY-MM-DD for input type="date"
+    editableDate.value = quasarDate.formatDate(
+      selectedDelivery.value.created_at,
+      "YYYY-MM-DD"
+    );
+    isEditingDate.value = true;
+  }
+};
+
+// Cancel editing
+const cancelEditingDate = () => {
+  isEditingDate.value = false;
+};
 
 // Computed properties to access store state
 const deliveryList = computed(() => stocksDeliveryStore.deliveryStocks.data);
@@ -391,18 +485,6 @@ const openEditDialog = (item, delivery) => {
     },
   });
 };
-const formatTimeStamp = (val) => {
-  return quasarDate.formatDate(val, "MMM DD, YYYY || hh:mm A");
-};
-
-const capitalize = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
 
 const openDialog = (delivery) => {
   selectedDelivery.value = delivery;
@@ -413,36 +495,41 @@ const onPageChange = (newPage) => {
   fetchDeliveryStocks(newPage);
 };
 
+const saveEditedDate = async () => {
+  try {
+    console.log("Saving edited date:", editableDate.value);
+    if (!editableDate.value || !selectedDelivery.value?.id) return;
+
+    // Send only the selected date
+    const response = await stocksDeliveryStore.updateDeliveryDate(
+      selectedDelivery.value.id,
+      editableDate.value
+    );
+
+    selectedDelivery.value.created_at = response.new_created_at;
+
+    $q.notify({
+      type: "positive",
+      message: "Delivery date updated successfully!",
+    });
+  } catch (error) {
+    $q.notify({
+      type: "negative",
+      message: "Failed to update delivery date.",
+    });
+  } finally {
+    isEditingDate.value = false;
+  }
+};
+
 const formatQuantity = (val) => {
   if (val == null) return "No Quantity";
   return parseFloat(val);
 };
 
-const formatPrice = (val) => {
-  if (val == null) return "No Price";
-  // return `₱${parseFloat(val).toFixed(2)}`
-  return `₱${Number(val).toFixed(2)}`; // always show 2 decimals
-};
-const formatPricePerGram = (val) => {
-  if (val == null) return "No Price";
-  // return `₱${parseFloat(val).toFixed(2)}`
-  return `₱${Number(val).toFixed(4)}`; // always show 2 decimals
-};
-
-const getStatusColor = (status) => {
-  switch ((status || "").toLowerCase()) {
-    case "pending":
-      return "warning";
-    case "in progress":
-      return "blue-7";
-    case "confirmed":
-      return "positive";
-    case "declined":
-      return "negative";
-    default:
-      return "grery-6";
-  }
-};
+watch(selectedDelivery, (newVal) => {
+  console.log("Selected Delivery changed:", newVal);
+});
 
 const getItemClass = (delivery) => {
   if (!selectedDelivery.value || delivery.id !== selectedDelivery.value.id)

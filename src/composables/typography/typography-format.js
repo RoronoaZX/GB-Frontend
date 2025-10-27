@@ -58,11 +58,47 @@ export function typographyFormat() {
     return num.toString(); // Keep decimals as is
   };
 
+  const formatPricePerGram = (val) => {
+    if (val == null) return "No Price";
+    // return `₱${parseFloat(val).toFixed(2)}`
+    return `₱${Number(val).toFixed(4)}`; // always show 2 decimals
+  };
+
+  const formatPrice = (val) => {
+    if (val == null) return "No Price";
+    // return `₱${parseFloat(val).toFixed(2)}`
+    return `₱${Number(val).toFixed(2)}`; // always show 2 decimals
+  };
+
+  const getStatusColor = (status) => {
+    switch ((status || "").toLowerCase()) {
+      case "pending":
+        return "warning";
+      case "in progress":
+        return "blue-7";
+      case "confirmed":
+        return "positive";
+      case "declined":
+        return "negative";
+      default:
+        return "grery-6";
+    }
+  };
+
+  // const getPenConNegColor = (status) => {
+  //   switch ((status || "").toLowerCase()) {
+  //     case
+  //   }
+  // }
+
   return {
     capitalizeFirstLetter,
     formatFullname,
     formatTimestamp,
     formatQuantity,
     formatRequestQuantity,
+    formatPricePerGram,
+    formatPrice,
+    getStatusColor,
   };
 }
