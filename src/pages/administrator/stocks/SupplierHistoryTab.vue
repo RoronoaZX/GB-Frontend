@@ -62,16 +62,29 @@
               Edit Date & Time
             </div>
             <div class="text-subtitle2 q-mb-sm">
-              Supplier: {{ capitalizeFirstLetter(props.row.supplier) }}
+              Supplier: {{ capitalizeFirstLetter(props.row.supplier_name) }}
             </div>
 
             <q-input
-              v-model="scope.value"
-              type="datetime-local"
               filled
-              :model-value="convertDisplayToInput(props.row.created_at)"
-              @update:model-value="scope.value = $event"
-              hint="Select date & time"
+              :model-value="splitDateTime(props.row.created_at).datePart"
+              @update:model-value="
+                (val) => updateCombinedDateTime(scope, val, 'date')
+              "
+              mask="####-##-##"
+              label="Date"
+              hint="Format: YYYY-MM-DD"
+              class="q-mb-sm"
+            />
+
+            <q-input
+              filled
+              :model-value="splitDateTime(props.row.created_at).timePart"
+              @update:model-value="
+                (val) => updateCombinedDateTime(scope, val, 'time')
+              "
+              mask="##:## AA"
+              label="Time (AM/PM)"
             />
 
             <div class="row justify-end q-mt-md">
@@ -137,14 +150,81 @@ const supplierHistories = computed(
   () => supplierHistoryStore.supplierHistories
 );
 
-const convertDisplayToInput = (displayVal) => {
-  if (!displayVal) return "";
+const convertDisplayToInput = (isoDateString) => {
+  if (!isoDateString) return "";
 
-  const parsed = new Date(displayVal);
-  if (isNaN(parsed)) return "";
+  // Parse as UTC then adjust to local time (important if backend returns UTC)
+  const localTime = date.extractDate(isoDateString, "YYYY-MM-DDTHH:mm:ss.SSSZ");
 
-  // "YYYY-MM-DDTHH:mm" → fits <input type="datetime-local">
-  return date.formatDate(parsed, "YYYY-MM-DDTHH:mm");
+  // Format to Quasar-friendly combined value (12-hour format with AM/PM)
+  // You can also use "HH:mm" if you prefer 24-hour
+  return date.formatDate(localTime, "YYYY-MM-DD hh:mm AA");
+};
+
+const splitDateTime = (isoDateString) => {
+  if (!isoDateString) return { datePart: "", timePart: "" };
+
+  // ✅ Normalize microseconds and Zulu timezone
+  const cleanISO = isoDateString.replace(/\.\d+Z$/, "Z");
+
+  // ✅ Create a real JS Date (handles UTC correctly)
+  const parsed = new Date(cleanISO);
+
+  if (isNaN(parsed)) {
+    console.error("Invalid date string: ", isoDateString);
+    return { datePart: "", timePart: "" };
+  }
+
+  // ✅ Format to local time ( using Quasar utilities)
+  const datePart = date.formatDate(parsed, "YYYY-MM-DD");
+  const timePart = date.formatDate(parsed, "hh:mm A");
+
+  return { datePart, timePart };
+};
+
+const getDateFromCombined = (combinedDateTimeString) => {
+  if (!combinedDateTimeString) return "";
+  const parts = combinedDateTimeString.split(" ");
+  return parts[0] || ""; // Returns YYYY-MM-DD
+};
+
+// Extracts just the time part (hh:mm A) from a combined date-time string
+const getTimeFromCombined = (combinedDateTimeString) => {
+  if (!combinedDateTimeString) return "";
+  const parts = combinedDateTimeString.split(" ");
+  // Handles both "YYYY-MM-DD hh:mm A" and "YYYY-MM-DD HH:mm"
+  if (parts.length === 3) return `${parts[1]} ${parts[2]}`; // hh:mm A
+  if (parts.length === 2) return parts[1]; // HH:mm
+  return "";
+};
+
+// Updates the combined scope.value when either date or time input changes
+const updateCombinedDateTime = (scope, newValue, type) => {
+  let currentDatePart = getDateFromCombined(
+    scope.value || convertDisplayToInput(scope.initialValue)
+  );
+  let currentTimePart = getTimeFromCombined(
+    scope.value || convertDisplayToInput(scope.initialValue)
+  );
+
+  if (type === "date") {
+    currentDatePart = newValue;
+  } else if (type === "time") {
+    currentTimePart = newValue;
+  }
+
+  // Combine them back. Ensure both parts exist to avoid "YYYY-MM-DD undefined"
+  if (currentDatePart && currentTimePart) {
+    scope.value = `${currentDatePart} ${currentTimePart}`;
+  } else if (currentDatePart) {
+    // If only date is available
+    scope.value = currentDatePart;
+  } else if (currentTimePart) {
+    // If only time is available
+    scope.value = currentTimePart;
+  } else {
+    scope.value = ""; // Or handle as appropriate
+  }
 };
 
 const supplierHistoriesData = ref([]);
@@ -161,16 +241,102 @@ const pagination = ref({
 
 const filter = ref("");
 
-const updateSupplierHistoriesDateTime = (row, newTime) => {
-  console.log("Updating date time for row:", row.id, "to new time:", newTime);
-  if (!row.id || !newTime) return;
+const updateSupplierHistoriesDateTime = async (row, newTime) => {
+  if (!row.rm_delivery_id || !newTime) return;
 
-  // Send only the selelcted date
-  const response = supplierHistoryStore.updateSupplierHistoriesDateTime(
-    row.id,
-    newTime
-  );
+  try {
+    loading.value = true;
+    // Check if user only changed the date (missing time)
+    const hasTime = /\d{1,2}:\d{2}/.test(newTime);
+
+    let finalDateTime = newTime;
+
+    if (!hasTime) {
+      // 🟢 Use original time from created_at if missing
+      const original = splitDateTime(row.created_at);
+      const originalTime = original.timePart || "12:00 AM"; // fallback
+      finalDateTime = `${newTime} ${originalTime}`;
+    }
+
+    // ✅ Send the full date + time to backend
+    const response = await supplierHistoryStore.updateSupplierHistoriesDateTime(
+      row.rm_delivery_id,
+      finalDateTime
+    );
+
+    console.log("Updated datetime payload:", finalDateTime);
+    console.log("response", response);
+
+    // 🟢 Update the current table row immediately
+    if (response?.created_at) {
+      row.created_at = response.created_at; // <-- refresh UI instantly
+    }
+
+    // 🟢 Optionally notify the user
+    $q.notify({
+      type: "positive",
+      message: "Date & time updated successfully!",
+      position: "top",
+    });
+  } catch (error) {
+    console.error("Error updating DTR:", error);
+    $q.notify({
+      type: "negative",
+      message: "Failed to update date & time.",
+      position: "top",
+    });
+  } finally {
+    loading.value = false;
+  }
 };
+
+// const updateSupplierHistoriesDateTime = async (row, newTime) => {
+//   if (!row.rm_delivery_id || !newTime) return;
+
+//   try {
+//     // Check if user only changed the data (missing time)
+//     const hasTime = /\d{1,2}:\d{2}/.test(newTime);
+
+//     let finalDateTime = newTime;
+
+//     if (!hasTime) {
+//       // 🟢 Use original time from.created_at if missing
+//       const original = splitDateTime(row.created_at);
+//       const originalTime = original.timePart || "12:00 AM"; // fallback
+
+//       finalDateTime = `${newTime} ${originalTime}`;
+//     }
+
+//     // ✅ Send the full date + time to backend
+//     const response = await supplierHistoryStore.updateSupplierHistoriesDateTime(
+//       row.rm_delivery_id,
+//       finalDateTime
+//     );
+
+//     console.log("Updated datetime payload:", finalDateTime);
+//     console.log("responsess", response);
+
+//     // 🟢 Update the current table row immediatedly
+//     if (response?.created_at) {
+//       row.create_at = response.created_at; // <-- refresh UI instantly
+//     }
+
+//     //  🟢 Optionally notify the user
+//     $q.notify({
+//       type: "positive",
+//       message: "Date & Time updated successfully!",
+//       position: "top-right",
+//     });
+//   } catch (error) {
+//     console.error("Error updating DTR:", error);
+
+//     $q.notify({
+//       type: "negative",
+//       messaage: "Failed to update date & time.",
+//       position: "top-right",
+//     });
+//   }
+// };
 
 const fetchSupplierHistory = async (page = 0, rowsPerPage = 5, search = "") => {
   console.log("Fetching recipe costs in store...");

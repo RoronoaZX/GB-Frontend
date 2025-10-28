@@ -34,6 +34,20 @@ export const useSupplierHistoryStore = defineStore("supplier-history", () => {
       "to new time:",
       newDateTime
     );
+
+    try {
+      const response = await api.put(
+        `/api/update-supplier-history-date-time/${deliveryId}`,
+        {
+          created_at: newDateTime,
+        }
+      );
+      console.log("response", response.data);
+      // supplierHistory.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.log("Error updating date time:", error);
+    }
   };
 
   return {

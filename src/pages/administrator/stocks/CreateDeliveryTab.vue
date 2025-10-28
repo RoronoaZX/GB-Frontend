@@ -158,7 +158,37 @@
                     {{ formatTimestamp(selectedDelivery.created_at) }}
                   </div>
 
-                  <q-input
+                  <div v-else>
+                    <q-input
+                      filled
+                      outlined
+                      dense
+                      :model-value="
+                        splitDateTime(selectedDelivery.created_at).datePart
+                      "
+                      @update:model-value="
+                        (val) => updateCombinedDateTime(val, 'date')
+                      "
+                      mask="####-##-##"
+                      label="Date"
+                      hint="Format: YYYY-MM-DD"
+                      class="q-mb-sm"
+                    />
+                    <q-input
+                      filled
+                      outlined
+                      dense
+                      :model-value="
+                        splitDateTime(selectedDelivery.created_at).timePart
+                      "
+                      @update:model-value="
+                        (val) => updateCombinedDateTime(val, 'time')
+                      "
+                      mask="##:## AA"
+                      label="Time (AM/PM)"
+                    />
+                  </div>
+                  <!-- <q-input
                     v-else
                     outlined
                     dense
@@ -166,7 +196,7 @@
                     v-model="editableDate"
                     class="q-mt-xs"
                     hint="MM/DD/YYYY"
-                  />
+                  /> -->
                 </div>
 
                 <div class="q-ml-md">
@@ -188,7 +218,7 @@
                       dense
                       icon="check"
                       color="positive"
-                      @click="saveEditedDate"
+                      @click="saveEditedDateTime"
                     />
                     <q-btn
                       flat
@@ -381,15 +411,94 @@ const openMenu = ref(false);
 const isEditingDate = ref(false);
 const editableDate = ref("");
 
+const tempDate = ref("");
+const tempTime = ref("");
+
+const splitDateTime = (timestamp) => {
+  if (!timestamp) return { datePart: "", timePart: "" };
+
+  // Convert UTC → Asia/Manila and format as 12-hour with AM/PM
+  const formatted = quasarDate.formatDate(timestamp, "YYYY-MM-DD hh:mm A", {
+    timeZone: "Asia/Manila",
+  });
+
+  // Example: "2025-10-28 02:15 PM"
+  const [datePart, timePart, ampm] = formatted.split(" ");
+  return {
+    datePart,
+    timePart: `${timePart} ${ampm}`, // 👈 ensures AM/PM appears in input
+  };
+};
+
+// Called when user edits date/time field
+const updateCombinedDateTime = (value, type) => {
+  if (type === "date") tempDate.value = value;
+  if (type === "time") tempTime.value = value;
+};
+
 // Start editing the current delivery date
 const startEditingDate = () => {
   if (selectedDelivery.value) {
-    // Convert timestamp to YYYY-MM-DD for input type="date"
-    editableDate.value = quasarDate.formatDate(
-      selectedDelivery.value.created_at,
-      "YYYY-MM-DD"
-    );
+    const parts = splitDateTime(selectedDelivery.value.created_at);
+    tempDate.value = parts.datePart;
+    tempTime.value = parts.timePart;
     isEditingDate.value = true;
+  }
+};
+
+// Save edited date + time
+const saveEditedDateTime = async () => {
+  try {
+    loading.value = true;
+
+    if (!selectedDelivery.value?.id) return;
+
+    const finalDateTime = `${tempDate.value} ${tempTime.value}`;
+    console.log("Saving new datetime:", finalDateTime);
+
+    // 🟢 Await and receive backend response
+    const response = await stocksDeliveryStore.updateDeliveryDate(
+      selectedDelivery.value.id,
+      finalDateTime
+    );
+
+    console.log("Response after update:", response);
+
+    // ✅ Handle backend message dynamically
+    const message = response?.message || "Unknown server response.";
+
+    if (response?.new_created_at && message.includes("successfully")) {
+      selectedDelivery.value.created_at = response.new_created_at;
+
+      $q.notify({
+        type: "positive",
+        message: message,
+      });
+
+      console.log(
+        "Updated created_at inUI:",
+        selectedDelivery.value.created_at
+      );
+    } else {
+      $q.notify({
+        type: "warning",
+        message: message || "Delivery date was not updated.",
+      });
+    }
+  } catch (error) {
+    console.error("Error updating date:", error);
+
+    // 🟥 Check if backend provided a readable error message
+    const errorMessage =
+      error.response?.data?.message || "Failed to update delivery date & time.";
+
+    $q.notify({
+      type: "negative",
+      message: errorMessage,
+    });
+  } finally {
+    loading.value = false;
+    isEditingDate.value = false;
   }
 };
 
