@@ -5,10 +5,7 @@
       <q-badge label="Warning" class="text-white" color="warning" />
       <q-badge label="Danger" class="text-white" color="red" />
     </div>
-    <!-- <div class="row q-gutter-md justify-end q-pa-sm">
-      <ProductSearch />
-      <RawMaterialsCreate />
-    </div> -->
+
     <div>
       <RawMaterialsTable />
     </div>

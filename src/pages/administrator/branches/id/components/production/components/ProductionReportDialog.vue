@@ -83,6 +83,10 @@ import { useDialogPluginComponent } from "quasar";
 import BakerReportPanel from "./report-panel/BakerReportPanel.vue";
 import SalesReportPanel from "./report-panel/SalesReportPanel.vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
@@ -101,13 +105,6 @@ const tab = ref("bakerReport");
 const maximizedToggle = ref(true);
 const dialog = ref(false);
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 const handleButtonClick = () => {
   emit("selectReport", props.reports);
   dialog.value = true;

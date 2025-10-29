@@ -105,20 +105,16 @@
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { computed } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const bakerReportStore = useBakerReportsStore();
 const bakerReport = computed(() => bakerReportStore.reports);
 
 console.log("bakers report:", bakerReport.value);
 const removeReports = (index) => {
   bakerReportStore.removeReport(index);
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 </script>
 

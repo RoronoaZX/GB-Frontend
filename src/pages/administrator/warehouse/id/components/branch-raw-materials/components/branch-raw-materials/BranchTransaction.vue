@@ -9,10 +9,6 @@
       placeholder="Search"
       style="width: 500px; max-width: 1500px; min-width: 100px"
     >
-      <!-- <template v-slot:append>
-        <q-icon v-if="!loadingSearchIcon" name="search" />
-        <q-icon v-else :thickness="2" color="teal" size="1em" />
-      </template> -->
     </q-input>
   </div>
   <div class="spinner-wrapper" v-if="loading">
@@ -23,7 +19,7 @@
       <q-icon name="warning" color="warning" size="4em" />
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
-    <!-- :filter="filter" -->
+
     <q-table
       v-else
       bordered
@@ -39,7 +35,10 @@
     >
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
-          <q-badge outlined :color="getBadgeStatusColor(props.row.status)">
+          <q-badge
+            outlined
+            :color="getPremixBadgeStatusColor(props.row.status)"
+          >
             {{ capitalizeFirstLetter(props.row.status) }}
           </q-badge>
         </q-td>
@@ -64,11 +63,15 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch, onMounted } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { usePremixStore } from "src/stores/premix";
-import { date as quasarDate } from "quasar";
 import { useRoute } from "vue-router";
 import TransactionView from "./TransactionView.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatTimestamp } = typographyFormat();
+const { getPremixBadgeStatusColor } = badgeColor();
 
 const route = useRoute();
 const warehouseID = computed(() => route.params.warehouse_id || null);
@@ -91,8 +94,6 @@ const pagination = ref({
 });
 
 const branchId = props.branchId;
-
-const filteringData = async () => {};
 
 const fetchRequestBranchPremix = async (
   branchId,
@@ -142,13 +143,6 @@ const onPageRequest = (props) => {
   );
 };
 
-// watch(filter, () => {
-//   loadingSearchIcon.value = true;
-//   setTimeout(() => {
-//     loadingSearchIcon.value = false;
-//   });
-// });
-
 watch(filter, async (newVal) => {
   loadingSearchIcon.value = true;
   await fetchRequestBranchPremix(
@@ -160,43 +154,12 @@ watch(filter, async (newVal) => {
   loadingSearchIcon.value = false;
 });
 
-const formatDate = (dateString) => {
-  return quasarDate.formatDate(dateString, "MMM D, YYYY - hh:mm A");
-};
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-};
-
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "pending":
-      return "warning";
-    case "declined":
-      return "red-6";
-    case "confirmed":
-      return "green";
-    case "process":
-      return "primary";
-    case "completed":
-      return "dark";
-    case "to deliver":
-      return "brown-9";
-    case "to receive":
-      return "amber-10";
-    case "received":
-      return "secondary";
-    default:
-      return "grey";
-  }
-};
-
 const transactionListColumns = [
   {
     name: "name",
     label: "Transactions Name",
     align: "left",
-    field: (row) => row.name,
+    field: (row) => capitalizeFirstLetter(row.name) || "N/A",
     format: (val) => `${val}`,
     sortable: true,
   },
@@ -205,7 +168,7 @@ const transactionListColumns = [
     align: "center",
     label: "Created Date",
     field: "created_at",
-    format: (val) => formatDate(val),
+    format: (val) => formatTimestamp(val),
     sortable: true,
   },
   {
@@ -213,7 +176,7 @@ const transactionListColumns = [
     align: "center",
     label: "Updated Date",
     field: "updated_at",
-    format: (val) => formatDate(val),
+    format: (val) => formatTimestamp(val),
     sortable: true,
   },
   {

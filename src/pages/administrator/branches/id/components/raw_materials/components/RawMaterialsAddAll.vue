@@ -9,7 +9,7 @@
     <q-dialog v-model="dialog">
       <q-card style="width: 700px; max-width: 80vw">
         <q-card-section class="row items-center text-white bg-gradient">
-          <div class="text-h6">Create Branch Raw Materials</div>
+          <div class="text-h6">Create Branch Raw Materialssss</div>
           <q-space />
           <q-btn icon="close" flat dense round v-close-popup />
         </q-card-section>
@@ -49,7 +49,7 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label class="text-subtitle1" align="left">
-                  {{ ingredients.name }}
+                  {{ capitalizeFirstLetter(ingredients.name) || "-" }}
                 </q-item-label>
               </q-item-section>
               <q-item-section>
@@ -89,6 +89,10 @@ import { useRawMaterialsStore } from "src/stores/raw-material";
 import { useBranchRawMaterialsStore } from "src/stores/branch-rawMaterials";
 import { computed, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const route = useRoute();
 const rawMaterialsStore = useRawMaterialsStore();

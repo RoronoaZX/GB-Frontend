@@ -67,7 +67,9 @@
                           >
                             <q-item-section>
                               <q-item-label>
-                                {{
+                                {{ formatFullname(user) }}
+
+                                <!-- {{
                                   `
                                   ${user?.firstname} ${
                                     user?.middlename
@@ -76,7 +78,7 @@
                                           .toUpperCase() + "."
                                       : ""
                                   } ${user?.lastname}`
-                                }}
+                                }} -->
                               </q-item-label>
                             </q-item-section>
                           </q-item>
@@ -116,7 +118,9 @@
                           clickable
                         >
                           <q-item-section>
-                            <q-item-label>{{ product.name }}</q-item-label>
+                            <q-item-label>{{
+                              capitalizeFirstLetter(product.name)
+                            }}</q-item-label>
                           </q-item-section>
                         </q-item>
                       </q-list>
@@ -170,7 +174,7 @@
                     >
                       <!-- Product Name -->
                       <q-item-section class="q-ma-sm text-subtitle2" side>
-                        {{ credit.productName }}
+                        {{ capitalizeFirstLetter(credit.productName || "") }}
                       </q-item-section>
 
                       <!-- Pieces (pcs) -->
@@ -245,6 +249,10 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useUsersStore } from "src/stores/user";
 import { ref, reactive, computed, watch } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+
 const route = useRoute();
 const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
@@ -267,13 +275,6 @@ let productsSelected = false;
 const loading = ref(false); // Loading state
 const employeeSearchLoading = ref(false);
 const productSearchLoading = ref(false);
-
-const formatUserName = (user) => {
-  const { firstname, middlename, lastname } = user.employee;
-  return `${firstname} ${
-    middlename ? middlename.charAt(0) + "." : ""
-  } ${lastname}`;
-};
 
 const searchUsers = async () => {
   if (searchQuery.value) {
@@ -334,13 +335,15 @@ const isDropdownVisible = computed(() => {
 
 const autoFillUser = (user) => {
   console.log("credit", user);
-  searchQuery.value = `${user.firstname} ${
-    user.middlename ? user.middlename.charAt(0) + "." : ""
-  } ${user.lastname}`;
+  // searchQuery.value = `${user.firstname} ${
+  //   user.middlename ? user.middlename.charAt(0) + "." : ""
+  // } ${user.lastname}`;
+  searchQuery.value = `${formatFullname(user)}`;
   creditForm.credit_user_id = user.id;
-  creditForm.name = `${user.firstname} ${
-    user.middlename ? user.middlename.charAt(0) + "." : ""
-  } ${user.lastname}`;
+  // creditForm.name = `${user.firstname} ${
+  //   user.middlename ? user.middlename.charAt(0) + "." : ""
+  // } ${user.lastname}`;
+  creditForm.name = `${formatFullname(user)}`;
   userSelected = true; // Set flag when user is selected
   showUserCard.value = false;
 };

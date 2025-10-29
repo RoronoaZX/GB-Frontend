@@ -12,7 +12,7 @@
               <q-item-section class="q-ma-sm q-gutter-sm" side>
                 <q-item-label>Price</q-item-label>
                 <q-item-label caption>
-                  {{ formatCurrency(cake.price) }}
+                  {{ formatPrice(cake.price) }}
                 </q-item-label>
               </q-item-section>
               <q-item-section class="q-ma-sm q-gutter-sm" side>
@@ -47,27 +47,12 @@
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
 const salesReportsStore = useSalesReportsStore();
 const cakeReports = computed(() => salesReportsStore.cakeReports);
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-    .format(value)
-    .replace("₱", "₱ ");
-};
 
 const removeCake = (index) => {
   salesReportsStore.removeCake(index);

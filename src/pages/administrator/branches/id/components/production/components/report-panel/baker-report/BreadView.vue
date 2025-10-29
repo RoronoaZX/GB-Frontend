@@ -31,9 +31,6 @@
                 >Pieces</q-item-label
               >
             </q-item-section>
-            <!-- <q-item-section>
-                  <q-item-label class="text-overline">Unit</q-item-label>
-                </q-item-section> -->
           </q-item>
           <q-item v-for="(breads, index) in breadProduction" :key="index">
             <q-item-section>
@@ -49,9 +46,6 @@
           </q-item>
         </q-list>
       </q-card-section>
-      <!-- <q-table :rows="breadProduction" :columns="BreadReportsColumns">
-      </q-table> -->
-      <!-- {{ reports }} -->
     </q-card>
   </q-dialog>
 </template>
@@ -60,38 +54,15 @@
 import { useDialogPluginComponent } from "quasar";
 import { computed, ref } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["breadProduction", "branchRecipe"]);
 console.log("breadReportsaaasss", props.breadProduction);
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-// const BreadReportsColumns = [
-//   {
-//     name: "bread_name",
-//     label: "Bread Name",
-//     align: "left",
-//     field: (row) => {
-//       console.log("Row data:", row); // Debug each row's data
-//       return row.bread.name || "N/A"; // Adjust this according to your data
-//     },
-//     format: (val) => capitalizeFirstLetter(val),
-//   },
-//   {
-//     name: "production",
-//     label: "Production",
-//     align: "center",
-//     field: (row) => row.bread_production || row.filling_production || "0",
-//   },
-// ];
 </script>
 
 <style lang="scss" scoped>

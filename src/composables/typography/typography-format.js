@@ -1,4 +1,4 @@
-import { date as quasarDate } from "quasar";
+import { date as quasarDate, date } from "quasar";
 
 export function typographyFormat() {
   const capitalizeFirstLetter = (text) => {
@@ -24,6 +24,14 @@ export function typographyFormat() {
     const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
 
     return `${firstname} ${middlename} ${lastname}`;
+  };
+
+  const formatDate = (dateString) => {
+    return date.formatDate(dateString, "MMMM DD, YYYY");
+  };
+
+  const formatTime = (dateString) => {
+    return date.formatDate(dateString, "hh:mm A");
   };
 
   const formatTimestamp = (val) => {
@@ -67,38 +75,43 @@ export function typographyFormat() {
   const formatPrice = (val) => {
     if (val == null) return "No Price";
     // return `₱${parseFloat(val).toFixed(2)}`
-    return `₱${Number(val).toFixed(2)}`; // always show 2 decimals
+    return `₱ ${Number(val).toFixed(2)}`; // always show 2 decimals
   };
 
-  const getStatusColor = (status) => {
-    switch ((status || "").toLowerCase()) {
-      case "pending":
-        return "warning";
-      case "in progress":
-        return "blue-7";
-      case "confirmed":
-        return "positive";
-      case "declined":
-        return "negative";
+  const formatRecipeTarget = (target) => {
+    const numericTarget = Number(target) || 0;
+
+    return parseFloat(numericTarget.toFixed(3)).toString();
+  };
+
+  const trimTrailingZeros = (value) => {
+    if (value == null || isNaN(value)) return 0;
+    return parseFloat(parseFloat(value).toString());
+  };
+
+  const getRecipeBadgeStatusColor = (status) => {
+    switch (status) {
+      case "inactive":
+        return "grey";
+      case "active":
+        return "green";
       default:
-        return "grery-6";
+        return "grey";
     }
   };
-
-  // const getPenConNegColor = (status) => {
-  //   switch ((status || "").toLowerCase()) {
-  //     case
-  //   }
-  // }
 
   return {
     capitalizeFirstLetter,
     formatFullname,
+    formatDate,
+    formatTime,
     formatTimestamp,
     formatQuantity,
     formatRequestQuantity,
     formatPricePerGram,
     formatPrice,
-    getStatusColor,
+    formatRecipeTarget,
+    getRecipeBadgeStatusColor,
+    trimTrailingZeros,
   };
 }

@@ -70,8 +70,13 @@ import { useQuasar, Notify } from "quasar";
 import RecipeIngredientsView from "./RecipeIngredientsView.vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
 
-const { formatFullname, formatTimestamp, capitalizeFirstLetter } =
-  typographyFormat();
+const {
+  formatFullname,
+  formatTimestamp,
+  capitalizeFirstLetter,
+  formatPrice,
+  trimTrailingZeros,
+} = typographyFormat();
 
 const route = useRoute();
 const branchId = route.params.branch_id;
@@ -133,17 +138,6 @@ const fetchRecipeCosts = async (page = 0, rowsPerPage = 3, search = "") => {
   }
 };
 onMounted(fetchRecipeCosts);
-
-const trimTrailingZeros = (value) => {
-  if (value == null || isNaN(value)) return 0;
-  return parseFloat(parseFloat(value).toString());
-};
-
-const formatPrice = (val) => {
-  if (val == null) return "No Price";
-
-  return `₱${Number(val).toFixed(2)}`;
-};
 
 const openRecipeIngredients = (row) => {
   console.log("Editing row:", row);

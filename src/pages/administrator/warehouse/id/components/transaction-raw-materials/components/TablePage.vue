@@ -30,8 +30,11 @@
 import { useRoute } from "vue-router";
 import { computed, ref, onMounted } from "vue";
 import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
-import { date } from "quasar";
 import HistorView from "./HistoryView.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
+  typographyFormat();
 
 const route = useRoute();
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
@@ -88,30 +91,6 @@ const onPageRequest = (props) => {
     props.pagination.page,
     props.pagination.rowsPerPage
   );
-};
-
-const formatTimestamp = (dateTimeString) => {
-  return date.formatDate(dateTimeString, "MMM DD, YYYY || hh:mm A");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
-const capitalizeFirstLetter = (data) => {
-  if (!data) return "";
-  return data
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 
 const historyRawMaterialsColumns = [

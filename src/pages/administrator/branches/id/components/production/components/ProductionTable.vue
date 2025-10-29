@@ -79,13 +79,16 @@ import { useRoute } from "vue-router";
 import AddBakerReport from "./add_baker_report/AddBakerReport.vue";
 import AddSalesReport from "./add_sales_report/AddSalesReport.vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatDate } = typographyFormat();
 const route = useRoute();
-const tab = ref("bakerReport");
 const branchId = route.params.branch_id;
-const dialog = ref(false);
-const maximizedToggle = ref(true);
-const selectedPeriod = ref("");
-const branchName = ref("");
+// const tab = ref("bakerReport");
+// const dialog = ref(false);
+// const maximizedToggle = ref(true);
+// const selectedPeriod = ref("");
+// const branchName = ref("");
 
 const pagination = ref({
   page: 1,
@@ -100,18 +103,9 @@ const filter = ref("");
 const productions = computed(() => productionStore.productions);
 const productionRows = ref([]);
 console.log("productionRows:", productionRows.value); // Log the computed production rows
-const isLoading = ref(true);
+// const isLoading = ref(true);
 const loading = ref(true);
 const showNoDataMessage = ref(false);
-
-const filteredRows = computed(() => {
-  if (!filter.value) {
-    return productionRows.value;
-  }
-  return productionRows.value.filter((row) =>
-    row.name.toLowerCase().includes(filter.value.toLowerCase())
-  );
-});
 
 onMounted(async () => {
   if (branchId) {
@@ -176,10 +170,6 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = productionRows.value.length === 0;
 });
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
-
 const productsColumn = [
   {
     name: "reportDate",
@@ -197,10 +187,6 @@ const productsColumn = [
 ];
 
 const $q = useQuasar();
-// const chipOnClick = (report) => {
-//   console.log("Selected Report:", report);
-//   handleDialog(report);
-// };
 
 const handleDialog = (report, label) => {
   $q.dialog({

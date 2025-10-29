@@ -72,6 +72,9 @@ import { useRoute, useRouter } from "vue-router";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { api } from "src/boot/axios";
 import TransactionWarehouse from "./components/transaction-raw-materials/TransactionsWarehouse.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const route = useRoute();
 const router = useRouter();
@@ -84,18 +87,6 @@ const warehouseId = computed(
 );
 
 const tab = ref("warehouseRawMaterials");
-
-// watch(
-//   warehouseId,
-//   async (id) => {
-//     if (id) {
-//       await warehouseStore.fetchCertainWarehouse(id);
-//     }
-//   },
-//   {
-//     immediate: true,
-//   }
-// );
 
 const getWarehouseById = async (warehouseId) => {
   const res = await api.get(`/api/warehouse/${warehouseId}`);
@@ -118,13 +109,6 @@ onMounted(() => {
   fetchWarehouse();
 });
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 const navigateBack = () => {
   Loading.show();
   router.push("/admin/warehouse").finally(() => {

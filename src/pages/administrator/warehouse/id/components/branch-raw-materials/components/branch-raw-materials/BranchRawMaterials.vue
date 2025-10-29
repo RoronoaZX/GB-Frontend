@@ -16,7 +16,7 @@
         <q-badge
           square
           class="text-white cursor-pointer"
-          :class="getRawMaterialBadgeColor(props.row)"
+          :class="getRawMaterialBadgeColorForStocks(props.row)"
         >
           {{ formatTotalQuantity(props.row) }}
         </q-badge>
@@ -25,7 +25,9 @@
     <template v-slot:body-cell-category="props">
       <q-td key="name" :props="props">
         <q-badge
-          :color="getBadgeCategoryColor(props.row.raw_material.category)"
+          :color="
+            getRawMaterialBadgeCategoryColor(props.row.raw_material.category)
+          "
         >
           {{ props.row.raw_material.category }}
         </q-badge>
@@ -35,32 +37,28 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
-import { useDialogPluginComponent } from "quasar";
+import { ref } from "vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+const { capitalizeFirstLetter } = typographyFormat();
+const { getRawMaterialBadgeCategoryColor } = badgeColor();
 
 const props = defineProps({
   branchReport: Object,
-  // tableColumns: Array,
-  getRawMaterialBadgeColor: Function,
-  getBadgeCategoryColor: Function,
+  getRawMaterialBadgeColorForStocks: Function,
   formatTotalQuantity: Function,
-  capitalizeFirstLetter: Function,
 });
 console.log("branchReportss", props.branchReport);
-const dialog = ref(false);
-const maximizedToggle = ref(true);
 
 // Table columns for the reports
 const tableColumns = ref([
-  // { name: "id", label: "ID", align: "left", field: "id" },
   {
     name: "raw_material",
     label: "Raw Materials Name",
     align: "left",
-    field: (row) => row.raw_material?.name || "No record",
+    field: (row) =>
+      capitalizeFirstLetter(row.raw_material?.name) || "No record",
   },
   {
     name: "code",
@@ -72,7 +70,8 @@ const tableColumns = ref([
     name: "category",
     label: "Category",
     align: "left",
-    field: (row) => row.raw_material?.category || "No record",
+    field: (row) =>
+      capitalizeFirstLetter(row.raw_material?.category) || "No record",
   },
   {
     name: "total_quantity",

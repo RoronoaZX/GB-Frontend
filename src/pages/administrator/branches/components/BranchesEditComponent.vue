@@ -149,6 +149,9 @@ import { reactive, ref, onMounted, computed } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useBranchesStore } from "src/stores/branch";
 import { useEmployeeStore } from "src/stores/employee";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatFullname } = typographyFormat();
 
 const employeeStore = useEmployeeStore();
 const branchesStore = useBranchesStore();
@@ -227,19 +230,6 @@ const editBranchesForm = reactive({
   phone: "",
   status: null,
 });
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
 
 const saveEditedBranches = async () => {
   // console.log("editRow.id", editRow.id);

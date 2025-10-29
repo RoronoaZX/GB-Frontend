@@ -54,7 +54,7 @@
                     >
                       <q-item-section>
                         <q-item-label>{{
-                          capitalizeFirstLetter(recipe.name)
+                          capitalizeFirstLetter(recipe.name) || ""
                         }}</q-item-label>
                       </q-item-section>
                     </q-item>
@@ -232,6 +232,10 @@ import { useRoute } from "vue-router";
 import { Notify } from "quasar";
 import { useBranchRecipeStore } from "src/stores/branch-recipe";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const route = useRoute();
 const branchId = route.params.branch_id;
 const recipeStore = useRecipeStore();
@@ -250,14 +254,6 @@ const dismiss = () => {
   dialog.value = false;
 };
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const searchQuery = ref("");
 const search = async () => {
   recipeStore.searchRecipe(searchQuery.value);
@@ -269,7 +265,7 @@ const isFormValid = computed(() => {
 
 const autofillRecipe = (data) => {
   addBranchRecipe.recipe_id = data.id;
-  addBranchRecipe.recipe_name = data.name;
+  addBranchRecipe.recipe_name = capitalizeFirstLetter(data.name);
   addBranchRecipe.category = data.category;
   searchQuery.value = "";
 };

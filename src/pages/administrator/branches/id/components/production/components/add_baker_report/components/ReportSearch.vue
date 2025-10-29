@@ -30,7 +30,9 @@
                 }}</q-item-label>
               </q-item-section>
               <q-item-section>
-                <q-item-label side>{{ branchRecipe?.category }}</q-item-label>
+                <q-item-label side>{{
+                  capitalizeFirstLetter(branchRecipe?.category) || ""
+                }}</q-item-label>
               </q-item-section>
             </q-item>
           </template>
@@ -45,6 +47,10 @@ import { ref, watch, computed, reactive } from "vue";
 import { useBranchRecipeStore } from "src/stores/branch-recipe";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { useRoute } from "vue-router";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const route = useRoute();
 const bakerReports = useBakerReportsStore();
@@ -69,26 +75,8 @@ const autoFillRecipe = (recipe) => {
   bakerReports.setRecipe(recipe);
   searchQuery.value = "";
 };
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 console.log("recipessss", branhRecipes.value);
 </script>
 
-<style lang="scss" scoped>
-// .custom-list {
-//   position: absolute;
-//   width: 100%;
-//   background-color: white;
-//   max-height: 300px;
-//   overflow-y: auto;
-//   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-//   border-radius: 8px;
-//   margin-top: 4px;
-// }
-</style>
+<style lang="scss" scoped></style>

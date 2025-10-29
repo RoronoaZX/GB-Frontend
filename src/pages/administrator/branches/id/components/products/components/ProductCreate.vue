@@ -113,16 +113,8 @@
             style="width: 150px"
           />
         </div>
-        <!-- <div>
-          <div>Price</div>
-          <q-input
-            v-model="addNewBranchProductForm.price"
-            outlined
-            dense
-          />
-        </div> -->
       </q-card-section>
-      <!-- <q-separator /> -->
+
       <q-card-actions class="row q-ma-md" align="right">
         <q-btn class="glossy" color="grey-9" label="Dismiss" @click="dismiss" />
         <q-btn
@@ -138,11 +130,14 @@
 </template>
 
 <script setup>
-import { Notify } from "quasar";
 import { useBranchProductsStore } from "src/stores/branch-product";
 import { useProductsStore } from "src/stores/product";
 import { ref, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const route = useRoute();
 const productStore = useProductsStore();
@@ -169,14 +164,6 @@ const open_create_bread_dialog = () => {
 const dismiss = () => {
   clearForm();
   dialog.value = false;
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 
 const autoFillProduct = (data) => {
@@ -208,7 +195,7 @@ const save = async () => {
     const { product_name, ...data } = addNewBranchProductForm;
     await branchProducts.createBranchProducts(data);
     console.log("data to send", data);
-    // await reloadTableData(route.params.branch_id);
+
     clearForm();
     dialog.value = false;
   } catch (error) {

@@ -158,6 +158,10 @@ import { useBakerReportsStore } from "src/stores/baker-report";
 import { is, Loading, Notify } from "quasar";
 import { useRoute } from "vue-router";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
 // console.log("erw:", userData);
@@ -172,14 +176,6 @@ const recipeName = computed(() => {
   const category = recipe.value?.category ?? "Category";
   return `${name} - ${category}`;
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const bakersReport = reactive({
   user_id: null,
@@ -205,25 +201,6 @@ const updateActualTarget = () => {
     bakersReport.actual_target = 0;
   }
 };
-
-// const calculateShortAndOver = () => {
-//   const totalBreadPcs = bakersReport.breads.reduce(
-//     (total, bread) => total + (parseFloat(bread.value) || 0),
-//     0
-//   );
-//   const difference = totalBreadPcs - bakersReport.actual_target;
-
-//   if (difference > 0) {
-//     bakersReport.over = difference;
-//     bakersReport.short = 0;
-//   } else if (difference < 0) {
-//     bakersReport.short = Math.abs(difference);
-//     bakersReport.over = 0;
-//   } else {
-//     bakersReport.short = 0;
-//     bakersReport.over = 0;
-//   }
-// };
 
 const calculateShortAndOver = () => {
   const totalBreadPcs = bakersReport.breads.reduce(

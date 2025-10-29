@@ -13,9 +13,11 @@
 
   <q-dialog v-model="dialog">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section :class="getHeaderClass(report.status)">
         <div class="row justify-between">
-          <div class="text-h6">{{ report.name }}</div>
+          <div class="text-h6">
+            {{ capitalizeFirstLetter(report.name) || "-" }}
+          </div>
           <q-btn
             class="close-btn"
             color="grey-8"
@@ -28,15 +30,19 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Baker: {{ formatFullname(report.employee) }}</div>
+        <div>Baker: {{ formatFullname(report.employee) || "-" }}</div>
         <div>
           Branch:
-          {{ report.branch_premix.branch_recipe.branch.name }}
+          {{
+            capitalizeFirstLetter(
+              report.branch_premix?.branch_recipe?.branch?.name
+            ) || "-"
+          }}
         </div>
         <div>
           Status:
-          <q-badge :color="getStatusColor(report.status)" outlined>
-            {{ report.status }}
+          <q-badge :color="getPremixBadgeStatusColor(report.status)" outlined>
+            {{ capitalizeFirstLetter(report.status) || "-" }}
           </q-badge>
         </div>
       </q-card-section>
@@ -57,12 +63,12 @@
             <q-item>
               <q-item-section>
                 <q-item-label class="text-h6">
-                  {{ report.name }}
+                  {{ capitalizeFirstLetter(report.name) || "-" }}
                 </q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-item-label class="text-h6">
-                  {{ formatRequestQuantity(report.quantity) }}
+                  {{ formatRequestQuantity(report.quantity) || "-" }}
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -93,7 +99,9 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label class="text-subtitle1" align="left">
-                  {{ ingredients.ingredient.name }}
+                  {{
+                    capitalizeFirstLetter(ingredients?.ingredient?.name) || "-"
+                  }}
                 </q-item-label>
               </q-item-section>
               <q-item-section side>
@@ -102,7 +110,7 @@
                     formatQuantity(
                       ingredients.quantity * report.quantity,
                       ingredients.ingredient.unit
-                    )
+                    ) || "-"
                   }}
                 </q-item-label>
               </q-item-section>
@@ -117,7 +125,7 @@
           :key="index"
           :name="index + 1"
           :title="step.label"
-          :color="getStatusColor(step.value)"
+          :color="getPremixBadgeStatusColor(step.value)"
           :done="isStepDone(step.value)"
           :icon="isStepDone(step.value) ? 'check' : 'radio_button_unchecked'"
           class="custom-step"
@@ -154,6 +162,11 @@ import { ref, computed } from "vue";
 import { useQuasar } from "quasar";
 import { usePremixStore } from "src/stores/premix";
 import { useBakerReportsStore } from "src/stores/baker-report";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+const { getPremixBadgeStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -178,18 +191,6 @@ const openDialog = () => {
   dialog.value = true;
 };
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  return `${capitalize(row.firstname || "No Firstname")} ${
-    row.middlename ? capitalize(row.middlename).charAt(0) + "." : ""
-  } ${capitalize(row.lastname || "No Lastname")}`;
-};
-const capitalizeFirstLetter = (string) => {
-  if (!string) return "";
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
 const statusSteps = [
   { label: "Pending", value: "pending" },
   { label: "Declined", value: "declined" },
@@ -208,14 +209,6 @@ const filteredSteps = computed(() => {
   );
 });
 
-// const getStepCaption = (status) => {
-//   const historyEntry = props.report.history.find((h) => h.status === status);
-//   return historyEntry
-//     ? `${capitalizeFirstLetter(historyEntry.status)} by: ${formatFullname(
-//         historyEntry.employee
-//       )}`
-//     : "No handler";
-// };
 const getStepCaption = (status) => {
   const historyEntry = props.report.history.find((h) => h.status === status);
 
@@ -291,18 +284,6 @@ const activeStep = computed(
 const isStepDone = (stepValue) =>
   props.report.history?.some((h) => h.status === stepValue);
 
-const getStatusColor = (status) =>
-  ({
-    pending: "warning",
-    declined: "red-6",
-    confirmed: "green",
-    process: "primary",
-    completed: "dark",
-    "to deliver": "brown-9",
-    "to receive": "amber-10",
-    received: "secondary",
-  }[status] || "grey");
-
 const confirmReceived = async () => {
   const payload = {
     request_premix_id: props.report.id,
@@ -324,4 +305,66 @@ const confirmReceived = async () => {
   await premixStore.fetchRequestBranchPremix(branchId);
   dialog.value = false;
 };
+
+const getHeaderClass = (status) => {
+  switch (status) {
+    case "pending":
+      return "pending-header";
+    case "confirmed":
+      return "confirm-header";
+    case "declined":
+      return "decline-header";
+    case "process":
+      return "process-header";
+    case "completed":
+      return "completed-header";
+    case "to deliver":
+      return "to-deliver-header";
+    case "to receive":
+      return "to-receive-header";
+    case "received":
+      return "receive-header";
+    default:
+      return "";
+  }
+};
 </script>
+
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+
+.process-header {
+  background: linear-gradient(180deg, #ffffff, #9fc1ff);
+}
+
+.completed-header {
+  background: linear-gradient(180deg, #ffffff, #cbcbcb);
+}
+
+.to-deliver-header {
+  background: linear-gradient(180deg, #ffffff, #dba49b);
+}
+
+.to-receive-header {
+  background: linear-gradient(180deg, #ffffff, #ffd29c);
+}
+
+.receive-header {
+  background: linear-gradient(180deg, #ffffff, #8ff7ed);
+}
+</style>

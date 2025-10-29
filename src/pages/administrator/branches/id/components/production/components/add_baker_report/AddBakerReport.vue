@@ -201,26 +201,10 @@ const autoFillUser = (user) => {
     user.middlename ? user.middlename.charAt(0) + "." : ""
   } ${user.lastname}`;
   userId.value = user.id;
-  // console.log("userId", userId.value);
-  // creditForm.name = `${user.firstname} ${
-  //   user.middlename ? user.middlename.charAt(0) + "." : ""
-  // } ${user.lastname}`;
+
   userSelected = true; // Set flag when user is selected
   showUserCard.value = false;
 };
-
-// const formatFullname = (row) => {
-//   const capitalize = (str) =>
-//     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-//   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-//   const middlename = row.middlename
-//     ? capitalize(row.middlename).charAt(0) + "."
-//     : "";
-//   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-//   return `${firstname} ${middlename} ${lastname}`;
-// };
 
 watch(searchQuery, (newQuery) => {
   if (newQuery.length > 2 && !userSelected) {

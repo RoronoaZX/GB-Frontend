@@ -57,16 +57,11 @@
       </template>
       <template v-slot:body-cell-status="props">
         <q-td key="name" :props="props">
-          <q-badge outline :color="getBadgeStatusColor(props.row.status)">
-            {{ props.row.status }}
+          <q-badge outline :color="getBranchBadgeStatusColor(props.row.status)">
+            {{ capitalizeFirstLetter(props.row.status) || "-" }}
           </q-badge>
         </q-td>
       </template>
-      <!-- <template v-slot:body-cell-warehouse="props">
-        <q-td :props="props">
-          {{ formatFullname(props.row) }}
-        </q-td>
-      </template> -->
       <template v-slot:body-cell-personIncharge="props">
         <q-td :props="props">
           {{ formatFullname(props.row.employees) }}
@@ -77,7 +72,6 @@
           <div class="row justify-center q-gutter-x-md">
             <BranchesEdit :edit="props" />
             <BranchesDelete :delete="props" />
-            <!-- <BranchesGoTo :data="props" /> -->
           </div>
         </q-td>
       </template>
@@ -94,6 +88,11 @@ import { useBranchesStore } from "src/stores/branch";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useRouter } from "vue-router";
 import { Loading } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+const { getBranchBadgeStatusColor } = badgeColor();
 
 const router = useRouter();
 const branchesStore = useBranchesStore();
@@ -147,27 +146,6 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
-
 const branchesColumns = [
   {
     name: "branch_name",
@@ -181,7 +159,8 @@ const branchesColumns = [
     name: "warehouse",
     label: "Warehouse",
     align: "left",
-    field: (row) => (row?.warehouse ? row.warehouse : "No warehouse "),
+    field: (row) =>
+      capitalizeFirstLetter(row?.warehouse ? row.warehouse : "No warehouse "),
     sortable: true,
   },
   {
@@ -215,19 +194,6 @@ const branchesColumns = [
     field: "action",
   },
 ];
-
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "Open":
-      return "info";
-    case "Open soon":
-      return "warning";
-    case "Close":
-      return "accent";
-    default:
-      return "grey";
-  }
-};
 
 const goToBranch = async (branch) => {
   console.log("brach", branch);

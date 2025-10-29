@@ -49,6 +49,9 @@ import { useQuasar } from "quasar";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useRoute } from "vue-router";
 import DialogPage from "./components/DialogPage.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const route = useRoute();
 const warehouseStore = useWarehousesStore();
@@ -66,17 +69,13 @@ const handleBranchDialog = (branchReport) => {
     component: DialogPage,
     componentProps: {
       branchReport: branchReport,
-      // dialogOpen: dialogOpen,
-      // selectedBranch: branchReport,
-      // tableColumns: tableColumns,
-      getRawMaterialBadgeColor,
+      getRawMaterialBadgeColorForStocks,
       getBadgeCategoryColor,
       formatTotalQuantity,
-      capitalizeFirstLetter,
     },
   });
 };
-const getRawMaterialBadgeColor = (row) => {
+const getRawMaterialBadgeColorForStocks = (row) => {
   const totalQuantity = row.quantity;
   const unit = row.raw_material.unit;
   if (unit === "Grams" && totalQuantity < 1000) {
@@ -101,14 +100,6 @@ const getRawMaterialBadgeColor = (row) => {
   } else {
     return "bg-positive";
   }
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 
 const getBadgeCategoryColor = (category) => {

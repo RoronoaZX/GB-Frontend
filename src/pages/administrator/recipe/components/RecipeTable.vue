@@ -67,7 +67,7 @@
       </template>
       <template v-slot:body-cell-category="props">
         <q-td key="name" :props="props">
-          <q-badge :color="getBadgeCategoryColor(props.row.category)">
+          <q-badge :color="getRecipeBadgeCategoryColor(props.row.category)">
             {{ props.row.category }}
           </q-badge>
         </q-td>
@@ -85,11 +85,14 @@
 
 <script setup>
 import { onMounted, computed, ref, watch } from "vue";
-import RecipeEdit from "./RecipeEdit.vue";
 import RecipeDelete from "./RecipeDelete.vue";
 import { useRecipeStore } from "src/stores/recipe";
-import { api } from "src/boot/axios";
 import { Notify } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter } = typographyFormat();
+const { getRecipeBadgeCategoryColor } = badgeColor();
 
 const recipeStore = useRecipeStore();
 const filter = ref("");
@@ -112,14 +115,6 @@ const filteredRows = computed(() => {
     row.name.toLowerCase().includes(filter.value.toLowerCase())
   );
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 async function updateRecipeName(data, val) {
   try {
@@ -185,17 +180,6 @@ const recipeColumns = [
     sortable: true,
   },
 ];
-
-const getBadgeCategoryColor = (category) => {
-  switch (category) {
-    case "Filling":
-      return "teal";
-    case "Dough":
-      return "brown-6";
-    default:
-      return "grey";
-  }
-};
 </script>
 <style scoped>
 .elegant-container {

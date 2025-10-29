@@ -81,6 +81,8 @@ import PremixPage from "./components/premix/PremixPage.vue";
 import BirReportsPage from "./components/bir-reports/BirReportsPage.vue";
 import RecipeCostPage from "./components/recipe_cost/RecipeCostPage.vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api } from "src/boot/axios";
@@ -89,6 +91,8 @@ import { Loading } from "quasar";
 const route = useRoute();
 const branchName = ref("");
 const router = useRouter();
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const getBranchById = async (branchId) => {
   const res = await api.get(`/api/branches/${branchId}`);
@@ -108,14 +112,6 @@ const getBranch = async () => {
 onMounted(() => {
   getBranch();
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const tab = ref("products");
 

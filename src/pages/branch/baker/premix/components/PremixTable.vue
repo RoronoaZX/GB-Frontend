@@ -30,7 +30,10 @@
     >
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
-          <q-badge outlined :color="getBadgeStatusColor(props.row.status)">
+          <q-badge
+            outlined
+            :color="getPremixBadgeStatusColor(props.row.status)"
+          >
             {{ capitalizeFirstLetter(props.row.status) }}
           </q-badge>
         </q-td>
@@ -74,13 +77,15 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch, onMounted, watchEffect } from "vue";
+import { computed, ref, watch, onMounted, watchEffect } from "vue";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { usePremixStore } from "src/stores/premix";
 import TransactionView from "./TransactionView.vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
 const { capitalizeFirstLetter, formatTimestamp } = typographyFormat();
+const { getPremixBadgeStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -152,29 +157,6 @@ watch(filter, () => {
     loadingSearchIcon.value = false;
   });
 });
-
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "pending":
-      return "warning";
-    case "declined":
-      return "negative";
-    case "confirmed":
-      return "green";
-    case "process":
-      return "primary";
-    case "completed":
-      return "dark";
-    case "to deliver":
-      return "brown-9";
-    case "to receive":
-      return "amber-10";
-    case "received":
-      return "secondary";
-    default:
-      return "grey";
-  }
-};
 
 const transactionListColumns = [
   {

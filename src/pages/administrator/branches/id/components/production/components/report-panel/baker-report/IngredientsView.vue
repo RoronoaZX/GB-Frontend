@@ -33,9 +33,6 @@
             <q-item-section side>
               <q-item-label class="text-overline">Quantity</q-item-label>
             </q-item-section>
-            <!-- <q-item-section>
-                  <q-item-label class="text-overline">Unit</q-item-label>
-                </q-item-section> -->
           </q-item>
           <q-item
             v-for="(ingredient, index) in ingredientProduction"
@@ -43,7 +40,7 @@
           >
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.ingredients.name }}
+                {{ capitalizeFirstLetter(ingredient?.ingredients?.name) || "" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
@@ -66,8 +63,11 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps(["ingredientProduction", "branchRecipe"]);
 console.log("ingredientProduction", props.ingredientProduction);
@@ -87,14 +87,6 @@ const formatQuantity = (ingredient) => {
     return `${parseFloat(formattedQuantity.toFixed(3))} ${unit}`; // Keep decimal formatting
     //
   }
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 </script>
 

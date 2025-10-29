@@ -17,8 +17,7 @@
                     class="user-button"
                     @click="openPrintDialog(report)"
                   />
-                  <!-- @click="openPrintDialog(report)" -->
-                  <!-- @click="printPdf(report)" -->
+
                   <div>
                     <q-tooltip class="bg-blue-grey-6" :delay="200">
                       Print Report
@@ -29,7 +28,7 @@
               <div class="text-subtitle1 text-weight-regular">
                 <div>Name: {{ formatFullname(report.user.employee) }}</div>
                 <div>Date: {{ formatDate(report.created_at) }}</div>
-                <div>Time: {{ formatTimeFromDB(report.created_at) }}</div>
+                <div>Time: {{ formatTime(report.created_at) }}</div>
               </div>
             </q-card-section>
             <div class="row q-gutter-sm q-pa-md">
@@ -77,6 +76,12 @@ import ExpensesReport from "./sales-report/expenses/ExpensesReport.vue";
 import CreditsReport from "./sales-report/credit/CreditsReport.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname, formatDate, formatTime } =
+  typographyFormat();
+
 pdfMake.vfs = pdfFonts.default;
 
 // pdfMake.fonts = {
@@ -103,50 +108,12 @@ const maximizedToggle = ref(true);
 const printDialog = ref(false);
 const pdfUrl = ref("");
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
-
-const formatTimeFromDB = (dateString) => {
-  const dateObj = new Date(dateString);
-
-  const options = {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-  return dateObj.toLocaleTimeString(undefined, options);
-};
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
 const formatAmount = (price) => {
   const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "PHP",
   }).format(price);
   return formattedAmount.replace("₱", "₱\t");
-};
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-};
-
-const capitalizeName = (name) => {
-  if (!name) return "";
-  return name
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 
 const generateDocDefinition = (report) => {
@@ -172,8 +139,16 @@ const generateDocDefinition = (report) => {
         const breadSold = total - totalBreadDifference;
         const sales = breadSold * price;
 
+        const breadName = item.bread?.name
+          ? capitalizeFirstLetter(item.bread.name)
+          : "N/A";
+
         return {
           ...item,
+          bread: {
+            ...item.bread,
+            name: breadName,
+          },
           total,
           bread_sold: breadSold,
           sales,
@@ -208,17 +183,23 @@ const generateDocDefinition = (report) => {
         const totalSelectaDifference = remaining + selectaOut;
         const selectaSold = total - totalSelectaDifference;
         const sales = selectaSold * price;
+
+        const selectaName = item.selecta?.name
+          ? capitalizeFirstLetter(item.selecta.name)
+          : "N/A";
+
         return {
           ...item,
+          selecta: {
+            ...item.selecta,
+            name: selectaName,
+          },
           total,
           sold: selectaSold,
           sales,
         };
       }),
-      // data: (report.selecta_reports || []).map((item) => {
-      //   const total = (item.remaining || 0) + (item.out || 0),
-      //   sales: (item.price || 0) * item.sold,
-      // }),
+
       columns: [
         "selecta.name",
         "beginnings",
@@ -246,8 +227,17 @@ const generateDocDefinition = (report) => {
         const totalSoftdrinksDifference = remaining + out;
         const softdrinksSold = total - totalSoftdrinksDifference;
         const sales = softdrinksSold * price;
+
+        const softdrinksName = item.softdrinks.name
+          ? capitalizeFirstLetter(item.softdrinks.name)
+          : "N/A";
+
         return {
           ...item,
+          softdrinks: {
+            ...item.softdrinks,
+            name: softdrinksName,
+          },
           total,
           sold: softdrinksSold,
           sales,
@@ -280,8 +270,17 @@ const generateDocDefinition = (report) => {
         const totalOtherProductsDifference = remaining + out;
         const otherProductsSold = total - totalOtherProductsDifference;
         const sales = otherProductsSold * price;
+
+        const otherProductName = item.other_products.name
+          ? capitalizeFirstLetter(item.other_products.name)
+          : "N/A";
+
         return {
           ...item,
+          other_products: {
+            ...item.other_products,
+            name: otherProductName,
+          },
           total,
           sold: otherProductsSold,
           sales,
@@ -465,7 +464,9 @@ const generateDocDefinition = (report) => {
               alignment: "center",
             },
             {
-              text: creditData.product.name,
+              text: creditData.product.name
+                ? capitalizeFirstLetter(creditData.product.name)
+                : "No Product",
               style: "body",
               alignment: "center",
             },
@@ -592,16 +593,6 @@ const generateDocDefinition = (report) => {
     }, // Align total to the right
   ]);
 
-  // console.log(
-  //   "datadata",
-  //   productionTypes.map((res) => ({
-  //     ...res,
-  //     data: res.data.map((bread) => ({
-  //       ...bread,
-  //       total: bread.beginnings + bread.new_production,
-  //     })),
-  //   }))
-  // );
   const tables = productionTypes.map(({ title, data, columns, totals }) => ({
     stack: [
       { text: title, style: "subheader", alignment: "center" },
@@ -741,7 +732,7 @@ const generateDocDefinition = (report) => {
               ? formatFullname(report.user.employee)
               : "No Name"
           }
-          Date: ${formatDate(report.created_at)}\nTime: ${formatTimeFromDB(
+          Date: ${formatDate(report.created_at)}\nTime: ${formatTime(
               report.created_at
             )}\n`,
             margin: [0, 0, 0, 10],

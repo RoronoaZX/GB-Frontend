@@ -52,15 +52,15 @@
       </template>
       <template v-slot:body-cell-category="props">
         <q-td :props="props">
-          <span>
+          <q-badge :color="getRecipeBadgeCategoryColor(props.row.category)">
             {{ capitalizeFirstLetter(props.row.category) }}
-          </span>
+          </q-badge>
         </q-td>
       </template>
       <template v-slot:body-cell-target="props">
         <q-td auto-width class="cursor-pointer text-center">
           <span
-            >{{ formatTarget(props.row.target) }}
+            >{{ formatRecipeTarget(props.row.target) }}
 
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
               >Edit Target</q-tooltip
@@ -88,7 +88,7 @@
       </template>
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
-          <q-badge outline :color="getBadgeStatusColor(props.row.status)">
+          <q-badge outline :color="getRecipeBadgeStatusColor(props.row.status)">
             {{ capitalizeFirstLetter(props.row.status) }}
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]"
               >Change Status</q-tooltip
@@ -103,7 +103,7 @@
             label-cancel="Close"
             v-slot="scope"
           >
-            <span> {{ props.row.name }}</span>
+            <span> {{ capitalizeFirstLetter(props.row.name) || "" }}</span>
             <q-select
               v-model="scope.value"
               dense
@@ -170,6 +170,13 @@ import { api } from "src/boot/axios";
 import { Notify, useQuasar } from "quasar";
 import { useUsersStore } from "src/stores/user";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatRecipeTarget, getRecipeBadgeStatusColor } =
+  typographyFormat();
+const { getRecipeBadgeCategoryColor } = badgeColor();
+
 const route = useRoute();
 
 const userStore = useUsersStore();
@@ -222,13 +229,6 @@ const reloadTableData = async (branchId) => {
   }
 };
 
-const formatTarget = (target) => {
-  // Ensure the target is a number and default to 0 if undefined or null
-  const numericTarget = Number(target) || 0;
-
-  // Use parseFloat to remove trailing zeros if the value is decimal
-  return parseFloat(numericTarget.toFixed(3)).toString();
-};
 const formatNumber = (value) => {
   if (!value && value !== 0) return "Set Target"; // Handle empty or null values
   if (typeof value === "number" || !isNaN(value)) {
@@ -237,13 +237,6 @@ const formatNumber = (value) => {
   }
   return value; // Return as is for non-numeric input
 };
-
-// watch(filter, async (newFilter) => {
-//   loading.value = true
-//   await new Promise((resolve) => setTimeout(resolve, 1000))
-//   loading.value = false
-//   showNoDataMessage.value = filteredRows.value.length === 0
-// })
 
 async function updateRecipe(data, val) {
   console.log("branch recipe taable", data);
@@ -266,20 +259,6 @@ async function updateRecipe(data, val) {
   const action = "updated";
   const type_of_report = "Branch Recipe Table";
   const user_id = userId;
-
-  // const payload = {
-  //   report_id,
-  //   name,
-  //   originalData,
-  //   updatedData,
-  //   updated_field,
-  //   designation,
-  //   designation_type,
-  //   action,
-  //   type_of_report,
-  //   user_id,
-  // };
-  // console.log("payload recipe", payload);
 
   try {
     const response = await api.put("/api/update-target/" + data.id, {
@@ -368,14 +347,6 @@ async function updateRecipeStatus(data, val) {
   }
 }
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const branchRecipeColumns = [
   {
     name: "name",
@@ -408,7 +379,7 @@ const branchRecipeColumns = [
         const pricePerGram = parseFloat(ing.price_per_gram) || 0;
         return sum + quantity * pricePerGram;
       }, 0);
-      return `₱${total.toLocaleString("en-PH", {
+      return `₱ ${total.toLocaleString("en-PH", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}`;
@@ -459,17 +430,6 @@ const handleRecipeIngredientGroupsDialog = (ingredientGroups) => {
       ingredientGroups: ingredientGroups,
     },
   });
-};
-
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "inactive":
-      return "grey";
-    case "active":
-      return "green";
-    default:
-      return "grey";
-  }
 };
 </script>
 

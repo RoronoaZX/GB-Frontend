@@ -77,9 +77,11 @@ import { useStockDelivery } from "src/stores/stock-delivery";
 import { computed, onMounted, ref } from "vue";
 import TransactionView from "./TransactionView.vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
 const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
   typographyFormat();
+const { getStatusColor, getPremixBadgeStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -225,19 +227,4 @@ const deliveryListColumns = [
     sortable: true,
   },
 ];
-
-const getStatusColor = (status) => {
-  switch ((status || "").toLowerCase()) {
-    case "pending":
-      return "orange-7";
-    case "in progress":
-      return "blue-7";
-    case "confirmed":
-      return "green-7";
-    case "declined":
-      return "red-6";
-    default:
-      return "grey-6";
-  }
-};
 </script>

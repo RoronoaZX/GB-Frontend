@@ -193,6 +193,10 @@ import { useRoute } from "vue-router";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { Loading, Notify } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const salesReportsStore = useSalesReportsStore();
 const route = useRoute();
 const branchProductsStore = useBranchProductsStore();
@@ -220,18 +224,10 @@ const search = async () => {
   }
 };
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const autoFillProduct = (data) => {
   console.log("data", data);
   addbreadProduction.product_id = data.product.id;
-  addbreadProduction.product_name = data.product.name;
+  addbreadProduction.product_name = capitalizeFirstLetter(data.product.name);
   addbreadProduction.category = data.category;
   addbreadProduction.price = data.price;
   searchQuery.value = "";

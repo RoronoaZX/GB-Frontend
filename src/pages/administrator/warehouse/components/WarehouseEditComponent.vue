@@ -130,10 +130,12 @@
 </template>
 
 <script setup>
-import { Notify } from "quasar";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { ref, reactive, computed } from "vue";
 import { useEmployeeStore } from "src/stores/employee";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatFullname } = typographyFormat();
 
 const employeeStore = useEmployeeStore();
 const warehouseStore = useWarehousesStore();
@@ -172,9 +174,6 @@ const autoFillEmployee = (employee) => {
   showDropdown.value = false;
   // Log the filled designation data
   console.log("Filled editBranchesForm Data:", editWarehouseForm);
-  // setTimeout(() => {
-  //   searchKeyword.value = null;
-  // }, 0);
 };
 
 const editWarehouseForm = reactive({
@@ -210,19 +209,6 @@ const openEditForm = () => {
   editWarehouseForm.status = editRow.status;
   dialog.value = true;
   console.log("Edit Data:", editWarehouseForm);
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
 };
 
 const clearForm = () => {

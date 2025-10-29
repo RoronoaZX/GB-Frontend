@@ -49,7 +49,9 @@
           <q-item v-for="(ingredient, index) in props.row.items" :key="index">
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.raw_material_name || "N/A" }}
+                {{
+                  capitalizeFirstLetter(ingredient.raw_material_name) || "N/A"
+                }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
@@ -92,6 +94,10 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
@@ -103,15 +109,6 @@ const props = defineProps({
 });
 
 console.log("props", props.row);
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const formatPrice = (value) => {
   if (value == null || isNaN(value)) return "0.00";

@@ -42,15 +42,9 @@
         <q-td key="name" :props="props">
           <a @click.prevent="goToWarehouse(props.row)" class="warehouse-link">
             {{ capitalizeFirstLetter(props.row.name) }}
-            <!-- <span class="tooltip-text">Go to store</span> -->
           </a>
         </q-td>
       </template>
-      <!-- <template v-slot:body-cell-name="props">
-        <q-td :props="props">
-          {{ capitalizeFirstLetter(props.row.name) }}
-        </q-td>
-      </template> -->
       <template v-slot:body-cell-location="props">
         <q-td :props="props">
           {{ capitalizeFirstLetter(props.row.location) }}
@@ -63,7 +57,10 @@
       </template>
       <template v-slot:body-cell-status="props">
         <q-td key="name" :props="props">
-          <q-badge outline :color="getBadgeColor(props.row.status)">
+          <q-badge
+            outline
+            :color="getWarehouseStatusBadgeColor(props.row.status)"
+          >
             {{ props.row.status }}
           </q-badge>
         </q-td>
@@ -73,7 +70,6 @@
           <div class="row justify-center q-gutter-x-md">
             <WarehouseEditComponent :edit="props" />
             <WarehouseDeleteComponent :delete="props" />
-            <!-- <WarehouseGotoComponent /> -->
           </div>
         </q-td>
       </template>
@@ -84,11 +80,15 @@
 <script setup>
 import WarehouseEditComponent from "./WarehouseEditComponent.vue";
 import WarehouseDeleteComponent from "./WarehouseDeleteComponent.vue";
-// import WarehouseGotoComponent from "./WarehouseGotoComponent.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useRouter } from "vue-router";
 import { Loading } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+const { getWarehouseStatusBadgeColor } = badgeColor();
 
 const router = useRouter();
 const warehouseStore = useWarehousesStore();
@@ -136,90 +136,6 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-// const filteredWarehouses = computed(() => {
-//   if (!searchQuery.value.trim()) {
-//     return warehouseRow.value;
-//   }
-//   const query = searchQuery.value.toLowerCase();
-//   return warehouseRow.value.filter((warehouse) =>
-//     Object.values(warehouse).some((value) =>
-//       String(value).toLowerCase().includes(query)
-//     )
-//   );
-// });
-
-// watch(searchQuery, () => {
-//   loading.value = true;
-//   setTimeout(() => {
-//     loading.value = false;
-//   }, 500); // Simulate a delay for the loading spinner
-// });
-// const search = async () => {
-//   loading.value = true;
-//   showNoDataMessage.value = false;
-//   try {
-//     await warehouseStore.searchWarehouse(searchQuery.value);
-//     showNoDataMessage.value = warehouseRow.value.length === 0;
-//   } catch (error) {
-//     console.error("Error fetching warehouse:", error);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
-
-// watch(searchQuery, (newValue) => {
-//   if (newValue.trim() !== "") {
-//     search();
-//   } else {
-//     warehouseRow.value = warehouseStore.fetchWarehouses();
-//     showNoDataMessage.value = warehouseRow.value.length === 0;
-//   }
-// });
-
-// onMounted(async () => {
-//   try {
-//     warehouseRow.value = await warehouseStore.fetchWarehouses();
-//     showNoDataMessage.value = warehouseRow.value.length === 0;
-//   } catch (error) {
-//     console.error("Error fetching warehouse:", error);
-//     showNoDataMessage.value = true;
-//   } finally {
-//     loading.value = false;
-//   }
-// });
-
-// const filteredWarehouses = computed(() => {
-//   if (!searchQuery.value.trim()) {
-//     return warehouseRow.value;
-//   }
-//   const query = searchQuery.value.toLowerCase();
-//   return warehouseRow.value.filter((warehouse) =>
-//     Object.values(warehouse).some((value) =>
-//       String(value).toLowerCase().includes(query)
-//     )
-//   );
-// });
 const warehouseColumns = [
   {
     name: "name",
@@ -261,10 +177,6 @@ const warehouseColumns = [
     field: "action",
   },
 ];
-
-const getBadgeColor = (status) => {
-  return status === "Open" ? "info" : "accent";
-};
 
 const goToWarehouse = async (warehouse) => {
   console.log("waraehouse", warehouse);

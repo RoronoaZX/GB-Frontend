@@ -141,9 +141,10 @@ import { useSupplierHistoryStore } from "src/stores/supplier-history";
 import { Notify, useQuasar, date } from "quasar";
 import ViewIngredientItems from "./ViewIngredientItems.vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
-const { formatTimestamp, capitalizeFirstLetter, getStatusColor } =
-  typographyFormat();
+const { formatTimestamp, capitalizeFirstLetter } = typographyFormat();
+const { getStatusColor } = badgeColor();
 
 const supplierHistoryStore = useSupplierHistoryStore();
 const supplierHistories = computed(

@@ -101,6 +101,9 @@ import { useBranchRawMaterialsStore } from "src/stores/branch-rawMaterials";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 import { useUsersStore } from "src/stores/user";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const route = useRoute();
 const userStore = useUsersStore();
@@ -120,13 +123,6 @@ const pagination = ref({
 const branchRawMaterialsRows = computed(
   () => branchRawMaterialsStore.branchRawMaterials
 );
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 
 const filteredRows = computed(() => {
   if (!filter.value) {
@@ -291,7 +287,7 @@ const ingredientsColumns = [
     name: "name",
     label: "Raw Materials Name",
     align: "center",
-    field: (row) => row?.ingredients?.name ?? "No Code",
+    field: (row) => capitalizeFirstLetter(row?.ingredients?.name ?? "No Code"),
     format: (val) => `${val}`,
     sortable: true,
   },
@@ -302,14 +298,14 @@ const ingredientsColumns = [
     field: "total_quantity",
     sortable: true,
   },
-  {
-    name: "price_per_gram",
-    label: "Price Per Gram",
-    align: "center",
-    field: (row) =>
-      formatPrice(row?.oldest_non_zero_stock?.price_per_gram ?? "0.00"),
-    format: (val) => `${val}`,
-  },
+  // {
+  //   name: "price_per_gram",
+  //   label: "Price Per Gram / Pcs",
+  //   align: "center",
+  //   field: (row) =>
+  //     formatPrice(row?.oldest_non_zero_stock?.price_per_gram ?? "0.00"),
+  //   format: (val) => `${val}`,
+  // },
   {
     name: "action",
     label: "Action",

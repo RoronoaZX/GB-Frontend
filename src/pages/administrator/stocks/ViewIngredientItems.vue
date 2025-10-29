@@ -16,7 +16,12 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Status: {{ capitalizeFirstLetter(row.status) || "N/A" }}</div>
+        <div>
+          Status:
+          <q-chip :color="getStatusColor(row.status)" outline square dense>
+            {{ capitalizeFirstLetter(row.status) || "N/A" }}
+          </q-chip>
+        </div>
       </q-card-section>
       <q-card-section>
         <div class="text-h6" align="center">Ingredients List</div>
@@ -93,8 +98,10 @@
 <script setup>
 import { useDialogPluginComponent, date as quasarDate } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
 const { capitalizeFirstLetter } = typographyFormat();
+const { getStatusColor } = badgeColor();
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
@@ -106,15 +113,6 @@ const props = defineProps({
 });
 
 console.log("props", props.row);
-
-// const capitalizeFirstLetter = (data) => {
-//   if (!data) return "";
-
-//   return data
-//     .split(" ")
-//     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-//     .join(" ");
-// };
 
 const formatPrice = (value) => {
   const num = parseFloat(value);

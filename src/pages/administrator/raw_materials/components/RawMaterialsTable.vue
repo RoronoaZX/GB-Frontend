@@ -45,19 +45,21 @@
       </template>
       <template v-slot:body-cell-category="props">
         <q-td key="name" :props="props">
-          <q-badge :color="getBadgeCategoryColor(props.row.category)">
+          <q-badge
+            :color="getRawMaterialBadgeCategoryColor(props.row.category)"
+          >
             {{ props.row.category }}
           </q-badge>
         </q-td>
       </template>
       <template v-slot:body-cell-unit="props">
         <q-td key="name" :props="props">
-          <q-badge :color="getBadgeUnitColor(props.row.unit)">
+          <q-badge :color="getRawMaterialsBadgeUnitColor(props.row.unit)">
             {{ props.row.unit }}
           </q-badge>
         </q-td>
       </template>
-      <template v-slot:body-cell-availableStocks="props">
+      <!-- <template v-slot:body-cell-availableStocks="props">
         <q-td :props="props">
           <q-badge
             square
@@ -67,7 +69,7 @@
             {{ props.row.availableStocks }}
           </q-badge>
         </q-td>
-      </template>
+      </template> -->
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
@@ -85,6 +87,12 @@ import { onMounted, ref, computed, watch } from "vue";
 import RawMaterialsTableEdit from "./RawMaterialsTableEdit.vue";
 import RawMaterialsTableDelete from "./RawMaterialsTableDelete.vue";
 import { useRawMaterialsStore } from "src/stores/raw-material";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter } = typographyFormat();
+const { getRawMaterialBadgeCategoryColor, getRawMaterialsBadgeUnitColor } =
+  badgeColor();
 
 const materialStore = useRawMaterialsStore();
 const rawMaterialsRow = computed(() => materialStore.rawMaterials);
@@ -107,14 +115,6 @@ const filteredRows = computed(() => {
 onMounted(async () => {
   await reloadTableData();
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const reloadTableData = async () => {
   try {
@@ -173,26 +173,6 @@ const rawMaterialsColumns = [
   },
 ];
 
-const getBadgeCategoryColor = (category) => {
-  switch (category) {
-    case "Ingredients":
-      return "teal";
-    case "Packaging Materials":
-      return "brown-6";
-    default:
-      return "grey";
-  }
-};
-const getBadgeUnitColor = (unit) => {
-  switch (unit) {
-    case "Grams":
-      return "info";
-    case "Pcs":
-      return "accent";
-    default:
-      return "grey";
-  }
-};
 const getRawMaterialBadgeColor = (availableStocks) => {
   const stockValue = parseInt(availableStocks);
   if (stockValue <= 20) {

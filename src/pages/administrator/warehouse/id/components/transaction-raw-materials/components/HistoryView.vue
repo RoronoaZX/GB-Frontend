@@ -55,6 +55,9 @@
 
 <script setup>
 import { ref } from "vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const props = defineProps(["report"]);
 const dialog = ref(false);
@@ -90,14 +93,6 @@ function formatQuantity(quantity, unit) {
   const pluralUnit = pluralize(unit, quantity);
   return `${quantity} ${pluralUnit}`;
 }
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const warehouseAddedStocksColumns = [
   {

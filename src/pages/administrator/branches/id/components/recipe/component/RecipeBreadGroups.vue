@@ -22,7 +22,9 @@
       </q-card-section>
       <q-card-section>
         <div v-for="(bread, index) in breadGroups.bread_groups" :key="index">
-          <div class="row" align="center">{{ bread }}</div>
+          <div class="row" align="center">
+            {{ capitalizeFirstLetter(bread) || "N/A" }}
+          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -32,20 +34,16 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["breadGroups"]);
 
 console.log("breadGroups", props.breadGroups);
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 </script>
 
 <style lang="scss" scoped>

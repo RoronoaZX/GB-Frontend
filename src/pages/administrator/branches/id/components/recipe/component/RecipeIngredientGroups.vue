@@ -85,19 +85,15 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["ingredientGroups"]);
 console.log("ingredientGroupsss", props.ingredientGroups);
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const formatQuantity = (ingredient) => {
   const formattedQuantity = Number(ingredient.quantity) || 0; // Convert to a number, fallback to 0

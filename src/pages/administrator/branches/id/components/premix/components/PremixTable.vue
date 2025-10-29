@@ -45,7 +45,10 @@
     >
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
-          <q-badge outline :color="getBadgeStatusColor(props.row.status)">
+          <q-badge
+            outline
+            :color="getPremixBadgeActiveInactiveStatusColor(props.row.status)"
+          >
             <!-- :label="props.row.status" -->
             {{ capitalizeFirstLetter(props.row.status) }}
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
@@ -97,12 +100,6 @@
                 grams</q-badge
               >
             </template>
-            <!-- {{
-              Number(props.row.available_stocks) >= 1
-                ? Number(props.row.available_stocks) + " kgs"
-                : (Number(props.row.available_stocks) * 1000).toString() +
-                  " grams"
-            }} -->
           </span>
           <q-popup-edit
             @update:model-value="(val) => updateAvailableStocks(props.row, val)"
@@ -138,6 +135,12 @@ import { api } from "src/boot/axios";
 import { useRoute } from "vue-router";
 import { Notify } from "quasar";
 import { useUsersStore } from "src/stores/user";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter } = typographyFormat();
+const { getPremixBadgeActiveInactiveStatusColor } = badgeColor();
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
@@ -297,27 +300,12 @@ const updatePremixStatus = async (data, val) => {
   }
 };
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const getBadgeStatusColor = (status) => {
-  if (status === "active") {
-    return "teal-5";
-  } else if (status === "inactive") {
-    return "negative";
-  }
-};
 const branchPremixColumns = [
   {
     name: "name",
     label: "Premix Name",
     align: "center",
-    field: (row) => row.name,
+    field: (row) => (row.name ? capitalizeFirstLetter(row.name) : "N/A"),
   },
   {
     name: "available_stocks",

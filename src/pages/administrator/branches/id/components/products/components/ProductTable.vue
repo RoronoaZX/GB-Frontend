@@ -59,7 +59,7 @@
         <q-td key="name" :props="props">
           <q-badge
             v-if="props.row.category"
-            :color="getBadgeCategoryColor(props.row.category)"
+            :color="getProductBadgeCategoryColor(props.row.category)"
           >
             {{ props.row.category }}
           </q-badge>
@@ -91,13 +91,6 @@
               counter
               @keyup.enter="scope.set"
             />
-            <!-- <q-btn
-              align="right"
-              color="primary"
-              label="Save"
-              dense
-              @click="scope.set"
-            /> -->
           </q-popup-edit>
         </q-td>
       </template>
@@ -206,6 +199,12 @@ import { useUsersStore } from "src/stores/user";
 import { Notify } from "quasar";
 import { useRoute } from "vue-router";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+const { getProductBadgeCategoryColor } = badgeColor();
+
 const route = useRoute();
 
 const userStore = useUsersStore();
@@ -240,14 +239,6 @@ const filteredRows = computed(() => {
     row.name.toLowerCase().includes(filter.value.toLowerCase())
   );
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 onMounted(async () => {
   // console.log("props.branchId in onMounted:", branchId);
@@ -505,26 +496,6 @@ async function updatedTotalQuantity(data, val) {
     console.error("Error updating price:", error);
   }
 }
-
-const getBadgeCategoryColor = (category) => {
-  switch (category) {
-    case "Bread":
-      return "brown";
-    case "Selecta":
-      return "red-6";
-    case "Softdrinks":
-      return "accent";
-    default:
-      return "grey";
-  }
-};
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 
 const productListColumns = [
   {

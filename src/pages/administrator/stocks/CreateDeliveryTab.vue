@@ -48,18 +48,6 @@
               @click="openDialog(delivery)"
               :class="getItemClass(delivery)"
             >
-              <!-- :class="[
-                  selectedDelivery && delivery.id === selectedDelivery.id
-                    ? delivery.to_designation === 'Warehouse'
-                      ? 'selected-delivery-item'
-                      : delivery.to_designation === 'Branch'
-                      ? 'branch-selected-item'
-                      : delivery.to_designation === 'Supplier'
-                      ? 'default-selected-item'
-                      : ''
-                    : '',
-                ]" -->
-
               <q-item-section>
                 <q-item-label
                   class="text-subtitle1 text-weight-bold text-grey-8"
@@ -128,23 +116,6 @@
             <div class="text-h6 text-weight-bold q-mb-sm text-grey-8">
               Items / Raw materials Delivery Details
             </div>
-
-            <!-- <q-btn v-if="selectedDelivery" flat round dense icon="more_vert">
-                <q-menu>
-                  <q-list style="min-width: 100px">
-                    <q-item
-                      clickable
-                      v-close-popup
-                      @click="openEditDialog(selectedDelivery)"
-                    >
-                      <q-item-section> Edit </q-item-section>
-                    </q-item>
-                    <q-item clickable v-close-popup>
-                      <q-item-section> Delete </q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn> -->
           </div>
         </q-card-section>
 
@@ -188,15 +159,6 @@
                       label="Time (AM/PM)"
                     />
                   </div>
-                  <!-- <q-input
-                    v-else
-                    outlined
-                    dense
-                    type="date"
-                    v-model="editableDate"
-                    class="q-mt-xs"
-                    hint="MM/DD/YYYY"
-                  /> -->
                 </div>
 
                 <div class="q-ml-md">
@@ -393,23 +355,42 @@ import EditDialog from "./components/EditDialog.vue";
 import { date as quasarDate, useQuasar } from "quasar";
 import { computed, onMounted, ref, watch } from "vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
 const {
   formatTimestamp,
   capitalizeFirstLetter,
   formatPricePerGram,
   formatPrice,
-  getStatusColor,
 } = typographyFormat();
+
+const { getStatusColor } = badgeColor();
 
 const stocksDeliveryStore = useStockDelivery();
 const $q = useQuasar();
 
 const openMenu = ref(false);
+// Computed properties to access store state
+const deliveryList = computed(() => stocksDeliveryStore.deliveryStocks.data);
+const loading = computed(() => stocksDeliveryStore.loading);
+const pagination = computed(() => {
+  return (
+    stocksDeliveryStore.deliveryStocks?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: 5,
+    }
+  );
+});
+
+const selectedDelivery = ref(null);
+const searchQuery = ref("");
+
+// Debounce for search input to prevet any API calls
+let searchTimeout = null;
 
 // For editing delivery date
 const isEditingDate = ref(false);
-const editableDate = ref("");
 
 const tempDate = ref("");
 const tempTime = ref("");
@@ -507,25 +488,6 @@ const cancelEditingDate = () => {
   isEditingDate.value = false;
 };
 
-// Computed properties to access store state
-const deliveryList = computed(() => stocksDeliveryStore.deliveryStocks.data);
-const loading = computed(() => stocksDeliveryStore.loading);
-const pagination = computed(() => {
-  return (
-    stocksDeliveryStore.deliveryStocks?.pagination || {
-      current_page: 1,
-      last_page: 1,
-      per_page: 5,
-    }
-  );
-});
-
-const selectedDelivery = ref(null);
-const searchQuery = ref("");
-
-// Debounce for search input to prevet any API calls
-let searchTimeout = null;
-
 const onSearch = () => {
   if (searchTimeout) {
     clearTimeout(searchTimeout);
@@ -602,33 +564,6 @@ const openDialog = (delivery) => {
 
 const onPageChange = (newPage) => {
   fetchDeliveryStocks(newPage);
-};
-
-const saveEditedDate = async () => {
-  try {
-    console.log("Saving edited date:", editableDate.value);
-    if (!editableDate.value || !selectedDelivery.value?.id) return;
-
-    // Send only the selected date
-    const response = await stocksDeliveryStore.updateDeliveryDate(
-      selectedDelivery.value.id,
-      editableDate.value
-    );
-
-    selectedDelivery.value.created_at = response.new_created_at;
-
-    $q.notify({
-      type: "positive",
-      message: "Delivery date updated successfully!",
-    });
-  } catch (error) {
-    $q.notify({
-      type: "negative",
-      message: "Failed to update delivery date.",
-    });
-  } finally {
-    isEditingDate.value = false;
-  }
 };
 
 const formatQuantity = (val) => {

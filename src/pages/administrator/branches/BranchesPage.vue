@@ -29,7 +29,6 @@
 
 <script setup>
 import BranchesCreate from "./components/BranchesCreateComponent.vue";
-import BranchesSearchComponent from "./components/BranchesSearchComponent.vue";
 import BranchesTable from "./components/BranchesTableComponent.vue";
 </script>
 <style scoped>

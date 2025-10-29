@@ -126,6 +126,10 @@ import { useRawMaterialsStore } from "src/stores/raw-material";
 import { ref, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const route = useRoute();
 const rawMaterialsStore = useRawMaterialsStore();
 const rawMaterialsData = computed(() => rawMaterialsStore.rawMaterials);
@@ -152,7 +156,7 @@ const dismiss = () => {
 
 const autoFillRawMaterials = (data) => {
   addNewBranchRawMaterials.ingredients_id = data.id;
-  addNewBranchRawMaterials.ingredient_name = data.name;
+  addNewBranchRawMaterials.ingredient_name = capitalizeFirstLetter(data.name);
   addNewBranchRawMaterials.ingredient_code = data.code;
   addNewBranchRawMaterials.category = data.category;
   addNewBranchRawMaterials.unit = data.unit;

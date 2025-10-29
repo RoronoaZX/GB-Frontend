@@ -2,15 +2,7 @@
   <div>
     <q-card class="my-card q-pa-md">
       <div class="row justify-between">
-        <div class="text-h6">Baker Reporsst</div>
-        <!-- <div align="right">
-          <AddingBakerReportRecipe :reportsData="reportsData" />
-          <div>
-            <q-tooltip class="bg-blue-grey-6" :delay="200">
-              Print Report
-            </q-tooltip>
-          </div>
-        </div> -->
+        <div class="text-h6">Baker Report</div>
       </div>
       <div class="text-subtitle1 text-weight-regular">
         <div>
@@ -34,8 +26,6 @@
           }}
         </div>
         <div>Overall Total Kilos (kgs) : {{ overallKiloTotal }}</div>
-
-        <!-- Sales Report ID: {{ sales_report_id }} -->
       </div>
       <q-card-section>
         <q-table
@@ -52,10 +42,7 @@
         >
           <template v-slot:body-cell-status="props">
             <q-td :props="props">
-              <q-badge
-                align="middle"
-                :color="getBadgeStatusColor(props.row.status)"
-              >
+              <q-badge align="middle" :color="getStatusColor(props.row.status)">
                 {{ capitalizeFirstLetter(props.row.status) }}
               </q-badge>
             </q-td>
@@ -178,6 +165,19 @@ import IngredientsView from "./baker-report/IngredientsView.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
 import EditBakersReport from "./baker-report/EditBakersReport.vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const {
+  capitalizeFirstLetter,
+  formatFullname,
+  formatDate,
+  formatTime,
+  formatRecipeTarget,
+  trimTrailingZeros,
+} = typographyFormat();
+const { getStatusColor } = badgeColor();
 // import AddingBakerReportRecipe from "./AddingBakerReportRecipe.vue";
 pdfMake.vfs = pdfFonts.default;
 // import PrintReportDialog from "./PrintReportDialog.vue";
@@ -238,84 +238,6 @@ const overallKiloTotal = computed(() => {
   return isWhole ? `${total.toFixed(0)} kgs` : `${total.toFixed(2)} kgs`;
 });
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMM. DD, YYYY");
-};
-
-const formatTarget = (target) => {
-  // Ensure the target is a number and default to 0 if undefined or null
-  const numericTarget = Number(target) || 0;
-
-  // Use parseFloat to remove trailing zeros if the value is decimal
-  return parseFloat(numericTarget.toFixed(3)).toString();
-};
-const formatKilo = (target) => {
-  // Ensure the target is a number and default to 0 if undefined or null
-  const numericTarget = Number(target) || 0;
-
-  // Use parseFloat to remove trailing zeros if the value is decimal
-  return parseFloat(numericTarget.toFixed(3)).toString();
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
-const formatTimeFromDB = (dateString) => {
-  const date = new Date(dateString);
-
-  const options = {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-  return date.toLocaleTimeString(undefined, options);
-};
-
-const formatAmount = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
-
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "pending":
-      return "orange";
-    case "declined":
-      return "negative";
-    case "confirmed":
-      return "green";
-    default:
-      return "grey";
-  }
-};
-
-const capitalizeName = (name) => {
-  if (!name) return "";
-  return name
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const getBreadReports = (reportsData) => {
   if (!reportsData) {
     console.error("No bakerReport provided");
@@ -339,7 +261,7 @@ const BakerReportsColumns = [
     field: (row) => {
       if (row.branch_recipe && row.branch_recipe.recipe) {
         return {
-          name: row.branch_recipe.recipe.name,
+          name: capitalizeFirstLetter(row?.branch_recipe?.recipe?.name || ""),
           category: row.branch_recipe.recipe.category,
         };
       } else {
@@ -349,7 +271,7 @@ const BakerReportsColumns = [
         };
       }
     },
-    format: (val) => `${capitalizeName(val.name)} (${val.category})`,
+    format: (val) => `${capitalizeFirstLetter(val.name)} (${val.category})`,
     sortable: true,
   },
   {
@@ -357,14 +279,14 @@ const BakerReportsColumns = [
     align: "center",
     label: "Time",
     field: "created_at",
-    format: (val) => formatTimeFromDB(val),
+    format: (val) => formatTime(val),
   },
   {
     name: "kilo",
     align: "center",
     label: "Kilo / s",
     field: "kilo",
-    format: (val) => `${formatKilo(val)}`,
+    format: (val) => `${trimTrailingZeros(val)}`,
   },
   {
     name: "actual_target",
@@ -416,7 +338,8 @@ const BakerReportsColumns = [
 const generateDocDefinition = (bakerReport) => {
   console.log("bakerReport in print", bakerReport);
   const recipeName = `${
-    bakerReport?.branch_recipe?.recipe?.name ?? "Unkown Recipe"
+    capitalizeFirstLetter(bakerReport?.branch_recipe?.recipe?.name) ??
+    "Unkown Recipe"
   } (${bakerReport?.recipe_category ?? "Unkown Category"})`;
   const target = bakerReport?.branch_recipe?.target ?? 0;
   const actualTarget = bakerReport?.actual_target ?? 0;
@@ -439,7 +362,7 @@ const generateDocDefinition = (bakerReport) => {
         [
           { text: "Target per Kilo", style: "tableHeader", alignment: "left" },
           {
-            text: `${formatTarget(target)} pcs`,
+            text: `${formatRecipeTarget(target)} pcs`,
             style: "tableHeader",
             alignment: "center",
           },
@@ -455,7 +378,7 @@ const generateDocDefinition = (bakerReport) => {
         [
           { text: "Kilo", style: "tableHeader", alignment: "left" },
           {
-            text: `${formatKilo(kilo)} kg/s`,
+            text: `${trimTrailingZeros(kilo)} kg/s`,
             style: "tableHeader",
             alignment: "center",
           },
@@ -493,7 +416,8 @@ const generateDocDefinition = (bakerReport) => {
         columns: [
           {
             text: `Branch Name: ${
-              bakerReport.branch.name || "No name available"
+              capitalizeFirstLetter(bakerReport?.branch?.name) ||
+              "No name available"
             }
                 Baker: ${formatFullname(
                   bakerReport?.user?.employee || "Unknown Baker Name"
@@ -511,7 +435,7 @@ const generateDocDefinition = (bakerReport) => {
                 props.bakersReport[1]?.created_at ||
                 "No name available"
             )}
-                Time: ${formatTimeFromDB(bakerReport.created_at)}
+                Time: ${formatTime(bakerReport.created_at)}
                 Status: ${capitalizeFirstLetter(bakerReport.status)}`,
             margin: [0, 0, 0, 10],
           },
@@ -546,7 +470,9 @@ const generateDocDefinition = (bakerReport) => {
                     ],
                     ...getBreadReports(bakerReport).map((breadReport) => [
                       {
-                        text: breadReport?.bread?.name || "Unknown Bread",
+                        text:
+                          capitalizeFirstLetter(breadReport?.bread?.name) ||
+                          "Unknown Bread",
                         style: "body",
                       },
                       {
@@ -599,7 +525,8 @@ const generateDocDefinition = (bakerReport) => {
                         },
                         {
                           text: `${
-                            ingredient?.quantity || "Unknown Quantity"
+                            trimTrailingZeros(ingredient?.quantity) ||
+                            "Unknown Quantity"
                           } ${ingredient?.ingredients?.unit || ""}`,
                           style: "body",
                           alignment: "center",

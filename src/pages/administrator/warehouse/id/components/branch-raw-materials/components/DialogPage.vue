@@ -46,8 +46,10 @@
               <q-tab-panel name="branchRawMaterials">
                 <BranchRawMaterials
                   :branchReport="branchReport"
-                  :getRawMaterialBadgeColor="getRawMaterialBadgeColor"
-                  :getBadgeCategoryColor="getBadgeCategoryColor"
+                  :getRawMaterialBadgeColorForStocks="
+                    getRawMaterialBadgeColorForStocks
+                  "
+                  :getBadgeCategoryColor="getRawMaterialBadgeCategoryColor"
                   :formatTotalQuantity="formatTotalQuantity"
                   :capitalizeFirstLetter="capitalizeFirstLetter"
                 />
@@ -64,21 +66,24 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useDialogPluginComponent } from "quasar";
 import BranchRawMaterials from "./branch-raw-materials/BranchRawMaterials.vue";
 import BranchTransaction from "./branch-raw-materials/BranchTransaction.vue";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter } = typographyFormat();
+const { getRawMaterialBadgeCategoryColor } = badgeColor();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps({
   branchReport: Object,
-  capitalizeFirstLetter: Function,
-  getRawMaterialBadgeColor: Function,
+  getRawMaterialBadgeColorForStocks: Function,
   getBadgeCategoryColor: Function,
   formatTotalQuantity: Function,
-  // capitalizeFirstLetter: Function,
 });
 const branchId = props.branchReport.branch_id;
 
