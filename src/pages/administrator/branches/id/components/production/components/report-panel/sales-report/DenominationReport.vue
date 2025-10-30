@@ -21,12 +21,6 @@
           />
         </div>
       </q-card-section>
-      <!-- <q-card-section>
-        <div class="text-weight-regular text-subtitle1">
-          Total Denomination :
-          {{ formatPrice(props.sales_Reports[0].denomination_total) }}
-        </div>
-      </q-card-section> -->
     </q-card>
   </div>
 </template>
@@ -40,13 +34,6 @@ const props = defineProps(["sales_Reports"]);
 const productsReport = props.sales_Reports;
 console.log("Denomination report", props);
 const $q = useQuasar();
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 
 const handleDenominationDialog = (dataReports, total) => {
   $q.dialog({

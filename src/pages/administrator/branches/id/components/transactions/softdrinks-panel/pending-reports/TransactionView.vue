@@ -9,9 +9,9 @@
       dense
       @click="openDialog"
     />
-    <q-dialog v-model="dialog">
+    <q-dialog v-model="dialog" ref="dialogRef" @hide="onDialogHide">
       <q-card style="width: 700px; max-width: 80vw">
-        <q-card-section>
+        <q-card-section :class="getHeaderClass(report.status)">
           <div class="row justify-between">
             <div class="text-h6">Softdrinks Added Stocks Report</div>
             <q-btn
@@ -30,11 +30,13 @@
           <div>Cashier: {{ formatFullname(report.employee) }}</div>
           <div>
             Branch:
-            {{ report.branch.name }}
+            {{ capitalizeFirstLetter(report.branch.name || "-") }}
           </div>
           <div>
             Status:
-            <q-badge color="yellow" outlined> {{ report.status }} </q-badge>
+            <q-badge color="yellow" outlined>
+              {{ capitalizeFirstLetter(report.status || "-") }}
+            </q-badge>
           </div>
         </q-card-section>
         <q-card-section>
@@ -97,9 +99,18 @@
 </template>
 
 <script setup>
-import { useQuasar } from "quasar";
+import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useSoftdrinksProductStore } from "src/stores/softdrinks-products";
 import { computed, ref } from "vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname, formatPrice } =
+  typographyFormat();
+const { getHeaderClass } = badgeColor();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const softdrinksProductStore = useSoftdrinksProductStore();
 const remark = ref("");
@@ -164,31 +175,18 @@ const fiteredRows = computed(() => {
   return props.report.softdrinks_added_stocks || [];
 });
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
-
 const transactionsColumns = [
   {
     name: "product_name",
     label: "Product Name",
-    field: (row) => row.product.name || "N/A",
+    field: (row) => capitalizeFirstLetter(row.product.name || "N/A"),
     align: "left",
   },
   {
     name: "price",
     label: "Price",
     align: "center",
-    field: (row) => row.price || "N/A",
+    field: (row) => formatPrice(row.price || "N/A"),
   },
   {
     name: "added_stocks",
@@ -200,4 +198,14 @@ const transactionsColumns = [
 ];
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+</style>

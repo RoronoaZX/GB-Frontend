@@ -42,6 +42,10 @@
 import { useDialogPluginComponent } from "quasar";
 import { computed } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatPrice } = typographyFormat();
+
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps({
@@ -50,14 +54,6 @@ const props = defineProps({
 });
 
 const denominationReports = props.reports[0] || {};
-
-// Function to format the price in PHP currency
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 
 // Compute total denomination dynamically based on the count of bills and coins
 const totalDenomination = computed(() => {

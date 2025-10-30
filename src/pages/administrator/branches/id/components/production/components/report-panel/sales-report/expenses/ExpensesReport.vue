@@ -24,12 +24,6 @@
           />
         </div>
       </q-card-section>
-      <!-- <q-card-section>
-        <div class="text-weight-regular text-subtitle1">
-          Total Expenses :
-          {{ formatPrice(props.sales_Reports[0].expenses_total) }}
-        </div>
-      </q-card-section> -->
     </q-card>
   </div>
 </template>
@@ -45,12 +39,6 @@ console.log("Expenses Report", props.sales_Reports);
 console.log("Expenses Datassssss", props.sales_Reports);
 
 const $q = useQuasar();
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 
 const handleExpensesDialog = (
   dataReports,

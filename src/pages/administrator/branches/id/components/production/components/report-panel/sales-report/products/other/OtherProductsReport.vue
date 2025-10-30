@@ -193,8 +193,11 @@ import { api } from "src/boot/axios";
 import { ref, computed } from "vue";
 import AddingOtherReport from "./AddingOtherReport.vue";
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -209,14 +212,6 @@ const filteredRows = computed(() => {
   console.log("Filtered rows:", props.reports || []);
   return props.reports || [];
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const updatedPrice = async (data, val) => {
   console.log("update data of the price", data);
@@ -379,12 +374,6 @@ const otherProductsReportColumn = [
   },
 ];
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
     const beginnings = Number(row.beginnings || 0);

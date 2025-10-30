@@ -116,8 +116,7 @@ import { typographyFormat } from "src/composables/typography/typography-format";
 const { capitalizeFirstLetter, formatFullname, formatRequestQuantity } =
   typographyFormat();
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);

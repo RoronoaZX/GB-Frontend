@@ -1,18 +1,7 @@
 <template>
-  <div>
-    <q-btn
-      color="accent"
-      icon="visibility"
-      size="md"
-      flat
-      round
-      dense
-      @click="openDialog"
-    />
-  </div>
-  <q-dialog v-model="dialog">
+  <q-dialog v-model="dialog" ref="dialogRef" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section :class="getHeaderClass(report.status)">
         <div class="row justify-between">
           <div class="text-h6">Other Product Added Stocks Report</div>
           <q-btn
@@ -27,14 +16,17 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Cashier: {{ formatFullname(report.employee) }}</div>
+        <div>Date: {{ formatTimestamp(report.created_at || "-") }}</div>
+        <div>Cashier: {{ formatFullname(report.employee || "-") }}</div>
         <div>
           Branch:
-          {{ report.branch.name }}
+          {{ capitalizeFirstLetter(report.branch.name || "-") }}
         </div>
         <div>
           Status:
-          <q-badge color="yellow" outlined> {{ report.status }} </q-badge>
+          <q-badge color="yellow" outlined>
+            {{ capitalizeFirstLetter(report.status || "-") }}
+          </q-badge>
         </div>
       </q-card-section>
       <q-card-section>
@@ -97,9 +89,18 @@
 </template>
 
 <script setup>
-import { Notify } from "quasar";
+import { Notify, useDialogPluginComponent } from "quasar";
 import { useOtherProductStore } from "src/stores/other-product";
 import { computed, ref } from "vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname, formatPrice, formatTimestamp } =
+  typographyFormat();
+const { getHeaderClass } = badgeColor();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const otherProductStore = useOtherProductStore();
 const remark = ref(""); // Reactive variable for the remark input
@@ -172,14 +173,14 @@ const transactionsColumns = [
   {
     name: "product_name",
     label: "Product Name",
-    field: (row) => row.product.name || "N/A",
+    field: (row) => capitalizeFirstLetter(row.product.name || "N/A"),
     align: "left",
   },
   {
     name: "price",
     label: "Price",
     align: "center",
-    field: (row) => row.price || "N/A",
+    field: (row) => formatPrice(row.price || "N/A"),
   },
   {
     name: "added_stocks",
@@ -189,19 +190,36 @@ const transactionsColumns = [
     field: (row) => (row.added_stocks ? `${row.added_stocks} pcs` : "N/A"),
   },
 ];
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+.process-header {
+  background: linear-gradient(180deg, #ffffff, #9fc1ff);
+}
+.completed-header {
+  background: linear-gradient(180deg, #ffffff, #cbcbcb);
+}
+.to-deliver-header {
+  background: linear-gradient(180deg, #ffffff, #bda49b);
+}
+.to-receive-header {
+  background: linear-gradient(180deg, #ffffff, #ffd29c);
+}
+.receive-header {
+  background: linear-gradient(180deg, #ffffff, #8ff7ed);
+}
+</style>

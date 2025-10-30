@@ -16,7 +16,7 @@
     <q-card style="width: 450px">
       <q-card-section class="row bg-gradient text-white">
         <div class="text-h6 text-white">Credits</div>
-        <!-- {{ saleReportId }} {{ userId }} -->
+
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
@@ -43,21 +43,18 @@
                 >
                   <q-card>
                     <q-list separator>
-                      <!-- Loading Spinner -->
                       <q-item v-if="loading">
                         <q-item-section>
                           <q-spinner color="primary" />
                         </q-item-section>
                       </q-item>
 
-                      <!-- No Data Available Message -->
                       <q-item v-if="!loading && !employees.length">
                         <q-item-section>
                           No data available in this branch.
                         </q-item-section>
                       </q-item>
 
-                      <!-- Render User List -->
                       <template v-else>
                         <q-item
                           @click="autoFillUser(user)"
@@ -67,7 +64,9 @@
                         >
                           <q-item-section>
                             <q-item-label>
-                              {{
+                              {{ formatFullname(user) }}
+
+                              <!-- {{
                                 `
                                   ${user?.firstname} ${
                                   user?.middlename
@@ -75,7 +74,7 @@
                                       "."
                                     : ""
                                 } ${user?.lastname}`
-                              }}
+                              }} -->
                             </q-item-label>
                           </q-item-section>
                         </q-item>
@@ -115,7 +114,9 @@
                         clickable
                       >
                         <q-item-section>
-                          <q-item-label>{{ product.name }}</q-item-label>
+                          <q-item-label>{{
+                            capitalizeFirstLetter(product.name)
+                          }}</q-item-label>
                         </q-item-section>
                       </q-item>
                     </q-list>
@@ -167,24 +168,20 @@
                     :key="index"
                     class="q-gutter-xs"
                   >
-                    <!-- Product Name -->
                     <q-item-section class="q-ma-sm text-subtitle2" side>
-                      {{ credit.productName }}
+                      {{ capitalizeFirstLetter(credit.productName) }}
                     </q-item-section>
 
-                    <!-- Pieces (pcs) -->
                     <q-item-section class="q-ma-sm q-gutter-sm" side>
                       <q-item-label>Pcs</q-item-label>
                       <q-item-label caption>{{ credit.pieces }}</q-item-label>
                     </q-item-section>
 
-                    <!-- Price -->
                     <q-item-section class="q-ma-sm q-gutter-sm" side>
                       <q-item-label>Price</q-item-label>
                       <q-item-label caption>{{ credit.price }}</q-item-label>
                     </q-item-section>
 
-                    <!-- Total Amount -->
                     <q-item-section class="q-ma-sm q-gutter-sm" side>
                       <q-item-label>Total</q-item-label>
                       <q-item-label caption>{{
@@ -192,7 +189,6 @@
                       }}</q-item-label>
                     </q-item-section>
 
-                    <!-- Remove Button -->
                     <q-item-section side>
                       <q-btn
                         @click="removeCredit(index)"
@@ -243,7 +239,10 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useUsersStore } from "src/stores/user";
 import { ref, reactive, computed, watch } from "vue";
 
-// const props = defineProps(["reports", "user"]);
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+
 const props = defineProps({
   reports: {
     type: Array,
@@ -289,21 +288,12 @@ const loading = ref(false); // Loading state
 const employeeSearchLoading = ref(false);
 const productSearchLoading = ref(false);
 
-const formatUserName = (user) => {
-  const { firstname, middlename, lastname } = user.employee;
-  return `${firstname} ${
-    middlename ? middlename.charAt(0) + "." : ""
-  } ${lastname}`;
-};
-
 const searchUsers = async () => {
   if (searchQuery.value) {
     employeeSearchLoading.value = true; // Set loading to true
-    // const branchId = branchId;
     console.log("searchQuery.value", searchQuery.value);
-    // console.log("branchId", branchId);
+
     await employeeStore.searchEmployee(searchQuery.value);
-    // console.log("response user",);
 
     employeeSearchLoading.value = false;
     showUserCard.value = true;
@@ -355,13 +345,9 @@ const isDropdownVisible = computed(() => {
 
 const autoFillUser = (user) => {
   console.log("credit", user);
-  searchQuery.value = `${user.firstname} ${
-    user.middlename ? user.middlename.charAt(0) + "." : ""
-  } ${user.lastname}`;
+  searchQuery.value = `${formatFullname(user)}`;
   creditForm.credit_user_id = user.id;
-  creditForm.name = `${user.firstname} ${
-    user.middlename ? user.middlename.charAt(0) + "." : ""
-  } ${user.lastname}`;
+  creditForm.name = `${formatFullname(user)}`;
   userSelected = true; // Set flag when user is selected
   showUserCard.value = false;
 };
@@ -386,8 +372,8 @@ const isDropDownProductVisible = computed(() => {
 console.log("Product search datasss:", productSearchData.value);
 
 const autoFillProduct = (product) => {
-  productSearch.value = product.name;
-  creditForm.productName = product.name;
+  productSearch.value = capitalizeFirstLetter(product.name);
+  creditForm.productName = capitalizeFirstLetter(product.name);
   creditForm.product_id = product.id;
   creditForm.price = product.price;
   productsSelected = true;
@@ -396,17 +382,6 @@ const autoFillProduct = (product) => {
 
 const productCreditTotalAmount = ref("");
 const creditList = ref([]);
-
-// const calculateProductCreditTotalAmount = () => {
-//   const price = parseFloat(creditForm.price) || 0;
-//   const pieces = parseInt(creditForm.pieces) || 0;
-
-//   if (price && pieces) {
-//     productCreditTotalAmount.value = (price * pieces).toFixed(2);
-//   } else {
-//     productCreditTotalAmount.value = "0.00";
-//   }
-// };
 
 const calculateProductCreditTotalAmount = () => {
   const price = parseFloat(creditForm.price);
@@ -480,7 +455,6 @@ watch(productCreditTotalAmount, (newVal) => {
 });
 
 const handleSubmit = async () => {
-  // const formattedTotalAmount = parseFloat(creditForm.creditTotal);
   const employeeCreditReport = {
     sales_report_id: sales_report_id,
     user_id: userId,
@@ -509,9 +483,6 @@ const handleSubmit = async () => {
     await creditsStore.savingCredits(employeeCreditReport);
     console.log("Creating new employee credit record:", employeeCreditReport);
   }
-
-  // await creditsStore.addingCredits(employeeCreditReport);
-  // console.log("employeeCreditReport:", employeeCreditReport);
 
   dialog.value = false;
   clear();

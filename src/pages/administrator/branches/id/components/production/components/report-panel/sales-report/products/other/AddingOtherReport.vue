@@ -18,7 +18,6 @@
     backdrop-filter="blur(4px) saturate(150%)"
   >
     <q-card style="width: 600px; max-width: 80vw">
-      {{ user.name }}
       <q-card-section class="row items-center bg-backgroud q-px-md q-py-sm">
         <div class="text-h6 text-white">Add Other Products</div>
         <q-space />
@@ -194,6 +193,10 @@ import { useProductsStore } from "src/stores/product";
 import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+
 const props = defineProps(["sales_Reports", "sales_report_id", "user"]);
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
@@ -230,30 +233,10 @@ const openDialog = () => {
   dialog.value = true;
 };
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const autoFillProduct = (data) => {
   console.log("data", data);
   addOtherProductReport.product_id = data.product.id;
-  addOtherProductReport.product_name = data.product.name;
+  addOtherProductReport.product_name = capitalizeFirstLetter(data.product.name);
   addOtherProductReport.category = data.category;
   addOtherProductReport.price = data.price;
   searchQuery.value = "";

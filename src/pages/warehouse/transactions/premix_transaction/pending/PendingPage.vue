@@ -197,7 +197,7 @@ $text-muted: #90a4ae;
   color: $text-muted;
 }
 
-.teext-body2 {
+.text-body2 {
   font-size: 0.75rem; /* ⬇️ Reduced from 0.8rem */
   color: $text-dark;
 }

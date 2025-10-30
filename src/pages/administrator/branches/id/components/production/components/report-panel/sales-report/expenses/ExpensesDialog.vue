@@ -18,7 +18,7 @@
           </q-btn>
         </div>
       </q-card-section>
-      <!-- {{ sales_report_id }} -->
+
       <q-card-section class="row justify-between">
         <div>
           <q-input
@@ -65,7 +65,7 @@
           <template v-slot:body-cell-name="props">
             <q-td :props="props">
               <span>{{ `${capitalizeFirstLetter(props.row.name)}` }}</span>
-              <!-- Popup for editing the amount -->
+
               <q-popup-edit
                 @update:model-value="(val) => updateName(props.row, val)"
                 v-model="props.row.name"
@@ -88,7 +88,7 @@
               <span>{{
                 `${capitalizeFirstLetter(props.row.description)}`
               }}</span>
-              <!-- Popup for editing the amount -->
+
               <q-popup-edit
                 @update:model-value="(val) => updateDescription(props.row, val)"
                 v-model="props.row.description"
@@ -108,10 +108,8 @@
           </template>
           <template v-slot:body-cell-amount="props">
             <q-td :props="props">
-              <!-- Display the formatted amount -->
               <span>{{ formatPrice(props.row.amount) }}</span>
 
-              <!-- Popup for editing the amount -->
               <q-popup-edit
                 @update:model-value="
                   (val) => updateAmount(props.row, parseFloat(val))
@@ -151,8 +149,11 @@ import { useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
 import { ref, computed } from "vue";
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
+const { dialogRef, onDialogHide, onDialogCancel } = useDialogPluginComponent();
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -168,20 +169,11 @@ const props = defineProps({
   user_id: Number,
   created_at: String,
 });
-// defineEmits("hide", "ok", "cancel");
 
 console.log("Expenses Dialog created_at", props.created_at);
 
 const expensesReports = props.reports;
 console.log("Expenses total", props.total);
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const updateName = async (data, val) => {
   console.log("update data of the updateName", data);
@@ -260,12 +252,6 @@ const expensesReportColumn = [
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 // Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`

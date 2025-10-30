@@ -87,12 +87,6 @@
           />
         </div>
       </q-card-section>
-      <!-- <q-card-section>
-        <div class="text-weight-regular text-subtitle1">
-          Total sales:
-          {{ formatPrice(productsReport[0].products_total_sales) }}
-        </div>
-      </q-card-section> -->
     </q-card>
   </div>
 </template>
@@ -106,15 +100,15 @@ import SoftdrinksReport from "./products/softdrinks/SoftdrinksReport.vue";
 import CakeReport from "./products/CakeReport.vue";
 import OtherProductReport from "./products/other/OtherProductsReport.vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatDate } = typographyFormat();
+
 const props = defineProps(["sales_Reports", "reportLabel", "reportDate"]);
 const productsReportsss = props.sales_Reports;
 
 console.log("sales report2sss", productsReportsss);
 const $q = useQuasar();
-
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-US", {

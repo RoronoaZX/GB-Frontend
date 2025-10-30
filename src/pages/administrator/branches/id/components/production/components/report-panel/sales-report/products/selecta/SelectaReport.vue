@@ -166,11 +166,6 @@
               </q-popup-edit>
             </q-td>
           </template>
-          <!-- <template v-slot:body-cell-sales="props">
-            <q-td :props="props">
-              <span>{{ `${formatPrice(props.row.sales)}` }}</span>
-            </q-td>
-          </template> -->
         </q-table>
       </q-card-section>
       <q-card-section>
@@ -188,11 +183,13 @@
 import { useDialogPluginComponent } from "quasar";
 import AddingSelectaReport from "./AddingSelectaReport.vue";
 import { api } from "src/boot/axios";
-
 import { ref, computed } from "vue";
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -203,14 +200,6 @@ const pagination = ref({
 });
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const updatedPrice = async (data, val) => {
   console.log("update data of the price", data);
@@ -371,12 +360,6 @@ const selectaReportColumn = [
   },
 ];
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 // Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`

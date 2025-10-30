@@ -23,15 +23,6 @@
           />
         </div>
       </q-card-section>
-      <!-- <q-card-section>
-        <div class="text-weight-regular text-subtitle1">
-          Total Credits :
-          {{ formatPrice(props.sales_Reports[0].credit_total) }}
-        </div>
-      </q-card-section> -->
-      <q-card-section>
-        <!-- {{ sales_Reports[0].credit_reports }} -->
-      </q-card-section>
     </q-card>
   </div>
 </template>
@@ -44,12 +35,6 @@ const props = defineProps(["sales_Reports"]);
 console.log("sales_Reports to send in creditsss", props.sales_Reports);
 
 const $q = useQuasar();
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 
 const handleCreditsDialog = (dataReports, userData, salesReportId, userId) => {
   $q.dialog({

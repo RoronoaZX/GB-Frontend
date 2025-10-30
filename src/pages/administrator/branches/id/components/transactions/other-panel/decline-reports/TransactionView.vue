@@ -1,18 +1,7 @@
 <template>
-  <div>
-    <q-btn
-      color="accent"
-      icon="visibility"
-      size="md"
-      flat
-      round
-      dense
-      @click="openDialog"
-    />
-  </div>
-  <q-dialog v-model="dialog">
+  <q-dialog v-model="dialog" ref="dialogRef" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section :class="getHeaderClass(report.status)">
         <div class="row justify-between">
           <div class="text-h6">Others Added Stocks Report</div>
           <q-btn
@@ -27,15 +16,16 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <!-- {{ report.id }} -->
         <div>Cashier: {{ formatFullname(report.employee) }}</div>
         <div>
           Branch:
-          {{ report.branch.name }}
+          {{ capitalizeFirstLetter(report.branch.name || "-") }}
         </div>
         <div>
           Status:
-          <q-badge color="red" outlined> {{ report.status }} </q-badge>
+          <q-badge color="red" outlined>
+            {{ capitalizeFirstLetter(report.status || "-") }}
+          </q-badge>
         </div>
         <div class="q-mt-md">Remark: {{ report.remark }}</div>
       </q-card-section>
@@ -103,6 +93,16 @@
 import { useSelectaProductsStore } from "src/stores/selecta-product";
 import { computed, ref } from "vue";
 import { date, useQuasar } from "quasar";
+import { useDialogPluginComponent } from "quasar";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname, formatPrice } =
+  typographyFormat();
+const { getHeaderClass } = badgeColor();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const selectaProductStore = useSelectaProductsStore();
 const remarkDialog = ref(false);
@@ -119,41 +119,10 @@ const props = defineProps({
   },
 });
 
-// const openRemarkDialog = () => {
-//   remarkDialog.value = true;
-// };
-
 const fiteredRows = computed(() => {
   console.log("Filtered rows:", props.report || []);
   return props.report.other_added_stock || [];
 });
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
-
-// const confirmReport = async () => {
-//   console.log("props.report.id", props.report.id);
-//   try {
-//     const confirmedReport = await selectaProductStore.confirmReport(
-//       props.report.id
-//     );
-//     console.log("Report confirmed:", confirmedReport);
-//     $q.notify({ type: "positive", message: "Report confirmed successfully" });
-//     dialog.value = false;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 const transactionsColumns = [
   {
@@ -161,7 +130,7 @@ const transactionsColumns = [
     label: "Product Name",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
-      return row.product.name || "N/A"; // Adjust this according to your data
+      return capitalizeFirstLetter(row.product.name || "N/A"); // Adjust this according to your data
     },
     align: "left",
   },
@@ -171,7 +140,7 @@ const transactionsColumns = [
     align: "center",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
-      return row.price || "N/A"; // Adjust this according to your data
+      return capitalizeFirstLetter(row.price || "N/A"); // Adjust this according to your data
     },
   },
   {
@@ -187,4 +156,14 @@ const transactionsColumns = [
 ];
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+</style>

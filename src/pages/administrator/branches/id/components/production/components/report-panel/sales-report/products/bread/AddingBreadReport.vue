@@ -79,24 +79,6 @@
           />
         </div>
         <div class="row justify-between q-mt-md q-gutter-md">
-          <!-- <div>
-            <div>Product ID</div>
-            <q-input
-              v-model="addbreadProduction.product_id"
-              readonly
-              dense
-              outlined
-            />
-          </div>
-          <div>
-            <div>Branch ID</div>
-            <q-input
-              v-model="addbreadProduction.branch_id"
-              readonly
-              dense
-              outlined
-            />
-          </div> -->
           <div>
             <div>Category</div>
             <q-input
@@ -217,6 +199,10 @@ import { useRoute } from "vue-router";
 import { useUsersStore } from "src/stores/user";
 import BreadReport from "./BreadReport.vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+
 const props = defineProps([
   "sales_Reports",
   "sales_report_id",
@@ -270,42 +256,13 @@ const openDialog = () => {
   dialog.value = true;
 };
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const autoFillProduct = (data) => {
   console.log("data", data);
   addbreadProduction.product_id = data.product.id;
-  addbreadProduction.product_name = data.product.name;
+  addbreadProduction.product_name = capitalizeFirstLetter(data.product.name);
   addbreadProduction.category = data.category;
   addbreadProduction.price = data.price;
   searchQuery.value = "";
-};
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
 };
 
 const addbreadProduction = reactive({
@@ -370,15 +327,8 @@ watch(
 );
 
 const handleSubmit = async () => {
-  // const report_id = data.id;
-  // const name = data?.product?.name || "undefined";
   const originalData = `₱ ${addbreadProduction.price.toString()}`; // Convert to string
   const updatedData = `₱ ${parseInt(addbreadProduction.price).toString()}`; // Convert to string after parsing
-  // const updated_field = "price";
-  // const designation = branch_id;
-  // const designation_type = "branch";
-  // const action = "updated";
-  // const type_of_report = "Branch Product Table";
   const user_id = historyLogUserID;
   try {
     // Validate required fields

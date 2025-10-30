@@ -1,18 +1,7 @@
 <template>
-  <div>
-    <q-btn
-      color="accent"
-      icon="visibility"
-      size="md"
-      flat
-      round
-      dense
-      @click="openDialog"
-    />
-  </div>
-  <q-dialog v-model="dialog">
+  <q-dialog v-model="dialog" ref="dialogRef" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section :class="getHeaderClass(report.status)">
         <div class="row justify-between">
           <div class="text-h6">Softdrinks Added Stocks Report</div>
           <q-btn
@@ -27,14 +16,17 @@
         </div>
       </q-card-section>
       <q-card-section>
+        <div>Date: {{ formatTimestamp(report.created_at || "-") }}</div>
         <div>Cashier: {{ formatFullname(report.employee) }}</div>
         <div>
           Branch:
-          {{ report.branch.name }}
+          {{ capitalizeFirstLetter(report.branch.name || "-") }}
         </div>
         <div>
           Status:
-          <q-badge color="green" outlined> {{ report.status }} </q-badge>
+          <q-badge color="green" outlined>
+            {{ capitalizeFirstLetter(report.status || "-") }}
+          </q-badge>
         </div>
       </q-card-section>
       <q-card-section>
@@ -58,11 +50,19 @@
 </template>
 
 <script setup>
-import { useSoftdrinksProductStore } from "src/stores/softdrinks-products";
+import { useDialogPluginComponent } from "quasar";
 import { computed, ref } from "vue";
 
-const softdrinksProductStore = useSoftdrinksProductStore();
-const remarkDialog = ref(false);
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { getHeaderClass } = badgeColor();
+
+const { capitalizeFirstLetter, formatFullname, formatTimestamp, formatPrice } =
+  typographyFormat();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
@@ -80,26 +80,13 @@ const filteredRows = computed(() => {
   return props.report.softdrinks_added_stocks || [];
 });
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`;
-};
-
 const transactionsColumns = [
   {
     name: "product_name",
     label: "Product Name",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
-      return row.product.name || "N/A"; // Adjust this according to your data
+      return capitalizeFirstLetter(row.product.name || "N/A"); // Adjust this according to your data
     },
     align: "left",
   },
@@ -109,7 +96,7 @@ const transactionsColumns = [
     align: "center",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
-      return row.price || "N/A"; // Adjust this according to your data
+      return formatPrice(row.price || "N/A"); // Adjust this according to your data
     },
   },
   {
@@ -125,4 +112,14 @@ const transactionsColumns = [
 ];
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+</style>

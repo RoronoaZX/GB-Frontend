@@ -13,7 +13,6 @@
       <q-card-section style="background-color: #03a9f4">
         <div class="row justify-between text-white">
           <div class="text-h6">Credits Report</div>
-          <!-- {{ salesReportId }}{{ userId }} -->
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
           </q-btn>
@@ -75,7 +74,7 @@
           </template>
           <template v-slot:body-cell-total_amount="props">
             <q-td :props="props">
-              <span>{{ `${formatAmount(props.row.total_amount)}` }}</span>
+              <span>{{ `${formatPrice(props.row.total_amount)}` }}</span>
             </q-td>
           </template>
         </q-table>
@@ -96,8 +95,12 @@ import AddingCredit from "./AddingCredit.vue";
 import { useDialogPluginComponent } from "quasar";
 import { ref, computed } from "vue";
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice, formatFullname } =
+  typographyFormat();
+
+const { dialogRef, onDialogHide, onDialogCancel } = useDialogPluginComponent();
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -153,26 +156,6 @@ const filteredRows = computed(() => {
   });
 });
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
 const creditProductsColumn = [
   {
     name: "name",
@@ -208,20 +191,6 @@ const creditProductsColumn = [
   },
 ];
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
-
-const formatAmount = (total_amount) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(total_amount);
-};
-
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
     const amount = parseFloat(row.total_amount) || 0; // Ensure proper parsing
@@ -229,138 +198,6 @@ const overallTotal = computed(() => {
   }, 0);
   return total;
 });
-
-// import AddingCredit from "./AddingCredit.vue";
-// import { useDialogPluginComponent } from "quasar";
-// import { ref, computed } from "vue";
-
-// const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-//   useDialogPluginComponent();
-
-// const dialog = ref(false);
-// const maximizedToggle = ref(true);
-// const props = defineProps({
-//   reports: Array,
-//   user: Object,
-// });
-// const filter = ref("");
-// const pagination = ref({
-//   rowsPerPage: 0,
-// });
-
-// const creditReports = props.reports;
-// console.log("creditReports data testing", creditReports);
-// const employee_credits_id = creditReports[0].id;
-// console.log("employee_credits_id", employee_credits_id);
-// const user = props.user;
-// console.log("user data testing", props.user);
-
-// creditReports.forEach((report, index) => {
-//   console.log(`Report ${index}:`, report);
-//   console.log(
-//     `Credit Products for Report ${index}:`,
-//     report.credit_products.total_amount
-//   );
-// });
-
-// const filteredRows = computed(() => {
-//   return creditReports.flatMap((report) => {
-//     return report.credit_products.map((product) => {
-//       // Parse pieces and price, calculate total_amount
-//       const pieces = parseInt(product.pieces, 10) || 0;
-//       const price = parseFloat(product.price) || 0;
-//       const totalAmount = pieces * price;
-
-//       // Return product with calculated total_amount added
-//       return {
-//         ...product,
-//         total_amount: totalAmount,
-//       };
-//     });
-//   });
-// });
-// console.log("All Credit Products:", filteredRows.value[0]);
-
-// const capitalizeFirstLetter = (location) => {
-//   if (!location) return "";
-//   return location
-//     .split(" ")
-//     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-//     .join(" ");
-// };
-
-// const formatFullname = (row) => {
-//   const capitalize = (str) =>
-//     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-//   const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-//   const middlename = row.middlename
-//     ? capitalize(row.middlename).charAt(0) + "."
-//     : "";
-//   const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-//   return `${firstname} ${middlename} ${lastname}`.trim();
-// };
-
-// const creditProductsColumn = [
-//   {
-//     name: "name",
-//     label: "Employee Name",
-//     field: (row) => formatFullname(row.credit_user_id),
-//     align: "center",
-//   },
-//   {
-//     name: "productName",
-//     label: "Product Name",
-//     field: (row) => {
-//       return row.product.name || "N/A";
-//     },
-//     align: "center",
-//   },
-//   {
-//     name: "pieces",
-//     label: "Pieces",
-//     field: "pieces",
-//     align: "center",
-//   },
-//   {
-//     name: "price",
-//     label: "Price",
-//     field: "price",
-//     align: "center",
-//   },
-//   {
-//     name: "total_amount",
-//     label: "Total Amount",
-//     field: "total_amount",
-//     align: "center",
-//   },
-// ];
-
-// // Log to verify the structure of props.reports
-// console.log("Reports data structure:", props.reports);
-
-// const formatPrice = (price) => {
-//   return new Intl.NumberFormat("en-US", {
-//     style: "currency",
-//     currency: "PHP",
-//   }).format(price);
-// };
-// const formatAmount = (total_amount) => {
-//   return new Intl.NumberFormat("en-US", {
-//     style: "currency",
-//     currency: "PHP",
-//   }).format(total_amount);
-// };
-
-// const overallTotal = computed(() => {
-//   const total = filteredRows.value.reduce((total, row) => {
-//     const amount = parseFloat(row.total_amount) || 0; // Ensure proper parsing and handle non-numeric values
-//     return total + amount;
-//   }, 0); // Provide an initial value for reduce
-//   return total;
-// });
-
-// console.log("Expenses:", filteredRows.value);
 </script>
 
 <style lang="scss" scoped></style>

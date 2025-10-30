@@ -211,10 +211,13 @@ import { useUsersStore } from "src/stores/user";
 import { useRoute } from "vue-router";
 import { useQuasar, date } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice, formatDate } = typographyFormat();
+
 const route = useRoute();
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
@@ -240,17 +243,6 @@ const pagination = ref({
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
 console.log("Reports data sales_report_id:", props.sales_report_id);
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const updatedPrice = async (data, val) => {
   console.log("update data of the price", data);
@@ -268,21 +260,6 @@ const updatedPrice = async (data, val) => {
     props.reportLabel?.toUpperCase() || ""
   } Report Table`;
   const user_id = userId;
-
-  // // Construct payload
-  // const payload = {
-  //   price: parseInt(val),
-  //   name,
-  //   report_id,
-  //   updated_field,
-  //   original_data: originalData,
-  //   updated_data: updatedData,
-  //   designation,
-  //   designation_type,
-  //   action,
-  //   type_of_report,
-  //   user_id,
-  // };
 
   // // Log the payload before sending
   // console.log("Payload to be sent:", payload);
@@ -534,13 +511,6 @@ const breadReportColumns = [
     format: (val) => `${formatPrice(val)}`, // Formats sales to 2 decimal places
   },
 ];
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
 
 // Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {

@@ -97,6 +97,55 @@ export function badgeColor() {
     }
   };
 
+  const getTransactionBreadBadgeCategoryColor = (category) => {
+    switch (category) {
+      case "declined":
+        return "red";
+      case "received":
+        return "green";
+      case "pending":
+        return "orange";
+      default:
+        return "grey";
+    }
+  };
+
+  const currentTabIndicatorColor = (tabName) => {
+    switch (tabName) {
+      case "pendingReports":
+        return "warning";
+      case "confirmReports":
+        return "green-13";
+      case "declineReports":
+        return "red-6";
+      default:
+        return "light-green-13";
+    }
+  };
+
+  const getHeaderClass = (status) => {
+    switch (status) {
+      case "pending":
+        return "pending-header";
+      case "confirmed":
+        return "confirm-header";
+      case "declined":
+        return "decline-header";
+      case "process":
+        return "process-header";
+      case "completed":
+        return "completed-header";
+      case "to deliver":
+        return "to-deliver-header";
+      case "to receive":
+        return "to-receive-header";
+      case "received":
+        return "receive-header";
+      default:
+        return "";
+    }
+  };
+
   return {
     getStatusColor,
     getRawMaterialBadgeCategoryColor,
@@ -107,5 +156,8 @@ export function badgeColor() {
     getBranchBadgeStatusColor,
     getProductBadgeCategoryColor,
     getPremixBadgeActiveInactiveStatusColor,
+    getTransactionBreadBadgeCategoryColor,
+    currentTabIndicatorColor,
+    getHeaderClass,
   };
 }
