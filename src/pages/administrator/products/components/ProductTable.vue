@@ -45,7 +45,7 @@
       </template>
       <template v-slot:body-cell-category="props">
         <q-td key="name" :props="props">
-          <q-badge :color="getBadgeCategoryColor(props.row.category)">
+          <q-badge :color="getProductBadgeCategoryColor(props.row.category)">
             {{ props.row.category }}
           </q-badge>
         </q-td>
@@ -69,6 +69,12 @@ import { ref, watch, onMounted, computed } from "vue";
 import { date } from "quasar";
 import { useProductsStore } from "src/stores/product";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter } = typographyFormat();
+const { getProductBadgeCategoryColor } = badgeColor();
+
 const pagination = ref({
   rowsPerPage: 0,
 });
@@ -79,44 +85,6 @@ const isLoading = ref(true);
 const loading = ref(true);
 const showNoDataMessage = ref(false);
 
-// const searchQuery = ref("");
-
-// const search = async () => {
-//   loading.value = true;
-//   showNoDataMessage.value = false;
-
-//   try {
-//     await productsStore.searchProducts(searchQuery.value);
-//     showNoDataMessage.value = productsRows.value.length === 0;
-//   } catch (error) {
-//     console.error("Error fetching products:", error);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
-
-// watch(searchQuery, (newValue) => {
-//   if (newValue.trim() !== "") {
-//     search();
-//   } else {
-//     productsRows.value = productsStore.fetchProducts();
-//     showNoDataMessage.value = productsRows.value.length === 0;
-//   }
-// });
-
-// onMounted(async () => {
-//   try {
-//     productsRows.value = await productsStore.fetchProducts();
-//     if (!productsRows.value.length) {
-//       showNoDataMessage.value = true;
-//     }
-//   } catch (error) {
-//     console.error("Error fetching products:", error);
-//     showNoDataMessage.value = true;
-//   } finally {
-//     loading.value = false;
-//   }
-// });
 const filteredRows = computed(() => {
   if (!filter.value) {
     return productsRows.value;
@@ -129,14 +97,6 @@ const filteredRows = computed(() => {
 onMounted(async () => {
   await reloadTableData();
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const reloadTableData = async () => {
   try {
@@ -159,10 +119,6 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM D, YYYY");
-};
-
 const productsColumn = [
   {
     name: "name",
@@ -178,13 +134,7 @@ const productsColumn = [
     label: "Category",
     field: "category",
   },
-  // {
-  //   name: "createdAt",
-  //   align: "center",
-  //   label: "Created At",
-  //   field: "createdAt",
-  //   format: (val) => formatDate(val),
-  // },
+
   {
     name: "action",
     align: "center",
@@ -192,19 +142,6 @@ const productsColumn = [
     field: "action",
   },
 ];
-
-const getBadgeCategoryColor = (category) => {
-  switch (category) {
-    case "Bread":
-      return "brown";
-    case "Selecta":
-      return "red-6";
-    case "Softdrinks":
-      return "accent";
-    default:
-      return "grey";
-  }
-};
 </script>
 <style scoped>
 .elegant-container {

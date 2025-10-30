@@ -75,14 +75,14 @@
                 <div
                   class="text-h6 text-weight-medium elegant-name text-capitalize"
                 >
-                  {{ formattedUserName(user) }}
+                  {{ formatFullname(user) }}
                 </div>
                 <q-chip
-                  :color="getBadgePositionColor(user.role)"
+                  :color="getUserBadgePositionColor(user.role)"
                   text-color="white"
                   class="q-mt-sm elegant-chip"
                 >
-                  {{ user.role }}
+                  {{ capitalizeFirstLetter(user.role || "") }}
                 </q-chip>
               </div>
             </q-card-section>
@@ -128,30 +128,17 @@
               </div>
               <div class="q-mb-sm elegant-detail">
                 <q-icon name="calendar_today" class="q-mr-sm" />
-                <span>{{ formatDate(user.birthdate) }}</span>
+                <span>{{ formatDate(user.birthdate || "-") }}</span>
               </div>
               <div class="q-mb-sm elegant-detail">
                 <q-icon name="smartphone" class="q-mr-sm" />
-                <span>{{ user.phone }}</span>
+                <span>{{ user.phone || "-" }}</span>
               </div>
               <div class="q-mb-sm elegant-detail text-capitalize">
                 <q-icon name="location_on" class="q-mr-sm" />
-                <span>{{ user.address }}</span>
+                <span>{{ capitalizeFirstLetter(user.address || "-") }}</span>
               </div>
             </q-card-section>
-
-            <!-- <q-card-actions class="q-pa-md text-center">
-              <q-btn
-                class="text-subtitle2 elegant-btn"
-                outline
-                dense
-                flat
-                label="View Profile"
-                @click="handleUserDialog(user)"
-              >
-                @click="goToUserProfile(user)"
-              </q-btn>
-            </q-card-actions> -->
           </q-card>
         </div>
       </div>
@@ -164,6 +151,13 @@ import { computed, onMounted, ref, watch } from "vue";
 import { date, Loading, Notify, useQuasar, QPopupProxy } from "quasar";
 import { useRouter } from "vue-router";
 import UserEditProfile from "./UserEditProfile.vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname, formatDate } =
+  typographyFormat();
+const { getUserBadgePositionColor } = badgeColor();
 
 const userStore = useUsersStore();
 const router = useRouter();
@@ -192,31 +186,6 @@ const reloadUserData = async () => {
   }
 };
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM D, YYYY");
-};
-
-const formattedUserName = (user) => {
-  if (!user) return ""; // Return an empty string if user is undefined
-
-  const { firstname, middlename, lastname } = user;
-
-  // Split first name if it has multiple words
-  const formattedFirstName = firstname
-    .split(" ")
-    .map((name) => name.charAt(0).toUpperCase() + name.slice(1))
-    .join(" ");
-
-  const middleInitial = middlename
-    ? `${middlename.charAt(0).toUpperCase()}.`
-    : "";
-  const lastInitial = lastname.charAt(0).toUpperCase();
-
-  return `${formattedFirstName} ${middleInitial} ${lastInitial}${lastname.slice(
-    1
-  )}`;
-};
-
 const loading = ref(true);
 const showNoDataMessage = ref(false);
 const searchQuery = ref("");
@@ -226,25 +195,7 @@ const search = async () => {
   showNoDataMessage.value = false;
   await userStore.searchUser(searchQuery.value);
   loading.value = false;
-  // try {
-  //   if (searchQuery.value.trim() === "") {
-  //     await userStore.fetchUsers();
-  //   } else {
-  //     await userStore.searchUser(searchQuery.value);
-  //   }
-  //   showNoDataMessage.value = users.value.length === 0;
-  // } catch (error) {
-  //   console.error("Error fetching user:", error);
-  //   showNoDataMessage.value = true;
-  // } finally {
-  //   loading.value = false;
-  // }
 };
-
-// const editEmail = (user) => {
-//   // Trigger the popup edit manually
-//   emailPopup.value.show();
-// };
 
 const onSave = async (user, newEmail) => {
   try {
@@ -266,48 +217,6 @@ const onSave = async (user, newEmail) => {
   }
 };
 
-const getBadgePositionColor = (role) => {
-  switch (role) {
-    case "Super Admin":
-      return "blue-10"; // Royal Blue
-    case "Admin":
-      return "purple-10"; // Dark Purple
-    case "Supervisor":
-      return "teal-7"; // Teal
-    case "Scaler":
-      return "green-8"; // Dark Green
-    case "Lamesador":
-      return "orange-5"; // Orange
-    case "Hornero":
-      return "red-6"; // Red
-    case "Baker":
-      return "brown"; // Warm Brown (closest match in Quasar)
-    case "Cake Maker":
-      return "brown-4"; // Warm Brown (closest match in Quasar)
-    case "Cashier":
-      return "green-5"; // Light Green
-    case "Sales Clerk":
-      return "blue-5"; // Light Blue
-    case "Utility":
-      return "grey-7"; // Gray
-    case "Not Yet Assigned":
-      return "grey-4"; // Light Gray
-    default:
-      return "grey-4"; // Default Light Gray
-  }
-};
-
-// const getBadgeStatusColor = (status) => {
-//   switch (status) {
-//     case "Current":
-//       return "positive";
-//     case "Former":
-//       return "red-6";
-//     default:
-//       return "grey";
-//   }
-// };
-
 const handleUserDialog = (user) => {
   $q.dialog({
     component: UserEditProfile,
@@ -316,19 +225,6 @@ const handleUserDialog = (user) => {
     },
   });
 };
-
-// const goToUserProfile = async (user) => {
-//   console.log("userId", user.id); // Check if this is defined and valid
-//   Loading.show();
-//   try {
-//     await router.push({
-//       name: "UserIdPage",
-//       params: { user_id: user.id },
-//     });
-//   } finally {
-//     Loading.hide();
-//   }
-// };
 </script>
 
 <style lang="scss" scoped>

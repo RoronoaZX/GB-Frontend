@@ -146,6 +146,37 @@ export function badgeColor() {
     }
   };
 
+  const getUserBadgePositionColor = (role) => {
+    switch (role) {
+      case "Super Admin":
+        return "blue-10"; // Royal Blue
+      case "Admin":
+        return "purple-10"; // Dark Purple
+      case "Supervisor":
+        return "teal-7"; // Teal
+      case "Scaler":
+        return "green-8"; // Dark Green
+      case "Lamesador":
+        return "orange-5"; // Orange
+      case "Hornero":
+        return "red-6"; // Red
+      case "Baker":
+        return "brown"; // Warm Brown (closest match in Quasar)
+      case "Cake Maker":
+        return "brown-4"; // Warm Brown (closest match in Quasar)
+      case "Cashier":
+        return "green-5"; // Light Green
+      case "Sales Clerk":
+        return "blue-5"; // Light Blue
+      case "Utility":
+        return "grey-7"; // Gray
+      case "Not Yet Assigned":
+        return "grey-4"; // Light Gray
+      default:
+        return "grey-4"; // Default Light Gray
+    }
+  };
+
   return {
     getStatusColor,
     getRawMaterialBadgeCategoryColor,
@@ -159,5 +190,6 @@ export function badgeColor() {
     getTransactionBreadBadgeCategoryColor,
     currentTabIndicatorColor,
     getHeaderClass,
+    getUserBadgePositionColor,
   };
 }

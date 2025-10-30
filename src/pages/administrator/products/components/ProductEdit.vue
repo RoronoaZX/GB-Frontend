@@ -104,44 +104,6 @@ const saveEditedProduct = async () => {
     console.log("Failed to update ingredients:", error);
   }
 };
-
-// const saveEditedProduct = async () => {
-//   try {
-//     const originalProduct = props.edit.row;
-//     const updatedProduct = {
-//       id: originalProduct.id,
-//       name: editProductForm.name,
-//       category: editProductForm.category,
-//     };
-//     const changedFields = [];
-//     if (originalProduct.name !== updatedProduct.name) {
-//       changedFields.push(
-//         `Name: ${originalProduct.name} to ${updatedProduct.name}`
-//       );
-//     }
-//     if (originalProduct.category !== updatedProduct.category) {
-//       changedFields.push(
-//         `Category: ${originalProduct.category} to ${updatedProduct.category}`
-//       );
-//     }
-//     const response = await productStore.update(
-//       originalProduct.id,
-//       updatedProduct
-//     );
-//     Notify.create({
-//       type: "warning",
-//       icon: "check",
-//       message: `${originalProduct.name} ${originalProduct.category} successfully updated!`,
-//       position: "top",
-//     });
-//     dialog.value = false;
-//     if (response.status === 2000) {
-//       console.log("Product updated successfully:", response.data);
-//     } else {
-//       console.log("Failed to update product:", response);
-//     }
-//   } catch (error) {}
-// };
 </script>
 
 <style scoped>

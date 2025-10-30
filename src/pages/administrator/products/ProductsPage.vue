@@ -14,12 +14,6 @@
         <ProductCreate />
       </div>
     </q-card-section>
-    <!-- <q-card-section class="q-gutter-md">
-      <div class="row justify-end q-gutter-md">
-        <ProductSearch />
-
-      </div>
-    </q-card-section> -->
     <q-card-section>
       <div>
         <ProductTable />

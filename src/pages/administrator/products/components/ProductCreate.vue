@@ -110,10 +110,6 @@ const createProducts = async () => {
     resetFormData();
   } catch (error) {
     console.log("Error saving product:", error);
-    // Notify.create({
-    //   type: "negative",
-    //   message: "Failed to save product:" + error.message,
-    // });
   }
 };
 

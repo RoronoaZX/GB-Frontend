@@ -1,19 +1,10 @@
 <template>
   <q-card class="elegant-container" flat>
     <q-card-section>
-      <!-- class="row justify-between" -->
-      <!-- <div class="text-h6">👥 Roles and Permission</div> -->
       <div align="right">
         <UsersCreate />
       </div>
     </q-card-section>
-    <!-- <q-card-section class="q-gutter-md">
-      <div align="right">
-        <UsersSearch />
-
-
-      </div>
-    </q-card-section> -->
     <q-card-section>
       <UsersCard />
     </q-card-section>
