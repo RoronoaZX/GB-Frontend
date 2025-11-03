@@ -5,6 +5,19 @@
     row-key="id"
     :loading="tableLoading"
   >
+    <template v-slot:header="props">
+      <q-tr :props="props" class="gradient-header text-weight-bold">
+        <q-th
+          v-for="col in props.cols"
+          :key="col.name"
+          :props="props"
+          class="text-center text-subtitle2"
+        >
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
+
     <template v-slot:body-cell-salary="props">
       <q-td :props="props" class="cursor-pointer">
         <span>
@@ -134,4 +147,8 @@ const salaryColumns = [
 ];
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.gradient-header {
+  background: #64b5f6;
+}
+</style>
