@@ -26,7 +26,7 @@
       </q-route-tab>
 
       <!-- Incentives Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-incentives' }" exact>
+      <q-route-tab :to="{ name: 'admin-payroll-incentives-salary' }" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="attach_money"

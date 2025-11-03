@@ -12,8 +12,24 @@ export const useEmploymentTypeStore = defineStore("employmentType", () => {
     console.log("Employementresponse", response.data);
   };
 
+  const updateSalary = async (data, val) => {
+    console.log("updateAmount store", data, val);
+    try {
+      const response = await api.put(
+        "/api/update-employment-type/salary/" + data.id,
+        {
+          salary: val,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     employmentType,
     fetchEmploymentType,
+    updateSalary,
   };
 });

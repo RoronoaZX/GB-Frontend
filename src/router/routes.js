@@ -99,12 +99,38 @@ const routes = [
           },
           // Route for Incentives
           {
-            path: "incentives",
-            name: "admin-payroll-incentives",
+            path: "incentives-salary",
+            name: "admin-payroll-incentives-salary",
             component: () =>
               import(
-                "pages/administrator/payroll/panel-section/incentives/IncentivesPage.vue"
+                "pages/administrator/payroll/panel-section/incentives-salary/IncentivesSalaryPage.vue"
               ),
+            children: [
+              {
+                path: "",
+                redirect: {
+                  name: "admin-payroll-incentives-salary",
+                },
+              },
+              {
+                path: "incentives",
+                name: "admin-payroll-incentives",
+                component: () => {
+                  import(
+                    "pages/administrator/payroll/panel-section/incentives-salary/incentives/IncentivesPage.vue"
+                  );
+                },
+              },
+              {
+                path: "salary",
+                name: "admin-payroll-salary",
+                component: () => {
+                  import(
+                    "pages/administrator/payroll/panel-section/incentives-salary/salary/SalaryPage.vue"
+                  );
+                },
+              },
+            ],
           },
 
           // Route for the Employees Tab
