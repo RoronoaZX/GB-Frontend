@@ -1,10 +1,10 @@
 <template>
   <div class="q-mb-md row items-center justify-between">
-    <!--- 🔍 Search Input -->
+    <!-- 🔍 Search Input -->
     <q-input
       outlined
       dense
-      placeholder="Search Reports Name"
+      placeholder="Search Premix Name"
       class="q-mb-sm"
       bg-color="grey-1"
       input-class="text-grey-8"
@@ -27,5 +27,3 @@ const text = ref("");
 const emit = defineEmits(["search"]);
 const emitSearch = (value) => emit("search", value);
 </script>
-
-<style lang="scss" scoped></style>

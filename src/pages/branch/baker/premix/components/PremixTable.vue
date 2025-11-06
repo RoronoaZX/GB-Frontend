@@ -1,78 +1,45 @@
 <template>
-  <!-- <div>
-    <q-input
-      rounded
-      outlined
-      dense
-      debounce="300"
-      v-model="filter"
-      placeholder="Search"
-      style="width: 500px; max-width: 1500px; min-width: 100px"
-    >
-      <template v-slot:append>
-        <q-icon v-if="!loadingSearchIcon" name="search" />
-        <q-icon v-else :thickness="2" color="teal" size="1em" />
-      </template>
-    </q-input>
-  </div> -->
-  <div>
-    <!-- :filter="filter" -->
-    <q-table
-      flat
-      :columns="transactionListColumns"
-      :rows="rows"
-      row-key="id"
-      bordered
-      dense
-      v-model="pagination"
-      :pagination="pagination.rowsPerPage"
-      :rows-per-page-options="[10]"
-    >
-      <template v-slot:body-cell-status="props">
-        <q-td :props="props">
-          <q-badge
-            outlined
-            :color="getPremixBadgeStatusColor(props.row.status)"
-          >
-            {{ capitalizeFirstLetter(props.row.status) }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-view="props">
-        <q-td :props="props">
-          <div>
-            <TransactionView
-              :report="props.row"
-              @update-history="updateReportHistory"
-            />
-          </div>
-        </q-td>
-      </template>
-    </q-table>
-    <!-- Pagination -->
-    <div class="q-pa-lg flex flex-center">
-      <q-pagination
-        v-model="pagination.page"
-        color="purple"
-        :max="maxPages"
-        :max-pages="maxPages"
-        boundary-numbers
-        @update:model-value="reloadTableData(userId)"
-      />
-    </div>
+  <q-table
+    flat
+    :columns="premixListColumns"
+    :rows="premixList || []"
+    :rows-per-page-options="[5]"
+    row-key="id"
+    bordered
+    dense
+  >
+    <template v-slot:body-cell-status="props">
+      <q-td :props="props">
+        <q-badge outlined :color="getPremixBadgeStatusColor(props.row.status)">
+          {{ capitalizeFirstLetter(props.row.status) }}
+        </q-badge>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-view="props">
+      <q-td :props="props">
+        <div>
+          <TransactionView
+            :report="props.row"
+            @update-history="updateReportHistory"
+          />
+        </div>
+      </q-td>
+    </template>
+  </q-table>
 
-    <!-- Loading Indicator -->
-    <div v-if="loading" class="loading-overlay row justify-center items-center">
-      <q-spinner size="50px" />
-    </div>
-
-    <!-- No Data Message -->
-    <div
-      v-if="showNoDataMessage"
-      class="q-pa-md q-gutter-md row justify-center"
-    >
-      <q-banner class="bg-grey-1" dense> No data available </q-banner>
-    </div>
+  <div v-if="pagination.last_page > 1" class="q-pt-md flex flex-center">
+    <q-pagination
+      v-model="pagination.current_page"
+      :max="pagination.last_page"
+      :max-pages="5"
+      boundary-numbers
+      direction-links
+      icon-first="skip_previous"
+      icon-last="skip_next"
+      icon-prev="fast_rewind"
+      icon-next="fast_forward"
+      @update:model-value="onPageChange"
+    />
   </div>
 </template>
 
@@ -83,9 +50,25 @@ import { usePremixStore } from "src/stores/premix";
 import TransactionView from "./TransactionView.vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
+import { useQuasar } from "quasar";
 
 const { capitalizeFirstLetter, formatTimestamp } = typographyFormat();
 const { getPremixBadgeStatusColor } = badgeColor();
+
+const props = defineProps({
+  searchText: {
+    type: String,
+    default: "",
+  },
+});
+
+watch(
+  () => props.searchText,
+  (newVal) => {
+    searchQuery.value = newVal; // ✅ assigns here
+    onSearch(); // ✅ triggers request
+  }
+);
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -97,68 +80,82 @@ const premixDatas = computed(() => premixStore.branchEmployeePremix);
 const employeeId = userData.value?.data?.employee_id || "";
 console.log("employeeId in PremixPagess:", employeeId);
 
-const filter = ref("");
-const loadingSearchIcon = ref(true);
-const loading = ref(true);
-const showNoDataMessage = ref(false);
-const rows = ref([]);
+const $q = useQuasar();
 
-const maxPages = ref(1);
-const pagination = ref({
-  page: 1,
-  rowsPerPage: 10,
-  rowsNumber: 10,
-  sortBy: "id",
-  descending: false,
+// computed properties to access store state
+const premixList = computed(() => {
+  return premixStore.branchEmployeePremix?.data?.data || [];
 });
 
-onMounted(async () => {
-  if ((branchId, employeeId)) {
-    await fetchRequestBranchEmployeePremix(branchId, employeeId);
+const pagination = computed(() => {
+  return (
+    premixStore.branchEmployeePremix?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: 5,
+    }
+  );
+});
+
+const selectedPremix = ref(null);
+const searchQuery = ref("");
+
+let searchTimeout = null;
+
+const onSearch = () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
   }
-  console.log("premixdatas", premixDatas.value);
-});
+  searchTimeout = setTimeout(() => {
+    fetchRequestBranchEmployeePremix(1);
+  }, 500);
+};
 
-const fetchRequestBranchEmployeePremix = async () => {
-  loading.value = true;
+const fetchRequestBranchEmployeePremix = async (page = 1) => {
+  $q.loading.show();
   try {
-    const { page, rowsNumber, rowsPerPage, sortBy, descending } =
-      pagination.value;
-    const premix = await premixStore.fetchRequestBranchEmployeePremix(
+    await premixStore.fetchRequestBranchEmployeePremix(
       branchId,
       employeeId,
       page,
-      rowsNumber,
-      rowsPerPage,
-      sortBy,
-      descending
+      pagination.value.per_page || 5,
+      searchQuery.value
     );
-    rows.value = premix.data;
-    console.log("rows.value", rows.value);
-    maxPages.value = premix.last_page;
-    pagination.value.rowsPerPage = premix.per_page || 10;
-    showNoDataMessage.value = rows.value.length === 0;
+    // if premixList becomes emoty after search/pagination, clear selected premix
+    if (!premixList.value.length && selectedPremix.value) {
+      selectedPremix.value = null;
+    }
+
+    // if there a selected premix and its no longer in the current page, deselect it
+    if (
+      selectedPremix.value.length &&
+      !premixList.value.some((d) => d.id === selectedPremix.value.id)
+    ) {
+      selectedPremix.value = null;
+    }
+
+    // Automatically select the first premix if none is selected and list is not emptyb
+    if ((!selectedPremix.value && premixList.value, length > 0)) {
+      selectedPremix.value = premixList.value[0];
+    }
+    console.log("premixList", premixList.value);
+    console.log("pagination", pagination.value);
   } catch (error) {
     console.error("Error fetching premix report:", error);
+  } finally {
+    $q.loading.hide();
   }
-  loading.value = false;
 };
 
-// Auto-fetch data when pagination changes
-watchEffect(() => {
-  if ((branchId, employeeId)) {
-    fetchRequestBranchEmployeePremix();
-  }
+onMounted(async () => {
+  fetchRequestBranchEmployeePremix(pagination.value.current_page);
 });
 
-watch(filter, () => {
-  loadingSearchIcon.value = true;
-  setTimeout(() => {
-    loadingSearchIcon.value = false;
-  });
-});
+const onPageChange = (page) => {
+  fetchRequestBranchEmployeePremix(page);
+};
 
-const transactionListColumns = [
+const premixListColumns = [
   {
     name: "name",
     label: "Transactions Name",

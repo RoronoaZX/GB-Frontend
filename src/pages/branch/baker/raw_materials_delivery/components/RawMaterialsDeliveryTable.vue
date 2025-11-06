@@ -4,7 +4,7 @@
     <q-input
       outlined
       dense
-      placeholder="Search delivery"
+      placeholder="Search Supplier or Status"
       class="q-mb-sm"
       bg-color="grey-1"
       input-class="text-grey-8"
@@ -22,6 +22,7 @@
     flat
     :columns="deliveryListColumns"
     :rows="deliveryList || []"
+    :rows-per-page-options="[5]"
     row-key="id"
     bordered
     dense
@@ -81,7 +82,7 @@ import { badgeColor } from "src/composables/badge-color/badge-color";
 
 const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
   typographyFormat();
-const { getStatusColor, getPremixBadgeStatusColor } = badgeColor();
+const { getStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -99,6 +100,7 @@ const loading = computed(() => stocksDeliveryStore.loading);
 const pagination = computed(() => {
   return (
     stocksDeliveryStore.deliveryStocks?.pagination || {
+      total: 0,
       current_page: 1,
       last_page: 1,
       per_page: 5,
@@ -175,6 +177,18 @@ const deliveryListColumns = [
     sortable: true,
   },
   {
+    name: "from",
+    label: "From",
+    align: "left",
+    field: (row) => {
+      if (row.from_designation === "Supplier") {
+        return "Supplier";
+      }
+      return capitalizeFirstLetter(row.from_name);
+    },
+    sortable: true,
+  },
+  {
     name: "process_by",
     label: "Process By",
     align: "left",
@@ -194,18 +208,7 @@ const deliveryListColumns = [
     },
     sortable: true,
   },
-  {
-    name: "from",
-    label: "From",
-    align: "left",
-    field: (row) => {
-      if (row.from_designation === "Supplier") {
-        return "Supplier";
-      }
-      return capitalizeFirstLetter(row.from_name);
-    },
-    sortable: true,
-  },
+
   {
     name: "items",
     label: "Items",
@@ -216,7 +219,7 @@ const deliveryListColumns = [
   {
     name: "status",
     label: "Status",
-    align: "left",
+    align: "center",
     field: "status",
   },
   {

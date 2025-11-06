@@ -25,7 +25,17 @@ export const usePremixStore = defineStore("premix", () => {
   const toReceivePremixData = ref([]);
   const receivePremixData = ref([]);
   const branchPremix = ref([]);
-  const branchEmployeePremix = ref([]);
+  const branchEmployeePremix = ref({
+    data: [],
+    pagination: {
+      total: 0,
+      per_page: 5,
+      current_page: 1,
+      last_page: 1,
+      from: 0,
+      to: 0,
+    },
+  });
 
   const fetchRequestBranchPremix = async (
     branchId,
@@ -57,8 +67,9 @@ export const usePremixStore = defineStore("premix", () => {
   const fetchRequestBranchEmployeePremix = async (
     branchId,
     employeeId,
-    page,
-    rowsNumber
+    page = 1,
+    per_page = 5,
+    search = ""
   ) => {
     try {
       const response = await api.get(
@@ -66,12 +77,19 @@ export const usePremixStore = defineStore("premix", () => {
         {
           params: {
             page,
-            per_page: rowsNumber,
+            per_page: per_page,
+            search: search,
           },
         }
       );
-      // branchEmployeePremix.value = response.data;
-      return response.data;
+
+      branchEmployeePremix.value.data = response.data;
+      console.log("branchEmployeePremix", branchEmployeePremix.value.data);
+      branchEmployeePremix.value.pagination = response.data.pagination;
+      console.log(
+        "branchEmployeePremix.pagination",
+        branchEmployeePremix.value.pagination
+      );
     } catch (error) {
       console.error(error);
     }

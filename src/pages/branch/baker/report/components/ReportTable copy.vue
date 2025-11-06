@@ -98,7 +98,7 @@ const pagination = ref({
 });
 
 // Fetch Data Function
-const reloadTableData = async (page = 1) => {
+const reloadTableData = async () => {
   loading.value = true;
   try {
     const { page, rowsNumber, rowsPerPage, sortBy, descending } =

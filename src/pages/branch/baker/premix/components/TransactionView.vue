@@ -42,7 +42,7 @@
         </div>
         <div>
           Status:
-          <q-badge :color="getStatusColor(report.status)" outlined>
+          <q-badge :color="getPremixBadgeStatusColor(report.status)" outlined>
             {{ capitalizeFirstLetter(report.status) || "-" }}
           </q-badge>
         </div>
@@ -119,7 +119,7 @@
           :key="index"
           :name="index + 1"
           :title="step.label"
-          :color="getStatusColor(step.value)"
+          :color="getPremixBadgeStatusColor(step.value)"
           :done="isStepDone(step.value)"
           :icon="isStepDone(step.value) ? 'check' : 'radio_button_unchecked'"
           class="custom-step"
@@ -157,6 +157,7 @@ import { useQuasar } from "quasar";
 import { usePremixStore } from "src/stores/premix";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
 const {
   capitalizeFirstLetter,
@@ -165,6 +166,8 @@ const {
   formatRequestQuantity,
   formatQuantity,
 } = typographyFormat();
+
+const { getHeaderClass, getPremixBadgeStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -184,29 +187,6 @@ const emit = defineEmits(["update-history"]);
 
 const openDialog = () => {
   dialog.value = true;
-};
-
-const getHeaderClass = (status) => {
-  switch (status) {
-    case "pending":
-      return "pending-header";
-    case "confirmed":
-      return "confirm-header";
-    case "declined":
-      return "decline-header";
-    case "process":
-      return "process-header";
-    case "completed":
-      return "completed-header";
-    case "to deliver":
-      return "to-deliver-header";
-    case "to receive":
-      return "to-receive-header";
-    case "received":
-      return "receive-header";
-    default:
-      return "";
-  }
 };
 
 const statusSteps = [
@@ -273,18 +253,6 @@ const activeStep = computed(
 );
 const isStepDone = (stepValue) =>
   props.report.history?.some((h) => h.status === stepValue);
-
-const getStatusColor = (status) =>
-  ({
-    pending: "warning",
-    declined: "negative",
-    confirmed: "green",
-    process: "primary",
-    completed: "dark",
-    "to deliver": "brown-9",
-    "to receive": "amber-10",
-    received: "secondary",
-  }[status] || "grey");
 
 const confirmReceived = async () => {
   const payload = {

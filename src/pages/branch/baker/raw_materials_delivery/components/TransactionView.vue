@@ -11,7 +11,7 @@
 
   <q-dialog v-model="dialog">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section :class="getHeaderClass(report.status)">
         <div class="row justify-between">
           <div class="text-h6">
             {{ capitalizeFirstLetter(report.from_name) || "-" }}
@@ -114,9 +114,11 @@ import DeclinedDialog from "./DeclinedDialog.vue";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 
 const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
   typographyFormat();
+const { getHeaderClass } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
@@ -316,5 +318,15 @@ const getStatusColor = (status) => {
 .box {
   border: 1px dashed grey;
   border-radius: 10px;
+}
+
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
 }
 </style>

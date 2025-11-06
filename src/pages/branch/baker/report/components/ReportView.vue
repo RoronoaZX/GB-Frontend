@@ -12,9 +12,12 @@
 
   <q-dialog v-model="bakersReportDialog" class="report-dialog">
     <q-card class="report-card">
-      <q-card-section class="report-header">
+      <q-card-section
+        :class="getHeaderClass(report.status)"
+        class="row justify-between"
+      >
         <div class="text-h6 text-weight-regular">
-          {{ capitalizeBranchFirstLetter(report.branch_recipe.recipe.name) }} -
+          {{ capitalizeFirstLetter(report.branch_recipe.recipe.name) }} -
           {{ report.recipe_category }}
         </div>
         <q-btn
@@ -35,13 +38,13 @@
               <div class="row q-gutter-x-sm">
                 <div class="text-subtitle2">Date:</div>
                 <div class="text-body1 text-weight-light">
-                  {{ formatDate(report.created_at) }}
+                  {{ formatTimestamp(report.created_at) }}
                 </div>
               </div>
               <div class="row q-gutter-x-sm">
                 <div class="text-subtitle2">Branch:</div>
                 <div class="text-body1 text-weight-light">
-                  {{ capitalizeBranchFirstLetter(report.branch.name) }}
+                  {{ capitalizeFirstLetter(report.branch.name) }}
                 </div>
               </div>
               <div class="row q-gutter-x-sm">
@@ -61,10 +64,10 @@
           <div>
             <q-chip
               square
-              :color="getBadgeStatusColor(report.status)"
+              :color="getStatusColor(report.status)"
               text-color="white"
             >
-              {{ capitalizeFirstLetterStatus(report.status) }}
+              {{ capitalizeFirstLetter(report.status) }}
             </q-chip>
           </div>
         </div>
@@ -151,7 +154,7 @@
               >
                 <q-item-section>
                   <q-item-label class="text-caption" align="center">
-                    {{ bread.bread.name }}
+                    {{ capitalizeFirstLetter(bread.bread.name) }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section> </q-item-section>
@@ -186,7 +189,7 @@
               >
                 <q-item-section>
                   <q-item-label class="text-caption" align="center">
-                    {{ filling.bread.name }}
+                    {{ capitalizeFirstLetter(filling.bread.name) }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section> </q-item-section>
@@ -198,79 +201,20 @@
               </q-item>
             </q-list>
           </div>
-
-          <!-- </div> -->
-          <!--
-          <div
-            class="report-section"
-            v-if="
-              report.ingredient_bakers_reports &&
-              report.ingredient_bakers_reports.length
-            "
-          >
-            <ul>
-              <div
-                v-for="ingredient in report.ingredient_bakers_reports"
-                :key="ingredient.id"
-              >
-                <div class="row q-gutter-md">
-                  <div class="">
-                    {{ ingredient.ingredients.code }}
-                  </div>
-
-                  <div>- {{ formatQuantity(ingredient.quantity) }}</div>
-                </div>
-              </div>
-            </ul>
-          </div> -->
-
-          <!-- <div
-            class="report-section"
-            v-if="
-              report.bread_bakers_reports && report.bread_bakers_reports.length
-            "
-          >
-            <div class="section-title" align="center">Breads</div>
-            <ul>
-              <div v-for="bread in report.bread_bakers_reports" :key="bread.id">
-                <div class="row q-gutter-md">
-                  <div>{{ bread.bread.name }}</div>
-                  <div>- {{ bread.bread_production }} pcs</div>
-                </div>
-              </div>
-            </ul>
-          </div> -->
-
-          <!-- <div
-            class="report-section"
-            v-if="
-              report.filling_bakers_reports &&
-              report.filling_bakers_reports.length
-            "
-          >
-            <div class="section-title">Fillings</div>
-            <ul>
-              <li
-                v-for="filling in report.filling_bakers_reports"
-                :key="filling.id"
-              >
-                <div>{{ filling.bread.name }}</div>
-                - {{ filling.filling_production }} pcs
-              </li>
-            </ul>
-          </div> -->
         </div>
       </q-card-section>
-      <!-- <q-card-actions>
-        <q-btn>Edit</q-btn>
-      </q-card-actions> -->
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { date } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { badgeColor } from "src/composables/badge-color/badge-color";
+
+const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
+  typographyFormat();
+const { getStatusColor, getHeaderClass } = badgeColor();
 
 const props = defineProps({
   report: {
@@ -283,66 +227,8 @@ console.log("bakerView", props.report);
 
 const bakersReportDialog = ref(false);
 
-const capitalizeFirstLetterStatus = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-};
-
-const capitalizeBranchFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const capitalizeFirstLetter = (fullName) => {
-  const nameParts = fullName.split(" ");
-  const firstName =
-    nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1).toLowerCase();
-  const lastName =
-    nameParts[nameParts.length - 1].charAt(0).toUpperCase() +
-    nameParts[nameParts.length - 1].slice(1).toLowerCase();
-  let middleNames = "";
-  if (nameParts.length > 2) {
-    middleNames = nameParts
-      .slice(1, -1)
-      .map((name) => `${name.charAt(0).toUpperCase()}.`)
-      .join(" ");
-  }
-  return `${firstName} ${middleNames} ${lastName}`.trim();
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
-const getBadgeStatusColor = (status) => {
-  switch (status) {
-    case "pending":
-      return "orange";
-    case "declined":
-      return "negative";
-    case "confirmed":
-      return "green";
-    default:
-      return "grey";
-  }
-};
-
 const openBakersReportsDialog = () => {
   bakersReportDialog.value = true;
-};
-
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM D, YYYY");
 };
 
 const formatQuantity = (quantity) => {
@@ -367,6 +253,16 @@ const formatKilo = (target) => {
   border: 1px dashed grey;
   border-radius: 10px;
 }
+.pending-header {
+  background: linear-gradient(180deg, #ffffff, #e8e6b7);
+}
+.confirm-header {
+  background: linear-gradient(180deg, #ffffff, #c1ffc7);
+}
+.decline-header {
+  background: linear-gradient(180deg, #ffffff, #ffc7c7);
+}
+
 .report-dialog {
   max-width: 600px;
 }

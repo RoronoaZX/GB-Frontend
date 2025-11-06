@@ -168,6 +168,9 @@ import { useBakerReportsStore } from "src/stores/baker-report";
 import { usePremixStore } from "src/stores/premix";
 import { useRequestPremixStore } from "src/stores/request-premix";
 import { Notify } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const dialog = ref(false);
 
@@ -200,17 +203,9 @@ const search = async () => {
 const autofillPremix = (data) => {
   console.log("data", data);
   addBranchPremixRecipe.branch_premix_id = data.id;
-  addBranchPremixRecipe.name = data.name;
+  addBranchPremixRecipe.name = capitalizeFirstLetter(data.name);
   addBranchPremixRecipe.category = data.category;
   searchQuery.value = "";
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 
 const isFormValid = computed(() => {

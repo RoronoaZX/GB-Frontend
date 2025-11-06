@@ -7,11 +7,16 @@
       </div>
     </q-card-section>
     <q-card-section class="q-gutter-y-md">
-      <div>
-        <RequestPremix />
+      <div class="row justify-between">
+        <div>
+          <SearchPremix @search="onSearchPremix" />
+        </div>
+        <div>
+          <RequestPremix />
+        </div>
       </div>
       <div>
-        <PremixTable />
+        <PremixTable :searchText="searchText" />
       </div>
     </q-card-section>
   </q-card>
@@ -19,7 +24,15 @@
 
 <script setup>
 import PremixTable from "./components/PremixTable.vue";
+import SearchPremix from "./components/SearchPremix.vue";
 import RequestPremix from "./components/RequestPremix.vue";
+import { ref } from "vue";
+
+const searchText = ref("");
+
+const onSearchPremix = (value) => {
+  searchText.value = value;
+};
 </script>
 
 <style lang="scss" scoped>
