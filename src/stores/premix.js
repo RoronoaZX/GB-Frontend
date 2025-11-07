@@ -113,22 +113,10 @@ export const usePremixStore = defineStore("premix", () => {
 
   const fetchConfirmPremix = async (warehouseId) => {
     console.log("warehouseId", warehouseId);
-    // console.log("status", status);
-    // Loading.show();
 
     try {
       const confirmed = await api.get(`/api/get-confirm-premix/${warehouseId}`);
       console.log("confirmed.data", confirmed.data);
-      // if (response.status === 200) {
-      //   // Find the index of the report in the pendingSelectaReports array
-      //   const index = confirmPremixData.value.findIndex(
-      //     (report) => report.id === id
-      //   );
-      //   // If the report is found, remove it
-      //   if (index !== -1) {
-      //     pendingSelectaReports.value.splice(index, 1);
-      //   }
-      // }
       confirmPremixData.value = confirmed.data;
     } catch (error) {
       console.error(error);
@@ -341,9 +329,6 @@ export const usePremixStore = defineStore("premix", () => {
     } catch (error) {
       console.log(error);
     }
-
-    // console.log("decline.data", decline.data);
-    // declinePremixData.value = decline.data;
   };
 
   const declinePremix = async (data) => {

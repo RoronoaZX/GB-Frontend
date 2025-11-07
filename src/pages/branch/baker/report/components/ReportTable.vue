@@ -2,16 +2,13 @@
   <div class="q-mt-sm q-gutter-md">
     <div class="table-container">
       <q-table
-        :rows="rows"
+        :rows="bakersReportList || []"
         :columns="bakersReportListColumns"
+        :rows-per-page-options="[5]"
         row-key="id"
         flat
         bordered
         dense
-        v-model="pagination"
-        :pagination="pagination"
-        :rows-per-page-options="[10]"
-        @request="reloadTableData(userId)"
       >
         <template v-slot:body-cell-status="props">
           <q-td key="name" :props="props">
@@ -28,32 +25,20 @@
           </q-td>
         </template>
       </q-table>
-      <!-- Pagination -->
-      <div class="q-pa-lg flex flex-center">
+
+      <div v-if="pagination.last_page > 1" class="q-pt-md flex flex-center">
         <q-pagination
-          v-model="pagination.page"
-          color="purple"
-          :max="maxPages"
+          v-model="pagination.current_page"
+          :max="pagination.last_page"
           :max-pages="5"
           boundary-numbers
-          @update:model-value="reloadTableData(userId)"
+          direction-links
+          icon-first="skip_previous"
+          icon-last="skip_next"
+          icon-prev="fast_rewind"
+          icon-next="fast_forward"
+          @update:model-value="onPageChange"
         />
-      </div>
-
-      <!-- Loading Indicator -->
-      <div
-        v-if="loading"
-        class="loading-overlay row justify-center items-center"
-      >
-        <q-spinner size="50px" />
-      </div>
-
-      <!-- No Data Message -->
-      <div
-        v-if="showNoDataMessage"
-        class="q-pa-md q-gutter-md row justify-center"
-      >
-        <q-banner class="bg-grey-1" dense> No data available </q-banner>
       </div>
     </div>
   </div>
@@ -62,23 +47,40 @@
 <script setup>
 import { useBakerReportsStore } from "src/stores/baker-report";
 import ReportView from "./ReportView.vue";
-import { computed, onMounted, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
+import { useQuasar } from "quasar";
 
 const { capitalizeFirstLetter, formatTimestamp } = typographyFormat();
 const { getStatusColor } = badgeColor();
+
+const props = defineProps({
+  searchText: {
+    type: String,
+    default: "",
+  },
+});
+
+watch(
+  () => props.searchText,
+  (newVal) => {
+    searchQuery.value = newVal;
+    onSearch();
+  }
+);
+
 const router = useRouter();
 
 const bakerReportStore = useBakerReportsStore();
-const bakerReportRow = computed(() => bakerReportStore.reportToView);
+
 const userData = computed(() => bakerReportStore.user);
 
 // im using user id for fetching reports
 // instead of employee id for the reason
 // that the user id is the one that is being
-// used in the backend and database
+// used in the backend to save the data in the database
 
 const userId = userData.value?.data.id || "";
 const filter = ref("");
@@ -86,49 +88,82 @@ const loading = ref(true);
 const loadingSearchIcon = ref(false);
 const showNoDataMessage = ref(false);
 
-const rows = ref([]);
+const $q = useQuasar();
 
-const maxPages = ref(1);
-const pagination = ref({
-  page: 1,
-  rowsPerPage: 10,
-  rowsNumber: 10,
-  sortBy: "id",
-  descending: false,
+const bakersReportList = computed(() => {
+  return bakerReportStore.bakerReport?.data?.data || [];
 });
+
+const pagination = computed(() => {
+  return (
+    bakerReportStore.bakerReport?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: 5,
+    }
+  );
+});
+
+const selectedBakerReport = ref(null);
+const searchQuery = ref("");
+
+let searchTimeout = null;
+
+const onSearch = () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  searchTimeout = setTimeout(() => {
+    reloadTableData(1);
+  }, 500);
+};
 
 // Fetch Data Function
 const reloadTableData = async (page = 1) => {
-  loading.value = true;
+  $q.loading.show();
   try {
-    const { page, rowsNumber, rowsPerPage, sortBy, descending } =
-      pagination.value;
-    const bakerReportData = await bakerReportStore.fetchBakerReport(
+    await bakerReportStore.fetchBakerReport(
       userId,
       page,
-      rowsNumber,
-      rowsPerPage,
-      sortBy,
-      descending
+      pagination.value.rowsPerPage || 5,
+      searchQuery.value
     );
 
-    rows.value = bakerReportData.data;
-    maxPages.value = bakerReportData.last_page;
-    pagination.value.rowsPerPage = bakerReportData.per_page || 10;
-    showNoDataMessage.value = rows.value.length === 0;
+    // If bakersReportList becomes empty after search/pagination, clear selected bakersReport
+    if (!bakersReportList.value.length && selectedBakerReport.value) {
+      selectedBakerReport.value = null;
+    }
+
+    // If there a selected bakersReport and its no longer in the current page, deselect it
+    if (
+      selectedBakerReport.value &&
+      !bakersReportList.value.some((d) => d.id === selectedBakerReport.value.id)
+    ) {
+      selectedBakerReport.value = null;
+    }
+
+    // Automatically select the first bakersReport if none is selected and list is not empty
+    if ((!selectedBakerReport.value && bakersReportList.value, length > 0)) {
+      selectedBakerReport.value = bakersReportList.value[0];
+    }
+    console.log("bakersReportList", bakersReportList.value);
+    console.log("pagination", pagination.value);
   } catch (error) {
     console.error("Error fetching baker report:", error);
+  } finally {
+    $q.loading.hide();
   }
-  loading.value = false;
+};
+
+onMounted(async () => {
+  reloadTableData(pagination.value.current_page);
+});
+
+const onPageChange = (page) => {
+  reloadTableData(page);
 };
 
 // Auto-fetch data when pagination changes
-watchEffect(() => {
-  if (userId) {
-    reloadTableData();
-  }
-});
-
 const bakersReportListColumns = [
   {
     name: "date",

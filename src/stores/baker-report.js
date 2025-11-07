@@ -67,8 +67,11 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", () => {
         params: { page, per_page: per_page, search: search },
       });
 
-      // bakerReport.value.data = response.data;
-      console.log("response.data", response.data);
+      bakerReport.value.data = response.data;
+      console.log("response.data report response", response.data);
+      bakerReport.value.pagination = response.data.pagination;
+      console.log("bakerReport.value.pagination", bakerReport.value.pagination);
+
       return response.data;
     } catch (error) {
       console.error("Error fetching baker reports:", error);
@@ -125,6 +128,17 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", () => {
         overall_kilo: overallKilo.value,
         total_employees: totalEmployeesInShift.value,
       });
+
+      console.log("Reports to be saved reports:", reports.value);
+      console.log(
+        "Reports to be saved employeeInShift:",
+        employeeInShift.value
+      );
+      console.log("Reports to be saved overallKilo:", overallKilo.value);
+      console.log(
+        "Reports to be saved totalEmployeesInShift:",
+        totalEmployeesInShift.value
+      );
 
       Notify.create({
         type: "positive",
