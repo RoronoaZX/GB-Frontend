@@ -146,6 +146,12 @@ export const updateEmployeePosition = async (data, val) => {
       position: val,
     };
     await employeeStore.updatedEmployeePosition(employeePosition);
+    Notify.create({
+      message: "Position updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
   } catch (error) {
     console.error("Error updating position:", error);
 
