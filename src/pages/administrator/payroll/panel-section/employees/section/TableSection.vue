@@ -78,6 +78,45 @@
           </q-popup-edit>
         </q-td>
       </template>
+      <template v-slot:body-cell-position="props">
+        <q-td :props="props" style="text-align: justify">
+          <div>
+            <q-chip
+              outline
+              square
+              :text-color="getUserBadgePositionColor(props.row.position)"
+              :color="getUserBadgePositionColor(props.row.position)"
+              class="q-ma-xs"
+              size="sm"
+            >
+              {{ capitalizeAddress(props.row?.position || "N/A") }}
+              <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+                Edit Position
+              </q-tooltip>
+            </q-chip>
+          </div>
+          <q-popup-edit
+            @update:model-value="
+              (val) => updateEmployeePosition(props.row, val)
+            "
+            v-model="props.row.position"
+            buttons
+            title="Edit Position"
+            v-slot="scope"
+          >
+            <q-select
+              class="text-capitalize"
+              v-model="scope.value"
+              :options="positionOptions"
+              outlined
+              dense
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
+        </q-td>
+      </template>
       <template v-slot:body-cell-employmentType="props">
         <q-td :props="props">
           <q-badge
@@ -357,6 +396,7 @@ import {
   formatDate,
   updateEmployeeFullname,
   updateEmploymentType,
+  updateEmployeePosition,
   updateEmployeeAddress,
   updateEmployeePhone,
   updateEmployeeBirthdate,
@@ -370,6 +410,7 @@ import {
   getEmployementTypeColor,
   employeeColumns,
 } from "src/composables/employeeFunction/useEmployeeFunctions";
+import { badgeColor } from "src/composables/badge-color/badge-color";
 // import SearchEmployee from "./SearchEmployee.vue";
 // import { date, useQuasar } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
@@ -380,19 +421,27 @@ import GB_LOGO from "src/assets/GB_LOGO.png";
 import { useEmployeeIDPrinter } from "src/composables/employeeFunction/useEmployeeIDPrinter";
 
 const { dialog, pdfUrl, handlePrintID } = useEmployeeIDPrinter(IDLogo, GB_LOGO);
+const { getUserBadgePositionColor } = badgeColor();
 
 const employmentStore = useEmploymentTypeStore();
 const employeeStore = useEmployeeStore();
 const employeeRows = computed(() => employeeStore.employees); // Computed property will automatically update when the store changes
 const employeesRowsData = ref([]);
 
-// updateEmployeeDesignation,
-
-// const updateEmployeeDesignation = async (designationObj, val) => {
-//   console.log("✅ updateEmployeeDesignation() called!");
-//   console.log("🧩 New designation ID:", val);
-//   console.log("📦 Original designation object:", designationObj);
-// };
+const positionOptions = [
+  "Super Admin",
+  "Admin",
+  "Supervisor",
+  "Scaler",
+  "Lamesador",
+  "Hornero",
+  "Baker",
+  "Cake Maker",
+  "Cashier",
+  "Sales Clerk",
+  "Utility",
+  "Not Yet Assigned",
+];
 
 const logOptions = (row) => {
   console.log("designation_type:", row.designation?.designation_type);
@@ -491,6 +540,29 @@ watch(filter, async (newVal) => {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
+}
+
+.elegant-chip {
+  background-color: #007bff;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.elegant-chip-outline {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.elegant-detail {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+}
+
+.elegant-btn {
+  color: #00ffd5;
+  border-color: #007bff;
+  font-weight: 600;
 }
 
 .user-card {

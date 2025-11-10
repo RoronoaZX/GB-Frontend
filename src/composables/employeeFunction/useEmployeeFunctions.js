@@ -1,7 +1,7 @@
 // function to be use in the
 // pages/administrator/payroll/panel-section/employees
 
-import { date, Notify } from "quasar";
+import { date, Loading, Notify } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
 import { useBranchesStore } from "src/stores/branch";
 import { useWarehousesStore } from "src/stores/warehouse";
@@ -136,6 +136,28 @@ export const updateEmploymentType = async (employmenTypeOgj, val, reloadFn) => {
   // } finally {
   //   tableLoading.value = false;
   // }
+};
+
+export const updateEmployeePosition = async (data, val) => {
+  tableLoading.value = true;
+  try {
+    const employeePosition = {
+      id: data.id,
+      position: val,
+    };
+    await employeeStore.updatedEmployeePosition(employeePosition);
+  } catch (error) {
+    console.error("Error updating position:", error);
+
+    Notify.create({
+      message: "Failed to update position",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
 };
 
 export const updateEmployeeAddress = async (data, val) => {
@@ -382,6 +404,15 @@ export const employeeColumns = [
     sortable: true,
     style: "position: sticky; left: 0 ; background: white; z-index: 1;",
     headerStyle: "position: sticky; left: 0; background: white; z-index: 2;",
+  },
+  {
+    name: "position",
+    required: true,
+    label: "Position",
+    align: "center",
+    field: "position",
+    format: (val) => `${val}`,
+    sortable: true,
   },
   {
     name: "employmentType",

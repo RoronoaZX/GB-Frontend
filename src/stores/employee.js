@@ -257,12 +257,37 @@ export const useEmployeeStore = defineStore("employees", () => {
       );
 
       console.log("====================================");
-      console.log("response addresss", response.data);
+      console.log("response employment type", response.data);
       console.log("====================================");
     } catch (error) {
       console.log(error);
     }
   };
+
+  const updatedEmployeePosition = async (data) => {
+    console.log("updateEmployeePosition", data);
+
+    const id = data.id;
+    try {
+      const response = await api.put(
+        `/api/update-employee-position/${id}`,
+        data
+      );
+      console.log("====================================");
+      console.log("response position", response.data);
+      console.log("====================================");
+      const index = employees.value.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        employees.value[index] = {
+          ...employees.value[index],
+          position: response.data.employee.position,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const updateEmployeeAddress = async (data) => {
     console.log("updateEmployeeAddress", data);
     const id = data.id;
@@ -424,6 +449,7 @@ export const useEmployeeStore = defineStore("employees", () => {
     searchCertainEmployee,
     searchEmployeeWithBranchID,
     updateEmployeeFullname,
+    updatedEmployeePosition,
     updateEmployeeAddress,
     updateEmployeePhone,
     updateEmployeebirthdate,
