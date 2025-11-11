@@ -14,28 +14,15 @@
             <q-date
               v-model="selectedDate"
               v-model:year-month="currentYearMonth"
+              :events="events"
+              :event-color="getEventColor"
+              event-style="filled"
               minimal
               flat
               class="full-width"
               text-color="dark"
               @navigation="onCalendarNav"
-            >
-              <template #day="{ scope }">
-                <div
-                  class="q-date__day flex flex-center"
-                  :class="
-                    getDayStyle(
-                      `${scope.year}-${String(scope.month).padStart(
-                        2,
-                        '0'
-                      )}-${String(scope.day).padStart(2, '0')}`
-                    )
-                  "
-                >
-                  {{ scope.day }}
-                </div>
-              </template>
-            </q-date>
+            />
           </q-card-section>
         </q-card>
       </div>
@@ -178,6 +165,8 @@ const deleteDialogRef = ref(null);
 const isLoading = ref(true);
 const selectedDate = ref(new Date().toISOString().substr(0, 10));
 
+const events = ref([]);
+
 const today = new Date();
 const currentYearMonth = ref(
   `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, "0")}`
@@ -229,6 +218,7 @@ const fetchHolidays = async (year, month) => {
       };
     });
     holidaysData.value = holidays;
+    events.value = holidaysData.value.map((h) => h.date);
   } catch (error) {
     console.error("Error fetching holidays:", error);
   } finally {
@@ -273,11 +263,34 @@ const getHolidayClass = (type) => {
 };
 
 // Returns the class for the calendar day itself
-const getDayStyle = (dateStr) => {
-  // console.log('Checking dateStr:', dateStr); // Debugging
+// const getDayStyle = (dateStr) => {
+//   // console.log('Checking dateStr:', dateStr); // Debugging
+//   const holiday = holidaysData.value.find((h) => h.date === dateStr);
+//   // if (holiday) { console.log('Found holiday for', dateStr, ':', holiday.name); } // Debugging
+//   if (!holiday) return "";
+//   return holiday.type === "Regular Holiday"
+//     ? "holiday--regular-day"
+//     : holiday.type === "Special (Non-Working) Holiday"
+//     ? "holiday--special-day"
+//     : "";
+// };
+
+const getEventColor = (dateStr) => {
   const holiday = holidaysData.value.find((h) => h.date === dateStr);
-  // if (holiday) { console.log('Found holiday for', dateStr, ':', holiday.name); } // Debugging
+  if (!holiday) return "primary";
+
+  if (holiday.type === "Regular Holiday") return "deep-purple-4";
+  if (holiday.type === "Special (Non-Working) Holiday") return "amber-5";
+
+  return "primary";
+};
+
+// Returns the class for the calendar day itself (Crucial for coloring the whole cell)
+const getDayStyle = (dateStr) => {
+  const holiday = holidaysData.value.find((h) => h.date === dateStr);
   if (!holiday) return "";
+
+  // Return classes that correspond to your CSS rules
   return holiday.type === "Regular Holiday"
     ? "holiday--regular-day"
     : holiday.type === "Special (Non-Working) Holiday"
@@ -461,6 +474,50 @@ const getMonthName = (monthNumber) => {
     white-space: nowrap;
     text-transform: uppercase;
   }
+}
+
+/* Regular Holidays */
+.holiday--regular-day {
+  /* Use !important to override Quasar's default day styling */
+  background-color: #ffebee !important; /* Light Red/Pink */
+  color: #c62828 !important; /* Dark Red text */
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* Special Holidays */
+.holiday--special-day {
+  background-color: #fffde7 !important; /* Light Yellow/Amber */
+  color: #f9a825 !important; /* Dark Amber text */
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* Ensure the selected day retains its style but looks 'active' */
+.q-date__day--active.holiday--regular-day {
+  background-color: #c62828 !important;
+  color: #fff !important;
+}
+
+.q-date__day--active.holiday--special-day {
+  background-color: #f9a825 !important;
+  color: #000 !important;
+}
+
+/* --- Card List Styles (for consistency) --- */
+
+.holiday--regular-card {
+  border-left: 5px solid #c62828; /* Red left border */
+  background-color: #f7f9fc;
+}
+
+.holiday--special-card {
+  border-left: 5px solid #f9a825; /* Amber left border */
+  background-color: #f7f9fc;
+}
+
+.holiday-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .holiday-separator {
