@@ -127,6 +127,21 @@
                 </div>
               </div>
               <div class="q-mb-sm elegant-detail">
+                <q-icon name="lock" class="q-mr-sm" />
+                <div class="email-display">
+                  <span>********</span>
+                  <q-btn
+                    flat
+                    dense
+                    size="sm"
+                    color="primary"
+                    label="change"
+                    class="q-mt-sm"
+                    @click="openChangePasswordDialog(user)"
+                  />
+                </div>
+              </div>
+              <div class="q-mb-sm elegant-detail">
                 <q-icon name="calendar_today" class="q-mr-sm" />
                 <span>{{ formatDate(user.birthdate || "-") }}</span>
               </div>
@@ -151,6 +166,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { date, Loading, Notify, useQuasar, QPopupProxy } from "quasar";
 import { useRouter } from "vue-router";
 import UserEditProfile from "./UserEditProfile.vue";
+import ChangingPassword from "./ChangingPassword.vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
@@ -184,6 +200,17 @@ const reloadUserData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const openChangePasswordDialog = (user) => {
+  $q.dialog({
+    component: ChangingPassword,
+    componentProps: {
+      user: user,
+    },
+  }).onOk((data) => {
+    console.log("Password changed data:", data);
+  });
 };
 
 const loading = ref(true);

@@ -27,6 +27,27 @@ export const useUsersStore = defineStore("users", () => {
       });
     }
   };
+
+  const verifyUserPassword = async (userId, password) => {
+    try {
+      console.log("Verifying password for user ID:", userId);
+      console.log("Password to verify:", password);
+      const response = await api.post(`/api/verify-password`, {
+        user_id: userId,
+        password: password,
+      });
+      console.log("Password verification response:", response.data);
+      return response.data.isValid; // Assuming the backend returns { isValid: true/false }
+    } catch (error) {
+      console.error("Error verifying password:", error);
+      Notify.create({
+        type: "negative",
+        message: "Failed to verify password",
+      });
+      return false;
+    }
+  };
+
   const fetchUserById = async (userId) => {
     try {
       const response = await api.get(`/api/user/${userId}`);
@@ -185,17 +206,36 @@ export const useUsersStore = defineStore("users", () => {
     }
   };
 
+  const updatePassword = async (data) => {
+    console.log("Data received for password update:", data);
+    try {
+      console.log("data", data);
+      const response = await api.post(`/api/user-password`, {
+        user_id: data.user_id,
+        password: data.new_password,
+        new_password: data.new_password,
+        new_password_confirmation: data.new_password_confirmation,
+      });
+      console.log("Password update response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   return {
     user,
     users,
     userData,
     setUser,
     fetchUsers,
+    verifyUserPassword,
     registerUser,
     searchUser,
     searchUserWithID,
     fetchUserById,
     updateUser,
     updateEmail,
+    updatePassword,
   };
 });

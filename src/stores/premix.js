@@ -104,7 +104,7 @@ export const usePremixStore = defineStore("premix", () => {
           status: status,
         },
       });
-      console.log("pendong", pending.data);
+      console.log("pending", pending.data);
       pendingPremixData.value = pending.data;
     } catch (error) {
       console.error("error", error);

@@ -102,6 +102,10 @@ const searchQuery = ref("");
 
 let searchTimeout = null;
 
+const updateReportHistory = () => {
+  fetchRequestBranchEmployeePremix(pagination.value.current_page);
+};
+
 const onSearch = () => {
   if (searchTimeout) {
     clearTimeout(searchTimeout);

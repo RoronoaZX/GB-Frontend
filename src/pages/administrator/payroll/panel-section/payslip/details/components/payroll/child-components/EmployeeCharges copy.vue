@@ -6,178 +6,130 @@
           Charges Summary
         </div>
         <q-space />
-        <q-btn icon="close" flat dense round v-close-popup color="white" />
+        <q-btn
+          icon="close"
+          flat
+          dense
+          round
+          v-close-popup
+          color="white"
+          class="close-btn"
+        />
       </q-card-section>
 
       <q-card-section class="scrollable-content-wrapper">
-        <div v-if="localList.length > 0" class="q-pt-sm">
-          <q-list bordered class="rounded-borders">
-            <q-item class="list-header bg-grey-2 text-weight-medium">
-              <q-item-section>Report Date</q-item-section>
-              <q-item-section>Branch</q-item-section>
-              <q-item-section side>Amount</q-item-section>
+        <div
+          v-if="chargesAmountList.length > 0"
+          class="q-pt-sm q-pb-none compact-content-section"
+        >
+          <q-list
+            bordered
+            class="rounded-borders q-mt-xs list-container compact-list"
+          >
+            <q-item
+              class="list-header bg-grey-2 text-weight-medium compact-list-header"
+            >
+              <q-item-section>Report Date </q-item-section>
+              <q-item-section> Branch </q-item-section>
+              <q-item-section side> Amount </q-item-section>
             </q-item>
 
             <q-item
-              v-for="(item, i) in localList"
-              :key="i"
-              class="compact-list-item"
+              v-for="(item, index) in chargesAmountList"
+              :key="index"
+              class="list-item compact-list-item"
             >
-              <q-item-section>
+              <q-item-section class="item-size">
                 {{ formatDateString(item.created_at) }}
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="item-size">
                 {{ capitalizeFirstLetter(item.branch.name) }}
               </q-item-section>
-
-              <!-- Editable Amount with q-popup-edit -->
-              <q-item-section side>
-                <q-popup-edit
-                  v-model="item.charges_amount"
-                  @update:model-value="onItemUpdate(i, $event)"
-                  title="Edit Charge Amount"
-                  buttons
-                  persistent
-                  label="Amount"
-                >
-                  <q-input
-                    v-model.number="item.charges_amount"
-                    type="number"
-                    dense
-                    outlined
-                    step="0.01"
-                    autofocus
-                    :rules="[(val) => val >= 0 || 'Cannot be negative']"
-                  />
-                </q-popup-edit>
-
-                <div
-                  class="cursor-pointer text-primary"
-                  @click="$refs.popup?.[i]?.show()"
-                >
-                  {{ formatCurrency(item.charges_amount) }}
-                </div>
+              <q-item-section side class="item-price">
+                {{ item.charges_amount }}
               </q-item-section>
             </q-item>
           </q-list>
         </div>
-
-        <!-- Empty state -->
         <div
           v-else
-          class="flex flex-center column q-pa-xl"
+          class="flex flex-center column q-pa-md"
           style="min-height: 250px"
         >
-          <q-icon name="sentiment_very_satisfied" color="grey-5" size="80px" />
-          <div class="text-h6 text-grey-7 q-mt-md">No charges recorded</div>
-        </div>
-      </q-card-section>
-
-      <q-card-section class="q-py-md q-px-lg bg-grey-1">
-        <div class="flex justify-between items-center">
-          <div class="text-subtitle1 text-weight-bold">Total:</div>
-          <div class="text-h6 text-weight-bold text-negative">
-            {{ formatCurrency(totalAmount) }}
+          <q-icon
+            name="sentiment_very_satisfied"
+            color="grey-5"
+            size="80px"
+            class="q-mb-sm"
+          />
+          <div class="text-h6 text-grey-7 q-mb-xs">
+            Employee has no credits for this cut-off.
+          </div>
+          <div class="text-subtitle2 text-grey-6 text-center">
+            It looks like there are no charges recorded for
+            <br />
+            {{ dtrfrom }} to {{ dtrTo }}
           </div>
         </div>
       </q-card-section>
+
+      <q-item-section
+        class="q-py-md q-px-lg total-summary-section compact-total-summary"
+      >
+        <div class="flex justify-between items-center total-grand">
+          <div class="text-subtitle1 text-weight-bold text-gradient">
+            Total :
+          </div>
+          <div class="text-h6 text-weight-bold text-gradient total-amount">
+            {{ formatCurrency(totalChargesAmount) }}
+          </div>
+        </div>
+      </q-item-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
 import { useDialogPluginComponent, date } from "quasar";
-import { ref, computed, watch } from "vue";
+import { computed } from "vue";
 
-const { dialogRef } = useDialogPluginComponent();
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const props = defineProps({
-  chargesAmountList: {
-    type: Array,
-    default: () => [],
-  },
-});
+const props = defineProps(["chargesAmountList"]);
+console.log("chargesAmountList", props.chargesAmountList);
 
-const emit = defineEmits(["update:chargesAmountList"]);
+const emit = defineEmits(["update:total"]);
 
-// Local editable copy
-const localList = ref([]);
+const formatDateString = (dateStr) => {
+  if (!dateStr) return "";
 
-const deepClone = (obj) => {
-  if (obj === null || typeof obj !== "object") return obj;
-  if (Array.isArray(obj)) return obj.map(deepClone);
-  if (obj instanceof Date) return new Date(obj.getTime());
-  const cloned = {};
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      cloned[key] = deepClone(obj[key]);
-    }
-  }
-  return cloned;
+  return date.formatDate(dateStr, "MMM. DD, YYYY");
 };
 
-watch(
-  () => props.chargesAmountList,
-  (newVal) => {
-    localList.value = newVal.map(deepClone);
-  },
-  { immediate: true }
-);
-
-// // Keep in sync when dialog reopens with new data
-// watch(
-//   () => props.chargesAmountList,
-//   (newVal) => {
-//     localList.value = structuredClone(newVal);
-//   },
-//   { deep: true }
-// );
-
-// Recalculate total
-const totalAmount = computed(() => {
-  return localList.value.reduce(
-    (sum, item) => sum + parseFloat(item.charges_amount || 0),
-    0
-  );
+const totalChargesAmount = computed(() => {
+  return props.chargesAmountList?.reduce((sum, item) => {
+    return sum + parseFloat(item.charges_amount || 0);
+  }, 0);
 });
 
-// When user saves in popup-edit
-const onItemUpdate = (index, newValue) => {
-  localList.value[index].charges_amount = parseFloat(newValue) || 0;
-
-  // Emit updated full list back to parent
-  emit("update:chargesAmountList", structuredClone(localList.value));
+const capitalizeFirstLetter = (location) => {
+  if (!location) return "";
+  return location
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
-
-const formatDateString = (d) => date.formatDate(d, "MMM. DD, YYYY");
-const capitalizeFirstLetter = (str) =>
-  str?.replace(/\b\w/g, (l) => l.toUpperCase());
 
 const formatCurrency = (value) => {
+  const number = parseFloat(value || 0);
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
-  }).format(parseFloat(value || 0));
+    maximumFractionDigits: 2,
+  }).format(number);
 };
 </script>
-
-<style scoped>
-.item-price {
-  font-weight: 600;
-  color: #1976d2;
-}
-
-.bg-grey-3 {
-  background-color: #f5f5f5 !important;
-}
-
-.text-gradient {
-  background: linear-gradient(90deg, #1976d2, #42a5f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-</style>
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");

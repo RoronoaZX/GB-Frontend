@@ -257,13 +257,13 @@ const isStepDone = (stepValue) =>
 const confirmReceived = async () => {
   const payload = {
     request_premix_id: props.report.id,
-    branch_premix_id: props.report.branch_premix_id,
+    branch_premix_id: props.report.branch_premix.id,
     branch_id: props.report.branch_premix.branch_id,
     employee_id: employeeId,
     status: "received",
     notes: "Received Premix",
     quantity: props.report.quantity,
-    warehouse_id: props.report.warehouse_id,
+    warehouse_id: props.report.warehouse.id,
     ingredients: computedIngredients.value.map((ingredient) => ({
       ingredients_id: ingredient.ingredient.id,
       total_quantity: ingredient.totalQuantity,
@@ -273,7 +273,8 @@ const confirmReceived = async () => {
   console.log("payload", payload);
   await premixStore.receivePremix(payload);
 
-  await fetchRequestBranchEmployeePremix(branchId, employeeId);
+  // await fetchRequestBranchEmployeePremix(branchId, employeeId);
+  emit("update-history");
   dialog.value = false;
 };
 </script>

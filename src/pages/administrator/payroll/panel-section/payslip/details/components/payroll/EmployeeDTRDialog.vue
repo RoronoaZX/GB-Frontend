@@ -75,6 +75,7 @@
     </q-card>
   </q-dialog>
 </template>
+
 <script setup>
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
