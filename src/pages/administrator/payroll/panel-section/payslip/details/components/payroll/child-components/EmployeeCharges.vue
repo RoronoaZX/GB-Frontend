@@ -32,11 +32,11 @@
 
               <!-- Editable Amount with q-popup-edit -->
               <q-item-section side>
-                <q-popup-edit
+                <!-- <q-popup-edit
                   v-model="item.charges_amount"
                   @update:model-value="onItemUpdate(i, $event)"
                   title="Edit Charge Amount"
-                  buttons
+                  v-slot="scope"
                   persistent
                   label="Amount"
                 >
@@ -49,8 +49,95 @@
                     autofocus
                     :rules="[(val) => val >= 0 || 'Cannot be negative']"
                   />
+
+                  <div class="row justify-end q-mt-md">
+                    <q-btn
+                      flat
+                      label="Close"
+                      color="primary"
+                      @click="scope.cancel"
+                    />
+                    <q-btn
+                      flat
+                      label="Save"
+                      color="primary"
+                      @click="
+                        scope.set;
+                        onItemUpdate(i, scope.value);
+                      "
+                    />
+                  </div>
+                </q-popup-edit> -->
+
+                <q-popup-edit
+                  v-model="item.charges_amount"
+                  v-slot="scope"
+                  title="Edit Charge Amount"
+                  persistent
+                  label="Amount"
+                >
+                  <q-input
+                    v-model.number="scope.value"
+                    type="number"
+                    dense
+                    outlined
+                    step="0.01"
+                    autofocus
+                    :rules="[(val) => val >= 0 || 'Cannot be negative']"
+                  />
+
+                  <div class="row justify-end q-mt-md">
+                    <q-btn
+                      flat
+                      label="Close"
+                      color="primary"
+                      @click="scope.cancel"
+                    />
+                    <q-btn
+                      flat
+                      label="Save"
+                      color="primary"
+                      @click="
+                        scope.set();
+                        onItemUpdate(i, scope.value);
+                      "
+                    />
+                  </div>
                 </q-popup-edit>
 
+                <!-- <q-popup-edit
+                  v-model="item.charges_amount"
+                  v-slot="scope"
+                  title="Edit Charge Amount"
+                  persistent
+                  label="Amount"
+                >
+                  <q-input
+                    v-model.number="scope.value"
+                    type="number"
+                    outlined
+                    dense
+                    step="0.01"
+                  />
+
+                  <div class="row justify-end q-mt-md">
+                    <q-btn
+                      flat
+                      label="Close"
+                      color="primary"
+                      @click="scope.cancel"
+                    />
+                    <q-btn
+                      flat
+                      label="Save"
+                      color="primary"
+                      @click="
+                        scope.set;
+                        onItemUpdate(i, scope.value);
+                      "
+                    />
+                  </div>
+                </q-popup-edit> -->
                 <div
                   class="cursor-pointer text-primary"
                   @click="$refs.popup?.[i]?.show()"
@@ -88,6 +175,9 @@
 <script setup>
 import { useDialogPluginComponent, date } from "quasar";
 import { ref, computed, watch } from "vue";
+import { useEmployeeChargesStore } from "src/stores/employee-charges";
+
+const employeeChargesStore = useEmployeeChargesStore();
 
 const { dialogRef } = useDialogPluginComponent();
 
@@ -95,6 +185,9 @@ const props = defineProps({
   chargesAmountList: {
     type: Array,
     default: () => [],
+  },
+  onEditCharge: {
+    type: Function,
   },
 });
 
@@ -142,13 +235,32 @@ const totalAmount = computed(() => {
 });
 
 // When user saves in popup-edit
+// const onItemUpdate = (index, newValue) => {
+//   localList[index].charges_amount = newValue;
+
+//   // Emit the updated list back to the parent
+//   emit("update:charges", localList);
+// };
+
 const onItemUpdate = (index, newValue) => {
-  localList.value[index].charges_amount = parseFloat(newValue) || 0;
+  const item = localList.value[index];
+  const updatedAmount = parseFloat(newValue) || 0;
 
-  // Emit updated full list back to parent
-  emit("update:chargesAmountList", structuredClone(localList.value));
+  console.log("Updating local item:", item); // check id
+
+  item.charges_amount = updatedAmount;
+
+  if (item.id != null) {
+    employeeChargesStore.updateChargeById({
+      id: item.id,
+      charges_amount: updatedAmount,
+    });
+  } else {
+    console.warn("Cannot update store: item.id is missing");
+  }
+
+  console.log("Emitting updated item:", localList.value[index]);
 };
-
 const formatDateString = (d) => date.formatDate(d, "MMM. DD, YYYY");
 const capitalizeFirstLetter = (str) =>
   str?.replace(/\b\w/g, (l) => l.toUpperCase());

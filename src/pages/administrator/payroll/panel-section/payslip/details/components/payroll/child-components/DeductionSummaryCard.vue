@@ -83,7 +83,7 @@
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-body2 text-weight-meduim text-grey-8">
-                Short / Charges :
+                Short / Chargesss :
                 <span class="text-negative text-weight-bold">
                   {{ formatCurrency(calculateEmployeeChargesTotal) }}
                 </span>
@@ -384,6 +384,9 @@ const handleEmployeeCharges = (charges) => {
     component: EmployeeCharges,
     componentProps: {
       chargesAmountList: charges,
+      onEditCharge: (updatedItem) => {
+        employeeChargesStore.updateChargeById(updatedItem);
+      },
     },
   });
 };
