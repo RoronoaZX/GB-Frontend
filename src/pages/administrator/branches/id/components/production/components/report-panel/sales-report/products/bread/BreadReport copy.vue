@@ -204,12 +204,12 @@
 
 <script setup>
 import AddingBreadReport from "./AddingBreadReport.vue";
-import { Notify, useDialogPluginComponent } from "quasar";
+import { useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
 import { computed, ref } from "vue";
 import { useUsersStore } from "src/stores/user";
 import { useRoute } from "vue-router";
-import { useProductionStore } from "src/stores/production";
+import { useQuasar, date } from "quasar";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 
@@ -219,26 +219,15 @@ const route = useRoute();
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const productionStore = useProductionStore();
-
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
 console.log("producttable user data", userData.value);
-
-const userId = computed(() => {
-  return userStore.userData?.data?.id ?? null;
-});
-
-// Optional: show a smal loading if user not yet ready
-const userReady = computed(() => !!userId.value);
-
+const userId = userData.value?.data?.id || "0";
+console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
-
 const dialog = ref(false);
-
 const maximizedToggle = ref(true);
 const reportLength = computed(() => filteredRows.value.length);
-
 const props = defineProps([
   "reports",
   "sales_report_id",
@@ -246,7 +235,6 @@ const props = defineProps([
   "reportLabel",
   "reportDate",
 ]);
-
 const filter = ref("");
 const pagination = ref({
   rowsPerPage: 0,
@@ -256,111 +244,186 @@ const pagination = ref({
 console.log("Reports data structure:", props.reports);
 console.log("Reports data sales_report_id:", props.sales_report_id);
 
-const buildHistoryMeta = (row, field, originalVal, newVal) => {
-  if (!userReady.value) {
-    console.warn("user not loaded yet, cannot log history");
-  }
+const updatedPrice = async (data, val) => {
+  console.log("update data of the price", data);
+  console.log("update val of the price", val);
 
-  return {
-    report_id: row.id,
-    name: row?.bread?.name || "Unknown Bread",
-    original_data: field.includes("price")
-      ? `₱ ${originalVal}`
-      : `${originalVal} pcs`,
-    updated_data: field.includes("price") ? `₱ ${newVal}` : `${newVal} pcs`,
-    updated_field: field,
-    designation: branchId,
-    designation_type: "branch",
-    action: "updated",
-    type_of_report: `Branch Production ${
-      props.reportLabel?.toUpperCase() || ""
-    } Report Table`,
-    user_id: userId.value,
-  };
-};
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `₱ ${data.price.toString()}`; // Convert to string
+  const updatedData = `₱ ${parseInt(val).toString()}`; // Convert to string after parsing
+  const updated_field = "price";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
 
-const updatedPrice = async (row, newPrice) => {
-  const meta = buildHistoryMeta(row, "price", row.price, newPrice);
+  // // Log the payload before sending
+  // console.log("Payload to be sent:", payload);
 
   try {
-    await productionStore.updateBreadPrice(row.id, newPrice, meta);
-    Notify.create({
-      message: "Price udpated successfully",
-      color: "positive",
-      icon: "check",
-    });
+    const response = await api.put(
+      "/api/update-bread-sales-price-report/" + data.id,
+      {
+        price: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
+      }
+    );
+    console.log("reponse", response.data);
   } catch (error) {
-    Notify.create({
-      message: "Failed to update price",
-      color: "negative",
-      icon: "error",
-    });
+    console.error(error);
   }
 };
+const updatedBeginnings = async (data, val) => {
+  console.log("update data of the beginnings", data);
+  console.log("update val of the beginnings", val);
 
-const updatedBeginnings = async (row, newVal) => {
-  const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `${data.beginnings.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "beginnings";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
+
   try {
-    await productionStore.updateBeginnings(row.id, newVal, meta);
-    Notify.create({
-      message: "Beginnings updated",
-      color: "positive",
-    });
+    const response = await api.put(
+      "/api/update-bread-sales-beginnings-report/" + data.id,
+      {
+        beginnings: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
+      }
+    );
+    console.log("reponse", response.data);
   } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
+    console.error(error);
   }
 };
+const updatedNewProduction = async (data, val) => {
+  console.log("update data of the NewProduction", data);
+  console.log("update val of the NewProduction", val);
 
-const updatedNewProduction = async (row, newVal) => {
-  const meta = buildHistoryMeta(
-    row,
-    "new_production",
-    row.new_production,
-    newVal
-  );
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `${data.new_production.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "beginnings";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
 
   try {
-    await productionStore.updateNewProduction(row.id, newVal, meta);
-    Notify.create({ message: "New production updated", color: "positive" });
+    const response = await api.put(
+      "/api/update-bread-sales-newProduction-report/" + data.id,
+      {
+        new_production: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
+      }
+    );
+    console.log("reponse", response.data);
   } catch (error) {
-    console.log("Error updating new production:", error);
-    Notify.create({ message: "Update failed", color: "negative" });
-    throw error;
+    console.error(error);
   }
 };
-
-const updatedRemaining = async (row, newVal) => {
-  const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
-
+const updatedRemaining = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
   try {
-    await productionStore.updateRemaining(row.id, newVal, meta);
-    Notify.create({ message: "Remaining updated", color: "positive" });
+    const response = await api.put(
+      "/api/update-bread-sales-remaining-report/" + data.id,
+      {
+        remaining: parseInt(val),
+      }
+    );
+    console.log("reponse", response.data);
   } catch (error) {
-    console.log("Error updating remaining:", error);
-    Notify.create({
-      message: "Update faled",
-      color: "negative",
-    });
+    console.error(error);
   }
 };
+const updatedBreadOut = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
 
-const updatedBreadOut = async (row, newVal) => {
-  const meta = buildHistoryMeta(row, "breaad_out", row.bread_out, newVal);
+  const report_id = data.id;
+  const name = data?.bread?.name || "undefined";
+  const originalData = `${data.bread_out.toString()} pcs`; // Convert to string
+  const updatedData = `${parseInt(val).toString()} pcs`; // Convert to string after parsing
+  const updated_field = "beginnings";
+  const designation = branchId;
+  const designation_type = "branch";
+  const action = "updated";
+  const type_of_report = `Branch Production ${
+    props.reportLabel?.toUpperCase() || ""
+  } Report Table`;
+  const user_id = userId;
 
   try {
-    await productionStore.updateBreadOut(row.id, newVal, meta);
-    Notify.create({
-      message: "Bread out updated",
-      color: "positive",
-    });
+    const response = await api.put(
+      "/api/update-bread-sales-breadOut-report/" + data.id,
+      {
+        bread_out: parseInt(val),
+
+        // Extra data for history logging (now strings)
+        report_id,
+        name,
+        original_data: originalData,
+        updated_data: updatedData,
+        updated_field,
+        designation,
+        designation_type,
+        action,
+        type_of_report,
+        user_id,
+      }
+    );
+    console.log("reponse", response.data);
   } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
+    console.error(error);
   }
 };
 

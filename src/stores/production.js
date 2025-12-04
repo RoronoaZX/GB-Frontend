@@ -146,9 +146,126 @@ export const useProductionStore = defineStore("productions", () => {
     }
   };
 
-  // const updateBreadPrice = async () => {
+  const updateBreadPrice = async (id, price, meta) => {
+    console.log(
+      "Updating bread price with ID:",
+      id,
+      "New Price:",
+      price,
+      "Meta:",
+      meta
+    );
 
-  // }
+    try {
+      const response = await api.put(
+        `/api/update-bread-sales-price-report/${id}`,
+        {
+          price: parseInt(price),
+          ...meta,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating bread price:", error);
+      throw error;
+    }
+  };
+
+  const updateBeginnings = async (id, beginnings, meta) => {
+    console.log(
+      "Updating bread beginnings with ID:",
+      id,
+      "New Beginnings:",
+      beginnings,
+      "Meta:",
+      meta
+    );
+
+    try {
+      const response = await api.put(
+        `/api/update-bread-sales-beginnings-report/${id}`,
+        {
+          beginnings: parseInt(beginnings),
+          ...meta,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating beginnings: ", error);
+      throw error;
+    }
+  };
+
+  const updateNewProduction = async (id, new_production, meta) => {
+    console.log(
+      "Updating bread new production with ID:",
+      id,
+      "New Production:",
+      new_production,
+      "Meta:",
+      meta
+    );
+
+    try {
+      const response = await api.put(
+        `/api/update-bread-sales-newProduction-report/${id}`,
+        {
+          new_production: parseInt(new_production),
+          ...meta,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating new production:", error);
+      throw error;
+    }
+  };
+
+  const updateRemaining = async (id, remaining) => {
+    console.log(
+      "Updating bread remaining with ID:",
+      id,
+      "New Remaining:",
+      remaining
+    );
+
+    try {
+      const response = await api.put(
+        `/api/update-bread-sales-remaining-report/${id}`,
+        {
+          remaining: parseInt(remaining),
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error updating remaining:", error);
+    }
+  };
+
+  const updateBreadOut = async (id, bread_out, meta) => {
+    console.log(
+      "Updating bread out with ID: ",
+      id,
+      "New Bread Out:",
+      bread_out,
+      "Meta:",
+      meta
+    );
+
+    try {
+      const response = await api.put(
+        `/api/update-bread-sales-breadOut-report/${id}`,
+        {
+          bread_out: parseInt(bread_out),
+          ...meta,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error updating bread out:", error);
+      throw error;
+    }
+  };
 
   return {
     productions,
@@ -161,5 +278,10 @@ export const useProductionStore = defineStore("productions", () => {
     addSelectaProduction,
     addSoftdrinksProduction,
     addOtherProductProduction,
+    updateBreadPrice,
+    updateBeginnings,
+    updateNewProduction,
+    updateRemaining,
+    updateBreadOut,
   };
 });
