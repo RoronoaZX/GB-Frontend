@@ -188,16 +188,32 @@
 </template>
 
 <script setup>
-import { useDialogPluginComponent } from "quasar";
+import { Notify, useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
 import { ref, computed } from "vue";
 import AddingOtherReport from "./AddingOtherReport.vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { useProductionStore } from "src/stores/production";
+import { useRoute } from "vue-router";
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
+const route = useRoute();
+
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+const productionStore = useProductionStore();
+
+const userStore = useProductionStore();
+
+const userId = computed(() => {
+  return userStore.userData?.data?.id ?? null;
+});
+
+const userReady = computed(() => !!userId.value);
+
+const branchId = route.params.branch_id;
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -213,81 +229,144 @@ const filteredRows = computed(() => {
   return props.reports || [];
 });
 
-const updatedPrice = async (data, val) => {
-  console.log("update data of the price", data);
-  console.log("update val of the price", val);
+const buildHistoryMeta = (row, field, originalVal, newVal) => {
+  if (!userReady.value) {
+    console.warn("user not loaded yet, cannot og history");
+  }
+
+  return {
+    report_id: row.id,
+    name: row?.bread?.name || "Unknown Other Products",
+    original_data: field.includes("price")
+      ? `₱ ${originalVal}`
+      : `${originalVal} pcs`,
+    updated_data: field.includes("price") ? `₱ ${newVal}` : `${newVal} pcs`,
+    updated_field: field,
+    designation: branchId,
+    designation_type: "branch",
+    action: "updated",
+    type_of_report: `Branch Production ${
+      props.reportLabel?.toUpperCase() || ""
+    } Report Table`,
+    user_id: userId.value,
+  };
+};
+
+const updatedPrice = async (row, newPrice) => {
+  const meta = buildHistoryMeta(row, "price", row.price, newPrice);
 
   try {
-    const response = await api.put(
-      "/api/update-otherProducst-sales-price-report/" + data.id,
-      {
-        price: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newPrice,
+      meta,
+      "other_product",
+      "price"
     );
-    console.log("Updated price response:", response.data);
+
+    Notify.create({
+      message: "Price updated successfully",
+      color: "positive",
+      icon: "check",
+    });
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Failed to update price",
+      color: "negative",
+      icon: "error",
+    });
   }
 };
 
-const updatedBeginnings = async (data, val) => {
-  console.log("update data of the beginnings", data);
-  console.log("update val of the beginnings", val);
+const updatedBeginnings = async (row, newVal) => {
+  const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
+
   try {
-    const response = await api.put(
-      "/api/update-otherProducst-sales-beginnings-report/" + data.id,
-      {
-        beginnings: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "other_product",
+      "beginnings"
     );
-    console.log("reponse", response.data);
+    Notify.create({
+      message: "Beginnings updated successfully",
+      color: "positive",
+    });
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
   }
 };
-const updatedRemaining = async (data, val) => {
-  console.log("update data of the updatedRemaining", data);
-  console.log("update val of the updatedRemaining", val);
+const updatedRemaining = async (row, newVal) => {
+  const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
+
   try {
-    const response = await api.put(
-      "/api/update-otherProducst-sales-remaining-report/" + data.id,
-      {
-        remaining: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "other_product",
+      "remaining"
     );
-    console.log("reponse", response.data);
+
+    Notify.create({
+      message: "Remaining updated",
+      color: "positive",
+    });
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
   }
 };
-const updatedOtherProductsOut = async (data, val) => {
-  console.log("update data of the updatedRemaining", data);
-  console.log("update val of the updatedRemaining", val);
+const updatedOtherProductsOut = async (row, newVal) => {
+  const meta = buildHistoryMeta(
+    row,
+    "other_products_out",
+    row.others_products_out,
+    newVal
+  );
+
   try {
-    const response = await api.put(
-      "/api/update-otherProducst-sales-out-report/" + data.id,
-      {
-        out: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "other_product",
+      "out"
     );
-    console.log("reponse", response.data);
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
   }
 };
-const updatedAddedStocks = async (data, val) => {
-  console.log("update data of the updatedAddedStocks", data);
-  console.log("update val of the updatedAddedStocks", val);
+const updatedAddedStocks = async (row, newVal) => {
+  const meta = buildHistoryMeta(row, "added_stocks", row.added_stocks, newVal);
+
   try {
-    const response = await api.put(
-      "/api/update-otherProducst-sales-addedstocks-report/" + data.id,
-      {
-        added_stocks: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "other_product",
+      "added_stocks"
     );
-    console.log("reponse", response.data);
+
+    Notify.create({
+      message: "Added stocks updated",
+      color: "positive",
+    });
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
   }
 };
 

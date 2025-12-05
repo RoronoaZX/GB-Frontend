@@ -8,9 +8,9 @@
     transition-hide="slide-down"
   >
     <q-card>
-      <q-card-section style="background-color: #9c27b0">
+      <q-card-section style="background-color: #f44336">
         <div class="row justify-between text-white">
-          <div class="text-h6">Softdrinks Report</div>
+          <div class="text-h6">Selecta Report</div>
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
           </q-btn>
@@ -35,7 +35,7 @@
           </q-input>
         </div>
         <div>
-          <AddingSoftdrinksReport
+          <AddingSelectaReport
             :sales_Reports="props.reports"
             :sales_report_id="sales_report_id"
             :user="props.user"
@@ -47,7 +47,7 @@
           :filter="filter"
           :virtual-scroll-sticky-size-start="48"
           flat
-          :columns="breadReportColumns"
+          :columns="selectaReportColumn"
           :rows="filteredRows"
           row-key="name"
           virtual-scroll
@@ -60,7 +60,7 @@
           <template v-slot:body-cell-name="props">
             <q-td :props="props">
               <span>{{
-                `${capitalizeFirstLetter(props.row.softdrinks.name)}`
+                `${capitalizeFirstLetter(props.row.selecta.name)}`
               }}</span>
             </q-td>
           </template>
@@ -128,9 +128,7 @@
             <q-td :props="props">
               <span>{{ `${props.row.out}` }}</span>
               <q-popup-edit
-                @update:model-value="
-                  (val) => updatedSoftdrinksOut(props.row, val)
-                "
+                @update:model-value="(val) => updatedSelectaOut(props.row, val)"
                 v-model="props.row.out"
                 auto-save
                 v-slot="scope"
@@ -182,33 +180,16 @@
 </template>
 
 <script setup>
-import { Notify, useDialogPluginComponent } from "quasar";
-import AddingSoftdrinksReport from "./AddingSoftdrinksReport.vue";
+import { useDialogPluginComponent } from "quasar";
+import AddingSelectaReport from "./AddingSelectaReport.vue";
 import { api } from "src/boot/axios";
 import { ref, computed } from "vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
-import { useRoute } from "vue-router";
-import { useProductionStore } from "src/stores/production";
-import { useUsersStore } from "src/stores/user";
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
-const route = useRoute();
-
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
-
-const productionStore = useProductionStore();
-
-const userStore = useUsersStore();
-
-const userId = computed(() => {
-  return userStore.userData?.data?.id ?? null;
-});
-
-const userReady = computed(() => !!userId.value);
-
-const branchId = route.params.branchId;
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -220,146 +201,91 @@ const pagination = ref({
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
 
-const buildHistoryMeta = (row, field, originalVal, newVal) => {
-  if (!userReady.value) {
-    console.warn("User not loaded yet, cannot log history");
-  }
-
-  return {
-    report_id: row.id,
-    name: row?.bread?.name || "Unknown Softdrinks",
-    original_data: field.includes("price")
-      ? `₱ ${originalVal}`
-      : `${originalVal} pcs`,
-    updated_data: field.includes("price") ? `₱ ${newVal}` : `${newVal} pcs`,
-    updated_field: field,
-    designation: branchId,
-    designation_type: "branch",
-    action: "updated",
-    type_of_report: `Branch Production ${
-      props.reportLabel?.toUpperCase() || ""
-    } Report Table`,
-    user_id: userId.value,
-  };
-};
-
-const updatedPrice = async (row, newPrice) => {
-  const meta = buildHistoryMeta(row, "prcie", row.price, newPrice);
+const updatedPrice = async (data, val) => {
+  console.log("update data of the price", data);
+  console.log("update val of the price", val);
 
   try {
-    await productionStore.updateSalesField(
-      row.id,
-      newPrice,
-      meta,
-      "softdrinks",
-      "price"
+    const response = await api.put(
+      "/api/update-selecta-sales-price-report/" + data.id,
+      {
+        price: parseInt(val),
+      }
     );
   } catch (error) {
-    Notify.create({
-      message: "Failed to update price",
-      color: "negative",
-      icon: "error",
-    });
+    console.error(error);
   }
 };
 
-const updatedBeginnings = async (row, newVal) => {
-  const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
-
+const updatedBeginnings = async (data, val) => {
+  console.log("update data of the beginnings", data);
+  console.log("update val of the beginnings", val);
   try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "beginnings"
+    const response = await api.put(
+      "/api/update-selecta-sales-beginnings-report/" + data.id,
+      {
+        beginnings: parseInt(val),
+      }
     );
+    console.log("reponse", response.data);
   } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
+    console.error(error);
   }
 };
 
-const updatedRemaining = async (row, newVal) => {
-  const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
-
+const updatedRemaining = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
   try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "remaining"
+    const response = await api.put(
+      "/api/update-selecta-sales-remaining-report/" + data.id,
+      {
+        remaining: parseInt(val),
+      }
     );
-
-    Notify.create({
-      message: "Remaining updated",
-      color: "positive",
-    });
+    console.log("reponse", response.data);
   } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
+    console.error(error);
   }
 };
-
-const updatedSoftdrinksOut = async (row, newVal) => {
-  const meta = buildHistoryMeta(
-    row,
-    "softdrinks_out",
-    row.softdrinks_out,
-    newVal
-  );
-
+const updatedSelectaOut = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
   try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "out"
+    const response = await api.put(
+      "/api/update-selecta-sales-selctaOut-report/" + data.id,
+      {
+        out: parseInt(val),
+      }
     );
+    console.log("reponse", response.data);
   } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
+    console.error(error);
   }
 };
-const updatedAddedStocks = async (row, newVal) => {
-  const meta = buildHistoryMeta(row, "added_stocks", row.added_stocks, newVal);
-
+const updatedAddedStocks = async (data, val) => {
+  console.log("update data of the new updatedRemaining", data);
+  console.log("update val of the new updatedRemaining", val);
   try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "added_stocks"
+    const response = await api.put(
+      "/api/update-selecta-sales-addedstocks-report/" + data.id,
+      {
+        added_stocks: parseInt(val),
+      }
     );
-
-    Notify.create({
-      message: "Added stocks updated",
-      color: "positive",
-    });
+    console.log("reponse", response.data);
   } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
+    console.error(error);
   }
 };
 
-const breadReportColumns = [
+const selectaReportColumn = [
   {
     name: "name",
-    label: "Softdrinks Name",
+    label: "Selecta Name",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
-      return row.softdrinks.name || "N/A"; // Adjust this according to your data
+      return row.selecta.name || "N/A"; // Adjust this according to your data
     },
   },
   {
@@ -381,7 +307,7 @@ const breadReportColumns = [
   },
   {
     name: "out",
-    label: "Softdrinks Out (PCS)",
+    label: "Selecta Out (PCS)",
     field: "out",
     format: (val) => `${val}`,
   },
@@ -392,27 +318,26 @@ const breadReportColumns = [
     format: (val) => `${val}`,
   },
   {
-    name: "total_softdrinks",
+    name: "total_selecta",
     label: "Total Stocks (PCS)",
     field: (row) => {
-      const totalSoftdrinks =
+      const totalSelecta =
         Number(row.beginnings || 0) + Number(row.added_stocks || 0);
-      return totalSoftdrinks;
+      return totalSelecta;
     },
     format: (val) => `${val}`,
   },
   {
     name: "sold",
-    label: "Softdrinks Sold (PCS)",
+    label: "Selecta Sold (PCS)",
     field: (row) => {
       const beginnings = Number(row.beginnings || 0);
-      const addedStocks = Number(row.added_stocks || 0);
-      const out = Number(row.out || 0);
+      const newStocks = Number(row.added_stocks || 0);
+      const selectaOut = Number(row.out || 0);
       const remaining = Number(row.remaining || 0);
-      const totalSoftdrinks = beginnings + addedStocks;
-      const totalSoftdrinksDiff = remaining + out;
-      const sold = totalSoftdrinks - totalSoftdrinksDiff;
-      return sold;
+      const totalSelecta = beginnings + newStocks;
+      const totalSelectaDifference = remaining + selectaOut;
+      return totalSelecta - totalSelectaDifference;
     },
     format: (val) => `${val}`,
   },
@@ -421,16 +346,15 @@ const breadReportColumns = [
     label: "Total Sales",
     field: (row) => {
       const beginnings = Number(row.beginnings || 0);
-      const addedStocks = Number(row.added_stocks || 0);
-      const out = Number(row.out || 0);
+      const newStocks = Number(row.added_stocks || 0);
+      const selectaOut = Number(row.out || 0);
       const remaining = Number(row.remaining || 0);
       const price = Number(row.price || 0);
 
-      const totalSoftdrinks = beginnings + addedStocks;
-      const totalSoftdrinksDiff = remaining + out;
-      const sold = totalSoftdrinks - totalSoftdrinksDiff;
-
-      return sold * price;
+      const totalSelecta = beginnings + newStocks;
+      const totalSelectaDifference = remaining + selectaOut;
+      const selectaSold = totalSelecta - totalSelectaDifference;
+      return selectaSold * price;
     },
     format: (val) => `${formatPrice(val)}`,
   },
@@ -445,19 +369,20 @@ const filteredRows = computed(() => {
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    const beginnings = Number(row.beginnings || 0);
-    const addedStocks = Number(row.added_stocks || 0);
-    const out = Number(row.out || 0);
-    const remaining = Number(row.remaining || 0);
+    const beginnings = `${row.beginnings}` || 0;
+    const addedStocks = `${row.added_stocks}` || 0;
+    const selectaOut = `${row.out}` || 0;
+    const remaining = `${row.remaining}` || 0;
 
-    const totalSoftdrinks = beginnings + addedStocks;
-    const totalSoftdrinksDiff = remaining + out;
-    const sold = totalSoftdrinks - totalSoftdrinksDiff;
-    const salesAmount = sold * (row.price || 0);
+    const totalSelecta = parseInt(beginnings) + parseInt(addedStocks);
+    const totalSelectaDifference = parseInt(remaining) + parseInt(selectaOut);
+    const selectaSold = totalSelecta - totalSelectaDifference;
+    const salesAmount = selectaSold * (row.price || 0);
+
     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
     return total + salesAmount;
   }, 0);
-  console.log("Overall Total:", total);
+  console.log("Overall Total Sales computed as:", total);
   return total;
 });
 

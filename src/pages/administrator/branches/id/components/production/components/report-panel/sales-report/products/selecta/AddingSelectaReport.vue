@@ -334,7 +334,7 @@ const handleSubmit = async () => {
       sales: addSelectaReport.sales,
     };
     console.log("payload", payload);
-    await productionStore.addSelectaProduction(payload);
+    await productionStore.addProduction("selecta", payload);
   } catch (error) {}
 };
 </script>

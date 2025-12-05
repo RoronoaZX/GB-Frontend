@@ -180,16 +180,34 @@
 </template>
 
 <script setup>
-import { useDialogPluginComponent } from "quasar";
+import { Notify, useDialogPluginComponent } from "quasar";
 import AddingSelectaReport from "./AddingSelectaReport.vue";
 import { api } from "src/boot/axios";
 import { ref, computed } from "vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { useRoute } from "vue-router";
+import { useProductionStore } from "src/stores/production";
+import { useUsersStore } from "src/stores/user";
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
+const route = useRoute();
+
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+const productionStore = useProductionStore();
+
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+
+const userId = computed(() => {
+  return userStore.userData?.data?.id ?? null;
+});
+
+const userReady = computed(() => !!userId.value);
+
+const branchId = route.params.branch_id;
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -201,81 +219,142 @@ const pagination = ref({
 // Log to verify the structure of props.reports
 console.log("Reports data structure:", props.reports);
 
-const updatedPrice = async (data, val) => {
-  console.log("update data of the price", data);
-  console.log("update val of the price", val);
-
-  try {
-    const response = await api.put(
-      "/api/update-selecta-sales-price-report/" + data.id,
-      {
-        price: parseInt(val),
-      }
-    );
-  } catch (error) {
-    console.error(error);
+const buildHistoryMeta = (row, field, originalVal, newVal) => {
+  if (!userReady.value) {
+    console.warn("user not loaded yet, cannot log history");
   }
-};
 
-const updatedBeginnings = async (data, val) => {
-  console.log("update data of the beginnings", data);
-  console.log("update val of the beginnings", val);
-  try {
-    const response = await api.put(
-      "/api/update-selecta-sales-beginnings-report/" + data.id,
-      {
-        beginnings: parseInt(val),
-      }
-    );
-    console.log("reponse", response.data);
-  } catch (error) {
-    console.error(error);
-  }
+  return {
+    report_id: row.id,
+    name: row?.bread?.name || "Unknown Selecta",
+    original_data: field.includes("price")
+      ? `₱ ${originalVal}`
+      : `${originalVal} pcs`,
+    updated_data: field.includes("price") ? `₱ ${newVal}` : `${newVal} pcs`,
+    updated_field: field,
+    designation: branchId,
+    designation_type: "branch",
+    action: "updated",
+    type_of_report: `Branch Production ${
+      props.reportLabel?.toUpperCase() || ""
+    } Report Table`,
+    user_id: userId.value,
+  };
 };
 
-const updatedRemaining = async (data, val) => {
-  console.log("update data of the new updatedRemaining", data);
-  console.log("update val of the new updatedRemaining", val);
+const updatedPrice = async (row, newPrice) => {
+  const meta = buildHistoryMeta(row, "price", row.price, newPrice);
+
   try {
-    const response = await api.put(
-      "/api/update-selecta-sales-remaining-report/" + data.id,
-      {
-        remaining: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newPrice,
+      meta,
+      "selecta",
+      "price"
     );
-    console.log("reponse", response.data);
+    // Notify.create({
+    //   message: "Price updated successfully",
+    //   color: "positive",
+    //   icon: "check",
+    // });
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Failed to update price",
+      color: "negative",
+      icon: "error",
+    });
   }
 };
-const updatedSelectaOut = async (data, val) => {
-  console.log("update data of the new updatedRemaining", data);
-  console.log("update val of the new updatedRemaining", val);
+
+const updatedBeginnings = async (row, newVal) => {
+  const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
+
   try {
-    const response = await api.put(
-      "/api/update-selecta-sales-selctaOut-report/" + data.id,
-      {
-        out: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "selecta",
+      "beginnings"
     );
-    console.log("reponse", response.data);
+    Notify.create({
+      message: "Beginnings updated successfully",
+      color: "positive",
+    });
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
   }
 };
-const updatedAddedStocks = async (data, val) => {
-  console.log("update data of the new updatedRemaining", data);
-  console.log("update val of the new updatedRemaining", val);
+
+const updatedRemaining = async (row, newVal) => {
+  const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
+
   try {
-    const response = await api.put(
-      "/api/update-selecta-sales-addedstocks-report/" + data.id,
-      {
-        added_stocks: parseInt(val),
-      }
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "selecta",
+      "remaining"
     );
-    console.log("reponse", response.data);
+    Notify.create({
+      message: "Remaining updated",
+      color: "positive",
+    });
   } catch (error) {
-    console.error(error);
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
+  }
+};
+const updatedSelectaOut = async (row, newVal) => {
+  const meta = buildHistoryMeta(row, "selecta_out", row.selecta_out, newVal);
+
+  try {
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "selecta",
+      "out"
+    );
+
+    Notify.create({
+      message: "Selecta out updated",
+      color: "positive",
+    });
+  } catch (error) {
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
+  }
+};
+const updatedAddedStocks = async (row, newVal) => {
+  const meta = buildHistoryMeta(row, "added_stocks", row.added_stocks, newVal);
+
+  try {
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "selecta",
+      "added_stocks"
+    );
+    Notify.create({
+      message: "Added stocks updated",
+      color: "positive",
+    });
+  } catch (error) {
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
   }
 };
 

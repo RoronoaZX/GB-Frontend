@@ -283,12 +283,13 @@ const updatedPrice = async (row, newPrice) => {
   const meta = buildHistoryMeta(row, "price", row.price, newPrice);
 
   try {
-    await productionStore.updateBreadPrice(row.id, newPrice, meta);
-    Notify.create({
-      message: "Price udpated successfully",
-      color: "positive",
-      icon: "check",
-    });
+    await productionStore.updateSalesField(
+      row.id,
+      newPrice,
+      meta,
+      "bread",
+      "price"
+    );
   } catch (error) {
     Notify.create({
       message: "Failed to update price",
@@ -301,11 +302,13 @@ const updatedPrice = async (row, newPrice) => {
 const updatedBeginnings = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
   try {
-    await productionStore.updateBeginnings(row.id, newVal, meta);
-    Notify.create({
-      message: "Beginnings updated",
-      color: "positive",
-    });
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "bread",
+      "beginnings"
+    );
   } catch (error) {
     Notify.create({
       message: "Update failed",
@@ -323,8 +326,13 @@ const updatedNewProduction = async (row, newVal) => {
   );
 
   try {
-    await productionStore.updateNewProduction(row.id, newVal, meta);
-    Notify.create({ message: "New production updated", color: "positive" });
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "bread",
+      "new_production"
+    );
   } catch (error) {
     console.log("Error updating new production:", error);
     Notify.create({ message: "Update failed", color: "negative" });
@@ -336,8 +344,13 @@ const updatedRemaining = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
 
   try {
-    await productionStore.updateRemaining(row.id, newVal, meta);
-    Notify.create({ message: "Remaining updated", color: "positive" });
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "bread",
+      "remaining"
+    );
   } catch (error) {
     console.log("Error updating remaining:", error);
     Notify.create({
@@ -351,11 +364,13 @@ const updatedBreadOut = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "breaad_out", row.bread_out, newVal);
 
   try {
-    await productionStore.updateBreadOut(row.id, newVal, meta);
-    Notify.create({
-      message: "Bread out updated",
-      color: "positive",
-    });
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "bread",
+      "bread_out"
+    );
   } catch (error) {
     Notify.create({
       message: "Update failed",

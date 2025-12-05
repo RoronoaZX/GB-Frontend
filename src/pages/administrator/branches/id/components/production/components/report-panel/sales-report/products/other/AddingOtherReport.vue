@@ -346,7 +346,7 @@ const handleSubmit = async () => {
       sales: addOtherProductReport.sales,
     };
     console.log("payload", payload);
-    await productionStore.addOtherProductProduction(payload);
+    await productionStore.addProduction("other", payload);
   } catch (error) {}
 };
 </script>

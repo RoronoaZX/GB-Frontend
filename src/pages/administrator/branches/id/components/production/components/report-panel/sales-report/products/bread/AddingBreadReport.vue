@@ -375,7 +375,7 @@ const handleSubmit = async () => {
       user_id,
     };
     console.log("payload", payload);
-    await productionStore.addBreadProduction(payload);
+    await productionStore.addProduction("bread", payload);
   } catch (error) {}
 };
 </script>
