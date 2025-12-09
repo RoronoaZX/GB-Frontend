@@ -129,9 +129,10 @@
 </template>
 
 <script setup>
-import { Loading } from "quasar";
+import { Loading, useQuasar } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { ref, computed } from "vue";
+import DialogForEmployee from "./OpenDialogForEmployee.vue";
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {
@@ -145,6 +146,8 @@ const formatCurrency = (value) => {
 };
 
 const salesReportsStore = useSalesReportsStore();
+
+const $q = useQuasar();
 
 const breadTotal = computed(() => salesReportsStore.breadTotalAmount);
 const selectaTotal = computed(() => salesReportsStore.selectaTotalAmount);
@@ -198,15 +201,21 @@ const chargesTotalFormatted = computed(() =>
   formatCurrency(chargesTotal.value)
 );
 
-const handleSubmit = async () => {
-  try {
-    Loading.show();
-    await salesReportsStore.submitSalesReports();
-  } catch (error) {
-    console.error("Error submitting data:", error);
-  } finally {
-    Loading.hide();
-  }
+// const handleSubmit = async () => {
+//   try {
+//     Loading.show();
+//     await salesReportsStore.submitSalesReports();
+//   } catch (error) {
+//     console.error("Error submitting data:", error);
+//   } finally {
+//     Loading.hide();
+//   }
+// };
+
+const handleSubmit = () => {
+  $q.dialog({
+    component: DialogForEmployee,
+  });
 };
 </script>
 
