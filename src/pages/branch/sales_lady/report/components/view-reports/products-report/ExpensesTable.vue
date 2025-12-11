@@ -38,11 +38,11 @@
           </q-item-label>
         </q-item-section>
       </q-item>
-      <div class="row justify-end q-mx-md">
+      <!-- <div class="row justify-end q-mx-md">
         <div class="text-subtitle1">
           Total : {{ formatPrice(overallTotal || 0) }}
         </div>
-      </div>
+      </div> -->
       <!-- </div> -->
     </q-list>
   </div>

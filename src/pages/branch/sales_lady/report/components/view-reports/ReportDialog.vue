@@ -89,6 +89,7 @@ import OtherProductsTable from "./products-report/OtherProductsTable.vue";
 import CreditsReportsTable from "./products-report/CreditsReportsTable.vue";
 import ExpensesTable from "./products-report/ExpensesTable.vue";
 import DenominationCard from "./products-report/DenominationCard.vue";
+
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 

@@ -38,11 +38,11 @@
           >
         </q-item-section>
 
-        <q-item-section side>
+        <!-- <q-item-section side>
           <q-item-label class="text-overline text-center"
             >Total Sales</q-item-label
           >
-        </q-item-section>
+        </q-item-section> -->
       </q-item>
       <!-- <div v-if="breadReports !== 'No report' && breadReports.length > 0"> -->
       <q-item
@@ -91,15 +91,15 @@
             {{ productSoldTotal(product) }}
           </q-item-label>
         </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-caption text-center">
-            {{ totalSales(product) }}
-          </q-item-label>
-        </q-item-section>
+        <!-- <q-item-section>
+            <q-item-label class="text-caption text-center">
+              {{ totalSales(product) }}
+            </q-item-label>
+          </q-item-section> -->
       </q-item>
-      <div class="row justify-end q-mx-md">
+      <!-- <div class="row justify-end q-mx-md">
         <div class="text-subtitle1">Total Sales: {{ overallTotal || "0" }}</div>
-      </div>
+      </div> -->
       <!-- </div> -->
     </q-list>
   </div>

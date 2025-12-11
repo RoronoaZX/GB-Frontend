@@ -167,8 +167,9 @@ import OtherReportField from "./components/report_field/OtherReportField.vue";
 import OverAllTotal from "./components/total_sales/OverAllTotal.vue";
 import ExpensesReportField from "./components/report_field/ExpensesReportField.vue";
 import CreditReportField from "./components/report_field/CreditReportField.vue";
-import { Loading } from "quasar";
+import { Loading, useQuasar } from "quasar";
 import { useRoute } from "vue-router";
+import AddEmployeeListDialog from "./AddEmployeeListDialog.vue";
 
 const salesReportsStore = useSalesReportsStore();
 const userStore = useUsersStore();
@@ -186,6 +187,8 @@ const employeeSearchLoading = ref(false);
 const showUserCard = ref(false);
 const searchQuery = ref("");
 const userId = ref();
+
+const $q = useQuasar();
 
 const openDialog = () => {
   dialog.value = true;
@@ -258,25 +261,47 @@ const getCreatedAt = () => {
   return formatted;
 };
 
+// const handleSubmit = async () => {
+//   const createdAt = getCreatedAt();
+//   if (!createdAt) {
+//     console.error("Invalid date or time selected");
+//     return;
+//   }
+//   try {
+//     Loading.show();
+//     const salesData = {
+//       user_id: userId.value,
+//       branch_id: branch_id,
+//       created_at: createdAt,
+//     };
+//     await salesReportsStore.adminSubmitReports(salesData);
+//   } catch (error) {
+//     console.error("Error submitting data:", error);
+//   } finally {
+//     Loading.hide();
+//   }
+// };
+
 const handleSubmit = async () => {
   const createdAt = getCreatedAt();
+
   if (!createdAt) {
-    console.error("Invalid date or time selected");
+    $q.notify({
+      message: "Please select both date and time before submitting.",
+      color: "red-6",
+      icon: "warning",
+    });
     return;
   }
-  try {
-    Loading.show();
-    const salesData = {
+
+  $q.dialog({
+    component: AddEmployeeListDialog,
+    componentProps: {
+      created_at: createdAt,
       user_id: userId.value,
       branch_id: branch_id,
-      created_at: createdAt,
-    };
-    await salesReportsStore.adminSubmitReports(salesData);
-  } catch (error) {
-    console.error("Error submitting data:", error);
-  } finally {
-    Loading.hide();
-  }
+    },
+  });
 };
 </script>
 

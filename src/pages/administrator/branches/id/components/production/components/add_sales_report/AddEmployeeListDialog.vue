@@ -5,13 +5,14 @@
         <div class="text-h6 text-primary text-center">
           Employee with-in Shifts
         </div>
-        <!-- <q-space /> -->
+
         <div class="row q-gutter-x-md" align="right">
           <q-btn icon="close" flat dense round v-close-popup>
             <q-tooltip class="bg-blue-grey-6">Close</q-tooltip>
           </q-btn>
         </div>
       </q-card-section>
+
       <q-card-section class="q-ma-sm q-gutter-md row items-center">
         <div class="col-grow" style="position: relative">
           <q-input
@@ -20,10 +21,11 @@
             @clear="clearAutoFilledEmployee"
             :loading="searchLoading"
             label="Search Employee"
-            filled
             clearable
+            filled
             placeholder="Enter employee name"
           />
+
           <div v-if="isDropdownVisible && showUserCard" class="dropdown-list">
             <q-list separator>
               <q-item v-if="!employees?.length">
@@ -75,7 +77,7 @@
             v-if="employeeWithInShift.length === 0"
             class="text-italic text-grey-6 text-center"
           >
-            <q-item-section>No employees added to shift.</q-item-section>
+            <q-item-section>No employees added to shift</q-item-section>
           </q-item>
 
           <q-slide-item
@@ -87,6 +89,7 @@
             <template #right>
               <q-icon name="delete" />
             </template>
+
             <q-item class="list-item">
               <q-item-section>
                 <q-item-label class="text-bold">
@@ -124,9 +127,7 @@
             rounded
             label="Submit"
             @click="handleSubmit"
-          >
-            <q-icon class="q-mx-sm" left name="send" />
-          </q-btn>
+          />
         </div>
       </q-card-section>
     </q-card>
@@ -135,9 +136,9 @@
 
 <script setup>
 import { Loading, useDialogPluginComponent, useQuasar } from "quasar";
-import { computed, reactive, ref } from "vue";
 import { useEmployeeStore } from "src/stores/employee";
 import { useSalesReportsStore } from "src/stores/sales-report";
+import { computed, reactive, ref } from "vue";
 
 const { dialogRef, onDialogOK } = useDialogPluginComponent();
 
@@ -152,6 +153,23 @@ const employeeWithInShiftList = computed(
   () => salesReportsStore.employeeInShift
 );
 
+const props = defineProps({
+  created_at: {
+    type: String,
+    required: true,
+  },
+  branch_id: {
+    type: String,
+    required: true,
+  },
+  user_id: {
+    type: String,
+    required: true,
+  },
+});
+
+console.log("props", props);
+
 const $q = useQuasar();
 
 const searchKeyword = ref("");
@@ -160,7 +178,6 @@ const showUserCard = ref(false);
 let employeeSelected = false;
 
 const employeeWithInShift = reactive({
-  user_employee_id: userData.value.data.employee_id,
   employee_id: "",
   employee_name: "",
   designation: "",
@@ -174,9 +191,11 @@ const search = async () => {
       await employeesStore.searchEmployee(searchKeyword.value);
       searchLoading.value = false;
       showUserCard.value = true;
+
       console.log("employeess", employees);
     } catch (error) {
-      console.error("Search failed:", error);
+      console.error("Search failed: ", error);
+
       $q.notify({
         color: "negative",
         message: "Failed to fetch employees",
@@ -196,7 +215,7 @@ const isDropdownVisible = computed(() => {
 const autoFillEmployee = (employee) => {
   employeeWithInShift.employee_id = employee.id;
   employeeWithInShift.employee_name = `${employee.firstname} ${
-    employee.middlename ? employee.middlename.charAt(0) + "." : ""
+    employee.middle_name ? employee.middle_name.chartAt(0) + "." : ""
   } ${employee.lastname}`;
   searchKeyword.value = `${employee.firstname} ${
     employee.middlename ? employee.middlename.charAt(0) + "." : ""
@@ -219,13 +238,12 @@ const addTOShiftList = () => {
   if (!employeeWithInShift.employee_id) {
     $q.notify({
       message: "Please select an employee before adding.",
-      color: "red-6",
+      colorL: "red-6",
       icon: "warning",
     });
     return;
   }
 
-  // Prevent duplicate entry
   const alreadyAdded = employeeWithInShiftList.value.some(
     (e) => e.employee_id === employeeWithInShift.employee_id
   );
@@ -240,25 +258,29 @@ const addTOShiftList = () => {
     return;
   }
 
-  // Push to Pinia store
   salesReportsStore.employeeInShift.push({ ...employeeWithInShift });
 
   $q.notify({
-    message: "Employee added to the shift list.",
+    message: "Employee added to shift list.",
     color: "green-6",
     icon: "check_circle",
   });
 
-  // Reset fields
   clearAutoFilledEmployee();
 };
 
 const handleSubmit = async () => {
   try {
     Loading.show();
-    await salesReportsStore.submitSalesReports();
+    const salesData = {
+      user_id: props.user_id,
+      branch_id: props.branch_id,
+      created_at: props.created_at,
+    };
+
+    await salesReportsStore.adminSubmitReports(salesData);
   } catch (error) {
-    console.log("Error submitting data:", error);
+    console.error("Error submitting data:", error);
   } finally {
     Loading.hide();
   }
@@ -284,16 +306,5 @@ const handleSubmit = async () => {
   overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-}
-
-.list-item {
-  transition: background-color 0.3s ease;
-  &:hover {
-    background-color: #f5f5f5;
-  }
-}
-
-.q-slide-item__right .q-icon {
-  font-size: 1.5rem;
 }
 </style>

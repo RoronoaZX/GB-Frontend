@@ -14,6 +14,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     othersProducts: [],
     reports: [],
     user: {},
+    employeeInShift: [],
     breadReports: [],
     selectaReports: [],
     softdrinksReports: [],
@@ -276,6 +277,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
       const payload = {
         user_id: data.user_id,
+        employee_in_shift: this.employeeInShift,
         branch_id: data.branch_id,
         created_at: data.created_at,
         breadReports: this.breadReports,
@@ -307,6 +309,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         });
 
         this.breadReports = [];
+        this.employeeInShift = [];
         this.selectaReports = [];
         this.softdrinksReports = [];
         this.otherProductsReports = [];
@@ -339,6 +342,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
       const payload = {
         user_id: this.user.data.id,
+        employee_in_shift: this.employeeInShift,
         branch_id: this.user?.device?.reference_id,
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
@@ -367,6 +371,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         });
 
         this.breadReports = [];
+        this.employeeInShift = [];
         this.selectaReports = [];
         this.softdrinksReports = [];
         this.otherProductsReports = [];
