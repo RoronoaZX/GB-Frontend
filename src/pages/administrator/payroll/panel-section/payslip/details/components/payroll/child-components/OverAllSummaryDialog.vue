@@ -232,7 +232,7 @@ const props = defineProps({
   dtrDeductionsData: Object,
 });
 
-console.log("propssss", props);
+console.log("propssss.dtrDeductionsData", props.dtrDeductionsData);
 
 const holidays = props.dtrRecord.holidays || [];
 console.log("holidays", holidays);

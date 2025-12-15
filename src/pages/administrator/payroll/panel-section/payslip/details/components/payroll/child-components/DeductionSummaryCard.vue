@@ -86,7 +86,7 @@
                 Short / Chargesss :
                 <span class="text-negative text-weight-bold">
                   <!-- {{ formatCurrency(calculateEmployeeChargesTotal) }} -->
-                  {{ formatCurrency(calculatedSalesChargesPerCutOff) }}
+                  {{ formatCurrency(calculatedSalesChargesPerCutOffTotal) }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -192,7 +192,7 @@ const calculateTotalDeductions = computed(() => {
     parseFloat(calculatedUniformTotal.value) +
     parseFloat(calculateCashAdvanceTotal.value) +
     // parseFloat(calculateEmployeeChargesTotal.value) + // Added Employee Charges to the total
-    parseFloat(calculatedSalesChargesPerCutOff.value) +
+    parseFloat(calculatedSalesChargesPerCutOffTotal.value) +
     parseFloat(receivedTotalBenefits.value.total)
   );
 });
@@ -331,7 +331,7 @@ const calculateEmployeeChargesTotal = computed(() => {
   return (totalSum / 100).toFixed(2);
 });
 
-const calculatedSalesChargesPerCutOff = computed(() => {
+const calculatedSalesChargesPerCutOffTotal = computed(() => {
   if (!Array.isArray(salesChargesPerCutOff.value)) {
     return 0;
   }
@@ -454,8 +454,8 @@ watchEffect(() => {
     uniformTotal: calculatedUniformTotal.value,
     cashAdvanceTotal: calculateCashAdvanceTotal.value,
     // employeeChargesTotal: calculateEmployeeChargesTotal.value,
-    employeeChargesTotal: calculateEmployeeChargesTotal.value,
-    employeeCharges: employeeCharges.value,
+    employeeChargesTotal: calculatedSalesChargesPerCutOffTotal.value,
+    employeeCharges: salesChargesPerCutOff.value,
     benefitsTotal: receivedTotalBenefits.value.total, // This is from a ref
     totalDeductions: calculateTotalDeductions.value,
 
@@ -464,7 +464,7 @@ watchEffect(() => {
       credits: allCreditProducts.value,
       uniforms: uniformsData.value,
       cashAdvances: cashAdvances.value,
-      employeeCharges: employeeCharges.value,
+      employeeCharges: salesChargesPerCutOff.value,
       employeeBenefits: receivedTotalBenefits.value,
     },
   };
