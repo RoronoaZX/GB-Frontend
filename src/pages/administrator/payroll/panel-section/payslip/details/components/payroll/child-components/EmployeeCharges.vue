@@ -27,50 +27,15 @@
                 {{ formatDateString(item.created_at) }}
               </q-item-section>
               <q-item-section>
-                {{ capitalizeFirstLetter(item.branch.name) }}
+                {{
+                  capitalizeFirstLetter(item.sales_report?.branch?.name || "-")
+                }}
               </q-item-section>
 
               <!-- Editable Amount with q-popup-edit -->
               <q-item-section side>
-                <!-- <q-popup-edit
-                  v-model="item.charges_amount"
-                  @update:model-value="onItemUpdate(i, $event)"
-                  title="Edit Charge Amount"
-                  v-slot="scope"
-                  persistent
-                  label="Amount"
-                >
-                  <q-input
-                    v-model.number="item.charges_amount"
-                    type="number"
-                    dense
-                    outlined
-                    step="0.01"
-                    autofocus
-                    :rules="[(val) => val >= 0 || 'Cannot be negative']"
-                  />
-
-                  <div class="row justify-end q-mt-md">
-                    <q-btn
-                      flat
-                      label="Close"
-                      color="primary"
-                      @click="scope.cancel"
-                    />
-                    <q-btn
-                      flat
-                      label="Save"
-                      color="primary"
-                      @click="
-                        scope.set;
-                        onItemUpdate(i, scope.value);
-                      "
-                    />
-                  </div>
-                </q-popup-edit> -->
-
                 <q-popup-edit
-                  v-model="item.charges_amount"
+                  v-model="item.charge_amount"
                   v-slot="scope"
                   title="Edit Charge Amount"
                   persistent
@@ -142,7 +107,7 @@
                   class="cursor-pointer text-primary"
                   @click="$refs.popup?.[i]?.show()"
                 >
-                  {{ formatCurrency(item.charges_amount) }}
+                  {{ formatCurrency(item.charge_amount) }}
                 </div>
               </q-item-section>
             </q-item>
@@ -176,8 +141,9 @@
 import { useDialogPluginComponent, date } from "quasar";
 import { ref, computed, watch } from "vue";
 import { useEmployeeChargesStore } from "src/stores/employee-charges";
+import { useSalesChargesPerCutOffStore } from "src/stores/sales-charges";
 
-const employeeChargesStore = useEmployeeChargesStore();
+const salesChargesPerCutOffStore = useSalesChargesPerCutOffStore();
 
 const { dialogRef } = useDialogPluginComponent();
 
@@ -229,7 +195,7 @@ watch(
 // Recalculate total
 const totalAmount = computed(() => {
   return localList.value.reduce(
-    (sum, item) => sum + parseFloat(item.charges_amount || 0),
+    (sum, item) => sum + parseFloat(item.charge_amount || 0),
     0
   );
 });
@@ -242,18 +208,38 @@ const totalAmount = computed(() => {
 //   emit("update:charges", localList);
 // };
 
+// const onItemUpdate = (index, newValue) => {
+//   const item = localList.value[index];
+//   const updatedAmount = parseFloat(newValue) || 0;
+
+//   console.log("Updating local item:", item); // check id
+
+//   item.charge_amount = updatedAmount;
+
+//   if (item.id != null) {
+//     employeeChargesStore.updateChargeById({
+//       id: item.id,
+//       charge_amount: updatedAmount,
+//     });
+//   } else {
+//     console.warn("Cannot update store: item.id is missing");
+//   }
+
+//   console.log("Emitting updated item:", localList.value[index]);
+// };
+
 const onItemUpdate = (index, newValue) => {
   const item = localList.value[index];
   const updatedAmount = parseFloat(newValue) || 0;
 
   console.log("Updating local item:", item); // check id
 
-  item.charges_amount = updatedAmount;
+  item.charge_amount = updatedAmount;
 
   if (item.id != null) {
-    employeeChargesStore.updateChargeById({
+    salesChargesPerCutOffStore.updateChargeById({
       id: item.id,
-      charges_amount: updatedAmount,
+      charge_amount: updatedAmount,
     });
   } else {
     console.warn("Cannot update store: item.id is missing");

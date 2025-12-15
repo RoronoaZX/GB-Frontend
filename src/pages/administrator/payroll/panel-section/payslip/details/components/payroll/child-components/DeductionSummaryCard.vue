@@ -85,13 +85,16 @@
               <q-item-label class="text-body2 text-weight-meduim text-grey-8">
                 Short / Chargesss :
                 <span class="text-negative text-weight-bold">
-                  {{ formatCurrency(calculateEmployeeChargesTotal) }}
+                  <!-- {{ formatCurrency(calculateEmployeeChargesTotal) }} -->
+                  {{ formatCurrency(calculatedSalesChargesPerCutOff) }}
                 </span>
               </q-item-label>
             </q-item-section>
           </q-item>
           <div class="q-mt-md">
-            <OpenButton @open-dialog="handleEmployeeCharges(employeeCharges)" />
+            <OpenButton
+              @open-dialog="handleEmployeeCharges(salesChargesPerCutOff)"
+            />
           </div>
         </div>
 
@@ -136,6 +139,7 @@ import OpenButton from "src/components/buttons/OpenButton.vue";
 import { useUniformStore } from "src/stores/uniform";
 import { useCashAdvanceStore } from "src/stores/cash-advance";
 import { useEmployeeChargesStore } from "src/stores/employee-charges";
+import { useSalesChargesPerCutOffStore } from "src/stores/sales-charges";
 
 const props = defineProps(["dtrFrom", "dtrTo", "employeeData"]);
 
@@ -144,17 +148,41 @@ const emit = defineEmits(["dtr-deductions-summary-calculated"]);
 const route = useRoute();
 
 const employeeID = route.params.employee_id;
+
+const salesChargesPerCutOffStore = useSalesChargesPerCutOffStore();
+const salesChargesPerCutOff = computed(
+  () => salesChargesPerCutOffStore.salesChargesPerCutOffs
+);
+
+console.log("salesChargesPerCutOff", salesChargesPerCutOff.value);
+
 const creditsStore = useCreditsStore();
 const credits = computed(() => creditsStore.credits);
 
 const uniformStore = useUniformStore();
 const uniformsData = computed(() => uniformStore.uniforms);
+
 const cashAdvanceStore = useCashAdvanceStore();
 const cashAdvances = computed(() => cashAdvanceStore.cashAdvances);
+
 const employeeChargesStore = useEmployeeChargesStore();
 const employeeCharges = computed(() => employeeChargesStore.employeeCharges);
 
 const $q = useQuasar();
+
+const fethSalesChargesPerCutOff = async () => {
+  console.log("user idsss", employeeID);
+  await salesChargesPerCutOffStore.fetchSalesChargesPerCutOff(
+    props.dtrFrom,
+    props.dtrTo,
+    employeeID
+  );
+  console.log("salesChargesPerCutOff", salesChargesPerCutOff.value);
+};
+
+onMounted(() => {
+  fethSalesChargesPerCutOff();
+});
 
 const receivedTotalBenefits = ref({ total: 0, sss: 0, hdmf: 0, phic: 0 });
 
@@ -163,7 +191,8 @@ const calculateTotalDeductions = computed(() => {
     parseFloat(calculatedCreditTotal.value) +
     parseFloat(calculatedUniformTotal.value) +
     parseFloat(calculateCashAdvanceTotal.value) +
-    parseFloat(calculateEmployeeChargesTotal.value) + // Added Employee Charges to the total
+    // parseFloat(calculateEmployeeChargesTotal.value) + // Added Employee Charges to the total
+    parseFloat(calculatedSalesChargesPerCutOff.value) +
     parseFloat(receivedTotalBenefits.value.total)
   );
 });
@@ -302,6 +331,21 @@ const calculateEmployeeChargesTotal = computed(() => {
   return (totalSum / 100).toFixed(2);
 });
 
+const calculatedSalesChargesPerCutOff = computed(() => {
+  if (!Array.isArray(salesChargesPerCutOff.value)) {
+    return 0;
+  }
+  let totalSum = 0;
+
+  salesChargesPerCutOff.value.forEach((charge) => {
+    const amount = parseFloat(charge.charge_amount);
+    if (!isNaN(amount)) {
+      totalSum += Math.round(amount * 100);
+    }
+  });
+  return (totalSum / 100).toFixed(2);
+});
+
 const creditTotalFromDialog = ref(0);
 const uniformTotalFromDialog = ref(0);
 
@@ -333,6 +377,7 @@ const fetchEmployeeCharges = async () => {
     toDate: props.dtrTo,
   };
   await employeeChargesStore.fetchEmployeeCharges(dataToBeSent);
+  console.log("Chargessssss", employeeCharges.value);
 };
 onMounted(fetchEmployeeCharges);
 
@@ -408,6 +453,7 @@ watchEffect(() => {
     // creditTotal: credits.value,
     uniformTotal: calculatedUniformTotal.value,
     cashAdvanceTotal: calculateCashAdvanceTotal.value,
+    // employeeChargesTotal: calculateEmployeeChargesTotal.value,
     employeeChargesTotal: calculateEmployeeChargesTotal.value,
     employeeCharges: employeeCharges.value,
     benefitsTotal: receivedTotalBenefits.value.total, // This is from a ref
