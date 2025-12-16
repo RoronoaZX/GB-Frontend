@@ -106,7 +106,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
         // position: "top",
       });
     } catch (error) {
-      console.log("erororoeo", error);
+      console.log("error", error);
       if (
         error.response.data.message ===
         "The name has already been taken. (and 1 more error)"

@@ -99,9 +99,9 @@ import axios, { api } from "src/boot/axios";
 // const uuid = ref("b76baeef9c2aef9a"); // branch id 6 endrina ----
 // const uuid = ref("b5afe408-4f23-44ad-8440-608444d833b7"); // branch id 6 endrina
 // const uuid = ref("2c1d4509090802cb"); // branch id 1 endrina
-const uuid = ref(
-  "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
-); // super admin
+// const uuid = ref(
+//   "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
+// ); // super admin
 // const uuid = ref(
 //   "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
 // ); //laptop / warehouse
@@ -110,13 +110,14 @@ const uuid = ref(
 
 // const uuid = ref("victorias1"); // victorias
 
-// Method to get UUID from Electron using node-machine-id
-//             ELECTRON ONLY                          //
-// ===================================================//
-//      Use this code for building electron and       //
-//    if you've develop this project to  mobile app   //
-//                  comment this out                  //
-// ===================================================//
+//========================================================//
+// Method to get UUID from Electron using node-machine-id //
+//             ELECTRON ONLY                              //
+//========================================================//
+//======= Use this code for building electron and ========//
+//==== if you've develop this project to  mobile app =====//
+//==================comment this out =====================//
+//========================================================//
 
 // const getUUID = async () => {
 //   if (window.require) {
@@ -137,16 +138,16 @@ const uuid = ref(
 //   getUUID();
 // });
 
-// ===================================================//
-// Use this code for building electron and //
-// if you've develop this project to  mobile app //
-// comment this out //
-// ===================================================//
+//=======================================================//
+//======= Use this code for building electron and =======//
+//==== if you've develop this project to  mobile app ====//
+//================== comment this out ===================//
+//=======================================================//
 
 const isPwd = ref(true);
 const email = ref("");
 const password = ref("");
-// const uuid = ref("");
+const uuid = ref("");
 const loading = ref(false);
 
 const formIsValid = computed(() => email.value !== "" && password.value !== "");
@@ -154,39 +155,39 @@ const formIsValid = computed(() => email.value !== "" && password.value !== "");
 const quasar = useQuasar();
 const router = useRouter();
 const activeMenuItem = ref("");
+//==========================================================//
+//                       ANROID APP                         //
+//==========================================================//
+//======= Use this code for building android app and =======//
+//==== if you've develop this project to  desktop app ======//
+//=================== comment this out =====================//
+//==========================================================//
+//
+//
+const checkDevice = async () => {
+  try {
+    const id = await Device.getId();
+    // const info = await Device.getInfo();
+    uuid.value = id.identifier;
+    //  {
+    //   deviceInfo: info,
+    //   id: id,
+    // }; // Store the UUID in the reactive variable
+    console.log("Device UUID:", uuid.value); // Log the UUID
+  } catch (error) {
+    console.error("Error fetching device UUID:", error);
+  }
+};
 
-//                ANROID APP                          //
-// ===================================================//
-// Use this code for building android app and //
-// if you've develop this project to  desktop app //
-// comment this out //
-// ===================================================//
+onMounted(() => {
+  checkDevice();
+});
 //
-//
-// const checkDevice = async () => {
-//   try {
-//     const id = await Device.getId();
-//     // const info = await Device.getInfo();
-//     uuid.value = id.identifier;
-//     //  {
-//     //   deviceInfo: info,
-//     //   id: id,
-//     // }; // Store the UUID in the reactive variable
-//     console.log("Device UUID:", uuid.value); // Log the UUID
-//   } catch (error) {
-//     console.error("Error fetching device UUID:", error);
-//   }
-// };
-
-// onMounted(() => {
-//   checkDevice();
-// });
-//
-// ===================================================//
-// Use this code for building android app //
-// and if you've develop this project to  desktop app //
-// comment this out //
-// ===================================================//
+//===========================================================//
+//======= Use this code for building android app ============//
+//==== and if you've develop this project to desktop app ====//
+//====================== comment this out ===================//
+//===========================================================//
 
 const login = async () => {
   Loading.show();
