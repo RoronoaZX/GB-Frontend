@@ -29,6 +29,8 @@
                 <div>Name: {{ formatFullname(report.user.employee) }}</div>
                 <div>Date: {{ formatDate(report.created_at) }}</div>
                 <div>Time: {{ formatTime(report.created_at) }}</div>
+                <!-- <div>Short/Charge: {{ chargesAmountToBeSendToAPI }}</div>
+                <div>Over Cash: {{ overAmountToBeSendToAPI }}</div> -->
               </div>
             </q-card-section>
             <div class="row q-gutter-sm q-pa-md">
@@ -36,6 +38,8 @@
                 :sales_Reports="[report]"
                 :reportLabel="reportLabel"
                 :reportDate="report.created_at"
+                :reportId="props.reportId"
+                @update-summary="handleSummayUpdate"
               />
               <DenominationReport :sales_Reports="[report]" />
               <ExpensesReport :sales_Reports="[report]" />
@@ -69,18 +73,21 @@
 
 <script setup>
 import { date, useQuasar } from "quasar";
-import { ref, computed } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import ProductsReport from "./sales-report/ProductsReport.vue";
 import DenominationReport from "./sales-report/DenominationReport.vue";
 import ExpensesReport from "./sales-report/expenses/ExpensesReport.vue";
 import CreditsReport from "./sales-report/credit/CreditsReport.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import { useProductionStore } from "src/stores/production";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 
 const { capitalizeFirstLetter, formatFullname, formatDate, formatTime } =
   typographyFormat();
+
+const productionStore = useProductionStore();
 
 pdfMake.vfs = pdfFonts.default;
 
@@ -100,13 +107,126 @@ const printPdf = (report) => {
   pdfMake.createPdf(docDefinition).print();
 };
 
-const props = defineProps(["salesReport", "reportLabel", "reportDate"]);
+const props = defineProps([
+  "salesReport",
+  "reportLabel",
+  "reportDate",
+  "reportId",
+]);
 const reportsData = props.salesReport;
 console.log("reportsDatasssss", props.salesReport);
 
 const maximizedToggle = ref(true);
 const printDialog = ref(false);
 const pdfUrl = ref("");
+
+const chargesAmountToBeSendToAPI = ref(0);
+const overAmountToBeSendToAPI = ref(0);
+
+const calculateChargesAndOverFromProcessed = (report) => {
+  if (!report) return { chargesAmount: 0, overAmount: 0 };
+
+  // 1️⃣ Combine all production types with calculated sales
+  const productionTypes = [
+    ...(report.bread_reports || []).map((item) => {
+      const total =
+        Number(item.beginnings || 0) + Number(item.new_production || 0);
+      const breadSold =
+        total - (Number(item.remaining || 0) + Number(item.bread_out || 0));
+      const sales = breadSold * Number(item.price || 0);
+      return { sales };
+    }),
+    ...(report.selecta_reports || []).map((item) => {
+      const total =
+        Number(item.beginnings || 0) + Number(item.added_stocks || 0);
+      const sold =
+        total - (Number(item.remaining || 0) + Number(item.out || 0));
+      const sales = sold * Number(item.price || 0);
+      return { sales };
+    }),
+    ...(report.softdrinks_reports || []).map((item) => {
+      const total =
+        Number(item.beginnings || 0) + Number(item.added_stocks || 0);
+      const sold =
+        total - (Number(item.remaining || 0) + Number(item.out || 0));
+      const sales = sold * Number(item.price || 0);
+      return { sales };
+    }),
+    ...(report.other_products_reports || []).map((item) => {
+      const total =
+        Number(item.beginnings || 0) + Number(item.added_stocks || 0);
+      const sold =
+        total - (Number(item.remaining || 0) + Number(item.out || 0));
+      const sales = sold * Number(item.price || 0);
+      return { sales };
+    }),
+    ...(report.cake_sales_reports || []).map((item) => ({
+      sales: Number(item.sales || 0), // Already given for cakes
+    })),
+  ];
+
+  // 2️⃣ Total Product Sales
+  const totalProductSales = productionTypes.reduce(
+    (sum, item) => sum + (item.sales || 0),
+    0
+  );
+
+  // 3️⃣ Total Expenses
+  const expensesTotal = (report.expenses_reports || []).reduce(
+    (sum, e) => sum + Number(e.amount.replace(/[^0-9.-]+/g, "") || 0),
+    0
+  );
+
+  // 4️⃣ Total Credits
+  const creditTotal = (report.credit_reports || [])
+    .flatMap((cr) => cr.credit_products || [])
+    .reduce((sum, c) => sum + Number(c.price || 0) * Number(c.pieces || 0), 0);
+
+  // 5️⃣ Total Denomination
+  const denomination = report.denomination_reports[0] || {};
+  const totalDenomination =
+    (denomination.oneThousandBills || 0) * 1000 +
+    (denomination.fiveHundredBills || 0) * 500 +
+    (denomination.twoHundredBills || 0) * 200 +
+    (denomination.oneHundredBills || 0) * 100 +
+    (denomination.fiftyBills || 0) * 50 +
+    (denomination.twentyBills || 0) * 20 +
+    (denomination.twentyCoins || 0) * 20 +
+    (denomination.tenCoins || 0) * 10 +
+    (denomination.fiveCoins || 0) * 5 +
+    (denomination.oneCoins || 0) * 1 +
+    (denomination.twentyFiveCents || 0) * 0.25;
+
+  // 6️⃣ Expected Cash
+  const expectedCash = totalProductSales - (expensesTotal + creditTotal);
+
+  // 7️⃣ Determine Over or Charges
+  let overAmount = 0;
+  let chargesAmount = 0;
+
+  if (totalDenomination > expectedCash) {
+    overAmount = totalDenomination - expectedCash;
+  } else if (totalDenomination < expectedCash) {
+    chargesAmount = expectedCash - totalDenomination;
+  }
+
+  return { overAmount, chargesAmount };
+};
+
+watchEffect(() => {
+  if (reportsData && reportsData.length > 0) {
+    const { overAmount, chargesAmount } = calculateChargesAndOverFromProcessed(
+      reportsData[0]
+    );
+    overAmountToBeSendToAPI.value = overAmount;
+    chargesAmountToBeSendToAPI.value = chargesAmount;
+
+    productionStore.setAmounts(
+      overAmountToBeSendToAPI.value,
+      chargesAmountToBeSendToAPI.value
+    );
+  }
+});
 
 const formatAmount = (price) => {
   const formattedAmount = new Intl.NumberFormat("en-US", {
@@ -647,8 +767,10 @@ const generateDocDefinition = (report) => {
 
   if (totalDenomination > expectedCash) {
     overTotal = totalDenomination - expectedCash;
+    overAmountToBeSendToAPI.value = overTotal;
   } else if (totalDenomination < expectedCash) {
     chargesAmount = expectedCash - totalDenomination;
+    chargesAmountToBeSendToAPI.value = chargesAmount;
   }
   const summaryTable = {
     table: {

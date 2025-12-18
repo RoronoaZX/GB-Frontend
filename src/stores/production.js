@@ -12,7 +12,7 @@ const ADD_ENDPOINTS = {
 
 const UPDATE_ENDPOINTS = {
   bread: {
-    price: "update-bread-sales-price-report", // fixed typo: udpate → update
+    price: "update-bread-sales-price-report",
     beginnings: "update-bread-sales-beginnings-report",
     new_production: "update-bread-sales-newProduction-report",
     remaining: "update-bread-sales-remaining-report",
@@ -45,40 +45,97 @@ const LABELS = {
   bread: "Bread",
 };
 
-const sendRequest = async (
-  method,
-  url,
-  data,
-  successMsg = "Success",
-  errorMsg = "Failed"
-) => {
-  Loading.show();
-  try {
-    const response = await api[method](url, data);
+// const sendRequest = async (
+//   method,
+//   url,
+//   data,
+//   successMsg = "Success",
+//   errorMsg = "Failed"
+// ) => {
+//   Loading.show();
+//   try {
+//     const payload = {
+//       ...data,
+//       charges_amount: chargesAmount.value,
+//       over_amount: overAmount.value,
+//     };
 
-    Notify.create({
-      message: successMsg,
-      color: "positive",
-    });
+//     const response = await api[method](url, payload);
 
-    return response.data;
-  } catch (error) {
-    console.log(error);
+//     Notify.create({
+//       message: successMsg,
+//       color: "positive",
+//     });
 
-    Notify.create({
-      message: errorMsg,
-      coloe: "negative",
-    });
-    throw error;
-  } finally {
-    Loading.hide();
-  }
-};
+//     return response.data;
+//   } catch (error) {
+//     console.log(error);
+
+//     Notify.create({
+//       message: errorMsg,
+//       color: "negative",
+//     });
+//     throw error;
+//   } finally {
+//     Loading.hide();
+//   }
+// };
 
 export const useProductionStore = defineStore("productions", () => {
   const productions = ref([]);
   const production = ref([]);
   const productionRows = ref([]);
+  const overAmount = ref(0);
+  const chargesAmount = ref(0);
+
+  const setAmounts = (over, charges) => {
+    console.log("setAmountsssss", { over, charges });
+
+    overAmount.value = over;
+    chargesAmount.value = charges;
+
+    console.log("Updated amounts:", {
+      overAmount: overAmount.value,
+      chargesAmount: chargesAmount.value,
+    });
+  };
+
+  const sendRequest = async (
+    method,
+    url,
+    data,
+    successMsg = "Success",
+    errorMsg = "Failed"
+  ) => {
+    Loading.show();
+
+    try {
+      const payload = {
+        ...data,
+      };
+
+      console.log("Sending payloadsss:", payload);
+
+      const response = await api[method](url, payload);
+
+      Notify.create({
+        message: successMsg,
+        color: "positive",
+      });
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+
+      Notify.create({
+        message: errorMsg,
+        color: "negative",
+      });
+      throw error;
+    } finally {
+      Loading.hide();
+    }
+  };
 
   const fetchAllProduction = async () => {
     const response = await api.get("/api/branch-production-report");
@@ -98,8 +155,9 @@ export const useProductionStore = defineStore("productions", () => {
           params: { page: page, per_page: rowsPerPage, search },
         }
       );
-      console.log("production for pagination", response.data);
+      console.log("production for paginationsssss", response.data);
       productions.value = response.data;
+
       // productionRows.value = response.data.data;
       // return response.data;
     } catch (error) {
@@ -165,7 +223,15 @@ export const useProductionStore = defineStore("productions", () => {
     }
   };
 
-  const updateSalesField = async (id, value, meta = {}, type, field) => {
+  const updateSalesField = async (
+    id,
+    value,
+    meta = {},
+    type,
+    field,
+    over = null,
+    charges = null
+  ) => {
     const endpoint = UPDATE_ENDPOINTS[type]?.[field];
 
     if (!endpoint) {
@@ -181,21 +247,27 @@ export const useProductionStore = defineStore("productions", () => {
     const payload = {
       [field]: parseInt(value) || value,
       ...meta,
+      over_amount: over !== null ? over : overAmount.value,
+      charges_amount: charges !== null ? charges : chargesAmount.value,
     };
 
-    return sendRequest(
-      "put",
-      `/api/${endpoint}/${id}`,
-      payload,
-      "Updated successfully",
-      "Update failed"
-    );
+    console.log("Payload datasssssssss:", payload);
+
+    // return sendRequest(
+    //   "put",
+    //   `/api/${endpoint}/${id}`,
+    //   payload,
+    //   "Updated successfully",
+    //   "Update failed"
+    // );
   };
 
   return {
     productions,
     production,
     productionRows,
+    overAmount,
+    chargesAmount,
     fetchAllProduction,
     fetchBranchProductions,
     updateBakerReport,
@@ -205,6 +277,8 @@ export const useProductionStore = defineStore("productions", () => {
     addProduction,
 
     updateSalesField,
+
+    setAmounts,
   };
 });
 

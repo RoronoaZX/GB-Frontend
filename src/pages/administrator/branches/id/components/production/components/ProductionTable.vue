@@ -50,7 +50,9 @@
               size="sm"
               color="light-blue-5"
               text-color="white"
-              @click="handleDialog(props.row.AM, 'AM')"
+              @click="
+                handleDialog(props.row.AM, 'AM', props.rowIndex, props.row.date)
+              "
               >AM</q-btn
             >
             <q-btn
@@ -60,7 +62,9 @@
               size="sm"
               color="deep-orange"
               text-color="white"
-              @click="handleDialog(props.row.PM, 'PM')"
+              @click="
+                handleDialog(props.row.PM, 'PM', props.rowIndex, props.row.date)
+              "
               >PM</q-btn
             >
           </div>
@@ -188,12 +192,14 @@ const productsColumn = [
 
 const $q = useQuasar();
 
-const handleDialog = (report, label) => {
+const handleDialog = (report, label, index, date) => {
   $q.dialog({
     component: ProductionReportDialog,
     componentProps: {
       reports: report, // Pass the report data to the dialog component
       reportLabel: label,
+      rowIndex: index,
+      reportDate: date,
     },
   });
 };

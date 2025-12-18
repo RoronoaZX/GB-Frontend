@@ -101,14 +101,37 @@ import CakeReport from "./products/CakeReport.vue";
 import OtherProductReport from "./products/other/OtherProductsReport.vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { ref } from "vue";
 
 const { formatDate } = typographyFormat();
 
-const props = defineProps(["sales_Reports", "reportLabel", "reportDate"]);
+const props = defineProps([
+  "sales_Reports",
+  "reportLabel",
+  "reportDate",
+  "charges",
+  "over",
+  "reportId",
+]);
+
+console.log("Products Report", props.reportId);
+
 const productsReportsss = props.sales_Reports;
 
 console.log("sales report2sss", productsReportsss);
 const $q = useQuasar();
+
+const emit = defineEmits(["update-summary"]);
+
+const localCharges = ref(props.charges ?? 0);
+const localOver = ref(props.over ?? 0);
+
+const saveSummary = () => {
+  emit("update-summary", {
+    charges,
+    over,
+  });
+};
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-US", {
@@ -133,6 +156,16 @@ const handleBreadDialog = (
       reportLabel: reportLabel,
       reportDate: reportDate,
     },
+  }).onOk((summary) => {
+    // summary = { charges, over }
+    localCharges.value = summary.charges;
+    localOver.value = summary.over;
+
+    emit("update-summary", {
+      reportId: props.reportId,
+      charges: localCharges.value,
+      over: localOver.value,
+    });
   });
 };
 const handleSelectaDialog = (dataReports, sales_report_id, user) => {

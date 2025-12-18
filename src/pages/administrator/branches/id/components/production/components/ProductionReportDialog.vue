@@ -68,6 +68,9 @@
               <SalesReportPanel
                 :salesReport="salesReports"
                 :reportLabel="reportLabel"
+                :rowIndex="rowIndex"
+                :reportDate="reportDate"
+                :reportId="sales_report_id"
               />
             </q-tab-panel>
           </q-tab-panels>
@@ -90,14 +93,17 @@ const { capitalizeFirstLetter } = typographyFormat();
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
-const props = defineProps(["reports", "reportLabel"]);
+const props = defineProps(["reports", "reportLabel", "rowIndex", "reportDate"]);
 console.log("production report sss", props.reports);
+console.log("rowIndex", props.rowIndex);
+console.log("reportDate", props.reportDate);
+
 const bakerReports = props.reports.baker_reports;
 console.log("bakerReportsssss", bakerReports);
 const salesReports = props.reports.sales_reports;
 // const reportLabel = props.reports.reportLabel;
 const sales_report_id = props.reports.sales_reports_id;
-console.log("sales_report_id", sales_report_id);
+console.log("sales_reporssst_id", sales_report_id);
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
 

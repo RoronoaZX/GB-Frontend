@@ -217,6 +217,8 @@ const { capitalizeFirstLetter, formatPrice, formatDate } = typographyFormat();
 
 const route = useRoute();
 
+const emit = defineEmits(["summary-updated"]);
+
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const productionStore = useProductionStore();
@@ -363,6 +365,8 @@ const updatedRemaining = async (row, newVal) => {
 const updatedBreadOut = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "breaad_out", row.bread_out, newVal);
 
+  // await productionStore.setAmounts(overAmount, chargesAmount);
+  console.log("updated bread out", { overAmount, chargesAmount });
   try {
     await productionStore.updateSalesField(
       row.id,
