@@ -29,8 +29,8 @@
                 <div>Name: {{ formatFullname(report.user.employee) }}</div>
                 <div>Date: {{ formatDate(report.created_at) }}</div>
                 <div>Time: {{ formatTime(report.created_at) }}</div>
-                <!-- <div>Short/Charge: {{ chargesAmountToBeSendToAPI }}</div>
-                <div>Over Cash: {{ overAmountToBeSendToAPI }}</div> -->
+                <div>Short/Charge: {{ chargesAmountToBeSendToAPI }}</div>
+                <div>Over Cash: {{ overAmountToBeSendToAPI }}</div>
               </div>
             </q-card-section>
             <div class="row q-gutter-sm q-pa-md">
