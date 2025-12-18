@@ -227,6 +227,9 @@ const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
 console.log("producttable user data", userData.value);
 
+const overAmount = ref(0);
+const chargesAmount = ref(0);
+
 const userId = computed(() => {
   return userStore.userData?.data?.id ?? null;
 });
@@ -365,8 +368,12 @@ const updatedRemaining = async (row, newVal) => {
 const updatedBreadOut = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "breaad_out", row.bread_out, newVal);
 
-  // await productionStore.setAmounts(overAmount, chargesAmount);
-  console.log("updated bread out", { overAmount, chargesAmount });
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
+
   try {
     await productionStore.updateSalesField(
       row.id,
