@@ -252,6 +252,8 @@ const props = defineProps([
   "reportDate",
 ]);
 
+console.log("props iDsssss", props.sales_report_id);
+
 const filter = ref("");
 const pagination = ref({
   rowsPerPage: 0,
@@ -281,11 +283,19 @@ const buildHistoryMeta = (row, field, originalVal, newVal) => {
       props.reportLabel?.toUpperCase() || ""
     } Report Table`,
     user_id: userId.value,
+    sales_report_id: props.sales_report_id,
   };
 };
 
 const updatedPrice = async (row, newPrice) => {
   const meta = buildHistoryMeta(row, "price", row.price, newPrice);
+
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
 
   try {
     await productionStore.updateSalesField(
@@ -306,6 +316,14 @@ const updatedPrice = async (row, newPrice) => {
 
 const updatedBeginnings = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
+
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
+
   try {
     await productionStore.updateSalesField(
       row.id,
@@ -330,6 +348,13 @@ const updatedNewProduction = async (row, newVal) => {
     newVal
   );
 
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
+
   try {
     await productionStore.updateSalesField(
       row.id,
@@ -347,6 +372,13 @@ const updatedNewProduction = async (row, newVal) => {
 
 const updatedRemaining = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
+
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
 
   try {
     await productionStore.updateSalesField(

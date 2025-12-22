@@ -30,7 +30,9 @@
               handleSelectaDialog(
                 props.sales_Reports[0].selecta_reports,
                 props.sales_Reports[0].id,
-                props.sales_Reports[0].user
+                props.sales_Reports[0].user,
+                props.reportLabel,
+                props.reportDate
               )
             "
             no-caps
@@ -45,7 +47,9 @@
               handleSoftdrinksDialog(
                 props.sales_Reports[0].softdrinks_reports,
                 props.sales_Reports[0].id,
-                props.sales_Reports[0].user
+                props.sales_Reports[0].user,
+                props.reportLabel,
+                props.reportDate
               )
             "
             no-caps
@@ -75,7 +79,9 @@
               handleOtherProductDialog(
                 props.sales_Reports[0].other_products_reports,
                 props.sales_Reports[0].id,
-                props.sales_Reports[0].user
+                props.sales_Reports[0].user,
+                props.reportLabel,
+                props.reportDate
               )
             "
             no-caps
@@ -176,6 +182,15 @@ const handleSelectaDialog = (dataReports, sales_report_id, user) => {
       sales_report_id: sales_report_id,
       user: user,
     },
+  }).onOk((summary) => {
+    localCharges.value = summary.charges;
+    localOver.value = summary.over;
+
+    emit("update-summary", {
+      reportId: props.reportId,
+      charges: localCharges.value,
+      over: localOver.value,
+    });
   });
 };
 const handleSoftdrinksDialog = (dataReports, sales_report_id, user) => {
@@ -186,6 +201,15 @@ const handleSoftdrinksDialog = (dataReports, sales_report_id, user) => {
       sales_report_id: sales_report_id,
       user: user,
     },
+  }).onOk((summary) => {
+    localCharges.value = summary.charges;
+    localOver.value = summary.over;
+
+    emit("update-summary", {
+      reportId: props.reportId,
+      charges: localCharges.value,
+      over: localOver.value,
+    });
   });
 };
 const handleCakeDialog = (dataReports, sales_report_id, user) => {
@@ -206,6 +230,15 @@ const handleOtherProductDialog = (dataReports, sales_report_id, user) => {
       sales_report_id: sales_report_id,
       user: user,
     },
+  }).onOk((summary) => {
+    localCharges.value = summary.charges;
+    localOver.value = summary.over;
+
+    emit("update-summary", {
+      reportId: props.reportId,
+      charges: localCharges.value,
+      over: localOver.value,
+    });
   });
 };
 </script>

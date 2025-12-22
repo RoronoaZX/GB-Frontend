@@ -195,6 +195,7 @@ import AddingOtherReport from "./AddingOtherReport.vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { useProductionStore } from "src/stores/production";
+import { useUsersStore } from "src/stores/user";
 import { useRoute } from "vue-router";
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
@@ -205,11 +206,16 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const productionStore = useProductionStore();
 
-const userStore = useProductionStore();
+const userStore = useUsersStore();
+
+const overAmount = ref(0);
+const chargesAmount = ref(0);
 
 const userId = computed(() => {
   return userStore.userData?.data?.id ?? null;
 });
+
+console.log("userIdssssssss", userStore.userData);
 
 const userReady = computed(() => !!userId.value);
 
@@ -217,7 +223,16 @@ const branchId = route.params.branch_id;
 
 const dialog = ref(false);
 const maximizedToggle = ref(true);
-const props = defineProps(["reports", "sales_report_id", "user"]);
+const props = defineProps([
+  "reports",
+  "sales_report_id",
+  "user",
+  "reportLabel",
+  "reportDates",
+]);
+
+console.log("props iDsssss", props);
+
 const filter = ref("");
 const pagination = ref({
   rowsPerPage: 0,
@@ -236,7 +251,7 @@ const buildHistoryMeta = (row, field, originalVal, newVal) => {
 
   return {
     report_id: row.id,
-    name: row?.bread?.name || "Unknown Other Products",
+    name: row?.other_products?.name || "Unknown Other Products",
     original_data: field.includes("price")
       ? `₱ ${originalVal}`
       : `${originalVal} pcs`,
@@ -249,11 +264,19 @@ const buildHistoryMeta = (row, field, originalVal, newVal) => {
       props.reportLabel?.toUpperCase() || ""
     } Report Table`,
     user_id: userId.value,
+    sales_report_id: props.sales_report_id,
   };
 };
 
 const updatedPrice = async (row, newPrice) => {
   const meta = buildHistoryMeta(row, "price", row.price, newPrice);
+
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
 
   try {
     await productionStore.updateSalesField(
@@ -279,7 +302,16 @@ const updatedPrice = async (row, newPrice) => {
 };
 
 const updatedBeginnings = async (row, newVal) => {
+  console.log("rowsssss", row, newVal);
+
   const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
+
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
 
   try {
     await productionStore.updateSalesField(
@@ -303,6 +335,13 @@ const updatedBeginnings = async (row, newVal) => {
 const updatedRemaining = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
 
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
+
   try {
     await productionStore.updateSalesField(
       row.id,
@@ -324,12 +363,16 @@ const updatedRemaining = async (row, newVal) => {
   }
 };
 const updatedOtherProductsOut = async (row, newVal) => {
-  const meta = buildHistoryMeta(
-    row,
-    "other_products_out",
-    row.others_products_out,
-    newVal
-  );
+  console.log("rowsssss", row, newVal);
+
+  const meta = buildHistoryMeta(row, "other_products_out", row.out, newVal);
+
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
 
   try {
     await productionStore.updateSalesField(
@@ -348,6 +391,13 @@ const updatedOtherProductsOut = async (row, newVal) => {
 };
 const updatedAddedStocks = async (row, newVal) => {
   const meta = buildHistoryMeta(row, "added_stocks", row.added_stocks, newVal);
+
+  await productionStore.setAmounts();
+  const chargesAmount = productionStore.chargesAmount;
+  const overAmount = productionStore.overAmount;
+
+  console.log("chargesAmount", chargesAmount);
+  console.log("overAmount", overAmount);
 
   try {
     await productionStore.updateSalesField(

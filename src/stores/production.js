@@ -253,13 +253,13 @@ export const useProductionStore = defineStore("productions", () => {
 
     console.log("Payload datasssssssss:", payload);
 
-    // return sendRequest(
-    //   "put",
-    //   `/api/${endpoint}/${id}`,
-    //   payload,
-    //   "Updated successfully",
-    //   "Update failed"
-    // );
+    return sendRequest(
+      "put",
+      `/api/${endpoint}/${id}`,
+      payload,
+      "Updated successfully",
+      "Update failed"
+    );
   };
 
   return {
