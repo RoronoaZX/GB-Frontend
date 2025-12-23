@@ -44,12 +44,12 @@
                         {{
                           `${formatFullname(charge.employee)} - ${
                             charge?.employee?.position
-                          } `
+                          } - (${formatPrice(charge.charge_amount || 0)} )`
                         }}
                       </div>
                       <div>
                         Charges:
-                        {{ formatPrice(charge.calculated_charge || 0) }}
+                        {{ formatPrice(charge.charge_amount || 0) }}
                       </div>
                     </div>
                   </div>
@@ -242,73 +242,23 @@ const calculateChargesAndOverFromProcessed = (report) => {
     chargesAmount = expectedCash - totalDenomination;
   }
 
-  // Example: proportional charges per employee
-  const employeeCharges = (report.employee_salescharges_reports || []).map(
-    (charge) => ({
-      ...charge,
-      calculated_charge:
-        ((charge.charge_amount || 0) / totalProductSales) * chargesAmount, // proportional
-    })
-  );
-
-  console.log("Calculated charges:", employeeCharges);
-  console.log("overAmount", overAmount);
-  console.log("chargesAmount", chargesAmount);
-
-  return { overAmount, chargesAmount, employeeCharges };
+  return { overAmount, chargesAmount };
 };
-
-// watchEffect(() => {
-//   if (reportsData && reportsData.length > 0) {
-//     const { overAmount, chargesAmount, employeeCharges } =
-//       calculateChargesAndOverFromProcessed(reportsData[0]);
-//     overAmountToBeSendToAPI.value = overAmount;
-//     chargesAmountToBeSendToAPI.value = chargesAmount;
-
-//     productionStore.setAmounts(
-//       overAmountToBeSendToAPI.value,
-//       chargesAmountToBeSendToAPI.value
-//     );
-
-//     // Update reactive employee charges
-//     reportsData[0].employee_salescharges_reports = employeeCharges;
-//   }
-// });
 
 watchEffect(() => {
   if (reportsData && reportsData.length > 0) {
     const { overAmount, chargesAmount } = calculateChargesAndOverFromProcessed(
       reportsData[0]
     );
-
     overAmountToBeSendToAPI.value = overAmount;
     chargesAmountToBeSendToAPI.value = chargesAmount;
 
-    productionStore.setAmounts(overAmount, chargesAmount);
-
-    // Distribute charges evenly among employees
-    const employeeReports = reportsData[0].employee_salescharges_reports || [];
-    const perEmployeeCharge = chargesAmount / (employeeReports.length || 1);
-
-    employeeReports.forEach((e) => {
-      e.calculated_charge = perEmployeeCharge;
-    });
+    productionStore.setAmounts(
+      overAmountToBeSendToAPI.value,
+      chargesAmountToBeSendToAPI.value
+    );
   }
 });
-
-// watchEffect(() => {
-//   if (reportsData && reportsData.length > 0) {
-//     const { overAmount, chargesAmount, employeeCharges } =
-//       calculateChargesAndOverFromProcessed(reportsData[0]);
-
-//     overAmountToBeSendToAPI.value = overAmount;
-//     chargesAmountToBeSendToAPI.value = chargesAmount;
-//     productionStore.setAmounts(overAmount, chargesAmount);
-
-//     // Update reactive employee charges
-//     reportsData[0].employee_salescharges_reports = employeeCharges;
-//   }
-// });
 
 const formatAmount = (price) => {
   const formattedAmount = new Intl.NumberFormat("en-US", {
@@ -346,11 +296,9 @@ const generateDocDefinition = (report) => {
         .map((charge) => {
           const name = formatFullname(charge.employee);
           const position = charge?.employee?.position
-            ? ` - ${charge.employee.position}`
+            ? `  -${charge.employee.position}`
             : "";
-          const amount = `Charge: ₱${Number(
-            charge.calculated_charge || 0
-          ).toFixed(2)}`;
+          const amount = `₱${Number(charge.charge_amount || 0).toFixed(2)}`;
 
           return `${name}${position} (${amount})`;
         })
