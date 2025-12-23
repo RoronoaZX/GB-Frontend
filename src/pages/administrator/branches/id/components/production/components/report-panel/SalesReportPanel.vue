@@ -26,7 +26,28 @@
                 </div>
               </div>
               <div class="text-subtitle1 text-weight-regular">
-                <div>Name: {{ formatFullname(report.user.employee) }}</div>
+                <div
+                  v-if="report.employee_salescharges_reports?.length"
+                  class="q-mt-sm"
+                >
+                  <div class="text-weight-medium">Employee:</div>
+
+                  <div
+                    v-for="(
+                      charge, index
+                    ) in report.employee_salescharges_reports"
+                    :key="index"
+                    class="q-ml-md"
+                  >
+                    <div class="text-overline">
+                      {{
+                        `${formatFullname(charge.employee)} - ${
+                          charge?.employee?.position
+                        }`
+                      }}
+                    </div>
+                  </div>
+                </div>
                 <div>Date: {{ formatDate(report.created_at) }}</div>
                 <div>Time: {{ formatTime(report.created_at) }}</div>
                 <div>Short/Charge: {{ chargesAmountToBeSendToAPI }}</div>
@@ -237,6 +258,28 @@ const formatAmount = (price) => {
 };
 
 const generateDocDefinition = (report) => {
+  // const employeeChargesText = report.employee_salescharges_reports?.length
+  //   ? report.employee_salescharges_reports
+  //       .map(
+  //         (charge) =>
+  //           `${formatFullname(charge.employee)} ${
+  //             charge?.employee?.position
+  //               ? ` - ${charge?.employee?.position || ""}`
+  //               : ""
+  //           }`
+  //       )
+  //       .join("\n")
+  //   : "No Employee";
+  const employeeChargesText = report.employee_salescharges_reports?.length
+    ? report.employee_salescharges_reports
+        .map(
+          (charge) =>
+            `${formatFullname(charge.employee)}${
+              charge?.employee?.position ? ` - ${charge.employee.position}` : ""
+            }`
+        )
+        .join("\n")
+    : "No Employee";
   // const fontFamily = "Roboto";
   const allCreditProducts = computed(() => {
     return report.credit_reports.flatMap((report) => report.credit_products);
@@ -849,11 +892,9 @@ const generateDocDefinition = (report) => {
         columns: [
           {
             text: `Branch Name: ${report.branch?.name || "No Name"}
-          Cashier: ${
-            report.user?.employee
-              ? formatFullname(report.user.employee)
-              : "No Name"
-          }
+          Employee(s):
+            ${employeeChargesText}
+
           Date: ${formatDate(report.created_at)}\nTime: ${formatTime(
               report.created_at
             )}\n`,
