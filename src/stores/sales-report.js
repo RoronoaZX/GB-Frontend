@@ -30,9 +30,40 @@ export const useSalesReportsStore = defineStore("salesReports", {
     denominationTotal: 0,
     charges: 0,
     overTotal: 0,
+    isSubmitting: false,
   }),
 
   actions: {
+    logout() {
+      this.$reset();
+
+      // Reset this store initial state
+      // this.salesReport = [];
+      // this.products = [];
+      // this.branchProducts = [];
+      // this.breadProducts = [];
+      // this.selectaProducts = [];
+      // this.softdrinksProducts = [];
+      // this.cakeProducts = [];
+      // this.othersProducts = [];
+      // this.reports = [];
+      // this.employeeInShift = [];
+      // this.breadReports = [];
+      // this.selectaReports = [];
+      // this.softdrinksReports = [];
+      // this.cakeReports = [];
+      // this.otherProductsReports = [];
+      // this.withReceiptExpensesReports = [];
+      // this.withOutReceiptExpensesReport = [];
+      // this.employeeCreditReports = [];
+      // this.denominationReports = [];
+      // this.productsTotalAmount = 0;
+      // this.expensesTotalAmount = 0;
+      // this.employeeCreditTotalAmount = 0;
+      // this.denominationTotal = 0;
+      // this.charges = 0;
+      // this.overTotal = 0;
+    },
     setUser(user) {
       this.user = user;
     },
@@ -99,6 +130,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     updateBreadReport(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
       const index = this.breadReports.findIndex((r) => r.name === report.name);
       if (index !== -1) {
         this.breadReports.splice(index, 1, report);
@@ -108,6 +141,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     updateSelectaReport(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
       const index = this.selectaReports.findIndex(
         (r) => r.name === report.name
       );
@@ -119,6 +154,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     updateSoftdrinksReport(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
       const index = this.softdrinksReports.findIndex(
         (r) => r.name === report.name
       );
@@ -140,6 +177,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     // },
 
     updateCakeReport(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
       const index = this.cakeReports.findIndex((r) => r.name === report.name);
       if (index !== -1) {
         this.cakeReports.splice(index, 1, report);
@@ -149,6 +188,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     updateOtherProductsReport(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
       const index = this.otherProductsReports.findIndex(
         (r) => r.name === report.name
       );
@@ -160,6 +201,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     updateEmployeeCreditReports(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
       this.employeeCreditReports.push(report);
       this.updateExpensesTotalAmount();
       this.calculateCharges(this.denominationTotal); // Ensure charges update
@@ -186,6 +229,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     getDenominationData(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
       this.denominationReports.push(report);
     },
 
@@ -462,3 +507,334 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
   },
 });
+
+// import { defineStore } from "pinia";
+// import { Notify } from "quasar";
+// import { api } from "src/boot/axios";
+
+// export const useSalesReportsStore = defineStore("salesReports", {
+//   /* ================= STATE ================= */
+
+//   state: () => ({
+//     // products
+//     products: [],
+//     branchProducts: [],
+//     breadProducts: [],
+//     selectaProducts: [],
+//     softdrinksProducts: [],
+//     cakeProducts: [],
+//     othersProducts: [],
+
+//     // reports
+//     breadReports: [],
+//     selectaReports: [],
+//     softdrinksReports: [],
+//     cakeReports: [],
+//     otherProductsReports: [],
+
+//     // expenses & credits
+//     withReceiptExpensesReports: [],
+//     withOutReceiptExpensesReport: [],
+//     employeeCreditReports: [],
+
+//     // denomination
+//     denominationReports: [],
+//     denominationTotal: 0,
+
+//     // misc
+//     employeeInShift: [],
+//     salesReport: [],
+//     user: {},
+
+//     // lock
+//     isSubmitting: false,
+//   }),
+
+//   /* ================= ACTIONS ================= */
+
+//   actions: {
+//     /* ---------- USER ---------- */
+
+//     setUser(user) {
+//       this.user = user;
+//     },
+
+//     /* ---------- HELPERS ---------- */
+
+//     upsert(list, report, key = "name") {
+//       if (this.isSubmitting) return;
+
+//       const index = list.findIndex(r => r[key] === report[key]);
+//       index !== -1
+//         ? list.splice(index, 1, report)
+//         : list.push(report);
+//     },
+
+//     removeByIndex(list, index) {
+//       if (this.isSubmitting) return;
+//       list.splice(index, 1);
+//     },
+
+//     /* ---------- PRODUCT REPORTS ---------- */
+
+//     updateBreadReport(report) {
+//       this.upsert(this.breadReports, report);
+//     },
+//     updateSelectaReport(report) {
+//       this.upsert(this.selectaReports, report);
+//     },
+//     updateSoftdrinksReport(report) {
+//       this.upsert(this.softdrinksReports, report);
+//     },
+//     updateCakeReport(report) {
+//       this.upsert(this.cakeReports, report);
+//     },
+//     updateOtherProductsReport(report) {
+//       this.upsert(this.otherProductsReports, report);
+//     },
+
+//     removeBread(index) {
+//       this.removeByIndex(this.breadReports, index);
+//     },
+//     removeSelecta(index) {
+//       this.removeByIndex(this.selectaReports, index);
+//     },
+//     removeSoftdrink(index) {
+//       this.removeByIndex(this.softdrinksReports, index);
+//     },
+//     removeCake(index) {
+//       this.removeByIndex(this.cakeReports, index);
+//     },
+//     removeOtherProducts(index) {
+//       this.removeByIndex(this.otherProductsReports, index);
+//     },
+
+//     /* ---------- EXPENSES ---------- */
+
+//     addWithReceiptExpense(report) {
+//       if (this.isSubmitting) return;
+//       this.withReceiptExpensesReports.push(report);
+//     },
+
+//     addWithOutReceiptExpense(report) {
+//       if (this.isSubmitting) return;
+//       this.withOutReceiptExpensesReport.push(report);
+//     },
+
+//     removeWithReceiptExpense(index) {
+//       this.removeByIndex(this.withReceiptExpensesReports, index);
+//     },
+
+//     removeWithOutReceiptExpense(index) {
+//       this.removeByIndex(this.withOutReceiptExpensesReport, index);
+//     },
+
+//     /* ---------- CREDIT ---------- */
+
+//     addEmployeeCredit(report) {
+//       if (this.isSubmitting) return;
+//       this.employeeCreditReports.push(report);
+//     },
+
+//     removeEmployeeCredit(index) {
+//       this.removeByIndex(this.employeeCreditReports, index);
+//     },
+
+//     /* ---------- DENOMINATION ---------- */
+
+//     setDenominationReports(reports) {
+//       if (this.isSubmitting) return;
+//       this.denominationReports = reports;
+//     },
+
+//     setDenominationTotal(total) {
+//       if (this.isSubmitting) return;
+//       this.denominationTotal = Number(total);
+//     },
+
+//     /* ---------- PRODUCTS FILTER ---------- */
+
+//     filterBreadProducts() {
+//       this.breadProducts = this.branchProducts.filter(
+//         p => p.category === "Bread"
+//       );
+//     },
+//     filterSelectaProducts() {
+//       this.selectaProducts = this.branchProducts.filter(
+//         p => p.category === "Selecta"
+//       );
+//     },
+//     filterSoftdrinksProducts() {
+//       this.softdrinksProducts = this.branchProducts.filter(
+//         p => p.category === "Softdrinks"
+//       );
+//     },
+//     filterOthersProducts() {
+//       this.othersProducts = this.branchProducts.filter(
+//         p => p.category === "Others"
+//       );
+//     },
+
+//     /* ---------- API ---------- */
+
+//     async searchBranchProducts(keyword, branchId) {
+//       const res = await api.post("/api/search-products", {
+//         keyword,
+//         branch_id: branchId,
+//       });
+//       this.products = res.data;
+//     },
+
+//     async fetchBranchProducts(branchId) {
+//       const res = await api.get(`/api/branches/${branchId}/products`);
+//       this.branchProducts = res.data;
+
+//       this.filterBreadProducts();
+//       this.filterSelectaProducts();
+//       this.filterSoftdrinksProducts();
+//       this.filterOthersProducts();
+//     },
+
+//     async fetchSalesReports(branchId, page, rowsPerPage) {
+//       const res = await api.get(
+//         `/api/branches/${branchId}/branch-sales-report`,
+//         { params: { page, per_page: rowsPerPage } }
+//       );
+//       this.salesReport = res.data;
+//     },
+
+//     /* ---------- RESET ---------- */
+
+//     resetReportState() {
+//       this.isSubmitting = true;
+
+//       this.breadReports = [];
+//       this.selectaReports = [];
+//       this.softdrinksReports = [];
+//       this.cakeReports = [];
+//       this.otherProductsReports = [];
+
+//       this.withReceiptExpensesReports = [];
+//       this.withOutReceiptExpensesReport = [];
+//       this.employeeCreditReports = [];
+//       this.denominationReports = [];
+//       this.employeeInShift = [];
+
+//       this.denominationTotal = 0;
+
+//       this.isSubmitting = false;
+//     },
+
+//     /* ---------- SUBMIT ---------- */
+
+//     async submitSalesReports() {
+//       if (this.isSubmitting) return;
+//       this.isSubmitting = true;
+
+//       const payload = {
+//         user_id: this.user.data.id,
+//         branch_id: this.user?.device?.reference_id,
+
+//         breadReports: this.breadReports,
+//         selectaReports: this.selectaReports,
+//         softdrinksReports: this.softdrinksReports,
+//         cakeReports: this.cakeReports,
+//         otherProductsReports: this.otherProductsReports,
+
+//         withReceiptExpensesReports: this.withReceiptExpensesReports,
+//         withOutReceiptExpensesReport: this.withOutReceiptExpensesReport,
+//         creditReports: this.employeeCreditReports,
+
+//         denominationReports: this.denominationReports,
+//         denomination_total: this.denominationTotal,
+
+//         products_total_sales: this.productsTotalAmount,
+//         expenses_total: this.expensesTotalAmount,
+//         credit_total: this.creditTotalAmount,
+
+//         charges_amount: this.chargesAmount,
+//         over_total: this.overTotal,
+//       };
+
+//       try {
+//         await api.post("/api/sales-report", payload);
+
+//         Notify.create({
+//           type: "positive",
+//           message: "Report submitted successfully",
+//         });
+
+//         this.resetReportState();
+//       } catch (e) {
+//         Notify.create({
+//           type: "negative",
+//           message: "Error submitting report",
+//         });
+//       } finally {
+//         this.isSubmitting = false;
+//       }
+//     },
+//   },
+
+//   /* ================= GETTERS ================= */
+
+//   getters: {
+//     breadTotalAmount: (s) =>
+//       s.breadReports.reduce((t, r) => t + Number(r.sales || 0), 0),
+
+//     selectaTotalAmount: (s) =>
+//       s.selectaReports.reduce((t, r) => t + Number(r.sales || 0), 0),
+
+//     softdrinksTotalAmount: (s) =>
+//       s.softdrinksReports.reduce((t, r) => t + Number(r.sales || 0), 0),
+
+//     otherProductsTotalAmount: (s) =>
+//       s.otherProductsReports.reduce((t, r) => t + Number(r.sales || 0), 0),
+
+//     cakeTotalAmount: (s) =>
+//       s.cakeReports
+//         .filter(r => r.sales_status === "sold")
+//         .reduce((t, r) => t + Number(r.price || 0), 0),
+
+//     productsTotalAmount() {
+//       return (
+//         this.breadTotalAmount +
+//         this.selectaTotalAmount +
+//         this.softdrinksTotalAmount +
+//         this.otherProductsTotalAmount +
+//         this.cakeTotalAmount
+//       );
+//     },
+
+//     expensesTotalAmount: (s) =>
+//       s.withOutReceiptExpensesReport.reduce(
+//         (t, r) => t + Number(r.amount || 0),
+//         0
+//       ),
+
+//     creditTotalAmount: (s) =>
+//       s.employeeCreditReports.reduce(
+//         (t, r) => t + Number(r.total_amount || 0),
+//         0
+//       ),
+
+//     netSalesAmount() {
+//       return (
+//         this.productsTotalAmount -
+//         (this.expensesTotalAmount + this.creditTotalAmount)
+//       );
+//     },
+
+//     chargesAmount() {
+//       return this.netSalesAmount > this.denominationTotal
+//         ? this.netSalesAmount - this.denominationTotal
+//         : 0;
+//     },
+
+//     overTotal() {
+//       return this.denominationTotal > this.netSalesAmount
+//         ? this.denominationTotal - this.netSalesAmount
+//         : 0;
+//     },
+//   },
+// });

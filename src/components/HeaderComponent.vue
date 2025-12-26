@@ -19,7 +19,6 @@
           </q-toolbar-title>
         </div>
       </div>
-
       <div class="col-4 d-flex justify-center" align="center">
         <div class="text-black mx-2 text-h6">
           <div>{{ getActiveMenuItemLabel }}</div>

@@ -65,7 +65,9 @@
                       </q-avatar>
 
                       <div class="text-overline q-mt-md q-mb-xs">
-                        {{ formatFullname(userData.data.employee) }}
+                        {{
+                          formatFullname(userData.data.employee) || "Undefined"
+                        }}
                       </div>
 
                       <q-btn
@@ -137,6 +139,7 @@ import { ref, onMounted, computed } from "vue";
 import { LocalStorage, useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { useSalesReportsStore } from "src/stores/sales-report";
+
 import { api } from "src/boot/axios";
 
 const salesReportsStore = useSalesReportsStore();
@@ -198,10 +201,13 @@ const formatFullname = (row) => {
 
 const signOut = () => {
   loading.value = true;
+
   setTimeout(() => {
     LocalStorage.removeItem("token");
     LocalStorage.removeItem("role");
     LocalStorage.removeItem("activeMenuItem");
+
+    salesReportsStore.logout();
     loading.value = false;
     router.push("/");
   }, 1000);
