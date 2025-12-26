@@ -872,9 +872,9 @@ const generateDocDefinition = (report) => {
   }, 0);
 
   // Calculate the total denomination value
-  const totalDenomination =
-    denominationReport.bills.reduce((sum, bill) => sum + bill.value, 0) +
-    denominationReport.coins.reduce((sum, coin) => sum + coin.value, 0);
+  const totalDenomination = denominationTotal;
+  // denominationReport.bills.reduce((sum, bill) => sum + bill.value, 0) +
+  // denominationReport.coins.reduce((sum, coin) => sum + coin.value, 0);
 
   // Calculate expected cash
   const sum = expensesTotal + creditTotal;
