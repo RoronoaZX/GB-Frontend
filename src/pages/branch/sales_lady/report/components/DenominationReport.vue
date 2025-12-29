@@ -190,7 +190,7 @@
 
 <script setup>
 import { useSalesReportsStore } from "src/stores/sales-report";
-import { reactive, ref, computed } from "vue";
+import { reactive, ref, computed, watch } from "vue";
 
 const salesReportsStore = useSalesReportsStore();
 
@@ -256,6 +256,17 @@ const handleSubmit = () => {
 
   closeBtn();
 };
+
+/* watch here */
+watch(
+  denominationData,
+  (newVal) => {
+    salesReportsStore.getDenominationData(newVal);
+    salesReportsStore.updateDenominationTotal(totalDenomination.value);
+    salesReportsStore.calculateCharges(totalDenomination.value);
+  },
+  { deep: true }
+);
 </script>
 
 <style lang="scss" scoped>

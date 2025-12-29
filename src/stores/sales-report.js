@@ -23,7 +23,19 @@ export const useSalesReportsStore = defineStore("salesReports", {
     withReceiptExpensesReports: [],
     withOutReceiptExpensesReport: [],
     employeeCreditReports: [],
-    denominationReports: [],
+    denominationReports: {
+      oneThousandBills: 0,
+      fiveHundredBills: 0,
+      twoHundredBills: 0,
+      oneHundredBills: 0,
+      fiftyBills: 0,
+      twentyBills: 0,
+      twentyCoins: 0,
+      tenCoins: 0,
+      fiveCoins: 0,
+      oneCoins: 0,
+      twentyFiveCents: 0,
+    },
     productsTotalAmount: 0,
     expensesTotalAmount: 0,
     employeeCreditTotalAmount: 0,
@@ -231,7 +243,9 @@ export const useSalesReportsStore = defineStore("salesReports", {
     getDenominationData(report) {
       if (this.isSubmitting) return; // Prevent updates while submitting
 
-      this.denominationReports.push(report);
+      this.denominationReports = {
+        ...report,
+      };
     },
 
     updateDenominationTotal(total) {
