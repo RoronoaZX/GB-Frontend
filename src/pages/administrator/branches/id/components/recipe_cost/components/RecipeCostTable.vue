@@ -120,7 +120,8 @@ const fetchRecipeCosts = async (page = 0, rowsPerPage = 5, search = "") => {
     console.log("recipeCostData.value", recipeCostData.value);
     pagination.value.page = current_page;
     console.log("pagination.value.page", pagination.value.page);
-    pagination.value.rowsPerPage = per_page;
+    pagination.value.rowsPerPage =
+      per_page === 0 ? pagination.value.rowsNumber : per_page;
     console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
     pagination.value.rowsNumber = total;
     console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
@@ -159,13 +160,13 @@ const onPageRequest = (props) => {
   );
 };
 
-watch(filter, async (newVal) => {
-  await fetchRecipeCosts(
-    pagination.value.page,
-    pagination.value.rowsPerPage,
-    newVal
-  );
-});
+// watch(filter, async (newVal) => {
+//   await fetchRecipeCosts(
+//     pagination.value.page,
+//     pagination.value.rowsPerPage,
+//     newVal
+//   );
+// });
 
 const recipeCostColumn = [
   {
