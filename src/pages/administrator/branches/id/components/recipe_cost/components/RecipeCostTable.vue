@@ -97,7 +97,7 @@ const pagination = ref({
 
 const filter = ref("");
 
-const fetchRecipeCosts = async (page = 0, rowsPerPage = 5, search = "") => {
+const fetchRecipeCosts = async (page = 0, rowsPerPage = 1, search = "") => {
   try {
     // ✅ If it's the first load (page just opened), show full spinner
     if (recipeCostData.value.length === 0 && !search) {
@@ -191,7 +191,8 @@ const recipeCostColumn = [
     name: "total_cost",
     label: "Total Cost",
     align: "center",
-    field: (row) => formatPrice(trimTrailingZeros(row.total_cost || "N/A")),
+    field: (row) =>
+      formatPrice(trimTrailingZeros(row.recipe_total_cost || "N/A")),
   },
   {
     name: "kilo",
