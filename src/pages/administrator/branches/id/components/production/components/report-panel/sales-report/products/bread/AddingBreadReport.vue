@@ -19,7 +19,7 @@
   >
     <q-card style="width: 600px; max-width: 80vw">
       <q-card-section class="row items-center bg-backgroud">
-        <div class="text-h6 text-white">Bread {{ reportLabel }}</div>
+        <div class="text-h6 text-white">Breadss {{ reportLabel }}</div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
@@ -208,12 +208,16 @@ const props = defineProps([
   "sales_report_id",
   "user",
   "reportLabel",
-  "reportLength",
+  "reportDate",
 ]);
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
+console.log("propssssss", props);
+
 const sales_report_id = props.sales_report_id;
 const route = useRoute();
+
+const emit = defineEmits(["bread-added"]);
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
@@ -330,6 +334,10 @@ const handleSubmit = async () => {
   const originalData = `₱ ${addbreadProduction.price.toString()}`; // Convert to string
   const updatedData = `₱ ${parseInt(addbreadProduction.price).toString()}`; // Convert to string after parsing
   const user_id = historyLogUserID;
+
+  const date = props.reportDate;
+  const label = props.reportLabel;
+
   try {
     // Validate required fields
     if (
@@ -374,9 +382,34 @@ const handleSubmit = async () => {
       type_of_report: `Branch Production bread report`,
       user_id,
     };
+
     console.log("payload", payload);
-    await productionStore.addProduction("bread", payload);
-  } catch (error) {}
+    await productionStore.addProduction("bread", payload, date, label);
+
+    // SUCCESS: Notify parent to refresh
+    emit("bread-added");
+
+    // Optional: close dialog
+    dialog.value = false;
+
+    // Reset form
+    Object.assign(addedBreadProduction, {
+      product_id: "",
+      product_name: "",
+      price: 0,
+      beginnings: 0,
+      remaining: 0,
+      new_production: 0,
+      bread_out: 0,
+      bread_sold: 0,
+      total: 0,
+      sales: 0,
+    });
+
+    searchQuery.value = "";
+  } catch (error) {
+    console.error("Error adding bread production:", error);
+  }
 };
 </script>
 

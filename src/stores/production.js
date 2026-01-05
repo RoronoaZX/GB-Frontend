@@ -183,20 +183,173 @@ export const useProductionStore = defineStore("productions", () => {
     }
   };
 
-  const addProduction = async (type, data) => {
-    const endpoint = ADD_ENDPOINTS[type];
+  // const addProduction = async (type, data) => {
+  //   const endpoint = ADD_ENDPOINTS[type];
 
+  //   if (!endpoint) {
+  //     throw new Error(`Invalid production type for add: ${type}`);
+  //   }
+
+  //   return await sendRequest(
+  //     "post",
+  //     `/api/${endpoint}`,
+  //     data,
+  //     `${type} production added successfully`,
+  //     `Failed to add ${type} production`
+  //   );
+  // };
+
+  // const addProduction = async (type, data, date, shiftLabel) => {
+  //   const endpoint = ADD_ENDPOINTS[type];
+  //   if (!endpoint) throw new Error(`Invalid production type for add: ${type}`);
+
+  //   // Send request to backend
+  //   const response = await sendRequest(
+  //     "post",
+  //     `/api/${endpoint}`,
+  //     data,
+  //     `${type} production added successfully`,
+  //     `Failed to add ${type} production`
+  //   );
+
+  //   // Row data comes from backend response
+  //   const newRow = response.data;
+  //   if (!newRow) return response;
+
+  //   // Ensure productions.value exists
+  //   if (!Array.isArray(productions.value)) productions.value = [];
+
+  //   // Find date group
+  //   let dateGroup = productions.value.find((d) => d.date === date);
+
+  //   // If date group doesn't exist, create it
+  //   if (!dateGroup) {
+  //     dateGroup = {
+  //       date,
+  //       AM: {
+  //         bread_reports: [],
+  //         selecta_reports: [],
+  //         softdrinks_reports: [],
+  //         other_products_reports: [],
+  //       },
+  //       PM: {
+  //         bread_reports: [],
+  //         selecta_reports: [],
+  //         softdrinks_reports: [],
+  //         other_products_reports: [],
+  //       },
+  //     };
+
+  //     productions.value.unshift(dateGroup);
+  //   }
+
+  //   // ensure shift exists
+  //   if (!dateGroup[shift])
+
+  //   // // Use frontend shift/label
+  //   // const shift = shiftLabel; // e.g., "AM" or "PM"
+  //   // if (!dateGroup[shift]) dateGroup[shift] = {};
+
+  //   // // Key for type
+  //   // const key = `${type}_reports`; // e.g., "bread_reports"
+
+  //   // // Ensure array exists
+  //   // if (!Array.isArray(dateGroup[shift][key])) dateGroup[shift][key] = [];
+
+  //   // // Push the response row
+  //   // dateGroup[shift][key].unshift(newRow);
+
+  //   // console.log("Updated productions:", productions.value);
+
+  //   // return response;
+  // };
+
+  const addProduction = async (type, data, date, shiftLabel) => {
+    const endpoint = ADD_ENDPOINTS[type];
     if (!endpoint) {
       throw new Error(`Invalid production type for add: ${type}`);
     }
 
-    return await sendRequest(
+    // 1️⃣ Send request to backend
+    const response = await sendRequest(
       "post",
       `/api/${endpoint}`,
       data,
       `${type} production added successfully`,
       `Failed to add ${type} production`
     );
+
+    console.log("Add Production Response:", response);
+
+    // ✅ Backend row (FLAT object)
+    const newRow = response;
+    if (!newRow) return response;
+
+    // 2️⃣ Ensure productions is an array
+    if (!Array.isArray(productions.value)) {
+      productions.value = [];
+    }
+
+    // 3️⃣ Find date group
+    let dateGroup = productions.value.find((p) => p.date === date);
+
+    // 4️⃣ If date group does not exist, create it
+    if (!dateGroup) {
+      dateGroup = {
+        date,
+        AM: {
+          bread_reports: [],
+          selecta_reports: [],
+          softdrinks_reports: [],
+          other_products_reports: [],
+        },
+        PM: {
+          bread_reports: [],
+          selecta_reports: [],
+          softdrinks_reports: [],
+          other_products_reports: [],
+        },
+      };
+
+      productions.value.unshift(dateGroup);
+    }
+
+    // 5️⃣ Ensure shift exists
+    if (!dateGroup[shiftLabel]) {
+      dateGroup[shiftLabel] = {
+        bread_reports: [],
+        selecta_reports: [],
+        softdrinks_reports: [],
+        other_products_reports: [],
+      };
+    }
+
+    // 6️⃣ Resolve correct key
+    const reportKeyMap = {
+      bread: "bread_reports",
+      selecta: "selecta_reports",
+      softdrinks: "softdrinks_reports",
+      other: "other_products_reports",
+    };
+
+    const reportKey = reportKeyMap[type];
+    if (!reportKey) return response;
+
+    // 7️⃣ Ensure array exists
+    if (!Array.isArray(dateGroup[shiftLabel][reportKey])) {
+      dateGroup[shiftLabel][reportKey] = [];
+    }
+
+    // 8️⃣ PUSH backend row (no mutation, no frontend guessing)
+    dateGroup[shiftLabel][reportKey].unshift(newRow);
+
+    console.log("✅ Bread added to productions:", {
+      date,
+      shift: shiftLabel,
+      row: newRow,
+    });
+
+    return response;
   };
 
   const addOtherProductProduction = async (data) => {

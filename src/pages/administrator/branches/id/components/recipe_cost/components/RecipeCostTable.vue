@@ -26,9 +26,9 @@
       <q-icon name="warning" color="warning" size="4em" />
       <div class="q-ml-sm text-h6">No data available</div>
     </div>
+    <!-- class="table-container sticky-header" -->
     <q-table
       v-else
-      class="table-container sticky-header"
       flat
       row-key="id"
       :columns="recipeCostColumn"
@@ -97,7 +97,7 @@ const pagination = ref({
 
 const filter = ref("");
 
-const fetchRecipeCosts = async (page = 0, rowsPerPage = 3, search = "") => {
+const fetchRecipeCosts = async (page = 0, rowsPerPage = 1, search = "") => {
   try {
     // ✅ If it's the first load (page just opened), show full spinner
     if (recipeCostData.value.length === 0 && !search) {

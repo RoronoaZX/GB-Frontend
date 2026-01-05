@@ -8,7 +8,10 @@ export const useRecipeCostStore = defineStore("recipe-cost", () => {
 
   const fetchRecipeCosts = async (branchId, page, rowsPerPage, search) => {
     console.log("Fetching recipe costs in store...");
-    console.log("branchId", branchId);
+    console.log("branchId in recipe cost", branchId);
+    console.log("page in recipe cost", page);
+    console.log("rowsPerPage in recipe cost", rowsPerPage);
+    console.log("search in recipe cost", search);
 
     try {
       const response = await api.get(`/api/fetch-recipe-costs/${branchId}`, {

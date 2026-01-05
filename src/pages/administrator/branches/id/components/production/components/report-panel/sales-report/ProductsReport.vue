@@ -3,7 +3,10 @@
     <q-card class="user-card">
       <q-card-section>
         <div class="text-h6" align="center">
-          Products Report {{ formatDate(reportDate) }}
+          Products Report
+          <div class="text-overline">
+            {{ `(${formatDate(reportDate)}) - ${reportLabel}` }}
+          </div>
         </div>
       </q-card-section>
       <q-card-section>
@@ -119,6 +122,8 @@ const props = defineProps([
   "over",
   "reportId",
 ]);
+
+console.log("Sales reportDate", props.reportDate);
 
 console.log("Products Report", props.reportId);
 

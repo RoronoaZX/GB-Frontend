@@ -96,7 +96,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const props = defineProps(["reports", "reportLabel", "rowIndex", "reportDate"]);
 console.log("production report sss", props.reports);
 console.log("rowIndex", props.rowIndex);
-console.log("reportDate", props.reportDate);
+console.log("reportDatessss", props.reportDate);
 
 const bakerReports = props.reports.baker_reports;
 console.log("bakerReportsssss", bakerReports);

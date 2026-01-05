@@ -42,6 +42,7 @@
             :reportLabel="props.reportLabel"
             :reportDate="props.reportDate"
             :reportLength="reportLength"
+            @bread-added="handleNewBread"
           />
         </div>
       </q-card-section>
@@ -206,7 +207,7 @@
 import AddingBreadReport from "./AddingBreadReport.vue";
 import { Notify, useDialogPluginComponent } from "quasar";
 import { api } from "src/boot/axios";
-import { computed, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useUsersStore } from "src/stores/user";
 import { useRoute } from "vue-router";
 import { useProductionStore } from "src/stores/production";
@@ -242,7 +243,7 @@ const branchId = route.params.branch_id;
 const dialog = ref(false);
 
 const maximizedToggle = ref(true);
-const reportLength = computed(() => filteredRows.value.length);
+// const reportLength = computed(() => filteredRows.value.length);
 
 const props = defineProps([
   "reports",
@@ -428,7 +429,7 @@ const breadReportColumns = [
     label: "Bread Name",
     field: (row) => {
       console.log("Row data:", row); // Debug each row's data
-      return row.bread.name || "N/A"; // Adjust this according to your data
+      return row.bread.name || row.name || "N/A"; // Adjust this according to your data
     },
   },
   {
@@ -507,47 +508,115 @@ const breadReportColumns = [
   },
 ];
 
-// Replace this with your actual filtered rows logic
-const filteredRows = computed(() => {
-  if (!filter.value || !filter.value.trim()) {
-    // If there's no filter, return all rows
-    return props.reports || [];
+// Computed: Get the correct bread reports directly from store
+const localReports = computed(() => {
+  if (
+    !productionStore.productions ||
+    !Array.isArray(productionStore.productions)
+  ) {
+    return [];
   }
 
-  const search = filter.value.trim().toLowerCase(); // Normalize the filter input
-  return (props.reports || []).filter((row) => {
-    // Perform filtering on relevant fields
-    return (
-      row.bread.name.toLowerCase().includes(search) || // Bread name
-      row.price.toString().includes(search) || // Price
-      row.sales.toString().includes(search) // Sales
-    );
-  });
+  const dateGroup = productionStore.productions.find(
+    (group) => group.date === props.reportDate
+  );
+
+  if (!dateGroup || !dateGroup[props.reportLabel]) {
+    return [];
+  }
+
+  return dateGroup[props.reportLabel].bread_reports || [];
 });
 
-const overallTotal = computed(() => {
-  const total = filteredRows.value.reduce((total, row) => {
-    // Ensure all values are treated as numbers
+// Watch for prop changes
+// watch(
+//   () => props.reports,
+//   (newVal) => {
+//     localReports.splice(0, localReports.length, ...newVal);
+//   }
+// );
+
+// Computed: filtered rows
+const filteredRows = computed(() => {
+  if (!filter.value?.trim()) return localReports;
+
+  const search = filter.value.trim().toLowerCase();
+  return localReports.value.filter(
+    (row) =>
+      row.bread.name.toLowerCase().includes(search) ||
+      row.price.toString().includes(search) ||
+      (row.sales || 0).toString().includes(search)
+  );
+});
+
+// Computed: overall total sales
+const overallTotal = computed(() =>
+  localReports.value.reduce((acc, row) => {
     const beginnings = Number(row.beginnings) || 0;
     const newProduction = Number(row.new_production) || 0;
     const remaining = Number(row.remaining) || 0;
     const breadOut = Number(row.bread_out) || 0;
     const price = Number(row.price) || 0;
 
-    const totalValue = beginnings + newProduction;
-    const totalBreadDifference = remaining + breadOut;
-    const breadSold = totalValue - totalBreadDifference;
-    const salesAmount = breadSold * price;
+    const totalProduced = beginnings + newProduction;
+    const breadSold = totalProduced - (remaining + breadOut);
+    return acc + breadSold * price;
+  }, 0)
+);
 
-    console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
-    return total + salesAmount;
-  }, 0);
+// Computed: report length
+const reportLength = computed(() => filteredRows.value.length);
 
-  console.log("Overall Total Sales computed as:", total);
-  return total;
-});
+const handleNewBreadAdded = () => {
+  // This tells the PARENT to refresh teh reports
+  emit("summary-updated");
 
-console.log("Overall Total Sales:", overallTotal.value);
+  // OR better: emit a dedicated event
+  emit("refresh-reports");
+};
+
+// 🔹 Handle new bread added from AddingBreadReport
+// const handleNewBread = (backendData) => {
+//   // backendData is the response from the API
+//   // Find or create the correct shift row (AM/PM) if necessary
+//   const label = props.reportLabel; // AM / PM
+//   const reportDate = props.reportDate;
+
+//   // Add the backend data to the top of localReports
+//   localReports.unshift({
+//     ...backendData,
+//     date: reportDate,
+//     label,
+//   });
+
+//   // Optionally: update global store
+//   productionStore.productions.unshift({
+//     ...backendData,
+//     date: reportDate,
+//     label,
+//   });
+
+//   console.log("Local Reports after push:", localReports);
+// };\
+
+const handleNewBread = (backendData) => {
+  const newItem = {
+    ...backendData,
+    date: props.reportDate,
+    label: props.reportLabel,
+  };
+
+  // Update local table (reactive array)
+  localReports.value.unshift(newItem);
+
+  // Optionally: update global store
+  productionStore.productions.unshift(newItem);
+
+  // Emit event to parent
+  emit("bread-added", newItem);
+
+  console.log("Local Reports after adding:", localReports);
+};
 </script>
 
 <style scoped></style>

@@ -56,6 +56,8 @@
                 </div>
                 <div>Date: {{ formatDate(report.created_at) }}</div>
                 <div>Time: {{ formatTime(report.created_at) }}</div>
+                <!-- <div>Date: {{ formatDate(props.reportDate) }}</div>
+                <div>Time: {{ formatTime(props.reportDate) }}</div> -->
                 <div>Short/Charge: {{ chargesAmountToBeSendToAPI }}</div>
                 <div>Over Cash: {{ overAmountToBeSendToAPI }}</div>
               </div>
@@ -64,7 +66,7 @@
               <ProductsReport
                 :sales_Reports="[report]"
                 :reportLabel="reportLabel"
-                :reportDate="report.created_at"
+                :reportDate="props.reportDate"
                 :reportId="props.reportId"
                 @update-summary="handleSummayUpdate"
               />
@@ -147,6 +149,7 @@ const props = defineProps([
 ]);
 const reportsData = props.salesReport;
 console.log("reportsDatasssss", props.salesReport);
+console.log("reportDatessssss", props.reportDate);
 
 const maximizedToggle = ref(true);
 const printDialog = ref(false);
