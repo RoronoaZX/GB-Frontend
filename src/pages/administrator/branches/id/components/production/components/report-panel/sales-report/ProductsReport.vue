@@ -179,13 +179,21 @@ const handleBreadDialog = (
     });
   });
 };
-const handleSelectaDialog = (dataReports, sales_report_id, user) => {
+const handleSelectaDialog = (
+  dataReports,
+  sales_report_id,
+  user,
+  reportLabel,
+  reportDate
+) => {
   $q.dialog({
     component: SelectaReport,
     componentProps: {
       reports: dataReports,
       sales_report_id: sales_report_id,
       user: user,
+      reportLabel: reportLabel,
+      reportDate: reportDate,
     },
   }).onOk((summary) => {
     localCharges.value = summary.charges;
@@ -198,13 +206,21 @@ const handleSelectaDialog = (dataReports, sales_report_id, user) => {
     });
   });
 };
-const handleSoftdrinksDialog = (dataReports, sales_report_id, user) => {
+const handleSoftdrinksDialog = (
+  dataReports,
+  sales_report_id,
+  user,
+  reportLabel,
+  reportDate
+) => {
   $q.dialog({
     component: SoftdrinksReport,
     componentProps: {
       reports: dataReports,
       sales_report_id: sales_report_id,
       user: user,
+      reportLabel: reportLabel,
+      reportDate: reportDate,
     },
   }).onOk((summary) => {
     localCharges.value = summary.charges;
@@ -227,13 +243,21 @@ const handleCakeDialog = (dataReports, sales_report_id, user) => {
     },
   });
 };
-const handleOtherProductDialog = (dataReports, sales_report_id, user) => {
+const handleOtherProductDialog = (
+  dataReports,
+  sales_report_id,
+  user,
+  reportLabel,
+  reportDate
+) => {
   $q.dialog({
     component: OtherProductReport,
     componentProps: {
       reports: dataReports,
       sales_report_id: sales_report_id,
       user: user,
+      reportLabel: reportLabel,
+      reportDate: reportDate,
     },
   }).onOk((summary) => {
     localCharges.value = summary.charges;

@@ -7,7 +7,7 @@
       dense
       elevated
       icon="add_circle"
-      label="Add Other Products"
+      label="Add Bread"
       @click="openDialog"
     />
   </div>
@@ -18,8 +18,8 @@
     backdrop-filter="blur(4px) saturate(150%)"
   >
     <q-card style="width: 600px; max-width: 80vw">
-      <q-card-section class="row items-center bg-backgroud q-px-md q-py-sm">
-        <div class="text-h6 text-white">Add Other Products</div>
+      <q-card-section class="row items-center bg-backgroud">
+        <div class="text-h6 text-white">Breadss {{ reportLabel }}</div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
@@ -28,7 +28,7 @@
           Cashier: {{ formatFullname(user.employee) }}
         </div>
       </q-card-section>
-      <q-card-section class="q-ma-md q-gutter-y-sm">
+      <q-card-section class="q-gutter-y-sm">
         <div class="q-mb-lg">
           <q-input
             v-model="searchQuery"
@@ -72,25 +72,7 @@
         <div>
           <div>Product Name</div>
           <q-input
-            v-model="addOtherProductReport.product_name"
-            readonly
-            dense
-            outlined
-          />
-        </div>
-        <div>
-          <div>Category</div>
-          <q-input
-            v-model="addOtherProductReport.category"
-            readonly
-            dense
-            outlined
-          />
-        </div>
-        <div>
-          <div>Price</div>
-          <q-input
-            v-model="addOtherProductReport.price"
+            v-model="addbreadProduction.product_name"
             readonly
             dense
             outlined
@@ -98,9 +80,31 @@
         </div>
         <div class="row justify-between q-mt-md q-gutter-md">
           <div>
+            <div>Category</div>
+            <q-input
+              v-model="addbreadProduction.category"
+              readonly
+              dense
+              outlined
+              style="width: 250px"
+            />
+          </div>
+          <div>
+            <div>Price</div>
+            <q-input
+              v-model="addbreadProduction.price"
+              readonly
+              dense
+              outlined
+              style="width: 250px"
+            />
+          </div>
+        </div>
+        <div class="row justify-between q-mt-md q-gutter-md">
+          <div>
             <div>Beginnings</div>
             <q-input
-              v-model="addOtherProductReport.beginnings"
+              v-model="addbreadProduction.beginnings"
               mask="#####"
               outlined
               dense
@@ -108,9 +112,9 @@
             />
           </div>
           <div>
-            <div>Added Stocks</div>
+            <div>New Production</div>
             <q-input
-              v-model="addOtherProductReport.added_stocks"
+              v-model="addbreadProduction.new_production"
               mask="#####"
               outlined
               dense
@@ -120,7 +124,7 @@
           <div>
             <div>Remaining</div>
             <q-input
-              v-model="addOtherProductReport.remaining"
+              v-model="addbreadProduction.remaining"
               mask="#####"
               outlined
               dense
@@ -128,9 +132,9 @@
             />
           </div>
           <div>
-            <div>Out</div>
+            <div>Bread Out</div>
             <q-input
-              v-model="addOtherProductReport.out"
+              v-model="addbreadProduction.bread_out"
               mask="#####"
               outlined
               dense
@@ -140,7 +144,7 @@
           <div>
             <div>Total Quantity</div>
             <q-input
-              v-model="addOtherProductReport.total"
+              v-model="addbreadProduction.total"
               mask="#####"
               outlined
               readonly
@@ -149,9 +153,9 @@
             />
           </div>
           <div>
-            <div>Sold</div>
+            <div>Bread Sold</div>
             <q-input
-              v-model="addOtherProductReport.sold"
+              v-model="addbreadProduction.bread_sold"
               mask="#####"
               readonly
               outlined
@@ -192,107 +196,52 @@ import { useProductionStore } from "src/stores/production";
 import { useProductsStore } from "src/stores/product";
 import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useUsersStore } from "src/stores/user";
+import BreadReport from "./BreadReport.vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
-import { Notify } from "quasar";
 
 const { capitalizeFirstLetter, formatFullname } = typographyFormat();
 
-const props = defineProps({
-  sales_Reports: { type: Array, default: () => [] },
-  sales_report_id: [String, Number],
-  user: Object,
-  reportLabel: String,
-  reportDate: String,
-});
-
-console.log("propss..", props);
-
-const emit = defineEmits(["other-added"]);
-
+const props = defineProps([
+  "sales_Reports",
+  "sales_report_id",
+  "user",
+  "reportLabel",
+  "reportDate",
+]);
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
+console.log("propssssss", props);
 
+const sales_report_id = props.sales_report_id;
 const route = useRoute();
+
+const emit = defineEmits(["bread-added"]);
+
+const userStore = useUsersStore();
+const userData = computed(() => userStore.userData);
+console.log("producttable user data", userData.value);
+const historyLogUserID = userData.value?.data?.id || "0";
+console.log("user_id branch product table", historyLogUserID);
+const productionStore = useProductionStore();
+const productStore = useProductsStore();
+const productData = computed(() => productStore.products);
+const branchProductsStore = useBranchProductsStore();
+const branchProduct = computed(() => branchProductsStore.branchProducts);
+console.log("branchProduct", branchProduct);
 const branch_id = route.params.branch_id; // Assuming branch_id is passed as a route parameter
 const user_id = props.user.id;
 
-const productionStore = useProductionStore();
-const branchProductsStore = useBranchProductsStore();
+const searchUser = ref("");
 
-const dialog = ref(false);
 const searchQuery = ref("");
-const branchProduct = computed(() => branchProductsStore.branchProducts);
-console.log("branchProduct", branchProduct);
 
-const sales_report_id = props.sales_report_id;
-
-const addOtherProductReport = reactive({
-  sales_report_id: sales_report_id,
-  branch_id: branch_id,
-  user_id: user_id,
-  name: "",
-  product_id: "",
-  product_name: "",
-  price: 0,
-  beginnings: 0,
-  remaining: 0,
-  added_stocks: 0,
-  out: 0,
-  sold: 0,
-  total: 0,
-  sales: 0,
-  branches_id: route.params.branch_id,
+const isDropdownVisible = computed(() => {
+  return searchUser.value && employees.value.length > 0;
 });
 
-// Computed property to format sales as currency
-const formattedSales = computed(() => {
-  const salesValue =
-    parseInt(addOtherProductReport.sold || 0) *
-    parseFloat(addOtherProductReport.price || 0);
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-  }).format(salesValue);
-});
-// Watch for changes and update total
-watch(
-  () => [addOtherProductReport.added_stocks, addOtherProductReport.beginnings],
-  ([newProduction, beginnings]) => {
-    addOtherProductReport.total =
-      parseInt(newProduction || 0) + parseInt(beginnings || 0);
-  }
-);
-
-// Watch for changes to total, remaining, and out to calculate sold
-watch(
-  () => [
-    addOtherProductReport.total,
-    addOtherProductReport.remaining,
-    addOtherProductReport.out,
-  ],
-  ([totalQuantity, remaining, breadOut]) => {
-    addOtherProductReport.sold =
-      parseInt(totalQuantity || 0) -
-      (parseInt(remaining || 0) + parseInt(breadOut || 0));
-  }
-);
-
-// Watch for changes to sold or price to calculate sales
-watch(
-  () => [addOtherProductReport.sold, addOtherProductReport.price],
-  ([breadSold, price]) => {
-    addOtherProductReport.sales =
-      parseInt(breadSold || 0) * parseFloat(price || 0);
-  }
-);
-
-const openDialog = () => {
-  dialog.value = true;
-};
-
-const category = ref("Others"); // Add a ref for the category
+const category = ref("Bread"); // Add a ref for the category
 const search = async () => {
   console.log("branch_id.value:", branch_id);
   console.log("searchQuery.value:", searchQuery.value);
@@ -306,117 +255,168 @@ const search = async () => {
   }
 };
 
+const dialog = ref(false);
+const openDialog = () => {
+  dialog.value = true;
+};
+
 const autoFillProduct = (data) => {
   console.log("data", data);
-  addOtherProductReport.product_id = data.product.id;
-  addOtherProductReport.product_name = capitalizeFirstLetter(data.product.name);
-  addOtherProductReport.category = data.category;
-  addOtherProductReport.price = data.price;
+  addbreadProduction.product_id = data.product.id;
+  addbreadProduction.product_name = capitalizeFirstLetter(data.product.name);
+  addbreadProduction.category = data.category;
+  addbreadProduction.price = data.price;
   searchQuery.value = "";
 };
 
-const formatCurrency = (value) => {
+const addbreadProduction = reactive({
+  sales_report_id: sales_report_id,
+  branch_id: branch_id,
+  user_id: user_id,
+  name: "",
+  product_id: "",
+  product_name: "",
+  price: 0,
+  beginnings: 0,
+  remaining: 0,
+  new_production: 0,
+  bread_out: 0,
+  bread_sold: 0,
+  total: 0,
+  sales: 0,
+  branches_id: route.params.branch_id,
+});
+
+// Computed property to format sales as currency
+const formattedSales = computed(() => {
+  const salesValue =
+    parseInt(addbreadProduction.bread_sold || 0) *
+    parseFloat(addbreadProduction.price || 0);
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-};
+  }).format(salesValue);
+});
+// Watch for changes and update total
+watch(
+  () => [addbreadProduction.new_production, addbreadProduction.beginnings],
+  ([newProduction, beginnings]) => {
+    addbreadProduction.total =
+      parseInt(newProduction || 0) + parseInt(beginnings || 0);
+  }
+);
 
-// const handleSubmit = async () => {
-//   try {
-//     // Validate required fields
-//     if (
-//       !addOtherProductReport.product_name ||
-//       !addOtherProductReport.price ||
-//       !addOtherProductReport.product_id ||
-//       !addOtherProductReport.branch_id ||
-//       !addOtherProductReport.sales_report_id
-//     ) {
-//       $q.notify({
-//         type: "negative",
-//         message:
-//           "Product name, price, product ID, branch ID, and sales report ID are required.",
-//       });
-//       return;
-//     }
-//     // Prepare the request payload
-//     const payload = {
-//       user_id: addOtherProductReport.user_id,
-//       branch_id: addOtherProductReport.branch_id,
-//       sales_report_id: addOtherProductReport.sales_report_id,
-//       product_id: addOtherProductReport.product_id,
-//       product_name: addOtherProductReport.product_name,
-//       price: addOtherProductReport.price,
-//       beginnings: addOtherProductReport.beginnings,
-//       remaining: addOtherProductReport.remaining,
-//       added_stocks: addOtherProductReport.added_stocks,
-//       out: addOtherProductReport.out,
-//       sold: addOtherProductReport.sold,
-//       total: addOtherProductReport.total,
-//       sales: addOtherProductReport.sales,
-//     };
-//     console.log("payload", payload);
-//     await productionStore.addProduction("other", payload);
-//   } catch (error) {}
-// };
+// Watch for changes to total, remaining, and bread_out to calculate bread_sold
+watch(
+  () => [
+    addbreadProduction.total,
+    addbreadProduction.remaining,
+    addbreadProduction.bread_out,
+  ],
+  ([totalQuantity, remaining, breadOut]) => {
+    addbreadProduction.bread_sold =
+      parseInt(totalQuantity || 0) -
+      (parseInt(remaining || 0) + parseInt(breadOut || 0));
+  }
+);
+
+// Watch for changes to bread_sold or price to calculate sales
+watch(
+  () => [addbreadProduction.bread_sold, addbreadProduction.price],
+  ([breadSold, price]) => {
+    addbreadProduction.sales =
+      parseInt(breadSold || 0) * parseFloat(price || 0);
+  }
+);
 
 const handleSubmit = async () => {
-  if (!addOtherProductReport.product_id) {
-    Notify.create({
-      message: "Please select a product",
-      color: "negative",
-    });
-    return;
-  }
+  const originalData = `₱ ${addbreadProduction.price.toString()}`; // Convert to string
+  const updatedData = `₱ ${parseInt(addbreadProduction.price).toString()}`; // Convert to string after parsing
+  const user_id = historyLogUserID;
 
-  const payload = { ...addOtherProductReport };
+  const date = props.reportDate;
+  console.log("datesssss", date);
+  const label = props.reportLabel;
 
   try {
-    // Call store
-    const response = await productionStore.addProduction(
-      "other",
-      payload,
-      props.reportDate,
-      props.reportLabel.toUpperCase()
-    );
+    // Validate required fields
+    if (
+      !addbreadProduction.product_name ||
+      !addbreadProduction.price ||
+      !addbreadProduction.product_id ||
+      !addbreadProduction.branch_id ||
+      !addbreadProduction.sales_report_id
+    ) {
+      $q.notify({
+        type: "negative",
+        message:
+          "Product name, price, product ID, branch ID, and sales report ID are required.",
+      });
+      return;
+    }
+    // Prepare the request payload
+    const payload = {
+      user_id: addbreadProduction.user_id,
+      branch_id: addbreadProduction.branch_id,
+      sales_report_id: addbreadProduction.sales_report_id,
+      product_id: addbreadProduction.product_id,
+      product_name: addbreadProduction.product_name,
+      price: addbreadProduction.price,
+      beginnings: addbreadProduction.beginnings,
+      remaining: addbreadProduction.remaining,
+      new_production: addbreadProduction.new_production,
+      bread_out: addbreadProduction.bread_out,
+      bread_sold: addbreadProduction.bread_sold,
+      total: addbreadProduction.total,
+      sales: addbreadProduction.sales,
 
-    const newRow = response.data || response;
+      //for history log
+      report_id: addbreadProduction.sales_report_id,
+      name: addbreadProduction.product_name || "undefined",
+      original_data: originalData,
+      updated_data: updatedData,
+      updated_field: "bread",
+      designation: addbreadProduction.branch_id,
+      designation_type: "branch",
+      action: "added",
+      type_of_report: `Branch Production bread report`,
+      user_id,
+    };
 
-    // Emit back to selecta report
-    emit("other-added", {
-      success: true,
-      newRow: newRow,
-    });
+    console.log("payload", payload);
+    await productionStore.addProduction("bread", payload, date, label);
 
+    // SUCCESS: Notify parent to refresh
+    emit("bread-added");
+
+    // Optional: close dialog
     dialog.value = false;
 
-    // Reset the form
-    Object.assign(addOtherProductReport, {
-      user_id: 0,
-      branch_id: 0,
-      sales_report_id: 0,
-      product_id: 0,
+    // Reset form
+    Object.assign(addbreadProduction, {
+      product_id: "",
       product_name: "",
       price: 0,
       beginnings: 0,
       remaining: 0,
-      added_stocks: 0,
-      out: 0,
-      sold: 0,
+      new_production: 0,
+      bread_out: 0,
+      bread_sold: 0,
       total: 0,
       sales: 0,
     });
+
+    searchQuery.value = "";
   } catch (error) {
-    console.error("Add other product failed:", error);
+    console.error("Error adding bread production:", error);
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .bg-backgroud {
-  background: linear-gradient(to right, #607d8b, #d0eaf7);
+  background: linear-gradient(to right, #795548, #ffd7c9);
 }
 
 .custom-list {

@@ -191,54 +191,39 @@ import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { Notify } from "quasar";
 
 const { capitalizeFirstLetter, formatFullname, formatPrice } =
   typographyFormat();
 
-const props = defineProps(["sales_Reports", "sales_report_id", "user"]);
+const props = defineProps({
+  sales_Reports: { type: Array, default: () => [] },
+  sales_report_id: [String, Number],
+  user: Object,
+  reportLabel: String,
+  reportDate: String,
+});
+
+console.log("propsss..", props);
+
+const emit = defineEmits(["selecta-added"]);
+
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
-const sales_report_id = props.sales_report_id;
-const route = useRoute();
 
-const productionStore = useProductionStore();
-const productStore = useProductsStore();
-const productData = computed(() => productStore.products);
-const branchProductsStore = useBranchProductsStore();
-const branchProduct = computed(() => branchProductsStore.branchProducts);
-console.log("branchProduct", branchProduct);
+const route = useRoute();
 const branch_id = route.params.branch_id; // Assuming branch_id is passed as a route parameter
 const user_id = props.user.id;
 
-const searchQuery = ref("");
-
-const category = ref("Selecta"); // Add a ref for the category
-const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
-  if (searchQuery.value || category.value) {
-    await branchProductsStore.searchBranchProducts({
-      query: searchQuery.value,
-      branches_id: branch_id,
-      category: category.value,
-    });
-  }
-};
+const productionStore = useProductionStore();
+const branchProductsStore = useBranchProductsStore();
 
 const dialog = ref(false);
-const openDialog = () => {
-  dialog.value = true;
-};
+const searchQuery = ref("");
+const branchProduct = computed(() => branchProductsStore.branchProducts);
+console.log("branchProduct", branchProduct);
 
-const autoFillProduct = (data) => {
-  console.log("data", data);
-  addSelectaReport.product_id = data.product.id;
-  addSelectaReport.product_name = capitalizeFirstLetter(data.product.name);
-  addSelectaReport.category = data.category;
-  addSelectaReport.price = data.price;
-  searchQuery.value = "";
-};
+const sales_report_id = props.sales_report_id;
 
 const addSelectaReport = reactive({
   sales_report_id: sales_report_id,
@@ -255,7 +240,6 @@ const addSelectaReport = reactive({
   sold: 0,
   total: 0,
   sales: 0,
-  branches_id: route.params.branch_id,
 });
 
 // Computed property to format sales as currency
@@ -269,6 +253,7 @@ const formattedSales = computed(() => {
     minimumFractionDigits: 2,
   }).format(salesValue);
 });
+
 // Watch for changes and update total
 watch(
   () => [addSelectaReport.added_stocks, addSelectaReport.beginnings],
@@ -300,42 +285,82 @@ watch(
   }
 );
 
+const openDialog = () => {
+  dialog.value = true;
+};
+
+const category = ref("Selecta"); // Add a ref for the category
+const search = async () => {
+  console.log("branch_id.value:", branch_id);
+  console.log("searchQuery.value:", searchQuery.value);
+  console.log("category.value:", category.value);
+  if (searchQuery.value || category.value) {
+    await branchProductsStore.searchBranchProducts({
+      query: searchQuery.value,
+      branches_id: branch_id,
+      category: category.value,
+    });
+  }
+};
+
+const autoFillProduct = (data) => {
+  console.log("data", data);
+  addSelectaReport.product_id = data.product.id;
+  addSelectaReport.product_name = capitalizeFirstLetter(data.product.name);
+  addSelectaReport.category = data.category;
+  addSelectaReport.price = data.price;
+  searchQuery.value = "";
+};
+
 const handleSubmit = async () => {
+  if (!addSelectaReport.product_id) {
+    Notify.create({
+      message: "Please select a product",
+      color: "negative",
+    });
+    return;
+  }
+
+  const payload = { ...addSelectaReport };
+
   try {
-    // Validate required fields
-    if (
-      !addSelectaReport.product_name ||
-      !addSelectaReport.price ||
-      !addSelectaReport.product_id ||
-      !addSelectaReport.branch_id ||
-      !addSelectaReport.sales_report_id
-    ) {
-      $q.notify({
-        type: "negative",
-        message:
-          "Product name, price, product ID, branch ID, and sales report ID are required.",
-      });
-      return;
-    }
-    // Prepare the request payload
-    const payload = {
-      user_id: addSelectaReport.user_id,
-      branch_id: addSelectaReport.branch_id,
-      sales_report_id: addSelectaReport.sales_report_id,
-      product_id: addSelectaReport.product_id,
-      product_name: addSelectaReport.product_name,
-      price: addSelectaReport.price,
-      beginnings: addSelectaReport.beginnings,
-      remaining: addSelectaReport.remaining,
-      added_stocks: addSelectaReport.added_stocks,
-      out: addSelectaReport.out,
-      sold: addSelectaReport.sold,
-      total: addSelectaReport.total,
-      sales: addSelectaReport.sales,
-    };
-    console.log("payload", payload);
-    await productionStore.addProduction("selecta", payload);
-  } catch (error) {}
+    // Call store
+    const response = await productionStore.addProduction(
+      "selecta",
+      payload,
+      props.reportDate,
+      props.reportLabel.toUpperCase()
+    );
+
+    const newRow = response.data || response;
+
+    // Emit back to Selecta Report
+    emit("selecta-added", {
+      success: true,
+      newRow: newRow,
+    });
+
+    dialog.value = false;
+
+    // Reset the form
+    Object.assign(addSelectaReport, {
+      user_id: 0,
+      branch_id: 0,
+      sales_report_id: 0,
+      product_id: 0,
+      product_name: "",
+      price: 0,
+      beginnings: 0,
+      remaining: 0,
+      added_stocks: 0,
+      out: 0,
+      sold: 0,
+      total: 0,
+      sales: 0,
+    });
+  } catch (error) {
+    console.error("Add selecta failed:", error);
+  }
 };
 </script>
 

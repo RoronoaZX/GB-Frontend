@@ -193,89 +193,40 @@
 <script setup>
 import { useBranchProductsStore } from "src/stores/branch-product";
 import { useProductionStore } from "src/stores/production";
-import { useProductsStore } from "src/stores/product";
 import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useUsersStore } from "src/stores/user";
-import BreadReport from "./BreadReport.vue";
-
 import { typographyFormat } from "src/composables/typography/typography-format";
 
 const { capitalizeFirstLetter, formatFullname } = typographyFormat();
 
-const props = defineProps([
-  "sales_Reports",
-  "sales_report_id",
-  "user",
-  "reportLabel",
-  "reportDate",
-]);
-console.log("props.sales_Reports", props.sales_Reports);
-console.log("props.user", props.user);
-console.log("propssssss", props);
-
-const sales_report_id = props.sales_report_id;
-const route = useRoute();
+const props = defineProps({
+  sales_Reports: { type: Array, default: () => [] },
+  sales_report_id: [String, Number],
+  user: Object,
+  reportLabel: String,
+  reportDate: String,
+});
 
 const emit = defineEmits(["bread-added"]);
 
-const userStore = useUsersStore();
-const userData = computed(() => userStore.userData);
-console.log("producttable user data", userData.value);
-const historyLogUserID = userData.value?.data?.id || "0";
-console.log("user_id branch product table", historyLogUserID);
+const route = useRoute();
+const branch_id = route.params.branch_id;
+const user_id = props.user?.id;
+
 const productionStore = useProductionStore();
-const productStore = useProductsStore();
-const productData = computed(() => productStore.products);
 const branchProductsStore = useBranchProductsStore();
-const branchProduct = computed(() => branchProductsStore.branchProducts);
-console.log("branchProduct", branchProduct);
-const branch_id = route.params.branch_id; // Assuming branch_id is passed as a route parameter
-const user_id = props.user.id;
-
-const searchUser = ref("");
-
-const searchQuery = ref("");
-
-const isDropdownVisible = computed(() => {
-  return searchUser.value && employees.value.length > 0;
-});
-
-const category = ref("Bread"); // Add a ref for the category
-const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
-  if (searchQuery.value || category.value) {
-    await branchProductsStore.searchBranchProducts({
-      query: searchQuery.value,
-      branches_id: branch_id,
-      category: category.value,
-    });
-  }
-};
 
 const dialog = ref(false);
-const openDialog = () => {
-  dialog.value = true;
-};
-
-const autoFillProduct = (data) => {
-  console.log("data", data);
-  addbreadProduction.product_id = data.product.id;
-  addbreadProduction.product_name = capitalizeFirstLetter(data.product.name);
-  addbreadProduction.category = data.category;
-  addbreadProduction.price = data.price;
-  searchQuery.value = "";
-};
+const searchQuery = ref("");
+const branchProduct = computed(() => branchProductsStore.branchProducts);
 
 const addbreadProduction = reactive({
-  sales_report_id: sales_report_id,
+  sales_report_id: props.sales_report_id,
   branch_id: branch_id,
   user_id: user_id,
-  name: "",
   product_id: "",
   product_name: "",
+  category: "",
   price: 0,
   beginnings: 0,
   remaining: 0,
@@ -284,118 +235,148 @@ const addbreadProduction = reactive({
   bread_sold: 0,
   total: 0,
   sales: 0,
-  branches_id: route.params.branch_id,
 });
 
-// Computed property to format sales as currency
 const formattedSales = computed(() => {
-  const salesValue =
-    parseInt(addbreadProduction.bread_sold || 0) *
-    parseFloat(addbreadProduction.price || 0);
-  return new Intl.NumberFormat("en-US", {
+  const sold = Number(addbreadProduction.bread_sold || 0);
+  const price = Number(addbreadProduction.price || 0);
+  return new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
-  }).format(salesValue);
+  }).format(sold * price);
 });
-// Watch for changes and update total
+
+// Auto-calculations (your existing watches remain)
 watch(
   () => [addbreadProduction.new_production, addbreadProduction.beginnings],
-  ([newProduction, beginnings]) => {
-    addbreadProduction.total =
-      parseInt(newProduction || 0) + parseInt(beginnings || 0);
+  ([np, bg]) => {
+    addbreadProduction.total = Number(np || 0) + Number(bg || 0);
   }
 );
 
-// Watch for changes to total, remaining, and bread_out to calculate bread_sold
 watch(
   () => [
     addbreadProduction.total,
     addbreadProduction.remaining,
     addbreadProduction.bread_out,
   ],
-  ([totalQuantity, remaining, breadOut]) => {
+  ([total, rem, out]) => {
     addbreadProduction.bread_sold =
-      parseInt(totalQuantity || 0) -
-      (parseInt(remaining || 0) + parseInt(breadOut || 0));
+      Number(total || 0) - (Number(rem || 0) + Number(out || 0));
   }
 );
 
-// Watch for changes to bread_sold or price to calculate sales
 watch(
   () => [addbreadProduction.bread_sold, addbreadProduction.price],
-  ([breadSold, price]) => {
-    addbreadProduction.sales =
-      parseInt(breadSold || 0) * parseFloat(price || 0);
+  ([sold, price]) => {
+    addbreadProduction.sales = Number(sold || 0) * Number(price || 0);
   }
 );
 
-const handleSubmit = async () => {
-  const originalData = `₱ ${addbreadProduction.price.toString()}`; // Convert to string
-  const updatedData = `₱ ${parseInt(addbreadProduction.price).toString()}`; // Convert to string after parsing
-  const user_id = historyLogUserID;
+const openDialog = () => {
+  dialog.value = true;
+};
 
-  const date = props.reportDate;
-  const label = props.reportLabel;
+const search = () => {
+  if (searchQuery.value.trim()) {
+    branchProductsStore.searchBranchProducts({
+      query: searchQuery.value,
+      branches_id: branch_id,
+      category: "Bread",
+    });
+  }
+};
+
+const autoFillProduct = (product) => {
+  addbreadProduction.product_id = product.product.id;
+  addbreadProduction.product_name = capitalizeFirstLetter(product.product.name);
+  addbreadProduction.category = product.category;
+  addbreadProduction.price = product.price;
+  searchQuery.value = "";
+};
+
+// const handleSubmit = async () => {
+//   if (!addbreadProduction.product_id || !addbreadProduction.product_name) {
+//     // notify error
+//     return;
+//   }
+
+//   const payload = { ...addbreadProduction };
+
+//   try {
+//     const response = await productionStore.addProduction(
+//       "bread",
+//       payload,
+//       props.reportDate,
+//       props.reportLabel.toUpperCase() // 'AM' or 'PM'
+//     );
+
+//     // Emit success with new row (if returned)
+//     emit("bread-added", {
+//       success: true,
+//       newRow: response?.data || null,
+//       date: props.reportDate,
+//       shift: props.reportLabel.toUpperCase(),
+//     });
+
+//     dialog.value = false;
+
+//     // Reset form
+//     Object.assign(addbreadProduction, {
+//       product_id: "",
+//       product_name: "",
+//       category: "",
+//       price: 0,
+//       beginnings: 0,
+//       remaining: 0,
+//       new_production: 0,
+//       bread_out: 0,
+//       bread_sold: 0,
+//       total: 0,
+//       sales: 0,
+//     });
+//     searchQuery.value = "";
+//   } catch (err) {
+//     console.error("Add bread failed:", err);
+//     // notify error
+//   }
+// };
+
+const handleSubmit = async () => {
+  if (!addbreadProduction.product_id) {
+    Notify.create({ message: "Please select a product", color: "negative" });
+    return;
+  }
+
+  const payload = { ...addbreadProduction };
 
   try {
-    // Validate required fields
-    if (
-      !addbreadProduction.product_name ||
-      !addbreadProduction.price ||
-      !addbreadProduction.product_id ||
-      !addbreadProduction.branch_id ||
-      !addbreadProduction.sales_report_id
-    ) {
-      $q.notify({
-        type: "negative",
-        message:
-          "Product name, price, product ID, branch ID, and sales report ID are required.",
-      });
-      return;
-    }
-    // Prepare the request payload
-    const payload = {
-      user_id: addbreadProduction.user_id,
-      branch_id: addbreadProduction.branch_id,
-      sales_report_id: addbreadProduction.sales_report_id,
-      product_id: addbreadProduction.product_id,
-      product_name: addbreadProduction.product_name,
-      price: addbreadProduction.price,
-      beginnings: addbreadProduction.beginnings,
-      remaining: addbreadProduction.remaining,
-      new_production: addbreadProduction.new_production,
-      bread_out: addbreadProduction.bread_out,
-      bread_sold: addbreadProduction.bread_sold,
-      total: addbreadProduction.total,
-      sales: addbreadProduction.sales,
+    // Call store
+    const response = await productionStore.addProduction(
+      "bread",
+      payload,
+      props.reportDate,
+      props.reportLabel.toUpperCase()
+    );
 
-      //for history log
-      report_id: addbreadProduction.sales_report_id,
-      name: addbreadProduction.product_name || "undefined",
-      original_data: originalData,
-      updated_data: updatedData,
-      updated_field: "bread",
-      designation: addbreadProduction.branch_id,
-      designation_type: "branch",
-      action: "added",
-      type_of_report: `Branch Production bread report`,
-      user_id,
-    };
+    // Extract the new data returned from the server
+    // (Ensure your backend returns the created object including the 'bread' relationship)
+    const newRow = response.data || response;
 
-    console.log("payload", payload);
-    await productionStore.addProduction("bread", payload, date, label);
+    // Emit back to BreadReport.vue
+    emit("bread-added", {
+      success: true,
+      newRow: newRow,
+    });
 
-    // SUCCESS: Notify parent to refresh
-    emit("bread-added");
-
-    // Optional: close dialog
     dialog.value = false;
 
-    // Reset form
-    Object.assign(addedBreadProduction, {
+    // Reset the form
+    Object.assign(addbreadProduction, {
       product_id: "",
       product_name: "",
+      category: "",
       price: 0,
       beginnings: 0,
       remaining: 0,
@@ -405,10 +386,8 @@ const handleSubmit = async () => {
       total: 0,
       sales: 0,
     });
-
-    searchQuery.value = "";
-  } catch (error) {
-    console.error("Error adding bread production:", error);
+  } catch (err) {
+    console.error("Add bread failed:", err);
   }
 };
 </script>

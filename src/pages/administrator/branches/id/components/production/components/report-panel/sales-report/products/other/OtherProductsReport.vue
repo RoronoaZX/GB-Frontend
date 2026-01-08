@@ -40,6 +40,9 @@
               :sales_Reports="props.reports"
               :sales_report_id="sales_report_id"
               :user="props.user"
+              :reportLabel="props.reportLabel"
+              :reportDate="props.reportDate"
+              :reportLength="props.reportLength"
             />
           </div>
         </q-card-section>
@@ -202,6 +205,8 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const route = useRoute();
 
+const emit = defineEmits(["summary-updated"]);
+
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const productionStore = useProductionStore();
@@ -222,13 +227,16 @@ const userReady = computed(() => !!userId.value);
 const branchId = route.params.branch_id;
 
 const dialog = ref(false);
+
 const maximizedToggle = ref(true);
+const reportLength = computed(() => filteredRows.value.length);
+
 const props = defineProps([
   "reports",
   "sales_report_id",
   "user",
   "reportLabel",
-  "reportDates",
+  "reportDate",
 ]);
 
 console.log("props iDsssss", props);
@@ -236,12 +244,6 @@ console.log("props iDsssss", props);
 const filter = ref("");
 const pagination = ref({
   rowsPerPage: 0,
-});
-
-const filteredRows = computed(() => {
-  // Assuming `breads` is an array in `reports`
-  console.log("Filtered rows:", props.reports || []);
-  return props.reports || [];
 });
 
 const buildHistoryMeta = (row, field, originalVal, newVal) => {
@@ -502,6 +504,23 @@ const otherProductsReportColumn = [
     format: (val) => `${formatPrice(val)}`,
   },
 ];
+
+const filteredRows = computed(() => {
+  if (!filter.value || !filter.value.trim()) {
+    // If there's no filter, return all rows
+    return props.reports || [];
+  }
+
+  const search = filter.value.trim().toLowerCase();
+  return (props.reports || []).filter((row) => {
+    // Perform filtering on relevant fields
+    return (
+      row.other_products.name.toLowerCase().includes(search) || // Other Products name
+      row.price.toString().includes(search) || // Price
+      row.sales.toString().includes(search) // Sales
+    );
+  });
+});
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {

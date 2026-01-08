@@ -197,53 +197,39 @@ import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { Notify } from "quasar";
 
 const { capitalizeFirstLetter, formatFullname } = typographyFormat();
 
-const props = defineProps(["sales_Reports", "sales_report_id", "user"]);
+const props = defineProps({
+  sales_Reports: { type: Array, default: () => [] },
+  sales_report_id: [String, Number],
+  user: Object,
+  reportLabel: String,
+  reportDate: String,
+});
+
+console.log("propsss..", props);
+
+const emit = defineEmits(["softdrinks-added"]);
+
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
-const sales_report_id = props.sales_report_id;
-const route = useRoute();
 
-const productionStore = useProductionStore();
-const productStore = useProductsStore();
-const productData = computed(() => productStore.products);
-const branchProductsStore = useBranchProductsStore();
-const branchProduct = computed(() => branchProductsStore.branchProducts);
-console.log("branchProduct", branchProduct);
+const route = useRoute();
 const branch_id = route.params.branch_id; // Assuming branch_id is passed as a route parameter
 const user_id = props.user.id;
 
-const searchQuery = ref("");
-
-const category = ref("Softdrinks"); // Add a ref for the category
-const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
-  if (searchQuery.value || category.value) {
-    await branchProductsStore.searchBranchProducts({
-      query: searchQuery.value,
-      branches_id: branch_id,
-      category: category.value,
-    });
-  }
-};
+const productionStore = useProductionStore();
+const branchProductsStore = useBranchProductsStore();
 
 const dialog = ref(false);
-const openDialog = () => {
-  dialog.value = true;
-};
+const searchQuery = ref("");
+const branchProduct = computed(() => branchProductsStore.branchProducts);
 
-const autoFillProduct = (data) => {
-  console.log("data", data);
-  addSoftdrinksReport.product_id = data.product.id;
-  addSoftdrinksReport.product_name = capitalizeFirstLetter(data.product.name);
-  addSoftdrinksReport.category = data.category;
-  addSoftdrinksReport.price = data.price;
-  searchQuery.value = "";
-};
+const sales_report_id = props.sales_report_id;
+
+console.log("branchProduct", branchProduct);
 
 const addSoftdrinksReport = reactive({
   sales_report_id: sales_report_id,
@@ -306,42 +292,120 @@ watch(
   }
 );
 
+const openDialog = () => {
+  dialog.value = true;
+};
+
+const category = ref("Softdrinks"); // Add a ref for the category
+const search = async () => {
+  console.log("branch_id.value:", branch_id);
+  console.log("searchQuery.value:", searchQuery.value);
+  console.log("category.value:", category.value);
+  if (searchQuery.value || category.value) {
+    await branchProductsStore.searchBranchProducts({
+      query: searchQuery.value,
+      branches_id: branch_id,
+      category: category.value,
+    });
+  }
+};
+
+const autoFillProduct = (data) => {
+  console.log("data", data);
+  addSoftdrinksReport.product_id = data.product.id;
+  addSoftdrinksReport.product_name = capitalizeFirstLetter(data.product.name);
+  addSoftdrinksReport.category = data.category;
+  addSoftdrinksReport.price = data.price;
+  searchQuery.value = "";
+};
+
+// const handleSubmit = async () => {
+//   try {
+//     // Validate required fields
+//     if (
+//       !addSoftdrinksReport.product_name ||
+//       !addSoftdrinksReport.price ||
+//       !addSoftdrinksReport.product_id ||
+//       !addSoftdrinksReport.branch_id ||
+//       !addSoftdrinksReport.sales_report_id
+//     ) {
+//       $q.notify({
+//         type: "negative",
+//         message:
+//           "Product name, price, product ID, branch ID, and sales report ID are required.",
+//       });
+//       return;
+//     }
+//     // Prepare the request payload
+//     const payload = {
+//       user_id: addSoftdrinksReport.user_id,
+//       branch_id: addSoftdrinksReport.branch_id,
+//       sales_report_id: addSoftdrinksReport.sales_report_id,
+//       product_id: addSoftdrinksReport.product_id,
+//       product_name: addSoftdrinksReport.product_name,
+//       price: addSoftdrinksReport.price,
+//       beginnings: addSoftdrinksReport.beginnings,
+//       remaining: addSoftdrinksReport.remaining,
+//       added_stocks: addSoftdrinksReport.added_stocks,
+//       out: addSoftdrinksReport.out,
+//       sold: addSoftdrinksReport.sold,
+//       total: addSoftdrinksReport.total,
+//       sales: addSoftdrinksReport.sales,
+//     };
+//     console.log("payload", payload);
+//     await productionStore.addProduction("softdrinks", payload);
+//   } catch (error) {}
+// };
+
 const handleSubmit = async () => {
+  if (!addSoftdrinksReport.product_id) {
+    Notify.create({
+      message: "Please select a product",
+      color: "negative",
+    });
+    return;
+  }
+
+  const payload = { ...addSoftdrinksReport };
+
   try {
-    // Validate required fields
-    if (
-      !addSoftdrinksReport.product_name ||
-      !addSoftdrinksReport.price ||
-      !addSoftdrinksReport.product_id ||
-      !addSoftdrinksReport.branch_id ||
-      !addSoftdrinksReport.sales_report_id
-    ) {
-      $q.notify({
-        type: "negative",
-        message:
-          "Product name, price, product ID, branch ID, and sales report ID are required.",
-      });
-      return;
-    }
-    // Prepare the request payload
-    const payload = {
-      user_id: addSoftdrinksReport.user_id,
-      branch_id: addSoftdrinksReport.branch_id,
-      sales_report_id: addSoftdrinksReport.sales_report_id,
-      product_id: addSoftdrinksReport.product_id,
-      product_name: addSoftdrinksReport.product_name,
-      price: addSoftdrinksReport.price,
-      beginnings: addSoftdrinksReport.beginnings,
-      remaining: addSoftdrinksReport.remaining,
-      added_stocks: addSoftdrinksReport.added_stocks,
-      out: addSoftdrinksReport.out,
-      sold: addSoftdrinksReport.sold,
-      total: addSoftdrinksReport.total,
-      sales: addSoftdrinksReport.sales,
-    };
-    console.log("payload", payload);
-    await productionStore.addProduction("softdrinks", payload);
-  } catch (error) {}
+    // Call Store
+    const response = await productionStore.addProduction(
+      "softdrinks",
+      payload,
+      props.reportDate,
+      props.reportLabel.toUpperCase()
+    );
+
+    const newRow = response.data || response;
+
+    // Emit back to
+    emit("softdrinks-added", {
+      success: true,
+      newRow: newRow,
+    });
+
+    dialog.value = false;
+
+    // Reset the form
+    Object.assign(addSoftdrinksReport, {
+      user_id: 0,
+      branch_id: 0,
+      sales_report_id: 0,
+      product_id: 0,
+      product_name: "",
+      price: 0,
+      beginnings: 0,
+      remaining: 0,
+      added_stocks: 0,
+      out: 0,
+      sold: 0,
+      total: 0,
+      sales: 0,
+    });
+  } catch (error) {
+    console.log("Add Softdrinks Error:", error);
+  }
 };
 </script>
 

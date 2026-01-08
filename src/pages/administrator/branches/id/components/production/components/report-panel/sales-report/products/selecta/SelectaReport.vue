@@ -39,6 +39,9 @@
             :sales_Reports="props.reports"
             :sales_report_id="sales_report_id"
             :user="props.user"
+            :reportLabel="props.reportLabel"
+            :reportDate="props.reportDate"
+            :reportLength="reportLength"
           />
         </div>
       </q-card-section>
@@ -215,6 +218,7 @@ const userReady = computed(() => !!userId.value);
 const branchId = route.params.branch_id;
 
 const dialog = ref(false);
+
 const maximizedToggle = ref(true);
 const reportLength = computed(() => filteredRows.value.length);
 
@@ -496,17 +500,28 @@ const selectaReportColumn = [
 
 // Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {
-  // Assuming `breads` is an array in `reports`
-  console.log("Filtered rows:", props.reports || []);
-  return props.reports || [];
+  if (!filter.value || !filter.value.trim()) {
+    // If there's no filter, return all rows
+    return props.reports || [];
+  }
+
+  const search = filter.value.trim().toLowerCase();
+  return (props.reports || []).filter((row) => {
+    // Perform filtering on relevant fields
+    return (
+      row.selecta.name.toLowerCase().includes(search) || // Selecta name
+      row.price.toString().includes(search) || // Price
+      row.sales.toString().includes(search) // Sales
+    );
+  });
 });
 
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
-    const beginnings = `${row.beginnings}` || 0;
-    const addedStocks = `${row.added_stocks}` || 0;
-    const selectaOut = `${row.out}` || 0;
-    const remaining = `${row.remaining}` || 0;
+    const beginnings = Number(row.beginnings) || 0;
+    const addedStocks = Number(row.added_stocks) || 0;
+    const selectaOut = Number(row.out) || 0;
+    const remaining = Number(row.remaining) || 0;
 
     const totalSelecta = parseInt(beginnings) + parseInt(addedStocks);
     const totalSelectaDifference = parseInt(remaining) + parseInt(selectaOut);

@@ -39,9 +39,6 @@
             :sales_Reports="props.reports"
             :sales_report_id="sales_report_id"
             :user="props.user"
-            :reportLabel="props.reportLabel"
-            :reportDate="props.reportDate"
-            :reportLength="reportLength"
           />
         </div>
       </q-card-section>
@@ -207,12 +204,12 @@ const productionStore = useProductionStore();
 
 const userStore = useUsersStore();
 
-const overAmount = ref(0);
-const chargesAmount = ref(0);
-
 const userId = computed(() => {
   return userStore.userData?.data?.id ?? null;
 });
+
+const overAmount = ref(0);
+const chargesAmount = ref(0);
 
 const userReady = computed(() => !!userId.value);
 
@@ -498,19 +495,8 @@ const breadReportColumns = [
 // Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`
-  if (!filter.value || !filter.value.trim()) {
-    return props.reports || [];
-  }
-
-  const search = filter.value.trim().toLowerCase();
-  return (props.reports || []).filter((row) => {
-    // Perform filtering on relevant fileds
-    return (
-      row.softdrinks.name.toLowerCase().includes(search) || // Softdrinks
-      row.price.toString().includes(search) || // Price
-      row.sales.toString().includes(search)
-    );
-  });
+  console.log("Filtered rows:", props.reports || []);
+  return props.reports || [];
 });
 
 const overallTotal = computed(() => {
