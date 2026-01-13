@@ -10,7 +10,17 @@
         </q-item-section>
         <q-item-section>
           <q-item-label class="text-overline" align="center"
+            >Price</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
             >Beginnigs</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
+            >New Prod</q-item-label
           >
         </q-item-section>
         <q-item-section>
@@ -23,19 +33,15 @@
             >Bread Out</q-item-label
           >
         </q-item-section>
-        <q-item-section>
+        <!-- <q-item-section>
           <q-item-label class="text-overline" align="center">Sold</q-item-label>
         </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-overline" align="center"
-            >Price</q-item-label
-          >
-        </q-item-section>
+
         <q-item-section>
           <q-item-label class="text-overline" align="center"
             >Sales</q-item-label
           >
-        </q-item-section>
+        </q-item-section> -->
         <q-item-section side>
           <q-item-label>
             <span>Action</span>
@@ -55,7 +61,21 @@
           <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
-                {{ bread.total }}
+                {{ formatCurrency(bread.price) }}
+              </span>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-caption" align="center">
+              <span>
+                {{ bread.beginnings }}
+              </span>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-caption" align="center">
+              <span>
+                {{ bread.new_production }}
               </span>
             </q-item-label>
           </q-item-section>
@@ -71,27 +91,21 @@
               <span> {{ bread.bread_out }} </span>
             </q-item-label>
           </q-item-section>
-          <q-item-section>
+          <!-- <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
                 {{ bread.bread_sold }}
               </span>
             </q-item-label>
           </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-caption" align="center">
-              <span>
-                {{ formatCurrency(bread.price) }}
-              </span>
-            </q-item-label>
-          </q-item-section>
+
           <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
                 {{ formatCurrency(bread.sales) }}
               </span>
             </q-item-label>
-          </q-item-section>
+          </q-item-section> -->
           <q-item-section side>
             <q-btn
               color="red"
@@ -190,6 +204,8 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 
 const salesReportsStore = useSalesReportsStore();
 const breadReports = computed(() => salesReportsStore.breadReports);
+
+console.log("Bread Reportssss:", breadReports.value);
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

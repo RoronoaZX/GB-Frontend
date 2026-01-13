@@ -107,8 +107,6 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
     removeEmployeeCreditReport(index) {
       this.employeeCreditReports.splice(index, 1);
-      this.updateExpensesTotalAmount();
-      this.calculateCharges(this.denominationTotal);
       // this.updateEmployeeCreditReports();
     },
     removeWithReceiptExpenses(index) {
@@ -263,20 +261,12 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.cakeTotalAmount -
         this.creditExpensesTotal;
       console.log("Total Sales Amount:", totalSalesAmount);
-
-      const adjustedTotalSales =
-        totalSalesAmount +
-        this.breadNegativeTotal +
-        this.selectaNegativeTotal +
-        this.softdrinksNegativeTotal +
-        this.otherProductsNegativeTotal;
-
-      if (rawTotalDenomination < adjustedTotalSales) {
-        this.charges = adjustedTotalSales - rawTotalDenomination;
+      if (rawTotalDenomination < totalSalesAmount) {
+        this.charges = totalSalesAmount - rawTotalDenomination;
         this.overTotal = 0;
       } else {
         this.charges = 0;
-        this.overTotal = rawTotalDenomination - adjustedTotalSales;
+        this.overTotal = rawTotalDenomination - totalSalesAmount;
       }
       console.log("Chargessss:", this.charges);
       console.log("Charges total:", this.overTotal);
@@ -469,129 +459,30 @@ export const useSalesReportsStore = defineStore("salesReports", {
   },
 
   getters: {
-    // breadTotalAmount: (state) => {
-    //   return state.breadReports.reduce(
-    //     (total, report) => total + report.sales,
-    //     0
-    //   );
-    // },
     breadTotalAmount: (state) => {
-      return state.breadReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Only positive sales contribute to total_sales
-        return sales > 0 ? total + sales : total;
-      }, 0);
-    },
-
-    breadNegativeTotal: (state) => {
-      return state.breadReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Convert negative sales into positive charge amount
-        return sales < 0 ? total + Math.abs(sales) : total;
-      }, 0);
-    },
-
-    negativeBread: (state) => {
-      return state.breadReports.filter(
-        (report) => Number(report.sales || 0) < 0
+      return state.breadReports.reduce(
+        (total, report) => total + report.sales,
+        0
       );
     },
-
-    // selectaTotalAmount: (state) => {
-    //   return state.selectaReports.reduce(
-    //     (total, report) => total + report.sales,
-    //     0
-    //   );
-    // },
-
     selectaTotalAmount: (state) => {
-      return state.selectaReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Only positive sales contribute to total_sales
-        return sales > 0 ? total + sales : total;
-      }, 0);
-    },
-
-    selectaNegativeTotal: (state) => {
-      return state.selectaReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Convert negative sales into positive charge amount
-        return sales < 0 ? total + Math.abs(sales) : total;
-      }, 0);
-    },
-
-    negativeSelecta: (state) => {
-      return state.selectaReports.filter(
-        (report) => Number(report.sales || 0) < 0
+      return state.selectaReports.reduce(
+        (total, report) => total + report.sales,
+        0
       );
     },
-
-    // softdrinksTotalAmount: (state) => {
-    //   return state.softdrinksReports.reduce(
-    //     (total, report) => total + report.sales,
-    //     0
-    //   );
-    // },
-
     softdrinksTotalAmount: (state) => {
-      return state.softdrinksReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Only positive sales contribute to total_sales
-        return sales > 0 ? total + sales : total;
-      }, 0);
-    },
-
-    softdrinksNegativeTotal: (state) => {
-      return state.softdrinksReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Convert negative sales into positive charge amount
-        return sales < 0 ? total + Math.abs(sales) : total;
-      }, 0);
-    },
-
-    negativeSoftdrinks: (state) => {
-      return state.softdrinksReports.filter(
-        (report) => Number(report.sales || 0) < 0
+      return state.softdrinksReports.reduce(
+        (total, report) => total + report.sales,
+        0
       );
     },
-
-    // otherProductsTotalAmount: (state) => {
-    //   return state.otherProductsReports.reduce(
-    //     (total, report) => total + report.sales,
-    //     0
-    //   );
-    // },
-
     otherProductsTotalAmount: (state) => {
-      return state.otherProductsReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Only positive sales contribute to total_sales
-        return sales > 0 ? total + sales : total;
-      }, 0);
-    },
-
-    otherProductsNegativeTotal: (state) => {
-      return state.otherProductsReports.reduce((total, report) => {
-        const sales = Number(report.sales || 0);
-
-        // Convert negative sales into positive charge amount
-        return sales < 0 ? total + Math.abs(sales) : total;
-      }, 0);
-    },
-
-    negativeOtherProducts: (state) => {
-      return state.otherProductsReports.filter(
-        (report) => Number(report.sales || 0) < 0
+      return state.otherProductsReports.reduce(
+        (total, report) => total + report.sales,
+        0
       );
     },
-
     cakeTotalAmount: (state) => {
       return state.cakeReports
         .filter((report) => report.sales_status === "sold")

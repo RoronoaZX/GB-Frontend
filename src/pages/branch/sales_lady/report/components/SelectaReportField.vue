@@ -8,9 +8,22 @@
             >Product Name</q-item-label
           >
         </q-item-section>
+
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
+            >Price</q-item-label
+          >
+        </q-item-section>
+
         <q-item-section>
           <q-item-label class="text-overline" align="center"
             >Beginnigs</q-item-label
+          >
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
+            >Added Stocks</q-item-label
           >
         </q-item-section>
         <q-item-section>
@@ -23,19 +36,15 @@
             >Selecta Out</q-item-label
           >
         </q-item-section>
-        <q-item-section>
+        <!-- <q-item-section>
           <q-item-label class="text-overline" align="center">Sold</q-item-label>
         </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-overline" align="center"
-            >Price</q-item-label
-          >
-        </q-item-section>
+
         <q-item-section>
           <q-item-label class="text-overline" align="center"
             >Sales</q-item-label
           >
-        </q-item-section>
+        </q-item-section> -->
         <q-item-section side>
           <q-item-label>
             <span>Action</span>
@@ -55,7 +64,21 @@
           <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
+                {{ formatCurrency(selecta.price) }}
+              </span>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-caption" align="center">
+              <span>
                 {{ selecta.beginnings }}
+              </span>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-caption" align="center">
+              <span>
+                {{ selecta.added_stocks }}
               </span>
             </q-item-label>
           </q-item-section>
@@ -80,27 +103,21 @@
               </span>
             </q-item-label>
           </q-item-section>
-          <q-item-section>
+          <!-- <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
                 {{ selecta.sold }}
               </span>
             </q-item-label>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-caption" align="center">
-              <span>
-                {{ formatCurrency(selecta.price) }}
-              </span>
-            </q-item-label>
-          </q-item-section>
-          <q-item-section>
+          </q-item-section> -->
+
+          <!-- <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
                 {{ formatCurrency(selecta.sales) }}
               </span>
             </q-item-label>
-          </q-item-section>
+          </q-item-section> -->
           <q-item-section align="center" side>
             <q-item-label>
               <q-btn
@@ -116,78 +133,7 @@
         </q-item>
       </div>
     </q-list>
-
-    <!-- <q-field outlined dense readonly>
-      <div class="q-py-sm">
-        <div class="q-gutter-md">
-          <div>
-            <q-item v-for="(selecta, index) in selectaReports" :key="index">
-              <q-item-section class="q-ma-sm text-subtitle2" side>
-                {{ selecta.name }}
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Beginnigs</q-item-label>
-                <q-item-label caption>
-                  {{ selecta.total }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Remainnings</q-item-label>
-                <q-item-label caption>
-                  {{ selecta.remainings }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Sold</q-item-label>
-                <q-item-label caption>
-                  {{ selecta.sold }}
-
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Price</q-item-label>
-                <q-item-label caption>
-                  {{ formatCurrency(selecta.price) }}
-                </q-item-label>
-              </q-item-section>
-
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Sales</q-item-label>
-                <q-item-label caption>
-                  {{ formatCurrency(selecta.sales) }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-btn
-                  color="red"
-                  icon="close"
-                  round
-                  dense
-                  @click="removeSelecta(index)"
-                />
-              </q-item-section>
-            </q-item>
-          </div>
-        </div>
-      </div>
-    </q-field> -->
   </div>
-  <!-- <q-popup-edit
-                    dense
-                    buttons
-                    label-set="Save"
-                    label-cancel="Close"
-                    v-slot="scope"
-                  >
-                    <q-input
-                      type="number"
-                      dense
-                      autofocus
-                      counter
-                      @keyup.enter="scope.set"
-                    >
-                    </q-input>
-                  </q-popup-edit> -->
 </template>
 
 <script setup>
@@ -196,6 +142,8 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 
 const salesReportsStore = useSalesReportsStore();
 const selectaReports = computed(() => salesReportsStore.selectaReports);
+
+console.log("Selecta Reportssss:", selectaReports.value);
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

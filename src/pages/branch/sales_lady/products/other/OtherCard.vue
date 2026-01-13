@@ -104,7 +104,7 @@
             </div>
           </div>
           <div class="row q-gutter-xm justify-between">
-            <div class="q-gutter-sm">
+            <!-- <div class="q-gutter-sm">
               <div class="text-weight-light">Total Product</div>
               <q-input
                 dense
@@ -112,6 +112,34 @@
                 readonly
                 :label="selectedItem ? selectedItem.total_quantity : ''"
                 style="width: 120px; max-width: 300px; min-width: 50px"
+              >
+                <template v-slot:append>
+                  <span class="text-body2 text-weight-regular">pcs</span>
+                </template>
+              </q-input>
+            </div> -->
+            <div class="q-gutter-sm">
+              <div class="text-weight-light">Beginnings</div>
+              <q-input
+                dense
+                outlined
+                readonly
+                :label="selectedItem ? selectedItem.beginnings : ''"
+                style="width: 150px; max-width: 300px; min-width: 50px"
+              >
+                <template v-slot:append>
+                  <span class="text-body2 text-weight-regular">pcs</span>
+                </template>
+              </q-input>
+            </div>
+            <div class="q-gutter-sm">
+              <div class="text-weight-light">Added Stocks</div>
+              <q-input
+                dense
+                outlined
+                readonly
+                :label="selectedItem ? selectedItem.new_production : ''"
+                style="width: 150px; max-width: 300px; min-width: 50px"
               >
                 <template v-slot:append>
                   <span class="text-body2 text-weight-regular">pcs</span>
@@ -125,10 +153,10 @@
                 outlined
                 readonly
                 :label="selectedItem ? formatCurrency(selectedItem.price) : ''"
-                style="width: 120px; max-width: 300px; min-width: 50px"
+                style="width: 150px; max-width: 300px; min-width: 50px"
               />
             </div>
-            <div class="q-gutter-sm">
+            <!-- <div class="q-gutter-sm">
               <div class="text-weight-light">Sold Pcs</div>
               <q-input
                 dense
@@ -152,11 +180,8 @@
                 readonly
                 style="width: 150px; max-width: 300px; min-width: 50px"
               >
-                <!-- <template v-slot:append>
-                  <span class="text-body2 text-weight-regular">PHP</span>
-                </template> -->
               </q-input>
-            </div>
+            </div> -->
           </div>
         </q-card-section>
         <q-card-section>
@@ -189,6 +214,8 @@ const filter = defineProps({
 
 const clickme = (item) => {
   selectedItem.value = item;
+
+  console.log("selectedItemsssss", selectedItem.value);
   dialog.value = true;
 };
 

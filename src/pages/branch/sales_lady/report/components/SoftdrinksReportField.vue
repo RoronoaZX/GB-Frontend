@@ -10,7 +10,17 @@
         </q-item-section>
         <q-item-section>
           <q-item-label class="text-overline" align="center"
+            >Price</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
             >Beginnigs</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
+            >Added Stocks</q-item-label
           >
         </q-item-section>
         <q-item-section>
@@ -23,19 +33,15 @@
             >Softdrinks Out</q-item-label
           >
         </q-item-section>
-        <q-item-section>
+        <!-- <q-item-section>
           <q-item-label class="text-overline" align="center">Sold</q-item-label>
         </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-overline" align="center"
-            >Price</q-item-label
-          >
-        </q-item-section>
+
         <q-item-section>
           <q-item-label class="text-overline" align="center"
             >Sales</q-item-label
           >
-        </q-item-section>
+        </q-item-section> -->
         <q-item-section side>
           <q-item-label>
             <span>Action</span>
@@ -55,7 +61,21 @@
           <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
+                {{ formatCurrency(softdrinks.price) }}
+              </span>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-caption" align="center">
+              <span>
                 {{ softdrinks.beginnings }}
+              </span>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-caption" align="center">
+              <span>
+                {{ softdrinks.new_production }}
               </span>
             </q-item-label>
           </q-item-section>
@@ -80,27 +100,21 @@
               </span>
             </q-item-label>
           </q-item-section>
-          <q-item-section>
+          <!-- <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
                 {{ softdrinks.sold }}
               </span>
             </q-item-label>
           </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-caption" align="center">
-              <span>
-                {{ formatCurrency(softdrinks.price) }}
-              </span>
-            </q-item-label>
-          </q-item-section>
+
           <q-item-section>
             <q-item-label class="text-caption" align="center">
               <span>
                 {{ formatCurrency(softdrinks.sales) }}
               </span>
             </q-item-label>
-          </q-item-section>
+          </q-item-section> -->
           <q-item-section align="center" side>
             <q-item-label>
               <q-btn
@@ -197,6 +211,8 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 
 const salesReportsStore = useSalesReportsStore();
 const softdrinksReports = computed(() => salesReportsStore.softdrinksReports);
+
+console.log("Softdrinks Reportssss:", softdrinksReports.value);
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

@@ -10,7 +10,17 @@
         </q-item-section>
         <q-item-section>
           <q-item-label class="text-overline" align="center"
+            >Price</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
             >Beginnings</q-item-label
+          >
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-overline" align="center"
+            >Added Stocks</q-item-label
           >
         </q-item-section>
         <q-item-section>
@@ -19,18 +29,19 @@
           >
         </q-item-section>
         <q-item-section>
-          <q-item-label class="text-overline" align="center">Sold</q-item-label>
-        </q-item-section>
-        <q-item-section>
           <q-item-label class="text-overline" align="center"
-            >Price</q-item-label
+            >Softdrinks Out</q-item-label
           >
         </q-item-section>
+        <!-- <q-item-section>
+          <q-item-label class="text-overline" align="center">Sold</q-item-label>
+        </q-item-section>
+
         <q-item-section>
           <q-item-label class="text-overline" align="center"
             >Sales</q-item-label
           >
-        </q-item-section>
+        </q-item-section> -->
         <q-item-section side>
           <q-item-label>
             <span>Action</span>
@@ -48,27 +59,7 @@
             </span>
           </q-item-label>
         </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-caption" align="center">
-            <span>
-              {{ otherProduct.total }}
-            </span>
-          </q-item-label>
-        </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-caption" align="center">
-            <span>
-              {{ otherProduct.remaining }}
-            </span>
-          </q-item-label>
-        </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-caption" align="center">
-            <span>
-              {{ otherProduct.sold }}
-            </span>
-          </q-item-label>
-        </q-item-section>
+
         <q-item-section>
           <q-item-label class="text-caption" align="center">
             <span>
@@ -76,13 +67,62 @@
             </span>
           </q-item-label>
         </q-item-section>
+
+        <!-- <q-item-section>
+          <q-item-label class="text-caption" align="center">
+            <span>
+              {{ otherProduct.total }}
+            </span>
+          </q-item-label>
+        </q-item-section> -->
+        <q-item-section>
+          <q-item-label class="text-caption" align="center">
+            <span>
+              {{ otherProduct.beginnings }}
+            </span>
+          </q-item-label>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label class="text-caption" align="center">
+            <span>
+              {{ otherProduct.new_production }}
+            </span>
+          </q-item-label>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label class="text-caption" align="center">
+            <span>
+              {{ otherProduct.remaining }}
+            </span>
+          </q-item-label>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label class="text-caption" align="center">
+            <span>
+              {{ otherProduct.out }}
+            </span>
+          </q-item-label>
+        </q-item-section>
+
+        <!-- <q-item-section>
+          <q-item-label class="text-caption" align="center">
+            <span>
+              {{ otherProduct.sold }}
+            </span>
+          </q-item-label>
+        </q-item-section>
+
         <q-item-section>
           <q-item-label class="text-caption" align="center">
             <span>
               {{ formatCurrency(otherProduct.sales) }}
             </span>
           </q-item-label>
-        </q-item-section>
+        </q-item-section> -->
+
         <q-item-section side>
           <q-btn
             color="red"
@@ -95,61 +135,6 @@
         </q-item-section>
       </q-item>
     </q-list>
-    <!-- <q-field outlined dense readonly>
-      <div class="q-py-sm">
-        <div class="q-gutter-md">
-          <div>
-            <q-item
-              v-for="(otherProduct, index) in otherProductsReports"
-              :key="index"
-            >
-              <q-item-section class="q-ma-sm text-subtitle2" side>
-                {{ otherProduct.name }}
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Beginnings</q-item-label>
-                <q-item-label caption>
-                  {{ otherProduct.total }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Remainnings</q-item-label>
-                <q-item-label caption>
-                  {{ otherProduct.remaining }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Sold</q-item-label>
-                <q-item-label caption>
-                  {{ otherProduct.product_sold }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Price</q-item-label>
-                <q-item-label caption>
-                  {{ formatCurrency(otherProduct.price) }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-item-label>Sales</q-item-label>
-                <q-item-label caption>
-                  {{ formatCurrency(otherProduct.sales) }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section class="q-ma-sm q-gutter-sm" side>
-                <q-btn
-                  color="red"
-                  icon="close"
-                  round
-                  dense
-                  @click="removeOtherProductsReport(index)"
-                />
-              </q-item-section>
-            </q-item>
-          </div>
-        </div>
-      </div>
-    </q-field> -->
   </div>
 </template>
 
@@ -161,6 +146,8 @@ const salesReportsStore = useSalesReportsStore();
 const otherProductsReports = computed(
   () => salesReportsStore.otherProductsReports
 );
+
+console.log("Other Reportssss:", otherProductsReports.value);
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

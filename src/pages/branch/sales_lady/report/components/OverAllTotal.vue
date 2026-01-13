@@ -149,6 +149,12 @@ const salesReportsStore = useSalesReportsStore();
 
 const $q = useQuasar();
 
+const productsTotalAmount = computed(
+  () => salesReportsStore.productsTotalAmount
+);
+
+console.log("productsTotalAmount", productsTotalAmount.value);
+
 const breadTotal = computed(() => salesReportsStore.breadTotalAmount);
 const selectaTotal = computed(() => salesReportsStore.selectaTotalAmount);
 const softdrinksTotal = computed(() => salesReportsStore.softdrinksTotalAmount);
