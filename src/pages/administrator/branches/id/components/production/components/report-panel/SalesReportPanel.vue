@@ -8,20 +8,37 @@
               <div class="row justify-between">
                 <div class="text-h6">Sales Report {{ reportLabel }}</div>
 
-                <div align="right">
-                  <q-btn
-                    padding="xs md"
-                    label="Print"
-                    icon="print"
-                    outline
-                    class="user-button"
-                    @click="openPrintDialog(report)"
-                  />
-
+                <div align="right" class="row q-gutter-x-sm">
                   <div>
-                    <q-tooltip class="bg-blue-grey-6" :delay="200">
-                      Print Report
-                    </q-tooltip>
+                    <q-btn
+                      v-if="negativeProducts.length"
+                      unelevated
+                      color="red-1"
+                      text-color="red-9"
+                      icon="warning_amber"
+                      label="Negative Products"
+                      class="text-weight-bold"
+                      @click="handleNegativeProductsDialog(negativeProducts)"
+                    >
+                      <q-badge
+                        floating
+                        color="red-9"
+                        text-color="white"
+                        rounded
+                      >
+                        {{ negativeProducts.length }}
+                      </q-badge>
+                    </q-btn>
+                  </div>
+                  <div>
+                    <q-btn
+                      padding="xs md"
+                      label="Print"
+                      icon="print"
+                      outline
+                      class="user-button"
+                      @click="openPrintDialog(report)"
+                    />
                   </div>
                 </div>
               </div>
@@ -103,6 +120,7 @@
 <script setup>
 import { date, useQuasar } from "quasar";
 import { ref, computed, watch, watchEffect } from "vue";
+import NegativeProductsDialog from "./sales-report/negative_products/NegativeProductsDialog.vue";
 import ProductsReport from "./sales-report/ProductsReport.vue";
 import DenominationReport from "./sales-report/DenominationReport.vue";
 import ExpensesReport from "./sales-report/expenses/ExpensesReport.vue";
@@ -373,6 +391,57 @@ const calculateChargesAndOverFromProcessed = (report) => {
   };
 };
 
+const negativeProducts = computed(() => {
+  if (!reportsData || !reportsData.length) return [];
+
+  const report = reportsData[0];
+  const negatives = [];
+
+  const processCategory = (items, type) => {
+    (items || []).forEach((item) => {
+      const beginnings = Number(item.beginnings || 0);
+      const added = Number(item.new_production || item.added_stocks || 0);
+      const remaining = Number(item.remaining || 0);
+      const out = Number(item.bread_out || item.out || 0);
+      const price = Number(item.price || 0); // ✅ FIX
+
+      const total = beginnings + added;
+      const sold = total - (remaining + out);
+      const sales = sold * price;
+
+      if (sales < 0) {
+        negatives.push({
+          type,
+          name:
+            item.bread?.name ||
+            item.selecta?.name ||
+            item.softdrinks?.name ||
+            item.other_products?.name ||
+            "Unknown",
+          sold,
+          price,
+          sales,
+          beginnings,
+          added,
+          remaining,
+          out,
+        });
+      }
+    });
+  };
+
+  processCategory(report.bread_reports, "Bread");
+  processCategory(report.selecta_reports, "Selecta");
+  processCategory(report.softdrinks_reports, "Soft Drinks");
+  processCategory(report.other_products_reports, "Other Products");
+
+  console.log("Negative Products:", negatives);
+
+  return negatives;
+});
+
+const negativeDialog = ref(false);
+
 watchEffect(() => {
   if (reportsData && reportsData.length > 0) {
     const { overAmount, chargesAmount } = calculateChargesAndOverFromProcessed(
@@ -393,6 +462,17 @@ watchEffect(() => {
     });
   }
 });
+
+const $q = useQuasar();
+
+const handleNegativeProductsDialog = (negativeProducts) => {
+  $q.dialog({
+    component: NegativeProductsDialog,
+    componentProps: {
+      negativeProducts: negativeProducts,
+    },
+  });
+};
 
 // watchEffect(() => {
 //   if (reportsData && reportsData.length > 0) {
@@ -476,7 +556,7 @@ const generateDocDefinition = (report) => {
         "beginnings",
         "price",
         "new_production",
-        "bread_out",
+        "out",
         "sold",
         "remaining",
         "sales",
@@ -810,6 +890,21 @@ const generateDocDefinition = (report) => {
   return {
     content: [
       { text: "Sales Report", style: "header", alignment: "center" },
+      {
+        columns: [
+          {
+            text: `Branch Name: ${report.branch?.name || "No name"}
+            Employee(s):
+            ${employeeChargesText}
+
+            Date: ${formatDate(report.created_at)}\nTime: ${formatTime(
+              report.created_at
+            )}\n`,
+            margin: [0, 0, 0, 10],
+          },
+          {},
+        ],
+      },
       { text: `Date: ${formatDate(report.created_at)}`, margin: [0, 0, 0, 10] },
       ...tables,
       {
@@ -821,9 +916,9 @@ const generateDocDefinition = (report) => {
       summaryTable,
     ],
     styles: {
-      header: { fontSize: 16, bold: true },
-      subheader: { fontSize: 12, bold: true, margin: [0, 10, 0, 5] },
-      tableHeader: { bold: true, fontSize: 10 },
+      header: { fontSize: 14, bold: true },
+      subheader: { fontSize: 10, bold: true, margin: [0, 10, 0, 5] },
+      tableHeader: { bold: true, fontSize: 8 },
       tableData: { fontSize: 10 },
       body: { fontSize: 8 },
     },

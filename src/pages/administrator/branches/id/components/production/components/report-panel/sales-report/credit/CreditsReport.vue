@@ -9,7 +9,7 @@
           <q-btn
             label="OPEN"
             rounded
-            style="width: 200px"
+            style="width: 190px"
             color="light-blue-6"
             class="user-button"
             @click="

@@ -46,6 +46,27 @@
             />
           </div>
         </q-card-section>
+        <q-card-section v-if="negativeSalesRows.length">
+          <q-card>
+            <q-banner dense class="bg-orange-1 text-dark q-mb-md" rounded>
+              <div class="text-subtitle1 text-weight-bold">
+                ⚠️ Negative Sales Detected
+              </div>
+              <div class="text-caption">
+                These products are excluded form Overall Total Sales.
+              </div>
+            </q-banner>
+
+            <q-table
+              flat
+              :rows="negativeSalesRows"
+              :columns="negativeOtherProductsReportColumn"
+              row-key="id"
+              hide-bottom
+            >
+            </q-table>
+          </q-card>
+        </q-card-section>
         <q-card-section>
           <q-table
             :filter="filter"
@@ -422,6 +443,29 @@ const updatedAddedStocks = async (row, newVal) => {
   }
 };
 
+const negativeOtherProductsReportColumn = [
+  {
+    name: "name",
+    label: "Other Product Name",
+    field: (row) => row.other_products.name || "N/A",
+    format: (val) => capitalizeFirstLetter(val),
+    align: "justify",
+  },
+  {
+    name: "otherProductsSold",
+    label: "Other Products Sold (PCS)",
+    field: "otherProductsSold",
+    align: "justify",
+  },
+  {
+    name: "salesAmount",
+    label: "Negative Sales",
+    field: "salesAmount",
+    format: (val) => formatPrice(val),
+    align: "justify",
+  },
+];
+
 const otherProductsReportColumn = [
   {
     name: "name",
@@ -522,23 +566,67 @@ const filteredRows = computed(() => {
   });
 });
 
+// const overallTotal = computed(() => {
+//   const total = filteredRows.value.reduce((total, row) => {
+//     const beginnings = Number(row.beginnings || 0);
+//     const addedStocks = Number(row.added_stocks || 0);
+//     const out = Number(row.out || 0);
+//     const remaining = Number(row.remaining || 0);
+
+//     const totalOtherProducts = beginnings + addedStocks;
+//     const totalProductDiff = remaining + out;
+//     const totalSold = totalOtherProducts - totalProductDiff;
+//     const salesAmount = totalSold * (row.price || 0);
+//     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
+
+//     return total + salesAmount;
+//   }, 0);
+//   console.log("Overall Total Sales computed as:", total);
+//   return total;
+// });
+
 const overallTotal = computed(() => {
-  const total = filteredRows.value.reduce((total, row) => {
-    const beginnings = Number(row.beginnings || 0);
-    const addedStocks = Number(row.added_stocks || 0);
-    const out = Number(row.out || 0);
-    const remaining = Number(row.remaining || 0);
+  return filteredRows.value.reduce((total, row) => {
+    const beginnings = Number(row.beginnings) || 0;
+    const added_stocks = Number(row.added_stocks) || 0;
+    const remaining = Number(row.remaining) || 0;
+    const otherProductsOut = Number(row.out) || 0;
+    const price = Number(row.price) || 0;
 
-    const totalOtherProducts = beginnings + addedStocks;
-    const totalProductDiff = remaining + out;
-    const totalSold = totalOtherProducts - totalProductDiff;
-    const salesAmount = totalSold * (row.price || 0);
-    console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
+    const totalValue = beginnings + added_stocks;
+    const totalOtherProductsDifference = remaining + otherProductsOut;
+    const otherProductsSold = totalValue - totalOtherProductsDifference;
+    const salesAmount = otherProductsSold * price;
 
-    return total + salesAmount;
+    // ✅ ONLY ADD POSITIVE SALES
+    if (salesAmount > 0) {
+      return total + salesAmount;
+    }
+
+    return total;
   }, 0);
-  console.log("Overall Total Sales computed as:", total);
-  return total;
+});
+
+const negativeSalesRows = computed(() => {
+  return filteredRows.value
+    .map((row) => {
+      const beginnings = Number(row.beginnings) || 0;
+      const added_stocks = Number(row.added_stocks) || 0;
+      const remaining = Number(row.remaining) || 0;
+      const otherProductsOut = Number(row.out) || 0;
+      const price = Number(row.price) || 0;
+
+      const total = beginnings + added_stocks;
+      const otherProductsSold = total - (remaining + otherProductsOut);
+      const salesAmount = otherProductsSold * price;
+
+      return {
+        ...row,
+        otherProductsSold,
+        salesAmount,
+      };
+    })
+    .filter((row) => row.salesAmount < 0);
 });
 </script>
 

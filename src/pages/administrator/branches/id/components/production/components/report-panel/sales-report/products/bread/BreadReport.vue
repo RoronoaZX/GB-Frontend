@@ -45,6 +45,30 @@
           />
         </div>
       </q-card-section>
+      <q-card-section v-if="negativeSalesRows.length">
+        <q-card>
+          <q-banner dense class="bg-orange-1 text-dark q-mb-md" rounded>
+            <div class="text-subtitle1 text-weight-bold">
+              ⚠️ Negative Sales Detected
+            </div>
+            <div class="text-caption">
+              These products are excluded from Overall Total Sales.
+            </div>
+          </q-banner>
+
+          <q-table
+            flat
+            :rows="negativeSalesRows"
+            :columns="negativeBreadReportColumn"
+            row-key="id"
+            hide-bottom
+          >
+          </q-table>
+        </q-card>
+      </q-card-section>
+
+      <!-- <q-separator></q-separator> -->
+
       <q-card-section>
         <q-table
           :filter="filter"
@@ -422,6 +446,29 @@ const updatedBreadOut = async (row, newVal) => {
   }
 };
 
+const negativeBreadReportColumn = [
+  {
+    name: "name",
+    label: "Bread",
+    field: (row) => row.bread.name,
+    format: (val) => capitalizeFirstLetter(val),
+    align: "justify",
+  },
+  {
+    name: "breadSold",
+    label: "Bread Sold",
+    field: "breadSold",
+    align: "justify",
+  },
+  {
+    name: "salesAmount",
+    label: "Negative Sales",
+    field: "salesAmount",
+    format: (val) => formatPrice(val),
+    align: "justify",
+  },
+];
+
 const breadReportColumns = [
   {
     name: "name",
@@ -430,6 +477,7 @@ const breadReportColumns = [
       console.log("Row data:", row); // Debug each row's data
       return row.bread.name || "N/A"; // Adjust this according to your data
     },
+    sortable: true,
   },
   {
     name: "price",
@@ -525,9 +573,30 @@ const filteredRows = computed(() => {
   });
 });
 
+// const overallTotal = computed(() => {
+//   const total = filteredRows.value.reduce((total, row) => {
+//     // Ensure all values are treated as numbers
+//     const beginnings = Number(row.beginnings) || 0;
+//     const newProduction = Number(row.new_production) || 0;
+//     const remaining = Number(row.remaining) || 0;
+//     const breadOut = Number(row.bread_out) || 0;
+//     const price = Number(row.price) || 0;
+
+//     const totalValue = beginnings + newProduction;
+//     const totalBreadDifference = remaining + breadOut;
+//     const breadSold = totalValue - totalBreadDifference;
+//     const salesAmount = breadSold * price;
+
+//     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
+//     return total + salesAmount;
+//   }, 0);
+
+//   console.log("Overall Total Sales computed as:", total);
+//   return total;
+// });
+
 const overallTotal = computed(() => {
-  const total = filteredRows.value.reduce((total, row) => {
-    // Ensure all values are treated as numbers
+  return filteredRows.value.reduce((total, row) => {
     const beginnings = Number(row.beginnings) || 0;
     const newProduction = Number(row.new_production) || 0;
     const remaining = Number(row.remaining) || 0;
@@ -539,15 +608,38 @@ const overallTotal = computed(() => {
     const breadSold = totalValue - totalBreadDifference;
     const salesAmount = breadSold * price;
 
-    console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
-    return total + salesAmount;
-  }, 0);
+    // ✅ ONLY ADD POSITIVE SALES
+    if (salesAmount > 0) {
+      return total + salesAmount;
+    }
 
-  console.log("Overall Total Sales computed as:", total);
-  return total;
+    return total;
+  }, 0);
 });
 
 console.log("Overall Total Sales:", overallTotal.value);
+
+const negativeSalesRows = computed(() => {
+  return filteredRows.value
+    .map((row) => {
+      const beginnings = Number(row.beginnings) || 0;
+      const newProduction = Number(row.new_production) || 0;
+      const remaining = Number(row.remaining) || 0;
+      const breadOut = Number(row.bread_out) || 0;
+      const price = Number(row.price) || 0;
+
+      const total = beginnings + newProduction;
+      const breadSold = total - (remaining + breadOut);
+      const salesAmount = breadSold * price;
+
+      return {
+        ...row,
+        breadSold,
+        salesAmount,
+      };
+    })
+    .filter((row) => row.salesAmount < 0);
+});
 </script>
 
 <style scoped></style>

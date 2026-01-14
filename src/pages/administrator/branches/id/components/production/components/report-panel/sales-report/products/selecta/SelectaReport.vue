@@ -45,6 +45,27 @@
           />
         </div>
       </q-card-section>
+      <q-card-section v-if="negativeSalesRows.length">
+        <q-card>
+          <q-banner dense class="bg-orange-1 text-dark q-mb-md" rounded>
+            <div class="text-subtitle1 text-weight-bold">
+              ⚠️ Negative Sales Detected
+            </div>
+            <div class="text-caption">
+              These products are excluded form Overall Total Sales.
+            </div>
+          </q-banner>
+
+          <q-table
+            flat
+            :rows="negativeSalesRows"
+            :columns="negativeSelectaReportColumn"
+            row-key="id"
+            hide-bottom
+          >
+          </q-table>
+        </q-card>
+      </q-card-section>
       <q-card-section>
         <q-table
           :filter="filter"
@@ -417,6 +438,29 @@ const updatedAddedStocks = async (row, newVal) => {
   }
 };
 
+const negativeSelectaReportColumn = [
+  {
+    name: "name",
+    label: "Selecta Name",
+    field: (row) => row.selecta.name || "N/A",
+    format: (val) => capitalizeFirstLetter(val),
+    align: "justify",
+  },
+  {
+    name: "selectaSold",
+    label: "Selecta Sold (PCS)",
+    field: "selectaSold",
+    align: "justify",
+  },
+  {
+    name: "salesAmount",
+    label: "Negative Sales",
+    field: "salesAmount",
+    format: (val) => formatPrice(val),
+    align: "justify",
+  },
+];
+
 const selectaReportColumn = [
   {
     name: "name",
@@ -516,26 +560,70 @@ const filteredRows = computed(() => {
   });
 });
 
+// const overallTotal = computed(() => {
+//   const total = filteredRows.value.reduce((total, row) => {
+//     const beginnings = Number(row.beginnings) || 0;
+//     const addedStocks = Number(row.added_stocks) || 0;
+//     const selectaOut = Number(row.out) || 0;
+//     const remaining = Number(row.remaining) || 0;
+
+//     const totalSelecta = parseInt(beginnings) + parseInt(addedStocks);
+//     const totalSelectaDifference = parseInt(remaining) + parseInt(selectaOut);
+//     const selectaSold = totalSelecta - totalSelectaDifference;
+//     const salesAmount = selectaSold * (row.price || 0);
+
+//     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
+//     return total + salesAmount;
+//   }, 0);
+//   console.log("Overall Total Sales computed as:", total);
+//   return total;
+// });
+
 const overallTotal = computed(() => {
-  const total = filteredRows.value.reduce((total, row) => {
+  return filteredRows.value.reduce((total, row) => {
     const beginnings = Number(row.beginnings) || 0;
-    const addedStocks = Number(row.added_stocks) || 0;
-    const selectaOut = Number(row.out) || 0;
+    const added_stocks = Number(row.added_stocks) || 0;
     const remaining = Number(row.remaining) || 0;
+    const selectaOut = Number(row.out) || 0;
+    const price = Number(row.price) || 0;
 
-    const totalSelecta = parseInt(beginnings) + parseInt(addedStocks);
-    const totalSelectaDifference = parseInt(remaining) + parseInt(selectaOut);
-    const selectaSold = totalSelecta - totalSelectaDifference;
-    const salesAmount = selectaSold * (row.price || 0);
+    const totalValue = beginnings + added_stocks;
+    const totalSelectaDifference = remaining + selectaOut;
+    const selectaSold = totalValue - totalSelectaDifference;
+    const salesAmount = selectaSold * price;
 
-    console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
-    return total + salesAmount;
+    // ✅ ONLY ADD POSITIVE SALES
+    if (salesAmount > 0) {
+      return total + salesAmount;
+    }
+
+    return total;
   }, 0);
-  console.log("Overall Total Sales computed as:", total);
-  return total;
 });
 
 console.log("Filtered Rows:", filteredRows.value);
+
+const negativeSalesRows = computed(() => {
+  return filteredRows.value
+    .map((row) => {
+      const beginnings = Number(row.beginnings) || 0;
+      const added_stocks = Number(row.added_stocks) || 0;
+      const remaining = Number(row.remaining) || 0;
+      const selectaOut = Number(row.out) || 0;
+      const price = Number(row.price) || 0;
+
+      const total = beginnings + added_stocks;
+      const selectaSold = total - (remaining + selectaOut);
+      const salesAmount = selectaSold * price;
+
+      return {
+        ...row,
+        selectaSold,
+        salesAmount,
+      };
+    })
+    .filter((row) => row.salesAmount < 0);
+});
 </script>
 
 <style lang="scss" scoped></style>
