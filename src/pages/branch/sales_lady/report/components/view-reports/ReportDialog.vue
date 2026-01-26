@@ -31,18 +31,60 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <!-- {{ reports }} -->
-        <div class="text-subtitle1 text-weight-regular">
-          <div>
-            Namessss:
-            {{ formatFullname(currentReport?.user?.employee || "No Report") }}
+        <div class="row justify-between">
+          <div class="text-subtitle1 text-weight-regular">
+            <div v-if="currentReport.employee_salescharges_reports?.length">
+              <div class="text-weight-medium">Employee:</div>
+              <div
+                v-for="(
+                  charge, index
+                ) in currentReport.employee_salescharges_reports"
+                :key="index"
+                class="q-ml-md"
+              >
+                <div>
+                  <div class="text-overline">
+                    {{
+                      `${formatFullname(charge.employee)} - ${
+                        charge?.employee?.position
+                      }`
+                    }}
+                  </div>
+                  <div class="text-caption">
+                    Short / Charges:
+                    {{ formatPrice(charge.charge_amount || 0) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else>
+              Employee:
+              {{ formatFullname(currentReport?.user?.employee || "No report") }}
+            </div>
+            <div>
+              Date: {{ formatDate(currentReport?.created_at || "No report") }}
+            </div>
+            <div>
+              Time:
+              {{ formatTimeFromDB(currentReport?.created_at || "No report") }}
+            </div>
           </div>
+
           <div>
-            Date: {{ formatDate(currentReport?.created_at || "No report") }}
-          </div>
-          <div>
-            Time:
-            {{ formatTimeFromDB(currentReport?.created_at || "No report") }}
+            <q-btn
+              v-if="confirmedOrDeclinedNegativeProducts.length"
+              unelevated
+              color="red-1"
+              text-color="red-9"
+              icon="warning_amber"
+              label="Negative Products"
+              class="text-weight-bold"
+              @click="handleNegativeProductsDialog(negativeProducts)"
+            >
+              <q-badge floating color="red-9" text-color="white" rounded>
+                {{ negativeProducts.length }}
+              </q-badge>
+            </q-btn>
           </div>
         </div>
       </q-card-section>
@@ -79,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { date, useQuasar } from "quasar";
 import { useDialogPluginComponent } from "quasar";
 import BreadTable from "./products-report/BreadTable.vue";
@@ -89,6 +131,17 @@ import OtherProductsTable from "./products-report/OtherProductsTable.vue";
 import CreditsReportsTable from "./products-report/CreditsReportsTable.vue";
 import ExpensesTable from "./products-report/ExpensesTable.vue";
 import DenominationCard from "./products-report/DenominationCard.vue";
+import NegativeProductsReport from "./negative-products/NegativeProductsReport.vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const {
+  capitalizeFirstLetter,
+  formatFullname,
+  formatDate,
+  formatTime,
+  formatPrice,
+} = typographyFormat();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -96,8 +149,12 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const props = defineProps(["reports", "reportLabel"]);
 console.log("props sales report", props.reports[0]);
 
+const $q = useQuasar();
+
 // Determine the active report (use reports[0] or fall back to reports[1])
 const currentReport = props.reports[0] || props.reports[1] || null;
+
+console.log("currentReport", currentReport);
 
 // Handle report-specific data
 const breadReports = currentReport?.bread_reports || "No report";
@@ -116,18 +173,6 @@ console.log("username", username);
 const maximizedToggle = ref(true);
 const dialog = ref(false);
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
-
 const formatTimeFromDB = (dateString) => {
   const dateObj = new Date(dateString);
 
@@ -139,30 +184,74 @@ const formatTimeFromDB = (dateString) => {
   return dateObj.toLocaleTimeString(undefined, options);
 };
 
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str
-      ? str
-          .split(" ")
-          .map(
-            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-          )
-          .join(" ")
-      : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
 const handleButtonClick = () => {
   emit("selectReport", props.reports);
   dialog.value = true;
 };
+
+const handleNegativeProductsDialog = (negativeProducts) => {
+  $q.dialog({
+    component: NegativeProductsReport,
+    componentProps: {
+      negativeProducts: negativeProducts,
+    },
+  });
+};
+
+const negativeProducts = computed(() => {
+  if (!currentReport) return [];
+
+  const negatives = [];
+
+  const processCategory = (items, type) => {
+    (items || []).forEach((item) => {
+      const beginnings = Number(item.beginnings || 0);
+      const added = Number(item.new_production || item.added_stocks || 0);
+      const remaining = Number(item.remaining || 0);
+      const out = Number(item.bread_out || item.out || 0);
+      const price = Number(item.price || 0);
+      const status = item.status || "pending";
+
+      const total = beginnings + added;
+      const sold = total - (remaining + out);
+      const sales = sold * price;
+
+      if ((sales < 0 && status === "confirmed") || status === "declined") {
+        negatives.push({
+          type,
+          name:
+            item.bread?.name ||
+            item.selecta?.name ||
+            item.softdrinks?.name ||
+            item.other_products?.name ||
+            "Unknown",
+          sold,
+          price,
+          sales,
+          beginnings,
+          added,
+          remaining,
+          out,
+          status,
+        });
+      }
+    });
+  };
+
+  processCategory(currentReport.bread_reports, "Bread");
+  processCategory(currentReport.selecta_reports, "Selecta");
+  processCategory(currentReport.softdrinks_reports, "Soft Drinks");
+  processCategory(currentReport.other_products_reports, "Other Products");
+
+  console.log("Negative Products:", negatives);
+
+  return negatives;
+});
+
+console.log("negativeProducts", negativeProducts.value);
+
+// Alias for template clarity
+const confirmedOrDeclinedNegativeProducts = negativeProducts;
 </script>
 
 <style lang="scss" scoped></style>

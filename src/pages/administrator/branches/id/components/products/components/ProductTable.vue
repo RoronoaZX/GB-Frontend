@@ -209,9 +209,9 @@ const route = useRoute();
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
-console.log("producttable user data", userData.value);
+// console.log("producttable user data", userData.value);
 const userId = userData.value?.data?.id || "0";
-console.log("user_id branch product table", userId);
+// console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
 const branchProductStore = useBranchProductsStore();
 const filter = ref("");
@@ -229,7 +229,7 @@ const pagination = ref({
 
 //the origina
 const branchProductRows = computed(() => branchProductStore.branchProducts);
-console.log("branchssdfrer", branchProductRows.value);
+// console.log("branchssdfrer", branchProductRows.value);
 
 const filteredRows = computed(() => {
   if (!filter.value) {
@@ -256,7 +256,7 @@ const reloadTableData = async (branchId) => {
     if (!branchProductRows.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Branch product", branchProductRows.value);
+    // console.log("Branch product", branchProductRows.value);
   } catch (error) {
     console.log("Error fetching branch product:", error);
     showNoDataMessage.value = true;
@@ -451,7 +451,7 @@ async function updatedBeginnings(data, val) {
 }
 
 async function updatedTotalQuantity(data, val) {
-  console.log("data branch product", data);
+  // console.log("data branch product", data);
   const report_id = data.id;
   const name = data?.product?.name || "undefined";
   const originalData = ` ${data.total_quantity.toString()} pcs`; // Convert to string

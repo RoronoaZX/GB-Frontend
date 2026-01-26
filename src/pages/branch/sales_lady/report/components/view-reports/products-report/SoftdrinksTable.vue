@@ -1,6 +1,6 @@
 <template>
   <div class="text-h6" align="center">Softdrinks List</div>
-  <div v-if="softdrinksReports !== 'No report' && softdrinksReports.length > 0">
+  <div v-if="confirmedSoftdrinksReports.length > 0">
     <q-list dense separator class="box">
       <q-item>
         <q-item-section>
@@ -46,7 +46,7 @@
       </q-item>
       <!-- <div v-if="breadReports !== 'No report' && breadReports.length > 0"> -->
       <q-item
-        v-for="(product, index) in softdrinksReports"
+        v-for="(product, index) in confirmedSoftdrinksReports"
         :key="index"
         class="text-center"
       >
@@ -113,27 +113,22 @@
 <script setup>
 import { computed } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
 const props = defineProps(["softdrinksReports"]);
 
 console.log("softdrinksReports Data:", props.softdrinksReports);
 
-const formatPrice = (price) => {
-  if (price == null || isNaN(price)) {
-    return "No data"; // Return "No data" if the price is null, undefined, or not a number
-  }
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
+const confirmedSoftdrinksReports = computed(() => {
+  if (!Array.isArray(props.softdrinksReports)) return [];
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
+  return props.softdrinksReports.filter(
+    (softdrinks) =>
+      softdrinks?.status === "confirmed" || softdrinks?.status === "declined"
+  );
+});
 
 const productTotal = (product) => {
   return product?.added_stocks + product?.beginnings;
@@ -155,13 +150,19 @@ const totalSales = (product) => {
 
 // Check if breadReports is an array before using reduce
 const overallTotal = computed(() => {
-  if (!Array.isArray(props.softdrinksReports)) return formatPrice(0);
+  const total = confirmedSoftdrinksReports.value.reduce((sum, product) => {
+    const sales = productSoldTotal(product) * product?.price;
 
-  const total = props.softdrinksReports.reduce((sum, products) => {
-    const sales = productSoldTotal(products) * products?.price;
     return !isNaN(sales) ? sum + sales : sum;
   }, 0);
 
   return formatPrice(total);
 });
 </script>
+
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+</style>

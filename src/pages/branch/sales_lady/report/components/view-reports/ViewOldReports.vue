@@ -24,48 +24,52 @@
           </div>
         </div>
       </q-card-section>
-      <q-table
-        flat
-        :rows="salesReportRows"
-        :columns="columns"
-        row-key="name"
-        :loading="loading"
-        v-model:pagination="pagination"
-        :rows-per-page-options="[3, 5, 10, 0]"
-        @request="handleRequest"
-      >
-        <template v-slot:body-cell-reports="props">
-          <q-td :props="props">
-            <div class="row justify-center q-gutter-x-md">
-              <q-btn
-                padding="xs lg"
-                rounded
-                dense
-                size="sm"
-                color="light-blue-5"
-                text-color="white"
-                @click="handleDialog(props.row.AM.sales_reports, 'AM')"
-                >AM</q-btn
-              >
-              <q-btn
-                padding="xs lg"
-                rounded
-                dense
-                size="sm"
-                color="deep-orange"
-                text-color="white"
-                @click="handleDialog(props.row.PM.sales_reports, 'PM')"
-                >PM</q-btn
-              >
-            </div>
-          </q-td>
-        </template>
-        <template #loading>
-          <q-inner-loading showing>
-            <q-spinner-gears size="50px" color="indigo-8" />
-          </q-inner-loading>
-        </template>
-      </q-table>
+
+      <q-card-section>
+        <div>
+          <q-tabs
+            v-model="tab"
+            dense
+            class="bg-grey-2 text-grey-7 tabs-as-cards"
+            active-color="red-6"
+            indicator-color="transparent"
+            align="justify"
+          >
+            <q-tab
+              class="text-purple"
+              name="confirmSalesReports"
+              label="Confirm Previous Sales Reports"
+            />
+            <q-tab
+              class="text-orange"
+              name="salesReportPanel"
+              label="Sales Reports"
+            />
+          </q-tabs>
+
+          <q-tab-panels
+            v-model="tab"
+            animated
+            transition-prev="scale"
+            transition-next="scale"
+          >
+            <q-tab-panel name="confirmSalesReports">
+              <PendingPanel :data="productsReportRows" :loading="loading" />
+            </q-tab-panel>
+
+            <q-tab-panel name="salesReportPanel">
+              <SalesReportPanel
+                :rows="salesReportRows"
+                :columns="columns"
+                :loading="loading"
+                :pagination="pagination"
+                @request="handleRequest"
+                @open-report="handleDialog"
+              />
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
+      </q-card-section>
 
       <!-- {{ salesReport }} -->
     </q-card>
@@ -77,11 +81,20 @@ import ReportDialog from "./ReportDialog.vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, ref } from "vue";
 import { date, Notify, useQuasar } from "quasar";
+import PendingPanel from "./pending-panel/PendingPanel.vue";
+import SalesReportPanel from "./sales-report-panel/SalesReportPanel.vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatDate } = typographyFormat();
 
 const salesReportStore = useSalesReportsStore();
 const salesReport = computed(() => salesReportStore.salesReport);
 console.log("sales report in page", salesReport.value);
 const salesReportRows = ref([]);
+const productsReportRows = computed(
+  () => salesReportStore.branchPendingSalesReport
+);
 const userData = computed(() => salesReportStore.user);
 console.log("user datasss", userData.value);
 const branchId = userData.value?.device?.reference?.id || "";
@@ -90,13 +103,30 @@ const loading = ref(true);
 
 const dialog = ref(false);
 
+const tab = ref("confirmSalesReports");
+
+// Fetch the confirmation sales report
+const fetchConfirmationSalesReport = async () => {
+  try {
+    loading.value = true;
+    await salesReportStore.fetchBranchPendingSalesReport(branchId);
+  } catch (error) {
+    console.log("Error fetching confirmation sales report", error);
+  }
+};
+
+onMounted(async () => {
+  console.log("Onmountedssss data", branchId);
+  await fetchConfirmationSalesReport(branchId);
+});
+
 const openDialog = () => {
   dialog.value = true;
 };
 
 const pagination = ref({
   page: 1,
-  rowsPerPage: 0,
+  rowsPerPage: 5,
   rowsNumber: 0,
 });
 
@@ -135,9 +165,9 @@ const reloadTableData = async (branchId, page = 0, rowsPerPage = 5) => {
   }
 };
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
+// const formatDate = (dateString) => {
+//   return date.formatDate(dateString, "MMMM DD, YYYY");
+// };
 
 const handleRequest = (props) => {
   console.log("[ropss]", props);
@@ -177,4 +207,43 @@ const handleDialog = (report, label) => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.q-tabs--not-scrollable .q-tabs__content,
+body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
+  overflow: visible;
+}
+.tabs-as-cards {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+}
+
+.tabs-as-cards .q-tab {
+  background-color: white;
+  color: #333;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  margin: 0 8px;
+  padding: 10px 20px;
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.tabs-as-cards .q-tab:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.tabs-as-cards .q-tab--active {
+  background-color: #e0e0e0;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.tab-content {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+</style>

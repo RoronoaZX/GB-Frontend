@@ -53,7 +53,7 @@ import { ref } from "vue";
 
 const branchProducts = useBranchProductsStore();
 const props = defineProps(["delete"]);
-console.log("delte", props.delete.row.id);
+// console.log("delte", props.delete.row.id);
 
 const onDelete = async () => {
   try {

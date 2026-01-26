@@ -1,6 +1,6 @@
 <template>
   <div class="text-h6" align="center">Selecta List</div>
-  <div v-if="selectaReports !== 'No report' && selectaReports.length > 0">
+  <div v-if="confirmedSelectaReports.length > 0">
     <q-list dense separator class="box">
       <q-item>
         <q-item-section>
@@ -47,7 +47,7 @@
       </q-item>
       <!-- <div v-if="breadReports !== 'No report' && breadReports.length > 0"> -->
       <q-item
-        v-for="(product, index) in selectaReports"
+        v-for="(product, index) in confirmedSelectaReports"
         :key="index"
         class="text-center"
       >
@@ -106,34 +106,29 @@
   </div>
   <!-- If breadReports is "No report", display the message instead of the table -->
   <div align="center" v-else>
-    <p>No Selecta reports available yet.</p>
+    <p>No selecta reports are available, or all reports are still pending.</p>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
 const props = defineProps(["selectaReports"]);
 
 console.log("selectaReports Data:", props.selectaReports);
 
-const formatPrice = (price) => {
-  if (price == null || isNaN(price)) {
-    return "No data"; // Return "No data" if the price is null, undefined, or not a number
-  }
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
+const confirmedSelectaReports = computed(() => {
+  if (!Array.isArray(props.selectaReports)) return [];
 
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
+  return props.selectaReports.filter(
+    (selecta) =>
+      selecta?.status === "confirmed" || selecta?.status === "declined"
+  );
+});
 
 const productTotal = (product) => {
   return product?.added_stocks + product?.beginnings;
@@ -154,14 +149,31 @@ const totalSales = (product) => {
 };
 
 // Check if breadReports is an array before using reduce
-const overallTotal = computed(() => {
-  if (!Array.isArray(props.selectaReports)) return formatPrice(0);
+// const overallTotal = computed(() => {
+//   if (!Array.isArray(props.selectaReports)) return formatPrice(0);
 
-  const total = props.selectaReports.reduce((sum, products) => {
-    const sales = productSoldTotal(products) * products?.price;
+//   const total = props.selectaReports.reduce((sum, products) => {
+//     const sales = productSoldTotal(products) * products?.price;
+//     return !isNaN(sales) ? sum + sales : sum;
+//   }, 0);
+
+//   return formatPrice(total);
+// });
+
+const overallTotal = computed(() => {
+  const total = confirmedSelectaReports.value.reduce((sum, product) => {
+    const sales = productSoldTotal(product) * product?.price;
+
     return !isNaN(sales) ? sum + sales : sum;
   }, 0);
 
   return formatPrice(total);
 });
 </script>
+
+<style lang="scss" scoped>
+.box {
+  border: 1px dashed grey;
+  border-radius: 10px;
+}
+</style>

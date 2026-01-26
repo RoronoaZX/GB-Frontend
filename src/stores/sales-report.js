@@ -2,9 +2,24 @@ import { defineStore } from "pinia";
 import { Notify } from "quasar";
 import { api } from "src/boot/axios";
 
+const CONFIRMATION_ENDPOINTS = {
+  bread: "confirm-bread-sales-report",
+  selecta: "confirm-selecta-sales-report",
+  softdrinks: "confirm-softdrinks-sales-report",
+  other: "confirm-other-sales-report",
+};
+
+const DECLINE_ENDPOINTS = {
+  bread: "decline-bread-sales-report",
+  selecta: "decline-selecta-sales-report",
+  softdrinks: "decline-softdrinks-sales-report",
+  other: "decline-other-sales-report",
+};
+
 export const useSalesReportsStore = defineStore("salesReports", {
   state: () => ({
     salesReport: [],
+    branchPendingSalesReport: [],
     products: [],
     branchProducts: [],
     breadProducts: [],
@@ -320,6 +335,19 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.filterOthersproducts();
     },
 
+    async fetchBranchPendingSalesReport(branchId) {
+      console.log("Branch IDsssss", branchId);
+      try {
+        const response = await api.get(
+          `/api/branches/${branchId}/pending-branch-sales-report`
+        );
+        this.branchPendingSalesReport = response.data;
+        console.log("branchPendingSalesReport", response.data);
+      } catch (error) {
+        console.log("Error fetching pending sales report", error);
+      }
+    },
+
     async fetchSalesReports(branchId, page, rowsPerPage) {
       try {
         const response = await api.get(
@@ -328,11 +356,183 @@ export const useSalesReportsStore = defineStore("salesReports", {
             params: { page: page, per_page: rowsPerPage },
           }
         );
-        console.log("sales report", response.data);
+        console.log("sales reportssss", response.data);
         this.salesReport = response.data;
       } catch (error) {
         console.log(error);
       }
+    },
+
+    async confirmProductsReport(payload) {
+      console.log("Payloadssss data:", payload);
+
+      try {
+        const response = await api.post(
+          "/api/confirm-product-sales-report",
+          payload
+        );
+
+        console.log("ressssssss", response.data);
+
+        this.removePendingProductItem({
+          sales_report_id: response.data.sales_report_id,
+          type: response.data.type,
+          product_id: response.data.product_id,
+        });
+
+        this.updateNestedProductStatus(
+          response.data.sales_report_id,
+          response.data.type,
+          response.data.product_id,
+          response.data.status
+        );
+
+        console.log("salesReportsssss", this.salesReport);
+
+        Notify.create({
+          message: response.data.message || "Product Confirmed Successfully",
+          color: "positive",
+        });
+
+        console.log("response.data", response.data);
+      } catch (error) {
+        console.log(error);
+        Notify.create({
+          message: error.response.data.message,
+          color: "negative",
+        });
+      }
+    },
+
+    async declineProductsReport(payload) {
+      console.log("Payload data:", payload);
+
+      try {
+        const response = await api.post(
+          "/api/decline-product-sales-report",
+          payload
+        );
+
+        console.log("asdfafsdf", response.data);
+
+        this.removePendingProductItem({
+          sales_report_id: response.data.sales_report_id,
+          type: response.data.type,
+          product_id: response.data.product_id,
+        });
+
+        this.updateNestedProductStatus(
+          response.data.sales_report_id,
+          response.data.type,
+          response.data.product_id,
+          response.data.status
+        );
+
+        Notify.create({
+          message: "Product Declined Successfully",
+          color: "positive",
+        });
+
+        console.log("response.data", response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    removePendingProductItem({ sales_report_id, type, product_id }) {
+      // 1️⃣ find sales report
+      const report = this.branchPendingSalesReport.find(
+        (r) => r.sales_report_id === sales_report_id
+      );
+
+      if (!report) return;
+
+      // 2️⃣ map type → array key
+      const typeMap = {
+        bread: "bread",
+        selecta: "selecta",
+        softdrinks: "softdrinks",
+        other: "others", // ⚠️ adjust if backend sends other_products
+      };
+
+      const key = typeMap[type];
+      if (!key || !Array.isArray(report[key])) return;
+
+      // 3️⃣ splice product by id
+      const index = report[key].findIndex((item) => item.id === product_id);
+
+      if (index !== -1) {
+        report[key].splice(index, 1);
+      }
+
+      // 4️⃣ cleanup if all empty
+      this.cleanupEmptySalesReport(sales_report_id);
+    },
+
+    cleanupEmptySalesReport(sales_report_id) {
+      const index = this.branchPendingSalesReport.findIndex(
+        (r) => r.sales_report_id === sales_report_id
+      );
+
+      if (index === -1) return;
+
+      const report = this.branchPendingSalesReport[index];
+
+      const isEmpty =
+        report.bread.length === 0 &&
+        report.selecta.length === 0 &&
+        report.softdrinks.length === 0 &&
+        report.others.length === 0;
+
+      if (isEmpty) {
+        this.branchPendingSalesReport.splice(index, 1);
+      }
+    },
+
+    // Update the sale report product status
+    updateNestedProductStatus(salesReportId, type, productId, newStatus) {
+      const property = {
+        bread: "bread_reports",
+        selecta: "selecta_reports",
+        softdrinks: "softdrinks_reports",
+        other: "other_products_reports",
+      }[type];
+
+      if (!property) return;
+
+      // Access this.salesReport.data instead of this.salesReport
+      if (!this.salesReport || !this.salesReport.data) {
+        console.error("salesReport.data is undefined");
+        return;
+      }
+
+      // loop through each day report in salesReport.data
+      for (const day of this.salesReport.data) {
+        // check both AM and PM
+        for (const period of ["AM", "PM"]) {
+          const reports = day[period]?.sales_reports;
+          if (!reports) continue;
+
+          // find the correct sales report
+          const report = reports.find((r) => r.id === salesReportId);
+          if (!report) continue;
+
+          // find the correct product in the mapped property
+          const product = report[property]?.find((p) => p.id === productId);
+
+          if (product) {
+            product.status = newStatus;
+            console.log("Updated product status:", product);
+            return;
+          }
+        }
+      }
+
+      console.warn("Product not found for update:", {
+        salesReportId,
+        type,
+        productId,
+      });
     },
 
     async adminSubmitReports(data) {

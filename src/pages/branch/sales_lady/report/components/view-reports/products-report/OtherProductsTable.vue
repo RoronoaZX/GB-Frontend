@@ -1,8 +1,6 @@
 <template>
   <div class="text-h6" align="center">Other Product List</div>
-  <div
-    v-if="otherProductsReport !== 'No report' && otherProductsReport.length > 0"
-  >
+  <div v-if="confirmedOtherProductsReports.length > 0">
     <q-list dense separator class="box">
       <q-item>
         <q-item-section>
@@ -48,7 +46,7 @@
       </q-item>
       <!-- <div v-if="breadReports !== 'No report' && breadReports.length > 0"> -->
       <q-item
-        v-for="(product, index) in otherProductsReport"
+        v-for="(product, index) in confirmedOtherProductsReports"
         :key="index"
         class="text-center"
       >
@@ -114,26 +112,23 @@
 <script setup>
 import { computed } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
 const props = defineProps(["otherProductsReport"]);
 
 console.log("otherProductsReport Data:", props.otherProductsReport);
 
-const formatPrice = (price) => {
-  if (price == null || isNaN(price)) {
-    return "No data"; // Return "No data" if the price is null, undefined, or not a number
-  }
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
+const confirmedOtherProductsReports = computed(() => {
+  if (!Array.isArray(props.otherProductsReport)) return [];
+
+  return props.otherProductsReport.filter(
+    (otherProducts) =>
+      otherProducts?.status === "confirmed" ||
+      otherProducts?.status === "declined"
+  );
+});
 
 const productTotal = (product) => {
   return product?.added_stocks + product?.beginnings;
@@ -154,11 +149,10 @@ const totalSales = (product) => {
 };
 
 // Check if breadReports is an array before using reduce
-const overallTotal = computed(() => {
-  if (!Array.isArray(props.otherProductsReport)) return formatPrice(0);
+const ovevrallTotal = computed(() => {
+  const total = confirmedOtherProductsReports.value.reduce((sum, product) => {
+    const sales = productSoldTotal(product) * product?.price;
 
-  const total = props.otherProductsReport.reduce((sum, products) => {
-    const sales = productSoldTotal(products) * products?.price;
     return !isNaN(sales) ? sum + sales : sum;
   }, 0);
 

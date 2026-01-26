@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <q-dialog
     ref="dialogRef"
     @hide="onDialogHide"
@@ -203,47 +203,259 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+</template> -->
+
+<template>
+  <q-dialog
+    ref="dialogRef"
+    @hide="onDialogHide"
+    v-model="dialog"
+    :maximized="maximizedToggle"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
+    <q-card class="bg-grey-1">
+      <q-card-section class="header-gradient text-white q-py-md">
+        <div class="row items-center justify-between">
+          <div class="row items-center q-gutter-md">
+            <q-avatar
+              icon="local_drink"
+              color="white"
+              text-color="purple-8"
+              shadow-2
+            />
+            <div>
+              <div class="text-h6 text-weight-bold">
+                Softdrinks Report Detail
+              </div>
+              <div class="text-caption opacity-80">
+                {{ formatDate(reportDate) }} •
+                {{ props.reportLabel || "Daily Inventory" }}
+              </div>
+            </div>
+          </div>
+          <div class="row items-center q-gutter-sm">
+            <q-btn
+              :icon="maximizedToggle ? 'fullscreen_exit' : 'fullscreen'"
+              flat
+              dense
+              round
+              @click="maximizedToggle = !maximizedToggle"
+            />
+            <q-btn icon="close" flat dense round v-close-popup>
+              <q-tooltip class="bg-dark">Close Report</q-tooltip>
+            </q-btn>
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-card-section
+        class="bg-white row items-center justify-between q-py-sm shadow-1"
+      >
+        <q-input
+          v-model="filter"
+          outlined
+          placeholder="Search softdrinks variety..."
+          debounce="500"
+          dense
+          rounded
+          class="bg-white"
+          style="width: 400px"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" color="primary" />
+          </template>
+        </q-input>
+
+        <AddingSoftdrinksReport
+          :sales_Reports="props.reports"
+          :sales_report_id="sales_report_id"
+          :user="props.user"
+          :reportLabel="props.reportLabel"
+          :reportDate="props.reportDate"
+          :reportLength="reportLength"
+        />
+      </q-card-section>
+
+      <q-card-section v-if="negativeSalesRows.length" class="q-pb-none">
+        <q-banner
+          dense
+          class="bg-red-1 text-red-10 border-red rounded-borders shadow-1"
+        >
+          <template v-slot:avatar>
+            <q-icon name="report_problem" color="red" />
+          </template>
+
+          <div class="text-weight-bold text-subtitle2">
+            Negative Sales Detected ({{ negativeSalesRows.length }} Items)
+          </div>
+          <div class="text-caption">
+            The quantity remaining/out exceeds total stock. These row are
+            excluded from Overall Total.
+          </div>
+
+          <template v-slot:action>
+            <q-btn
+              flat
+              color="red-10"
+              :label="showErrors ? 'Hide Details' : 'View Errors'"
+              @click="showErrors = !showErrors"
+            />
+          </template>
+        </q-banner>
+
+        <q-slide-transition>
+          <div v-if="showErrors">
+            <q-table
+              flat
+              bordered
+              :rows="negativeSalesRows"
+              :columns="negativeSoftdrinksReportColumn"
+              row-key="id"
+              class="q-mt-sm bg-white error-table"
+              hide-bottom
+            />
+          </div>
+        </q-slide-transition>
+      </q-card-section>
+
+      <q-card-section class="q-pt-md">
+        <div style="height: calc(100vh - 420px); overflow-y: auto">
+          <q-table
+            :filter="filter"
+            flat
+            bordered
+            :columns="softdrinksReportColumns"
+            :rows="filteredRows"
+            row-key="id"
+            class="inventory-table sticky-header-table shadow-2"
+            :rows-per-page-options="[0]"
+            hide-bottom
+            virtual-scroll
+          >
+            <template v-slot:body-cell-name="props">
+              <q-td :props="props" class="text-weight-bold text-blue-grey-9">
+                {{ capitalizeFirstLetter(props.row.softdrinks.name) }}
+              </q-td>
+            </template>
+
+            <template
+              v-for="col in [
+                'price',
+                'beginnings',
+                'added_stocks',
+                'remaining',
+                'out',
+              ]"
+              :key="col"
+              v-slot:[`body-cell-${col}`]="props"
+            >
+              <q-td :props="props" class="editable-cell cursor-pointer">
+                <div class="row items-center justify-between no-wrap">
+                  <span>
+                    {{
+                      col === "price"
+                        ? formatPrice(props.row[col])
+                        : props.row[col]
+                    }}
+                  </span>
+                  <q-icon
+                    name="edit"
+                    size="12px"
+                    color="grey-4"
+                    class="edit-hint"
+                  />
+                </div>
+
+                <q-popup-edit
+                  v-model="props.row[col]"
+                  auto-save
+                  buttons
+                  label-set="Update"
+                  @save="(val) => handleGlobalUpdate(props.row, col, val)"
+                  v-slot="scope"
+                >
+                  <q-input
+                    v-model.number="scope.value"
+                    dense
+                    autofucos
+                    type="number"
+                    hint="Press Enter to save"
+                  />
+                </q-popup-edit>
+              </q-td>
+            </template>
+
+            <template v-slot:body-cell-sales="props">
+              <q-td :props="props">
+                <q-badge
+                  :color="props.value < 0 ? 'red-2' : 'green-1'"
+                  :text-color="props.value < 0 ? 'red-10' : 'green-10'"
+                  class="text-weight-bolder q-pa-sm"
+                >
+                  {{ formatPrice(props.value) }}
+                </q-badge>
+              </q-td>
+            </template>
+
+            <template v-slot:body-cell-handled="props">
+              <q-td :props="props">
+                <q-item dense class="q-pa-none" style="min-height: unset">
+                  <q-item-section>
+                    <q-item-label>{{ props.value }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-td>
+            </template>
+          </q-table>
+        </div>
+      </q-card-section>
+
+      <q-card-section class="footer-summary q-pa-lg">
+        <div class="row justify-between items-center">
+          <div>
+            <div class="text-overline text-grey-7">Report Statistics</div>
+            <div class="row q-gutter-md">
+              <div class="text-body2">
+                Items: <strong>{{ filteredRows.length }}</strong>
+              </div>
+              <div class="text-body2 text-red" v-if="negativeSalesRows.length">
+                Discrepancies: <strong>{{ negativeSalesRows.length }}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-subtitle1 text-grey-7">Net Sales Computed</div>
+            <div class="text-h4 text-weight-bolder text-primary">
+              {{ formatPrice(overallTotal) }}
+            </div>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
-import { Notify, useDialogPluginComponent } from "quasar";
 import AddingSoftdrinksReport from "./AddingSoftdrinksReport.vue";
-import { api } from "src/boot/axios";
+import { Notify, useDialogPluginComponent } from "quasar";
 import { ref, computed } from "vue";
-
-import { typographyFormat } from "src/composables/typography/typography-format";
+import { useUsersStore } from "src/stores/user";
 import { useRoute } from "vue-router";
 import { useProductionStore } from "src/stores/production";
-import { useUsersStore } from "src/stores/user";
+import { api } from "src/boot/axios";
+import { typographyFormat } from "src/composables/typography/typography-format";
 
-const { capitalizeFirstLetter, formatPrice } = typographyFormat();
-
-const route = useRoute();
-
-const emit = defineEmits(["summary-updated"]);
+const { capitalizeFirstLetter, formatPrice, formatDate, formatFullname } =
+  typographyFormat();
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const productionStore = useProductionStore();
-
 const userStore = useUsersStore();
+const route = useRoute();
 
-const overAmount = ref(0);
-const chargesAmount = ref(0);
-
-const userId = computed(() => {
-  return userStore.userData?.data?.id ?? null;
-});
-
-const userReady = computed(() => !!userId.value);
-
-const branchId = route.params.branch_id;
-
-const dialog = ref(false);
-
-const maximizedToggle = ref(true);
-const reportLength = computed(() => filteredRows.value.length);
-
+// --- Props & Emits ---
 const props = defineProps([
   "reports",
   "sales_report_id",
@@ -251,376 +463,280 @@ const props = defineProps([
   "reportLabel",
   "reportDate",
 ]);
+const emit = defineEmits(["summary-updated"]);
 
+console.log("prssssops", props);
+
+// --- State ---
+const dialog = ref(false);
+const maximizedToggle = ref(true);
 const filter = ref("");
-const pagination = ref({
-  rowsPerPage: 0,
-});
-// Log to verify the structure of props.reports
-console.log("Reports data structure:", props.reports);
+const showErrors = ref(false);
 
-const buildHistoryMeta = (row, field, originalVal, newVal) => {
-  if (!userReady.value) {
-    console.warn("User not loaded yet, cannot log history");
-  }
+const branchId = route.params.branch_id;
 
-  return {
-    report_id: row.id,
-    name: row?.softdrinks?.name || "Unknown Softdrinks",
-    original_data: field.includes("price")
-      ? `₱ ${originalVal}`
-      : `${originalVal} pcs`,
-    updated_data: field.includes("price") ? `₱ ${newVal}` : `${newVal} pcs`,
-    updated_field: field,
-    designation: branchId,
-    designation_type: "branch",
-    action: "updated",
-    type_of_report: `Branch Production ${
-      props.reportLabel?.toUpperCase() || ""
-    } Report Table`,
-    user_id: userId.value,
-    sales_report_id: props.sales_report_id,
-  };
-};
+const userId = computed(() => userStore.userData?.data?.id ?? null);
+const reportLength = computed(() => filteredRows.value.length);
 
-const updatedPrice = async (row, newPrice) => {
-  console.log("rowaa", row);
+const userReady = computed(() => !!userId.value);
 
-  const meta = buildHistoryMeta(row, "price", row.price, newPrice);
-
-  await productionStore.setAmounts();
-  const chargesAmount = productionStore.chargesAmount;
-  const overAmount = productionStore.overAmount;
-
-  console.log("chargesAmount", chargesAmount);
-  console.log("overAmount", overAmount);
-
-  try {
-    await productionStore.updateSalesField(
-      row.id,
-      newPrice,
-      meta,
-      "softdrinks",
-      "price"
-    );
-  } catch (error) {
-    Notify.create({
-      message: "Failed to update price",
-      color: "negative",
-      icon: "error",
-    });
-  }
-};
-
-const updatedBeginnings = async (row, newVal) => {
-  console.log("rowaa", row);
-
-  const meta = buildHistoryMeta(row, "beginnings", row.beginnings, newVal);
-
-  await productionStore.setAmounts();
-  const chargesAmount = productionStore.chargesAmount;
-  const overAmount = productionStore.overAmount;
-
-  console.log("chargesAmount", chargesAmount);
-  console.log("overAmount", overAmount);
-
-  try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "beginnings"
-    );
-  } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
-  }
-};
-
-const updatedRemaining = async (row, newVal) => {
-  const meta = buildHistoryMeta(row, "remaining", row.remaining, newVal);
-
-  await productionStore.setAmounts();
-  const chargesAmount = productionStore.chargesAmount;
-  const overAmount = productionStore.overAmount;
-
-  console.log("chargesAmount", chargesAmount);
-  console.log("overAmount", overAmount);
-
-  try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "remaining"
-    );
-
-    Notify.create({
-      message: "Remaining updated",
-      color: "positive",
-    });
-  } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
-  }
-};
-
-const updatedSoftdrinksOut = async (row, newVal) => {
-  console.log("rowaa", row);
-
-  const meta = buildHistoryMeta(row, "softdrinks_out", row.out, newVal);
-
-  console.log("meta", meta);
-
-  await productionStore.setAmounts();
-  const chargesAmount = productionStore.chargesAmount;
-  const overAmount = productionStore.overAmount;
-
-  console.log("chargesAmount", chargesAmount);
-  console.log("overAmount", overAmount);
-
-  try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "out"
-    );
-  } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
-  }
-};
-const updatedAddedStocks = async (row, newVal) => {
-  console.log("rowaa", row);
-
-  const meta = buildHistoryMeta(row, "added_stocks", row.added_stocks, newVal);
-
-  await productionStore.setAmounts();
-  const chargesAmount = productionStore.chargesAmount;
-  const overAmount = productionStore.overAmount;
-
-  console.log("chargesAmount", chargesAmount);
-  console.log("overAmount", overAmount);
-
-  try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "softdrinks",
-      "added_stocks"
-    );
-
-    Notify.create({
-      message: "Added stocks updated",
-      color: "positive",
-    });
-  } catch (error) {
-    Notify.create({
-      message: "Update failed",
-      color: "negative",
-    });
-  }
-};
-
-const negativeSoftdrinksReportColumn = [
+const softdrinksReportColumns = [
   {
     name: "name",
     label: "Softdrinks Name",
     field: (row) => row.softdrinks.name,
+    sortable: true,
+    align: "left",
+  },
+  {
+    name: "price",
+    label: "Price",
+    field: "price",
+    align: "center",
+  },
+  {
+    name: "beginnings",
+    label: "Beginnings",
+    field: "beginnings",
+    align: "center",
+  },
+  {
+    name: "remaining",
+    label: "Remaining",
+    field: "remaining",
+    align: "center",
+  },
+  {
+    name: "out",
+    label: "Out",
+    field: "out",
+    align: "center",
+  },
+  {
+    name: "added_stocks",
+    label: "Added Stocks",
+    field: "added_stocks",
+  },
+  {
+    name: "total_softdrinks",
+    label: "Total Stocks",
+    field: (row) => {
+      const totalSoftdrinks =
+        Number(row.beginnings || 0) + Number(row.added_stocks || 0);
+      return totalSoftdrinks;
+    },
+    align: "center",
+  },
+  {
+    name: "sold",
+    label: "Sold",
+    field: (row) => {
+      const stock =
+        (Number(row.beginnings) || 0) + (Number(row.added_stocks) || 0);
+      const sold =
+        stock - ((Number(row.remaining) || 0) + (Number(row.out) || 0));
+      return sold;
+    },
+    align: "center",
+  },
+  {
+    name: "sales",
+    label: "Calculated Sales",
+    field: (row) => {
+      const stock =
+        (Number(row.beginnings) || 0) + (Number(row.added_stocks) || 0);
+      const sold =
+        stock - ((Number(row.remaining) || 0) + (Number(row.out) || 0));
+      return sold * (Number(row.price) || 0);
+    },
+    align: "center",
+  },
+  {
+    name: "status",
+    label: "Status",
+    field: "status",
+    align: "center",
+  },
+  {
+    name: "handled_by",
+    label: "Handled By",
+    field: (row) => (row.handled_by ? formatFullname(row.handled_by) : "N/A"),
+    align: "center",
+  },
+  {
+    name: "reason",
+    label: "Reason",
+    field: "reason",
+    align: "center",
+  },
+];
+
+const negativeSoftdrinksReportColumn = [
+  {
+    naem: "name",
+    label: "Softdrinks Name",
+    field: (row) => row.softdrinks.name || "N/A",
     format: (val) => capitalizeFirstLetter(val),
     align: "justify",
   },
   {
-    name: "softdrinksSold",
-    label: "Softdrinks Sold (PCS)",
-    field: "softdrinksSold",
-    format: (val) => `${val}`,
+    name: "beginnings",
+    label: "Beginnings",
+    field: "beginnings",
     align: "justify",
   },
   {
+    name: "added_stocks",
+    label: "Added Stocks",
+    field: "added_stocks",
+    align: "justify",
+  },
+  {
+    name: "remaining",
+    label: "Remaining",
+    field: "remaining",
+    align: "justify",
+  },
+  {
+    name: "out",
+    label: "Out",
+    field: "out",
+    align: "justify",
+  },
+  {
+    name: "softdrinksSold",
+    label: "Sold",
+    field: (row) => {
+      const stock =
+        (Number(row.beginnings) || 0) + (Number(row.added_stocks) || 0);
+      const sold =
+        stock - ((Number(row.remaining) || 0) + (Number(row.out) || 0));
+      return sold;
+    },
+    align: "center",
+  },
+  {
     name: "salesAmount",
-    label: "Negative Sales",
+    label: "Deficit Amount",
     field: "salesAmount",
     format: (val) => formatPrice(val),
     align: "justify",
   },
 ];
 
-const breadReportColumns = [
-  {
-    name: "name",
-    label: "Softdrinks Name",
-    field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
-      return row.softdrinks.name || "N/A"; // Adjust this according to your data
-    },
-  },
-  {
-    name: "price",
-    label: "Price",
-    field: "price",
-  },
-  {
-    name: "beginnings",
-    label: "Beginnings (PCS)",
-    field: "beginnings",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "remaining",
-    label: "Remaining (PCS)",
-    field: "remaining",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "out",
-    label: "Softdrinks Out (PCS)",
-    field: "out",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "added_stocks",
-    label: "Added Stocks (PCS)",
-    field: "added_stocks",
-    format: (val) => `${val}`,
-  },
-  {
-    name: "total_softdrinks",
-    label: "Total Stocks (PCS)",
-    field: (row) => {
-      const totalSoftdrinks =
-        Number(row.beginnings || 0) + Number(row.added_stocks || 0);
-      return totalSoftdrinks;
-    },
-    format: (val) => `${val}`,
-  },
-  {
-    name: "sold",
-    label: "Softdrinks Sold (PCS)",
-    field: (row) => {
-      const beginnings = Number(row.beginnings || 0);
-      const addedStocks = Number(row.added_stocks || 0);
-      const out = Number(row.out || 0);
-      const remaining = Number(row.remaining || 0);
-      const totalSoftdrinks = beginnings + addedStocks;
-      const totalSoftdrinksDiff = remaining + out;
-      const sold = totalSoftdrinks - totalSoftdrinksDiff;
-      return sold;
-    },
-    format: (val) => `${val}`,
-  },
-  {
-    name: "sales",
-    label: "Total Sales",
-    field: (row) => {
-      const beginnings = Number(row.beginnings || 0);
-      const addedStocks = Number(row.added_stocks || 0);
-      const out = Number(row.out || 0);
-      const remaining = Number(row.remaining || 0);
-      const price = Number(row.price || 0);
-
-      const totalSoftdrinks = beginnings + addedStocks;
-      const totalSoftdrinksDiff = remaining + out;
-      const sold = totalSoftdrinks - totalSoftdrinksDiff;
-
-      return sold * price;
-    },
-    format: (val) => `${formatPrice(val)}`,
-  },
-];
-
-// Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {
-  // Assuming `breads` is an array in `reports`
-  if (!filter.value || !filter.value.trim()) {
-    return props.reports || [];
-  }
-
-  const search = filter.value.trim().toLowerCase();
-  return (props.reports || []).filter((row) => {
-    // Perform filtering on relevant fileds
-    return (
-      row.softdrinks.name.toLowerCase().includes(search) || // Softdrinks
-      row.price.toString().includes(search) || // Price
-      row.sales.toString().includes(search)
-    );
-  });
+  const data = props.reports || [];
+  if (!filter.value) return data;
+  const s = filter.value.toLowerCase();
+  return data.filter((r) => r.softdrinks.name.toLowerCase().includes(s));
 });
-
-// const overallTotal = computed(() => {
-//   const total = filteredRows.value.reduce((total, row) => {
-//     const beginnings = Number(row.beginnings || 0);
-//     const addedStocks = Number(row.added_stocks || 0);
-//     const out = Number(row.out || 0);
-//     const remaining = Number(row.remaining || 0);
-
-//     const totalSoftdrinks = beginnings + addedStocks;
-//     const totalSoftdrinksDiff = remaining + out;
-//     const sold = totalSoftdrinks - totalSoftdrinksDiff;
-//     const salesAmount = sold * (row.price || 0);
-//     console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
-//     return total + salesAmount;
-//   }, 0);
-//   console.log("Overall Total:", total);
-//   return total;
-// });
-
-const overallTotal = computed(() => {
-  return filteredRows.value.reduce((total, row) => {
-    const beginnings = Number(row.beginnings) || 0;
-    const added_stocks = Number(row.added_stocks) || 0;
-    const remaining = Number(row.remaining) || 0;
-    const softdrinksOut = Number(row.out) || 0;
-    const price = Number(row.price) || 0;
-
-    const totalValue = beginnings + added_stocks;
-    const totalSelectaDifference = remaining + softdrinksOut;
-    const softdrinksSold = totalValue - totalSelectaDifference;
-    const salesAmount = softdrinksSold * price;
-
-    // ✅ ONLY ADD POSITIVE SALES
-    if (salesAmount > 0) {
-      return total + salesAmount;
-    }
-
-    return total;
-  }, 0);
-});
-
-console.log("Filtered Rows:", filteredRows.value);
 
 const negativeSalesRows = computed(() => {
   return filteredRows.value
     .map((row) => {
-      const beginnings = Number(row.beginnings) || 0;
-      const added_stocks = Number(row.added_stocks) || 0;
-      const remaining = Number(row.remaining) || 0;
-      const softdrinksOut = Number(row.out) || 0;
-      const price = Number(row.price) || 0;
-
-      const total = beginnings + added_stocks;
-      const softdrinksSold = total - (remaining + softdrinksOut);
-      const salesAmount = softdrinksSold * price;
-
-      return {
-        ...row,
-        softdrinksSold,
-        salesAmount,
-      };
+      const stock =
+        (Number(row.beginnings) || 0) + (Number(row.added_stocks) || 0);
+      const sold =
+        stock - ((Number(row.remaining) || 0) + (Number(row.out) || 0));
+      const salesAmount = sold * (Number(row.price) || 0);
+      return { ...row, salesAmount };
     })
     .filter((row) => row.salesAmount < 0);
 });
+
+const overallTotal = computed(() => {
+  return filteredRows.value.reduce((acc, row) => {
+    const stock =
+      (Number(row.beginnings) || 0) + (Number(row.added_stocks) || 0);
+    const sold =
+      stock - ((Number(row.remaining) || 0) + (Number(row.out) || 0));
+    const sales = sold * (Number(row.price) || 0);
+    return sales > 0 ? acc + sales : acc;
+  }, 0);
+});
+
+const handleGlobalUpdate = async (row, field, newVal) => {
+  if (!userId.value) return;
+
+  const meta = {
+    report_id: row.id,
+    name: row?.softdrinks?.name || "Unknown Softdrinks",
+    original_data: row[field],
+    updated_data: newVal,
+    updated_field: field,
+    designation: branchId,
+    designation_type: "branch",
+    action: "updated",
+    type_of_report: `Softdrinks Report Update (${props.reportLabel})`,
+    user_id: userId.value,
+    sales_report_id: props.sales_report_id,
+  };
+
+  try {
+    await productionStore.updateSalesField(
+      row.id,
+      newVal,
+      meta,
+      "softdrinks",
+      field
+    );
+  } catch (e) {
+    Notify.create({
+      message: "Update failed",
+      color: "negative",
+    });
+  }
+};
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.header-gradient {
+  background: linear-gradient(135deg, #e16cf6 0%, #9c27b0 100%);
+}
+
+.inventory-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sticky-header-table :deep(.q-table__middle) {
+  max-height: 100%;
+}
+
+.sticky-header-table :deep(thread tr:first-child th) {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: bold;
+}
+
+.editable-cell {
+  transition: all 0.2s;
+}
+
+.editable-cell:hover {
+  background-color: #fff8e1 !important; /* Light amber highlight */
+}
+
+.edit-hint {
+  opacity: 0;
+}
+
+.footer-summary {
+  background: white;
+  border-top: 1px solid #eee;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.error-table {
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+}
+
+.border-red {
+  border: 1px solid #f44336;
+}
+</style>

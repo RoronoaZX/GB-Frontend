@@ -108,9 +108,9 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 const route = useRoute();
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
-console.log("producttable user data", userData.value);
+// console.log("producttable user data", userData.value);
 const userId = userData.value?.data?.id || "0";
-console.log("user_id branch product table", userId);
+// console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
 const branchRawMaterialsStore = useBranchRawMaterialsStore();
 const filter = ref("");
@@ -134,7 +134,7 @@ const filteredRows = computed(() => {
 });
 
 onMounted(async () => {
-  console.log("props.branchId in onMounted:", branchId);
+  // console.log("props.branchId in onMounted:", branchId);
   if (branchId) {
     await reloadTableData(branchId);
   }
@@ -151,7 +151,7 @@ const reloadTableData = async (branchId) => {
     if (!branchRawMaterialsRows.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Branch Raw Materials", branchRawMaterialsRows.value);
+    // console.log("Branch Raw Materials", branchRawMaterialsRows.value);
   } catch (error) {
     console.log("Error fetching branch product:", error);
     showNoDataMessage.value = true;
@@ -161,7 +161,7 @@ const reloadTableData = async (branchId) => {
 };
 
 async function updatedStocks(data, val) {
-  console.log("data branch raw materials", data);
+  // console.log("data branch raw materials", data);
   const report_id = data.id;
   const name = data?.ingredients?.name || "undefined";
   const originalData = ` ${data.total_quantity.toString()} grams`; // Convert to string

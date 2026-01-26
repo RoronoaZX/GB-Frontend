@@ -1,7 +1,7 @@
 <template>
   <div class="text-h6" align="center">Bread List</div>
   <!-- Check if breadReports is "No report" or an empty array -->
-  <div v-if="breadReports !== 'No report' && breadReports.length > 0">
+  <div v-if="confirmedBreadReports.length > 0">
     <q-list dense separator class="box">
       <q-item>
         <q-item-section>
@@ -49,7 +49,7 @@
         </q-item-section> -->
       </q-item>
       <!-- <div v-if="breadReports !== 'No report' && breadReports.length > 0"> -->
-      <q-item v-for="(breads, index) in breadReports" :key="index">
+      <q-item v-for="(breads, index) in confirmedBreadReports" :key="index">
         <q-item-section>
           <q-item-label class="text-caption">
             {{ capitalizeFirstLetter(breads?.bread?.name || "N/A") }}
@@ -106,33 +106,28 @@
 
   <!-- If breadReports is "No report", display the message instead of the table -->
   <div align="center" v-else>
-    <p>No Bread reports available.</p>
+    <p>No bread reports are available, or all reports are still pending.</p>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
 const props = defineProps(["breadReports"]);
 
 console.log("breadReports Data:", props.breadReports);
 
-const formatPrice = (price) => {
-  if (price == null || isNaN(price)) {
-    return "No data"; // Return "No data" if the price is null, undefined, or not a number
-  }
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(price);
-};
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
+const confirmedBreadReports = computed(() => {
+  if (!Array.isArray(props.breadReports)) return [];
+
+  return props.breadReports.filter(
+    (bread) => bread?.status === "confirmed" || bread?.status === "declined"
+  );
+});
 
 const breadTotal = (breads) => {
   return breads?.new_production + breads?.beginnings;
@@ -155,17 +150,29 @@ const totalSales = (breads) => {
 };
 
 // Check if breadReports is an array before using reduce
-const overallTotal = computed(() => {
-  if (!Array.isArray(props.breadReports)) return formatPrice(0);
+// const overallTotal = computed(() => {
+//   if (!Array.isArray(props.breadReports)) return formatPrice(0);
 
-  const total = props.breadReports.reduce((sum, breads) => {
+//   const total = props.breadReports.reduce((sum, breads) => {
+//     const sales = breadSoldTotal(breads) * breads?.price;
+//     return !isNaN(sales) ? sum + sales : sum;
+//   }, 0);
+
+//   return formatPrice(total);
+// });
+
+const overallTotal = computed(() => {
+  const total = confirmedBreadReports.value.reduce((sum, breads) => {
     const sales = breadSoldTotal(breads) * breads?.price;
+
     return !isNaN(sales) ? sum + sales : sum;
   }, 0);
 
   return formatPrice(total);
 });
+
 console.log("Overall Total Sales:", overallTotal.value);
+
 const breadReportColumns = [
   {
     name: "name",
