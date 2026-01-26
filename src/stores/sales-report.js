@@ -335,11 +335,12 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.filterOthersproducts();
     },
 
-    async fetchBranchPendingSalesReport(branchId) {
+    async fetchBranchPendingSalesReport(userId, branchId) {
       console.log("Branch IDsssss", branchId);
+      console.log("User IDsssss", userId);
       try {
         const response = await api.get(
-          `/api/branches/${branchId}/pending-branch-sales-report`
+          `/api/branches/${branchId}/${userId}/pending-branch-sales-report`
         );
         this.branchPendingSalesReport = response.data;
         console.log("branchPendingSalesReport", response.data);

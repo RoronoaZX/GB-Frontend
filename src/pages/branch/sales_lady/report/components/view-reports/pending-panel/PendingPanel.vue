@@ -210,10 +210,18 @@ import BreadList from "./products/BreadList.vue";
 import Selecta from "./products/SelectaList.vue";
 import Softdrinks from "./products/SoftdrinksList.vue";
 import Other from "./products/OtherList.vue";
+
+import { useSalesReportsStore } from "src/stores/sales-report";
+
 import { computed, ref } from "vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
 
 const { formatDate, formatTime } = typographyFormat();
+
+const salesReportsStore = useSalesReportsStore();
+const userId = computed(() => salesReportsStore.user.data.id);
+
+console.log("sales report in user ID panel", userId.value);
 
 const isLoading = ref(false);
 

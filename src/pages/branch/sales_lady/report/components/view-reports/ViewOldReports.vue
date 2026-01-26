@@ -99,6 +99,9 @@ const userData = computed(() => salesReportStore.user);
 console.log("user datasss", userData.value);
 const branchId = userData.value?.device?.reference?.id || "";
 console.log("sales branch id", branchId);
+
+const userId = computed(() => salesReportStore.user.data.id);
+console.log("salesssss report in page user ID", userId.value);
 const loading = ref(true);
 
 const dialog = ref(false);
@@ -109,7 +112,10 @@ const tab = ref("confirmSalesReports");
 const fetchConfirmationSalesReport = async () => {
   try {
     loading.value = true;
-    await salesReportStore.fetchBranchPendingSalesReport(branchId);
+    await salesReportStore.fetchBranchPendingSalesReport(
+      userId.value,
+      branchId
+    );
   } catch (error) {
     console.log("Error fetching confirmation sales report", error);
   }
@@ -117,7 +123,7 @@ const fetchConfirmationSalesReport = async () => {
 
 onMounted(async () => {
   console.log("Onmountedssss data", branchId);
-  await fetchConfirmationSalesReport(branchId);
+  await fetchConfirmationSalesReport(userId.value, branchId);
 });
 
 const openDialog = () => {
@@ -164,10 +170,6 @@ const reloadTableData = async (branchId, page = 0, rowsPerPage = 5) => {
     loading.value = false;
   }
 };
-
-// const formatDate = (dateString) => {
-//   return date.formatDate(dateString, "MMMM DD, YYYY");
-// };
 
 const handleRequest = (props) => {
   console.log("[ropss]", props);

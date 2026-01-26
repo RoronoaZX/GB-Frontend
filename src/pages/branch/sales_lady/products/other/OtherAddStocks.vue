@@ -141,11 +141,16 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useOtherProductStore } from "src/stores/other-product";
 import { computed, reactive, ref } from "vue";
 import { Notify } from "quasar";
-import { calendarFormat } from "moment";
 
 const salesReportsStore = useSalesReportsStore();
-const userData = salesReportsStore.user;
-const branches_id = userData?.employee?.branch_id || "";
+const userData = computed(() => salesReportsStore.user);
+
+console.log("userDatasssssss", userData.value);
+
+const branches_id = userData.value?.device?.reference?.id || "";
+console.log("branches_id", branches_id);
+
+// const branches_id = userData?.employee?.branch_id || "";
 const otherProductStore = useOtherProductStore();
 const dialog = ref(false);
 const openDialog = () => {
@@ -288,8 +293,8 @@ const save = async () => {
     // Prepare the data to be sent
     loading.value = true;
     const data = {
-      branches_id: userData?.employee?.branch_id || "",
-      employee_id: userData?.employee?.employee_id || "",
+      branches_id: userData.value?.employee?.branch_id || "",
+      employee_id: userData.value?.employee?.employee_id || "",
       status: "pending",
       products: otherProductsGroup.value, // Include the array
     };

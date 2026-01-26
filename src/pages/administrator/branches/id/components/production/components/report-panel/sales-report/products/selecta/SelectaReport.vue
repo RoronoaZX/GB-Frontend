@@ -394,13 +394,52 @@
               </q-td>
             </template>
 
-            <template v-slot:body-cell-handled="props">
+            <template v-slot:body-cell-status="props">
               <q-td :props="props">
-                <q-item dense class="q-pa-none" style="min-height: unset">
-                  <q-item-section>
-                    <q-item-label>{{ props.value }}</q-item-label>
-                  </q-item-section>
-                </q-item>
+                <q-badge
+                  :color="getStatusColor(props.row.status)"
+                  rounded
+                  class="q-px-md q-py-xs text-weight-bold shadow-1"
+                >
+                  {{ props.value }}
+                </q-badge>
+              </q-td>
+            </template>
+
+            <template v-slot:body-cell-handled_by="props">
+              <q-td :props="props">
+                <q-chip
+                  outlined
+                  text-color="blue-grey-9"
+                  icon="person"
+                  size="sm"
+                  class="bg-blue-grey-1"
+                >
+                  {{ props.value }}
+                </q-chip>
+              </q-td>
+            </template>
+
+            <template v-slot:body-cell-reason="props">
+              <q-td :props="props" class="text-italic text-grey-8">
+                <div class="ellipsis" style="max-width: 150px">
+                  <q-icon
+                    name="notes"
+                    size="xs"
+                    color="grey-4"
+                    class="q-mr-xs"
+                  />
+                  <span class="ellipsis" style="max-width: 150px">
+                    {{ props.value }}
+                    <q-tooltip
+                      v-if="props.value !== 'N/A'"
+                      anchor="top middle"
+                      self="bottom middle"
+                    >
+                      {{ props.value }}
+                    </q-tooltip>
+                  </span>
+                </div>
               </q-td>
             </template>
           </q-table>
@@ -549,7 +588,7 @@ const selectaReportColumns = [
   {
     name: "status",
     label: "Status",
-    field: "status",
+    field: (row) => (row.status ? capitalizeFirstLetter(row.status) : "N/A"),
     align: "center",
   },
   {
@@ -561,10 +600,21 @@ const selectaReportColumns = [
   {
     name: "reason",
     label: "Reason",
-    field: "reason",
+    field: (row) => (row.reason ? capitalizeFirstLetter(row.reason) : "N/A"),
     align: "center",
   },
 ];
+
+const getStatusColor = (status) => {
+  if (!status) return "grey";
+
+  const s = status.toLowerCase();
+  if (s.includes("sold") || s.includes("confirmed")) return "positive";
+  if (s.includes("pending") || s.includes("new")) return "orange";
+  if (s.includes("declined") || s.includes("return")) return "negative";
+
+  return "blue-grey";
+};
 
 const negativeSelectaReportColumn = [
   {
