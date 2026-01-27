@@ -105,6 +105,11 @@ console.log("user datasss", userData.value);
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
 
+const branches_id =
+  userData.value?.device?.reference_id ||
+  userData.value?.data?.reference?.id ||
+  "";
+
 const props = defineProps({
   softdrinks: Array,
   sales_report_id: Number,
@@ -121,6 +126,8 @@ const handleConfirm = async (softdrinks) => {
     type: "softdrinks",
     employee_id: employee_id,
     sales_report_id: props.sales_report_id,
+    branches_id: branches_id,
+    remaining: softdrinks.remaining,
   };
 
   console.log("paysssload", payload);

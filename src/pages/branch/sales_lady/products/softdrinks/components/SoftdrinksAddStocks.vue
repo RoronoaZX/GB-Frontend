@@ -138,7 +138,10 @@ import { Notify } from "quasar";
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-const branches_id = userData?.employee?.branch_id || "";
+const branchId =
+  userData.value?.device?.reference?.id ||
+  userData.value?.device?.reference_id ||
+  "";
 const softdrinksProductStore = useSoftdrinksProductStore();
 const softdrinksProductsData = computed(
   () => softdrinksProductStore.softdrinksProducts
@@ -163,7 +166,7 @@ console.log(
 );
 const fetchBranchSoftdrinks = async () => {
   try {
-    const branchesId = branches_id?.branches_id || branches_id;
+    const branchesId = branchId;
     const categoryValue = category.value;
 
     if (!branchesId || !categoryValue) {
@@ -295,7 +298,7 @@ const save = async () => {
     // Prepare the data to be sent
     loading.value = true;
     const data = {
-      branches_id: userData?.employee?.branch_id || "",
+      branches_id: branchId,
       employee_id: userData?.employee?.employee_id || "",
       status: "pending",
       products: softdrinksProductGroup.value, // Include the array

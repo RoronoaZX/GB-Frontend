@@ -96,10 +96,15 @@ const salesReportStore = useSalesReportsStore();
 const loading = ref(false);
 
 const userData = computed(() => salesReportStore.user);
-console.log("user datasss", userData.value);
+console.log("user dasstasss", userData.value);
 
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
+
+const branches_id =
+  userData.value?.device?.reference_id ||
+  userData.value?.data?.reference?.id ||
+  "";
 
 const props = defineProps({
   bread: Array,
@@ -117,7 +122,11 @@ const handleConfirm = async (bread) => {
     type: "bread",
     employee_id: employee_id,
     sales_report_id: props.sales_report_id,
+    branches_id: branches_id,
+    remaining: bread.remaining,
   };
+
+  console.log("payload to confirm", payload);
 
   try {
     Loading.show({
@@ -127,6 +136,7 @@ const handleConfirm = async (bread) => {
       backgroundColor: "rgba(0,0,0,0.5)", // overlay background
       delay: 400, // ms
     });
+
     await salesReportStore.confirmProductsReport(payload);
   } catch (error) {
     console.log(error);

@@ -97,6 +97,11 @@ const userData = computed(() => salesReportStore.user);
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
 
+const branches_id =
+  userData.value?.device?.reference_id ||
+  userData.value?.data?.reference?.id ||
+  "";
+
 const props = defineProps({
   others: Array,
   sales_report_id: Number,
@@ -113,6 +118,8 @@ const handleConfirm = async (other) => {
     type: "other",
     employee_id: employee_id,
     sales_report_id: props.sales_report_id,
+    branches_id: branches_id,
+    remaining: other.remaining,
   };
 
   try {

@@ -80,13 +80,16 @@ const selecta_added_stocks = selectaStocksReport.value.selecta_added_stocks;
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-const branches_id = userData?.employee?.branch_id || "";
+const branchId =
+  userData.value?.device?.reference?.id ||
+  userData.value?.device?.reference_id ||
+  "";
 const dialog = ref(false);
 const rows = ref([]);
 const openDialog = async () => {
   try {
-    if (branches_id) {
-      await fetchSelectaProductReports(branches_id); // Fetch data before opening dialog
+    if (branchId) {
+      await fetchSelectaProductReports(branchId); // Fetch data before opening dialog
     }
     dialog.value = true; // Open the dialog after data is fetched
   } catch (error) {
@@ -103,13 +106,6 @@ const pagination = ref({
 const maxPages = ref(1);
 const maximizedToggle = ref(true);
 
-// const onDialogChange = async (value) => {
-//   if (value) {
-//     // Dialog is opening; fetch data
-//     await fetchSelectaProductReports(branches_id);
-//   }
-// };
-
 const fetchSelectaProductReports = async () => {
   // loading.value = true;
 
@@ -118,7 +114,7 @@ const fetchSelectaProductReports = async () => {
 
     // Call the store function with the necessary parameters
     const stocks = await selectaProductStore.fetchSelectaProductReports(
-      branches_id, // Branch ID
+      branchId, // Branch ID
       page, // Current page
       rowsPerPage, // Items per page
       sortBy, // Sorting field
@@ -131,16 +127,7 @@ const fetchSelectaProductReports = async () => {
   } catch (error) {
     console.error("Error fetching selecta product reports:", error);
   }
-  // finally {
-  //   loading.value = false;
-  // }
 };
-
-// onMounted(async () => {
-//   if (branches_id) {
-//     await fetchSelectaProductReports(branches_id);
-//   }
-// });
 
 const formatDate = (dateString) => {
   return date.formatDate(dateString, "MMMM DD, YYYY");

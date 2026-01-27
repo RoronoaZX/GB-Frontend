@@ -145,10 +145,12 @@ import { Notify } from "quasar";
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
 
-console.log("userDatasssssss", userData.value);
+console.log("usessrDatasssssss", userData.value);
 
-const branches_id = userData.value?.device?.reference?.id || "";
-console.log("branches_id", branches_id);
+const branchId =
+  userData.value?.device?.reference?.id ||
+  userData.value?.device?.reference_id ||
+  "";
 
 // const branches_id = userData?.employee?.branch_id || "";
 const otherProductStore = useOtherProductStore();
@@ -170,7 +172,7 @@ const filterOtherProductsOptions = ref(otherProductsOptions.value);
 
 const fetchBranchOtherProducts = async () => {
   try {
-    const branchesId = branches_id?.branch_id || branches_id;
+    const branchesId = branchId;
     const categoryValue = category.value;
 
     if (!branchesId || !categoryValue) {
@@ -293,7 +295,7 @@ const save = async () => {
     // Prepare the data to be sent
     loading.value = true;
     const data = {
-      branches_id: userData.value?.employee?.branch_id || "",
+      branches_id: branchId,
       employee_id: userData.value?.employee?.employee_id || "",
       status: "pending",
       products: otherProductsGroup.value, // Include the array

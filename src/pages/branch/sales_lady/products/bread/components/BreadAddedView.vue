@@ -59,15 +59,6 @@
               <q-spinner-gears size="50px" color="indigo-8" />
             </q-inner-loading>
           </template>
-          <!-- <template>
-            <q-pagination
-              v-model="pagination.page"
-              :max="maxPages"
-              :max-pages="maxPages"
-              @update:model-value="fetchSendBreadToBranch"
-            >
-            </q-pagination>
-          </template> -->
         </q-table>
       </q-card-section>
     </q-card>
@@ -85,8 +76,12 @@ const breadProductStore = useBreadProductStore();
 const breads = computed(() => breadProductStore.breads);
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-const branchId = userData?.device?.reference_id || "";
-console.log("branch id", branchId);
+
+console.log("userDatasssssss", userData);
+
+const branchId =
+  userData?.device?.reference_id || userData?.device?.reference?.id || "";
+console.log("brancsssh id", branchId);
 const dialog = ref(false);
 const rows = ref([]);
 const loading = ref(true);

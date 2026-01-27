@@ -83,6 +83,11 @@ console.log("user datasss", userData.value);
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
 
+const branches_id =
+  userData.value?.device?.reference_id ||
+  userData.value?.data?.reference?.id ||
+  "";
+
 const dialog = ref(false);
 
 const reason = ref("");
@@ -106,7 +111,11 @@ const decline = async () => {
     type: props.category,
     employee_id: employee_id,
     sales_report_id: props.sales_report_id,
+    branches_id: branches_id,
+    remaining: props.productData.remaining,
   };
+
+  console.log("paysssssload", payload);
   try {
     Loading.show({
       spinnerColor: "white",

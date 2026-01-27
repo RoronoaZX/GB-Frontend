@@ -76,13 +76,14 @@ const otherStocksReport = computed(() => otherProductStore.otherProductReports);
 
 const salesReportStore = useSalesReportsStore();
 const userData = salesReportStore.user;
-const branches_id = userData?.employee?.branch_id || "";
+const branchId =
+  userData?.device?.reference_id || userData.device?.reference?.id || "0";
 const dialog = ref([false]);
 const rows = ref([]);
 const openDialog = async () => {
   try {
-    if (branches_id) {
-      await fetchOtherProductReports(branches_id); // Fetch data before opening dialog
+    if (branchId) {
+      await fetchOtherProductReports(branchId); // Fetch data before opening dialog
     }
 
     dialog.value = true;
@@ -105,7 +106,7 @@ const fetchOtherProductReports = async () => {
 
     // Call the store function with the necessary parameters
     const stocks = await otherProductStore.fetchOtherProductReports(
-      branches_id, // Branch ID
+      branchId, // Branch ID
       page, // Current page
       rowsPerPage, // Items per page
       sortBy, // Sorting field

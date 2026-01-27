@@ -54,7 +54,6 @@
     <q-dialog v-model="dialog" persistent>
       <q-card class="my-card q-pa-md" style="width: 700px; max-width: 80vw">
         <q-card-section class="row justify-between">
-          <!-- {{ selectedItem }} -->
           <div class="text-h6">
             {{
               capitalizeFirstLetter(
@@ -104,20 +103,6 @@
             </div>
           </div>
           <div class="row q-gutter-xm justify-between">
-            <!-- <div class="q-gutter-sm">
-              <div class="text-weight-light">Total Product</div>
-              <q-input
-                dense
-                outlined
-                readonly
-                :label="selectedItem ? selectedItem.total_quantity : ''"
-                style="width: 120px; max-width: 300px; min-width: 50px"
-              >
-                <template v-slot:append>
-                  <span class="text-body2 text-weight-regular">pcs</span>
-                </template>
-              </q-input>
-            </div> -->
             <div class="q-gutter-sm">
               <div class="text-weight-light">Beginnings</div>
               <q-input
@@ -156,32 +141,6 @@
                 style="width: 150px; max-width: 300px; min-width: 50px"
               />
             </div>
-            <!-- <div class="q-gutter-sm">
-              <div class="text-weight-light">Sold Pcs</div>
-              <q-input
-                dense
-                v-model="othersProductsReport.otherProductSold"
-                outlined
-                reverse-fill-mask
-                readonly
-                style="width: 120px; max-width: 300px; min-width: 50px"
-              >
-                <template v-slot:append>
-                  <span class="text-body2 text-weight-regular">pcs</span>
-                </template>
-              </q-input>
-            </div>
-            <div class="q-gutter-sm">
-              <div class="text-weight-light">Sales Amount</div>
-              <q-input
-                dense
-                outlined
-                v-model="otherProductSalesAmountFormatted"
-                readonly
-                style="width: 150px; max-width: 300px; min-width: 50px"
-              >
-              </q-input>
-            </div> -->
           </div>
         </q-card-section>
         <q-card-section>
@@ -202,9 +161,11 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 console.log("userdata for branch", userData);
-const branchId = userData?.device?.reference_id || "";
+const branchId =
+  userData?.device?.reference_id || userData.device?.reference?.id || "0";
 console.log("branchId", branchId);
 const selectedItem = ref(null);
+
 const dialog = ref(false);
 const loading = ref(false);
 // Props

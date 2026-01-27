@@ -406,7 +406,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     async declineProductsReport(payload) {
-      console.log("Payload data:", payload);
+      console.log("Payload datasssss:", payload);
 
       try {
         const response = await api.post(
@@ -630,7 +630,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         credit_total: this.creditTotalAmount, // Use the calculated value here
       };
 
-      console.log("Payload data:", payload);
+      console.log("Paylosssssad data:", payload);
 
       try {
         const salesReportData = await api.post("/api/sales-report", payload);

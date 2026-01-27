@@ -8,7 +8,6 @@
 
   <q-dialog v-model="dialog">
     <q-card style="width: 450px">
-      <!-- Header -->
       <q-card-section class="bg-gradient text-white">
         <div class="row justify-between items-center">
           <div class="text-h6">Send bread to other branch</div>
@@ -16,7 +15,6 @@
         </div>
       </q-card-section>
 
-      <!-- Search Input -->
       <q-card-section>
         <q-input
           v-model="searchQuery"
@@ -31,10 +29,8 @@
         >
           <template v-slot:append>
             <q-icon v-if="!searchLoading" name="search" />
-            <!-- <q-spinner v-else color="grey" size="sm" /> -->
           </template>
 
-          <!-- Dropdown -->
           <div
             v-if="showBranchCard && isDropDownBranchVisible"
             class="custom-list z-top"
@@ -185,7 +181,8 @@ const showBranchCard = ref(false);
 const branchSelected = ref(false);
 const userData = salesReportsStore.user;
 console.log("userData from send", userData);
-const branchId = userData?.device?.reference_id || "";
+const branchId =
+  userData?.device?.reference_id || userData?.device?.reference?.id || "";
 console.log("branch id", branchId);
 const employee_id = userData?.employee?.employee_id || "";
 const category = ref("Bread");

@@ -148,7 +148,10 @@ import { Notify } from "quasar";
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-const branches_id = userData?.employee?.branch_id || "";
+const branchId =
+  userData.value?.device?.reference?.id ||
+  userData.value?.device?.reference_id ||
+  "";
 const employee_id = userData?.employee?.employee_id || "";
 const selectaProductStore = useSelectaProductsStore();
 const selectaProductsData = computed(() => selectaProductStore.selectaProducts);
@@ -171,7 +174,7 @@ const filterSelectaProductsOptions = ref(selectaProductsOptions.value);
 
 const fetchBranchSelecta = async () => {
   try {
-    const branchesId = branches_id?.branches_id || branches_id; // Ensure compatibility with the object structure
+    const branchesId = branchId; // Ensure compatibility with the object structure
     const categoryValue = category.value;
 
     if (!branchesId || !categoryValue) {

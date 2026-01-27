@@ -39,8 +39,8 @@
           </q-item-section>
 
           <q-item-section>
-            <q-item-label align="center">
-              {{ selecta.ramaining || "-" }}
+            <q-item-label class="text-caption" align="center">
+              {{ selecta.remaining || "-" }}
             </q-item-label>
           </q-item-section>
 
@@ -96,6 +96,11 @@ console.log("user datasss", userData.value);
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
 
+const branches_id =
+  userData.value?.device?.reference_id ||
+  userData.value?.data?.reference?.id ||
+  "";
+
 const props = defineProps({
   selecta: Array,
   sales_report_id: Number,
@@ -103,7 +108,7 @@ const props = defineProps({
 
 const $q = useQuasar();
 
-console.log("selecta", props.selecta);
+console.log("selessssscta", props.selecta);
 
 const handleConfirm = async (selecta) => {
   const payload = {
@@ -112,6 +117,8 @@ const handleConfirm = async (selecta) => {
     type: "selecta",
     employee_id: employee_id,
     sales_report_id: props.sales_report_id,
+    branches_id: branches_id,
+    remaining: selecta.remaining,
   };
 
   try {

@@ -81,14 +81,17 @@ const softdrinks_added_stocks =
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-const branches_id = userData?.employee?.branch_id || "";
+const branchId =
+  userData.value?.device?.reference?.id ||
+  userData.value?.device?.reference_id ||
+  "";
 const dialog = ref(false);
 const rows = ref([]);
 
 const openDialog = async () => {
   try {
-    if (branches_id) {
-      await fetchSoftdrinksProductReport(branches_id);
+    if (branchId) {
+      await fetchSoftdrinksProductReport(branchId);
     }
 
     dialog.value = true;
@@ -111,7 +114,7 @@ const fetchSoftdrinksProductReport = async () => {
   try {
     const { page, rowsPerPage, sortBy, descending } = pagination.value;
     const stocks = await softdrinksProductStore.fetchSoftdrinksProductReports(
-      branches_id, // Branch ID
+      branchId, // Branch ID
       page, // Current page
       rowsPerPage, // Items per page
       sortBy, // Sorting field

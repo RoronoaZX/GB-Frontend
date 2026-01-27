@@ -21,9 +21,6 @@
             <q-item-section>
               <q-item-label class="text-overline">Product Name</q-item-label>
             </q-item-section>
-            <!-- <q-item-section>
-              <q-item-label class="text-overline">Price</q-item-label>
-            </q-item-section> -->
             <q-item-section side>
               <q-item-label class="text-overline">Added Stocks</q-item-label>
             </q-item-section>
@@ -34,11 +31,6 @@
                 report.product.name
               }}</q-item-label>
             </q-item-section>
-            <!-- <q-item-section>
-              <q-item-label class="text-caption">
-                {{ report.price }}
-              </q-item-label>
-            </q-item-section> -->
             <q-item-section class="text-caption" side>
               {{ report.bread_added }} pcs
             </q-item-section>
@@ -55,8 +47,6 @@
           <q-btn color="amber-10" label="Yes" icon="check" @click="received">
           </q-btn>
         </div>
-        <!-- {{ report.to_branch_id }}
-        {{ branchId }} -->
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -97,13 +87,7 @@ const received = async () => {
   const bread_added = report.bread_added;
 
   Loading.show({
-    // message: "Receiving premix...",
     spinner: QSpinnerIos,
-    // spinnerColor: "grey-1",
-    // spinnerSize: 140,
-    // backgroundColor: "purple",
-    // message: "Some important process is in progress. Hang on...",
-    // messageColor: "black",
   });
 
   console.log("report_id", report_id);

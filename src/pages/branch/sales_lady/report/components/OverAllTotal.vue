@@ -207,17 +207,6 @@ const chargesTotalFormatted = computed(() =>
   formatCurrency(chargesTotal.value)
 );
 
-// const handleSubmit = async () => {
-//   try {
-//     Loading.show();
-//     await salesReportsStore.submitSalesReports();
-//   } catch (error) {
-//     console.error("Error submitting data:", error);
-//   } finally {
-//     Loading.hide();
-//   }
-// };
-
 const handleSubmit = () => {
   $q.dialog({
     component: DialogForEmployee,

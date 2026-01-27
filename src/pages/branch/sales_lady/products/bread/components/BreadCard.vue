@@ -1,14 +1,5 @@
 <template>
   <div class="q-mt-md">
-    <!-- Search Input -->
-    <!-- <q-input
-      outlined
-      dense
-      debounce="300"
-      v-model="filter"
-      placeholder="Search products..."
-      class="q-mb-md"
-    /> -->
     <q-scroll-area style="height: 700px; max-width: 1500px">
       <div
         v-if="!filteredBreadProducts || filteredBreadProducts.length === 0"
@@ -25,7 +16,6 @@
           class="example-item q-gutter-sm"
         >
           <q-card @click="clickme(item)" class="q-ma-sm my-card">
-            <!-- Using a static image URL for now -->
             <img src="https://cdn.quasar.dev/img/chicken-salad.jpg" />
 
             <div
@@ -113,20 +103,6 @@
             </div>
           </div>
           <div class="row q-gutter-xm justify-between">
-            <!-- <div class="q-gutter-sm">
-              <div class="text-weight-light">Total Bread</div>
-              <q-input
-                dense
-                outlined
-                readonly
-                :label="selectedItem ? selectedItem.total_quantity : ''"
-                style="width: 120px; max-width: 300px; min-width: 50px"
-              >
-                <template v-slot:append>
-                  <span class="text-body2 text-weight-regular">pcs</span>
-                </template>
-              </q-input>
-            </div> -->
             <div class="q-gutter-sm">
               <div class="text-weight-light">Beginning/s</div>
               <q-input
@@ -165,32 +141,6 @@
                 style="width: 150px; max-width: 300px; min-width: 50px"
               />
             </div>
-            <!-- <div class="q-gutter-sm">
-              <div class="text-weight-light">Sold Pcs</div>
-              <q-input
-                dense
-                v-model="breadProductsReport.breadSold"
-                outlined
-                reverse-fill-mask
-                readonly
-                style="width: 120px; max-width: 300px; min-width: 50px"
-              >
-                <template v-slot:append>
-                  <span class="text-body2 text-weight-regular">pcs</span>
-                </template>
-              </q-input>
-            </div> -->
-            <!-- <div class="q-gutter-sm">
-              <div class="text-weight-light">Sales Amount</div>
-              <q-input
-                dense
-                outlined
-                v-model="breadSalesAmountFormatted"
-                readonly
-                style="width: 150px; max-width: 300px; min-width: 50px"
-              >
-              </q-input>
-            </div> -->
           </div>
         </q-card-section>
         <q-card-section>
@@ -216,13 +166,13 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 console.log("userdataa", userData);
-const branchId = userData.device?.reference_id || "0";
+const branchId =
+  userData.device?.reference_id || userData.device?.reference?.id || "0";
 console.log("branchIdsss", branchId);
 const selectedItem = ref(null);
 const dialog = ref(false);
 const loading = ref(false);
-// const filter = ref(""); // Filter input
-// Props
+
 const filter = defineProps({
   filter: String,
 });
