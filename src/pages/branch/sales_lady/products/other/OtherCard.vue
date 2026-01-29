@@ -41,7 +41,7 @@
               </div>
               <div class="q-pa-xm row q-gutter-x-sm justify-between">
                 <div>Price:</div>
-                <div>{{ formatCurrency(item.price) }}</div>
+                <div>{{ formatPrice(item.price) }}</div>
               </div>
             </q-card-section>
           </q-card>
@@ -158,6 +158,10 @@ import { Notify } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 console.log("userdata for branch", userData);
@@ -218,25 +222,6 @@ const validateFields = () => {
   return isValid;
 };
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-    .format(value)
-    .replace("₱", "₱ ");
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const calculateOtherProductSold = () => {
   if (selectedItem.value) {
     const totalQuantity = parseInt(selectedItem.value.total_quantity) || 0;
@@ -276,18 +261,6 @@ const otherProductSalesAmount = computed(() => {
 const otherProductSalesAmountFormatted = computed(() => {
   return formatCurrency(otherProductSalesAmount.value);
 });
-
-onMounted(async () => {
-  // const userData = salesReportsStore.user;
-  // const branchId = userData?.employee?.branch_id || "";
-  if (branchId) {
-    await fetchProducts(branchId);
-  }
-});
-
-const fetchProducts = async (branchId) => {
-  const res = await salesReportsStore.fetchBranchProducts(branchId);
-};
 
 const filteredSoftdrinksProducts = computed(
   () =>

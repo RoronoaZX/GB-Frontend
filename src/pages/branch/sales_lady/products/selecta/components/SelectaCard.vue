@@ -38,7 +38,7 @@
               </div>
               <div class="q-pa-xm row q-gutter-x-sm justify-between">
                 <div>Price:</div>
-                <div>{{ formatCurrency(item.price) }}</div>
+                <div>{{ formatPrice(item.price) }}</div>
               </div>
             </q-card-section>
           </q-card>
@@ -101,20 +101,6 @@
             </div>
           </div>
           <div class="row q-gutter-xm justify-between">
-            <!-- <div class="q-gutter-sm">
-              <div class="text-weight-light">Total Selecta</div>
-              <q-input
-                dense
-                outlined
-                readonly
-                :label="selectedItem ? selectedItem.total_quantity : ''"
-                style="width: 120px; max-width: 300px; min-width: 50px"
-              >
-                <template v-slot:append>
-                  <span class="text-body2 text-weight-regular">pcs</span>
-                </template>
-              </q-input>
-            </div> -->
             <div class="q-gutter-sm">
               <div class="text-weight-light">Beginnings</div>
               <q-input
@@ -171,6 +157,10 @@
 import { Notify, QSpinnerIos, Loading } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
@@ -233,23 +223,6 @@ const validateFields = () => {
   return isValid;
 };
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const selectaSalesAmount = computed(() => {
   if (selectedItem.value) {
     console.log("selectedItem", selectedItem.value);
@@ -259,7 +232,7 @@ const selectaSalesAmount = computed(() => {
 });
 
 const selectaSalesAmountFormatted = computed(() => {
-  return formatCurrency(selectaSalesAmount.value);
+  return formatPrice(selectaSalesAmount.value);
 });
 
 const calculateSelecta = () => {
@@ -285,18 +258,6 @@ watch(
     calculateSelecta();
   }
 );
-
-onMounted(async () => {
-  // const userData = salesReportsStore.user;
-  // const branchId = userData?.employee?.branch_id || "";
-  if (branchId) {
-    await fetchProducts(branchId);
-  }
-});
-
-const fetchProducts = async (branchId) => {
-  await salesReportsStore.fetchBranchProducts(branchId);
-};
 
 const selectaProducts = computed(() => salesReportsStore.selectaProducts);
 watch(selectaProducts, (newVal) => {

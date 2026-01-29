@@ -38,7 +38,7 @@
               </div>
               <div class="q-pa-xm row q-gutter-x-sm justify-between">
                 <div>Price:</div>
-                <div>{{ formatCurrency(item.price) }}</div>
+                <div>{{ formatPrice(item.price) }}</div>
               </div>
             </q-card-section>
           </q-card>
@@ -137,7 +137,7 @@
                 dense
                 outlined
                 readonly
-                :label="selectedItem ? formatCurrency(selectedItem.price) : ''"
+                :label="selectedItem ? formatPrice(selectedItem.price) : ''"
                 style="width: 150px; max-width: 300px; min-width: 50px"
               />
             </div>
@@ -162,6 +162,10 @@
 import { Notify, QSpinnerIos, Loading } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
@@ -219,35 +223,6 @@ const validateFields = () => {
   return isValid;
 };
 
-// const errors = ref({
-//   breadOut: false,
-//   remainnings: false,
-// });
-
-// const validateFields = () => {
-//   errors.value.breadOut = !breadProductsReport.breadOut;
-//   errors.value.remainnings = !breadProductsReport.remainnings;
-
-//   return !errors.value.breadOut && !errors.value.remainnings;
-// };
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const calculateBreadSold = () => {
   if (selectedItem.value) {
     console.log("selectedItem", selectedItem.value);
@@ -281,20 +256,8 @@ const breadSalesAmount = computed(() => {
 });
 
 const breadSalesAmountFormatted = computed(() => {
-  return formatCurrency(breadSalesAmount.value);
+  return formatPrice(breadSalesAmount.value);
 });
-
-onMounted(async () => {
-  // const userData = salesReportsStore.user;
-  // const branchId = branchId.value || userData?.device?.branch_id;
-  if (branchId) {
-    await fetchProducts(branchId);
-  }
-});
-
-const fetchProducts = async (branchId) => {
-  const res = await salesReportsStore.fetchBranchProducts(branchId);
-};
 
 const breadProducts = computed(() => salesReportsStore.breadProducts);
 watch(breadProducts, (newVal) => {

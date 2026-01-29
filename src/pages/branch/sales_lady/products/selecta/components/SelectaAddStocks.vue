@@ -141,17 +141,23 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSelectaProductsStore } from "src/stores/selecta-product";
 import { Notify } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
+console.log("userData in selecta add stocks", userData);
 const branchId =
-  userData.value?.device?.reference?.id ||
-  userData.value?.device?.reference_id ||
-  "";
+  userData?.device?.reference_id || userData?.device?.reference?.id || "";
+
+console.log("branchId in selecta add stocks", branchId);
+
 const employee_id = userData?.employee?.employee_id || "";
 const selectaProductStore = useSelectaProductsStore();
 const selectaProductsData = computed(() => selectaProductStore.selectaProducts);
@@ -173,14 +179,10 @@ const selectedSelectaProducts = reactive({
 const filterSelectaProductsOptions = ref(selectaProductsOptions.value);
 
 const fetchBranchSelecta = async () => {
+  console.log("branchId in fetchBranchSelecta", branchId);
   try {
     const branchesId = branchId; // Ensure compatibility with the object structure
     const categoryValue = category.value;
-
-    if (!branchesId || !categoryValue) {
-      console.error("Invalid branchesId or category value.");
-      return;
-    }
 
     const selectaProduct = await selectaProductStore.fetchBranchSelectaProduct(
       branchesId,
@@ -190,7 +192,7 @@ const fetchBranchSelecta = async () => {
     selectaProductsOptions.value = selectaProductStore.selectaProducts.map(
       (val) => {
         return {
-          label: val.name,
+          label: capitalizeFirstLetter(val.name),
           value: val.id,
           price: val.price,
         };
@@ -255,37 +257,6 @@ const addSelectaStocks = () => {
   }
 };
 
-// const addSelectaStocks = () => {
-//   const data = selectaProductsGroups.value;
-
-//   function findObjectById(arr, id) {
-//     return arr.find((obj) => obj.product_id == id);
-//   }
-//   const idToSearch = selectedSelectaProducts.name.value;
-
-//   const foundObject = findObjectById(data, idToSearch);
-//   if (!foundObject) {
-//     selectaProductsGroups.value = [
-//       ...data,
-//       {
-//         product_id: selectedSelectaProducts.name.value,
-//         label: selectedSelectaProducts.name.label,
-//         added_stocks: selectedSelectaProducts.added_stocks,
-//         price: selectedProduct.price,
-//       },
-//     ];
-//     clearData();
-//   } else {
-//     Notify.create({
-//       type: "negative",
-//       icon: "warning",
-//       message: "Ingredient already exist",
-//       timeout: 2000,
-//     });
-//     // al
-//   }
-// };
-
 const removeSelectaProduct = (index) => {
   selectaProductsGroups.value.splice(index, 1);
 };
@@ -296,14 +267,6 @@ const isFormValid = computed(() => {
     selectaProductsGroups.value.every((product) => product.added_stocks > 0) // Check all added stocks are valid
   );
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const dismiss = () => {
   clearForm();

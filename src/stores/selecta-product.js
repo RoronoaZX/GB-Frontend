@@ -12,6 +12,9 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
   const selectaProductReports = ref([]);
 
   const fetchSelectaProductReports = async (branchId, page, rowsPerPage) => {
+    console.log("bransssschId", branchId);
+    console.log("page", page);
+    console.log("rowsPerPage", rowsPerPage);
     try {
       const response = await api.get(`/api/selecta-added-stocks/${branchId}`, {
         params: {
@@ -19,10 +22,11 @@ export const useSelectaProductsStore = defineStore("selectaProduct", () => {
           per_page: rowsPerPage, // pagination
         },
       });
-
+      console.log("selectaaa", response.data);
+      selectaProductReports.value = response.data;
       return response.data; // return the full response for use in the component
     } catch (error) {
-      console.log("Error fetching selecta product reports:", error);
+      console.log("Error fetching selecta product reportssssss:", error);
       throw error; // Propagate the error for handling in the component
     }
   };

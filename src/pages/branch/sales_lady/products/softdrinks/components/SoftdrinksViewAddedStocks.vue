@@ -71,6 +71,11 @@ import { useSoftdrinksProductStore } from "src/stores/softdrinks-products";
 import { computed, ref, watch } from "vue";
 import SoftdrinksViewStocksReport from "./SoftdrinksViewStocksReport.vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatDate, formatTime, formatFullname, capitalizeFirstLetter } =
+  typographyFormat();
+
 const softdrinksProductStore = useSoftdrinksProductStore();
 const softdrinksStocksReport = computed(
   () => softdrinksProductStore.softdrinksProductsReport
@@ -82,9 +87,7 @@ const softdrinks_added_stocks =
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 const branchId =
-  userData.value?.device?.reference?.id ||
-  userData.value?.device?.reference_id ||
-  "";
+  userData?.device?.reference?.id || userData?.device?.reference_id || "";
 const dialog = ref(false);
 const rows = ref([]);
 
@@ -126,9 +129,6 @@ const fetchSoftdrinksProductReport = async () => {
     console.error("Error fetching selecta product reports:", error);
   }
 };
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMM DD, YYYY");
-};
 
 const formatTimeFromDB = (dateString) => {
   const dateObj = new Date(dateString);
@@ -139,18 +139,6 @@ const formatTimeFromDB = (dateString) => {
     hour12: true,
   };
   return dateObj.toLocaleDateString(undefined, options);
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
 const softdrinks = [
@@ -164,7 +152,7 @@ const softdrinks = [
     name: "time",
     align: "center",
     label: "Time",
-    field: (row) => formatTimeFromDB(row.created_at),
+    field: (row) => formatTime(row.created_at),
   },
   {
     name: "employee",
@@ -197,13 +185,6 @@ const getBadgeCategoryColor = (category) => {
     default:
       return "grey";
   }
-};
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 watch(() => pagination.value.page, fetchSoftdrinksProductReport);
 watch(() => pagination.value.rowsPerPage, fetchSoftdrinksProductReport);

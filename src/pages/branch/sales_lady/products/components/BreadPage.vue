@@ -5,8 +5,16 @@
         <BreadSearch @update-search="updateSearchTerm" />
       </div>
       <div class="row q-gutter-md">
-        <div>
+        <!-- <div>
           <SendBreadToOtherBranch />
+        </div> -->
+        <div>
+          <q-btn
+            class="bg-gradient text-white"
+            outlined
+            label="Send Bread To Branch"
+            @click="handleSendProductDialog('Bread')"
+          />
         </div>
         <div>
           <BreadAddedView />
@@ -28,12 +36,30 @@ import BreadCard from "../bread/components/BreadCard.vue";
 import BreadSearch from "./SearchEngine.vue";
 import SendBreadToOtherBranch from "../bread/components/SendBreadToOtherBranch.vue";
 import BreadAddedView from "../bread/components/BreadAddedView.vue";
+import SendingProductsToBranchButton from "../components/buttons/SendingProductsToBranchButton.vue";
+import { useQuasar } from "quasar";
 
 // Search term state
 const filter = ref("");
+const $q = useQuasar();
 
 // Update search term
 const updateSearchTerm = (searchValue) => {
   filter.value = searchValue;
 };
+
+const handleSendProductDialog = (category) => {
+  $q.dialog({
+    component: SendingProductsToBranchButton,
+    componentProps: {
+      category,
+    },
+  });
+};
 </script>
+
+<style lang="scss" scoped>
+.bg-gradient {
+  background: linear-gradient(135deg, #5c4033, #a9746e);
+}
+</style>

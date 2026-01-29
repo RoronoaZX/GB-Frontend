@@ -11,12 +11,14 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Remarks: {{ report.remark ? report.remark : "N/A" }}</div>
-        <div>Status: {{ report.status }}</div>
+        <div v-if="report.status === 'declined'">
+          Remarks:
+          {{ capitalizeFirstLetter(report.remark ? report.remark : "N/A") }}
+        </div>
+        <div>Status: {{ capitalizeFirstLetter(report.status || "N/A") }}</div>
       </q-card-section>
       <q-card-section>
         <q-list dense separator class="box">
-          <!-- Header row inside the q-list -->
           <q-item>
             <q-item-section>
               <q-item-label class="text-overline">Product Name</q-item-label>
@@ -37,26 +39,19 @@
             <q-item-section class="text-caption" side>
               {{ selectaProduct.added_stocks }} pcs
             </q-item-section>
-            <!-- <q-item-section side>
-              <q-btn
-                @click="removeSelectaProduct(index)"
-                color="grey-10"
-                icon="backspace"
-                dense
-                flat
-                round
-              />
-            </q-item-section> -->
           </q-item>
         </q-list>
       </q-card-section>
-      <!-- {{ report }} -->
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
 import { ref } from "vue";
+
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
 
 const dialog = ref(false);
 const openDialog = () => {
@@ -66,13 +61,6 @@ const openDialog = () => {
 const props = defineProps(["report"]);
 
 console.log("report", props.report);
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 </script>
 
 <style lang="scss" scoped>

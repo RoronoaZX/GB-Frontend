@@ -36,7 +36,6 @@
 
       <q-card-section class="q-px-xl q-pt-none q-pb-lg">
         <div class="q-mt-lg q-animated q-animate-bounce">
-          <!-- <div>Name of Bread</div> -->
           <q-input
             class="text-capitalize"
             v-model="editProductForm.name"
@@ -47,7 +46,6 @@
           />
         </div>
         <div class="q-mt-md q-animated q-animate-bounce">
-          <!-- <div>Category</div> -->
           <q-select
             v-model="editProductForm.category"
             input-debounce="0"
@@ -61,7 +59,6 @@
           />
         </div>
       </q-card-section>
-      <!-- <q-separator /> -->
       <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
         <q-btn class="glossy" color="grey-9" label="Dismiss" v-close-popup />
         <q-btn
@@ -97,7 +94,6 @@ const openEditForm = () => {
 
 const saveEditedProduct = async () => {
   try {
-    // const updatedProducts = { ...props.edit.row, ...editProductForm };
     await productStore.updateProducts(props.edit.row.id, editProductForm);
     dialog.value = false;
   } catch (error) {

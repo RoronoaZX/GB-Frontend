@@ -46,7 +46,9 @@
                   clickable
                   @click="autoFillBranch(branch)"
                 >
-                  <q-item-section>{{ branch.name }}</q-item-section>
+                  <q-item-section>{{
+                    capitalizeFirstLetter(branch.name)
+                  }}</q-item-section>
                 </q-item>
               </q-list>
             </q-card>
@@ -63,7 +65,7 @@
               debounce="3000"
               outlined
               dense
-              lable="Bread"
+              label="Bread"
               behavior="menu"
               use-input
               hide-dropdown-icon
@@ -123,7 +125,7 @@
             <q-item v-for="(bread, index) in breadProductGroups" :key="index">
               <q-item-section>
                 <q-item-label>
-                  {{ bread.label }}
+                  {{ capitalizeFirstLetter(bread.label) }}
                 </q-item-label>
               </q-item-section>
 
@@ -163,6 +165,10 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useBreadProductStore } from "src/stores/bread-product";
 import { Notify } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const branchStore = useBranchesStore();
 const branches = computed(() => branchStore.branch);
 const salesReportsStore = useSalesReportsStore();
@@ -179,12 +185,14 @@ const searchQuery = ref("");
 const searchLoading = ref(false);
 const showBranchCard = ref(false);
 const branchSelected = ref(false);
+
 const userData = salesReportsStore.user;
 console.log("userData from send", userData);
 const branchId =
   userData?.device?.reference_id || userData?.device?.reference?.id || "";
 console.log("branch id", branchId);
 const employee_id = userData?.employee?.employee_id || "";
+
 const category = ref("Bread");
 const loading = ref(false);
 const breadProductGroups = ref([]);
@@ -218,7 +226,7 @@ const isDropDownBranchVisible = computed(() => {
 });
 
 const autoFillBranch = (branch) => {
-  searchQuery.value = branch.name;
+  searchQuery.value = capitalizeFirstLetter(branch.name);
   sendingBreadtoBranchData.branch_id = branch.id;
   branchSelected.value = true;
   showBranchCard.value = false;
@@ -242,7 +250,7 @@ const fetchBranchBread = async () => {
     console.log("bread", breads.value);
     breadProductOptions.value = breadProductStore.breads.map((val) => {
       return {
-        label: val.name,
+        label: capitalizeFirstLetter(val.name),
         value: val.id,
         price: val.price,
       };

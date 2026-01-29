@@ -39,21 +39,77 @@
     >
       <!-- virtual-scroll -->
       <template v-slot:body-cell-name="props">
-        <q-td key="name" :props="props">
-          {{ capitalizeFirstLetter(props.row.name) }}
+        <q-td :props="props" class="cursor-pointer">
+          <span>
+            {{ capitalizeFirstLetter(props.row.name) || "No data available" }}
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Name
+            </q-tooltip>
+          </span>
+
+          <q-popup-edit
+            @update:model-value="
+              (val) => updateTableData(props.row, val, 'name')
+            "
+            v-model="props.row.name"
+            auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            title="Edit Name"
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
       <template v-slot:body-cell-category="props">
-        <q-td key="name" :props="props">
-          <q-badge :color="getProductBadgeCategoryColor(props.row.category)">
-            {{ props.row.category }}
-          </q-badge>
+        <q-td key="name" :props="props" class="cursor-pointer">
+          <span>
+            <q-badge :color="getProductBadgeCategoryColor(props.row.category)">
+              {{ props.row.category }}
+            </q-badge>
+            <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
+              Edit Name
+            </q-tooltip>
+          </span>
+
+          <q-popup-edit
+            @update:model-value="
+              (val) => updateTableData(props.row, val, 'category')
+            "
+            v-model="props.row.category"
+            auto-save
+            buttons
+            label-set="Save"
+            label-cancel="Close"
+            title="Edit Position"
+            v-slot="scope"
+          >
+            <q-select
+              class="text-capitalize"
+              v-model="scope.value"
+              :options="['Bread', 'Selecta', 'Softdrinks', 'Others']"
+              outlined
+              dense
+              autofucus
+              counter
+              behavior="menu"
+              @keyup.enter="scope.set"
+            />
+          </q-popup-edit>
         </q-td>
       </template>
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
-            <ProductEdit :edit="props" />
+            <!-- <ProductEdit :edit="props" /> -->
             <ProductDelete :delete="props" />
           </div>
         </q-td>
@@ -97,6 +153,30 @@ const filteredRows = computed(() => {
 onMounted(async () => {
   await reloadTableData();
 });
+
+const updateTableData = async (data, val, type) => {
+  console.log("Updating table data...", data);
+  console.log("Updating table val...", val);
+  console.log("Updating table type...", type);
+
+  try {
+    const updatedData = {
+      id: data.id,
+      field: type,
+      value: val,
+    };
+
+    console.log("Updated Data:", updatedData);
+
+    // Optimistic UI update
+    data[type] = val;
+
+    // Send to store / backend
+    await productsStore.updatedProducts(updatedData);
+  } catch (error) {
+    console.log("Failed to update table data:", error);
+  }
+};
 
 const reloadTableData = async () => {
   try {

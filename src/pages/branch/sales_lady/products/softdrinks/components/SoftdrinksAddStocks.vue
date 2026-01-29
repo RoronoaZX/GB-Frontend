@@ -136,12 +136,14 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSoftdrinksProductStore } from "src/stores/softdrinks-products";
 import { Notify } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 const branchId =
-  userData.value?.device?.reference?.id ||
-  userData.value?.device?.reference_id ||
-  "";
+  userData?.device?.reference?.id || userData?.device?.reference_id || "";
 const softdrinksProductStore = useSoftdrinksProductStore();
 const softdrinksProductsData = computed(
   () => softdrinksProductStore.softdrinksProducts
@@ -169,11 +171,6 @@ const fetchBranchSoftdrinks = async () => {
     const branchesId = branchId;
     const categoryValue = category.value;
 
-    if (!branchesId || !categoryValue) {
-      console.error("Invalid branchesId or category value.");
-      return;
-    }
-
     const softdrinksProduct =
       await softdrinksProductStore.fetchBranchSoftdrinksProduct(
         branchesId,
@@ -183,7 +180,7 @@ const fetchBranchSoftdrinks = async () => {
     softdrinksProductsOptions.value =
       softdrinksProductStore.softdrinksProducts.map((val) => {
         return {
-          label: val.name,
+          label: capitalizeFirstLetter(val.name),
           value: val.id,
           price: val.price,
         };
@@ -263,14 +260,6 @@ const isFormValid = computed(() => {
     softdrinksProductGroup.value.every((product) => product.added_stocks > 0) // Check all added stocks are valid
   );
 });
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const dismiss = () => {
   clearForm();

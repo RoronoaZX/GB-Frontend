@@ -6,14 +6,16 @@
     <q-card padding style="width: 700px; max-width: 80vw">
       <q-card-section class="bg-gradient text-white row justify-between">
         <div class="text-h6">Bread Sent</div>
-        {{ report.id }}
+
         <div>
           <q-btn icon="close" flat dense round v-close-popup />
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Remarks: {{ report.remark ? report.remark : "N/A" }}</div>
-        <div>Status: {{ report.status }}</div>
+        <div v-if="report.status === 'declined'">
+          Remarks: {{ report.remark ? report.remark : "N/A" }}
+        </div>
+        <div>Status: {{ capitalizeFirstLetter(report.status) || "N/A" }}</div>
       </q-card-section>
       <q-card-section>
         <q-list dense separator class="box">
@@ -27,9 +29,9 @@
           </q-item>
           <q-item>
             <q-item-section>
-              <q-item-label class="text-caption">{{
-                report.product.name
-              }}</q-item-label>
+              <q-item-label class="text-caption">
+                {{ capitalizeFirstLetter(report.product.name || "N/A") }}
+              </q-item-label>
             </q-item-section>
             <q-item-section class="text-caption" side>
               {{ report.bread_added }} pcs
@@ -58,6 +60,10 @@ import { useBreadProductStore } from "src/stores/bread-product";
 import { useQuasar, QSpinnerIos } from "quasar";
 import { Loading } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const breadProductStore = useBreadProductStore();
 const dialog = ref(false);
 const openDialog = () => {
@@ -70,13 +76,6 @@ const closeDialog = () => {
 const props = defineProps(["report", "branchId"]);
 console.log("branchId", props.branchId);
 console.log("report", props.report);
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
 const received = async () => {
   const status = "received";

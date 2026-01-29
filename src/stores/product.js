@@ -65,44 +65,58 @@ export const useProductsStore = defineStore("products", () => {
     }
   };
 
-  const updateProducts = async (id, data) => {
+  // const updateProducts = async (id, data) => {
+  //   console.log("id", id);
+  //   console.log("data", data);
+
+  //   try {
+  //     Loading.show();
+  //     const response = await api.put(`/api/products/${id}`, data);
+  //     console.log("response product", response.data);
+
+  //     const updatedProduct = response.data;
+
+  //     const index = products.value.findIndex((item) => item.id === id);
+  //     if (index !== -1) {
+  //       products.value[index] = {
+  //         ...products.value[index],
+  //         ...updatedProduct,
+  //       };
+  //     }
+  //     Notify.create({
+  //       type: "positive",
+  //       message: "Product updated successfully",
+  //       timeout: 1000,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     if (error.response.data.message === "The name has already been taken.") {
+  //       Notify.create({
+  //         type: "warning",
+  //         icon: "warning",
+  //         message: error.response.data.message || "ERROR",
+  //         timeout: 1000,
+  //       });
+  //     } else {
+  //       Notify.create({
+  //         type: "negative",
+  //         icon: "error",
+  //         message: error.response.data.message || "ERROR",
+  //       });
+  //     }
+  //   } finally {
+  //     Loading.hide();
+  //   }
+  // };
+
+  const updatedProducts = async (data) => {
+    console.log("datsssa", data);
+
     try {
-      Loading.show();
-      const response = await api.put(`/api/products/${id}`, data);
-      console.log("response product", response.data);
-
-      const updatedProduct = response.data;
-
-      const index = products.value.findIndex((item) => item.id === id);
-      if (index !== -1) {
-        products.value[index] = {
-          ...products.value[index],
-          ...updatedProduct,
-        };
-      }
-      Notify.create({
-        type: "positive",
-        message: "Product updated successfully",
-        timeout: 1000,
-      });
+      const response = await api.patch(`/api/update-products`, data);
+      console.log("response", response);
     } catch (error) {
-      console.log(error);
-      if (error.response.data.message === "The name has already been taken.") {
-        Notify.create({
-          type: "warning",
-          icon: "warning",
-          message: error.response.data.message || "ERROR",
-          timeout: 1000,
-        });
-      } else {
-        Notify.create({
-          type: "negative",
-          icon: "error",
-          message: error.response.data.message || "ERROR",
-        });
-      }
-    } finally {
-      Loading.hide();
+      console.log("error", error);
     }
   };
 
@@ -131,7 +145,8 @@ export const useProductsStore = defineStore("products", () => {
     searchProducts,
     fetchProducts,
     createProducts,
-    updateProducts,
+    // updateProducts,
+    updatedProducts,
     deleteProducts,
     fetchProductsByCategory,
   };

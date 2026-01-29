@@ -63,33 +63,6 @@ export const useSalesReportsStore = defineStore("salesReports", {
   actions: {
     logout() {
       this.$reset();
-
-      // Reset this store initial state
-      // this.salesReport = [];
-      // this.products = [];
-      // this.branchProducts = [];
-      // this.breadProducts = [];
-      // this.selectaProducts = [];
-      // this.softdrinksProducts = [];
-      // this.cakeProducts = [];
-      // this.othersProducts = [];
-      // this.reports = [];
-      // this.employeeInShift = [];
-      // this.breadReports = [];
-      // this.selectaReports = [];
-      // this.softdrinksReports = [];
-      // this.cakeReports = [];
-      // this.otherProductsReports = [];
-      // this.withReceiptExpensesReports = [];
-      // this.withOutReceiptExpensesReport = [];
-      // this.employeeCreditReports = [];
-      // this.denominationReports = [];
-      // this.productsTotalAmount = 0;
-      // this.expensesTotalAmount = 0;
-      // this.employeeCreditTotalAmount = 0;
-      // this.denominationTotal = 0;
-      // this.charges = 0;
-      // this.overTotal = 0;
     },
     setUser(user) {
       this.user = user;

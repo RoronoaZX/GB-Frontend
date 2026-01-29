@@ -11,8 +11,11 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div>Remarks: {{ report.remark ? report.remark : "N/A" }}</div>
-        <div>Status: {{ report.status }}</div>
+        <div v-if="report.status === 'declined'">
+          Remarks:
+          {{ capitalizeFirstLetter(report.remark ? report.remark : "N/A") }}
+        </div>
+        <div>Status: {{ capitalizeFirstLetter(report.status || "N/A") }}</div>
       </q-card-section>
       <q-card-section>
         <q-list dense separator class="box">
@@ -46,6 +49,10 @@
 <script setup>
 import { ref } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter } = typographyFormat();
+
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
@@ -54,13 +61,6 @@ const openDialog = () => {
 const props = defineProps(["report"]);
 
 console.log("report", props.report);
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 </script>
 
 <style lang="scss" scoped>

@@ -72,6 +72,11 @@ import { useBreadProductStore } from "src/stores/bread-product";
 import ViewSendBreadToOtherBranch from "./ViewSendBreadToOtherBranch.vue";
 import { date } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatDate, formatTime, formatFullname, capitalizeFirstLetter } =
+  typographyFormat();
+
 const breadProductStore = useBreadProductStore();
 const breads = computed(() => breadProductStore.breads);
 const salesReportsStore = useSalesReportsStore();
@@ -139,33 +144,6 @@ const onPageRequest = (props) => {
   );
 };
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
-
-const formatTimeFromDB = (dateString) => {
-  const dateObj = new Date(dateString);
-
-  const options = {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-  return dateObj.toLocaleTimeString(undefined, options);
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
 const sentBread = [
   {
     name: "date",
@@ -177,7 +155,7 @@ const sentBread = [
     name: "time",
     align: "center",
     label: "Time",
-    field: (row) => formatTimeFromDB(row.created_at),
+    field: (row) => formatTime(row.created_at),
   },
   {
     name: "from",
@@ -222,14 +200,6 @@ const getBadgeCategoryColor = (category) => {
     default:
       return "grey";
   }
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
 };
 
 watch(() => pagination.value.page, fetchSendBreadToBranch);

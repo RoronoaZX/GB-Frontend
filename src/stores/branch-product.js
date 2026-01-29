@@ -63,6 +63,31 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     }
   };
 
+  const sendProductsToBranch = async (data) => {
+    try {
+      const response = await api.post("/api/added-branch-products", data);
+
+      console.log("Responsssssse:", response.data);
+
+      return {
+        success: true,
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error) {
+      console.log("Error:", error);
+      return {
+        success: false,
+        status: error.response?.status || 500,
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          "Something went wrong",
+        errors: error.response?.data?.errors?.stock || null,
+      };
+    }
+  };
+
   const createBranchProducts = async (data) => {
     Loading.show();
     try {
@@ -137,5 +162,6 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     deleteBranchProducts,
     searchBranchProducts,
     sampleFetchPaginationProducts,
+    sendProductsToBranch,
   };
 });

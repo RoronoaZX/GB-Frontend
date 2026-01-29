@@ -12,16 +12,14 @@
     transition-show="slide-up"
     transition-hide="slide-down"
   >
-    <!-- @update:model-value="onDialogChange" -->
     <q-card>
       <q-card-section class="bg-gradient text-white">
-        <div class="row justify-between">
+        <div class="row justify-between items-center">
           <div class="text-h6">Selecta Stocks Reports</div>
-          <div>
-            <q-btn icon="close" flat dense round v-close-popup />
-          </div>
+          <q-btn icon="close" flat dense round v-close-popup />
         </div>
       </q-card-section>
+
       <q-card-section>
         <q-table
           :rows="rows"
@@ -30,7 +28,7 @@
           flat
           bordered
           dense
-          :pagination="pagination.page"
+          :pagination="pagination"
           @request="fetchSelectaProductReports"
         >
           <template v-slot:body-cell-employee="props">
@@ -38,6 +36,7 @@
               {{ formatFullname(props.row.employee) }}
             </q-td>
           </template>
+
           <template v-slot:body-cell-status="props">
             <q-td :props="props">
               <q-badge :color="getBadgeCategoryColor(props.row.status)">
@@ -45,156 +44,105 @@
               </q-badge>
             </q-td>
           </template>
+
           <template v-slot:body-cell-action="props">
             <q-td :props="props">
               <SelectaViewStockReport :report="props.row" />
             </q-td>
           </template>
-          <template>
-            <q-pagination
-              v-model="pagination.page"
-              :max="maxPages"
-              :max-pages="maxPages"
-              @update:model-value="fetchSelectaProductReports"
-            >
-            </q-pagination>
-          </template>
         </q-table>
+
+        <div class="row justify-center q-mt-md">
+          <q-pagination
+            v-model="pagination.page"
+            :max="maxPages"
+            :max-pages="7"
+            direction-links
+            boundary-links
+          />
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { useSelectaProductsStore } from "src/stores/selecta-product";
 import SelectaViewStockReport from "./SelectaViewStockReport.vue";
-import { date } from "quasar";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatDate, formatTime, formatFullname, capitalizeFirstLetter } =
+  typographyFormat();
+
+/* ===================== STORES ===================== */
 const selectaProductStore = useSelectaProductsStore();
-const selectaStocksReport = computed(
-  () => selectaProductStore.selectaProductReports
-);
-const selecta_added_stocks = selectaStocksReport.value.selecta_added_stocks;
-
 const salesReportsStore = useSalesReportsStore();
-const userData = salesReportsStore.user;
-const branchId =
-  userData.value?.device?.reference?.id ||
-  userData.value?.device?.reference_id ||
-  "";
+
+/* ===================== STATE ===================== */
 const dialog = ref(false);
 const rows = ref([]);
-const openDialog = async () => {
-  try {
-    if (branchId) {
-      await fetchSelectaProductReports(branchId); // Fetch data before opening dialog
-    }
-    dialog.value = true; // Open the dialog after data is fetched
-  } catch (error) {
-    console.error("Error opening dialog:", error);
-  }
-};
-
-const pagination = ref({
-  page: 1,
-  rowsPerPage: 10, // Matches Laravel's perPage
-  sortBy: "id",
-  descending: false,
-});
 const maxPages = ref(1);
 const maximizedToggle = ref(true);
 
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  sortBy: "id",
+  descending: false,
+});
+
+/* ===================== USER / BRANCH ===================== */
+const userData = computed(() => salesReportsStore.user);
+
+const branchId = computed(() => {
+  return (
+    userData.value?.device?.reference?.id ||
+    userData.value?.device?.reference_id ||
+    null
+  );
+});
+
+/* ===================== ACTIONS ===================== */
+const openDialog = async () => {
+  if (!branchId.value) {
+    console.warn("Branch ID not ready");
+    return;
+  }
+
+  await fetchSelectaProductReports();
+  dialog.value = true;
+};
+
 const fetchSelectaProductReports = async () => {
-  // loading.value = true;
+  if (!branchId.value) return;
 
   try {
-    const { page, rowsPerPage, sortBy, descending } = pagination.value;
+    const { page, rowsPerPage } = pagination.value;
 
-    // Call the store function with the necessary parameters
-    const stocks = await selectaProductStore.fetchSelectaProductReports(
-      branchId, // Branch ID
-      page, // Current page
-      rowsPerPage, // Items per page
-      sortBy, // Sorting field
-      descending // Sort direction
+    const response = await selectaProductStore.fetchSelectaProductReports(
+      branchId.value,
+      page,
+      rowsPerPage
     );
 
-    // Update the rows and maxPages based on the response
-    rows.value = stocks.data; // Set the rows data
-    maxPages.value = stocks.last_page; // Set the total number of pages
+    rows.value = response.data;
+    maxPages.value = response.last_page;
   } catch (error) {
     console.error("Error fetching selecta product reports:", error);
   }
 };
 
-const formatDate = (dateString) => {
-  return date.formatDate(dateString, "MMMM DD, YYYY");
-};
+/* ===================== WATCHERS ===================== */
+watch(() => pagination.value.page, fetchSelectaProductReports);
+watch(() => pagination.value.rowsPerPage, fetchSelectaProductReports);
 
-const formatTimeFromDB = (dateString) => {
-  const dateObj = new Date(dateString);
+/* ===================== HELPERS ===================== */
 
-  const options = {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-  return dateObj.toLocaleTimeString(undefined, options);
-};
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
-// const filteredRows = computed(() => {
-//   if (!filter)
-// })
-
-const selectaReport = [
-  {
-    name: "date",
-    align: "center",
-    label: "Date",
-    field: (row) => formatDate(row.created_at),
-  },
-  {
-    name: "time",
-    align: "center",
-    label: "Time",
-    field: (row) => formatTimeFromDB(row.created_at),
-  },
-  {
-    name: "employee",
-    align: "center",
-    label: "Employee",
-    field: "employee",
-  },
-  {
-    name: "status",
-    align: "center",
-    label: "Status",
-    field: "status",
-  },
-  {
-    name: "action",
-    align: "center",
-    label: "Actions",
-    field: "action",
-  },
-];
-
-const getBadgeCategoryColor = (category) => {
-  switch (category) {
+const getBadgeCategoryColor = (status) => {
+  switch (status) {
     case "declined":
       return "red";
     case "confirmed":
@@ -205,16 +153,40 @@ const getBadgeCategoryColor = (category) => {
       return "grey";
   }
 };
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
 
-watch(() => pagination.value.page, fetchSelectaProductReports);
-watch(() => pagination.value.rowsPerPage, fetchSelectaProductReports);
+/* ===================== TABLE COLUMNS ===================== */
+const selectaReport = [
+  {
+    name: "date",
+    label: "Date",
+    align: "center",
+    field: (row) => formatDate(row.created_at),
+  },
+  {
+    name: "time",
+    label: "Time",
+    align: "center",
+    field: (row) => formatTime(row.created_at),
+  },
+  {
+    name: "employee",
+    label: "Employee",
+    align: "center",
+    field: "employee",
+  },
+  {
+    name: "status",
+    label: "Status",
+    align: "center",
+    field: "status",
+  },
+  {
+    name: "action",
+    label: "Actions",
+    align: "center",
+    field: "action",
+  },
+];
 </script>
 
 <style lang="scss" scoped>

@@ -39,7 +39,7 @@
               </div>
               <div class="q-pa-xm row q-gutter-x-sm justify-between">
                 <div>Price:</div>
-                <div>{{ formatCurrency(item.price) }}</div>
+                <div>{{ formatPrice(item.price) }}</div>
               </div>
             </q-card-section>
           </q-card>
@@ -157,6 +157,10 @@ import { Notify, QSpinnerIos, Loading } from "quasar";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 console.log("userData", userData);
@@ -217,23 +221,6 @@ const validateFields = () => {
   return isValid;
 };
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-};
-
-const capitalizeFirstLetter = (location) => {
-  if (!location) return "";
-  return location
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
 const softdrinksSalesAmount = computed(() => {
   if (selectedItem.value) {
     return softdrinksProductsReport.softdrinksSold * selectedItem.value.price;
@@ -242,7 +229,7 @@ const softdrinksSalesAmount = computed(() => {
 });
 
 const softdrinksSalesAmountFormatted = computed(() => {
-  return formatCurrency(softdrinksSalesAmount.value);
+  return formatPrice(softdrinksSalesAmount.value);
 });
 
 const calculateSofdrinksSold = () => {
@@ -268,18 +255,6 @@ watch(
     calculateSofdrinksSold();
   }
 );
-
-onMounted(async () => {
-  // const userData = salesReportsStore.user;
-  // const branchId = userData?.employee?.branch_id || "";
-  if (branchId) {
-    await fetchProducts(branchId);
-  }
-});
-
-const fetchProducts = async (branchId) => {
-  await salesReportsStore.fetchBranchProducts(branchId);
-};
 
 const softdrinksProducts = computed(() => salesReportsStore.softdrinksProducts);
 watch(softdrinksProducts, (newVal) => {
