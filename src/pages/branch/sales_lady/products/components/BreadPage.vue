@@ -60,6 +60,6 @@ const handleSendProductDialog = (category) => {
 
 <style lang="scss" scoped>
 .bg-gradient {
-  background: linear-gradient(135deg, #5c4033, #a9746e);
+  background: linear-gradient(135deg, #2f7159, #097140);
 }
 </style>
