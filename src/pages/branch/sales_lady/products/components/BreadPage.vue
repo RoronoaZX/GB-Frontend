@@ -16,9 +16,18 @@
             @click="handleSendProductDialog('Bread')"
           />
         </div>
+
         <div>
-          <BreadAddedView />
+          <q-btn
+            class="add-bg-gradient text-white"
+            outlined
+            label="Added Bread"
+            @click="handleAddProductDialog('Bread')"
+          />
         </div>
+        <!-- <div>
+          <BreadAddedView />
+        </div> -->
       </div>
       <!-- <div>
         <BreadReportCreate />
@@ -37,6 +46,7 @@ import BreadSearch from "./SearchEngine.vue";
 import SendBreadToOtherBranch from "../bread/components/SendBreadToOtherBranch.vue";
 import BreadAddedView from "../bread/components/BreadAddedView.vue";
 import SendingProductsToBranchButton from "../components/buttons/SendingProductsToBranchButton.vue";
+import ViewAddProductsButton from "../components/buttons/ViewAddProductsButton.vue";
 import { useQuasar } from "quasar";
 
 // Search term state
@@ -56,10 +66,25 @@ const handleSendProductDialog = (category) => {
     },
   });
 };
+
+const handleAddProductDialog = (category) => {
+  $q.dialog({
+    component: ViewAddProductsButton,
+    componentProps: {
+      category,
+    },
+  });
+};
 </script>
 
 <style lang="scss" scoped>
 .bg-gradient {
   background: linear-gradient(135deg, #2f7159, #097140);
+}
+
+.add-bg-gradient {
+  // background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: linear-gradient(135deg, #2c3e50, #4ca1af);
+  // background: linear-gradient(135deg, #8e44ad, #3498db);
 }
 </style>

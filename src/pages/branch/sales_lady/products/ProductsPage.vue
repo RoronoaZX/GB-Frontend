@@ -66,10 +66,13 @@ import CakePage from "./components/CakePage.vue";
 import OtherPage from "./components/OtherPage.vue";
 import { onMounted, ref } from "vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
+import { useBranchProductsStore } from "src/stores/branch-product";
 
 const productsTab = ref("bread");
 
 const salesReportsStore = useSalesReportsStore();
+
+const branchProductsStore = useBranchProductsStore();
 
 const userData = salesReportsStore.user;
 

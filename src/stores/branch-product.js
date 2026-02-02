@@ -8,6 +8,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
   const branchProduct = ref(null);
   const branchProducts = ref([]);
   const branchId = ref([]);
+  const branchSendAddedProd = ref([]);
   const sampleFetchPagination = ref([]);
   const totalFetch = ref(0);
 
@@ -58,6 +59,23 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
 
       branchProducts.value = response.data;
       console.log("Branch Products:", response.data);
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
+
+  const fetchSendAddedBranchProducts = async (category, branchId) => {
+    console.log("Datassss:", category, branchId);
+
+    try {
+      const response = await api.get(
+        `/api/send-added-branch-products/${branchId}/${category}`
+      );
+      console.log("Response:", response.data);
+      branchSendAddedProd.value = response.data;
+
+      console.log("branchSendAddedProd.value:", branchSendAddedProd.value);
+      return response.data;
     } catch (error) {
       console.log("Error:", error);
     }
@@ -163,5 +181,6 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     searchBranchProducts,
     sampleFetchPaginationProducts,
     sendProductsToBranch,
+    fetchSendAddedBranchProducts,
   };
 });

@@ -11,7 +11,10 @@
       <q-card-section class="dialog-header" :class="headerClass">
         <div class="row items-center justify-between no-wrap">
           <div class="text-h5 text-weight-bold">
-            Send / Add {{ category }} Products To Branch
+            <div v-if="category !== 'Bread'">
+              Send / Add {{ category }} Products To Branch
+            </div>
+            <div v-else>Send {{ category }} Products To Branch</div>
           </div>
           <q-btn
             icon="close"
@@ -34,6 +37,7 @@
           </div>
           <div class="action-cards row q-gutter-md">
             <q-card
+              v-if="category !== 'Bread'"
               flat
               bordered
               :class="[
@@ -608,29 +612,110 @@ const sendingProductsToBranchData = reactive({
   quantity: "",
 });
 
+// const addProductToList = () => {
+//   console.log("Selected Product:", selectedProduct.value);
+//   console.log("Action:", action.value);
+//   console.log("Branch ID:", sendingProductsToBranchData.branch_id);
+//   console.log("Quantity:", sendingProductsToBranchData.quantity);
+
+//   // addProductToListLoading.value = true;
+
+//   if (
+//     !selectedProduct.value ||
+//     !sendingProductsToBranchData.quantity ||
+//     sendingProductsToBranchData.quantity <= 0 ||
+//     (action.value === "send" && !sendingProductsToBranchData.branch_id)
+//   ) {
+//     $q.notify({
+//       type: "negative",
+//       message: action.value === "send" ? "Please select branch, product, and enter a valid quantity" :
+//       "Please select product and enter a valid quantity",
+//     });
+//     return;
+//   }
+
+//   // Check if the product is already in the list
+//   const exists = sendingProductsList.value.find(
+//     (p) => p.product_id === selectedProduct.value
+//   );
+
+//   if (exists) {
+//     $q.notify({
+//       type: "warning",
+//       message: `${exists.label} is already in the list`,
+//       icon: "warning",
+//     });
+//     return;
+//   }
+
+//   const productName = selectedProduct.value.label;
+//   const availableQty = selectedProduct.value.total_quantity || 0;
+//   const quantity = parseInt(sendingProductsToBranchData.quantity);
+//   if (quantity > availableQty) {
+//     $q.notify({
+//       type: "negative",
+//       message: `Only ${availableQty} pcs available to ${productName}`,
+//       icon: "error",
+//     });
+//     return;
+//   }
+
+//   const product = selectedProduct.value;
+
+//   if (!product) {
+//     $q.notify({
+//       type: "negative",
+//       message: "Product not found",
+//     });
+//     return;
+//   }
+
+//   sendingProductsList.value.push({
+//     product_id: selectedProduct.value,
+//     label: product.label,
+//     quantity: parseInt(sendingProductsToBranchData.quantity),
+//     price: product.price,
+//   });
+
+//   console.log("sendingProductsList.value", sendingProductsList.value);
+//   // Clear input for next product
+//   selectedProduct.value = null;
+//   sendingProductsToBranchData.quantity = "";
+
+//   $q.notify({
+//     type: "positive",
+//     message: "Product added to list",
+//   });
+
+//   // addProductToListLoading.value = false;
+// };
+
 const addProductToList = () => {
   console.log("Selected Product:", selectedProduct.value);
+  console.log("Action:", action.value);
   console.log("Branch ID:", sendingProductsToBranchData.branch_id);
   console.log("Quantity:", sendingProductsToBranchData.quantity);
 
-  // addProductToListLoading.value = true;
-
-  if (
-    !sendingProductsToBranchData.branch_id ||
-    !selectedProduct.value ||
-    !sendingProductsToBranchData.quantity ||
-    sendingProductsToBranchData.quantity <= 0
-  ) {
-    $q.notify({
-      type: "negative",
-      message: "Please select branch, product, and enter a valid quantity",
-    });
-    return;
-  }
+  // ❗ Validation
+  // if (
+  //   !selectedProduct.value ||
+  //   !sendingProductsToBranchData.quantity ||
+  //   sendingProductsToBranchData.quantity <= 0 ||
+  //   (action.value === "send" && !sendingProductsToBranchData.branch_id)
+  // ) {
+  //   $q.notify({
+  //     type: "negative",
+  //     message:
+  //       action.value === "send"
+  //         ? "Please select branch, product, and enter a valid quantity"
+  //         : "Please select product and enter a valid quantity",
+  //   });
+  //   return;
+  // }
 
   // Check if the product is already in the list
   const exists = sendingProductsList.value.find(
-    (p) => p.product_id === selectedProduct.value
+    (p) => p.product_id.value === selectedProduct.value.value
   );
 
   if (exists) {
@@ -642,46 +727,41 @@ const addProductToList = () => {
     return;
   }
 
-  const productName = selectedProduct.value.label;
-  const availableQty = selectedProduct.value.total_quantity || 0;
+  const product = selectedProduct.value;
+  const productName = product.label;
+  const availableQty = product.total_quantity || 0;
   const quantity = parseInt(sendingProductsToBranchData.quantity);
+
   if (quantity > availableQty) {
     $q.notify({
       type: "negative",
-      message: `Only ${availableQty} pcs available to ${productName}`,
+      message: `Only ${availableQty} pcs available for ${productName}`,
       icon: "error",
     });
     return;
   }
 
-  const product = selectedProduct.value;
-
-  if (!product) {
-    $q.notify({
-      type: "negative",
-      message: "Product not found",
-    });
-    return;
-  }
-
   sendingProductsList.value.push({
-    product_id: selectedProduct.value,
+    product_id: product, // keep full object (same as your send function)
     label: product.label,
-    quantity: parseInt(sendingProductsToBranchData.quantity),
+    quantity: quantity,
     price: product.price,
   });
 
   console.log("sendingProductsList.value", sendingProductsList.value);
+
   // Clear input for next product
   selectedProduct.value = null;
   sendingProductsToBranchData.quantity = "";
 
-  $q.notify({
-    type: "positive",
-    message: "Product added to list",
-  });
+  // if (action.value === "send") {
+  //   sendingProductsToBranchData.branch_id = "";
+  // }
 
-  // addProductToListLoading.value = false;
+  // $q.notify({
+  //   type: "positive",
+  //   message: "Product added to list",
+  // });
 };
 
 const removeProductFromList = (index) => {
@@ -692,10 +772,78 @@ const removeProductFromList = (index) => {
   });
 };
 
+// const sendProducts = async () => {
+//   if (
+//     action.value ||
+//     !sendingProductsToBranchData.branch_id ||
+//     sendingProductsList.value.length === 0
+//   ) {
+//     $q.notify({
+//       type: "negative",
+//       message: "Please select branch and add products to the list",
+//     });
+//     return;
+//   }
+
+//   loading.value = true;
+
+//   const toBranchId =
+//     action.value === "add" ? branchId : sendingProductsToBranchData.branch_id;
+
+//   const dataToSend = {
+//     from_branch_id: branchId,
+//     to_branch_id: toBranchId,
+//     employee_id: employee_id,
+//     category: props.category,
+//     status: "pending",
+//     action: action.value,
+//     remark: "",
+//     products: sendingProductsList.value.map((item) => ({
+//       product_id: item.product_id.value,
+//       quantity: item.quantity,
+//       price: item.price,
+//     })),
+//   };
+//   console.log("Sending products to branch:", dataToSend);
+
+//   try {
+//     const response = await branchProductsStore.sendProductsToBranch(dataToSend);
+
+//     console.log("Responsesss:", response);
+//     if (!response.success) {
+//       $q.notify({
+//         type: "negative",
+//         message: response.errors || response.message || "Something went wrong",
+//       });
+
+//       // Optional: show validation errors
+//       if (response.errors) {
+//         console.error("validation errors", response.errors);
+//       }
+
+//       return;
+//     }
+
+//     // ✅ Success
+//     $q.notify({
+//       type: "positive",
+//       message: response.message || "Products sent successfully",
+//     });
+
+//     // Optional cleanup
+//     sendingProductsList.value = [];
+//     sendingProductsToBranchData.branch_id = "";
+//   } finally {
+//     loading.value = false;
+//   }
+// };
+
 const sendProducts = async () => {
+  // ❗ Validation
   if (
-    !sendingProductsToBranchData.branch_id ||
-    sendingProductsList.value.length === 0
+    !action.value ||
+    sendingProductsList.value.length === 0 ||
+    (action.value === "send" && !sendingProductsToBranchData.branch_id)
   ) {
     $q.notify({
       type: "negative",
@@ -706,12 +854,17 @@ const sendProducts = async () => {
 
   loading.value = true;
 
+  // ✅ Determine destination branch
+  const toBranchId =
+    action.value === "add" ? branchId : sendingProductsToBranchData.branch_id;
+
   const dataToSend = {
     from_branch_id: branchId,
-    to_branch_id: sendingProductsToBranchData.branch_id,
+    to_branch_id: toBranchId, // 🔥 key change
     employee_id: employee_id,
     category: props.category,
     status: "pending",
+    action: action.value,
     remark: "",
     products: sendingProductsList.value.map((item) => ({
       product_id: item.product_id.value,
@@ -719,33 +872,31 @@ const sendProducts = async () => {
       price: item.price,
     })),
   };
+
   console.log("Sending products to branch:", dataToSend);
 
   try {
     const response = await branchProductsStore.sendProductsToBranch(dataToSend);
 
-    console.log("Responsesss:", response);
     if (!response.success) {
       $q.notify({
         type: "negative",
         message: response.errors || response.message || "Something went wrong",
       });
 
-      // Optional: show validation errors
       if (response.errors) {
         console.error("validation errors", response.errors);
       }
-
       return;
     }
 
     // ✅ Success
     $q.notify({
       type: "positive",
-      message: response.message || "Products sent successfully",
+      message: response.message || "Products processed successfully",
     });
 
-    // Optional cleanup
+    // Cleanup
     sendingProductsList.value = [];
     sendingProductsToBranchData.branch_id = "";
   } finally {

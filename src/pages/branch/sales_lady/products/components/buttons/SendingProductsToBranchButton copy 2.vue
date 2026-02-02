@@ -208,15 +208,6 @@
             </q-list>
           </div>
         </q-card-section>
-
-        <q-card-section>
-          <q-btn
-            color="red-6"
-            icon="send"
-            @click="sendProducts"
-            :loading="loading"
-          />
-        </q-card-section>
       </div>
 
       <div v-else>Choose Action</div>

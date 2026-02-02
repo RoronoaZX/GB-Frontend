@@ -14,11 +14,19 @@
           />
         </div>
         <div>
+          <q-btn
+            class="add-bg-gradient text-white"
+            outlined
+            label="Added Softdrinks"
+            @click="handleAddProductDialog('Softdrinks')"
+          />
+        </div>
+        <!-- <div>
           <SoftdrinksAddStocks />
         </div>
         <div>
           <SoftdrinksViewAddedStocks />
-        </div>
+        </div> -->
       </div>
       <!-- <div>
         <SoftdrinksReportCreate />
@@ -36,6 +44,7 @@ import SoftdrinksCard from "../softdrinks/components/SoftdrinksCard.vue";
 import SoftdrinksAddStocks from "../softdrinks/components/SoftdrinksAddStocks.vue";
 import SoftdrinksViewAddedStocks from "../softdrinks/components/SoftdrinksViewAddedStocks.vue";
 import SendingProductsToBranchButton from "./buttons/SendingProductsToBranchButton.vue";
+import ViewAddProductsButton from "../components/buttons/ViewAddProductsButton.vue";
 import { useQuasar } from "quasar";
 
 // Search term state
@@ -55,10 +64,25 @@ const handleSendProductDialog = (category) => {
     },
   });
 };
+
+const handleAddProductDialog = (category) => {
+  $q.dialog({
+    component: ViewAddProductsButton,
+    componentProps: {
+      category,
+    },
+  });
+};
 </script>
 
 <style lang="scss" scoped>
 .bg-gradient {
   background: linear-gradient(135deg, #2f7159, #097140);
+}
+
+.add-bg-gradient {
+  // background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: linear-gradient(135deg, #2c3e50, #4ca1af);
+  // background: linear-gradient(135deg, #8e44ad, #3498db);
 }
 </style>
