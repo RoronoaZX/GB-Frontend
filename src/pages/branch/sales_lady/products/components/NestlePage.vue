@@ -1,9 +1,12 @@
 <template>
-  <div>This is Nestle Page</div>
+  <div>
+    <NestleCard />
+  </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import NestleCard from "../nestle/NestleCard.vue";
 
 const filter = ref("");
 

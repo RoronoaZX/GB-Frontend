@@ -11,6 +11,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
   const branchSendAddedProd = ref([]);
   const sampleFetchPagination = ref([]);
   const totalFetch = ref(0);
+  const receivedBranchProducts = ref([]);
 
   const productsStore = useProductsStore();
   const products = computed(() => productsStore.products);
@@ -64,18 +65,31 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     }
   };
 
-  const fetchSendAddedBranchProducts = async (category, branchId) => {
-    console.log("Datassss:", category, branchId);
+  const fetchSendAddedBranchProducts = async (
+    category,
+    branchId,
+    page,
+    rowsPerPage,
+    search
+  ) => {
+    console.log("Datassss:", category, branchId, page, rowsPerPage);
 
     try {
       const response = await api.get(
-        `/api/send-added-branch-products/${branchId}/${category}`
+        `/api/send-added-branch-products/${branchId}/${category}`,
+        {
+          params: {
+            page: page,
+            per_page: rowsPerPage,
+            search: search,
+          },
+        }
       );
       console.log("Response:", response.data);
       branchSendAddedProd.value = response.data;
 
       console.log("branchSendAddedProd.value:", branchSendAddedProd.value);
-      return response.data;
+      // return response.data;
     } catch (error) {
       console.log("Error:", error);
     }
@@ -168,12 +182,37 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     );
   };
 
+  const receivedSendBranchProducts = async (data) => {
+    console.log("Datassa:", data);
+
+    try {
+      const response = await api.post("/api/received-branch-product", data);
+      receivedBranchProducts.value = response.data;
+
+      console.log("Received Branch Products:", response.data);
+      if (response.status === 200) {
+        const i = branchSendAddedProd.value.findIndex(
+          (item) => item.id === data.id
+        );
+
+        if (i !== -1) {
+          branchSendAddedProd.value[i].status = "confirmed";
+        }
+      }
+      return response;
+    } catch (error) {
+      console.log("Error:", error);
+      throw error;
+    }
+  };
+
   return {
     branchId,
     branchProduct,
     branchProducts,
     sampleFetchPagination,
     totalFetch,
+    branchSendAddedProd,
     fetchBranchProducts,
     createBranchProducts,
     updateBranchProductPrice,
@@ -182,5 +221,6 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     sampleFetchPaginationProducts,
     sendProductsToBranch,
     fetchSendAddedBranchProducts,
+    receivedSendBranchProducts,
   };
 });

@@ -38,9 +38,10 @@
             flat
             round
             dense
-            v-close-popup
             class="bg-white text-grey-8"
             size="md"
+            v-close-popup
+            @click="onDialogHide"
           />
         </div>
       </q-card-section>
@@ -48,7 +49,7 @@
       <q-card-section class="q-pa-lg">
         <!-- Optional quick filter (very user-friendly) -->
         <q-input
-          v-if="rows.length > 5"
+          v-if="rows.length > 3"
           v-model="filter"
           outlined
           dense
@@ -61,20 +62,25 @@
           </template>
         </q-input>
 
-        <q-table
-          :rows="filteredRows"
-          :columns="productColumns"
-          row-key="id"
-          flat
-          square
-          bordered
-          :loading="loading"
-          :pagination="{ rowsPerPage: 10, sortBy: 'date', descending: true }"
-          class="my-sticky-modern-table shadow-1 rounded-borders"
-          wrap-cells
-          virtual-scroll
-        >
-          <!-- <template v-slot:body-cell-destination="props">
+        <div v-if="!loading">
+          <q-table
+            :rows="rows"
+            :columns="productColumns"
+            row-key="id"
+            flat
+            square
+            bordered
+            v-model:pagination="pagination"
+            :loading="loading"
+            :rows-per-page-options="[5, 10, 0]"
+            :filter="filter"
+            @request="handleRequest"
+            class="my-sticky-modern-table shadow-1 rounded-borders"
+            wrap-cells
+            virtual-scroll
+          >
+            <!-- :pagination="{ rowsPerPage: 10, sortBy: 'date', descending: true }" -->
+            <!-- <template v-slot:body-cell-destination="props">
             <q-td :props="props" class="text-center">
               <div v-if="props.row.action === 'add'">
                 {{ props.row.action }}
@@ -84,81 +90,79 @@
               </div>
             </q-td>
           </template> -->
-          <!-- Status badge with better contrast -->
-          <template v-slot:body-cell-status="props">
-            <q-td :props="props" class="text-center">
-              <q-badge
-                :color="getStatusColor(props.value)"
-                text-color="white"
-                class="q-pa-sm q-px-md text-weight-medium text-uppercase"
-                rounded
-                :label="props.value"
-              />
-            </q-td>
-          </template>
+            <!-- Status badge with better contrast -->
+            <template v-slot:body-cell-status="props">
+              <q-td :props="props" class="text-center">
+                <q-badge
+                  :color="getStatusColor(props.value)"
+                  text-color="white"
+                  class="q-pa-sm q-px-md text-weight-medium text-uppercase"
+                  rounded
+                  :label="props.value"
+                />
+              </q-td>
+            </template>
 
-          <!-- Product name with better visual weight -->
-          <template v-slot:body-cell-product="props">
-            <q-td :props="props">
-              <div class="text-subtitle1 text-weight-medium text-primary">
-                {{ props.value }}
+            <!-- Product name with better visual weight -->
+            <template v-slot:body-cell-product="props">
+              <q-td :props="props">
+                <div class="text-subtitle1 text-weight-medium text-primary">
+                  {{ props.value }}
+                </div>
+              </q-td>
+            </template>
+
+            <!-- Actions with tooltip + subtle hover -->
+            <template v-slot:body-cell-action="props">
+              <q-td :props="props" class="text-right">
+                <q-btn-group flat>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    color="primary"
+                    icon="visibility"
+                    @click="viewDetails(props.row)"
+                  >
+                    <q-tooltip anchor="bottom middle" :offset="[0, 8]"
+                      >View Details</q-tooltip
+                    >
+                  </q-btn>
+                </q-btn-group>
+              </q-td>
+            </template>
+
+            <!-- Nice loading state -->
+            <template #loading>
+              <q-inner-loading showing>
+                <q-spinner-ios size="50px" color="grey-10" />
+              </q-inner-loading>
+            </template>
+
+            <!-- Empty state – very important for UX -->
+            <template v-slot:no-data="{ icon, message }">
+              <div
+                class="full-width row flex-center text-accent q-gutter-sm q-py-xl"
+              >
+                <q-icon :name="icon" size="2rem" />
+                <span>{{
+                  message || "No products found in this category."
+                }}</span>
               </div>
-            </q-td>
-          </template>
+            </template>
+          </q-table>
+          <!-- <div class="row justify-center q-mt-md">
+            <q-pagination
+              v-model="pagination.page"
+              :max="maxPages"
+              :max-pages="7"
+              direction-links
+              boundary-links
+            />
+          </div> -->
+        </div>
 
-          <!-- Actions with tooltip + subtle hover -->
-          <template v-slot:body-cell-action="props">
-            <q-td :props="props" class="text-right">
-              <q-btn-group flat>
-                <q-btn
-                  flat
-                  round
-                  dense
-                  color="primary"
-                  icon="visibility"
-                  @click="viewDetails(props.row)"
-                >
-                  <q-tooltip anchor="bottom middle" :offset="[0, 8]"
-                    >View Details</q-tooltip
-                  >
-                </q-btn>
-
-                <q-btn
-                  v-if="props.row.status?.toLowerCase() === 'pending'"
-                  flat
-                  round
-                  dense
-                  color="positive"
-                  icon="check_circle"
-                  @click="approveItem(props.row)"
-                >
-                  <q-tooltip anchor="bottom middle" :offset="[0, 8]"
-                    >Approve Transfer</q-tooltip
-                  >
-                </q-btn>
-              </q-btn-group>
-            </q-td>
-          </template>
-
-          <!-- Nice loading state -->
-          <template v-slot:loading>
-            <q-inner-loading showing color="primary">
-              <q-spinner color="primary" size="60px" />
-            </q-inner-loading>
-          </template>
-
-          <!-- Empty state – very important for UX -->
-          <template v-slot:no-data="{ icon, message }">
-            <div
-              class="full-width row flex-center text-accent q-gutter-sm q-py-xl"
-            >
-              <q-icon :name="icon" size="2rem" />
-              <span>{{
-                message || "No products found in this category."
-              }}</span>
-            </div>
-          </template>
-        </q-table>
+        <q-inner-loading v-else showing />
       </q-card-section>
 
       <!-- Optional footer with summary / actions -->
@@ -177,11 +181,12 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
-import { useDialogPluginComponent } from "quasar";
+import { computed, onMounted, ref, watch } from "vue";
+import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useBranchProductsStore } from "src/stores/branch-product";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import ViewDetails from "./ViewDetails.vue";
 
 const props = defineProps({ category: { type: String, required: true } });
 
@@ -202,41 +207,76 @@ const branchId = computed(
     ""
 );
 
+const $q = useQuasar();
+
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 0,
+  rowsNumber: 0,
+});
+
+const closeDialog = () => {
+  onDialogHide();
+};
+
 const branchProductsStore = useBranchProductsStore();
+const branchProducts = computed(() => branchProductsStore.branchSendAddedProd);
 const rows = ref([]);
 
 const loading = ref(false);
 
-const filteredRows = computed(() => {
-  if (!filter.value) return rows.value;
-  const term = filter.value.toLowerCase();
-  return rows.value.filter(
-    (row) =>
-      row.product?.name?.toLowerCase().includes(term) ||
-      row.employee?.toLowerCase().includes(term) ||
-      row.to_branch?.name?.toLowerCase().includes(term) ||
-      row.status?.toLowerCase().includes(term)
-  );
-});
-
-async function fetchASBranchProd() {
+const fetchASBranchProd = async (page = 0, rowsPerPage = 5, search = "") => {
   if (!branchId.value) return;
   loading.value = true;
   try {
     const response = await branchProductsStore.fetchSendAddedBranchProducts(
       props.category,
-      branchId.value
+      branchId.value,
+      page,
+      rowsPerPage,
+      search
     );
-    rows.value = Array.isArray(response) ? response : [];
+
+    const { data, current_page, per_page, total } = branchProducts.value;
+
+    console.log("branchProducts.value", branchProducts.value);
+
+    console.log("data", data);
+
+    rows.value = data;
+
+    console.log("rows.value", rows.value);
+    pagination.value = {
+      page: current_page,
+      rowsPerPage: per_page,
+      rowsNumber: total,
+    };
   } catch (err) {
     console.error("Failed to load branch products:", err);
     // → you can show $q.notify here
   } finally {
     loading.value = false;
   }
-}
+};
 
 onMounted(fetchASBranchProd);
+
+const handleRequest = (props) => {
+  fetchASBranchProd(
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    props.filter
+  );
+};
+
+watch(filter, async (newVal) => {
+  pagination.value.page = 1;
+  await fetchASBranchProd(
+    pagination.value.page,
+    pagination.value.rowsPerPage,
+    newVal
+  );
+});
 
 const headerClass = computed(() => {
   const map = {
@@ -248,7 +288,7 @@ const headerClass = computed(() => {
   return map[props.category?.toLowerCase()] || "bg-primary";
 });
 
-function getCategoryIcon(cat) {
+const getCategoryIcon = (cat) => {
   const icons = {
     bread: "bakery_dining",
     selecta: "icecream",
@@ -256,20 +296,28 @@ function getCategoryIcon(cat) {
     other: "category",
   };
   return icons[cat?.toLowerCase()] || "inventory_2";
-}
+};
 
-function getStatusColor(status) {
+const getStatusColor = (status) => {
   const s = (status || "").toLowerCase();
   if (s.includes("pending")) return "orange";
-  if (s.includes("complete") || s.includes("approved")) return "positive";
+  if (s.includes("confirmed") || s.includes("approved")) return "positive";
   if (s.includes("cancel") || s.includes("reject")) return "negative";
   return "grey-7";
-}
+};
 
-function viewDetails(row) {
+const viewDetails = (row) => {
   console.log("View:", row);
   // → open details drawer / modal / page
-}
+
+  $q.dialog({
+    component: ViewDetails,
+    componentProps: {
+      productDetails: row,
+      category: props.category,
+    },
+  });
+};
 
 function approveItem(row) {
   // TODO: implement approve logic + optimistic update
@@ -312,7 +360,7 @@ const productColumns = [
     label: "Destination",
     field: (row) => {
       if (row.action === "add") {
-        return "Admin";
+        return "Need to be approved by Admin";
       } else {
         return capitalizeFirstLetter(row.to_branch?.name || "—");
       }

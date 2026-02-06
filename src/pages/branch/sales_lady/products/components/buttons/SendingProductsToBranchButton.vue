@@ -732,7 +732,7 @@ const addProductToList = () => {
   const availableQty = product.total_quantity || 0;
   const quantity = parseInt(sendingProductsToBranchData.quantity);
 
-  if (quantity > availableQty) {
+  if (action.value === "send" && quantity > availableQty) {
     $q.notify({
       type: "negative",
       message: `Only ${availableQty} pcs available for ${productName}`,
@@ -763,6 +763,79 @@ const addProductToList = () => {
   //   message: "Product added to list",
   // });
 };
+// const addProductToList = () => {
+//   console.log("Selected Product:", selectedProduct.value);
+//   console.log("Action:", action.value);
+//   console.log("Branch ID:", sendingProductsToBranchData.branch_id);
+//   console.log("Quantity:", sendingProductsToBranchData.quantity);
+
+//   // ❗ Validation
+//   // if (
+//   //   !selectedProduct.value ||
+//   //   !sendingProductsToBranchData.quantity ||
+//   //   sendingProductsToBranchData.quantity <= 0 ||
+//   //   (action.value === "send" && !sendingProductsToBranchData.branch_id)
+//   // ) {
+//   //   $q.notify({
+//   //     type: "negative",
+//   //     message:
+//   //       action.value === "send"
+//   //         ? "Please select branch, product, and enter a valid quantity"
+//   //         : "Please select product and enter a valid quantity",
+//   //   });
+//   //   return;
+//   // }
+
+//   // Check if the product is already in the list
+//   const exists = sendingProductsList.value.find(
+//     (p) => p.product_id.value === selectedProduct.value.value
+//   );
+
+//   if (exists) {
+//     $q.notify({
+//       type: "warning",
+//       message: `${exists.label} is already in the list`,
+//       icon: "warning",
+//     });
+//     return;
+//   }
+
+//   const product = selectedProduct.value;
+//   const productName = product.label;
+//   const availableQty = product.total_quantity || 0;
+//   const quantity = parseInt(sendingProductsToBranchData.quantity);
+
+//   if (quantity > availableQty) {
+//     $q.notify({
+//       type: "negative",
+//       message: `Only ${availableQty} pcs available for ${productName}`,
+//       icon: "error",
+//     });
+//     return;
+//   }
+
+//   sendingProductsList.value.push({
+//     product_id: product, // keep full object (same as your send function)
+//     label: product.label,
+//     quantity: quantity,
+//     price: product.price,
+//   });
+
+//   console.log("sendingProductsList.value", sendingProductsList.value);
+
+//   // Clear input for next product
+//   selectedProduct.value = null;
+//   sendingProductsToBranchData.quantity = "";
+
+//   // if (action.value === "send") {
+//   //   sendingProductsToBranchData.branch_id = "";
+//   // }
+
+//   // $q.notify({
+//   //   type: "positive",
+//   //   message: "Product added to list",
+//   // });
+// };
 
 const removeProductFromList = (index) => {
   sendingProductsList.value.splice(index, 1);
@@ -1114,7 +1187,7 @@ const sendProducts = async () => {
 }
 
 .dialog-header {
-  padding: 24px;
+  // padding: 24px;
   // Dynamic gradients based on category
   &.bg-selecta {
     background: linear-gradient(135deg, #f8a5c2 0%, #f78fb3 100%);
