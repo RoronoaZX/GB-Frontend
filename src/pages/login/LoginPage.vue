@@ -98,7 +98,7 @@ import axios, { api } from "src/boot/axios";
 // 631cee3486ce71af // null
 // const uuid = ref("b76baeef9c2aef9a"); // branch id 6 endrina ----
 
-const uuid = ref("b5afe408-4f23-44ad-8440-608444d833b7"); // branch id 6 endrina
+// const uuid = ref("b5afe408-4f23-44ad-8440-608444d833b7"); // branch id 6 endrina
 // const uuid = ref("707b814b9877bcb4"); // branch id 2 Branch 2
 // const uuid = ref("2c1d4509090802cb"); // branch id 1 endrina
 // const uuid = ref(
@@ -150,7 +150,7 @@ const uuid = ref("b5afe408-4f23-44ad-8440-608444d833b7"); // branch id 6 endrina
 const isPwd = ref(true);
 const email = ref("");
 const password = ref("");
-// const uuid = ref("");
+const uuid = ref("");
 const loading = ref(false);
 
 const formIsValid = computed(() => email.value !== "" && password.value !== "");
@@ -167,24 +167,24 @@ const activeMenuItem = ref("");
 //==========================================================//
 //
 
-// const checkDevice = async () => {
-//   try {
-//     const id = await Device.getId();
-//     // const info = await Device.getInfo();
-//     uuid.value = id.identifier;
-//     //  {
-//     //   deviceInfo: info,
-//     //   id: id,
-//     // }; // Store the UUID in the reactive variable
-//     console.log("Device UUID:", uuid.value); // Log the UUID
-//   } catch (error) {
-//     console.error("Error fetching device UUID:", error);
-//   }
-// };
+const checkDevice = async () => {
+  try {
+    const id = await Device.getId();
+    // const info = await Device.getInfo();
+    uuid.value = id.identifier;
+    //  {
+    //   deviceInfo: info,
+    //   id: id,
+    // }; // Store the UUID in the reactive variable
+    console.log("Device UUID:", uuid.value); // Log the UUID
+  } catch (error) {
+    console.error("Error fetching device UUID:", error);
+  }
+};
 
-// onMounted(() => {
-//   checkDevice();
-// });
+onMounted(() => {
+  checkDevice();
+});
 
 //===========================================================//
 //======= Use this code for building android app ============//
