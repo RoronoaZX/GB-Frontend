@@ -40,6 +40,7 @@
         <EmployeeCreditReportField />
         <BreadReportField />
         <SelectaReportField />
+        <NestleReportField />
         <SoftdrinksReportField />
         <CakeReportField />
         <OtherReportField />
@@ -54,6 +55,7 @@ import ExpensesReport from "./components/ExpensesReport.vue";
 import OverAllTotal from "./components/OverAllTotal.vue";
 import SoftdrinksReportField from "./components/SoftdrinksReportField.vue";
 import SelectaReportField from "./components/SelectaReportField.vue";
+import NestleReportField from "./components/NestleReportField.vue";
 import BreadReportField from "./components/BreadReportField.vue";
 import WithOutReceiptExpensesReportField from "./components/WithOutReceiptExpensesReportField.vue";
 import WithReceiptExpensesReport from "./components/WithReceiptExpensesReport.vue";

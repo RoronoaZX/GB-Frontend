@@ -24,6 +24,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     branchProducts: [],
     breadProducts: [],
     selectaProducts: [],
+    nestleProducts: [],
     softdrinksProducts: [],
     cakeProducts: [],
     othersProducts: [],
@@ -32,6 +33,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     employeeInShift: [],
     breadReports: [],
     selectaReports: [],
+    nestleReports: [],
     softdrinksReports: [],
     cakeReports: [],
     otherProductsReports: [],
@@ -78,6 +80,13 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.updateProductsTotalAmount();
       this.calculateCharges(this.denominationTotal);
     },
+
+    removeNestle(index) {
+      this.nestleReports.splice(index, 1);
+      this.updateProductsTotalAmount();
+      this.calculateCharges(this.denominationTotal);
+    },
+
     removeSoftdrink(index) {
       this.softdrinksReports.splice(index, 1);
       this.updateProductsTotalAmount();
@@ -120,6 +129,15 @@ export const useSalesReportsStore = defineStore("salesReports", {
         (product) => product.category === "Selecta"
       );
     },
+
+    filterNestleproducts() {
+      this.nestleProducts = this.branchProducts.filter(
+        (product) => product.category === "Nestle"
+      );
+
+      console.log("nestleProducts", this.nestleProducts);
+    },
+
     filterSoftdrinksproducts() {
       this.softdrinksProducts = this.branchProducts.filter(
         (product) => product.category === "Softdrinks"
@@ -152,6 +170,17 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.selectaReports.splice(index, 1, report);
       } else {
         this.selectaReports.push(report);
+      }
+    },
+
+    updateNestleReport(report) {
+      if (this.isSubmitting) return; // Prevent updates while submitting
+
+      const index = this.nestleReports.findIndex((r) => r.name === report.name);
+      if (index !== -1) {
+        this.nestleReports.splice(index, 1, report);
+      } else {
+        this.nestleReports.push(report);
       }
     },
 
@@ -220,14 +249,6 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.withOutReceiptExpensesReport.push(report);
       this.updateExpensesTotalAmount();
       this.calculateCharges(this.denominationTotal); // Ensure charges update
-      // const index = this.withOutReceiptExpensesReport.findIndex(
-      //   (r) => r.name === report.name
-      // );
-      // if (index !== -1) {
-      //   this.withOutReceiptExpensesReport.splice(index, 1, report);
-      // } else {
-      //   this.withOutReceiptExpensesReport.push(report);
-      // }
     },
 
     getDenominationData(report) {
@@ -246,6 +267,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       const totalSalesAmount =
         this.breadTotalAmount +
         this.selectaTotalAmount +
+        this.nestleTotalAmount +
         this.softdrinksTotalAmount +
         this.otherProductsTotalAmount +
         this.cakeTotalAmount -
@@ -274,6 +296,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       this.productsTotalAmount =
         this.breadTotalAmount +
         this.selectaTotalAmount +
+        this.nestleTotalAmount +
         this.softdrinksTotalAmount +
         this.cakeTotalAmount +
         this.otherProductsTotalAmount;
@@ -302,10 +325,12 @@ export const useSalesReportsStore = defineStore("salesReports", {
       console.log("Branch ID", branchId);
       const response = await api.get(`/api/branches/${branchId}/products`);
       this.branchProducts = response.data;
+      console.log("branchProducts", response.data);
       this.filterBreadproducts();
       this.filterSelectaproducts();
       this.filterSoftdrinksproducts();
       this.filterOthersproducts();
+      this.filterNestleproducts();
     },
 
     async fetchBranchPendingSalesReport(userId, branchId) {
@@ -425,6 +450,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       const typeMap = {
         bread: "bread",
         selecta: "selecta",
+        nestle: "nestle",
         softdrinks: "softdrinks",
         other: "others", // ⚠️ adjust if backend sends other_products
       };
@@ -468,6 +494,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       const property = {
         bread: "bread_reports",
         selecta: "selecta_reports",
+        nestle: "nestle_reports",
         softdrinks: "softdrinks_reports",
         other: "other_products_reports",
       }[type];
@@ -525,6 +552,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         created_at: data.created_at,
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
+        nestleReports: this.nestleReports,
         softdrinksReports: this.softdrinksReports,
         otherProductsReports: this.otherProductsReports,
         cakeReports: this.cakeReports,
@@ -554,6 +582,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.breadReports = [];
         this.employeeInShift = [];
         this.selectaReports = [];
+        this.nestleReports = [];
         this.softdrinksReports = [];
         this.otherProductsReports = [];
         this.withOutReceiptExpensesReport = [];
@@ -589,6 +618,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         branch_id: this.user?.device?.reference_id,
         breadReports: this.breadReports,
         selectaReports: this.selectaReports,
+        nestleReports: this.nestleReports,
         softdrinksReports: this.softdrinksReports,
         otherProductsReports: this.otherProductsReports,
         cakeReports: this.cakeReports,
@@ -616,6 +646,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.breadReports = [];
         this.employeeInShift = [];
         this.selectaReports = [];
+        this.nestleReports = [];
         this.softdrinksReports = [];
         this.otherProductsReports = [];
         this.withOutReceiptExpensesReport = [];
@@ -682,6 +713,15 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
     selectaTotalAmount: (state) => {
       return state.selectaReports.reduce((total, report) => {
+        const sales = Number(report.sales || 0);
+
+        // Only positive sales contribute to total_sales
+        return sales > 0 ? total + sales : total;
+      }, 0);
+    },
+
+    nestleTotalAmount: (state) => {
+      return state.nestleReports.reduce((total, report) => {
         const sales = Number(report.sales || 0);
 
         // Only positive sales contribute to total_sales
@@ -797,6 +837,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       return (
         state.breadTotalAmount +
         state.selectaTotalAmount +
+        state.nestleTotalAmount +
         state.softdrinksTotalAmount +
         state.otherProductsTotalAmount +
         state.cakeTotalAmount

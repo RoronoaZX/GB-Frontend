@@ -91,6 +91,10 @@ const fetchProducts = async () => {
     salesReportsStore.selectaProducts
   );
   console.log(
+    "sales report productsdsdsd nestleProducts",
+    salesReportsStore.nestleProducts
+  );
+  console.log(
     "sales report productsdsdsd othersProducts",
     salesReportsStore.othersProducts
   );

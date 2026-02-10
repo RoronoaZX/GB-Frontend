@@ -70,8 +70,6 @@
           </q-tab-panels>
         </div>
       </q-card-section>
-
-      <!-- {{ salesReport }} -->
     </q-card>
   </q-dialog>
 </template>
@@ -95,6 +93,8 @@ const salesReportRows = ref([]);
 const productsReportRows = computed(
   () => salesReportStore.branchPendingSalesReport
 );
+
+console.log("sales report in pagess", productsReportRows.value);
 const userData = computed(() => salesReportStore.user);
 console.log("user datasss", userData.value);
 const branchId = userData.value?.device?.reference?.id || "";

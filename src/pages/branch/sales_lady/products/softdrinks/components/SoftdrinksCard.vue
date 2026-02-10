@@ -136,7 +136,7 @@
                 dense
                 outlined
                 readonly
-                :label="selectedItem ? formatCurrency(selectedItem.price) : ''"
+                :label="selectedItem ? formatPrice(selectedItem.price) : ''"
                 style="width: 150px; max-width: 300px; min-width: 50px"
               />
             </div>

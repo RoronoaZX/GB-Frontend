@@ -96,6 +96,9 @@
         <SelectaTable :selectaReports="selectaReports || 'No Report'" />
       </q-card-section>
       <q-card-section>
+        <NestleTable :nestleReports="nestleReports || 'No Report'" />
+      </q-card-section>
+      <q-card-section>
         <SoftdrinksTable
           :softdrinksReports="softdrinksReports || 'No Report'"
         />
@@ -126,6 +129,7 @@ import { date, useQuasar } from "quasar";
 import { useDialogPluginComponent } from "quasar";
 import BreadTable from "./products-report/BreadTable.vue";
 import SelectaTable from "./products-report/SelectaTable.vue";
+import NestleTable from "./products-report/NestleTable.vue";
 import SoftdrinksTable from "./products-report/SoftdrinksTable.vue";
 import OtherProductsTable from "./products-report/OtherProductsTable.vue";
 import CreditsReportsTable from "./products-report/CreditsReportsTable.vue";
@@ -159,6 +163,7 @@ console.log("currentReport", currentReport);
 // Handle report-specific data
 const breadReports = currentReport?.bread_reports || "No report";
 const selectaReports = currentReport?.selecta_reports || "No report";
+const nestleReports = currentReport?.nestle_reports || "No report";
 const softdrinksReports = currentReport?.softdrinks_reports || "No report";
 const otherProductsReport =
   currentReport?.other_products_reports || "No report";

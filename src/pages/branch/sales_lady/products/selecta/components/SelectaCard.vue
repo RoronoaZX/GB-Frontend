@@ -76,7 +76,7 @@
                 suffix="pcs"
                 placeholder="0"
                 style="width: 260px; max-width: 300px; min-width: 50px"
-                :rules="[(val) => !!val || 'Remainnings is required']"
+                :rules="[(val) => !!val || 'Remainings is required']"
                 :error="!!errors.selectaRemainings"
                 :error-message="errors.selectaRemainings"
                 @update:model-value="clearError('selectaRemainings')"
@@ -137,7 +137,7 @@
                 dense
                 outlined
                 readonly
-                :label="selectedItem ? formatCurrency(selectedItem.price) : ''"
+                :label="selectedItem ? formatPrice(selectedItem.price) : ''"
                 style="width: 150px; max-width: 300px; min-width: 50px"
               />
             </div>

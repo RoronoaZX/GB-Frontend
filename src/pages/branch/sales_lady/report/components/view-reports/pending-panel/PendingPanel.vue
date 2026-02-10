@@ -145,6 +145,28 @@
               </div>
 
               <div
+                v-if="report.nestle?.length"
+                class="col-12 col-md-6 col-lg-3"
+              >
+                <div class="category-box nestle-border shadow-trasition h-full">
+                  <div class="row items-center justify-between q-md-sm">
+                    <div>
+                      <q-icon name="ac_unit" color="blue-6" size="xs" />
+                      <span>Nestlé</span>
+                    </div>
+
+                    <q-badge rounded color="blue-2" text-color="blue-10">
+                      {{ report.nestle.length }}
+                    </q-badge>
+                  </div>
+                  <Nestle
+                    :nestle="report.nestle"
+                    :sales_report_id="report.sales_report_id"
+                  />
+                </div>
+              </div>
+
+              <div
                 v-if="report.softdrinks?.length"
                 class="col-12 col-md-6 col-lg-3"
               >
@@ -208,6 +230,7 @@
 <script setup>
 import BreadList from "./products/BreadList.vue";
 import Selecta from "./products/SelectaList.vue";
+import Nestle from "./products/NestleList.vue";
 import Softdrinks from "./products/SoftdrinksList.vue";
 import Other from "./products/OtherList.vue";
 
@@ -229,6 +252,8 @@ const props = defineProps({
   data: Array,
   loading: Boolean,
 });
+
+console.log("sales report in propssss", props.data);
 </script>
 
 <style scoped lang="scss">
@@ -262,6 +287,10 @@ const props = defineProps({
 .bread-border {
   border-top: 3px solid #795548;
 }
+.nestle-border {
+  border-top: 3px solid #1e88e5;
+}
+
 .selecta-border {
   border-top: 3px solid #f44336;
 }

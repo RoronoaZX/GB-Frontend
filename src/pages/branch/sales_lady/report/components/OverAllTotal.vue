@@ -27,6 +27,18 @@
       </div>
     </div>
     <div>
+      <div>Nestlé Total Amount</div>
+      <div>
+        <q-input
+          v-model="nestleTotalFormatted"
+          readonly
+          outlined
+          dense
+          style="width: 150px"
+        />
+      </div>
+    </div>
+    <div>
       <div class="text-weight-light">Softdrinks Total Amount</div>
       <div>
         <q-input
@@ -157,6 +169,7 @@ console.log("productsTotalAmount", productsTotalAmount.value);
 
 const breadTotal = computed(() => salesReportsStore.breadTotalAmount);
 const selectaTotal = computed(() => salesReportsStore.selectaTotalAmount);
+const nestleTotal = computed(() => salesReportsStore.nestleTotalAmount);
 const softdrinksTotal = computed(() => salesReportsStore.softdrinksTotalAmount);
 const cakeTotal = computed(() => salesReportsStore.cakeTotalAmount);
 const otherProductsTotal = computed(
@@ -173,6 +186,7 @@ const totalSalesAmount = computed(() => {
   return (
     breadTotal.value +
     selectaTotal.value +
+    nestleTotal.value +
     softdrinksTotal.value +
     cakeTotal.value +
     otherProductsTotal.value +
@@ -184,6 +198,7 @@ const breadTotalFormatted = computed(() => formatCurrency(breadTotal.value));
 const selectaTotalFormatted = computed(() =>
   formatCurrency(selectaTotal.value)
 );
+const nestleTotalFormatted = computed(() => formatCurrency(nestleTotal.value));
 const softdrinksTotalFormatted = computed(() =>
   formatCurrency(softdrinksTotal.value)
 );

@@ -82,7 +82,7 @@ export function badgeColor() {
         return "brown";
       case "Selecta":
         return "red-6";
-      case "Nestlé":
+      case "Nestle":
         return "blue-6";
       case "Softdrinks":
         return "accent";
