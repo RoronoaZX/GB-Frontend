@@ -10,18 +10,18 @@
     <q-card class="bg-grey-1">
       <q-card-section class="header-gradient text-white q-py-md">
         <div class="row items-center justify-between">
-          <div class="row items-center q-gutter-md">
+          <div class="row item-center q-gutter-md">
             <q-avatar
-              icon="icecream"
+              icon="ac_unit"
               color="white"
-              text-color="red-6"
+              text-color="blue-8"
               shadow-2
             />
             <div>
-              <div class="text-h6 text-weight-bold">Selecta Report Detail</div>
+              <div>Nestlé Report Details</div>
               <div class="text-caption opacity-80">
                 {{ formatDate(reportDate) }} •
-                {{ props.reportLabel || "Daily Inventory" }}
+                {{ props.reportLabel || "Daily Inventory " }}
               </div>
             </div>
           </div>
@@ -46,7 +46,7 @@
         <q-input
           v-model="filter"
           outlined
-          placeholder="Search selecta variety..."
+          placeholder="Search nesle variety..."
           debounce="500"
           dense
           rounded
@@ -58,7 +58,7 @@
           </template>
         </q-input>
 
-        <AddingSelectaReport
+        <AddingNestleReport
           :sales_Reports="props.reports"
           :sales_report_id="sales_report_id"
           :user="props.user"
@@ -81,14 +81,14 @@
           </div>
           <div class="text-caption">
             The quantity remaining/out exceeds total stock. These row are
-            excluded from Overall Total.
+            excluded from overall total.
           </div>
 
           <template v-slot:action>
-            <q-btn
+            <q-qtn
               flat
               color="red-10"
-              :label="showErrors ? 'Hide Details' : 'View Errors'"
+              :label="showErrors ? 'HideDetails' : 'View Errors'"
               @click="showErrors = !showErrors"
             />
           </template>
@@ -100,7 +100,7 @@
               flat
               bordered
               :rows="negativeSalesRows"
-              :columns="negativeSelectaReportColumn"
+              :columns="negativeNestleProductColumn"
               row-key="id"
               class="q-mt-sm bg-white error-table"
               hide-bottom
@@ -115,17 +115,17 @@
             :filter="filter"
             flat
             bordered
-            :columns="selectaReportColumns"
+            :columns="nestleReportColumns"
             :rows="filteredRows"
-            row-key="id"
+            row-key="qi"
             class="inventory-table sticky-header-table shadow-2"
             :rows-per-page-options="[0]"
             hide-bottom
             virtual-scroll
           >
-            <template v-slot:body-cell-name="props">
+            <template v-slot:\body-cell-name="props">
               <q-td :props="props" class="text-weight-bold text-blue-grey-9">
-                {{ capitalizeFirstLetter(props.row.selecta.name) }}
+                {{ capitalizeFirstLetter(props.row.nestle.name) }}
               </q-td>
             </template>
 
@@ -168,7 +168,7 @@
                   <q-input
                     v-model.number="scope.value"
                     dense
-                    autofucos
+                    autofocus
                     type="number"
                     hint="Press Enter to save"
                   />
@@ -243,7 +243,7 @@
       <q-card-section class="footer-summary q-pa-lg">
         <div class="row justify-between items-center">
           <div>
-            <div class="text-overline text-grey-7">Report Statistics</div>
+            <div class="text-overline text-grey-7">Reports Statistics</div>
             <div class="row q-gutter-md">
               <div class="text-body2">
                 Items: <strong>{{ filteredRows.length }}</strong>
@@ -266,12 +266,12 @@
 </template>
 
 <script setup>
-import AddingSelectaReport from "./AddingSelectaReport.vue";
 import { Notify, useDialogPluginComponent } from "quasar";
-import { ref, computed } from "vue";
-import { useUsersStore } from "src/stores/user";
+import AddingNestleReport from "./AddingNestleReport.vue";
 import { useRoute } from "vue-router";
+import { useUsersStore } from "src/stores/user";
 import { useProductionStore } from "src/stores/production";
+import { computed, ref } from "vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
 
 const { capitalizeFirstLetter, formatPrice, formatDate, formatFullname } =
@@ -282,7 +282,6 @@ const productionStore = useProductionStore();
 const userStore = useUsersStore();
 const route = useRoute();
 
-// --- Props & Emits ---
 const props = defineProps([
   "reports",
   "sales_report_id",
@@ -290,26 +289,27 @@ const props = defineProps([
   "reportLabel",
   "reportDate",
 ]);
+
+console.log("Propssssss..", props);
+
 const emit = defineEmits(["summary-updated"]);
 
-// --- State ---
 const dialog = ref(false);
 const maximizedToggle = ref(true);
 const filter = ref("");
 const showErrors = ref(false);
 const branchId = route.params.branch_id;
 
-// --- Computed ---
 const userId = computed(() => userStore.userData?.data?.id ?? null);
 const reportLength = computed(() => filteredRows.value.length);
 
 const userReady = computed(() => !!userId.value);
 
-const selectaReportColumns = [
+const nestleReportColumns = [
   {
     name: "name",
     label: "Product Name",
-    field: (row) => row.selecta.name,
+    field: (row) => row.nestle.name,
     sortable: true,
     align: "center",
   },
@@ -344,12 +344,12 @@ const selectaReportColumns = [
     align: "center",
   },
   {
-    name: "total_selecta",
+    name: "total_nestle",
     label: "Total Stocks",
     field: (row) => {
-      const totalSelecta =
+      const totalNestle =
         Number(row.beginnings || 0) + Number(row.added_stocks || 0);
-      return totalSelecta;
+      return totalNestle;
     },
 
     align: "center",
@@ -403,6 +403,7 @@ const getStatusColor = (status) => {
   if (!status) return "grey";
 
   const s = status.toLowerCase();
+
   if (s.includes("sold") || s.includes("confirmed")) return "positive";
   if (s.includes("pending") || s.includes("new")) return "orange";
   if (s.includes("declined") || s.includes("return")) return "negative";
@@ -410,11 +411,11 @@ const getStatusColor = (status) => {
   return "blue-grey";
 };
 
-const negativeSelectaReportColumn = [
+const negativeNestleProductColumn = [
   {
     name: "name",
-    label: "Selecta Name",
-    field: (row) => row.selecta.name || "N/A",
+    label: "Nestlé Name",
+    field: (row) => row.nestle.name || "N/A",
     format: (val) => capitalizeFirstLetter(val),
     align: "justify",
   },
@@ -422,7 +423,7 @@ const negativeSelectaReportColumn = [
     name: "beginnings",
     label: "Beginnings",
     field: "beginnings",
-    align: "justify",
+    align: "center",
   },
   {
     name: "added_stocks",
@@ -443,7 +444,7 @@ const negativeSelectaReportColumn = [
     align: "justify",
   },
   {
-    name: "selectaSold",
+    name: "nestleSold",
     label: "Sold",
     field: (row) => {
       const stock =
@@ -467,14 +468,13 @@ const filteredRows = computed(() => {
   const data = props.reports || [];
   if (!filter.value) return data;
   const s = filter.value.toLowerCase();
-  return data.filter((r) => r.selecta.name.toLowerCase().includes(s));
+  return data.filter((r) => r.nestle.name.toLowerCase().includes(s));
 });
 
 const negativeSalesRows = computed(() => {
   return filteredRows.value
     .map((row) => {
-      const stock =
-        (Number(row.beginnings) || 0) + (Number(row.added_stocks) || 0);
+      const stock = (Number(row.remaining) || 0) + (Number(row.out) || 0);
       const sold =
         stock - ((Number(row.remaining) || 0) + (Number(row.out) || 0));
       const salesAmount = sold * (Number(row.price) || 0);
@@ -490,6 +490,7 @@ const overallTotal = computed(() => {
     const sold =
       stock - ((Number(row.remaining) || 0) + (Number(row.out) || 0));
     const sales = sold * (Number(row.price) || 0);
+
     return sales > 0 ? acc + sales : acc;
   }, 0);
 });
@@ -499,27 +500,28 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 
   const meta = {
     report_id: row.id,
-    name: row?.selecta?.name || "Unknown",
+    name: row?.nestle?.name || "Unknown",
     original_data: row[field],
     updated_data: newVal,
-    updated_field: field,
     designation: branchId,
     designation_type: "branch",
     action: "updated",
-    type_of_report: `Selecta Report Update (${props.reportLabel})`,
+    type_of_report: `Nestle Report Update (${props.reportLabel})`,
     user_id: userId.value,
     sales_report_id: props.sales_report_id,
   };
+
+  console.log("meta", meta);
 
   try {
     await productionStore.updateSalesField(
       row.id,
       newVal,
       meta,
-      "selecta",
+      "nestle",
       field
     );
-  } catch (e) {
+  } catch (error) {
     Notify.create({
       message: "Update failed",
       color: "negative",
@@ -530,7 +532,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 
 <style lang="scss" scoped>
 .header-gradient {
-  background: linear-gradient(135deg, #f44d42 0%, #cf170a 100%);
+  background: linear-gradient(to right, #054f6a 0%, #15c2ee 100%);
 }
 
 .inventory-table {
@@ -571,11 +573,11 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 }
 
 .error-table {
-  border: 1px solid #ffcdd2;
+  border: 1px solid #77b6f0;
   border-radius: 8px;
 }
 
 .border-red {
-  border: 1px solid #f44336;
+  border: 1px solid #2387e5;
 }
 </style>

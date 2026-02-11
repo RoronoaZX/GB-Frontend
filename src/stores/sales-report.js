@@ -171,6 +171,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       } else {
         this.selectaReports.push(report);
       }
+      console.log("selectaReports", this.selectaReports);
     },
 
     updateNestleReport(report) {
@@ -182,6 +183,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
       } else {
         this.nestleReports.push(report);
       }
+
+      console.log("nestleReports", this.nestleReports);
     },
 
     updateSoftdrinksReport(report) {

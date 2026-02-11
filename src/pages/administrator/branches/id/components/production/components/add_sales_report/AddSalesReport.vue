@@ -139,6 +139,9 @@
         <SelectaReportField />
       </q-card-section>
       <q-card-section>
+        <NestleReportField />
+      </q-card-section>
+      <q-card-section>
         <SoftdrinksReportField />
       </q-card-section>
       <q-card-section>
@@ -161,6 +164,7 @@ import ExpensesPage from "./components/expenses/ExpensesPage.vue";
 import CreditPage from "./components/credit/CreditPage.vue";
 import BreadReportField from "./components/report_field/BreadReportField.vue";
 import SelectaReportField from "./components/report_field/SelectaReportField.vue";
+import NestleReportField from "./components/report_field/NestleReportField.vue";
 import SoftdrinksReportField from "./components/report_field/SoftdrinksReportField.vue";
 import CakeReportField from "./components/report_field/CakeReportField.vue";
 import OtherReportField from "./components/report_field/OtherReportField.vue";

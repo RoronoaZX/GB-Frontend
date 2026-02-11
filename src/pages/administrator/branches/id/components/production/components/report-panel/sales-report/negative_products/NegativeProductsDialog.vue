@@ -1,107 +1,3 @@
-<!-- <template>
-  <q-dialog
-    ref="dialogRef"
-    v-model="dialog"
-    @hide="onDialogHide"
-    :maximized="maximizedToggle"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-  >
-    <q-card>
-      <q-card-section style="background-color: #c62828">
-        <div class="row justify-between text-white">
-          <div class="text-h6">Negative Products</div>
-          <q-btn icon="close" flat dense round v-close-popup>
-            <q-tooltip class="bg-blue-grey-6" :delay="200">Close</q-tooltip>
-          </q-btn>
-        </div>
-      </q-card-section>
-
-      <q-card-section>
-        <q-input
-          class="q-pb-lg q-pl-sm dynamic-width"
-          v-model="filter"
-          outlined
-          placeholder="Search"
-          debounce="1000"
-          flat
-          dense
-          rounded
-          style="width: 500px"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </q-card-section>
-
-      <q-card-section class="row q-gutter-x-lg">
-        <div v-if="(overallTotals.Bread || 0) !== 0">
-          <q-chip outline square color="brown">
-            Bread Sales: {{ formatPrice(overallTotals.Bread || 0) }}
-          </q-chip>
-        </div>
-
-        <div v-if="(overallTotals.Selecta || 0) !== 0">
-          <q-chip outline square color="red-6">
-            Selecta Sales: {{ formatPrice(overallTotals.Selecta || 0) }}
-          </q-chip>
-        </div>
-
-        <div v-if="(overallTotals['Soft Drinks'] || 0) !== 0">
-          <q-chip outline square color="accent">
-            Soft Drinks Sales:
-            {{ formatPrice(overallTotals["Soft Drinks"] || 0) }}
-          </q-chip>
-        </div>
-
-        <div v-if="(overallTotals['Other Products'] || 0) !== 0">
-          <q-chip outline square color="blue-grey">
-            Other Products Sales:
-            {{ formatPrice(overallTotals["Other Products"] || 0) }}
-          </q-chip>
-        </div>
-      </q-card-section>
-
-      <q-card-section>
-        <q-table
-          :virtual-scroll-sticky-size-start="48"
-          flat
-          :columns="negativeProdcutsColumns"
-          :rows="filteredRows"
-          row-key="name"
-          virtual-scroll
-          v-model:pagination="pagination"
-          :rows-per-page-options="[0]"
-          hide-bottom
-          style="height: 470px"
-        >
-          <template v-slot:body-cell-type="props">
-            <q-td :props="props">
-              <span
-                :style="{
-                  color:
-                    props.row.type === 'Bread'
-                      ? 'brown'
-                      : props.row.type === 'Selecta'
-                      ? 'red'
-                      : props.row.type === 'Soft Drinks'
-                      ? 'purple'
-                      : props.row.type === 'Other Products'
-                      ? 'teal'
-                      : 'grey',
-                }"
-              >
-                {{ props.row.type }}
-              </span>
-            </q-td>
-          </template>
-        </q-table>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
-</template> -->
-
 <template>
   <q-dialog
     ref="dialogRef"
@@ -198,6 +94,25 @@
                   <div class="text-caption text-weight-bold">SELECTA</div>
                   <div class="text-subtitle2 text-weight-bold">
                     {{ formatPrice(filteredTotals.Selecta || 0) }}
+                  </div>
+                </div>
+              </div>
+            </q-badge>
+          </div>
+
+          <!-- Nestle Total -->
+          <div v-if="(filteredTotals.Nestle || 0) !== 0" class="col-auto">
+            <q-badge
+              class="summary-badge"
+              :color="getBadgeColor('Nestle')"
+              text-color="white"
+            >
+              <div class="row items-center no-wrap q-pa-xs">
+                <q-icon name="ac_unit" size="14px" class="q-mr-xs" />
+                <div>
+                  <div class="text-caption text-weight-bold">NESTLE</div>
+                  <div class="text-subtitle2 text-weight-bold">
+                    {{ formatPrice(filteredTotals.Nestle || 0) }}
                   </div>
                 </div>
               </div>
@@ -433,6 +348,9 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const dialog = ref(false);
 const maximizedToggle = ref(true);
 const props = defineProps(["negativeProducts"]);
+
+console.log("negativeProducts", props.negativeProducts);
+
 const filter = ref("");
 
 // Computed property for filtered products
@@ -488,9 +406,12 @@ const filteredTotals = computed(() => {
   const totals = {
     Bread: 0,
     Selecta: 0,
+    Nestle: 0,
     "Soft Drinks": 0,
     "Other Products": 0,
   };
+
+  console.log("totals", totals);
 
   filteredProducts.value.forEach((product) => {
     const type = product.type;
@@ -502,11 +423,14 @@ const filteredTotals = computed(() => {
 });
 
 const getBadgeColor = (type) => {
+  console.log("adsfasdfa", type);
   switch (type?.toLowerCase()) {
     case "bread":
       return "brown";
     case "selecta":
       return "red";
+    case "nestle":
+      return "info";
     case "soft drinks":
       return "purple";
     case "other products":
@@ -522,6 +446,8 @@ const getTypeColor = (type) => {
       return "brown-7";
     case "selecta":
       return "red-7";
+    case "nestle":
+      return "info";
     case "soft drinks":
       return "purple-7";
     case "other products":
@@ -537,6 +463,8 @@ const getTypeAbbreviation = (type) => {
       return "BRD";
     case "selecta":
       return "SEL";
+    case "nestle":
+      return "NES";
     case "soft drinks":
       return "SFT";
     case "other products":

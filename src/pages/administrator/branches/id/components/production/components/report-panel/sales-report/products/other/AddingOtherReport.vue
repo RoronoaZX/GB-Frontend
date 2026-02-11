@@ -195,6 +195,7 @@ import { useRoute } from "vue-router";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { Notify } from "quasar";
+import { useUsersStore } from "src/stores/user";
 
 const { capitalizeFirstLetter, formatFullname } = typographyFormat();
 
@@ -212,6 +213,16 @@ const emit = defineEmits(["other-added"]);
 
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
+
+const userStore = useUsersStore();
+
+const userData = computed(() => userStore.userData);
+console.log("usersssData", userData.value);
+
+const userId = computed(
+  () =>
+    userStore.userData?.data?.employee_id || userStore.userData?.data?.id || 0
+);
 
 const route = useRoute();
 const branch_id = route.params.branch_id; // Assuming branch_id is passed as a route parameter
@@ -231,13 +242,16 @@ const addOtherProductReport = reactive({
   sales_report_id: sales_report_id,
   branch_id: branch_id,
   user_id: user_id,
+  handled_by: userId.value,
   name: "",
   product_id: "",
   product_name: "",
   price: 0,
   beginnings: 0,
   remaining: 0,
+  status: "confirmed",
   added_stocks: 0,
+  reason: "Added by admin",
   out: 0,
   sold: 0,
   total: 0,
@@ -324,44 +338,6 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
-// const handleSubmit = async () => {
-//   try {
-//     // Validate required fields
-//     if (
-//       !addOtherProductReport.product_name ||
-//       !addOtherProductReport.price ||
-//       !addOtherProductReport.product_id ||
-//       !addOtherProductReport.branch_id ||
-//       !addOtherProductReport.sales_report_id
-//     ) {
-//       $q.notify({
-//         type: "negative",
-//         message:
-//           "Product name, price, product ID, branch ID, and sales report ID are required.",
-//       });
-//       return;
-//     }
-//     // Prepare the request payload
-//     const payload = {
-//       user_id: addOtherProductReport.user_id,
-//       branch_id: addOtherProductReport.branch_id,
-//       sales_report_id: addOtherProductReport.sales_report_id,
-//       product_id: addOtherProductReport.product_id,
-//       product_name: addOtherProductReport.product_name,
-//       price: addOtherProductReport.price,
-//       beginnings: addOtherProductReport.beginnings,
-//       remaining: addOtherProductReport.remaining,
-//       added_stocks: addOtherProductReport.added_stocks,
-//       out: addOtherProductReport.out,
-//       sold: addOtherProductReport.sold,
-//       total: addOtherProductReport.total,
-//       sales: addOtherProductReport.sales,
-//     };
-//     console.log("payload", payload);
-//     await productionStore.addProduction("other", payload);
-//   } catch (error) {}
-// };
-
 const handleSubmit = async () => {
   if (!addOtherProductReport.product_id) {
     Notify.create({
@@ -403,6 +379,7 @@ const handleSubmit = async () => {
       beginnings: 0,
       remaining: 0,
       added_stocks: 0,
+      handled_by: 0,
       out: 0,
       sold: 0,
       total: 0,

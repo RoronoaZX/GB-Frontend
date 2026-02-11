@@ -1,16 +1,14 @@
 <template>
-  <div>
-    <q-btn
-      outline
-      class="text-dark q-pa-sm"
-      push
-      dense
-      elevated
-      icon="add_circle"
-      label="Add Softdrinks"
-      @click="openDialog"
-    />
-  </div>
+  <q-btn
+    outline
+    class="text-dark q-pa-sm"
+    push
+    dense
+    elevated
+    icon="add_circle"
+    label="Add Nestle"
+    @click="openDialog"
+  />
   <q-dialog
     v-model="dialog"
     persistent
@@ -18,17 +16,18 @@
     backdrop-filter="blur(4px) saturate(150%)"
   >
     <q-card style="width: 600px; max-width: 80vw">
-      <q-card-section class="row items-center bg-backgroud q-px-md q-py-sm">
-        <div class="text-h6 text-white">Add Softdrinks</div>
-
+      <q-card-section class="row items-center bg-background q-px-md q-py-sm">
+        <div class="text-h6 text-white">Add Nestlé</div>
         <q-space />
         <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
       </q-card-section>
+
       <q-card-section>
         <div class="text-subtitle1 text-weight-medium">
           Cashier: {{ formatFullname(user.employee) }}
         </div>
       </q-card-section>
+
       <q-card-section class="q-ma-md q-gutter-y-sm">
         <div class="q-mb-lg">
           <q-input
@@ -45,6 +44,7 @@
                 <q-icon name="search" />
               </div>
             </template>
+
             <div v-if="searchQuery" class="custom-list z-top">
               <q-card>
                 <q-list separator>
@@ -59,9 +59,9 @@
                       clickable
                     >
                       <q-item-section>
-                        <q-item-label>{{
-                          capitalizeFirstLetter(products.product.name)
-                        }}</q-item-label>
+                        <q-item-label>
+                          {{ capitalizeFirstLetter(products.product.name) }}
+                        </q-item-label>
                       </q-item-section>
                     </q-item>
                   </template>
@@ -73,17 +73,18 @@
         <div>
           <div>Product Name</div>
           <q-input
-            v-model="addSoftdrinksReport.product_name"
+            v-model="addNestleReport.product_name"
             readonly
             dense
             outlined
           />
         </div>
+
         <div class="row justify-between q-mt-md q-gutter-md">
           <div>
             <div>Category</div>
             <q-input
-              v-model="addSoftdrinksReport.category"
+              v-model="addNestleReport.category"
               readonly
               dense
               outlined
@@ -91,19 +92,14 @@
           </div>
           <div>
             <div>Price</div>
-            <q-input
-              v-model="addSoftdrinksReport.price"
-              readonly
-              dense
-              outlined
-            />
+            <q-input v-model="addNestleReport.price" readonly dense outlined />
           </div>
         </div>
         <div class="row justify-between q-mt-md q-gutter-md">
           <div>
             <div>Beginnings</div>
             <q-input
-              v-model="addSoftdrinksReport.beginnings"
+              v-model="addNestleReport.beginnings"
               mask="#####"
               outlined
               dense
@@ -113,8 +109,8 @@
           <div>
             <div>Added Stocks</div>
             <q-input
-              v-model="addSoftdrinksReport.added_stocks"
-              mask="#####"
+              v-model="addNestleReport.added_stocks"
+              mask="######"
               outlined
               dense
               style="width: 150px"
@@ -123,7 +119,7 @@
           <div>
             <div>Remaining</div>
             <q-input
-              v-model="addSoftdrinksReport.remaining"
+              v-model="addNestleReport.remaining"
               mask="#####"
               outlined
               dense
@@ -131,10 +127,10 @@
             />
           </div>
           <div>
-            <div>Softdrinks Out</div>
+            <div>Nestlé Out</div>
             <q-input
-              v-model="addSoftdrinksReport.out"
-              mask="#####"
+              v-model="addNestleReport.out"
+              mask="######"
               outlined
               dense
               style="width: 150px"
@@ -143,7 +139,7 @@
           <div>
             <div>Total Quantity</div>
             <q-input
-              v-model="addSoftdrinksReport.total"
+              v-model="addNestleReport.total"
               mask="#####"
               outlined
               readonly
@@ -152,9 +148,9 @@
             />
           </div>
           <div>
-            <div>Softdrinks Sold</div>
+            <div>Nestlé Sold</div>
             <q-input
-              v-model="addSoftdrinksReport.sold"
+              v-model="addNestleReport.sold"
               mask="#####"
               readonly
               outlined
@@ -162,6 +158,7 @@
               style="width: 150px"
             />
           </div>
+
           <div>
             <div>Sales</div>
             <q-input
@@ -190,17 +187,15 @@
 </template>
 
 <script setup>
+import { typographyFormat } from "src/composables/typography/typography-format";
 import { useBranchProductsStore } from "src/stores/branch-product";
 import { useProductionStore } from "src/stores/production";
-import { useProductsStore } from "src/stores/product";
-import { ref, reactive, computed, watch } from "vue";
+import { useUsersStore } from "src/stores/user";
+import { computed, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
-import { typographyFormat } from "src/composables/typography/typography-format";
-import { Notify } from "quasar";
-import { useUsersStore } from "src/stores/user";
-
-const { capitalizeFirstLetter, formatFullname } = typographyFormat();
+const { capitalizeFirstLetter, formatFullname, formatPrice } =
+  typographyFormat();
 
 const props = defineProps({
   sales_Reports: { type: Array, default: () => [] },
@@ -210,9 +205,9 @@ const props = defineProps({
   reportDate: String,
 });
 
-console.log("propsss..", props);
+console.log("Propsss..", props);
 
-const emit = defineEmits(["softdrinks-added"]);
+const emit = defineEmits(["nestle-added"]);
 
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
@@ -228,7 +223,7 @@ const userId = computed(
 );
 
 const route = useRoute();
-const branch_id = route.params.branch_id; // Assuming branch_id is passed as a route parameter
+const branch_id = route.params.branch_id;
 const user_id = props.user.id;
 
 const productionStore = useProductionStore();
@@ -237,12 +232,11 @@ const branchProductsStore = useBranchProductsStore();
 const dialog = ref(false);
 const searchQuery = ref("");
 const branchProduct = computed(() => branchProductsStore.branchProducts);
+console.log("branchProduct", branchProduct);
 
 const sales_report_id = props.sales_report_id;
 
-console.log("branchProduct", branchProduct);
-
-const addSoftdrinksReport = reactive({
+const addNestleReport = reactive({
   sales_report_id: sales_report_id,
   branch_id: branch_id,
   user_id: user_id,
@@ -255,54 +249,46 @@ const addSoftdrinksReport = reactive({
   remaining: 0,
   status: "confirmed",
   added_stocks: 0,
-  reason: "Added by admmin",
+  reason: "Added by admin",
   out: 0,
   sold: 0,
   total: 0,
   sales: 0,
-  branches_id: route.params.branch_id,
 });
 
-// Computed property to format sales as currency
 const formattedSales = computed(() => {
   const salesValue =
-    parseInt(addSoftdrinksReport.sold || 0) *
-    parseFloat(addSoftdrinksReport.price || 0);
+    parseInt(addNestleReport.sold || 0) *
+    parseFloat(addNestleReport.price || 0);
+
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
   }).format(salesValue);
 });
-// Watch for changes and update total
+
 watch(
-  () => [addSoftdrinksReport.added_stocks, addSoftdrinksReport.beginnings],
+  () => [addNestleReport.added_stocks, addNestleReport.beginnings],
   ([newProduction, beginnings]) => {
-    addSoftdrinksReport.total =
+    addNestleReport.total =
       parseInt(newProduction || 0) + parseInt(beginnings || 0);
   }
 );
 
-// Watch for changes to total, remaining, and out to calculate sold
 watch(
-  () => [
-    addSoftdrinksReport.total,
-    addSoftdrinksReport.remaining,
-    addSoftdrinksReport.out,
-  ],
-  ([totalQuantity, remaining, breadOut]) => {
-    addSoftdrinksReport.sold =
+  () => [addNestleReport.total, addNestleReport.remaining, addNestleReport.out],
+  ([totalQuantity, remaining, nestleOut]) => {
+    addNestleReport.sold =
       parseInt(totalQuantity || 0) -
-      (parseInt(remaining || 0) + parseInt(breadOut || 0));
+      (parseInt(remaining || 0) + parseInt(nestleOut || 0));
   }
 );
 
-// Watch for changes to sold or price to calculate sales
 watch(
-  () => [addSoftdrinksReport.sold, addSoftdrinksReport.price],
-  ([breadSold, price]) => {
-    addSoftdrinksReport.sales =
-      parseInt(breadSold || 0) * parseFloat(price || 0);
+  () => [addNestleReport.sold, addNestleReport.price],
+  ([nestleSold, price]) => {
+    addNestleReport.sales = parseInt(nestleSold || 0) * parseFloat(price || 0);
   }
 );
 
@@ -310,11 +296,13 @@ const openDialog = () => {
   dialog.value = true;
 };
 
-const category = ref("Softdrinks"); // Add a ref for the category
+const category = ref("Nestle");
+
 const search = async () => {
   console.log("branch_id.value:", branch_id);
   console.log("searchQuery.value:", searchQuery.value);
   console.log("category.value:", category.value);
+
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -326,28 +314,28 @@ const search = async () => {
 
 const autoFillProduct = (data) => {
   console.log("data", data);
-  addSoftdrinksReport.product_id = data.product.id;
-  addSoftdrinksReport.product_name = capitalizeFirstLetter(data.product.name);
-  addSoftdrinksReport.category = data.category;
-  addSoftdrinksReport.price = data.price;
+  addNestleReport.product_id = data.product.id;
+  addNestleReport.product_name = capitalizeFirstLetter(data.product.name);
+  addNestleReport.category = data.category;
+  addNestleReport.price = data.price;
   searchQuery.value = "";
 };
 
 const handleSubmit = async () => {
-  if (!addSoftdrinksReport.product_id) {
+  if (!addNestleReport.product_id) {
     Notify.create({
       message: "Please select a product",
       color: "negative",
+      position: "top",
     });
     return;
   }
 
-  const payload = { ...addSoftdrinksReport };
+  const payload = { ...addNestleReport };
 
   try {
-    // Call Store
     const response = await productionStore.addProduction(
-      "softdrinks",
+      "nestle",
       payload,
       props.reportDate,
       props.reportLabel.toUpperCase()
@@ -355,16 +343,14 @@ const handleSubmit = async () => {
 
     const newRow = response.data || response;
 
-    // Emit back to
-    emit("softdrinks-added", {
+    emit("nestle-added", {
       success: true,
       newRow: newRow,
     });
 
     dialog.value = false;
 
-    // Reset the form
-    Object.assign(addSoftdrinksReport, {
+    Object.assign(addNestleReport, {
       user_id: 0,
       branch_id: 0,
       sales_report_id: 0,
@@ -381,14 +367,14 @@ const handleSubmit = async () => {
       sales: 0,
     });
   } catch (error) {
-    console.log("Add Softdrinks Error:", error);
+    console.log("Add nestle error: ", error);
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.bg-backgroud {
-  background: linear-gradient(to right, #9c27b0, #e4c6f3);
+.bg-background {
+  background: linear-gradient(to right, #054f6a 0%, #15c2ee 100%);
 }
 
 .custom-list {
@@ -399,7 +385,7 @@ const handleSubmit = async () => {
   max-height: 200px;
   overflow-y: auto;
   bottom: 0;
-  transform: translateY(100%); /* Move the dropdown below the input */
-  z-index: 10; /* Ensure it appears above other content */
+  transform: translateY(100%);
+  z-index: 10;
 }
 </style>

@@ -3,6 +3,7 @@
     <div class="item-start q-gutter-md" align="center">
       <BreadReport :userData="props.user" />
       <SelectaReport :userData="props.user" />
+      <NestleReport />
       <SoftdrinksReport :userData="props.user" />
       <CakeReport />
       <OtherProductsReport :userData="props.user" />
@@ -15,6 +16,7 @@ import BreadReport from "./components/BreadReport.vue";
 import CakeReport from "./components/CakeReport.vue";
 import OtherProductsReport from "./components/OtherProductsReport.vue";
 import SelectaReport from "./components/SelectaReport.vue";
+import NestleReport from "./components/NestleReport.vue";
 import SoftdrinksReport from "./components/SoftdrinksReport.vue";
 
 const props = defineProps(["user"]);

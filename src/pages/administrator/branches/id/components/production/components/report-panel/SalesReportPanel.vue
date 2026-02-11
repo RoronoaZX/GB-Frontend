@@ -143,15 +143,6 @@ const productionStore = useProductionStore();
 
 pdfMake.vfs = pdfFonts.default;
 
-// pdfMake.fonts = {
-//   Roboto: {
-//     normal: "path/to/Roboto-Regular.ttf",
-//     bold: "path/to/Roboto-Medium.ttf",
-//     italics: "path/to/Roboto-Italic.ttf",
-//     bolditalics: "path/to/Roboto-MediumItalic.ttf",
-//   },
-// };
-
 const printPdf = (report) => {
   const docDefinition = generateDocDefinition(report);
 
@@ -177,127 +168,9 @@ const pdfUrl = ref("");
 const chargesAmountToBeSendToAPI = ref(0);
 const overAmountToBeSendToAPI = ref(0);
 
-// const calculateChargesAndOverFromProcessed = (report) => {
-//   if (!report) return { chargesAmount: 0, overAmount: 0 };
-
-//   // 1️⃣ Combine all production types with calculated sales
-//   const productionTypes = [
-//     ...(report.bread_reports || []).map((item) => {
-//       const total =
-//         Number(item.beginnings || 0) + Number(item.new_production || 0);
-//       const breadSold =
-//         total - (Number(item.remaining || 0) + Number(item.bread_out || 0));
-//       const sales = breadSold * Number(item.price || 0);
-//       return { sales };
-//     }),
-//     ...(report.selecta_reports || []).map((item) => {
-//       const total =
-//         Number(item.beginnings || 0) + Number(item.added_stocks || 0);
-//       const sold =
-//         total - (Number(item.remaining || 0) + Number(item.out || 0));
-//       const sales = sold * Number(item.price || 0);
-//       return { sales };
-//     }),
-//     ...(report.softdrinks_reports || []).map((item) => {
-//       const total =
-//         Number(item.beginnings || 0) + Number(item.added_stocks || 0);
-//       const sold =
-//         total - (Number(item.remaining || 0) + Number(item.out || 0));
-//       const sales = sold * Number(item.price || 0);
-//       return { sales };
-//     }),
-//     ...(report.other_products_reports || []).map((item) => {
-//       const total =
-//         Number(item.beginnings || 0) + Number(item.added_stocks || 0);
-//       const sold =
-//         total - (Number(item.remaining || 0) + Number(item.out || 0));
-//       const sales = sold * Number(item.price || 0);
-//       return { sales };
-//     }),
-//     ...(report.cake_sales_reports || []).map((item) => ({
-//       sales: Number(item.sales || 0), // Already given for cakes
-//     })),
-//   ];
-
-//   // 2️⃣ Total Product Sales
-//   const totalProductSales = productionTypes.reduce(
-//     (sum, item) => sum + (item.sales || 0),
-//     0
-//   );
-
-//   // 3️⃣ Total Expenses
-//   const expensesTotal = (report.expenses_reports || []).reduce(
-//     (sum, e) => sum + Number(e.amount.replace(/[^0-9.-]+/g, "") || 0),
-//     0
-//   );
-
-//   // 4️⃣ Total Credits
-//   const creditTotal = (report.credit_reports || [])
-//     .flatMap((cr) => cr.credit_products || [])
-//     .reduce((sum, c) => sum + Number(c.price || 0) * Number(c.pieces || 0), 0);
-
-//   // 5️⃣ Total Denomination
-//   const denomination = report.denomination_reports[0] || {};
-//   const totalDenomination =
-//     (denomination.oneThousandBills || 0) * 1000 +
-//     (denomination.fiveHundredBills || 0) * 500 +
-//     (denomination.twoHundredBills || 0) * 200 +
-//     (denomination.oneHundredBills || 0) * 100 +
-//     (denomination.fiftyBills || 0) * 50 +
-//     (denomination.twentyBills || 0) * 20 +
-//     (denomination.twentyCoins || 0) * 20 +
-//     (denomination.tenCoins || 0) * 10 +
-//     (denomination.fiveCoins || 0) * 5 +
-//     (denomination.oneCoins || 0) * 1 +
-//     (denomination.twentyFiveCents || 0) * 0.25;
-
-//   // 6️⃣ Expected Cash
-//   const expectedCash = totalProductSales - (expensesTotal + creditTotal);
-
-//   // 7️⃣ Determine Over or Charges
-//   let overAmount = 0;
-//   let chargesAmount = 0;
-
-//   if (totalDenomination > expectedCash) {
-//     overAmount = totalDenomination - expectedCash;
-//   } else if (totalDenomination < expectedCash) {
-//     chargesAmount = expectedCash - totalDenomination;
-//   }
-
-//   // Example: proportional charges per employee
-//   const employeeCharges = (report.employee_salescharges_reports || []).map(
-//     (charge) => ({
-//       ...charge,
-//       calculated_charge:
-//         ((charge.charge_amount || 0) / totalProductSales) * chargesAmount, // proportional
-//     })
-//   );
-
-//   console.log("Calculated charges:", employeeCharges);
-//   console.log("overAmount", overAmount);
-//   console.log("chargesAmount", chargesAmount);
-
-//   return { overAmount, chargesAmount, employeeCharges };
-// };
-
-// watchEffect(() => {
-//   if (reportsData && reportsData.length > 0) {
-//     const { overAmount, chargesAmount, employeeCharges } =
-//       calculateChargesAndOverFromProcessed(reportsData[0]);
-//     overAmountToBeSendToAPI.value = overAmount;
-//     chargesAmountToBeSendToAPI.value = chargesAmount;
-
-//     productionStore.setAmounts(
-//       overAmountToBeSendToAPI.value,
-//       chargesAmountToBeSendToAPI.value
-//     );
-
-//     // Update reactive employee charges
-//     reportsData[0].employee_salescharges_reports = employeeCharges;
-//   }
-// });
-
 const calculateChargesAndOverFromProcessed = (report) => {
+  console.log("calculateChargesAndOverFromProcessed", report);
+
   if (!report) return { chargesAmount: 0, overAmount: 0, employeeCharges: [] };
 
   let negativeSalesChargesTotal = 0;
@@ -329,6 +202,7 @@ const calculateChargesAndOverFromProcessed = (report) => {
 
   processCategory(report.bread_reports);
   processCategory(report.selecta_reports);
+  processCategory(report.nestle_reports);
   processCategory(report.softdrinks_reports);
   processCategory(report.other_products_reports);
 
@@ -415,6 +289,7 @@ const negativeProducts = computed(() => {
           name:
             item.bread?.name ||
             item.selecta?.name ||
+            item.nestle?.name ||
             item.softdrinks?.name ||
             item.other_products?.name ||
             "Unknown",
@@ -432,6 +307,7 @@ const negativeProducts = computed(() => {
 
   processCategory(report.bread_reports, "Bread");
   processCategory(report.selecta_reports, "Selecta");
+  processCategory(report.nestle_reports, "Nestle");
   processCategory(report.softdrinks_reports, "Soft Drinks");
   processCategory(report.other_products_reports, "Other Products");
 
@@ -595,6 +471,49 @@ const generateDocDefinition = (report) => {
       }),
       columns: [
         "selecta.name",
+        "beginnings",
+        "price",
+        "added_stocks",
+        "out",
+        "sold",
+        "remaining",
+        "sales",
+      ],
+      totals: ["sales"],
+    },
+    {
+      title: "Nestle Production",
+      data: (report.nestle_reports || []).map((item) => {
+        const beginnings = Number(item.beginnings || 0);
+        const newStocks = Number(item.added_stocks || 0);
+        const nestleOut = Number(item.out || 0);
+        const remaining = Number(item.remaining || 0);
+        const price = Number(item.price || 0);
+
+        const total = beginnings + newStocks;
+        const totalNestleDifference = remaining + nestleOut;
+        const sold = total - totalNestleDifference;
+        const sales = sold * price;
+
+        if (sales < 0) {
+          negativeSalesChargesTotal += Math.abs(sales);
+        }
+
+        const nestleName = item.nestle?.name
+          ? capitalizeFirstLetter(item.nestle.name)
+          : "N/A";
+
+        return {
+          ...item,
+          nestle: { ...item.nestle, name: nestleName },
+          total,
+          sold,
+          sales,
+        };
+      }),
+
+      columns: [
+        "nestle.name",
         "beginnings",
         "price",
         "added_stocks",

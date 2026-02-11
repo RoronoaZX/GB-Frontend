@@ -196,6 +196,7 @@ import { useProductionStore } from "src/stores/production";
 import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { useUsersStore } from "src/stores/user";
 
 const { capitalizeFirstLetter, formatFullname } = typographyFormat();
 
@@ -208,6 +209,16 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["bread-added"]);
+
+const userStore = useUsersStore();
+
+const userData = computed(() => userStore.userData);
+console.log("usersssData", userData.value);
+
+const userId = computed(
+  () =>
+    userStore.userData?.data?.employee_id || userStore.userData?.data?.id || 0
+);
 
 const route = useRoute();
 const branch_id = route.params.branch_id;
@@ -230,7 +241,9 @@ const addbreadProduction = reactive({
   price: 0,
   beginnings: 0,
   remaining: 0,
+  status: "confirmed",
   new_production: 0,
+  reason: "Added by admin",
   bread_out: 0,
   bread_sold: 0,
   total: 0,
@@ -296,53 +309,6 @@ const autoFillProduct = (product) => {
   searchQuery.value = "";
 };
 
-// const handleSubmit = async () => {
-//   if (!addbreadProduction.product_id || !addbreadProduction.product_name) {
-//     // notify error
-//     return;
-//   }
-
-//   const payload = { ...addbreadProduction };
-
-//   try {
-//     const response = await productionStore.addProduction(
-//       "bread",
-//       payload,
-//       props.reportDate,
-//       props.reportLabel.toUpperCase() // 'AM' or 'PM'
-//     );
-
-//     // Emit success with new row (if returned)
-//     emit("bread-added", {
-//       success: true,
-//       newRow: response?.data || null,
-//       date: props.reportDate,
-//       shift: props.reportLabel.toUpperCase(),
-//     });
-
-//     dialog.value = false;
-
-//     // Reset form
-//     Object.assign(addbreadProduction, {
-//       product_id: "",
-//       product_name: "",
-//       category: "",
-//       price: 0,
-//       beginnings: 0,
-//       remaining: 0,
-//       new_production: 0,
-//       bread_out: 0,
-//       bread_sold: 0,
-//       total: 0,
-//       sales: 0,
-//     });
-//     searchQuery.value = "";
-//   } catch (err) {
-//     console.error("Add bread failed:", err);
-//     // notify error
-//   }
-// };
-
 const handleSubmit = async () => {
   if (!addbreadProduction.product_id) {
     Notify.create({ message: "Please select a product", color: "negative" });
@@ -374,10 +340,13 @@ const handleSubmit = async () => {
 
     // Reset the form
     Object.assign(addbreadProduction, {
+      user_id: 0,
+      branch_id: 0,
+      sales_report_id: 0,
       product_id: "",
       product_name: "",
-      category: "",
       price: 0,
+      category: "",
       beginnings: 0,
       remaining: 0,
       new_production: 0,

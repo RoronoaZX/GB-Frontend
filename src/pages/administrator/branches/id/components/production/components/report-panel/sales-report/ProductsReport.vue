@@ -47,6 +47,23 @@
           />
           <q-btn
             @click="
+              handleNestleDialog(
+                props.sales_Reports[0].nestle_reports,
+                props.sales_Reports[0].id,
+                props.sales_Reports[0].user,
+                props.reportLabel,
+                props.reportDate
+              )
+            "
+            no-caps
+            label="Nestle Report"
+            rounded
+            color="blue-8"
+            style="width: 130px"
+            class="user-button"
+          />
+          <q-btn
+            @click="
               handleSoftdrinksDialog(
                 props.sales_Reports[0].softdrinks_reports,
                 props.sales_Reports[0].id,
@@ -105,6 +122,7 @@ import { useQuasar, date } from "quasar";
 import ProductsReportDialog from "./products/ProductsReportDialog.vue";
 import BreadReport from "./products/bread/BreadReport.vue";
 import SelectaReport from "./products/selecta/SelectaReport.vue";
+import NestleReport from "./products/nestle/NestleReport.vue";
 import SoftdrinksReport from "./products/softdrinks/SoftdrinksReport.vue";
 import CakeReport from "./products/CakeReport.vue";
 import OtherProductReport from "./products/other/OtherProductsReport.vue";
@@ -203,6 +221,33 @@ const handleSelectaDialog = (
       reportId: props.reportId,
       charges: localCharges.value,
       over: localOver.value,
+    });
+  });
+};
+const handleNestleDialog = (
+  dataReports,
+  sales_report_id,
+  user,
+  reportLabel,
+  reportDate
+) => {
+  $q.dialog({
+    component: NestleReport,
+    componentProps: {
+      reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
+      reportLabel: reportLabel,
+      reportDate: reportDate,
+    },
+  }).onOk((summary) => {
+    localCharges.value = summary.charges;
+    localOver.value = summary.over;
+
+    emit("update-summary", {
+      reportId: props.reportId,
+      charges: localCharges.value,
+      ove: localOver.value,
     });
   });
 };

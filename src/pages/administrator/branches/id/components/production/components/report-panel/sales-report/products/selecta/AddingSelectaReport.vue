@@ -192,6 +192,7 @@ import { useRoute } from "vue-router";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { Notify } from "quasar";
+import { useUsersStore } from "src/stores/user";
 
 const { capitalizeFirstLetter, formatFullname, formatPrice } =
   typographyFormat();
@@ -207,6 +208,16 @@ const props = defineProps({
 console.log("propsss..", props);
 
 const emit = defineEmits(["selecta-added"]);
+
+const userStore = useUsersStore();
+
+const userData = computed(() => userStore.userData);
+console.log("usersssData", userData.value);
+
+const userId = computed(
+  () =>
+    userStore.userData?.data?.employee_id || userStore.userData?.data?.id || 0
+);
 
 console.log("props.sales_Reports", props.sales_Reports);
 console.log("props.user", props.user);
@@ -229,13 +240,16 @@ const addSelectaReport = reactive({
   sales_report_id: sales_report_id,
   branch_id: branch_id,
   user_id: user_id,
+  handled_by: userId.value,
   name: "",
   product_id: "",
   product_name: "",
   price: 0,
   beginnings: 0,
   remaining: 0,
+  status: "confirmed",
   added_stocks: 0,
+  reason: "Added by admin",
   out: 0,
   sold: 0,
   total: 0,
@@ -353,6 +367,7 @@ const handleSubmit = async () => {
       beginnings: 0,
       remaining: 0,
       added_stocks: 0,
+      handled_by: 0,
       out: 0,
       sold: 0,
       total: 0,

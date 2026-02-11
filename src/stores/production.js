@@ -6,6 +6,7 @@ import { ref } from "vue";
 const ADD_ENDPOINTS = {
   bread: "branch-add-bread-production-report",
   selecta: "branch-add-selecta-production-report",
+  nestle: "branch-add-nestle-production-report",
   softdrinks: "branch-add-softdrinks-production-report",
   other: "branch-add-other-production-report",
 };
@@ -25,6 +26,13 @@ const UPDATE_ENDPOINTS = {
     out: "update-selecta-sales-selectaOut-report",
     added_stocks: "update-selecta-sales-addedstocks-report",
   },
+  nestle: {
+    price: "update-nestle-sales-price-report",
+    beginnings: "update-nestle-sales-beginnings-report",
+    remaining: "update-nestle-sales-remaining-report",
+    out: "update-nestle-sales-out-report",
+    added_stocks: "update-nestle-sales-addedstocks-report",
+  },
   softdrinks: {
     price: "update-softdrinks-sales-price-report",
     beginnings: "update-softdrinks-sales-beginnings-report",
@@ -40,46 +48,6 @@ const UPDATE_ENDPOINTS = {
     added_stocks: "update-otherProducst-sales-addedstocks-report",
   },
 };
-
-const LABELS = {
-  bread: "Bread",
-};
-
-// const sendRequest = async (
-//   method,
-//   url,
-//   data,
-//   successMsg = "Success",
-//   errorMsg = "Failed"
-// ) => {
-//   Loading.show();
-//   try {
-//     const payload = {
-//       ...data,
-//       charges_amount: chargesAmount.value,
-//       over_amount: overAmount.value,
-//     };
-
-//     const response = await api[method](url, payload);
-
-//     Notify.create({
-//       message: successMsg,
-//       color: "positive",
-//     });
-
-//     return response.data;
-//   } catch (error) {
-//     console.log(error);
-
-//     Notify.create({
-//       message: errorMsg,
-//       color: "negative",
-//     });
-//     throw error;
-//   } finally {
-//     Loading.hide();
-//   }
-// };
 
 export const useProductionStore = defineStore("productions", () => {
   const productions = ref([]);
@@ -109,12 +77,14 @@ export const useProductionStore = defineStore("productions", () => {
   ) => {
     Loading.show();
 
+    console.log("Sssending payload:", data);
+
     try {
       const payload = {
         ...data,
       };
 
-      console.log("Sending payloadsss:", payload);
+      console.log("ssSending payloadsss:", payload);
 
       const response = await api[method](url, payload);
 
@@ -205,6 +175,7 @@ export const useProductionStore = defineStore("productions", () => {
     const reportKeyMap = {
       bread: "bread_reports",
       selecta: "selecta_reports",
+      nestle: "nestle_reports",
       softdrinks: "softdrinks_reports",
       other: "other_products_reports",
     };
