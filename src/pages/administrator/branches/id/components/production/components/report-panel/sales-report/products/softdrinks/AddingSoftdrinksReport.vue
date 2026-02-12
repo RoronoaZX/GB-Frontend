@@ -192,7 +192,6 @@
 <script setup>
 import { useBranchProductsStore } from "src/stores/branch-product";
 import { useProductionStore } from "src/stores/production";
-import { useProductsStore } from "src/stores/product";
 import { ref, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -255,7 +254,7 @@ const addSoftdrinksReport = reactive({
   remaining: 0,
   status: "confirmed",
   added_stocks: 0,
-  reason: "Added by admmin",
+  reason: "Added by admin",
   out: 0,
   sold: 0,
   total: 0,

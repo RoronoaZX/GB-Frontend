@@ -39,7 +39,6 @@
               dense
               v-close-popup
             />
-            <!-- class="close-btn" size="md" -->
           </div>
         </div>
 
@@ -177,12 +176,8 @@
               </div>
             </div>
           </div>
-
-          <!-- Action Buttons -->
         </q-card-section>
       </div>
-      <!-- :class="headerClass" -->
-      <!-- footer-wrapper -->
 
       <q-card-section class="q-pa-sm" align="right">
         <div
@@ -237,6 +232,7 @@ const headerClass = computed(() => {
   const map = {
     selecta: "bg-selecta",
     bread: "bg-bread",
+    nestle: "bg-nestle",
     softdrinks: "bg-softdrinks",
     other: "bg-other",
   };
@@ -247,7 +243,8 @@ const getCategoryColor = (cat, fallback = null) => {
   const colors = {
     bread: "brown",
     selecta: "pink",
-    softdrinks: "blue",
+    nestle: "info",
+    softdrinks: "purple",
     other: "blue-grey-7",
   };
   return (
@@ -269,6 +266,7 @@ const getCategoryIcon = (cat) => {
   const icons = {
     bread: "bakery_dining",
     selecta: "icecream",
+    nestle: "ac_unit",
     softdrinks: "local_drink",
     other: "category",
   };
@@ -291,36 +289,6 @@ const clickedReceiveProduct = () => {
     },
   });
 };
-
-// const receiveProduct = async (product) => {
-//   console.log("product", product);
-
-//   const data = {
-//     id: product.id,
-//     branch_id: product.to_branch_id,
-//     product_id: product.product_id,
-//     quantity: product.added_product,
-//     status: "confirmed",
-//     remark: "",
-//   };
-
-//   loading.value = true;
-//   try {
-//     console.log("datssa", data);
-//     await branchProductsStore.receivedSendBranchProducts(data);
-//   } catch (error) {
-//     console.log(error);
-//   } finally {
-//     loading.value = false;
-//   }
-
-//   onDialogHide();
-// };
-
-// const declineProduct = (product) => {
-//   console.log("product", product);
-//   onDialogHide();
-// };
 </script>
 
 <style lang="scss" scoped>
@@ -371,8 +339,11 @@ const clickedReceiveProduct = () => {
   &.bg-bread {
     background: linear-gradient(135deg, #8d6e63 0%, #5d4037 100%);
   }
-  &.bg-softdrinks {
+  &.bg-nestle {
     background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%);
+  }
+  &.bg-softdrinks {
+    background: linear-gradient(135deg, #e67df9 0%, #9c27b0 100%);
   }
   &.bg-other {
     background: linear-gradient(135deg, #78909c 0%, #455a64 100%);
@@ -410,8 +381,11 @@ const clickedReceiveProduct = () => {
   &.bg-bread {
     background: linear-gradient(135deg, #8d6e63 0%, #5d4037 100%);
   }
-  &.bg-softdrinks {
+  &.bg-nestle {
     background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%);
+  }
+  &.bg-softdrinks {
+    background: linear-gradient(135deg, #e67df9 0%, #9c27b0 100%);
   }
   &.bg-other {
     background: linear-gradient(135deg, #78909c 0%, #455a64 100%);
@@ -426,8 +400,11 @@ const clickedReceiveProduct = () => {
   &.bg-bread {
     background: linear-gradient(135deg, #a77b66, #bda4a1);
   }
+  &.bg-nestle {
+    background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%);
+  }
   &.bg-softdrinks {
-    background: linear-gradient(135deg, #70a1ff 0%, #1e90ff 100%);
+    background: linear-gradient(135deg, #e67df9 0%, #9c27b0 100%);
   }
   &.bg-other {
     background: linear-gradient(135deg, #a4b0be 0%, #747d8c 100%);
@@ -436,37 +413,6 @@ const clickedReceiveProduct = () => {
     background: linear-gradient(135deg, var(--q-primary) 0%, #2c3e50 100%);
   }
 }
-
-// .footer-wrapper {
-//   .wave-decoration {
-//     position: absolute;
-//     bottom: -1px;
-//     left: 0;
-//     right: 0;
-//     height: 120px;
-//     color: white;
-//     opacity: 0.15;
-//     z-index: 1;
-
-//     svg {
-//       width: 100%;
-//       height: 100%;
-//     }
-//   }
-
-//   &.bg-selecta {
-//     background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%);
-//   }
-//   &.bg-bread {
-//     background: linear-gradient(135deg, #8d6e63 0%, #5d4037 100%);
-//   }
-//   &.bg-softdrinks {
-//     background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%);
-//   }
-//   &.bg-other {
-//     background: linear-gradient(135deg, #78909c 0%, #455a64 100%);
-//   }
-// }
 
 .close-btn {
   background: rgba(255, 255, 255, 0.2);
@@ -528,8 +474,11 @@ const clickedReceiveProduct = () => {
   &.bg-bread {
     background: linear-gradient(135deg, #8d6e63, #5d4037);
   }
-  &.bg-softdrinks {
+  &.bg-nestle {
     background: linear-gradient(135deg, #4fc3f7, #0288d1);
+  }
+  &.bg-softdrinks {
+    background: linear-gradient(135deg, #e67df9 0%, #9c27b0 100%);
   }
   &.bg-other {
     background: linear-gradient(135deg, #78909c, #455a64);

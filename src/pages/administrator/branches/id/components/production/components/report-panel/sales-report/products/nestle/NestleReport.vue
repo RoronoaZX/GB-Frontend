@@ -18,7 +18,7 @@
               shadow-2
             />
             <div>
-              <div>Nestlé Report Details</div>
+              <div class="text-h6 text-weight-bold">Nestlé Report Details</div>
               <div class="text-caption opacity-80">
                 {{ formatDate(reportDate) }} •
                 {{ props.reportLabel || "Daily Inventory " }}
@@ -123,7 +123,7 @@
             hide-bottom
             virtual-scroll
           >
-            <template v-slot:\body-cell-name="props">
+            <template v-slot:body-cell-name="props">
               <q-td :props="props" class="text-weight-bold text-blue-grey-9">
                 {{ capitalizeFirstLetter(props.row.nestle.name) }}
               </q-td>
@@ -171,6 +171,7 @@
                     autofocus
                     type="number"
                     hint="Press Enter to save"
+                    @keyup.enter="scope.set"
                   />
                 </q-popup-edit>
               </q-td>

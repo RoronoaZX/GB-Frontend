@@ -168,6 +168,8 @@ export const useProductionStore = defineStore("productions", () => {
       `Failed to add ${type} production`
     );
 
+    console.log("responsssse", response);
+
     const raw = response?.data ?? response;
     if (!raw) return response;
 

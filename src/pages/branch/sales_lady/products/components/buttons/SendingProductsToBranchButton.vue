@@ -422,6 +422,8 @@ const getCategoryIcon = (category) => {
       return "bakery_dining"; // bread icon
     case "selecta":
       return "icecream"; // ice cream icon
+    case "nestle":
+      return "ac_unit";
     case "softdrinks":
       return "local_drink"; // soft drinks icon
     case "other":
@@ -439,6 +441,8 @@ const getCategoryIconColor = (category) => {
       return "brown"; // bread icon
     case "selecta":
       return "red-7"; // ice cream icon
+    case "nestle":
+      return "info";
     case "softdrinks":
       return "purple-10"; // soft drinks icon
     case "other":
@@ -533,6 +537,10 @@ const selectaProducts = computed(() =>
   branchProducts.value.filter((p) => p.category === "Selecta")
 );
 
+const nestleProducts = computed(() =>
+  branchProducts.value.filter((p) => p.category === "Nestle")
+);
+
 const softdrinkProducts = computed(() =>
   branchProducts.value.filter((p) => p.category === "Softdrinks")
 );
@@ -571,6 +579,8 @@ const productOptions = computed(() => {
       return mapToOptions(breadProducts.value);
     case "Selecta":
       return mapToOptions(selectaProducts.value);
+    case "Nestle":
+      return mapToOptions(nestleProducts.value);
     case "Softdrinks":
       return mapToOptions(softdrinkProducts.value);
     case "Other":
@@ -612,106 +622,11 @@ const sendingProductsToBranchData = reactive({
   quantity: "",
 });
 
-// const addProductToList = () => {
-//   console.log("Selected Product:", selectedProduct.value);
-//   console.log("Action:", action.value);
-//   console.log("Branch ID:", sendingProductsToBranchData.branch_id);
-//   console.log("Quantity:", sendingProductsToBranchData.quantity);
-
-//   // addProductToListLoading.value = true;
-
-//   if (
-//     !selectedProduct.value ||
-//     !sendingProductsToBranchData.quantity ||
-//     sendingProductsToBranchData.quantity <= 0 ||
-//     (action.value === "send" && !sendingProductsToBranchData.branch_id)
-//   ) {
-//     $q.notify({
-//       type: "negative",
-//       message: action.value === "send" ? "Please select branch, product, and enter a valid quantity" :
-//       "Please select product and enter a valid quantity",
-//     });
-//     return;
-//   }
-
-//   // Check if the product is already in the list
-//   const exists = sendingProductsList.value.find(
-//     (p) => p.product_id === selectedProduct.value
-//   );
-
-//   if (exists) {
-//     $q.notify({
-//       type: "warning",
-//       message: `${exists.label} is already in the list`,
-//       icon: "warning",
-//     });
-//     return;
-//   }
-
-//   const productName = selectedProduct.value.label;
-//   const availableQty = selectedProduct.value.total_quantity || 0;
-//   const quantity = parseInt(sendingProductsToBranchData.quantity);
-//   if (quantity > availableQty) {
-//     $q.notify({
-//       type: "negative",
-//       message: `Only ${availableQty} pcs available to ${productName}`,
-//       icon: "error",
-//     });
-//     return;
-//   }
-
-//   const product = selectedProduct.value;
-
-//   if (!product) {
-//     $q.notify({
-//       type: "negative",
-//       message: "Product not found",
-//     });
-//     return;
-//   }
-
-//   sendingProductsList.value.push({
-//     product_id: selectedProduct.value,
-//     label: product.label,
-//     quantity: parseInt(sendingProductsToBranchData.quantity),
-//     price: product.price,
-//   });
-
-//   console.log("sendingProductsList.value", sendingProductsList.value);
-//   // Clear input for next product
-//   selectedProduct.value = null;
-//   sendingProductsToBranchData.quantity = "";
-
-//   $q.notify({
-//     type: "positive",
-//     message: "Product added to list",
-//   });
-
-//   // addProductToListLoading.value = false;
-// };
-
 const addProductToList = () => {
   console.log("Selected Product:", selectedProduct.value);
   console.log("Action:", action.value);
   console.log("Branch ID:", sendingProductsToBranchData.branch_id);
   console.log("Quantity:", sendingProductsToBranchData.quantity);
-
-  // ❗ Validation
-  // if (
-  //   !selectedProduct.value ||
-  //   !sendingProductsToBranchData.quantity ||
-  //   sendingProductsToBranchData.quantity <= 0 ||
-  //   (action.value === "send" && !sendingProductsToBranchData.branch_id)
-  // ) {
-  //   $q.notify({
-  //     type: "negative",
-  //     message:
-  //       action.value === "send"
-  //         ? "Please select branch, product, and enter a valid quantity"
-  //         : "Please select product and enter a valid quantity",
-  //   });
-  //   return;
-  // }
 
   // Check if the product is already in the list
   const exists = sendingProductsList.value.find(
@@ -753,89 +668,7 @@ const addProductToList = () => {
   // Clear input for next product
   selectedProduct.value = null;
   sendingProductsToBranchData.quantity = "";
-
-  // if (action.value === "send") {
-  //   sendingProductsToBranchData.branch_id = "";
-  // }
-
-  // $q.notify({
-  //   type: "positive",
-  //   message: "Product added to list",
-  // });
 };
-// const addProductToList = () => {
-//   console.log("Selected Product:", selectedProduct.value);
-//   console.log("Action:", action.value);
-//   console.log("Branch ID:", sendingProductsToBranchData.branch_id);
-//   console.log("Quantity:", sendingProductsToBranchData.quantity);
-
-//   // ❗ Validation
-//   // if (
-//   //   !selectedProduct.value ||
-//   //   !sendingProductsToBranchData.quantity ||
-//   //   sendingProductsToBranchData.quantity <= 0 ||
-//   //   (action.value === "send" && !sendingProductsToBranchData.branch_id)
-//   // ) {
-//   //   $q.notify({
-//   //     type: "negative",
-//   //     message:
-//   //       action.value === "send"
-//   //         ? "Please select branch, product, and enter a valid quantity"
-//   //         : "Please select product and enter a valid quantity",
-//   //   });
-//   //   return;
-//   // }
-
-//   // Check if the product is already in the list
-//   const exists = sendingProductsList.value.find(
-//     (p) => p.product_id.value === selectedProduct.value.value
-//   );
-
-//   if (exists) {
-//     $q.notify({
-//       type: "warning",
-//       message: `${exists.label} is already in the list`,
-//       icon: "warning",
-//     });
-//     return;
-//   }
-
-//   const product = selectedProduct.value;
-//   const productName = product.label;
-//   const availableQty = product.total_quantity || 0;
-//   const quantity = parseInt(sendingProductsToBranchData.quantity);
-
-//   if (quantity > availableQty) {
-//     $q.notify({
-//       type: "negative",
-//       message: `Only ${availableQty} pcs available for ${productName}`,
-//       icon: "error",
-//     });
-//     return;
-//   }
-
-//   sendingProductsList.value.push({
-//     product_id: product, // keep full object (same as your send function)
-//     label: product.label,
-//     quantity: quantity,
-//     price: product.price,
-//   });
-
-//   console.log("sendingProductsList.value", sendingProductsList.value);
-
-//   // Clear input for next product
-//   selectedProduct.value = null;
-//   sendingProductsToBranchData.quantity = "";
-
-//   // if (action.value === "send") {
-//   //   sendingProductsToBranchData.branch_id = "";
-//   // }
-
-//   // $q.notify({
-//   //   type: "positive",
-//   //   message: "Product added to list",
-//   // });
-// };
 
 const removeProductFromList = (index) => {
   sendingProductsList.value.splice(index, 1);
@@ -844,72 +677,6 @@ const removeProductFromList = (index) => {
     message: "Product removed from list",
   });
 };
-
-// const sendProducts = async () => {
-//   if (
-//     action.value ||
-//     !sendingProductsToBranchData.branch_id ||
-//     sendingProductsList.value.length === 0
-//   ) {
-//     $q.notify({
-//       type: "negative",
-//       message: "Please select branch and add products to the list",
-//     });
-//     return;
-//   }
-
-//   loading.value = true;
-
-//   const toBranchId =
-//     action.value === "add" ? branchId : sendingProductsToBranchData.branch_id;
-
-//   const dataToSend = {
-//     from_branch_id: branchId,
-//     to_branch_id: toBranchId,
-//     employee_id: employee_id,
-//     category: props.category,
-//     status: "pending",
-//     action: action.value,
-//     remark: "",
-//     products: sendingProductsList.value.map((item) => ({
-//       product_id: item.product_id.value,
-//       quantity: item.quantity,
-//       price: item.price,
-//     })),
-//   };
-//   console.log("Sending products to branch:", dataToSend);
-
-//   try {
-//     const response = await branchProductsStore.sendProductsToBranch(dataToSend);
-
-//     console.log("Responsesss:", response);
-//     if (!response.success) {
-//       $q.notify({
-//         type: "negative",
-//         message: response.errors || response.message || "Something went wrong",
-//       });
-
-//       // Optional: show validation errors
-//       if (response.errors) {
-//         console.error("validation errors", response.errors);
-//       }
-
-//       return;
-//     }
-
-//     // ✅ Success
-//     $q.notify({
-//       type: "positive",
-//       message: response.message || "Products sent successfully",
-//     });
-
-//     // Optional cleanup
-//     sendingProductsList.value = [];
-//     sendingProductsToBranchData.branch_id = "";
-//   } finally {
-//     loading.value = false;
-//   }
-// };
 
 const sendProducts = async () => {
   // ❗ Validation
@@ -978,197 +745,6 @@ const sendProducts = async () => {
 };
 </script>
 
-<!-- <style lang="scss" scoped>
-.bg-gradient {
-  background: linear-gradient(135deg, #5c4033, #a9746e);
-}
-
-.bg-bread {
-  background: linear-gradient(135deg, #5c4033, #a9746e);
-}
-
-.bg-selecta {
-  background: linear-gradient(135deg, #ff0844, #ed7b59);
-}
-
-.bg-softdrinks {
-  background: linear-gradient(135deg, #1b78f1, #1ac7f2);
-}
-
-.bg-other {
-  background: linear-gradient(135deg, #2c3e50, #4ca1af);
-}
-
-.custom-list {
-  position: absolute;
-  background-color: white;
-  width: 100%;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
-  max-height: 200px;
-  overflow-y: auto;
-  bottom: 0;
-  transform: translateY(100%); /* Move the dropdown below the input */
-  z-index: 10; /* Ensure it appears above other content */
-}
-.box {
-  border: 1px dashed grey;
-  border-radius: 10px;
-}
-
-.dialog-card {
-  min-width: 600px;
-  max-width: 700px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.dialog-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-  .close-btn {
-    opacity: 0.8;
-    transition: opacity 0.2s;
-
-    &:hover {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-  }
-}
-
-.action-section {
-  padding: 24px;
-
-  .action-cards {
-    .action-card {
-      flex: 1;
-      min-width: 200px;
-      border-radius: 8px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-
-      &-active {
-        border-color: var(--q-primary);
-        background-color: rgba(var(--q-primary-rgb), 0.05);
-
-        .text-subtitle2 {
-          color: var(--q-primary);
-        }
-      }
-    }
-  }
-}
-
-.branch-section {
-  position: relative;
-
-  .branch-search {
-    .q-field__control {
-      border-radius: 8px;
-    }
-  }
-
-  .branch-dropdown {
-    position: absolute;
-    width: 100%;
-    top: calc(100% + 4px);
-    max-height: 300px;
-    overflow-y: auto;
-    border-radius: 8px;
-
-    .q-item {
-      border-radius: 6px;
-      margin: 2px 4px;
-
-      &:hover {
-        background-color: rgba(var(--q-primary-rgb), 0.1);
-      }
-    }
-  }
-
-  .selected-branch {
-    animation: dageIn 0.3s ease;
-  }
-}
-
-.products-section {
-  .products-list-card {
-    border-radius: 8px;
-    max-height: 300px;
-    overflow-y: auto;
-
-    .product-item {
-      transition: background-color 0.2s;
-
-      &:hover {
-        background-color: rgba(var(--q-primary-rgb), 0.05);
-      }
-    }
-
-    .quantity-badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-    }
-  }
-}
-
-.actions-section {
-  border-top: 1px solid #eee;
-  background-color: #fafafa;
-  border-radius: 0 0 12px 12px;
-}
-
-// Animations
-.slide-fade-enter-active {
-  transition: all 0.3s ease;
-}
-
-.slide-fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-fade-enter-from,
-.fade-leave-active {
-  transition: opacity 0.2s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Scrolling styling
-.products-list-card::-webkit-scrollbar {
-  width: 6px;
-}
-
-.products-list-card::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.products-list-card::-webkit-scrollbar-thumb {
-  background: #888;
-}
-</style> -->
-
 <style lang="scss" scoped>
 .dialog-card {
   width: 700px;
@@ -1190,16 +766,19 @@ const sendProducts = async () => {
   // padding: 24px;
   // Dynamic gradients based on category
   &.bg-selecta {
-    background: linear-gradient(135deg, #f8a5c2 0%, #f78fb3 100%);
+    background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%);
   }
   &.bg-bread {
-    background: linear-gradient(135deg, #a77b66, #bda4a1);
+    background: linear-gradient(135deg, #8d6e63, #5d4037);
+  }
+  &.bg-nestle {
+    background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%);
   }
   &.bg-softdrinks {
-    background: linear-gradient(135deg, #70a1ff 0%, #1e90ff 100%);
+    background: linear-gradient(135deg, #e67df9 0%, #9c27b0 100%);
   }
   &.bg-other {
-    background: linear-gradient(135deg, #a4b0be 0%, #747d8c 100%);
+    background: linear-gradient(135deg, #78909c 0%, #455a64 100%);
   }
   &.bg-primary {
     background: linear-gradient(135deg, var(--q-primary) 0%, #2c3e50 100%);
@@ -1214,8 +793,11 @@ const sendProducts = async () => {
   &.bg-bread {
     background: linear-gradient(135deg, #a77b66, #bda4a1);
   }
-  &.bg-softdrinks {
+  &.bg-nestle {
     background: linear-gradient(135deg, #70a1ff 0%, #1e90ff 100%);
+  }
+  &.bg-softdrinks {
+    background: linear-gradient(135deg, #e67df9 0%, #9c27b0);
   }
   &.bg-other {
     background: linear-gradient(135deg, #a4b0be 0%, #747d8c 100%);
@@ -1230,26 +812,6 @@ const sendProducts = async () => {
   overflow-y: auto; /* enables scrolling */
   padding-bottom: 16px; /* optional */
 }
-
-// .bg-gradient {
-//   background: linear-gradient(135deg, #5c4033, #a9746e);
-// }
-
-// .bg-bread {
-//   background: linear-gradient(135deg, #5c4033, #a9746e);
-// }
-
-// .bg-selecta {
-//   background: linear-gradient(135deg, #ff0844, #ed7b59);
-// }
-
-// .bg-softdrinks {
-//   background: linear-gradient(135deg, #1b78f1, #1ac7f2);
-// }
-
-// .bg-other {
-//   background: linear-gradient(135deg, #2c3e50, #4ca1af);
-// }
 
 .action-section {
   padding: 24px;

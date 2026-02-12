@@ -85,7 +85,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
           },
         }
       );
-      console.log("Response:", response.data);
+      console.log("Responsesss:", response.data);
       branchSendAddedProd.value = response.data;
 
       console.log("branchSendAddedProd.value:", branchSendAddedProd.value);
@@ -182,23 +182,50 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     );
   };
 
-  const receivedSendBranchProducts = async (data) => {
-    console.log("Datassa:", data);
+  // const receivedSendBranchProducts = async (data) => {
+  //   console.log("Datassa:", data);
 
+  //   try {
+  //     const response = await api.post("/api/received-branch-product", data);
+  //     receivedBranchProducts.value = response.data;
+
+  //     console.log("Received Branch Products:", response.data);
+  //     if (response.status === 200) {
+  //       const i = branchSendAddedProd.value.data.findIndex(
+  //         (item) => item.id === data.id
+  //       );
+
+  //       if (i !== -1) {
+  //         branchSendAddedProd.value.data[i].status = "confirmed";
+  //       }
+  //     }
+  //     return response;
+  //   } catch (error) {
+  //     console.log("Error:", error);
+  //     throw error;
+  //   }
+  // };
+
+  const receivedSendBranchProducts = async (data) => {
     try {
       const response = await api.post("/api/received-branch-product", data);
+
       receivedBranchProducts.value = response.data;
 
-      console.log("Received Branch Products:", response.data);
-      if (response.status === 200) {
-        const i = branchSendAddedProd.value.findIndex(
+      if (
+        response.status === 200 &&
+        branchSendAddedProd.value?.data &&
+        Array.isArray(branchSendAddedProd.value.data)
+      ) {
+        const i = branchSendAddedProd.value.data.findIndex(
           (item) => item.id === data.id
         );
 
         if (i !== -1) {
-          branchSendAddedProd.value[i].status = "confirmed";
+          branchSendAddedProd.value.data[i].status = "confirmed";
         }
       }
+
       return response;
     } catch (error) {
       console.log("Error:", error);

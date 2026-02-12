@@ -17,7 +17,7 @@
           <q-btn
             class="add-bg-gradient text-white"
             outlined
-            label="Added Othe Prod"
+            label="Added Other Prod"
             @click="handleAddProductDialog('Other')"
           />
         </div>

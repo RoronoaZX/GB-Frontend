@@ -187,6 +187,7 @@
 </template>
 
 <script setup>
+import { Notify } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { useBranchProductsStore } from "src/stores/branch-product";
 import { useProductionStore } from "src/stores/production";
@@ -357,6 +358,7 @@ const handleSubmit = async () => {
       product_id: 0,
       product_name: "",
       price: 0,
+      category: "",
       beginnings: 0,
       remaining: 0,
       added_stocks: 0,

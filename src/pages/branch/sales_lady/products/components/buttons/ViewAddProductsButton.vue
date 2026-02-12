@@ -79,17 +79,6 @@
             wrap-cells
             virtual-scroll
           >
-            <!-- :pagination="{ rowsPerPage: 10, sortBy: 'date', descending: true }" -->
-            <!-- <template v-slot:body-cell-destination="props">
-            <q-td :props="props" class="text-center">
-              <div v-if="props.row.action === 'add'">
-                {{ props.row.action }}
-              </div>
-              <div v-else>
-                {{ props.row.to_branch }}
-              </div>
-            </q-td>
-          </template> -->
             <!-- Status badge with better contrast -->
             <template v-slot:body-cell-status="props">
               <q-td :props="props" class="text-center">
@@ -151,15 +140,6 @@
               </div>
             </template>
           </q-table>
-          <!-- <div class="row justify-center q-mt-md">
-            <q-pagination
-              v-model="pagination.page"
-              :max="maxPages"
-              :max-pages="7"
-              direction-links
-              boundary-links
-            />
-          </div> -->
         </div>
 
         <q-inner-loading v-else showing />
@@ -282,6 +262,7 @@ const headerClass = computed(() => {
   const map = {
     selecta: "bg-selecta",
     bread: "bg-bread",
+    nestle: "bg-nestle",
     softdrinks: "bg-softdrinks",
     other: "bg-other",
   };
@@ -292,6 +273,7 @@ const getCategoryIcon = (cat) => {
   const icons = {
     bread: "bakery_dining",
     selecta: "icecream",
+    nestle: "ac_unit",
     softdrinks: "local_drink",
     other: "category",
   };
@@ -395,8 +377,11 @@ const productColumns = [
   &.bg-bread {
     background: linear-gradient(135deg, #8d6e63, #5d4037);
   }
+  &.bg-nestle {
+    background: linear-gradient(135deg, #4fc3f7 0%, #0288d1 100%);
+  }
   &.bg-softdrinks {
-    background: linear-gradient(135deg, #4fc3f7, #0288d1);
+    background: linear-gradient(135deg, #e67df9 0%, #9c27b0 100%);
   }
   &.bg-other {
     background: linear-gradient(135deg, #78909c, #455a64);

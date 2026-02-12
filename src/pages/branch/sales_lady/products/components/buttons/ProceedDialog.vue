@@ -41,11 +41,6 @@
                   }}
                 </div>
               </div>
-
-              <!-- <div class="product-sku">
-
-                ssss
-              </div> -->
             </div>
 
             <!-- Right: Price & Quantity -->
@@ -169,6 +164,14 @@ const receiveProduct = async (product) => {
 
     resetForm();
     dialog.value = false;
+
+    console.log("responsdssse", response);
+    if (response.status === 200) {
+      $q.notify({
+        type: "positive",
+        message: "Product received successfully",
+      });
+    }
   } catch (error) {
     console.log("Error saving remark:", error);
 

@@ -169,6 +169,7 @@
                     autofocus
                     type="number"
                     hint="Press Enter to save"
+                    @keyup.enter="scope.set"
                   />
                 </q-popup-edit>
               </q-td>
