@@ -48,8 +48,8 @@
 
       <q-card-section class="q-pa-lg">
         <!-- Optional quick filter (very user-friendly) -->
+        <!-- v-if="allRows.length > 3" -->
         <q-input
-          v-if="rows.length > 3"
           v-model="filter"
           outlined
           dense
@@ -167,6 +167,7 @@ import { useBranchProductsStore } from "src/stores/branch-product";
 import { useSalesReportsStore } from "src/stores/sales-report";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import ViewDetails from "./ViewDetails.vue";
+import { all } from "axios";
 
 const props = defineProps({ category: { type: String, required: true } });
 
@@ -201,6 +202,7 @@ const closeDialog = () => {
 
 const branchProductsStore = useBranchProductsStore();
 const branchProducts = computed(() => branchProductsStore.branchSendAddedProd);
+
 const rows = ref([]);
 
 const loading = ref(false);
