@@ -283,14 +283,14 @@ const ingredientsColumns = [
     format: (val) => `${val}`,
     sortable: true,
   },
-  {
-    name: "name",
-    label: "Raw Materials Name",
-    align: "center",
-    field: (row) => capitalizeFirstLetter(row?.ingredients?.name ?? "No Code"),
-    format: (val) => `${val}`,
-    sortable: true,
-  },
+  // {
+  //   name: "name",
+  //   label: "Raw Materials Name",
+  //   align: "center",
+  //   field: (row) => capitalizeFirstLetter(row?.ingredients?.name ?? "No Code"),
+  //   format: (val) => `${val}`,
+  //   sortable: true,
+  // },
   {
     name: "total_quantity",
     label: "Available Stocks",

@@ -307,6 +307,15 @@ const routes = [
     component: () => import("layouts/SupervisorLayout.vue"),
     children: [
       {
+        path: "",
+        component: () => import("pages/supervisor/branch/BranchPage.vue"),
+      },
+      {
+        path: "branch/:branch_id",
+        component: () => import("pages/supervisor/branch/id/BranchId.vue"),
+        name: "BranchDetails",
+      },
+      {
         path: "reports",
         component: () => import("pages/supervisor/report/ReportPage.vue"),
       },

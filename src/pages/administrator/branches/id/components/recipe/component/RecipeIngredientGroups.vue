@@ -47,7 +47,7 @@
           >
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.ingredient_name || "0.00000" }}
+                {{ ingredient.code || "0.00000" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>

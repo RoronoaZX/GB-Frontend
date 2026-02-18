@@ -181,24 +181,6 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
-// const formattedUserName = computed(() => {
-//   if (user.value && user.value.data && user.value.data.name) {
-//     const fullname = user.value.data.name;
-//     const parts = fullname.split(" ");
-//     const formattedparts = parts.map((part) => {
-//       return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
-//     });
-//     if (formattedparts.length > 1) {
-//       const middleIndex = Math.floor(formattedparts.length / 2);
-//       formattedparts[middleIndex] =
-//         formattedparts[middleIndex].charAt(0).toUpperCase() + ".";
-//     }
-//     return formattedparts.join(" ");
-//   } else {
-//     return "";
-//   }
-// });
-
 const signOut = () => {
   loading.value = true;
 
@@ -214,13 +196,6 @@ const signOut = () => {
 };
 
 const menuItems = [
-  // {
-  //   name: "analytics",
-  //   icon: "query_stats",
-  //   to: "/branch/sales_lady",
-  //   label: "Analytics",
-  //   separator: true,
-  // },
   {
     name: "bread",
     icon: "fa-solid fa-cake-candles",

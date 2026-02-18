@@ -18,14 +18,13 @@
             />
           </q-toolbar-title>
 
-          <div class="q-gutter-sm row items-center no-wrap">
-            <!-- <q-btn round dense flat icon="message" v-if="$q.screen.gt.sm">
-              <q-tooltip>Messages</q-tooltip>
-            </q-btn>
-            <q-btn round dense flat color="grey-10" icon="notifications">
-              <q-badge color="red" class="text-white" floating> 2 </q-badge>
-              <q-tooltip>Notifications</q-tooltip>
-            </q-btn> -->
+          <!-- <div class="col-4 g-flex justify-center" align="center">
+            <div class="text-black mx-2 text-h6">
+              <div>{{ getActiveMenuItemLabel }}</div>
+            </div>
+          </div> -->
+
+          <div class="col-4" align="right">
             <q-btn round flat>
               <q-avatar size="26px">
                 <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
@@ -135,32 +134,34 @@ const quasar = useQuasar();
 const router = useRouter();
 const loading = ref(false);
 
-onMounted(async () => {
-  try {
-    const response = await api.get("/api/profile");
-    user.value = response.data;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
-});
+// onMounted(async () => {
+//   try {
+//     const response = await api.get("/api/profile");
+//     user.value = response.data;
+//   } catch (error) {
+//     console.error("Error fetching user data:", error);
+//   }
+// });
 
-const formattedUserName = computed(() => {
-  if (user.value && user.value.data && user.value.data.name) {
-    const fullname = user.value.data.name;
-    const parts = fullname.split(" ");
-    const formattedparts = parts.map((part) => {
-      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
-    });
-    if (formattedparts.length > 1) {
-      const middleIndex = Math.floor(formattedparts.length / 2);
-      formattedparts[middleIndex] =
-        formattedparts[middleIndex].charAt(0).toUpperCase() + ".";
-    }
-    return formattedparts.join(" ");
-  } else {
-    return "";
-  }
-});
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str
+      ? str
+          .split(" ")
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(" ")
+      : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
+};
 
 const signOut = () => {
   loading.value = true;
@@ -175,11 +176,20 @@ const signOut = () => {
 
 const menuItems = [
   {
+    name: "branches",
+    icon: "fa-solid fa-store",
+    to: "/supervisor",
+    label: "Branches",
+    separator: true,
+    toolbarDisplay: "🏭 Branches",
+  },
+  {
     name: "reports",
     icon: "fact_check",
     to: "/supervisor/reports",
     label: "Reports",
     separator: true,
+    toolbarDisplay: "📄 Reports",
   },
   {
     name: "dtr",
@@ -187,6 +197,7 @@ const menuItems = [
     to: "/supervisor/dtr",
     label: "Daily Time Record",
     separator: true,
+    toolbarDisplay: "🕰️ DTR",
   },
   {
     name: "employee",
@@ -194,6 +205,7 @@ const menuItems = [
     to: "/supervisor/employee",
     label: "Employee",
     separator: true,
+    toolbarDisplay: "👥 Employee",
   },
 ];
 onMounted(() => {
@@ -208,6 +220,11 @@ const setActiveMenuItem = (itemName) => {
   activeMenuItem.value = itemName;
   localStorage.setItem("activeMenuItem", itemName);
 };
+
+const getActiveMenuItemLabel = computed(() => {
+  const activeItem = menuItems.find((item) => item.me === activeMenuItem.value);
+  return activeItem?.toolbarDisplay || "Menu";
+});
 </script>
 
 <style scoped>

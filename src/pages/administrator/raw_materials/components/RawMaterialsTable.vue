@@ -40,7 +40,7 @@
       <!-- virtual-scroll -->
       <template v-slot:body-cell-name="props">
         <q-td key="name" :props="props">
-          {{ capitalizeFirstLetter(props.row.name) }}
+          {{ props.row.code }}
         </q-td>
       </template>
       <template v-slot:body-cell-category="props">
@@ -143,7 +143,7 @@ const rawMaterialsColumns = [
     name: "name",
     label: "Raw Materials Name",
     align: "left",
-    field: (row) => row.name,
+    field: (row) => row.code,
     format: (val) => `${val}`,
     sortable: true,
   },

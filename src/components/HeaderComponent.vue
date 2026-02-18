@@ -195,6 +195,7 @@ const getActiveMenuItemLabel = computed(() => {
   const activeItem = menuItems.find(
     (item) => item.name === activeMenuItem.value
   );
+  console.log("activeItem", activeItem);
   return activeItem?.toolbarDisplay || "Menu";
 });
 </script>
