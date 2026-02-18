@@ -222,7 +222,16 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
         );
 
         if (i !== -1) {
-          branchSendAddedProd.value.data[i].status = "confirmed";
+          const message = response.data.message;
+
+          if (message === "Product was declined, No quantity was updated.") {
+            branchSendAddedProd.value.data[i].status = "declined";
+          } else if (
+            message ===
+            "Product received and product quantity updated successfully."
+          ) {
+            branchSendAddedProd.value.data[i].status = "confirmed";
+          }
         }
       }
 

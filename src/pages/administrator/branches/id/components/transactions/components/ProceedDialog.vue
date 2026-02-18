@@ -9,7 +9,7 @@
               size="20px"
               class="q-mr-sm text-primary"
             />
-            Add Remark
+            Add {{ capitalizeFirstLetter(status || "N/A") }} Remark
           </div>
           <q-btn icon="close" flat round dense v-close-popup />
         </div>
@@ -70,8 +70,14 @@
 
       <q-card-actions class="q-px-lg q-pb-lg">
         <q-btn
-          label="Proceed"
-          color="primary"
+          :label="status || 'Proceed'"
+          :color="
+            status === 'confirmed' && category !== null
+              ? getCategoryColor(category)
+              : status === 'declined'
+              ? 'negative'
+              : 'primary'
+          "
           class="full-width"
           unelevated
           :disable="!remark.trim()"
@@ -97,6 +103,7 @@ const { formatDate, formatFullname, formatPrice, capitalizeFirstLetter } =
 const props = defineProps({
   productDetails: Object,
   category: String,
+  status: String,
 });
 
 console.log("propsss", props);
@@ -135,7 +142,7 @@ const receiveProduct = async (product) => {
     branch_id: product.to_branch_id,
     product_id: product.product_id,
     quantity: product.added_product,
-    status: "confirmed",
+    status: props.status,
     remark: remark.value.trim(),
   };
 
@@ -156,7 +163,7 @@ const receiveProduct = async (product) => {
     if (response.status === 200) {
       $q.notify({
         type: "positive",
-        message: "Product received successfully",
+        message: response.data.message || "Product Confirmed Successfully",
       });
     }
   } catch (error) {
@@ -183,6 +190,20 @@ const getCategoryIcon = (cat) => {
     other: "category",
   };
   return icons[cat?.toLowerCase()] || "inventory_2";
+};
+
+const getCategoryColor = (cat, fallback = null) => {
+  const colors = {
+    bread: "brown",
+    selecta: "pink",
+    nestle: "info",
+    softdrinks: "purple",
+    other: "blue-grey-7",
+  };
+  return (
+    colors[cat?.toLowerCase()] ||
+    (fallback ? `text-${fallback}` : "text-primary")
+  );
 };
 </script>
 

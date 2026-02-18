@@ -190,12 +190,19 @@
           class="row justify-end q-gutter-md"
         >
           <q-btn
-            label="Receive Product"
+            label="Decline Product"
+            color="negative"
+            padding="12px 32px"
+            class="rounded-btn text-dark"
+            @click="clickedReceiveProduct('declined')"
+          />
+          <q-btn
+            label="Confirm Product"
             :color="getCategoryColor(category, 'positive')"
             padding="12px 32px"
             class="rounded-btn text-dark"
             :icon="getCategoryIcon(category)"
-            @click="clickedReceiveProduct(productDetails)"
+            @click="clickedReceiveProduct('confirmed')"
           />
         </div>
       </q-card-section>
@@ -279,13 +286,14 @@ const calculateTotal = (price, quantity) => {
   return formatPrice(total);
 };
 
-const clickedReceiveProduct = () => {
+const clickedReceiveProduct = (status) => {
   $q.dialog({
     component: ProceedDialog,
     componentProps: {
       // index: props.index,
       productDetails: props.productDetails,
       category: props.category,
+      status: status,
     },
   });
 };

@@ -214,7 +214,7 @@ const getStatusColor = (status) => {
   const s = (status || "").toLowerCase();
   if (s.includes("pending")) return "orange";
   if (s.includes("confirmed") || s.includes("approved")) return "positive";
-  if (s.includes("cancel") || s.includes("reject")) return "negative";
+  if (s.includes("declined") || s.includes("reject")) return "negative";
   return "grey-7";
 };
 
