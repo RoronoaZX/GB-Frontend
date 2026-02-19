@@ -227,10 +227,14 @@ const handleBakerReportEditDialog = (bakerReports, salesReportID) => {
 const overallKiloTotal = computed(() => {
   if (!reportsData || reportsData.length === 0) return "0 kgs";
 
-  const total = reportsData.reduce((sum, row) => {
-    const kilo = parseFloat(row.kilo) || 0;
-    return sum + kilo;
-  }, 0);
+  console.log("dafsdfasdfsad", reportsData);
+
+  const total = reportsData
+    .filter((row) => row.status === "confirmed") // ✅ only confirmed
+    .reduce((sum, row) => {
+      const kilo = parseFloat(row.kilo) || 0;
+      return sum + kilo;
+    }, 0);
 
   // Show decimal only if needed
   const isWhole = total % 1 === 0;

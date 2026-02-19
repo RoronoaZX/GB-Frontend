@@ -10,6 +10,32 @@
           {{ capitalizeFirstLetter(branchName) }}
         </div>
       </div>
+
+      <div class="q-gutter-sm">
+        <div class="tab-container">
+          <q-tabs
+            v-model="tab"
+            dense
+            class="bg-grey-2 text-grey-7 tabs-as-cards"
+            active-color="red-6"
+            indicator-color="transparent"
+            align="justify"
+          >
+            <q-tab name="products" label="Products" />
+            <q-tab name="rawMaterials" label="Raw Materials" />
+            <q-tab name="recipe" label="Recipe" />
+            <q-tab name="premix" label="Premix" />
+            <q-tab name="production" labebl="Production" />
+            <q-tab name="transaction" label="Transaction" />
+          </q-tabs>
+        </div>
+
+        <q-card class="q-mt-sm">
+          <q-tab-panels v-model="tab" animated>
+            <q-tab-panel name="products"> Products </q-tab-panel>
+          </q-tab-panels>
+        </q-card>
+      </div>
     </div>
   </q-page>
   <div>This is the ID</div>
@@ -33,6 +59,8 @@ const branchId = route.params.branch_id;
 const branchName = ref("");
 
 console.log("branchId", branchId);
+
+const tab = ref("products");
 
 const getBranchById = async (branchId) => {
   const res = await api.get(`/api/branches/${branchId}`);
@@ -64,3 +92,45 @@ const navigateBack = () => {
   });
 };
 </script>
+
+<style scoped>
+.q-tabs--not-scrollable .q-tabs__content,
+body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
+  overflow: visible;
+}
+
+.tabs-as-cards {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+}
+
+.tabs.as-cards .q-tab {
+  background-color: white;
+  color: #333;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  margin: 0 8px;
+  padding: 10px 20px;
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.tabs-as-cards .q-tab:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.tabs-as-cards .q-tab--active {
+  background-color: #e0e0e0;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.tab-content {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+</style>
