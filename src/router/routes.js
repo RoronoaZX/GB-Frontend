@@ -314,6 +314,57 @@ const routes = [
         path: "branch/:branch_id",
         component: () => import("pages/supervisor/branch/id/BranchId.vue"),
         name: "BranchDetails",
+
+        children: [
+          {
+            path: "",
+            redirect: {
+              name: "branch-product",
+            },
+          },
+          {
+            path: "branch-product",
+            name: "branch-product",
+            component: () =>
+              import("pages/supervisor/branch/id/pages/ProductPage.vue"),
+          },
+          {
+            path: "branch-raw-materials",
+            name: "branch-raw-materials",
+            component: () =>
+              import("pages/supervisor/branch/id/pages/RawMaterialsPage.vue"),
+          },
+          {
+            path: "branch-premix",
+            name: "branch-premix",
+            component: () =>
+              import("pages/supervisor/branch/id/pages/PremixPage.vue"),
+          },
+          {
+            path: "branch-recipe",
+            name: "branch-recipe",
+            component: () =>
+              import("pages/supervisor/branch/id/pages/RecipePage.vue"),
+          },
+          {
+            path: "branch-production",
+            name: "branch-production",
+            component: () =>
+              import("pages/supervisor/branch/id/pages/ProductionPage.vue"),
+          },
+          {
+            path: "branch-transactions",
+            name: "branch-transactions",
+            component: () =>
+              import("pages/supervisor/branch/id/pages/TransactionPage.vue"),
+          },
+          {
+            path: "branch-employees",
+            name: "branch-employees",
+            component: () =>
+              import("pages/supervisor/branch/id/pages/EmployeePage.vue"),
+          },
+        ],
       },
       {
         path: "reports",

@@ -1,44 +1,61 @@
 <template>
-  <q-page padding>
-    <div class="elegant-container q-gutter-md">
-      <div class="text-h6 row justify-between">
-        <div>
-          <q-btn outline flat icon="arrow_back" @click="navigateBack" />
-        </div>
-        <div>
-          <q-icon name="fa-solid fa-store" color="red-6" />
-          {{ capitalizeFirstLetter(branchName) }}
-        </div>
+  <q-page flat>
+    <div class="text-h6 row justify-between">
+      <div>
+        <q-btn outline flat icon="arrow_back" @click="navigateBack" />
       </div>
-
-      <div class="q-gutter-sm">
-        <div class="tab-container">
-          <q-tabs
-            v-model="tab"
-            dense
-            class="bg-grey-2 text-grey-7 tabs-as-cards"
-            active-color="red-6"
-            indicator-color="transparent"
-            align="justify"
-          >
-            <q-tab name="products" label="Products" />
-            <q-tab name="rawMaterials" label="Raw Materials" />
-            <q-tab name="recipe" label="Recipe" />
-            <q-tab name="premix" label="Premix" />
-            <q-tab name="production" labebl="Production" />
-            <q-tab name="transaction" label="Transaction" />
-          </q-tabs>
-        </div>
-
-        <q-card class="q-mt-sm">
-          <q-tab-panels v-model="tab" animated>
-            <q-tab-panel name="products"> Products </q-tab-panel>
-          </q-tab-panels>
-        </q-card>
+      <div>
+        <q-icon name="fa-solid fa-store" color="red-6" />
+        {{ capitalizeFirstLetter(branchName) }}
       </div>
     </div>
+
+    <q-tabs
+      v-model="tab"
+      dense
+      outline
+      flat
+      class="bg-grey-2 text-grey-7 tabs-as-cards"
+      inline-label
+      align="justify"
+      active-color="red-6"
+      indicator-color="transparent"
+    >
+      <!-- indicator-color="red-6" -->
+      <!-- class="user-tab justify-center q-ma-md" -->
+      <q-route-tab :to="{ name: 'branch-product' }" exact>
+        <div>Product</div>
+      </q-route-tab>
+
+      <q-route-tab :to="{ name: 'branch-raw-materials' }" exact>
+        <div>Raw Materials</div>
+      </q-route-tab>
+
+      <q-route-tab :to="{ name: 'branch-premix' }" exact>
+        <div>Premix</div>
+      </q-route-tab>
+
+      <q-route-tab :to="{ name: 'branch-recipe' }" exact>
+        <div>Recipe</div>
+      </q-route-tab>
+
+      <q-route-tab :to="{ name: 'branch-production' }" exact>
+        <div>Production</div>
+      </q-route-tab>
+
+      <q-route-tab :to="{ name: 'branch-transactions' }" exact>
+        <div>Transactions</div>
+      </q-route-tab>
+
+      <q-route-tab :to="{ name: 'branch-employees' }" exact>
+        <div>Employees</div>
+      </q-route-tab>
+    </q-tabs>
+
+    <div style="background-color: #f7f8fc">
+      <router-view />
+    </div>
   </q-page>
-  <div>This is the ID</div>
 </template>
 
 <script setup>
@@ -94,6 +111,12 @@ const navigateBack = () => {
 </script>
 
 <style scoped>
+.elegant-container {
+  background: #f7f8fc;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
 .q-tabs--not-scrollable .q-tabs__content,
 body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
   overflow: visible;
@@ -105,7 +128,7 @@ body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
   padding: 8px 16px;
 }
 
-.tabs.as-cards .q-tab {
+.tabs-as-cards .q-tab {
   background-color: white;
   color: #333;
   border-radius: 12px;
@@ -126,6 +149,7 @@ body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
   color: #333;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
 .tab-content {
   border: 1px solid #ddd;
   border-radius: 8px;
