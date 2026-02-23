@@ -1,57 +1,53 @@
 <template>
   <div class="product-page-wrapper">
+    <!-- {{ filteredRawMaterials }} -->
     <main class="main-content">
-      <!-- Loading State -->
       <div v-if="loading" class="loading-container">
         <div class="loading-animation">
           <q-spinner-ripple color="primary" size="60px" />
-          <div class="loading-pulse"></div>
+          <div class="loading-pulsle"></div>
         </div>
         <p class="q-mt-md text-slate-400">Loading your inventory...</p>
       </div>
 
-      <!-- Empty State -->
-      <div v-else-if="filteredProducts.length === 0" class="empty-state">
+      <div v-else-if="filteredRawMaterials.length === 0" class="empty-state">
         <div class="empty-icon-wrapper">
           <q-icon name="inventory_2" size="64px" color="grey-4" />
           <div class="empty-icon-ring"></div>
         </div>
-        <h4 class="text-h6 text-slate-800 q-mt-md">No products found</h4>
+        <h4 class="text-h6 text-slate-800 q-mt-md">No raw materials found</h4>
         <p class="text-slate-500">
           Try a different search term or
           <span
             class="text-primary cursor-pointer"
-            @click="$emit('add-product')"
-            >add a new product</span
+            @click="$emit('add-raw-materials')"
+            >add a new raw materials</span
           >
         </p>
       </div>
 
-      <!-- Product Grid -->
       <div v-else class="product-grid q-px-md q-pb-xl">
         <q-pull-to-refresh @refresh="handleRefresh" color="primary">
           <div class="row q-col-gutter-md">
             <div
-              v-for="product in filteredProducts"
-              :key="product.id"
+              v-for="rawMaterials in filteredRawMaterials"
+              :key="rawMaterials.id"
               class="col-12 col-sm-6 col-md-4"
             >
               <q-card class="product-card" flat>
-                <!-- Stock Status Banner -->
                 <div
                   class="status-banner"
-                  :class="getStockStatusClass(product)"
+                  :class="getStockStatusClass(rawMaterials)"
                 >
                   <div class="status-banner-content">
-                    <q-icon :name="getStockIcon(product)" size="16px" />
-                    <span>{{ getStockStatus(product) }}</span>
+                    <q-icon :name="getStockIcon(rawMaterials)" size="16px" />
+                    <span>{{ getStockStatus(rawMaterials) }}</span>
                   </div>
                   <div class="stock-percentage">
-                    {{ getStockPercentage(product) }}%
+                    {{ getStockPercentage(rawMaterials) }}%
                   </div>
                 </div>
 
-                <!-- Product Header -->
                 <q-card-section class="q-pb-sm">
                   <div class="row justify-between items-start no-wrap">
                     <div class="col">
@@ -59,14 +55,22 @@
                         class="category-chip"
                         :style="{
                           backgroundColor:
-                            getCategoryColor(product.category) + '20',
-                          color: getCategoryColor(product.category),
+                            getCategoryColor(
+                              rawMaterials.ingredients.category
+                            ) + '20',
+                          color: getCategoryColor(
+                            rawMaterials.ingredients.category
+                          ),
                         }"
                       >
-                        {{ product.category || "General" }}
+                        {{ rawMaterials.ingredients.category || "General" }}
                       </div>
                       <div class="product-title">
-                        {{ capitalizeFirstLetter(product.product?.name) }}
+                        {{
+                          `${capitalizeFirstLetter(
+                            rawMaterials.ingredients?.name || "-"
+                          )} || ${rawMaterials.ingredients?.code || "-"}`
+                        }}
                       </div>
                     </div>
                   </div>
@@ -79,7 +83,7 @@
                       :key="stat.field"
                       class="stat-card"
                       :class="{
-                        'production-card': stat.field === 'new_production',
+                        'product-card': stat.field,
                       }"
                     >
                       <div class="stat-icon">
@@ -91,60 +95,25 @@
                       </div>
 
                       <div class="stat-content">
-                        <span class="stat-label">{{ stat.label }}</span>
+                        <span class="stat-label">
+                          {{ stat.label }}
+                        </span>
 
                         <div class="stat-value-wrapper">
                           <span class="stat-value" :class="stat.valueClass">
                             {{ stat.prefixDisplay || "" }}
-                            {{ getDisplayValue(product, stat) }}
-                            <small v-if="stat.suffix">
-                              {{ stat.suffix }}
+                            {{ getDisplayValue(rawMaterials, stat) }}
+                            <small>
+                              {{ getUnit(rawMaterials) }}
                             </small>
                           </span>
-
-                          <q-icon name="edit" size="16px" class="edit-icon" />
                         </div>
                       </div>
-
-                      <q-popup-edit
-                        v-model="product[stat.field]"
-                        v-slot="scope"
-                        buttons
-                        persistent
-                        @save="
-                          (val) => handleGlobalUpdate(product, stat.field, val)
-                        "
-                      >
-                        <div class="popup-edit-container">
-                          <div class="popup-header">
-                            <q-icon
-                              :name="stat.icon"
-                              size="20px"
-                              color="primary"
-                            />
-                            <span>Edit {{ stat.label }}</span>
-                          </div>
-
-                          <q-input
-                            v-model="scope.value"
-                            :type="stat.type || 'number'"
-                            :step="stat.step || '1'"
-                            dense
-                            autofucus
-                            outlined
-                            @keyup.enter="scope.set"
-                          >
-                            <template v-if="stat.prefix" #prepend>
-                              <span>{{ stat.prefix }}</span>
-                            </template>
-                          </q-input>
-                        </div>
-                      </q-popup-edit>
                     </div>
                   </div>
                 </q-card-section>
 
-                <q-card-actions class="q-px-md q-pb-md q-pt-xs">
+                <q-card-action class="q-px-md q-pb-md q-pt-xs">
                   <div class="row full-width items-center justify-between">
                     <div class="col">
                       <q-btn
@@ -154,22 +123,11 @@
                         label="Adjust Stock"
                         size="sm"
                         class="adjust-btn"
-                        @click="openAdjustStock(product)"
-                      />
-                    </div>
-                    <div class="col-auto">
-                      <q-btn
-                        flat
-                        round
-                        dense
-                        icon="chevron_right"
-                        color="grey-6"
-                        size="sm"
-                        @click="viewDetails(product)"
+                        @click="openAdjustStock(rawMaterials)"
                       />
                     </div>
                   </div>
-                </q-card-actions>
+                </q-card-action>
               </q-card>
             </div>
           </div>
@@ -181,18 +139,18 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useBranchProductsStore } from "src/stores/branch-product";
+import { useBranchRawMaterialsStore } from "src/stores/branch-rawMaterials";
 import { useRoute } from "vue-router";
-import { typographyFormat } from "src/composables/typography/typography-format";
 
 import { useSupervisorStore } from "src/stores/supervisor";
 
 import { useQuasar } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const route = useRoute();
-const branchProductStore = useBranchProductsStore();
+const branchRawMaterialsStore = useBranchRawMaterialsStore();
 const $q = useQuasar();
 
 const supervisorStore = useSupervisorStore();
@@ -209,98 +167,160 @@ console.log("userId", userId.value);
 const filter = defineProps({
   filter: String,
 });
-const emit = defineEmits(["add-product", "view-details", "adjust-stock"]);
+
+const emit = defineEmits(["add-raw-material", "view-details", "adjust-stock"]);
 
 const loading = ref(true);
 const editingProduct = ref(null);
 
-const branchProducts = computed(() => branchProductStore.branchProducts);
+const branchRawMaterials = computed(
+  () => branchRawMaterialsStore.branchRawMaterials
+);
 
-const filteredProducts = computed(
+console.log("branchRawMaterials", branchRawMaterials.value);
+
+const filteredRawMaterials = computed(
   () =>
-    branchProducts.value?.filter((item) =>
-      item.product.name.toLowerCase().includes(filter.filter.toLowerCase())
+    branchRawMaterials.value?.filter((item) =>
+      item.ingredients.code.toLowerCase().includes(filter.filter.toLowerCase())
     ) || []
 );
 
-console.log("filteredProducts", filteredProducts.value);
+console.log("filteredRawMaterials", filteredRawMaterials.value);
 
 const statFields = [
   {
-    field: "price",
-    label: "Price",
-    icon: "attach_money",
-    color: "primary",
-    type: "number",
-    step: "0.01",
-    prefix: "₱",
-    format: (val) => formatPrice(val),
-    valueClass: "text-primary",
-  },
-  {
     field: "total_quantity",
-    label: "Total Pcs",
+    label: "Available Stocks",
     icon: "inventory",
     color: "teal",
     type: "number",
     step: "1",
-    suffix: "pcs",
-  },
-  {
-    field: "beginnings",
-    label: "Beginning",
-    icon: "trending_up",
-    color: "orange",
-    type: "number",
-    step: "1",
-    suffix: "pcs",
-  },
-  {
-    field: "new_production",
-    label: "New Production",
-    icon: "add_circle",
-    color: "green",
-    type: "number",
-    step: "1",
-    suffix: "pcs",
-    prefixDisplay: "+",
   },
 ];
 
-const getDisplayValue = (product, stat) => {
-  let value = product[stat.field] ?? 0;
+const getNormalizedQuantity = (rm) => {
+  const quantity = rm.total_quantity ?? 0;
+  const category = rm.ingredients?.category;
+  const code = rm.ingredients?.code;
 
-  if (stat.format) {
-    return stat.format(value);
+  // Special case: Egg (00-I) treat as pcs
+  if (code === "00-I") {
+    return quantity;
+  }
+
+  // If Ingredients, convert grams to kg
+  if (category === "Ingredients") {
+    return quantity / 1000;
+  }
+
+  // Packaging Materials, keep as is
+  return quantity;
+};
+
+const getUnit = (rm) => {
+  const category = rm.ingredients?.category;
+  const code = rm.ingredients?.code;
+
+  //🥚 Egg special case
+  if (code === "00-I") return "pcs";
+
+  if (category === "Ingredients") return "kg";
+  if (category === "Packaging Materials") return "pcs";
+
+  return "";
+};
+
+const getDisplayValue = (rm) => {
+  console.log("rm", rm);
+
+  const value = getNormalizedQuantity(rm);
+
+  // If kg show decimals
+  if (getUnit(rm) === "kg") {
+    return value.toFixed(2);
   }
 
   return value;
 };
 
 // Enhanced Stock Status Functions
-const getStockPercentage = (p) => {
-  const maxStock = p.max_stock || 100; // You might have max_stock in your data
-  return Math.min(Math.round(((p.total_quantity || 0) / maxStock) * 100), 100);
+// const getStockPercentage = (rm) => {
+//   const maxStock = rm.max_stock || 100;
+//   return Math.min(Math.round(((rm.total_quantity || 0) / maxStock) * 100), 100);
+// };
+
+// const getStockPercentage = (rm) => {
+//   const q = getNormalizedQuantity(rm);
+//   const maxStock = rm.max_stock || 100;
+//   // Convert maxStock to same unit as normalized quantity if needed
+//   let normalizedMaxStock = maxStock;
+
+//   // If it's an ingredient (except eggs), convert maxStock from grams to kg
+//   if (
+//     rm.ingredients?.category === "Ingredients" &&
+//     rm.ingredients?.code !== "00-I"
+//   ) {
+//     normalizedMaxStock = maxStock / 1000;
+//   }
+
+//   return Math.min(Math.round((q / normalizedMaxStock) * 100), 100);
+// };
+
+const getStockPercentage = (rm) => {
+  const q = getNormalizedQuantity(rm);
+  const maxStock = rm.max_stock || 100;
+
+  console.log("Raw material:", rm.ingredients?.code, {
+    rawQuantity: rm.total_quantity,
+    normalizedQ: q,
+    maxStock: maxStock,
+    category: rm.ingredients?.category,
+  });
+
+  // Convert maxStock to same unit as normalized quantity
+  let normalizedMaxStock = maxStock;
+
+  // If it's an ingredient (except eggs), maxStock is in grams, convert to kg
+  if (
+    rm.ingredients?.category === "Ingredients" &&
+    rm.ingredients?.code !== "00-I"
+  ) {
+    normalizedMaxStock = maxStock / 1000;
+  }
+
+  // For eggs and packaging, maxStock is already in pieces, use as is
+
+  console.log("Calcualted:", {
+    normalizedMaxStock,
+    percentage: (q / normalizedMaxStock) * 100,
+  });
+
+  // Avoid division by zero
+  if (normalizedMaxStock === 0) return 0;
+
+  return Math.min(Math.round((q / normalizedMaxStock) * 100), 100);
 };
 
-const getStockStatus = (p) => {
-  const q = p.total_quantity || 0;
+const getStockStatus = (rm) => {
+  const q = getNormalizedQuantity(rm);
   if (q <= 0) return "Out of Stock";
   if (q < 20) return "Critically Low";
   if (q < 50) return "Low Stock";
+
   return "Healthy Stock";
 };
 
-const getStockIcon = (p) => {
-  const q = p.total_quantity || 0;
+const getStockIcon = (rm) => {
+  const q = getNormalizedQuantity(rm);
   if (q <= 0) return "dangerous";
   if (q < 20) return "warning";
   if (q < 50) return "info";
   return "check_circle";
 };
 
-const getStockStatusClass = (p) => {
-  const q = p.total_quantity || 0;
+const getStockStatusClass = (rm) => {
+  const q = getNormalizedQuantity(rm);
   if (q <= 0) return "status-out";
   if (q < 20) return "status-critical";
   if (q < 50) return "status-low";
@@ -309,90 +329,27 @@ const getStockStatusClass = (p) => {
 
 const getCategoryColor = (category) => {
   const colors = {
-    Bread: "#795548",
-    Nestle: "#1976D2",
-    Selecta: "#f44336",
-    Others: "#607d8b",
-    Softdrinks: "#9c27b0",
+    Ingredients: "teal",
+    "Packaging Materials": "brown-6",
   };
+
   return colors[category] || "#64748b";
 };
 
-const handleGlobalUpdate = async (product, field, newVal) => {
-  if (!userId.value) return;
-
-  console.log("product", product);
-  console.log("field", field);
-  console.log("newVal", newVal);
-
-  const meta = {
-    id: product.id,
-    // branches_id: route.params.branch_id,
-    // product_id: product.product_id || product.product.id,
-    updated_data: newVal,
-    updated_field: field,
-  };
-
-  console.log("meta", meta);
-
-  try {
-    const response = await branchProductStore.updateProductBranch(meta);
-
-    console.log("responsesssssss", response);
-
-    // ✅ Extract from backend response
-    const { status, message } = response.data;
-
-    console.log("status", status);
-    console.log("message", message);
-
-    const typeMap = {
-      success: "positive",
-      warning: "warning",
-      error: "negative",
-    };
-
-    const iconMap = {
-      success: "check_circle",
-      warning: "warning",
-      error: "error",
-    };
-
-    $q.notify({
-      type: typeMap[status] || "info",
-      message: message || "Action completed",
-      position: "top-right",
-      timeout: 1500,
-      icon: iconMap[status] || "info",
-    });
-
-    console.log();
-  } catch (error) {
-    console.log("Error updating product:", error);
-
-    $q.notify({
-      type: "negative",
-      message:
-        error.response?.data?.message || "Something went wrong while updating.",
-      position: "top-right",
-      timeout: 2000,
-      icon: "error",
-    });
-  }
+const openAdjustStock = (rm) => {
+  emit("adjsut-stock", rm);
 };
 
-const openAdjustStock = (product) => {
-  emit("adjust-stock", product);
-};
-
-const viewDetails = (product) => {
-  emit("view-details", product);
+const viewDetails = (rm) => {
+  emit("view-details", rm);
 };
 
 const reloadTableData = async () => {
   try {
     loading.value = true;
-    await branchProductStore.fetchBranchProducts(route.params.branch_id);
+    await branchRawMaterialsStore.fetchBranchRawMaterials(
+      route.params.branch_id
+    );
   } finally {
     loading.value = false;
   }
@@ -418,7 +375,6 @@ const handleRefresh = async (done) => {
   padding: 24px 0;
 }
 
-// Loading State
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -507,13 +463,18 @@ const handleRefresh = async (done) => {
     transform: translateY(-4px);
     box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.15);
 
-    .status-banner {
-      transform: scale(1.02);
-    }
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.15);
 
-    .edit-icon {
-      opacity: 1;
-      transform: translateX(0);
+      .status-banner {
+        transform: scale(1.02);
+      }
+
+      .edit-icon {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
   }
 }
@@ -546,7 +507,7 @@ const handleRefresh = async (done) => {
   }
 
   &.status-critical {
-    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 10%);
     color: #c2410c;
   }
 
@@ -561,7 +522,7 @@ const handleRefresh = async (done) => {
   }
 }
 
-// Category Chip
+// Category chip
 .category-chip {
   display: inline-block;
   padding: 4px 10px;
@@ -592,7 +553,6 @@ const handleRefresh = async (done) => {
   background: #f8fafc;
   border-radius: 16px;
   padding: 12px;
-  display: flex;
   align-items: center;
   gap: 10px;
   transition: all 0.2s ease;
@@ -607,7 +567,7 @@ const handleRefresh = async (done) => {
     background: #eff6ff;
 
     &:hover {
-      background: #dbeafe;
+      background: #db3afe;
     }
   }
 
@@ -662,7 +622,7 @@ const handleRefresh = async (done) => {
     }
 
     &.text-primary {
-      color: #3b82f6;
+      color: #3b83f6;
     }
 
     &.text-green {
@@ -725,7 +685,7 @@ const handleRefresh = async (done) => {
 }
 
 // Menu Button
-.menu-btn {
+.muny-btn {
   opacity: 0.6;
   transition: opacity 0.2s ease;
 

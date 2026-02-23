@@ -1,11 +1,41 @@
 <template>
-  <div class="row justify-between q-pt-md">
-    <!-- <SearchEngine />
-    <AddProduct /> -->
-  </div>
+  <div class="inventory-view-wrapper">
+    <q-scroll-observer @scroll="onScroll" />
+    <div
+      class="sticky-header-container"
+      :class="{ 'is-hidden': !showSearch && lastScroll > 100 }"
+    >
+      <div
+        class="row justify-between items-center q-px-md q-py-sm q-gutter-sm search-row-inner"
+      >
+        <div class="col-grow">
+          <SearchEngine v-model="filter" />
+        </div>
+        <div class="col-auto q-ml-sm">
+          <AddProduct />
+        </div>
+      </div>
+    </div>
 
-  <div>
-    <ProductCard :products="branchProduct" />
+    <!-- 3. Static Titles -->
+    <div class="q-px-md q-pt-md q-pb-sm">
+      <h1 class="text-h5 text-weight-bold text-slate-900 q-mb-none">
+        Inventory
+      </h1>
+      <p class="text-caption text-slate-500">
+        Manage your branch product levels
+      </p>
+    </div>
+
+    <!-- 4. Product Display -->
+    <div class="q-px-md">
+      <ProductCard :filter="filter" />
+    </div>
+
+    <!-- Loading -->
+    <div v-if="loading" class="spinner-wrapper">
+      <q-spinner-ripple color="primary" size="40px" />
+    </div>
   </div>
 </template>
 
@@ -13,59 +43,92 @@
 import SearchEngine from "../search/SearchEngine.vue";
 import AddProduct from "../add_button/AddProduct.vue";
 import ProductCard from "../card/ProductCard.vue";
-
 import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useBranchProductsStore } from "src/stores/branch-product";
 
-import { typographyFormat } from "src/composables/typography/typography-format";
-
-const { capitalizeFirstLetter, formatPrice } = typographyFormat();
-
-const filter = ref("");
-
 const route = useRoute();
-
-const branchId = route.params.branch_id;
-console.log("bransschId", branchId);
-
 const branchProductStore = useBranchProductsStore();
 
-const branchProduct = computed(() => branchProductStore.branchProducts);
+const filter = ref("");
+const loading = ref(false);
+const showSearch = ref(true);
+const lastScroll = ref(0);
 
-console.log("branchProduct", branchProduct.value);
+const onScroll = (info) => {
+  const currentScroll = info.position.top;
+  // If scrolling up, show. If scrolling down, hide.
+  if (currentScroll < lastScroll.value || currentScroll < 10) {
+    showSearch.value = true;
+  } else {
+    showSearch.value = false;
+  }
+  lastScroll.value = currentScroll;
+};
 
-const updateSearchTerm = (searchValue) => {
-  filter.value = searchValue;
+const updateSearchTerm = (val) => {
+  filter.value = val;
 };
 
 onMounted(async () => {
-  if (branchId) {
-    await fetchBranchProducts(branchId);
+  if (route.params.branch_id) {
+    loading.value = true;
+    await branchProductStore.fetchBranchProducts(route.params.branch_id);
+    loading.value = false;
   }
 });
-
-const fetchBranchProducts = async (branchId) => {
-  try {
-    const response = await branchProductStore.fetchBranchProducts(branchId);
-    console.log("Branch product", branchProduct.value);
-  } catch (error) {
-    console.log("Error fetching branch product:", error);
-  }
-};
 </script>
 
-<style scoped>
-.spinner-wrapper {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+<style scoped lang="scss">
+.inventory-view-wrapper {
+  background: #ffffff;
+  min-height: 100vh;
 }
-.data-error {
-  min-height: 40vh;
+
+/*
+   THE STICKY LOGIC
+*/
+.sticky-header-container {
+  position: sticky;
+  /* If your layout header is sticky, set this to its height (e.g., 50px).
+     If the layout header scrolls away, 0 is correct. */
+  top: 50px;
+  z-index: 500;
+  background: white;
+  transition: transform 0.3s ease-in-out, opacity 0.2s;
+
+  /* Adds a subtle shadow only when sticking */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  &.is-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.search-row-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Modern Typography */
+.text-slate-900 {
+  color: #0f172a;
+}
+.text-slate-500 {
+  color: #64748b;
+}
+
+.spinner-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
+  padding: 50px;
+}
+
+/* Deep selector to make the search bar look more 'integrated' */
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 12px;
+  background: #f8fafc;
 }
 </style>

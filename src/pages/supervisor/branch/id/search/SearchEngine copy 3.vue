@@ -1,20 +1,22 @@
 <template>
-  <div class="search-wrapper">
-    <!-- Mobile: Icon-only until clicked -->
-    <template v-if="$q.screen.ltSm && !isActive">
+  <div class="search-container" :class="{ expanded: isExpanded || searchTerm }">
+    <!-- Mobile: Collapsed State -->
+    <div
+      v-if="$q.screen.ltSm && !isExpanded && !searchTerm"
+      class="mobile-collapsed"
+    >
       <q-btn
         round
-        flat
         dense
+        flat
         icon="search"
         color="primary"
-        @click="activateSearch"
-        class="mobile-search-icon"
-        size="md"
+        @click="isExpanded = true"
+        class="mobile-search-trigger"
       />
-    </template>
+    </div>
 
-    <!-- Full search input (desktop always, mobile when active) -->
+    <!-- Desktop & Expanded Mobile -->
     <q-input
       v-else
       rounded
@@ -25,31 +27,32 @@
       @input="emitSearch"
       :placeholder="placeholderText"
       class="responsive-search"
-      :class="{ 'mobile-search': $q.screen.ltSm }"
+      :class="{
+        'mobile-search': $q.screen.ltSm,
+        'full-width': $q.screen.ltSm,
+      }"
       @update:model-value="emitSearch"
-      @blur="deactivateSearch"
+      @blur="handleBlur"
+      autofocus
     >
       <template v-slot:prepend v-if="$q.screen.gt.xs">
         <q-icon name="search" color="grey-6" />
       </template>
 
       <template v-slot:append>
-        <transition name="slide-fade">
-          <q-icon
-            v-if="searchTerm"
-            name="close"
-            class="cursor-pointer"
-            @click="clearSearch"
-            color="grey-5"
-            size="20px"
-          />
-        </transition>
-        <!-- Mobile back button when active -->
         <q-icon
-          v-if="$q.screen.ltSm && isActive"
+          v-if="searchTerm"
+          name="close"
+          class="cursor-pointer"
+          @click="clearSearch"
+          color="grey-5"
+          size="20px"
+        />
+        <q-icon
+          v-else-if="$q.screen.ltSm"
           name="arrow_back"
-          class="cursor-pointer q-ml-sm"
-          @click="deactivateSearch"
+          class="cursor-pointer"
+          @click="collapseSearch"
           color="grey-5"
           size="20px"
         />
@@ -59,17 +62,16 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from "vue";
+import { ref, computed, nextTick, watch } from "vue";
 import { useQuasar } from "quasar";
 
 const $q = useQuasar();
 const searchTerm = ref("");
-const isActive = ref(false);
+const isExpanded = ref(false);
 const searchInput = ref(null);
 
 const emit = defineEmits(["update:model-value"]);
 
-// Responsive placeholder text
 const placeholderText = computed(() => {
   if ($q.screen.xs) return "Search products...";
   return "Search by name or category";
@@ -84,37 +86,55 @@ const clearSearch = () => {
   emitSearch();
 };
 
-const activateSearch = async () => {
-  isActive.value = true;
-  await nextTick();
-  searchInput.value?.focus();
-};
-
-const deactivateSearch = () => {
-  if (!searchTerm.value) {
-    isActive.value = false;
+const handleBlur = () => {
+  if ($q.screen.ltSm && !searchTerm.value) {
+    setTimeout(() => {
+      if (!searchTerm.value) {
+        isExpanded.value = false;
+      }
+    }, 200);
   }
 };
+
+const collapseSearch = () => {
+  if (!searchTerm.value) {
+    isExpanded.value = false;
+  }
+};
+
+watch(isExpanded, async (newVal) => {
+  if (newVal) {
+    await nextTick();
+    searchTerm.value?.focus();
+  }
+});
 </script>
 
 <style scoped lang="scss">
-.search-wrapper {
-  display: flex;
-  justify-content: flex-end;
+.search-container {
   width: 100%;
+
+  &.expanded {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    z-index: 1000;
+    background: white;
+  }
 }
 
-.mobile-search-icon {
-  background: rgba(59, 130, 246, 0.1);
-  width: 44px;
-  height: 44px;
+.mobile-collapsed {
+  display: flex;
+  justify-content: flex-end;
 
-  &:hover {
-    background: rgba(59, 130, 246, 0.2);
-  }
+  .mobile-search-trigger {
+    background: rgba(59, 130, 246, 0.1);
+    width: 40px;
+    height: 40px;
 
-  :deep(.q-icon) {
-    font-size: 24px;
+    :deep(.q-icon) {
+      font-size: 24px;
+    }
   }
 }
 
@@ -123,11 +143,14 @@ const deactivateSearch = () => {
   max-width: 500px;
   transition: all 0.3s ease;
 
-  // Desktop styles
+  &.full-width {
+    max-width: 100%;
+  }
+
   :deep(.q-field__control) {
     border-radius: 100px;
     background: #f8fafc;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     border: 1px solid transparent;
 
     &:hover {
@@ -136,17 +159,6 @@ const deactivateSearch = () => {
     }
   }
 
-  :deep(.q-field__native) {
-    font-size: 14px;
-    padding: 8px 12px;
-
-    &::placeholder {
-      color: #94a3b8;
-      font-weight: 400;
-    }
-  }
-
-  // Focused state
   :deep(.q-field--focused) {
     .q-field__control {
       background: white;
@@ -155,13 +167,9 @@ const deactivateSearch = () => {
     }
   }
 
-  // Mobile styles when active
   &.mobile-search {
-    max-width: 100%;
-
     :deep(.q-field__control) {
       padding-left: 12px;
-      background: white;
     }
 
     :deep(.q-field__native) {
@@ -169,21 +177,6 @@ const deactivateSearch = () => {
       padding: 12px 8px;
     }
   }
-}
-
-// Animations
-.slide-fade-enter-active {
-  transition: all 0.2s ease-out;
-}
-
-.slide-fade-leave-active {
-  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(10px);
-  opacity: 0;
 }
 
 // Responsive breakpoints

@@ -55,7 +55,9 @@
                     </q-avatar>
 
                     <div class="text-subtitle1 q-mt-md q-mb-xs">
-                      {{ formattedUserName }}
+                      {{
+                        formatFullname(userData.data.employee) || "Undefined"
+                      }}
                     </div>
 
                     <q-btn
@@ -126,6 +128,10 @@ import { ref, onMounted, computed } from "vue";
 import { LocalStorage, useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import { api } from "src/boot/axios";
+import { useSupervisorStore } from "src/stores/supervisor";
+
+const supervisor = useSupervisorStore();
+const userData = computed(() => supervisor.user);
 
 const user = ref({});
 const drawer = ref(false);

@@ -27,6 +27,7 @@
       <q-card-section class="q-ma-md q-gutter-y-sm">
         <div class="q-mb-lg">
           <q-input
+            v-model="searchQuery"
             @update:model-value="search"
             debounce="1000"
             outlined
@@ -47,7 +48,7 @@
 
                   <template v-else>
                     <q-item
-                      @clikc="autofillProduct(product)"
+                      @click="autofillProduct(product)"
                       v-for="product in productData"
                       :key="product.id"
                       clickable
@@ -199,5 +200,17 @@ const clearForm = () => {
 
 const save = async () => {
   console.log("save");
+
+  try {
+    const { product_name, ...data } = addNewBranchProductForm;
+    await branchProducts.createBranchProducts(data);
+
+    console.log("data to send", data);
+
+    clearForm();
+    dialog.value = false;
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>

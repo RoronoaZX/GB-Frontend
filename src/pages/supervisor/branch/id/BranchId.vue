@@ -23,7 +23,13 @@
     >
       <!-- indicator-color="red-6" -->
       <!-- class="user-tab justify-center q-ma-md" -->
-      <q-route-tab :to="{ name: 'branch-product' }" exact>
+      <q-route-tab
+        :to="{
+          name: 'branch-product',
+          params: { branch_id: $route.params.branch_id },
+        }"
+        exact
+      >
         <div>Product</div>
       </q-route-tab>
 

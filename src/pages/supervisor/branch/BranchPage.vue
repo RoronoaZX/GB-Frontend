@@ -100,7 +100,7 @@ const goToBranch = async (branch) => {
 
   try {
     await router.push({
-      name: "BranchDetails",
+      name: "branch-product",
       params: { branch_id: branch.id },
     });
   } finally {

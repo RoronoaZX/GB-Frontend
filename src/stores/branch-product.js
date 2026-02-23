@@ -167,6 +167,19 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     }
   };
 
+  const updateProductBranch = async (data) => {
+    console.log("data from store", data);
+
+    try {
+      const response = await api.post("api/update-product-branch", data);
+
+      console.log("response", response.data);
+      return response;
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const updateBranchProductPrice = async (id) => {
     await api.put(`/api/update-branch-products/${id}`, { price: newPrice });
     const index = branchProducts.value.findIndex((item) => item.id === id);
@@ -181,30 +194,6 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
       (branchProduct) => branchProduct.id !== id
     );
   };
-
-  // const receivedSendBranchProducts = async (data) => {
-  //   console.log("Datassa:", data);
-
-  //   try {
-  //     const response = await api.post("/api/received-branch-product", data);
-  //     receivedBranchProducts.value = response.data;
-
-  //     console.log("Received Branch Products:", response.data);
-  //     if (response.status === 200) {
-  //       const i = branchSendAddedProd.value.data.findIndex(
-  //         (item) => item.id === data.id
-  //       );
-
-  //       if (i !== -1) {
-  //         branchSendAddedProd.value.data[i].status = "confirmed";
-  //       }
-  //     }
-  //     return response;
-  //   } catch (error) {
-  //     console.log("Error:", error);
-  //     throw error;
-  //   }
-  // };
 
   const receivedSendBranchProducts = async (data) => {
     try {
@@ -251,6 +240,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     branchSendAddedProd,
     fetchBranchProducts,
     createBranchProducts,
+    updateProductBranch,
     updateBranchProductPrice,
     deleteBranchProducts,
     searchBranchProducts,

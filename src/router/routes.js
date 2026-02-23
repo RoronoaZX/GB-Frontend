@@ -318,8 +318,11 @@ const routes = [
         children: [
           {
             path: "",
-            redirect: {
-              name: "branch-product",
+            redirect: (to) => {
+              return {
+                name: "branch-product",
+                params: { branch_id: to.params.branch_id },
+              };
             },
           },
           {
