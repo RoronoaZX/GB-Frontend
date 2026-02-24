@@ -101,14 +101,56 @@
 
                         <div class="stat-value-wrapper">
                           <span class="stat-value" :class="stat.valueClass">
-                            {{ stat.prefixDisplay || "" }}
+                            <!-- {{ stat.prefixDisplay || "" }} -->
                             {{ getDisplayValue(rawMaterials, stat) }}
                             <small>
                               {{ getUnit(rawMaterials) }}
                             </small>
                           </span>
+
+                          <q-icon name="edit" size="16px" class="edit-icon" />
                         </div>
                       </div>
+
+                      <q-popup-edit
+                        v-model="rawMaterials[stat.field]"
+                        v-slot="scope"
+                        buttons
+                        persistent
+                        @save="(val) => updatedStocks(rawMaterials, val)"
+                      >
+                        <div class="popup-edit-container">
+                          <div class="popup-header">
+                            <q-icon
+                              :name="stat.icon"
+                              size="20px"
+                              color="primary"
+                            />
+                            <span>Edit {{ stat.label }}</span>
+                          </div>
+                          <div class="popup-header">
+                            <span>
+                              {{ rawMaterials?.ingredients?.name || "-" }}</span
+                            >
+                          </div>
+
+                          <q-input
+                            v-model="scope.value"
+                            :type="stat.type || 'number'"
+                            :step="stat.step || '1'"
+                            dense
+                            autofucus
+                            outlined
+                            @keyup.enter="scope.set"
+                          >
+                            <template #append>
+                              <span class="text-overline">{{
+                                rawMaterials?.ingredients?.unit || "-"
+                              }}</span>
+                            </template>
+                          </q-input>
+                        </div>
+                      </q-popup-edit>
                     </div>
                   </div>
                 </q-card-section>
@@ -155,6 +197,8 @@ const $q = useQuasar();
 
 const supervisorStore = useSupervisorStore();
 
+const branchId = route.params.branch_id;
+
 const userId = computed(
   () =>
     supervisorStore.user.data.employee.id ||
@@ -167,6 +211,8 @@ console.log("userId", userId.value);
 const filter = defineProps({
   filter: String,
 });
+
+console.log("filter", filter);
 
 const emit = defineEmits(["add-raw-material", "view-details", "adjust-stock"]);
 
@@ -196,8 +242,101 @@ const statFields = [
     color: "teal",
     type: "number",
     step: "1",
+    prefix: `${filter}`,
   },
 ];
+
+const updatedStocks = async (data, val) => {
+  console.log("data", data);
+  console.log("vssssal", val);
+
+  const payload = {
+    report_id: data.id,
+    name: data?.ingredients?.name || "undefined",
+    original_data: filteredRawMaterials.value?.total_quantity,
+    updated_data: val,
+    updated_field: "Available Stocks",
+    designation: branchId,
+    designation_type: "branch",
+    action: "updated",
+    type_of_report: "Branch Raw Materials Table",
+    user_id: userId.value,
+  };
+
+  try {
+    const response =
+      await branchRawMaterialsStore.updateBranchRawMaterialsStocks(
+        data.id,
+        val,
+        payload
+      );
+
+    console.log("responsesss", response);
+
+    // ✅ Extract from backend response
+    const { status, message } = response.data;
+
+    console.log("statuss", status);
+    console.log("messagess", message);
+
+    const typeMap = {
+      success: "positive",
+      warning: "warning",
+      error: "negative",
+    };
+
+    const iconMap = {
+      success: "check_circle",
+      warning: "warning",
+      error: "error",
+    };
+
+    $q.notify({
+      type: typeMap[status] || "info",
+      message: message || "Action completed",
+      position: "top-right",
+      timeout: 1500,
+      icon: iconMap[status] || "info",
+    });
+  } catch (error) {
+    console.log("fkaskjlfhaslkdjf", error);
+
+    $q.notify({
+      type: "negative",
+      message:
+        error.response?.data?.message || "Something went wrong while updating.",
+      position: "top-right",
+      timeout: 2000,
+      icon: "error",
+    });
+  }
+};
+
+const getUnit = (rm) => {
+  const category = rm.ingredients?.category;
+  const code = rm.ingredients?.code;
+
+  //🥚 Egg special case
+  if (code === "00-I") return "pcs";
+
+  if (category === "Ingredients") return "kg";
+  if (category === "Packaging Materials") return "pcs";
+
+  return "";
+};
+
+const getDisplayValue = (rm) => {
+  // console.log("rm", rm);
+
+  const value = getNormalizedQuantity(rm);
+
+  // If kg show decimals
+  if (getUnit(rm) === "kg") {
+    return value.toFixed(2);
+  }
+
+  return value;
+};
 
 const getNormalizedQuantity = (rm) => {
   const quantity = rm.total_quantity ?? 0;
@@ -218,92 +357,27 @@ const getNormalizedQuantity = (rm) => {
   return quantity;
 };
 
-const getUnit = (rm) => {
-  const category = rm.ingredients?.category;
-  const code = rm.ingredients?.code;
-
-  //🥚 Egg special case
-  if (code === "00-I") return "pcs";
-
-  if (category === "Ingredients") return "kg";
-  if (category === "Packaging Materials") return "pcs";
-
-  return "";
-};
-
-const getDisplayValue = (rm) => {
-  console.log("rm", rm);
-
-  const value = getNormalizedQuantity(rm);
-
-  // If kg show decimals
-  if (getUnit(rm) === "kg") {
-    return value.toFixed(2);
-  }
-
-  return value;
-};
-
-// Enhanced Stock Status Functions
-// const getStockPercentage = (rm) => {
-//   const maxStock = rm.max_stock || 100;
-//   return Math.min(Math.round(((rm.total_quantity || 0) / maxStock) * 100), 100);
-// };
-
-// const getStockPercentage = (rm) => {
-//   const q = getNormalizedQuantity(rm);
-//   const maxStock = rm.max_stock || 100;
-//   // Convert maxStock to same unit as normalized quantity if needed
-//   let normalizedMaxStock = maxStock;
-
-//   // If it's an ingredient (except eggs), convert maxStock from grams to kg
-//   if (
-//     rm.ingredients?.category === "Ingredients" &&
-//     rm.ingredients?.code !== "00-I"
-//   ) {
-//     normalizedMaxStock = maxStock / 1000;
-//   }
-
-//   return Math.min(Math.round((q / normalizedMaxStock) * 100), 100);
-// };
-
 const getStockPercentage = (rm) => {
-  const q = getNormalizedQuantity(rm);
-  const maxStock = rm.max_stock || 100;
+  const current = getNormalizedQuantity(rm);
+  const max = 100;
 
-  console.log("Raw material:", rm.ingredients?.code, {
-    rawQuantity: rm.total_quantity,
-    normalizedQ: q,
-    maxStock: maxStock,
-    category: rm.ingredients?.category,
-  });
+  // console.log("DEBUG:", {
+  //   name: rm.ingredients?.name,
+  //   total: rm.total_quantity,
+  //   max: rm.max_stock,
+  // });
 
-  // Convert maxStock to same unit as normalized quantity
-  let normalizedMaxStock = maxStock;
+  if (max <= 0) return 0;
 
-  // If it's an ingredient (except eggs), maxStock is in grams, convert to kg
-  if (
-    rm.ingredients?.category === "Ingredients" &&
-    rm.ingredients?.code !== "00-I"
-  ) {
-    normalizedMaxStock = maxStock / 1000;
-  }
+  // Now we are dividing (Kg / Kg) or (Pcs / Pcs)
+  const percentage = Math.round((current / max) * 100);
 
-  // For eggs and packaging, maxStock is already in pieces, use as is
-
-  console.log("Calcualted:", {
-    normalizedMaxStock,
-    percentage: (q / normalizedMaxStock) * 100,
-  });
-
-  // Avoid division by zero
-  if (normalizedMaxStock === 0) return 0;
-
-  return Math.min(Math.round((q / normalizedMaxStock) * 100), 100);
+  // Return capped at 100 for the progress bar UI
+  return Math.min(percentage, 100);
 };
 
 const getStockStatus = (rm) => {
-  const q = getNormalizedQuantity(rm);
+  const q = getStockPercentage(rm);
   if (q <= 0) return "Out of Stock";
   if (q < 20) return "Critically Low";
   if (q < 50) return "Low Stock";

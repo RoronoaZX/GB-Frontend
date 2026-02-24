@@ -3,7 +3,7 @@
     <q-scroll-observer @scroll="onScroll" />
     <div
       class="sticky-header-container"
-      :class="{ 'is-hidden': !shorSearch && lastScroll > 100 }"
+      :class="{ 'is-hidden': !showSearch && lastScroll > 100 }"
     >
       <div
         class="row justify-between items-center q-px-md q-py-sm q-gutter-sm search-row-inner"
@@ -11,7 +11,9 @@
         <div class="col-grow">
           <SearchEngine v-model="filter" />
         </div>
-        <div class="col-auto q-ml-sm"></div>
+        <div class="col-auto q-ml-sm">
+          <AddRawMaterials />
+        </div>
       </div>
     </div>
 
@@ -36,6 +38,7 @@
 <script setup>
 import SearchEngine from "../search/SearchEngine.vue";
 import RawMaterials from "../card/RawMaterialsCard.vue";
+import AddRawMaterials from "../add_button/AddRawMaterials.vue";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useBranchRawMaterialsStore } from "src/stores/branch-rawMaterials";
@@ -71,7 +74,7 @@ onMounted(async () => {
 });
 </script>
 
-<style scope lang="scss">
+<style scoped lang="scss">
 .inventory-view-wrapper {
   background: #ffffff;
   min-height: 100vh;
@@ -80,14 +83,16 @@ onMounted(async () => {
 /*
    THE STICKY LOGIC
 */
-
 .sticky-header-container {
   position: sticky;
+  /* If your layout header is sticky, set this to its height (e.g., 50px).
+     If the layout header scrolls away, 0 is correct. */
   top: 50px;
   z-index: 500;
   background: white;
-  transform: transform 0.3s ease-in-out, opacity 0.2s;
+  transition: transform 0.3s ease-in-out, opacity 0.2s;
 
+  /* Adds a subtle shadow only when sticking */
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
   &.is-hidden {
@@ -102,10 +107,10 @@ onMounted(async () => {
   margin: 0 auto;
 }
 
+/* Modern Typography */
 .text-slate-900 {
   color: #0f172a;
 }
-
 .text-slate-500 {
   color: #64748b;
 }
@@ -116,6 +121,7 @@ onMounted(async () => {
   padding: 50px;
 }
 
+/* Deep selector to make the search bar look more 'integrated' */
 :deep(.q-field--outlined .q-field__control) {
   border-radius: 12px;
   background: #f8fafc;

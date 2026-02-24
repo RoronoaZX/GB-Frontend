@@ -37,12 +37,12 @@
         <div>Raw Materials</div>
       </q-route-tab>
 
-      <q-route-tab :to="{ name: 'branch-premix' }" exact>
-        <div>Premix</div>
-      </q-route-tab>
-
       <q-route-tab :to="{ name: 'branch-recipe' }" exact>
         <div>Recipe</div>
+      </q-route-tab>
+
+      <q-route-tab :to="{ name: 'branch-premix' }" exact>
+        <div>Premix</div>
       </q-route-tab>
 
       <q-route-tab :to="{ name: 'branch-production' }" exact>

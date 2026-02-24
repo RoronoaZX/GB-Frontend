@@ -96,6 +96,19 @@ export const useBranchRawMaterialsStore = defineStore(
       }
     };
 
+    const updateBranchRawMaterialsStocks = async (id, val, payload) => {
+      console.log("reportss id", id);
+
+      const response = await api.put(`/api/update-branch-rawMaterials/${id}`, {
+        total_quantity: parseInt(val),
+        ...payload,
+      });
+
+      console.log("responssse stockss", response);
+
+      return response;
+    };
+
     const deleteBranchRawMaterials = async (id) => {
       const response = await api.delete(`/api/branch-raw-materials/${id}`);
       branchRawMaterials.value = branchRawMaterials.value.filter(
@@ -113,6 +126,7 @@ export const useBranchRawMaterialsStore = defineStore(
       updateBranchRawMaterials,
       deleteBranchRawMaterials,
       createMultipleBranchRawMaterials,
+      updateBranchRawMaterialsStocks,
     };
   }
 );

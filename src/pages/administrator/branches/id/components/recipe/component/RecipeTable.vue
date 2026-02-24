@@ -147,13 +147,6 @@
           </q-btn>
         </q-td>
       </template>
-      <!-- <template v-slot:body-cell-action="props">
-        <q-td :props="props">
-          <div class="row justify-center q-gutter-x-md">
-            <RecipeDelete :delete="props" />
-          </div>
-        </q-td>
-      </template> -->
     </q-table>
   </div>
 </template>
