@@ -11,22 +11,29 @@
         <div class="col-grow">
           <SearchEngine v-model="filter" />
         </div>
-        <div class="col-auto q-ml-sm">Add Premix</div>
       </div>
     </div>
 
     <!-- 3. Static Titled -->
-    <div class="q-px-md q-pt-md q-pb-sm">
-      <h1 class="text-h5 text-weight-bold text-slate-900 q-mb-none">
-        Inventory
-      </h1>
-      <p class="text-caption text-slate-500">
-        Manage your branch product levels
-      </p>
+    <div class="header-section q-pt-md">
+      <div
+        class="header-content row items-center justify-between q-gutter-y-sm"
+      >
+        <div class="col-12 col-sm-auto">
+          <h5 class="text-h5 text-weight-bold text-slate-800 q-mb-none">
+            Premix Management
+          </h5>
+          <p class="text-slate-500 q-mb-none">
+            Manage branch premixes and ingredients
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- 4. Product Display -->
-    <div class="q-px-md">Product Card</div>
+    <div class="q-px-md">
+      <PremixCard :filter="filter" />
+    </div>
 
     <!-- Loading -->
     <div v-if="loading" class="spinner-wrapper">
@@ -37,12 +44,13 @@
 
 <script setup>
 import SearchEngine from "../search/SearchEngine.vue";
-import { useBranchRawMaterialsStore } from "src/stores/branch-rawMaterials";
+import PremixCard from "../card/PremixCard.vue";
+import { usePremixStore } from "src/stores/premix";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-const branchRawMaterialsStore = useBranchRawMaterialsStore();
+const premixStores = usePremixStore();
 
 const filter = ref("");
 const loading = ref(false);
@@ -63,10 +71,7 @@ const onScroll = (info) => {
 onMounted(async () => {
   if (route.params.branch_id) {
     loading.value = true;
-    await branchRawMaterialsStore.fetchBranchRawMaterials(
-      route.params.branch_id
-    );
-
+    await premixStores.fetchBranchPremix(route.params.branch_id);
     loading.value = false;
   }
 });

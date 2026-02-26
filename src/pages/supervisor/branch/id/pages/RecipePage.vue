@@ -11,18 +11,22 @@
         <div class="col-grow">
           <SearchEngine v-model="filter" />
         </div>
-        <div class="col-auto q-ml-sm">Add Recipe</div>
       </div>
     </div>
 
-    <!--3. Static Titles -->
-    <div class="q-px-md q-pt-md q-pb-sm">
-      <h1 class="text-h5 text-weight-bold text-slate-900 q-mb-none">
-        Inventory
-      </h1>
-      <p class="text-caption text-slate-500">
-        Manage your branch recipes levels
-      </p>
+    <div class="header-section q-pt-md">
+      <div
+        class="header-content row items-center justify-between q-gutter-y-sm"
+      >
+        <div class="col-12 col-sm-auto">
+          <h5 class="text-h5 text-weight-bold text-slate-800 q-mb-none">
+            Recipe Management
+          </h5>
+          <p class="text-slate-500 q-mb-none">
+            Manage branch recipes and targets
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- 4. Product Display-->

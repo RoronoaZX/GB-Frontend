@@ -3,48 +3,32 @@
   <q-page class="recipe-page-wrapper">
     <main class="main-content">
       <!-- Header Section -->
-      <div class="header-section q-px-md q-pt-lg">
-        <div
-          class="header-content row items-center justify-between q-gutter-y-sm"
-        >
-          <div class="col-12 col-sm-auto">
-            <h5 class="text-h5 text-weight-bold text-slate-800 q-mb-none">
-              Recipe Management
-            </h5>
-            <p class="text-slate-500 q-mb-none">
-              Manage branch recipes and targets
-            </p>
-          </div>
-          <div class="col-12 col-sm-auto">
-            <q-btn
-              unelevated
-              color="primary"
-              label="Create New Recipe"
-              icon="add"
-              class="create-btn full-width-mobile"
-              @click="emit('add-recipe')"
-            />
-          </div>
+      <div v-if="loading" class="loading-container">
+        <div class="loading-animation">
+          <q-spinner-ripple color="primary" size="60px" />
+          <div class="loading-pulse"></div>
         </div>
+        <p class="q-mt-md text-slate-400">Loading your inventory...</p>
+      </div>
+
+      <div
+        v-else-if="filteredRecipesByCategory.length === 0"
+        class="empty-state"
+      >
+        <div class="empty-icon-wrapper">
+          <q-icon name="inventory_2" size="64px" color="grey-4" />
+          <div class="empty-icon-ring"></div>
+        </div>
+        <h4 class="text-h6 text-slate-800 q-mt-md">No recipes found</h4>
+        <p class="text-slate-500">
+          Try a different search term or
+          <span class="text-primary cursor-pointer">add a new recipe</span>
+        </p>
       </div>
 
       <!-- Search and Filter Bar -->
-      <div class="search-section q-mx-md q-my-md q-pa-sm">
+      <div v-else class="search-section q-mx-md q-my-md q-pa-sm">
         <div class="row items-center q-col-gutter-sm">
-          <div class="col-12 col-md">
-            <q-input
-              v-model="localFilter"
-              outlined
-              dense
-              placeholder="Search recipes..."
-              class="search-input"
-              bg-color="white"
-            >
-              <template v-slot:prepend>
-                <q-icon name="search" color="grey-6" />
-              </template>
-            </q-input>
-          </div>
           <div class="col-12 col-md-auto">
             <q-btn-toggle
               v-model="categoryFilter"
@@ -147,12 +131,13 @@
                   <!-- Target Production -->
                   <div class="target-section">
                     <div class="row justify-between items-end">
-                      <span class="target-label">Daily Target</span>
+                      <span class="target-label">Target</span>
                       <span class="target-value text-primary">
-                        {{ formatNumber(recipe.target) }} <small>pcs</small>
+                        {{ formatRecipeTarget(recipe.target) }}
+                        <small>pcs</small>
                       </span>
                     </div>
-                    <q-linear-progress
+                    <!-- <q-linear-progress
                       :value="getTargetProgress(recipe)"
                       color="primary"
                       class="q-my-sm"
@@ -164,11 +149,11 @@
                       <span class="production-value"
                         >{{ recipe.today_production || 0 }} pcs</span
                       >
-                    </div>
+                    </div> -->
                   </div>
 
                   <!-- Price Info -->
-                  <div class="price-section row items-center justify-between">
+                  <!-- <div class="price-section row items-center justify-between">
                     <div class="row items-center gap-xs">
                       <q-icon name="sell" size="14px" color="orange-9" />
                       <span class="text-caption text-weight-medium"
@@ -178,9 +163,9 @@
                     <span
                       class="text-subtitle2 text-orange-10 text-weight-bold"
                     >
-                      ₱{{ formatNumber(recipe.price_per_kilo) }}
+                      ₱{{ formatRecipeTarget(recipe.price_per_kilo) }}
                     </span>
-                  </div>
+                  </div> -->
 
                   <!-- Collapsible Lists -->
                   <div class="previews-container q-gutter-y-xs">
@@ -221,10 +206,9 @@
                             :key="i"
                             class="list-item row justify-between"
                           >
-                            <span class="ellipsis col-8">{{ bread.name }}</span>
-                            <span class="text-weight-bold col-4 text-right"
-                              >{{ bread.quantity }}pcs</span
-                            >
+                            <span class="ellipsis col-8">{{
+                              capitalizeFirstLetter(bread)
+                            }}</span>
                           </div>
                         </div>
                       </q-slide-transition>
@@ -267,49 +251,16 @@
                             :key="i"
                             class="list-item row justify-between"
                           >
-                            <span class="ellipsis col-7">{{ ing.name }}</span>
-                            <span class="text-weight-bold col-5 text-right"
-                              >{{ ing.quantity }}{{ ing.unit }}</span
-                            >
+                            <span class="ellipsis col-7">{{ ing.code }}</span>
+                            <span class="text-weight-bold col-5 text-right">{{
+                              formatQuantity(ing)
+                            }}</span>
                           </div>
                         </div>
                       </q-slide-transition>
                     </div>
                   </div>
                 </q-card-section>
-
-                <q-separator />
-
-                <!-- Actions -->
-                <q-card-actions align="between" class="q-px-md">
-                  <q-btn
-                    flat
-                    no-caps
-                    color="primary"
-                    label="Adjust Stock"
-                    icon="inventory"
-                    dense
-                    @click="emit('adjust-stock', recipe)"
-                  />
-                  <q-btn flat round dense icon="more_vert" color="grey-7">
-                    <q-menu auto-close>
-                      <q-list style="min-width: 150px">
-                        <q-item clickable @click="openTargetEdit(recipe)">
-                          <q-item-section avatar
-                            ><q-icon name="edit" size="xs"
-                          /></q-item-section>
-                          <q-item-section>Edit Target</q-item-section>
-                        </q-item>
-                        <q-item clickable @click="emit('view-details', recipe)">
-                          <q-item-section avatar
-                            ><q-icon name="visibility" size="xs"
-                          /></q-item-section>
-                          <q-item-section>View Details</q-item-section>
-                        </q-item>
-                      </q-list>
-                    </q-menu>
-                  </q-btn>
-                </q-card-actions>
               </q-card>
             </div>
           </div>
@@ -321,10 +272,13 @@
 
 <script setup>
 import { useQuasar } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
 import { useBranchRecipeStore } from "src/stores/branch-recipe";
 import { useSupervisorStore } from "src/stores/supervisor";
 import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+
+const { capitalizeFirstLetter, formatRecipeTarget } = typographyFormat();
 
 // Store and route initialization
 const route = useRoute();
@@ -364,17 +318,26 @@ const localFilter = ref(props.filter || "");
 // Computed properties
 const branchRecipe = computed(() => branchRecipeStore.branchRecipes || []);
 
-const filteredRecipes = computed(() => {
-  let recipes = branchRecipe.value || [];
+console.log("Branch Recipes:", branchRecipe.value);
 
-  if (localFilter.value) {
-    recipes = recipes.filter((item) =>
-      item.name?.toLowerCase().includes(localFilter.value.toLowerCase())
-    );
-  }
+// const filteredRecipes = computed(() => {
+//   let recipes = branchRecipe.value || [];
 
-  return recipes;
-});
+//   if (localFilter.value) {
+//     recipes = recipes.filter((item) =>
+//       item.name?.toLowerCase().includes(localFilter.value.toLowerCase())
+//     );
+//   }
+
+//   return recipes;
+// });
+
+const filteredRecipes = computed(
+  () =>
+    branchRecipe.value?.filter((item) =>
+      item.name.toLowerCase().includes(props.filter.toLowerCase())
+    ) || []
+);
 
 const filteredRecipesByCategory = computed(() => {
   let recipes = filteredRecipes.value;
@@ -400,14 +363,22 @@ const totalBreadsCount = computed(() => {
 });
 
 // Helper functions
-const capitalizeFirstLetter = (string) => {
-  if (!string) return "";
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-};
 
-const formatNumber = (value) => {
-  if (value === null || value === undefined) return "0";
-  return value.toLocaleString();
+const formatQuantity = (ingredient) => {
+  const formattedQuantity = Number(ingredient.quantity) || 0; // Convert to a number, fallback to 0
+  const unit = ingredient.unit || ""; // Ensure unit is a string
+
+  if (formattedQuantity > 1000) {
+    const formattedQuantityInKg = parseFloat(
+      (formattedQuantity / 1000).toFixed(3)
+    ); // Remove trailing zeros
+    return `${formattedQuantityInKg} kg`;
+  } else if (formattedQuantity > 1) {
+    return `${parseFloat(formattedQuantity.toFixed(3))} ${unit}`; // ${unit ? "s" : ""} Pluralize unit
+  } else {
+    return `${parseFloat(formattedQuantity.toFixed(3))} ${unit}`; // Keep decimal formatting
+    //
+  }
 };
 
 const getDefaultName = (type, index) => {
@@ -453,13 +424,13 @@ const getStatusIcon = (recipe) => {
     : "pause_circle";
 };
 
-const getCategoryStyle = (category) => {
+const getCategoryStyle = (recipe) => {
   const colors = {
-    dough: { bg: "rgba(139, 69, 19, 0.15)", color: "#8B4513" },
-    filling: { bg: "rgba(255, 140, 0, 0.15)", color: "#FF8C00" },
+    dough: { bg: "rgba(201, 171, 150, 0.921)", color: "#3e2723" },
+    filling: { bg: "rgba(245, 241, 3, 0.933)", color: "#824602" },
     default: { bg: "rgba(102, 126, 234, 0.15)", color: "#667eea" },
   };
-  const style = colors[category?.toLowerCase()] || colors.default;
+  const style = colors[recipe?.toLowerCase()] || colors.default;
   return {
     backgroundColor: style.bg,
     color: style.color,
@@ -561,6 +532,82 @@ onMounted(() => {
 .main-content {
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+
+  .loading-animation {
+    position: relative;
+
+    .loading-pulse {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      animation: pulse 2s infinite;
+    }
+  }
+}
+
+.text-primary {
+  color: #3b82f6;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.5;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  text-align: center;
+
+  .empty-icon-wrapper {
+    position: relative;
+
+    .empty-icon-ring {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border: 2px dashed #e2e8f0;
+      border-radius: 50%;
+      animation: spin 20s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // Stats summary cards
