@@ -6,7 +6,7 @@
       :class="{ 'is-hidden': !showSearch && lastScroll > 100 }"
     >
       <div
-        class="row justify-between items-center q-pxmd q-py-sm q-gutter-sm search-row-inner"
+        class="row justify-between items-center q-px-md q-py-sm q-gutter-sm search-row-inner"
       >
         <div class="col-grow">
           <SearchEngine v-model="filter" />
@@ -15,19 +15,13 @@
     </div>
 
     <!-- 3. Static Titled -->
-    <div class="header-section q-pt-md">
-      <div
-        class="header-content row items-center justify-between q-gutter-y-sm"
-      >
-        <div class="col-12 col-sm-auto">
-          <h5 class="text-h5 text-weight-bold text-slate-800 q-mb-none">
-            Premix Management
-          </h5>
-          <p class="text-slate-500 q-mb-none">
-            Manage branch premixes and ingredients
-          </p>
-        </div>
-      </div>
+    <div class="q-px-md q-pt-sm q-pb-sm">
+      <h5 class="text-h5 text-weight-bold text-slate-900 q-mb-none">
+        Premix Management
+      </h5>
+      <p class="text-slate-500 q-mb-none">
+        Manage branch premixes and ingredients
+      </p>
     </div>
 
     <!-- 4. Product Display -->

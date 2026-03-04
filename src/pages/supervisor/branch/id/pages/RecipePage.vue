@@ -14,19 +14,11 @@
       </div>
     </div>
 
-    <div class="header-section q-pt-md">
-      <div
-        class="header-content row items-center justify-between q-gutter-y-sm"
-      >
-        <div class="col-12 col-sm-auto">
-          <h5 class="text-h5 text-weight-bold text-slate-800 q-mb-none">
-            Recipe Management
-          </h5>
-          <p class="text-slate-500 q-mb-none">
-            Manage branch recipes and targets
-          </p>
-        </div>
-      </div>
+    <div class="q-px-md q-pt-sm q-pb-sm">
+      <h5 class="text-h5 text-weight-bold text-slate-900 q-mb-none">
+        Recipe Management
+      </h5>
+      <p class="text-slate-500 q-mb-none">Manage branch recipes and targets</p>
     </div>
 
     <!-- 4. Product Display-->

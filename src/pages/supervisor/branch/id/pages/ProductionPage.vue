@@ -1,423 +1,312 @@
 <template>
-  <div>
-    <!-- Desktop Table View -->
-    <q-table
-      v-if="$q.screen.gt.sm"
-      flat
-      :rows="salesReportRows"
-      :columns="columns"
-      row-key="id"
-      :loading="loading"
-      :pagination="pagination"
-      :rows-per-page-options="[3, 5, 10, 0]"
-      @request="onRequest"
+  <div class="inventory-view-wrapper">
+    <q-scroll-observer @scroll="onScroll" />
+    <div
+      class="sticky-header-container"
+      :class="{ 'is-hiddden': !showSearch && lastScroll > 100 }"
     >
-      <template v-slot:body-cell-reports="props">
-        <q-td :props="props">
-          <div class="row justify-center q-gutter-x-md">
-            <q-btn
-              padding="xs lg"
-              rounded
-              dense
-              size="sm"
-              color="light-blue-5"
-              text-color="white"
-              @click="handleDialog(props.row.AM?.sales_reports, 'AM')"
-              >AM</q-btn
-            >
-            <q-btn
-              padding="xs lg"
-              rounded
-              dense
-              size="sm"
-              color="deep-orange"
-              text-color="white"
-              @click="handleDialog(props.row.PM?.sales_reports, 'PM')"
-              >PM</q-btn
-            >
-          </div>
-        </q-td>
-      </template>
-      <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-gears size="50px" color="indigo-8" />
-        </q-inner-loading>
-      </template>
-    </q-table>
-
-    <!-- Mobile Card View -->
-    <div v-else class="mobile-card-list q-pa-sm">
-      <q-pull-to-refresh @refresh="handleRefresh">
-        <q-infinite-scroll
-          @load="onLoadMore"
-          :offset="250"
-          :disable="loading || !hasMorePages"
-        >
-          <div
-            v-for="(row, index) in salesReportRows"
-            :key="row.id || index"
-            class="mobile-card q-mb-md"
-          >
-            <q-card flat bordered class="cursor-pointer">
-              <q-card-section class="q-pa-sm">
-                <!-- Header with date/branch name -->
-                <div class="row items-center justify-between">
-                  <div class="text-weight-bold text-primary">
-                    {{ formatDate(row.date) }}
-                  </div>
-                  <div class="text-caption text-grey">
-                    {{ row.branch?.name || "N/A" }}
-                  </div>
-                </div>
-
-                <!-- Additional info in expandable section -->
-                <q-expansion-item
-                  dense
-                  dense-toggle
-                  expand-icon-class="text-primary"
-                  label="View Details"
-                  header-class="text-primary text-caption q-pa-none"
-                >
-                  <q-card flat class="q-mt-sm">
-                    <q-card-section class="q-pt-none q-px-sm">
-                      <!-- Production Summary -->
-                      <div class="row items-center justify-between q-py-xs">
-                        <span class="text-caption text-grey"
-                          >Total Production:</span
-                        >
-                        <span class="text-body2">{{
-                          row.total_production || 0
-                        }}</span>
-                      </div>
-                      <div class="row items-center justify-between q-py-xs">
-                        <span class="text-caption text-grey"
-                          >AM Production:</span
-                        >
-                        <span class="text-body2">{{
-                          row.AM?.total_production || 0
-                        }}</span>
-                      </div>
-                      <div class="row items-center justify-between q-py-xs">
-                        <span class="text-caption text-grey"
-                          >PM Production:</span
-                        >
-                        <span class="text-body2">{{
-                          row.PM?.total_production || 0
-                        }}</span>
-                      </div>
-                      <div class="row items-center justify-between q-py-xs">
-                        <span class="text-caption text-grey">Status:</span>
-                        <span class="text-body2">
-                          <q-badge :color="getStatusColor(row.status)">
-                            {{ row.status || "N/A" }}
-                          </q-badge>
-                        </span>
-                      </div>
-                    </q-card-section>
-                  </q-card>
-                </q-expansion-item>
-              </q-card-section>
-
-              <q-separator />
-
-              <!-- Action buttons -->
-              <q-card-actions align="around" class="q-pa-sm">
-                <q-btn
-                  unelevated
-                  rounded
-                  dense
-                  color="light-blue-5"
-                  text-color="white"
-                  icon="wb_sunny"
-                  label="AM"
-                  class="full-width-mobile"
-                  style="width: 45%"
-                  :disable="!row.AM?.sales_reports"
-                  @click="handleDialog(row.AM?.sales_reports, 'AM')"
-                />
-                <q-btn
-                  unelevated
-                  rounded
-                  dense
-                  color="deep-orange"
-                  text-color="white"
-                  icon="nights_stay"
-                  label="PM"
-                  class="full-width-mobile"
-                  style="width: 45%"
-                  :disable="!row.PM?.sales_reports"
-                  @click="handleDialog(row.PM?.sales_reports, 'PM')"
-                />
-              </q-card-actions>
-            </q-card>
-          </div>
-
-          <template #loading>
-            <div class="row justify-center q-pa-md">
-              <q-spinner-dots color="primary" size="40px" />
-            </div>
-          </template>
-
-          <!-- No more data message -->
-          <div
-            v-if="!hasMorePages && salesReportRows.length > 0"
-            class="row justify-center q-pa-md text-grey"
-          >
-            No more reports to load
-          </div>
-        </q-infinite-scroll>
-      </q-pull-to-refresh>
-
-      <!-- Empty state -->
       <div
-        v-if="!loading && salesReportRows.length === 0"
-        class="empty-state q-pa-xl"
+        class="row justify-between items-center q-px-md q-py-sm q-gutter-sm search-row-inner"
       >
-        <q-icon name="description" size="64px" color="grey-4" />
-        <h4 class="text-h6 text-grey-8 q-mt-md">No sales reports found</h4>
-        <p class="text-grey-6">Pull down to refresh or try again later</p>
+        <div class="col-grow">
+          <SearchEngine v-model="filter" />
+        </div>
       </div>
+    </div>
+
+    <div class="spinner-wrapper" v-if="loading">
+      <q-spinner-dots size="50px" color="primary" />
+    </div>
+
+    <div v-else>
+      <div v-if="productionRows.length === 0" class="data-error">
+        <q-icon name="warning" color="warning" size="4em" />
+        <div class="q-ml-sm text-h6">No data available</div>
+      </div>
+      <q-table
+        v-else
+        flat
+        :columns="productionColumn"
+        :rows="productionRows"
+        row-key="name"
+        v-model:pagination="pagination"
+        :row-per-page-options="[3, 5, 10, 0]"
+        @request="handleRequest"
+      >
+        <template v-slot:body-cell-reports="props">
+          <q-td :props="props">
+            <div class="row justify-center q-gutter-sm">
+              <q-btn
+                padding="xs lg"
+                rounded
+                dense
+                size="sm"
+                color="light-blue-5"
+                text-color="white"
+                @click="
+                  handleDialog(
+                    props.row.AM,
+                    'AM',
+                    props.rowIndex,
+                    props.row.date
+                  )
+                "
+                >AM</q-btn
+              >
+              <q-btn
+                padding="xs lg"
+                rounded
+                dense
+                size="sm"
+                color="deep-orange"
+                text-color="white"
+                @click="
+                  handleDialog(
+                    props.row.PM,
+                    'PM',
+                    props.rowIndex,
+                    props.row.date
+                  )
+                "
+              >
+                PM
+              </q-btn>
+            </div>
+          </q-td>
+        </template>
+      </q-table>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useQuasar } from "quasar";
-import { ref, computed, watch, onMounted } from "vue";
-// import ReportDialog from "../ReportDialog.vue";
-import { useSalesReportsStore } from "src/stores/sales-report";
-import { Notify } from "quasar";
+import { typographyFormat } from "src/composables/typography/typography-format";
+import { useProductionStore } from "src/stores/production";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useSupervisorStore } from "src/stores/supervisor";
+import SearchEngine from "../search/SearchEngine.vue";
+import ProductionDialog from "../dialog/ProductionDialog.vue";
 
-const props = defineProps({
-  columns: Array,
-  branchId: {
-    type: [String, Number],
-    required: true,
-  },
-});
-
-const emit = defineEmits(["request", "open-report", "update:pagination"]);
+const { formatDate } = typographyFormat();
 
 const route = useRoute();
-const $q = useQuasar();
-const salesReportStore = useSalesReportsStore();
+const branchId = route.params.branch_id;
 
-const supervisorStore = useSupervisorStore();
-
-const userId = computed(
-  () =>
-    supervisorStore.user.data.employee.id ||
-    supervisorStore.user.data.employee_id ||
-    ""
-);
-
-console.log("User ID in ProductionPage:", userId.value);
-
-// State
-const loading = ref(false);
-const salesReportRows = ref([]);
 const pagination = ref({
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: 0,
   rowsNumber: 0,
 });
 
-// Computed
-const hasMorePages = computed(() => {
-  const totalPages = Math.ceil(
-    pagination.value.rowsNumber / pagination.value.rowsPerPage
-  );
-  return pagination.value.page < totalPages;
+const productionStore = useProductionStore();
+const productions = computed(() => productionStore.productions);
+const productionRows = ref([]);
+
+const filter = ref();
+const loading = ref(false);
+const showSearch = ref(true);
+const lastScroll = ref(0);
+const showNoDateMessage = ref(false);
+
+const onScroll = (info) => {
+  const currentScroll = info.position.top;
+
+  if (currentScroll < lastScroll.value || currentScroll < 10) {
+    showSearch.value = true;
+  } else {
+    showSearch.value = false;
+  }
+  lastScroll.value = currentScroll;
+};
+
+onMounted(async () => {
+  if (branchId) {
+    await reloadTableData(branchId);
+  }
 });
 
-const salesReport = computed(() => salesReportStore.salesReport || {});
-
-// Helper functions
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
-
-const getStatusColor = (status) => {
-  const colors = {
-    completed: "positive",
-    pending: "warning",
-    cancelled: "negative",
-    draft: "grey",
-  };
-  return colors[status?.toLowerCase()] || "grey";
-};
-
-const getDisplayValue = (row, column) => {
-  if (!column || !column.field) return "";
-
-  if (typeof column.field === "function") {
-    return column.field(row);
-  }
-
-  // Handle nested fields like 'AM.sales_reports'
-  const fields = column.field.split(".");
-  let value = row;
-  for (const field of fields) {
-    if (value && value[field] !== undefined) {
-      value = value[field];
-    } else {
-      return "";
-    }
-  }
-
-  return value || "";
-};
-
-// Data fetching
 const reloadTableData = async (
-  page = pagination.value.page,
-  rowsPerPage = pagination.value.rowsPerPage
+  branchId,
+  page = 0,
+  rowsPerPage = 5,
+  search = ""
 ) => {
-  if (!props.branchId) return;
-
   try {
-    console.log(
-      "Fetching sales reports for branch:",
-      branchId,
-      "Page:",
-      page,
-      "Rows per page:",
-      rowsPerPage
-    );
     loading.value = true;
+    const response = await productionStore.fetchBranchProductions(
+      branchId,
+      page,
+      rowsPerPage,
+      search
+    );
 
-    // Adjust page for API (if API uses 0-based indexing)
-    const apiPage = page - 1; // Convert to 0-based if needed
-    await salesReportStore.fetchSalesReports(branchId, apiPage, rowsPerPage);
+    console.log("Fetch data: ", productions.value);
 
-    console.log("Fetched data:", salesReport.value);
+    const { data, current_page, per_page, total } = productions.value;
 
-    const { data, current_page, per_page, total } = salesReport.value;
+    productionRows.value = data;
+    console.log("Production rows: ", productionRows.value);
 
-    if (page === 1) {
-      // Replace data on first page
-      salesReportRows.value = data || [];
-    } else {
-      // Append data for subsequent pages
-      salesReportRows.value = [...salesReportRows.value, ...(data || [])];
+    pagination.value.page = current_page;
+    pagination.value.rowsPerPage = per_page;
+    pagination.value.rowsNumber = total;
+
+    if (!productionRows.value.length) {
+      showNoDateMessage.value = true;
     }
-
-    pagination.value.page = current_page || page;
-    pagination.value.rowsPerPage = per_page || rowsPerPage;
-    pagination.value.rowsNumber = total || 0;
-
-    console.log("Updated rows:", salesReportRows.value);
-    console.log("Pagination:", pagination.value);
   } catch (error) {
-    console.error("Error loading sales reports:", error);
-    Notify.create({
-      type: "negative",
-      message: "Failed to load sales reports. Please try again.",
-      position: "top",
-    });
+    console.error("Error fetching production data:", error);
+    showNoDateMessage.value = true;
   } finally {
     loading.value = false;
   }
 };
 
-// Event handlers
-// const onRequest = (props) => {
-//   const { page, rowsPerPage } = props.pagination;
-//   reloadTableData(page, rowsPerPage);
-// };
-onMounted(async () => {
-  // const { page, rowsPerPage } = props.pagination;
-  reloadTableData(route.params.branch_id);
+const handleRequest = (props) => {
+  console.log("Request props: ", props);
+  reloadTableData(
+    branchId,
+    props.pagination.page,
+    props.pagination.rowsPerPage,
+    filter.value
+  );
+};
+
+watch(filter, (newFilter) => {
+  handleRequest({ pagination: pagination.value });
 });
 
-const handleRefresh = async (done) => {
-  await reloadTableData(1, pagination.value.rowsPerPage);
-  done();
-};
+watch(filter, async (newFilter) => {
+  loading.value = true;
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  loading.value = false;
+  showNoDateMessage.value = productionRows.value.length === 0;
+});
 
-const onLoadMore = async (index, done) => {
-  if (!hasMorePages.value || loading.value) {
-    done();
-    return;
-  }
-
-  const nextPage = pagination.value.page + 1;
-  await reloadTableData(nextPage, pagination.value.rowsPerPage);
-  done();
-};
-
-const handleDialog = (report, label) => {
-  if (!report) {
-    Notify.create({
-      type: "warning",
-      message: `No ${label} reports available`,
-      position: "top",
-    });
-    return;
-  }
-
-  // $q.dialog({
-  //   component: ReportDialog,
-  //   componentProps: {
-  //     reports: report,
-  //     reportLabel: label,
-  //   },
-  // });
-};
-
-// Watch for branchId changes
-watch(
-  () => props.branchId,
-  (newBranchId) => {
-    if (newBranchId) {
-      salesReportRows.value = [];
-      pagination.value.page = 1;
-      reloadTableData();
-    }
+const productionColumn = [
+  {
+    name: "reportDate",
+    align: "center",
+    label: "Date",
+    field: "date",
+    format: formatDate,
   },
-  { immediate: true }
-);
+  {
+    name: "reports",
+    align: "center",
+    label: "Reports",
+    field: "reports",
+  },
+];
 
-// Expose reload method for parent components
-defineExpose({
-  reloadTableData,
-});
+const $q = useQuasar();
+
+const handleDialog = (report, label, index, date) => {
+  console.log("Report data for dialogss:", report, label, index, date);
+
+  $q.dialog({
+    component: ProductionDialog,
+    componentProps: {
+      reports: report,
+      reportsLabel: label,
+      rowIndex: index,
+      reportDate: date,
+    },
+  });
+};
 </script>
 
 <style scoped lang="scss">
-.mobile-card-list {
+.inventory-view-wrapper {
+  background: #ffffff;
   min-height: 100vh;
-  background: #f5f5f5;
 }
 
-.mobile-card {
-  transition: transform 0.2s;
+.sticky-header-container {
+  position: sticky;
+  top: 50px;
+  z-index: 500;
+  background: white;
+  transition: transform 0.3s ease-in-out, opacity 0.2s;
 
-  &:active {
-    transform: scale(0.99);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  &.is-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
   }
 }
 
-.full-width-mobile {
-  @media (max-width: 600px) {
-    width: 100%;
-  }
+.search-row-inner {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.empty-state {
+.text-slate-500 {
+  color: #64748b;
+}
+
+.spinner-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 300px;
-  text-align: center;
+  padding: 50px;
+}
+
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.elegant-container {
+  background: #f7f8fc;
+  padding: 2rem;
+  border-radius: 8px;
+}
+.absolute-full {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.my-sticky-dynamic {
+  height: 410px;
+}
+
+.my-sticky-dynamic .q-table__top,
+.my-sticky-dynamic .q-table__bottom,
+.my-sticky-dynamic thead tr:first-child th {
+  background-color: #000000;
+}
+
+.my-sticky-dynamic thead tr th {
+  position: sticky;
+  z-index: 1;
+}
+
+.my-sticky-dynamic thead tr:last-child th {
+  top: 48px;
+}
+
+.my-sticky-dynamic thead tr:first-child th {
+  top: 0;
+}
+
+.my-sticky-dynamic tbody {
+  scroll-margin-top: 48px;
 }
 </style>
