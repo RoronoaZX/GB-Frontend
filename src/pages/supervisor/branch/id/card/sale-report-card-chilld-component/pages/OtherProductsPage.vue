@@ -7,19 +7,20 @@
     :maximized="maximizedToggle"
     transition-show="slide-left"
     transition-hide="slide-right"
-    class="mobile-selecta-dialog"
+    class="mobile-otherproducts-dialog"
   >
     <q-card class="bg-grey-1 mobile-card">
+      <!-- FIxed Header Section -->
       <div class="fixed-header">
         <q-card-section class="header-gradient text-white q-py-sm">
           <div class="row items-center justify-between">
             <div class="row items-center">
               <div class="header-icon-wrapper">
-                <q-icon name="icecream" size="24px" color="red-7" />
+                <q-icon name="category" size="24px" color="blue-grey-7" />
               </div>
               <div class="q-ml-sm">
                 <div class="text-subtitle1 text-weight-bold">
-                  Selecta Production
+                  Other Products
                 </div>
                 <div class="row items-center text-caption opacity-80">
                   <q-icon name="event" size="12px" class="q-mr-xs" />
@@ -42,11 +43,11 @@
 
           <!-- Quick Stats Chips -->
           <div class="row q-mt-md q-gutter-xs">
-            <q-chip size="sm" class="bg-white text-red-8">
+            <q-chip size="sm" class="bg-white text-blue-grey-8">
               <q-avatar
                 icon="inventory"
-                color="red-2"
-                text-color="red-8"
+                color="blue-grey-2"
+                text-color="blue-grey-8"
                 size="18px"
               />
               {{ filteredRows.length }} items
@@ -63,23 +64,24 @@
                 text-color="red-9"
                 size="18px"
               />
-              {{ negativeSalesRows.length }} descrepancies
+              {{ negativeSalesRows.length }} discrepancies
             </q-chip>
           </div>
         </q-card-section>
 
+        <!-- Search Bar -->
         <q-card-section class="q-py-sm bg-white">
           <q-input
             v-model="filter"
             outlined
-            placeholder="Search selecta products..."
+            placeholder="Search other products..."
             dense
             rounded
             class="search-input"
             bg-color="white"
           >
             <template v-slot:prepend>
-              <q-icon name="search" color="red-6" size="16px" />
+              <q-icon name="search" color="blue-grey-6" size="16px" />
             </template>
 
             <template v-slot:append v-if="filter">
@@ -100,7 +102,7 @@
         >
           <q-banner
             dense
-            class="bg-red-1 text-10 rounded-borders cursor-pointer"
+            class="bg-red-1 text-red-10 rounded-borders cursor-pointer"
             @click="showErrors = !showErrors"
           >
             <template v-slot:avatar>
@@ -109,7 +111,7 @@
 
             <div class="row items-center justify-between">
               <span class="text-caption">
-                <span class="text-weight-bold">
+                <span class="text-weight-bol">
                   {{ negativeSalesRows.length }} discrepancies
                 </span>
                 item(s) with negative sales
@@ -142,7 +144,9 @@
                   <q-item-section>
                     <q-item-label class="text-weight-medium">
                       {{
-                        capitalizeFirstLetter(item.selecta?.name || "Unknown")
+                        capitalizeFirstLetter(
+                          item.other_products?.name || "Unknown"
+                        )
                       }}
                     </q-item-label>
 
@@ -172,40 +176,46 @@
           <!-- Empty State -->
           <div v-if="filteredRows.length === 0" class="empty-state">
             <q-icon name="inventory" size="48px" color="grey-4" />
-            <div class="text-h6 text-grey-6 q-mt-md">No Selecta Reports</div>
+            <div class="text-h6 text-grey-6 q-mt-md">
+              No Other Products Reports
+            </div>
             <div class="text-caption text-grey-5">
               No reports available for this date
             </div>
           </div>
 
           <!-- Product Cards -->
-          <q-list v-else separator class="selecta-list">
+          <q-list v-else separator class="otherproducts-list">
             <q-item
               v-for="item in filteredRows"
               :key="item.id"
-              class="selecta-item q-mb-sm"
+              class="otherproducts-item q-mb-sm"
               clickable
               v-ripple
             >
               <!-- Main Content -->
-              <div class="selecta-item-content">
+              <div class="otherproducts-item-content">
                 <div class="row items-start no-wrap">
                   <!-- Avatar -->
-                  <q-avatar size="48px" class="bg-red-2 text-red-8 q-mt-sm">
-                    <q-icon name="icecream" ize="24px" />
+                  <q-avatar
+                    size="48px"
+                    class="bg-blue-grey-2 text-blue-grey-8 q-mr-sm"
+                  >
+                    <q-icon name="category" size="24px" />
                   </q-avatar>
 
                   <!-- Main Info -->
                   <div class="col">
                     <div class="row items-center justify-between">
-                      <div class="text-weight-bold text-red-9">
-                        {{ capitalizeFirstLetter(item.selecta?.name) }}
+                      <div class="text-weight-bold text-blue-grey-9">
+                        {{ capitalizeFirstLetter(item.other_products?.name) }}
                       </div>
+
                       <q-btn
                         flat
                         round
                         icon="edit"
-                        color="red-7"
+                        color="blue-grey-7"
                         size="sm"
                         @click="storeOriginal(item)"
                       >
@@ -216,12 +226,14 @@
                           transition-hide="scale"
                         >
                           <q-card class="edit-popup">
-                            <q-card-section class="bg-red-7 text-white q-py-sm">
+                            <q-card-section
+                              class="bg-blue-grey-7 text-white q-py-sm"
+                            >
                               <div class="text-caption text-weight-bold">
                                 Edit
                                 {{
                                   capitalizeFirstLetter(
-                                    item.selecta?.name || "Unknown"
+                                    item.other_products?.name || "Unknown"
                                   )
                                 }}
                               </div>
@@ -234,6 +246,10 @@
                                 dense
                                 type="number"
                                 outlined
+                                @update:model-value="
+                                  (val) =>
+                                    handleGlobalUpdate(item, 'beginnings', val)
+                                "
                               />
 
                               <q-input
@@ -242,22 +258,35 @@
                                 dense
                                 type="number"
                                 outlined
+                                @update:model-value="
+                                  (val) =>
+                                    handleGlobalUpdate(
+                                      item,
+                                      'added_stocks',
+                                      val
+                                    )
+                                "
                               />
-
                               <q-input
                                 v-model.number="item.remaining"
                                 label="Remaining"
                                 dense
                                 type="number"
                                 outlined
+                                @update:model-value="
+                                  (val) =>
+                                    handleGlobalUpdate(item, 'remaining', val)
+                                "
                               />
-
                               <q-input
                                 v-model.number="item.out"
                                 label="Out"
                                 dense
                                 type="number"
                                 outlined
+                                @update:model-value="
+                                  (val) => handleGlobalUpdate(item, 'out', val)
+                                "
                               />
                             </q-card-section>
 
@@ -265,8 +294,8 @@
                               <q-btn
                                 flat
                                 label="Done"
-                                color="red-7"
-                                @click="saveSelectaEdit(item)"
+                                color="blue-grey-7"
+                                @click="saveOtherProductEdit(item)"
                               />
                             </q-card-actions>
                           </q-card>
@@ -276,7 +305,7 @@
 
                     <!-- Price and Status -->
                     <div class="row items-center q-gutter-sm q-mt-xs">
-                      <q-badge color="red-2" text-color="red-9">
+                      <q-badge color="blue-grey-2" text-color="blue-grey-9">
                         {{ formatPrice(item.price) }}
                       </q-badge>
 
@@ -289,7 +318,7 @@
                       </q-badge>
                     </div>
 
-                    <!-- Quicks stats row -->
+                    <!-- Quick Stats Row -->
                     <div class="quick-stats row q-col-gutter-xs q-mt-sm">
                       <div class="col-3">
                         <div class="stat-box">
@@ -317,6 +346,15 @@
                           </div>
                         </div>
                       </div>
+
+                      <div class="col-3">
+                        <div class="stat-box">
+                          <div class="stat-label">Out</div>
+                          <div class="stat-value">
+                            {{ item.out || 0 }}
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <!-- Sales Calculation -->
@@ -330,7 +368,7 @@
                       <q-badge
                         :color="getSalesColor(item)"
                         :text-color="getSalesTextColor(item)"
-                        class="q-px-ms q-py-sm text-weight-bold"
+                        class="q-px-md q-py-sm text-weight-bold"
                         style="font-size: 14px"
                       >
                         {{ formatPrice(calculateSales(item)) }}
@@ -350,7 +388,7 @@
           <div class="row items-center justify-between">
             <div>
               <div class="text-caption text-grey-6">TOTAL NET SALES</div>
-              <div class="text-h5 text-weight-bolder text-red-8">
+              <div class="text-h5 text-weight-bolder text-blue-grey-8">
                 {{ formatPrice(overallTotal) }}
               </div>
             </div>
@@ -368,13 +406,12 @@
 </template>
 
 <script setup>
-import { Notify, useDialogPluginComponent } from "quasar";
+import { useDialogPluginComponent } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { useProductionStore } from "src/stores/production";
 import { useUsersStore } from "src/stores/user";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import SalesReportsCard from "../../SalesReportsCard.vue";
 
 const { capitalizeFirstLetter, formatPrice, formatDate } = typographyFormat();
 const { dialogRef, onDialogHide, onDialogCancel } = useDialogPluginComponent();
@@ -390,7 +427,7 @@ const props = defineProps([
   "reportDate",
 ]);
 
-console.log("Selecta Reports:", props.reports);
+console.log("Other Products Reports:", props.reports);
 
 const emit = defineEmits(["summary-updated", "ok"]);
 
@@ -411,7 +448,7 @@ const storeOriginal = (item) => {
   };
 };
 
-const saveSelectaEdit = async (item) => {
+const saveOtherProductEdit = async (item) => {
   const fields = ["beginnings", "added_stocks", "remaining", "out"];
 
   for (const field of fields) {
@@ -419,7 +456,6 @@ const saveSelectaEdit = async (item) => {
       await handleGlobalUpdate(item, field, item[field]);
     }
   }
-
   item.editPopup = false;
 };
 
@@ -427,20 +463,22 @@ const saveSelectaEdit = async (item) => {
 const getStatusColor = (status) => {
   if (!status) return "grey";
   const s = status.toLowerCase();
+
   if (s.includes("sold") || s.includes("confirmed")) return "green";
   if (s.includes("pending") || s.includes("new")) return "orange";
   if (s.includes("declined") || s.includes("return")) return "red";
+
   return "blue";
 };
 
 const getSalesColor = (item) => {
   const sales = calculateSales(item);
-
   return sales < 0 ? "red-1" : "green-1";
 };
 
 const getSalesTextColor = (item) => {
   const sales = calculateSales(item);
+
   return sales < 0 ? "red-10" : "green-10";
 };
 
@@ -449,17 +487,19 @@ const calculateSales = (item) => {
     (Number(item.beginnings) || 0) + (Number(item.added_stocks) || 0);
   const sold =
     stock - ((Number(item.remaining) || 0) + (Number(item.out) || 0));
-
   return sold * (Number(item.price) || 0);
 };
 
-// Computed Propertied
+// Computed Properties
 const filteredRows = computed(() => {
   const data = props.reports || [];
-  if (!filter.value) return data;
-  const search = filter.value.toLocaleLowerCase();
 
-  return data.filter((r) => r.selecta?.name?.toLowerCase().includes(search));
+  if (!filter.value) return data;
+  const search = filter.value.toLowerCase();
+
+  return data.filter((r) =>
+    r.other_products?.name?.toLowerCase().includes(search)
+  );
 });
 
 const negativeSalesRows = computed(() => {
@@ -495,39 +535,23 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 
   const meta = {
     report_id: row.id,
-    name: row?.selecta?.name || "Unkown",
+    name: row?.other_products?.name || "Unknown",
     original_data: row[field],
+    updated_data: newVal,
     updated_field: field,
     designation: branchId,
     designation_type: "branch",
     action: "updated",
-    type_of_report: `Selecta Report Update (${props.reportLabel})`,
+    type_of_report: `Other Products Report Update (${props.reportLabel})`,
     user_id: userId.value,
     sales_report_id: props.sales_report_id,
   };
-
-  try {
-    await productionStore.updateSalesField(
-      row.id,
-      newVal,
-      meta,
-      "selecta",
-      field
-    );
-  } catch (error) {
-    Notify.create({
-      message: "Failed to update",
-      color: "negative",
-      icon: "error",
-      position: "top",
-    });
-  }
 };
 </script>
 
 <style lang="scss" scoped>
-.mobile-selecta-dialog {
-  :deep(.q-dialog__inner) {
+.mobile-otherproducts-dialog {
+  :deep(.q-dialog__innner) {
     padding: 0;
   }
 }
@@ -560,7 +584,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #ef5350;
+    background: #78909c;
     border-radius: 4px;
   }
 }
@@ -571,7 +595,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 }
 
 .header-gradient {
-  background: linear-gradient(135deg, #ef5350 0%, #c62828 100%);
+  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
 
   .header-icon-wrapper {
     width: 40px;
@@ -586,18 +610,17 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 }
 
 .search-input {
-  :deep(.q-field__control) {
+  :deep(q-field__control) {
     border-radius: 30px;
     height: 40px;
   }
 }
 
-.selecta-item {
+.otherproducts-item {
   background: white;
   border-radius: 16px;
   margin-bottom: 8px;
   padding: 12px;
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   transition: all 0.2s;
 
@@ -607,7 +630,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   }
 }
 
-.selecta-item-content {
+.otherproducts-item-content {
   width: 100%;
 }
 
@@ -615,7 +638,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   .stat-box {
     background: #f8f5f2;
     border-radius: 8px;
-    padding: 6px 0;
+    padding: 6pxx 0;
     text-align: center;
 
     .stat-label {

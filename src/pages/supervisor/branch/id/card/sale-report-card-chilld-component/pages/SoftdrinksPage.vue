@@ -7,19 +7,20 @@
     :maximized="maximizedToggle"
     transition-show="slide-left"
     transition-hide="slide-right"
-    class="mobile-selecta-dialog"
+    class="mobile-softdrinks-dialog"
   >
     <q-card class="bg-grey-1 mobile-card">
+      <!-- Fixed Header Section -->
       <div class="fixed-header">
         <q-card-section class="header-gradient text-white q-py-sm">
           <div class="row items-center justify-between">
             <div class="row items-center">
               <div class="header-icon-wrapper">
-                <q-icon name="icecream" size="24px" color="red-7" />
+                <q-icon name="local_drink" size="24px" color="purple-7" />
               </div>
               <div class="q-ml-sm">
                 <div class="text-subtitle1 text-weight-bold">
-                  Selecta Production
+                  Softdrinks Production
                 </div>
                 <div class="row items-center text-caption opacity-80">
                   <q-icon name="event" size="12px" class="q-mr-xs" />
@@ -27,7 +28,6 @@
                 </div>
               </div>
             </div>
-
             <div class="row items-center">
               <q-btn
                 icon="close"
@@ -42,11 +42,11 @@
 
           <!-- Quick Stats Chips -->
           <div class="row q-mt-md q-gutter-xs">
-            <q-chip size="sm" class="bg-white text-red-8">
+            <q-chip size="sm" class="bg-white text-purple-8">
               <q-avatar
                 icon="inventory"
-                color="red-2"
-                text-color="red-8"
+                color="purple-2"
+                text-color="purple-8"
                 size="18px"
               />
               {{ filteredRows.length }} items
@@ -68,18 +68,19 @@
           </div>
         </q-card-section>
 
+        <!-- Search Bar -->
         <q-card-section class="q-py-sm bg-white">
           <q-input
             v-model="filter"
             outlined
-            placeholder="Search selecta products..."
+            placeholder="Search softdrinks..."
             dense
             rounded
             class="search-input"
             bg-color="white"
           >
             <template v-slot:prepend>
-              <q-icon name="search" color="red-6" size="16px" />
+              <q-icon name="search" color="purple-6" size="16px" />
             </template>
 
             <template v-slot:append v-if="filter">
@@ -100,7 +101,7 @@
         >
           <q-banner
             dense
-            class="bg-red-1 text-10 rounded-borders cursor-pointer"
+            class="bg-red-1 text-red-10 rounded-borders cursor-pointer"
             @click="showErrors = !showErrors"
           >
             <template v-slot:avatar>
@@ -142,7 +143,9 @@
                   <q-item-section>
                     <q-item-label class="text-weight-medium">
                       {{
-                        capitalizeFirstLetter(item.selecta?.name || "Unknown")
+                        capitalizeFirstLetter(
+                          item.softdrinks?.name || "Unknown"
+                        )
                       }}
                     </q-item-label>
 
@@ -172,40 +175,43 @@
           <!-- Empty State -->
           <div v-if="filteredRows.length === 0" class="empty-state">
             <q-icon name="inventory" size="48px" color="grey-4" />
-            <div class="text-h6 text-grey-6 q-mt-md">No Selecta Reports</div>
+            <div class="text-h6 text-grey-6 q-mt-md">No Softdrinks Reports</div>
             <div class="text-caption text-grey-5">
               No reports available for this date
             </div>
           </div>
 
           <!-- Product Cards -->
-          <q-list v-else separator class="selecta-list">
+          <q-list v-else separator class="softdrinks-list">
             <q-item
               v-for="item in filteredRows"
               :key="item.id"
-              class="selecta-item q-mb-sm"
+              class="softdrinks-item q-mb-sm"
               clickable
               v-ripple
             >
               <!-- Main Content -->
-              <div class="selecta-item-content">
+              <div class="softdrinks-item-content">
                 <div class="row items-start no-wrap">
                   <!-- Avatar -->
-                  <q-avatar size="48px" class="bg-red-2 text-red-8 q-mt-sm">
-                    <q-icon name="icecream" ize="24px" />
+                  <q-avatar
+                    size="48px"
+                    class="bg-purple-2 text-purple-8 q-mr-sm"
+                  >
+                    <q-icon name="local_drink" size="24px" />
                   </q-avatar>
 
                   <!-- Main Info -->
                   <div class="col">
                     <div class="row items-center justify-between">
-                      <div class="text-weight-bold text-red-9">
-                        {{ capitalizeFirstLetter(item.selecta?.name) }}
+                      <div class="text-weight-bold text-purple-9">
+                        {{ capitalizeFirstLetter(item.softdrinks?.name) }}
                       </div>
                       <q-btn
                         flat
                         round
                         icon="edit"
-                        color="red-7"
+                        color="purple-7"
                         size="sm"
                         @click="storeOriginal(item)"
                       >
@@ -213,15 +219,17 @@
                           v-model="item.editPopup"
                           cover
                           transition-show="scale"
-                          transition-hide="scale"
+                          transitio-hide="scale"
                         >
                           <q-card class="edit-popup">
-                            <q-card-section class="bg-red-7 text-white q-py-sm">
+                            <q-card-section
+                              class="bg-purple-7 text-white q-py-sm"
+                            >
                               <div class="text-caption text-weight-bold">
                                 Edit
                                 {{
                                   capitalizeFirstLetter(
-                                    item.selecta?.name || "Unknown"
+                                    item.softdrinks?.name || "Unknown"
                                   )
                                 }}
                               </div>
@@ -235,15 +243,6 @@
                                 type="number"
                                 outlined
                               />
-
-                              <q-input
-                                v-model.number="item.added_stocks"
-                                label="Added Stocks"
-                                dense
-                                type="number"
-                                outlined
-                              />
-
                               <q-input
                                 v-model.number="item.remaining"
                                 label="Remaining"
@@ -251,7 +250,6 @@
                                 type="number"
                                 outlined
                               />
-
                               <q-input
                                 v-model.number="item.out"
                                 label="Out"
@@ -265,8 +263,8 @@
                               <q-btn
                                 flat
                                 label="Done"
-                                color="red-7"
-                                @click="saveSelectaEdit(item)"
+                                color="purple-7"
+                                @click="saveSoftdrinksEdit(item)"
                               />
                             </q-card-actions>
                           </q-card>
@@ -276,7 +274,7 @@
 
                     <!-- Price and Status -->
                     <div class="row items-center q-gutter-sm q-mt-xs">
-                      <q-badge color="red-2" text-color="red-9">
+                      <q-badge color="purple-2" text-color="purple-9">
                         {{ formatPrice(item.price) }}
                       </q-badge>
 
@@ -289,7 +287,7 @@
                       </q-badge>
                     </div>
 
-                    <!-- Quicks stats row -->
+                    <!-- Quick Stats Row -->
                     <div class="quick-stats row q-col-gutter-xs q-mt-sm">
                       <div class="col-3">
                         <div class="stat-box">
@@ -317,6 +315,15 @@
                           </div>
                         </div>
                       </div>
+
+                      <div class="col-3">
+                        <div class="stat-box">
+                          <div class="stat-label">Out</div>
+                          <div class="stat-value">
+                            {{ item.out || 0 }}
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <!-- Sales Calculation -->
@@ -326,11 +333,10 @@
                       <span class="text-caption text-grey-7">
                         Calculated Sales
                       </span>
-
                       <q-badge
                         :color="getSalesColor(item)"
                         :text-color="getSalesTextColor(item)"
-                        class="q-px-ms q-py-sm text-weight-bold"
+                        class="q-px-md q-py-sm text-weight-bold"
                         style="font-size: 14px"
                       >
                         {{ formatPrice(calculateSales(item)) }}
@@ -350,10 +356,11 @@
           <div class="row items-center justify-between">
             <div>
               <div class="text-caption text-grey-6">TOTAL NET SALES</div>
-              <div class="text-h5 text-weight-bolder text-red-8">
+              <div class="text-h5 text-weight-bolder text-purple-8">
                 {{ formatPrice(overallTotal) }}
               </div>
             </div>
+
             <div class="text-right">
               <div class="text-caption text-grey-6">Items</div>
               <div class="text-h6 text-weight-bold">
@@ -369,12 +376,11 @@
 
 <script setup>
 import { Notify, useDialogPluginComponent } from "quasar";
-import { typographyFormat } from "src/composables/typography/typography-format";
-import { useProductionStore } from "src/stores/production";
-import { useUsersStore } from "src/stores/user";
 import { computed, ref } from "vue";
+import { useUsersStore } from "src/stores/user";
 import { useRoute } from "vue-router";
-import SalesReportsCard from "../../SalesReportsCard.vue";
+import { useProductionStore } from "src/stores/production";
+import { typographyFormat } from "src/composables/typography/typography-format";
 
 const { capitalizeFirstLetter, formatPrice, formatDate } = typographyFormat();
 const { dialogRef, onDialogHide, onDialogCancel } = useDialogPluginComponent();
@@ -390,7 +396,7 @@ const props = defineProps([
   "reportDate",
 ]);
 
-console.log("Selecta Reports:", props.reports);
+console.log("Softdrinks Reports:", props.reports);
 
 const emit = defineEmits(["summary-updated", "ok"]);
 
@@ -411,7 +417,7 @@ const storeOriginal = (item) => {
   };
 };
 
-const saveSelectaEdit = async (item) => {
+const saveSoftdrinksEdit = async (item) => {
   const fields = ["beginnings", "added_stocks", "remaining", "out"];
 
   for (const field of fields) {
@@ -449,17 +455,15 @@ const calculateSales = (item) => {
     (Number(item.beginnings) || 0) + (Number(item.added_stocks) || 0);
   const sold =
     stock - ((Number(item.remaining) || 0) + (Number(item.out) || 0));
-
   return sold * (Number(item.price) || 0);
 };
 
-// Computed Propertied
+// Computed Properties
 const filteredRows = computed(() => {
   const data = props.reports || [];
   if (!filter.value) return data;
-  const search = filter.value.toLocaleLowerCase();
-
-  return data.filter((r) => r.selecta?.name?.toLowerCase().includes(search));
+  const search = filter.value.toLowerCase();
+  return data.filter((r) => r.softdrinks?.name?.toLowerCase().includes(search));
 });
 
 const negativeSalesRows = computed(() => {
@@ -495,13 +499,14 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 
   const meta = {
     report_id: row.id,
-    name: row?.selecta?.name || "Unkown",
+    name: row?.softdrinks?.name || "Unknown",
     original_data: row[field],
+    updated_data: newVal,
     updated_field: field,
     designation: branchId,
     designation_type: "branch",
     action: "updated",
-    type_of_report: `Selecta Report Update (${props.reportLabel})`,
+    type_of_report: `Softdrinks Report Update (${props.reportLabel})`,
     user_id: userId.value,
     sales_report_id: props.sales_report_id,
   };
@@ -511,10 +516,10 @@ const handleGlobalUpdate = async (row, field, newVal) => {
       row.id,
       newVal,
       meta,
-      "selecta",
+      "softdrinks",
       field
     );
-  } catch (error) {
+  } catch (e) {
     Notify.create({
       message: "Failed to update",
       color: "negative",
@@ -526,7 +531,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 </script>
 
 <style lang="scss" scoped>
-.mobile-selecta-dialog {
+.mobile-softdrinks-dialog {
   :deep(.q-dialog__inner) {
     padding: 0;
   }
@@ -560,7 +565,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #ef5350;
+    background: #ab47bc;
     border-radius: 4px;
   }
 }
@@ -571,7 +576,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
 }
 
 .header-gradient {
-  background: linear-gradient(135deg, #ef5350 0%, #c62828 100%);
+  background: linear-gradient(135deg, #ab47bc 0%, #7b1fa2 100%);
 
   .header-icon-wrapper {
     width: 40px;
@@ -592,12 +597,11 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   }
 }
 
-.selecta-item {
+.softdrinks-item {
   background: white;
   border-radius: 16px;
   margin-bottom: 8px;
   padding: 12px;
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   transition: all 0.2s;
 
@@ -607,7 +611,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   }
 }
 
-.selecta-item-content {
+.softdrinks-item-content {
   width: 100%;
 }
 

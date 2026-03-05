@@ -124,7 +124,20 @@
           </div>
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <q-card flat bordered class="product-card hover-scale">
+            <q-card
+              flat
+              bordered
+              class="product-card hover-scale"
+              @click="
+                handleSoftdrinksDialog(
+                  props.sales_Reports[0].softdrinks_reports,
+                  props.sales_Reports[0].id,
+                  props.sales_Reports[0].user,
+                  props.reportLabel,
+                  props.reportDate
+                )
+              "
+            >
               <q-card-section class="text-center q-pa-md">
                 <div class="product-icon bg-accent-2">
                   <q-icon name="local_drink" size="28px" color="accent" />
@@ -172,7 +185,20 @@
           </div>
 
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <q-card flat bordered class="product-card hover-scale">
+            <q-card
+              flat
+              bordered
+              class="product-card hover-scale"
+              @click="
+                handleOtherProductsDialog(
+                  props.sales_Reports[0].other_products_reports,
+                  props.sales_Reports[0].id,
+                  props.sales_Reports[0].user,
+                  props.reportLabel,
+                  props.reportDate
+                )
+              "
+            >
               <q-card-section class="text-center q-pa-md">
                 <div class="product-icon bg-blue-grey-2">
                   <q-icon name="category" size="28px" color="blue-grey-8" />
@@ -238,6 +264,8 @@ import { useQuasar } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import BreadReport from "../sale-report-card-chilld-component/pages/BreadPage.vue";
 import SelectaReport from "../sale-report-card-chilld-component/pages/SelectaPage.vue";
+import SoftdrinksReport from "../sale-report-card-chilld-component/pages/SoftdrinksPage.vue";
+import OtherProductReport from "../sale-report-card-chilld-component/pages/OtherProductsPage.vue";
 import { computed, ref, watch } from "vue";
 
 const { formatDate, formatPrice } = typographyFormat();
@@ -384,6 +412,62 @@ const handleSelectaDialog = (
   }).onOk((summary) => {
     localCharges.value = summary.charges;
     localCharges.value = summary.over;
+
+    emit("update-summary", {
+      reportId: props.reportId,
+      charges: localCharges.value,
+      over: localOver.value,
+    });
+  });
+};
+
+const handleSoftdrinksDialog = (
+  dataReports,
+  sales_report_id,
+  user,
+  reportLabel,
+  reportDate
+) => {
+  $q.dialog({
+    component: SoftdrinksReport,
+    componentProps: {
+      reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
+      reportLabel: reportLabel,
+      reportDate: reportDate,
+    },
+  }).onOk((summary) => {
+    localCharges.value = summary.charges;
+    localCharges.value = summary.over;
+
+    emit("update-summary", {
+      reportId: props.reportId,
+      charges: localCharges.value,
+      over: localOver.value,
+    });
+  });
+};
+
+const handleOtherProductsDialog = (
+  dataReports,
+  sales_report_id,
+  user,
+  reportLabel,
+  reportDate
+) => {
+  $q.dialog({
+    component: OtherProductReport,
+    componentProps: {
+      reports: dataReports,
+      sales_report_id: sales_report_id,
+      user: user,
+      reportLabel: reportLabel,
+      reportDate: reportDate,
+    },
+  }).onOk((summary) => {
+    localCharges.value = summary.charges;
+    localOver.value = summary.over;
 
     emit("update-summary", {
       reportId: props.reportId,

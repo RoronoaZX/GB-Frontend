@@ -191,8 +191,16 @@
                       <div class="text-weight-bold text-brown-9">
                         {{ capitalizeFirstLetter(item.bread.name) }}
                       </div>
-                      <q-btn flat round icon="edit" color="brown-7" size="sm">
+                      <q-btn
+                        flat
+                        round
+                        icon="edit"
+                        color="brown-7"
+                        size="sm"
+                        @click="storeOriginal(item)"
+                      >
                         <q-popup-proxy
+                          v-model="item.editPopup"
                           cover
                           transition-show="scale"
                           transition-hide="scale"
@@ -209,7 +217,6 @@
                                   )
                                 }}
                               </div>
-                              <div></div>
                             </q-card-section>
 
                             <q-card-section class="q-gutter-md q-pa-md">
@@ -219,10 +226,6 @@
                                 dense
                                 type="number"
                                 outlined
-                                @update:model-value="
-                                  (val) =>
-                                    handleGlobalUpdate(item, 'beginnings', val)
-                                "
                               />
 
                               <q-input
@@ -231,14 +234,6 @@
                                 dense
                                 type="number"
                                 outlined
-                                @update:model-value="
-                                  (val) =>
-                                    handleGlobalUpdate(
-                                      item,
-                                      'new_production',
-                                      val
-                                    )
-                                "
                               />
                               <q-input
                                 v-model.number="item.remaining"
@@ -246,10 +241,6 @@
                                 dense
                                 type="number"
                                 outlined
-                                @update:model-value="
-                                  (val) =>
-                                    handleGlobalUpdate(item, 'remaining', val)
-                                "
                               />
                               <q-input
                                 v-model.number="item.bread_out"
@@ -257,15 +248,16 @@
                                 dense
                                 type="number"
                                 outlined
-                                @update:model-value="
-                                  (val) =>
-                                    handleGlobalUpdate(item, 'bread_out', val)
-                                "
                               />
                             </q-card-section>
 
                             <q-card-actions align="right" class="q-pa-sm">
-                              <q-btn flat label="Done" color="brown-7" />
+                              <q-btn
+                                flat
+                                label="Done"
+                                color="brown-7"
+                                @click="saveBreadEdit(item)"
+                              />
                             </q-card-actions>
                           </q-card>
                         </q-popup-proxy>
@@ -403,6 +395,28 @@ const branchId = route.params.branch_id;
 const userId = computed(() => userStore.userData?.data?.id ?? null);
 const reportLength = computed(() => filteredRows.value.length);
 
+const storeOriginal = (item) => {
+  item.original = {
+    beginnings: item.beginnings,
+    new_production: item.new_production,
+    remaining: item.remaining,
+    bread_out: item.bread_out,
+  };
+};
+
+const saveBreadEdit = async (item) => {
+  const fields = ["beginnings", "new_production", "remaining", "bread_out"];
+
+  for (const field of fields) {
+    if (item[field] !== item.original[field]) {
+      await handleGlobalUpdate(item, field, item[field]);
+    }
+  }
+
+  // Manually close the popup proxy
+  item.editPopup = false;
+};
+
 const getStatusColor = (status) => {
   if (!status) return "grey";
   const s = status.toLowerCase();
@@ -490,13 +504,14 @@ const handleGlobalUpdate = async (row, field, newVal) => {
       field
     );
 
-    Notify.create({
-      message: `Updated successfully`,
-      color: "positive",
-      icon: "check_circle",
-      position: "top",
-      timeout: 1000,
-    });
+    // Notify.create({
+    //   message: `Updated successfully`,
+    //   color: "positive",
+    //   icon: "check_circle",
+    //   position: "top",
+    //   timeout: 1000,
+    // });
+    // dialog.value = false;
   } catch (e) {
     Notify.create({
       message: "Failed to update",
