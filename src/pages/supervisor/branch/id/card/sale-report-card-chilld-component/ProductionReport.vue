@@ -279,7 +279,7 @@ const props = defineProps([
   "reportId",
 ]);
 
-console.log("Sales reportDate", props.sales_Reports);
+console.log("Sales reportDataassssss", props.sales_Reports);
 
 const $q = useQuasar();
 const emit = defineEmits(["update-summary"]);

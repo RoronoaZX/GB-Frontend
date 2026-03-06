@@ -261,6 +261,13 @@
               Cash Denomination Breakdown
             </div>
           </div>
+          <DenominationReport
+            :sales_Reports="reportsData"
+            :reportLabel="reportLabel"
+            :reportDate="props.reportDate"
+            :reportId="props.reportId"
+            @update-summary="handleSummaryUpdate"
+          />
         </q-tab-panel>
 
         <q-tab-panel name="expenses" class="tab-panel">
@@ -270,6 +277,13 @@
               Expenses & Deductions
             </div>
           </div>
+          <ExpensesReport
+            :sales_Reports="reportsData"
+            :reportLabel="reportLabel"
+            :reportDate="props.reportDate"
+            :reportId="props.reportId"
+            @update-summary="handleSummaryUpdate"
+          />
         </q-tab-panel>
 
         <q-tab-panel name="credits" class="tab-panel">
@@ -313,6 +327,8 @@ import { useQuasar } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { useProductionStore } from "src/stores/production";
 import ProductionReport from "../card/sale-report-card-chilld-component/ProductionReport.vue";
+import DenominationReport from "../card/sale-report-card-chilld-component/DenominationReport.vue";
+import ExpensesReport from "../card/sale-report-card-chilld-component/ExpensesReport.vue";
 import { computed, ref, watchEffect } from "vue";
 import NegativeProductsDialog from "../card/sale-report-card-chilld-component/pages/NegativeDialog.vue";
 
@@ -1036,53 +1052,44 @@ const generateDocDefinition = (report) => {
 };
 </script>
 
-<!-- <style lang="scss" scoped>
-.sales-report-card {
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  background: white;
+<style lang="scss" scoped>
+.expenses-report-container {
+  width: 100%;
+}
 
-  @media (max-width: 600px) {
-    border-radius: 12px;
+.summary-card {
+  border-radius: 14px;
+  border: 1px solid #f0f0f0;
+
+  .summary-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.bg-orange-1 {
+      background: #fff3e0;
+    }
+    &.bg-blue-1 {
+      background: #e3f2fd;
+    }
+    &.bg-green-1 {
+      background: #e8f5e9;
+    }
   }
 }
 
-.negative-btn {
-  border-radius: 24px;
-  padding: 8px 20px;
-  font-weight: 500;
-  transition: all 0.2s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(red, 0.2);
+.search-input {
+  :deep(.q-field__control) {
+    border-radius: 30px;
+    height: 44px;
   }
 }
 
-.print-btn {
-  border-radius: 24px;
-  padding: 8px 24px;
-  transition: all 0.2s;
-
-  &:hover {
-    background: rgba(teal, 0.05);
-    transform: translateY(-2px);
-  }
-}
-
-.employee-card,
-.financial-card {
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.2s;
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  }
-}
-
-.employee-list {
-  max-height: 200px;
+.expenses-list {
+  max-height: 400px;
   overflow-y: auto;
   padding-right: 4px;
 
@@ -1090,425 +1097,186 @@ const generateDocDefinition = (report) => {
     width: 4px;
   }
 
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
+    background: #cbd5e1;
     border-radius: 4px;
   }
 }
 
-.employee-item {
-  padding: 8px;
-  border-radius: 8px;
-  transition: background 0.2s;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.02);
-  }
-}
-
-.summary-item {
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 8px;
-  text-align: center;
-
-  .text-caption {
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .text-h6 {
-    font-size: 1.2rem;
-
-    @media (max-width: 600px) {
-      font-size: 1rem;
-    }
-  }
-}
-
-.report-sections {
-  background: white;
-  border-radius: 12px;
-  margin-top: 20px;
-
-  :deep(.q-tab) {
-    min-height: 48px;
-    padding: 0 16px;
-
-    @media (max-width: 600px) {
-      padding: 0 8px;
-      font-size: 13px;
-    }
-  }
-}
-
-.print-dialog {
-  width: 100%;
-  height: 100%;
-  border-radius: 0;
-
-  .q-bar {
-    min-height: 50px;
-    padding: 0 16px;
-  }
-}
-</style> -->
-
-<style lang="scss" scoped>
-.sales-report-card {
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-  background: white;
-  overflow: hidden;
-
-  @media (max-width: 600px) {
-    border-radius: 16px;
-  }
-}
-
-.report-icon {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, #26a69a 0%, #00897b 100%);
+.expense-card {
   border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(38, 166, 154, 0.3);
-}
-
-.negative-btn {
-  border-radius: 30px;
-  padding: 8px 24px;
-  font-weight: 500;
-  transition: all 0.3s;
-  border: 1px solid #ffcdd2;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(239, 83, 80, 0.2);
-    background: #ffebee !important;
-  }
-}
-
-.print-btn {
-  border-radius: 30px;
-  padding: 8px 28px;
-  transition: all 0.3s;
-  border: 2px solid #26a69a;
-  color: #26a69a;
-
-  &:hover {
-    background: #26a69a !important;
-    color: white !important;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(38, 166, 154, 0.3);
-  }
-}
-
-.card-icon-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.employee-card,
-.financial-card {
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-
-  &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  }
-}
-
-.employee-list {
-  max-height: 240px;
-  overflow-y: auto;
-  padding-right: 8px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #f5f5f5;
-    border-radius: 10px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(38, 166, 154, 0.3);
-    border-radius: 10px;
-
-    &:hover {
-      background: rgba(38, 166, 154, 0.5);
-    }
-  }
-}
-
-.employee-item {
-  padding: 12px;
-  border-radius: 12px;
   transition: all 0.2s;
-  background: white;
-  border: 1px solid transparent;
+  border: 1px solid #f0f0f0;
 
   &:hover {
-    background: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     border-color: #e0e0e0;
-    transform: translateX(4px);
-  }
-}
-
-.employee-avatar {
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.charge-chip {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-weight: 500;
-}
-
-.summary-item {
-  padding: 16px;
-  border-radius: 14px;
-  text-align: center;
-  transition: all 0.3s;
-
-  &.short-item {
-    background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
-    border: 1px solid #ffcdd2;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(239, 83, 80, 0.15);
-    }
   }
 
-  &.over-item {
-    background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
-    border: 1px solid #c8e6c9;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(102, 187, 106, 0.15);
-    }
-  }
-}
-
-// Enhanced Tab Styles
-.tab-navigation-container {
-  background: #f8fafc;
-  border-radius: 20px;
-  padding: 16px;
-  margin-bottom: 20px;
-  border: 1px solid #eef2f6;
-}
-
-.tab-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 0 8px;
-
-  .tab-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #455a64;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  .tab-hint {
-    font-size: 12px;
-    color: #90a4ae;
-    display: flex;
-    align-items: center;
-  }
-}
-
-.custom-tabs {
-  background: white;
-  border-radius: 16px;
-  padding: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  min-height: unset;
-}
-
-.custom-tab {
-  border-radius: 12px !important;
-  margin: 0 4px;
-  min-height: 70px;
-  padding: 8px 12px;
-  transition: all 0.3s;
-
-  &:first-child {
-    margin-left: 0;
-  }
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  .tab-content {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    position: relative;
-    gap: 12px;
-  }
-
-  .tab-icon-wrapper {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: #f5f5f5;
+  .expense-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s;
 
-    i {
-      font-size: 22px;
-      color: #607d8b;
-      transition: all 0.3s;
+    &.bg-orange-7 {
+      background: #f57c00;
+    }
+    &.bg-primary-7 {
+      background: #42a5f5;
+    }
+    &.bg-secondary-7 {
+      background: #ab47bc;
+    }
+    &.bg-grey-6 {
+      background: #757575;
     }
   }
 
-  .tab-text {
-    flex: 1;
-    text-align: left;
+  .expense-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #1e293b;
   }
 
-  .tab-main-label {
+  .expense-description {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .expense-amount {
     font-weight: 600;
-    font-size: 15px;
-    line-height: 1.3;
-    color: #37474f;
+    font-size: 1rem;
   }
 
-  .tab-sub-label {
-    font-size: 11px;
-    color: #90a4ae;
-    margin-top: 2px;
-  }
+  .menu-btn {
+    transition: all 0.2s;
 
-  // Active state
-  &.q-tab--active {
-    background: white;
-    box-shadow: 0 6px 16px rgba(38, 166, 154, 0.12);
-
-    .tab-icon-wrapper {
-      background: #e0f2f1;
-
-      i {
-        color: #26a69a;
-      }
+    &:hover {
+      background: #f5f5f5;
     }
-
-    .tab-main-label {
-      color: #26a69a;
-    }
-
-    .tab-sub-label {
-      color: #80cbc4;
-    }
-  }
-
-  // Hover state
-  &:hover:not(.q-tab--active) {
-    background: #f5f5f5;
-
-    .tab-icon-wrapper {
-      background: #e0e0e0;
-    }
-  }
-}
-
-// Badge positioning
-:deep(.q-badge--floating) {
-  top: 4px;
-  right: 4px;
-  padding: 4px 6px;
-  min-width: 20px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.custom-tab-panels {
-  background: transparent;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.tab-panel {
-  padding: 20px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-  margin-top: 16px;
-}
-
-.panel-header {
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #eef2f6;
-
-  .panel-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #37474f;
-    display: flex;
-    align-items: center;
   }
 }
 
 .empty-state {
-  padding: 24px;
-  color: #b0bec5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 40px 20px;
 }
 
-// Responsive adjustments
+.menu-list {
+  border-radius: 14px;
+
+  .q-item {
+    min-height: 40px;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+}
+
+.edit-dialog {
+  width: 340px;
+  max-width: 90vw;
+  border-radius: 20px;
+  overflow: hidden;
+
+  .edit-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.bg-primary-1 {
+      background: #e3f2fd;
+    }
+    &.bg-secondary-1 {
+      background: #f3e5f5;
+    }
+    &.bg-positive-1 {
+      background: #e8f5e9;
+    }
+  }
+
+  .edit-input {
+    :deep(.q-field__control) {
+      border-radius: 12px;
+    }
+  }
+}
+
+.delete-dialog {
+  width: 300px;
+  max-width: 80vw;
+  border-radius: 20px;
+  overflow: hidden;
+
+  .delete-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.bg-negative-1 {
+      background: #ffebee;
+    }
+  }
+}
+
+// List animations
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+// Responsive
 @media (max-width: 600px) {
-  .custom-tab {
-    min-height: 60px;
-    padding: 6px 8px;
+  .summary-icon {
+    width: 36px;
+    height: 36px;
 
-    .tab-icon-wrapper {
-      width: 36px;
-      height: 36px;
-
-      i {
-        font-size: 18px;
-      }
-    }
-
-    .tab-main-label {
-      font-size: 13px;
-    }
-
-    .tab-sub-label {
-      font-size: 10px;
+    i {
+      font-size: 18px;
     }
   }
 
-  .tab-panel {
-    padding: 16px;
+  .expense-name {
+    font-size: 0.9rem;
   }
 
-  .employee-name {
-    font-size: 14px;
-  }
-
-  .employee-position {
-    font-size: 11px;
+  .expense-amount {
+    font-size: 0.9rem;
   }
 }
 </style>
