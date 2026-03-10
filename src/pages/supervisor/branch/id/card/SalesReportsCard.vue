@@ -41,7 +41,7 @@
               <q-tooltip>View products with negative sales</q-tooltip>
             </q-btn>
 
-            <q-btn
+            <!-- <q-btn
               padding="md lg"
               label="Print Report"
               icon="print"
@@ -50,7 +50,7 @@
               @click="openPrintDialog(reportsData[0])"
             >
               <q-tooltip>Generate PDF report</q-tooltip>
-            </q-btn>
+            </q-btn> -->
           </div>
         </div>
       </div>
@@ -293,6 +293,13 @@
               Customer Credits
             </div>
           </div>
+          <CreditReport
+            :sales_Reports="reportsData"
+            :reportLabel="reportDate"
+            :reportDate="props.reportDate"
+            :reportId="props.reportId"
+            @update-summary="handleSummaryUpdate"
+          />
         </q-tab-panel>
       </q-tab-panels>
     </q-card-section>
@@ -329,6 +336,7 @@ import { useProductionStore } from "src/stores/production";
 import ProductionReport from "../card/sale-report-card-chilld-component/ProductionReport.vue";
 import DenominationReport from "../card/sale-report-card-chilld-component/DenominationReport.vue";
 import ExpensesReport from "../card/sale-report-card-chilld-component/ExpensesReport.vue";
+import CreditReport from "../card/sale-report-card-chilld-component/CreditReport.vue";
 import { computed, ref, watchEffect } from "vue";
 import NegativeProductsDialog from "../card/sale-report-card-chilld-component/pages/NegativeDialog.vue";
 
