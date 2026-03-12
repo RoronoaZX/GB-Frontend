@@ -347,7 +347,7 @@
         <div class="text-caption text-grey-5 q-mb-lg">
           Start adding credits for employee purchases
         </div>
-        <AddingCredit
+        <!-- <AddingCredit
           :reports="creditReports"
           :user="props.user"
           :userId="userId"
@@ -364,10 +364,9 @@
               @click="open"
             />
           </template>
-        </AddingCredit>
+        </AddingCredit> -->
       </div>
     </div>
-
     <!-- Quick View Dialog -->
     <!-- <q-dialog v-model="quickViewDialog" persistent>
       <q-card class="quick-view-dialog" v-if="currentCredit">
@@ -618,7 +617,7 @@ import { ref, computed, watch } from "vue";
 import { useQuasar } from "quasar";
 import { api } from "src/boot/axios";
 import { typographyFormat } from "src/composables/typography/typography-format";
-import AddingCredit from "../../add_button/AddingCredit.vue";
+// import AddingCredit from "../../add_button/AddingCredit.vue";
 
 const {
   capitalizeFirstLetter,
