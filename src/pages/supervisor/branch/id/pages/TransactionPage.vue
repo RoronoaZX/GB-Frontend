@@ -1,33 +1,5 @@
 <template>
   <div class="mobile-supervisor-transactions">
-    <!-- Header -->
-    <!-- <div class="header q-pa-md">
-      <div class="row items-center justify-between">
-        <div>
-          <div class="text-h6 text-weight-medium">Transactions</div>
-          <div class="text-caption text-grey-7">Good day, Supervisor!</div>
-        </div>
-        <q-btn flat round dense icon="notifications" color="grey-8">
-          <q-badge color="red" floating>3</q-badge>
-        </q-btn>
-      </div>
-    </div> -->
-
-    <!-- Search Bar -->
-    <!-- <div class="q-px-md q-mb-md">
-      <q-input
-        outlined
-        dense
-        placeholder="Search transactions..."
-        bg-color="white"
-        class="search-input"
-      >
-        <template v-slot:prepend>
-          <q-icon name="search" color="grey-6" />
-        </template>
-      </q-input>
-    </div> -->
-
     <!-- Bottom Navigation Tabs -->
     <div class="bottom-nav-container">
       <q-tabs
