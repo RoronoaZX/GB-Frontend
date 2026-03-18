@@ -222,7 +222,7 @@
               <div class="contact-info">
                 <span class="label">Address</span>
                 <span class="value">{{
-                  item.employee?.address || "No address"
+                  capitalizeFirstLetter(item.employee?.address || "No address")
                 }}</span>
               </div>
             </div>
@@ -365,7 +365,11 @@
             <div class="details-row">
               <div class="details-label">Address</div>
               <div class="details-value">
-                {{ selectedEmployee.employee?.address || "N/A" }}
+                {{
+                  capitalizeFirstLetter(
+                    selectedEmployee.employee?.address || "N/A"
+                  )
+                }}
               </div>
             </div>
 
