@@ -18,6 +18,15 @@ export const useEmployeeStore = defineStore("employees", () => {
     employees.value = response.data;
   };
 
+  const fetchBranchEmployee = async (branchId) => {
+    console.log("branchId in store", branchId);
+
+    const response = await api.get(`/api/fetchBranchEmployee/${branchId}`);
+
+    branchEmployees.value = response.data;
+    console.log("branchEmployees.value", branchEmployees.value);
+  };
+
   const fetchEmployeeWithEmploymentType = async (page, rowsPerPage, search) => {
     const response = await api.get("/api/fetchEmployeeWithEmploymentType", {
       params: {
@@ -442,6 +451,7 @@ export const useEmployeeStore = defineStore("employees", () => {
     createEmployee,
     searchEmployee,
     fetchEmployee,
+    fetchBranchEmployee,
     searchEmployeesWithDesignation,
     fetchAllEmployee,
     fetchEmployeeUserID,
