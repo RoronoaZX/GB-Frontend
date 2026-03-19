@@ -24,7 +24,7 @@ export const useEmployeeStore = defineStore("employees", () => {
     const response = await api.get(`/api/fetchBranchEmployee/${branchId}`);
 
     branchEmployees.value = response.data;
-    console.log("branchEmployees.value", branchEmployees.value);
+    console.log("branchEmployeesssss.value", branchEmployees.value);
   };
 
   const fetchEmployeeWithEmploymentType = async (page, rowsPerPage, search) => {

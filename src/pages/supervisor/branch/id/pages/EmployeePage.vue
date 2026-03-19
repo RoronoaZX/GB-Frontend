@@ -244,17 +244,19 @@
               </div>
 
               <div class="detail-box">
-                <span class="detail-label">Designation</span>
+                <span class="detail-label">Designationss</span>
                 <span class="detail-value">{{
-                  item.employee?.designation || "N/A"
+                  item.employee?.designation?.name || "N/A"
                 }}</span>
               </div>
 
               <div class="detail-box">
-                <span class="detail-label">Work Schedule</span>
+                <span class="detail-label">Work Scheduless</span>
                 <span class="detail-value"
-                  >{{ item.time_in || "08:00" }} -
-                  {{ item.time_out || "17:00" }}</span
+                  >{{ item.employee?.branch_employee?.time_in || "08:00" }} -
+                  {{
+                    item.employee?.branch_employee?.time_out || "17:00"
+                  }}</span
                 >
               </div>
 
@@ -307,7 +309,7 @@
       </q-btn>
     </q-page-sticky> -->
 
-    <!-- Employee Details Dialog -->
+    <!-- Employee Details Dialog with Edit Mode -->
     <q-dialog v-model="showDetails" position="bottom" full-width>
       <q-card class="employee-details-dialog">
         <q-card-section class="dialog-header">
@@ -318,7 +320,7 @@
         </q-card-section>
 
         <q-card-section v-if="selectedEmployee" class="dialog-content">
-          <!-- Full details view -->
+          <!-- Employee Profile Header -->
           <div class="employee-profile-header">
             <q-avatar size="80px" class="profile-avatar">
               <img :src="getEmployeeAvatar(selectedEmployee.employee)" />
@@ -330,6 +332,7 @@
               </div>
               <div class="profile-position">
                 {{ selectedEmployee.employee?.position || "Staff" }}
+                <!-- Inline edit for position -->
               </div>
               <div class="profile-id">
                 ID: EMP-{{
@@ -340,12 +343,72 @@
             </div>
           </div>
 
-          <div class="details-section">
+          <!-- View Mode Details -->
+          <div v-if="!editMode" class="details-section">
+            <div class="details-row">
+              <div class="details-label">Position</div>
+              <div class="details-value">
+                {{ selectedEmployee.employee?.position || "Staff" }}
+              </div>
+              <q-btn
+                flat
+                round
+                dense
+                icon="edit"
+                size="sm"
+                color="primary"
+                class="edit-icon-btn"
+              >
+                <q-popup-edit
+                  v-model="selectedEmployee.employee.position"
+                  buttons
+                  title="Edit Position"
+                  v-slot="scope"
+                >
+                  <q-select
+                    v-model="scope.value"
+                    :options="positionOptions"
+                    outlined
+                    dense
+                    autofocus
+                    @key.enter="scope.set"
+                  />
+                </q-popup-edit>
+              </q-btn>
+            </div>
+
             <div class="details-row">
               <div class="details-label">Phone</div>
               <div class="details-value">
-                {{ selectedEmployee.employee?.phone || "N/A" }}
+                {{
+                  formatPhoneNumber(selectedEmployee.employee?.phone) || "N/A"
+                }}
               </div>
+              <q-btn
+                flat
+                round
+                dense
+                icon="edit"
+                size="sm"
+                color="primary"
+                class="edit-icon-btn"
+              >
+                <q-popup-edit
+                  v-model="selectedEmployee.employee.phone"
+                  buttons
+                  title="Edit Phone"
+                  v-slot="scope"
+                >
+                  <q-input
+                    v-model="scope.value"
+                    dense
+                    autofocus
+                    mask="+(63) ### - ### - ####"
+                    counter
+                    @keyup.enter="scope.set"
+                  />
+                </q-popup-edit>
+              </q-btn>
             </div>
 
             <!-- <div class="details-row">
@@ -376,26 +439,202 @@
             <div class="details-row">
               <div class="details-label">Employment Type</div>
               <div>
-                {{
-                  getEmploymentType(
-                    selectedEmployee.employee?.employment_type_id
-                  )
-                }}
+                <q-badge
+                  :color="
+                    getEmployementTypeColor(
+                      selectedEmployee.employee?.employment_type?.category
+                    )
+                  "
+                >
+                  {{
+                    selectedEmployee.employee?.employment_type?.category ||
+                    "N/A"
+                  }}
+                </q-badge>
+
+                <q-btn
+                  flat
+                  round
+                  dense
+                  icon="edit"
+                  size="sm"
+                  color="primary"
+                  class="edit-icon-btn"
+                >
+                  <q-popup-edit
+                    v-model="selectedEmployee.employee.employment_type_id"
+                    @save="
+                      (val) =>
+                        updateEmploymentType(
+                          selectedEmployee.employee,
+                          val,
+                          reloadData
+                        )
+                    "
+                    buttons
+                    title="Edit Employment Type"
+                    v-slot="scope"
+                  >
+                    <q-select
+                      v-model="scope.value"
+                      :options="employmentTypeOptions"
+                      autofocus
+                      option-label="label"
+                      option-value="value"
+                      emit-value
+                      map-options
+                      dense
+                      behavior="menu"
+                      outlined
+                      @keyup.enter="scope.set(scope.value)"
+                    />
+                  </q-popup-edit>
+                </q-btn>
               </div>
             </div>
 
             <div class="details-row">
               <div class="details-label">Designation</div>
               <div class="details-value">
-                {{ selectedEmployee.employee?.designation || "N/A" }}
+                {{ selectedEmployee.employee?.designation?.name || "N/A" }}
+
+                <q-btn
+                  v-if="selectedEmployee.employee?.designation"
+                  flat
+                  round
+                  dense
+                  icon="edit"
+                  size="sm"
+                  color="primary"
+                  class="edit-icon-btn"
+                >
+                  <q-popup-edit
+                    v-if="selectedEmployee.employee?.designation?.name"
+                    v-model="selectedEmployee.employee.designation_id"
+                    buttons
+                    title="Edit Designation"
+                    v-slot="scope"
+                  >
+                    <q-select
+                      v-model="scope.value"
+                      :options="
+                        getDesignationOptions(selectedEmployee.employee)
+                      "
+                      option-value="id"
+                      option-label="name"
+                      emit-value
+                      map-options
+                      dense
+                      outlined
+                      @keyup.enter="scope.set(scope.value)"
+                    />
+                  </q-popup-edit>
+                </q-btn>
               </div>
             </div>
 
             <div class="details-row">
-              <div class="details-label">Work Schedule</div>
-              <div>
-                {{ selectedEmployee.employee?.time_in || "08:00" }} -
-                {{ selectedEmployee.employee?.time_out || "17:00" }}
+              <div class="details-label">Time In</div>
+              <div class="details-value schedule-value">
+                <span>
+                  {{
+                    selectedEmployee.employee?.branch_employee?.time_in ||
+                    "08:00"
+                  }}
+                </span>
+
+                <div class="schedule-edit-icons">
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="edit"
+                    size="sm"
+                    color="primary"
+                    class="edit-icon-btn"
+                  >
+                    <q-popup-edit
+                      v-model="
+                        selectedEmployee.employee.branch_employee.time_in
+                      "
+                      @save="
+                        (val) =>
+                          updateEmployeeTimeIn(
+                            selectedEmployee.employee,
+                            val,
+                            reloadData
+                          )
+                      "
+                      buttons
+                      title="Edit Time In"
+                      v-slot="scope"
+                    >
+                      <q-input
+                        v-model="scope.value"
+                        dense
+                        autofocus
+                        mask="##:## AA"
+                        :rules="[validateTimeFormat]"
+                        hint="Format: 01:00 AM/PM"
+                        @keyup.enter="scope.set"
+                      >
+                      </q-input>
+                    </q-popup-edit>
+                  </q-btn>
+                </div>
+              </div>
+            </div>
+
+            <div class="details-row">
+              <div class="details-label">Time Out</div>
+              <div class="details-value schedule-value">
+                <span>
+                  {{
+                    selectedEmployee.employee?.branch_employee?.time_out ||
+                    "17:00"
+                  }}
+                </span>
+
+                <div class="schedule-edit-icons">
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="edit"
+                    size="sm"
+                    color="primary"
+                    class="edit-icon-btn"
+                  >
+                    <q-popup-edit
+                      v-model="
+                        selectedEmployee.employee.branch_employee.time_out
+                      "
+                      @save="
+                        (val) =>
+                          updateEmployeeTimeOut(
+                            selectedEmployee.employee,
+                            val,
+                            reloadData
+                          )
+                      "
+                      buttons
+                      title="Edit Time Out"
+                      v-slot="scope"
+                    >
+                      <q-input
+                        v-model="scope.value"
+                        :model-value="scope.value"
+                        @update:model-value="scope.value = $event"
+                        dense
+                        autofocus
+                        mask="##:## AA"
+                        :rules="[validateTimeFormat]"
+                        hint="Format: 05:00 PM"
+                      >
+                      </q-input>
+                    </q-popup-edit>
+                  </q-btn>
+                </div>
               </div>
             </div>
 
@@ -426,20 +665,51 @@
                 >
                   {{ selectedEmployee.employee?.status || "Inactive" }}
                 </span>
+
+                <q-popup-edit
+                  v-model="selectedEmployee.employee.status"
+                  buttons
+                  title="Edit Status"
+                  v-slot="scope"
+                >
+                  <q-select
+                    v-model="scope.value"
+                    :options="['Active', 'Inactive', 'On Leave']"
+                    dense
+                    outlined
+                    @keyup.enter="scope.set"
+                  />
+                </q-popup-edit>
               </div>
             </div>
           </div>
         </q-card-section>
 
-        <q-card-actions align="right" class="dialog-actions">
-          <q-btn flat label="Close" color="primary" v-close-popup />
+        <!-- <q-card-actions align="right" class="dialog-actions">
           <q-btn
+            v-if="editMode"
+            flat
+            label="Cancel"
+            color="grey"
+            @click="cancelEdit"
+          />
+          <q-btn v-else flat label="Close" color="primary" v-close-popup />
+          <q-btn
+            v-if="!editMode"
             flat
             label="Edit"
             color="primary"
-            @click="editEmployee(selectedEmployee)"
+            @click="enterEditMode"
           />
-        </q-card-actions>
+          <q-btn
+            v-if="editMode"
+            flat
+            label="Save Changes"
+            color="primary"
+            @click="saveEmployeeChanges"
+            :loading="saving"
+          />
+        </q-card-actions> -->
       </q-card>
     </q-dialog>
   </div>
@@ -451,13 +721,32 @@ import { typographyFormat } from "src/composables/typography/typography-format";
 import { useEmployeeStore } from "src/stores/employee";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import {
+  formatFullname,
+  capitalizeAddress,
+  formatDate,
+  updateEmploymentType,
+  updateEmployeePosition,
+  updateEmployeeAddress,
+  updateEmployeePhone,
+  updateEmployeeBirthdate,
+  updateEmployeeDesignation,
+  updateEmployeeTimeIn,
+  updateEmployeeTimeOut,
+  getOptions,
+  employmentTypeOptions,
+  validateTimeFormat,
+  getEmployementTypeColor,
+} from "src/composables/employeeFunction/useEmployeeFunctions";
+import { useEmployeeIDPrinter } from "src/composables/employeeFunction/useEmployeeIDPrinter";
+import { useEmploymentTypeStore } from "src/stores/employment-type";
 
 const route = useRoute();
 const $q = useQuasar();
-const { formatDate, formatFullname, capitalizeFirstLetter } =
-  typographyFormat();
+const { capitalizeFirstLetter } = typographyFormat();
 
 const employeeStore = useEmployeeStore();
+const employmentStore = useEmploymentTypeStore();
 
 const branchEmployee = computed(() => employeeStore.branchEmployees || []);
 
@@ -467,6 +756,60 @@ const quickFilter = ref("all");
 const loading = ref(false);
 const showDetails = ref(false);
 const selectedEmployee = ref(null);
+// const editMode = ref(false);
+// const saving = ref(false);
+
+// Position options
+const positionOptions = [
+  "Scaler",
+  "Lamesador",
+  "Hornero",
+  "Baker",
+  "Cake Maker",
+  "Cashier",
+  "Sales Clerk",
+  "Utility",
+  "Not Yet Assigned",
+];
+
+const logOptions = (row) => {
+  console.log("designation_type:", row.designation?.designation_type);
+  const opts = getOptions(row);
+  return opts;
+};
+
+const fetchEmploymentTypeData = async () => {
+  await employmentStore.fetchEmploymentType();
+  employmentTypeOptions.value = employmentStore.employmentType.map((val) => ({
+    label: val.category,
+    value: val.id,
+  }));
+  console.log("Employment Type Options:", employmentTypeOptions.value);
+};
+
+onMounted(fetchEmploymentTypeData);
+
+// Edit Form
+const editForm = ref({
+  designation: "",
+  employment_type_id: null,
+  time_in: "",
+  time_out: "",
+  status: "",
+});
+
+// // Options for selects
+// const employmentTypeOptions = [
+//   { label: "Regular", value: 1 },
+//   { label: "Part-time", value: 4 },
+//   { label: "Trainee", value: 5 },
+// ];
+
+const statusOptions = [
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
+  { label: "On Leave", value: "on leave" },
+];
 
 // Branch ID from route
 const branchId = route.params.branch_id;
@@ -540,6 +883,10 @@ const fetchBranchEmployees = async () => {
   }
 };
 
+const reloadData = async () => {
+  await fetchBranchEmployees();
+};
+
 const getEmployeeAvatar = (employee) => {
   if (!employee)
     return `https://ui-avatars.com/api/?name=NA&background=667eea&color=fff&size=128`;
@@ -560,6 +907,16 @@ const formatPhoneNumber = (phone) => {
   return phone;
 };
 
+const getDesignationOptions = (employee) => {
+  if (!employee?.designation?.designation_type) return [];
+  return getOptions(employee);
+};
+
+const viewEmployeeDetails = (item) => {
+  selectedEmployee.value = JSON.parse(JSON.stringify(item));
+  showDetails.value = true;
+};
+
 const getEmploymentType = (typeId) => {
   const types = {
     1: "Regular",
@@ -571,10 +928,85 @@ const getEmploymentType = (typeId) => {
   return types[typeId] || "Regular";
 };
 
-const viewEmployeeDetails = (item) => {
-  selectedEmployee.value = item;
+// const viewEmployeeDetails = (item) => {
+//   selectedEmployee.value = item;
+//   editMode.value = false;
+//   showDetails.value = true;
+// };
 
-  showDetails.value = true;
+// Additional update function for sex and status
+const updateEmployeeStatus = async (employee, newStatus, callback) => {
+  try {
+    $q.notify({
+      type: "positive",
+      message: "Status updated successfully",
+      position: "top",
+    });
+
+    if (callback) await callback();
+  } catch (error) {
+    $q.notify({
+      type: "negative",
+      message: "Failed to update status",
+      position: "top",
+    });
+  }
+};
+
+const enterEditMode = () => {
+  // Populate form with current employee data
+  editForm.value = {
+    designation: selectedEmployee.value.employee?.designation || "",
+    employment_type_id:
+      selectedEmployee.value.employee?.employment_type_id || null,
+    time_in: selectedEmployee.value.employee?.time_in || "08:00",
+    time_out:
+      selectedEmployee.value.employee?.status?.toLowerCase() || "active",
+  };
+  editMode.value = true;
+};
+
+const cancelEdit = () => {
+  editMode.value = false;
+};
+
+const saveEmployeeChanges = async () => {
+  // Validate form
+  if (
+    !editForm.value.designation ||
+    !editForm.value.employment_type_id ||
+    !editForm.value.time_in ||
+    !editForm.value.time_out
+  ) {
+    $q.notify({
+      type: "warning",
+      message: "Please fill in all required fields",
+      position: "top",
+    });
+    return;
+  }
+
+  saving.value = true;
+
+  try {
+    // prepare update data
+    const updateData = {
+      designation: editForm.value.designation,
+      employment_type_id: editForm.value.employment_type_id,
+      time_in: editForm.value.time_in,
+      time_out: editForm.value.time_out,
+      status: editForm.value.status,
+    };
+
+    console.log("updateData", updateData);
+  } catch (error) {
+    console.error("Error updating employee: ", error);
+    $q.notify({
+      type: "negative",
+      message: "Failed to update employee",
+      position: "top",
+    });
+  }
 };
 
 const addEmployee = () => {
@@ -588,14 +1020,7 @@ const addEmployee = () => {
 };
 
 const editEmployee = (employee) => {
-  $q.notify({
-    type: "info",
-    message: `Edit employee: ${formatFullname(employee)}`,
-    position: "top",
-  });
-
-  showDetails.value = false;
-  // Navigate to edit page or open edit form
+  enterEditMode();
 };
 
 // Watch for filter changes
@@ -662,21 +1087,37 @@ onMounted(() => {
 }
 
 /* Glass Search */
-.glass-search {
-  :deep(.q-field__control) {
-    background: rgba(255, 255, 255, 0.2) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    color: white;
+// .glass-search {
+//   :deep(.q-field__control) {
+//     background: rgba(255, 255, 255, 0.2) !important;
+//     backdrop-filter: blur(10px);
+//     border: 1px solid rgba(255, 255, 255, 0.3) !important;
+//     color: white;
 
-    &::before {
-      border: none !important;
-    }
+//     &::before {
+//       border: none !important;
+//     }
+//   }
+
+//   :deep(.q-field__native) {
+//     color: white;
+
+//     &::placeholder {
+//       color: rgba(255, 255, 255, 0.7);
+//     }
+//   }
+// }
+
+.glass-search :deep(.q-field__control) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white;
+  &::before {
+    border: none !important;
   }
-
-  :deep(.q-field__native) {
+  .q-field__native {
     color: white;
-
     &::placeholder {
       color: rgba(255, 255, 255, 0.7);
     }
@@ -805,6 +1246,7 @@ onMounted(() => {
 }
 
 /* Modern Employee Card */
+/* Modern Employee Card */
 .employee-card-modern {
   position: relative;
   margin-bottom: 20px;
@@ -813,37 +1255,12 @@ onMounted(() => {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:active {
     transform: scale(0.98);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-  }
-
-  .card-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 200px;
-    background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
-
-    &.active {
-      background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
-    }
-
-    &.on-leave {
-      background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%);
-    }
-
-    &.inactive {
-      background: linear-gradient(135deg, #ffebee 0%, #ffffff 100%);
-    }
   }
 
   .card-content {
-    position: relative;
-    z-index: 2;
     padding: 16px;
   }
 
@@ -862,12 +1279,10 @@ onMounted(() => {
 
   .avatar-wrapper {
     position: relative;
-
     .avatar {
       border-radius: 24px;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     }
-
     .status-indicator {
       position: absolute;
       bottom: 2px;
@@ -876,15 +1291,12 @@ onMounted(() => {
       height: 14px;
       border-radius: 50%;
       border: 2px solid white;
-
       &.active {
         background: #10b981;
       }
-
       &.on-leave {
         background: #f59e0b;
       }
-
       &.inactive {
         background: #ef4444;
       }
@@ -893,14 +1305,12 @@ onMounted(() => {
 
   .employee-basic-info {
     flex: 1;
-
     .employee-name {
       font-size: 18px;
       font-weight: 700;
       color: #1e293b;
       margin-bottom: 4px;
     }
-
     .employee-position {
       display: flex;
       align-items: center;
@@ -909,7 +1319,6 @@ onMounted(() => {
       color: #667eea;
       margin-bottom: 2px;
     }
-
     .employee-id {
       display: flex;
       align-items: center;
@@ -928,21 +1337,17 @@ onMounted(() => {
     font-size: 12px;
     font-weight: 600;
     background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-
     .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
     }
-
     &.active {
       color: #10b981;
       .status-dot {
         background: #10b981;
       }
     }
-
     &.on-leave {
       color: #f59e0b;
       .status-dot {
@@ -950,7 +1355,6 @@ onMounted(() => {
         animation: pulse 1.5s infinite;
       }
     }
-
     &.inactive {
       color: #ef4444;
       .status-dot {
@@ -959,23 +1363,19 @@ onMounted(() => {
     }
   }
 
-  /* Contact Section */
   .contact-section {
     background: #f8fafc;
     border-radius: 20px;
     padding: 12px;
     margin-bottom: 16px;
-
     .contact-item {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 8px 0;
-
       &:not(:last-child) {
         border-bottom: 1px solid #edf2f7;
       }
-
       .contact-icon {
         width: 32px;
         height: 32px;
@@ -986,19 +1386,16 @@ onMounted(() => {
         justify-content: center;
         color: #667eea;
       }
-
       .contact-info {
         flex: 1;
         display: flex;
         flex-direction: column;
-
         .label {
           font-size: 11px;
           color: #94a3b8;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-
         .value {
           font-size: 14px;
           color: #1e293b;
@@ -1008,10 +1405,8 @@ onMounted(() => {
     }
   }
 
-  /* Employment Section */
   .employment-section {
     margin-bottom: 16px;
-
     .section-title {
       display: flex;
       align-items: center;
@@ -1020,22 +1415,18 @@ onMounted(() => {
       font-weight: 600;
       color: #475569;
       margin-bottom: 12px;
-
       .q-icon {
         color: #667eea;
       }
     }
-
     .details-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 8px;
-
       .detail-box {
         background: #f8fafc;
         border-radius: 16px;
         padding: 10px;
-
         .detail-label {
           display: block;
           font-size: 10px;
@@ -1044,7 +1435,6 @@ onMounted(() => {
           letter-spacing: 0.5px;
           margin-bottom: 4px;
         }
-
         .detail-value {
           font-size: 13px;
           font-weight: 600;
@@ -1054,7 +1444,6 @@ onMounted(() => {
     }
   }
 
-  /* Branch Assignment */
   .branch-assignment {
     display: flex;
     align-items: center;
@@ -1063,7 +1452,6 @@ onMounted(() => {
     border-radius: 16px;
     padding: 12px;
     margin-bottom: 12px;
-
     .branch-badge {
       display: flex;
       align-items: center;
@@ -1072,7 +1460,6 @@ onMounted(() => {
       font-weight: 600;
       color: #667eea;
     }
-
     .branch-location {
       display: flex;
       align-items: center;
@@ -1082,14 +1469,12 @@ onMounted(() => {
     }
   }
 
-  /* Timestamps */
   .timestamps {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding-top: 12px;
     border-top: 1px dashed #edf2f7;
-
     .timestamp-item {
       display: flex;
       align-items: center;
@@ -1098,24 +1483,7 @@ onMounted(() => {
       color: #94a3b8;
     }
   }
-
-  .touch-ripple {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(
-      circle at var(--x, 50%) var(--y, 50%),
-      rgba(102, 126, 234, 0.1),
-      transparent 80%
-    );
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-  }
 }
-
 /* Empty State */
 .empty-state-modern {
   display: flex;
@@ -1175,99 +1543,281 @@ onMounted(() => {
 
 /* Employee Details Dialog */
 .employee-details-dialog {
-  border-radius: 30px 30px 0 0;
+  border-radius: 32px 32px 0 0;
+  background: #f8fafc;
+  max-height: 90vh;
+  overflow: hidden;
+}
 
-  .dialog-header {
-    padding: 20px;
-    border-bottom: 1px solid #edf2f7;
+.dialog-header-gradient {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px 20px 0;
+  color: white;
+
+  .header-top {
+    position: relative;
+    z-index: 2;
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .close-btn {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: bliur(10px);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
   }
 
-  .dialog-content {
-    padding: 20px;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
+  .header-wave {
+    position: relative;
+    width: 100%;
+    margin-top: 16px;
 
-  .employee-profile-header {
+    svg {
+      display: block;
+      width: 100%;
+      height: 40px;
+      transform: scale(1.1);
+    }
+  }
+}
+
+.dialog-content {
+  position: relative;
+  margin-top: -20px;
+  padding-bottom: 24px;
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+}
+
+/* Profile Card */
+.profile-name {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+
+  .avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.edit-mode {
+  padding-bottom: 16px;
+}
+
+.edit-form-section {
+  padding: 16px 0;
+}
+
+.edit-field {
+  margin-bottom: 20px;
+
+  .field-label {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #edf2f7;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    color: $grey-7;
+    margin-bottom: 8px;
 
-    .profile-avatar {
-      border-radius: 30px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    .q-icon {
+      color: $primary;
     }
+  }
+}
 
-    .profile-info {
-      .profile-name {
-        font-size: 20px;
-        font-weight: 700;
-        color: #1e293b;
+:deep(.q-field--outlined) {
+  .q-field__control {
+    border-radius: 12px;
+  }
+}
+
+.dialog-actions {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 12px 24px;
+}
+
+/* Time input styling */
+:deep(input[type="time"]) {
+  &::-webkit-calendar-picker-indicator {
+    background: none;
+    display: none;
+  }
+}
+
+:deep(.q-popup-edit) {
+  .q-card {
+    border-radius: 12px;
+  }
+
+  .q-card__section {
+    padding: 16px;
+  }
+}
+
+/* Add these styles for the edit icon */
+.profile-name-row,
+.profile-position-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .profile-name,
+  .profile-position {
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+
+.profile-name-row {
+  margin-bottom: 4px;
+}
+
+.profile-position-row {
+  margin-bottom: 4px;
+
+  .profile-position {
+    color: $grey-7;
+    font-size: 14px;
+  }
+}
+
+.details-row {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .details.label {
+    width: 40%;
+    color: $grey-7;
+    font-size: 14px;
+  }
+
+  .details-value {
+    width: 60%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 14px;
+
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+
+      &.active {
+        background: $green-1;
+        color: $green-8;
       }
 
-      .profile-position {
-        font-size: 14px;
-        color: #667eea;
-        margin-bottom: 4px;
+      &.inactive {
+        background: $grey-2;
+        color: $grey-8;
       }
 
-      .profile-id {
-        font-size: 12px;
-        color: #94a3b8;
+      &.on-leave {
+        background: $orange-1;
+        color: $orange-8;
       }
     }
   }
+}
 
-  .details-section {
-    .details-row {
-      display: flex;
-      padding: 12px 0;
-      border-bottom: 1px solid #f1f5f9;
+.schedule-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
 
-      .details-label {
-        width: 120px;
-        font-size: 13px;
-        color: #64748b;
-      }
+.schedule-edit-icons {
+  display: flex;
+  gap: 4px;
+}
 
-      .details-value {
-        flex: 1;
-        font-size: 13px;
-        font-weight: 500;
-        color: #1e293b;
+.edit-icon-btn {
+  opacity: 0.6;
+  transition: opacity 0.2s;
 
-        .status-badge {
-          display: inline-block;
-          padding: 4px 12px;
-          border-radius: 30px;
-          font-size: 12px;
-          font-weight: 600;
+  &:hover {
+    opacity: 1;
+    background: rgba($primary, 0.1);
+  }
+}
 
-          &.active {
-            background: #e8f5e9;
-            color: #10b981;
-          }
+.details-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-          &.on-leave {
-            background: #fff3e0;
-            color: #f59e0b;
-          }
+  .q-icon {
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: $primary;
+    font-size: 18px;
+  }
+}
 
-          &.inactive {
-            background: #ffebee;
-            color: #ef4444;
-          }
-        }
-      }
+.schedule-edit-group {
+  display: inline-flex;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.profile-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    .q-icon {
+      opacity: 1;
     }
   }
+}
 
-  .dialog-actions {
-    padding: 16px 20px;
-    border-top: 1px solid #edf2f7;
+.profile-position {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    .q-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.print-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 16px;
+}
+
+/* Loading state for save button */
+.q-btn--loading {
+  .q-spinner {
+    color: currentColor;
   }
 }
 

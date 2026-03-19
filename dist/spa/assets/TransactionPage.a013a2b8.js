@@ -1,1 +1,0 @@
-import{_ as a}from"./plugin-vue_export-helper.21dcd24c.js";import{o as e,a3 as r}from"./index.a9a0f884.js";const n={};function o(t,c){return e(),r("div",null,"This is a transaction page")}var _=a(n,[["render",o]]);export{_ as default};
