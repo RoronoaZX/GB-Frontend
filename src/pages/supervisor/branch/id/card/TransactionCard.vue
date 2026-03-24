@@ -297,6 +297,13 @@ const userData = computed(() => salesReportsStore.user);
 
 const branchId = route.params.branch_id;
 
+const filters = [
+  { label: "All", value: "all" },
+  { label: "Pending", value: "pending" },
+  { label: "Confirmed", value: "confirmed" },
+  { label: "Declined", value: "declined" },
+];
+
 const $q = useQuasar();
 
 const pagination = ref({
@@ -499,8 +506,9 @@ const getStatusClass = (status) => {
 .premium-header {
   position: relative;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-bottom-left-radius: 30px;
-  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  padding-bottom: 40px;
   overflow: hidden;
 
   &::before {

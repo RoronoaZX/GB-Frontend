@@ -297,6 +297,30 @@ export const useEmployeeStore = defineStore("employees", () => {
     }
   };
 
+  const updatedEmployeeStatus = async (data) => {
+    console.log("updateEmployeeStatus in store", data);
+
+    const id = data.id;
+
+    try {
+      const response = await api.put(`/api/update-employee-status/${id}`, data);
+      console.log("====================================");
+      console.log("response addresss", response.data);
+      console.log("====================================");
+
+      const index = employees.value.findIndex((item) => item.id === id);
+
+      if (index !== -1) {
+        employees.value[index] = {
+          ...employees.value[index],
+          status: response.data.employee.status,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const updateEmployeeAddress = async (data) => {
     console.log("updateEmployeeAddress", data);
     const id = data.id;
@@ -320,6 +344,44 @@ export const useEmployeeStore = defineStore("employees", () => {
       console.log(error);
     }
   };
+
+  const updateEmployeeSex = async (data) => {
+    console.log("updateEmployeePhone", data);
+    const id = data.id;
+
+    try {
+      const response = await api.put(`/api/update-employee-sex/${id}`, data);
+
+      console.log("====================================");
+      console.log("response data", response.data);
+      console.log("====================================");
+      const index = employees.value.findIndex((item) => item.id === id);
+
+      if (index !== -1) {
+        employees.value[index] = {
+          ...employees.value[index],
+          sex: response.data.employee.sex,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateEmployeeBranch = async (data) => {
+    console.log("updateEmployeeBranchssss", data);
+    const id = data.id;
+
+    try {
+      const response = await api.put(`/api/update-employee-branch/${id}`, data);
+      console.log("====================================");
+      console.log("response addresss", response.data);
+      console.log("====================================");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const updateEmployeePhone = async (data) => {
     console.log("updateEmployeePhone", data);
     const id = data.id;
@@ -461,9 +523,12 @@ export const useEmployeeStore = defineStore("employees", () => {
     updateEmployeeFullname,
     updatedEmployeePosition,
     updateEmployeeAddress,
+    updateEmployeeSex,
+    updatedEmployeeStatus,
     updateEmployeePhone,
     updateEmployeebirthdate,
     updateEmployeeDesignation,
+    updateEmployeeBranch,
     updateEmployeeTimeIn,
     updateEmployeeTimeOut,
     updateEmployeeEmploymentType,

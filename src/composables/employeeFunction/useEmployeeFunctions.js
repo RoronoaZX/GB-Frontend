@@ -277,8 +277,37 @@ export const updateEmployeeDesignation = async (
   }
 };
 
+export const updateEmployeeBranch = async (data, val) => {
+  tableLoading.value = true;
+  console.log("updateEmployeeBranch data", data);
+  console.log("updateEmployeeBranch val", val);
+  try {
+    const employeeBranch = {
+      id: data.branch_employee.id,
+      branch_id: val.id,
+    };
+
+    await employeeStore.updateEmployeeBranch(employeeBranch);
+    Notify.create({
+      message: "Branch updated successfully",
+      color: "positive",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating branch:", error);
+    Notify.create({
+      message: "Failed to update branch",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
 // export const updateEmployeeDesignation = async (designationObj, val) => {
-//   console.log("✅ updateEmployeeDesignation() calledsss!");
+//   consol e.log("✅ updateEmployeeDesignation() calledsss!");
 //   console.log("🧩 New designation ID:", val);
 //   console.log("📦 Original designation object:", designationObj);
 
@@ -298,8 +327,40 @@ export const updateEmployeeDesignation = async (
 //     tableLoading.value = false;
 //   }
 // };
+
+export const updateEmployeeSex = async (data, val) => {
+  console.log("updateEmployeeTimesssIn composables", data);
+  console.log("updateEmployeeTimeIn composables", val);
+
+  tableLoading.value = true;
+  try {
+    const employeeSex = {
+      id: data.id,
+      sex: val,
+    };
+    await employeeStore.updateEmployeeSex(employeeSex);
+    Notify.create({
+      message: "Gender updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating gended:", error);
+    Notify.create({
+      message: "Failed to update gender",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
 export const updateEmployeeTimeIn = async (data, val) => {
-  console.log("updateEmployeeTimeIn composables", data, val);
+  console.log("updateEmployeeTimesssIn composables", data);
+  console.log("updateEmployeeTimeIn composables", val);
   tableLoading.value = true;
   try {
     const employeeTimeIn = {
@@ -335,6 +396,38 @@ export const updateEmployeeTimeOut = async (data, val) => {
     console.error("Error updating time out:", error);
     Notify.create({
       message: "Failed to update amount",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+  } finally {
+    tableLoading.value = false;
+  }
+};
+
+export const updateEmployeeStatus = async (data, val) => {
+  console.log("updateEmployeeStatus:", data);
+  console.log("updateEmployeeStatus:", val);
+
+  tableLoading.value = true;
+  try {
+    const employeeStatus = {
+      id: data.id,
+      status: val,
+    };
+
+    await employeeStore.updatedEmployeeStatus(employeeStatus);
+    Notify.create({
+      message: "Status updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.error("Error updating status:", error);
+
+    Notify.create({
+      message: "Failed to update status",
       color: "negative",
       position: "top",
       timeout: 2000,

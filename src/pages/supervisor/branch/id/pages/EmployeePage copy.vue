@@ -138,6 +138,8 @@
         class="employee-card-modern"
         @click="viewEmployeeDetails(item)"
       >
+        <!-- Card Background with Status Glow -->
+        <!-- <div class="card-bg" :class="emp.employee.status?.toLowerCase()"></div> -->
         <div class="card-content">
           <!-- Header Section -->
           <div class="employee-header">
@@ -191,6 +193,16 @@
               </div>
             </div>
 
+            <!-- <div class="contact-item">
+              <div class="contact-icon">
+                <q-icon name="email" size="16px" />
+              </div>
+              <div class="contact-info">
+                <span nclass="label">Email</span>
+                <span>{{ item.employee?.email || "No email provided" }}</span>
+              </div>
+            </div> -->
+
             <div class="contact-item">
               <div class="contact-icon">
                 <q-icon name="cake" size="16px" />
@@ -225,7 +237,7 @@
 
             <div class="details-grid">
               <div class="detail-box">
-                <span class="detail-label">Employment Type</span>
+                <span class="detail-label">Employment Typess</span>
                 <span>{{
                   item.employee?.employment_type?.category || "N/A"
                 }}</span>
@@ -335,71 +347,6 @@
 
           <!-- View Mode Details -->
           <div v-if="!editMode" class="details-section">
-            <div class="details-row">
-              <div class="details-label">Designation</div>
-              <div class="details-value">
-                {{
-                  capitalizeFirstLetter(
-                    selectedEmployee.employee?.designation?.designation_type ||
-                      "N/A"
-                  )
-                }}
-              </div>
-            </div>
-
-            <div class="details-row">
-              <div class="details-label">Branch</div>
-              <div class="details-value">
-                {{ selectedEmployee.branch?.name || "N/A" }}
-
-                <q-btn
-                  flat
-                  round
-                  dense
-                  icon="edit"
-                  size="sm"
-                  color="primary"
-                  class="edit-icon-btn"
-                >
-                  <q-popup-edit
-                    v-model="
-                      selectedEmployee.employee.branch_employee.branch_id
-                    "
-                    @save="
-                      (val) => {
-                        updateEmployeeBranch(
-                          selectedEmployee.employee,
-                          val,
-                          reloadData
-                        );
-                        updateEmployeeBranchDesignation(
-                          selectedEmployee.employee,
-                          val
-                        );
-                      }
-                    "
-                    buttons
-                    title="Edit Branch"
-                    v-slot="scope"
-                  >
-                    <q-select
-                      v-model="scope.value"
-                      :options="branchOptions"
-                      autofocus
-                      option-label="label"
-                      option-value="value"
-                      emit-value
-                      map-options
-                      dense
-                      behavior="menu"
-                      outlined
-                      @keyup.enter="scope.set(scope.value)"
-                    />
-                  </q-popup-edit>
-                </q-btn>
-              </div>
-            </div>
-
             <div class="details-row">
               <div class="details-label">Position</div>
               <div class="details-value">
@@ -678,8 +625,8 @@
             </div>
 
             <div class="details-row">
-              <div class="details-label">Employment Type</div>
-              <div class="details-value">
+              <div class="details-label">Employment Typess</div>
+              <div>
                 {{
                   getEmploymentTypeName(
                     selectedEmployee.employee?.employment_type_id
@@ -728,6 +675,45 @@
             </div>
 
             <div class="details-row">
+              <div class="details-label">Designation</div>
+              <div class="details-value">
+                {{
+                  capitalizeFirstLetter(
+                    selectedEmployee.employee?.designation?.designation_type ||
+                      "N/A"
+                  )
+                }}
+              </div>
+            </div>
+
+            <div class="details-row">
+              <div class="details-label">Branch</div>
+              <div class="details-value">
+                {{ selectedEmployee.branch?.name || "N/A" }} -
+                {{ selectedEmployee.branch?.location || "" }}
+              </div>
+
+              <q-btn
+                flat
+                round
+                dense
+                icon="edit"
+                size="sm"
+                color="primary"
+                class="edit-icon-btn"
+              >
+                <q-popup-edit
+                  v-model="selectedEmployee.employee.designation_id"
+                  buttons
+                  title="Edit Designation"
+                  v-slot="scope"
+                >
+                  <q-select v-model="scope.value" />
+                </q-popup-edit>
+              </q-btn>
+            </div>
+
+            <div class="details-row">
               <div class="details-label">Status</div>
               <div class="details-value">
                 <span
@@ -740,42 +726,20 @@
                   {{ selectedEmployee.employee?.status || "Inactive" }}
                 </span>
 
-                <q-btn
-                  flat
-                  round
-                  dense
-                  icon="edit"
-                  size="sm"
-                  color="primary"
-                  class="edit-icon-btn"
+                <q-popup-edit
+                  v-model="selectedEmployee.employee.status"
+                  buttons
+                  title="Edit Status"
+                  v-slot="scope"
                 >
-                  <q-popup-edit
-                    v-model="selectedEmployee.employee.status"
-                    @save="
-                      (val) => {
-                        updateEmployeeStatus(
-                          selectedEmployee.employee,
-                          val,
-                          reloadData
-                        );
-                        updateBranchEmployeeData(selectedEmployee.employee.id, {
-                          status: val,
-                        });
-                      }
-                    "
-                    buttons
-                    title="Edit Status"
-                    v-slot="scope"
-                  >
-                    <q-select
-                      v-model="scope.value"
-                      :options="['Active', 'Inactive', 'On Leave']"
-                      dense
-                      outlined
-                      @keyup.enter="scope.set(scope.value)"
-                    />
-                  </q-popup-edit>
-                </q-btn>
+                  <q-select
+                    v-model="scope.value"
+                    :options="['Active', 'Inactive', 'On Leave']"
+                    dense
+                    outlined
+                    @keyup.enter="scope.set"
+                  />
+                </q-popup-edit>
               </div>
             </div>
           </div>
@@ -828,10 +792,8 @@ import {
   updateEmployeePhone,
   updateEmployeeBirthdate,
   updateEmployeeDesignation,
-  updateEmployeeBranch,
   updateEmployeeTimeIn,
   updateEmployeeTimeOut,
-  updateEmployeeStatus,
   getOptions,
   employmentTypeOptions,
   validateTimeFormat,
@@ -850,16 +812,6 @@ const employmentStore = useEmploymentTypeStore();
 const supervisorStore = useSupervisorStore();
 
 const branchList = computed(() => supervisorStore.supervisorBranch);
-
-console.log("badsfasbnd", branchList.value);
-
-const branchOptions = computed(() =>
-  branchList.value.map((branch) => ({
-    label: branch.name, // shown in dropdown
-    value: branch, // selected value sent to API
-    branch: branch,
-  }))
-);
 
 console.log("branchList", branchList.value);
 
@@ -940,41 +892,6 @@ const updateBranchEmployeeBranchEmployeeData = (employeeId, updatedFields) => {
       branchEmployee.value[index].employee.branch_employee,
       updatedFields
     );
-  }
-};
-
-const updateEmployeeBranchDesignation = async (employee, branch) => {
-  console.log("branchsss", branch);
-
-  const employeeId = employee.id;
-
-  const index = branchEmployee.value.findIndex(
-    (item) => item.employee_id === employeeId
-  );
-
-  console.log("index", index);
-
-  if (index !== -1) {
-    // Replace the entire branch object
-    branchEmployee.value[index].branch = branch;
-
-    // Update the branch
-    if (branchEmployee.value[index]?.branch) {
-      branchEmployee.value[index].employee.branch_employee.branch_id =
-        branch.id;
-    }
-
-    // If you need to refresh the selected employee data in the dialog
-    if (
-      selectedEmployee.value &&
-      selectedEmployee.value.employee.id === employeeId
-    ) {
-      selectedEmployee.value.branch = branch;
-      if (selectedEmployee.value.employee?.branch_employee) {
-        selectedEmployee.value.employee.branch_employee.branch_id = branch.id;
-      }
-    }
-    console.log("Updated brach: ", branchEmployee.value[index].branch);
   }
 };
 
@@ -1136,6 +1053,27 @@ const getDesignationOptions = (employee) => {
 const viewEmployeeDetails = (item) => {
   selectedEmployee.value = JSON.parse(JSON.stringify(item));
   showDetails.value = true;
+};
+
+// Additional update function for sex and status
+const updateEmployeeStatus = async (employee, employmentTypeId, callback) => {
+  try {
+    saving.value = true;
+
+    $q.notify({
+      type: "positive",
+      message: "Status updated successfully",
+      position: "top",
+    });
+
+    if (callback) await callback();
+  } catch (error) {
+    $q.notify({
+      type: "negative",
+      message: "Failed to update status",
+      position: "top",
+    });
+  }
 };
 
 const enterEditMode = () => {
