@@ -47,37 +47,6 @@
 
       <q-card-section class="content-section q-pa-none">
         <div class="q-pa-lg">
-          <!-- <div class="summary-card q-mb-xl">
-            <div
-              class="row items-center justify-between q-pa-md border-bottom-dashed"
-            >
-              <div class="text-body2 text-grey-7">
-                {{ capitalizeFirstLetter(productDetails?.action || "") }}
-                Pieces
-
-                {{ productDetails?.added_product }}
-              </div>
-              <div class="text-body1 text-weight-bold">
-                {{ formatPrice(productDetails?.price) }}
-              </div>
-            </div>
-            <div class="total-row q-pa-lg text-center">
-              <div
-                class="text-caption text-primary text-weight-bold text-uppercase"
-              >
-                Total
-              </div>
-              <div class="total-amount-text">
-                {{
-                  calculateTotal(
-                    productDetails?.price,
-                    productDetails?.added_product
-                  )
-                }}
-              </div>
-            </div>
-          </div> -->
-
           <div class="summary-card q-mb-xl">
             <div
               class="row items-center justify-between q-pa-lg border-bottom-dashed"
@@ -194,6 +163,7 @@
 import { computed, ref } from "vue";
 import { useQuasar, useDialogPluginComponent } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import TransactionProceedDialog from "./TransactionProceedDialog.vue";
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const dialog = ref(false);
@@ -252,17 +222,15 @@ const calculateTotal = (price, qty) => {
   return formatPrice(parseFloat(price) * parseInt(qty, 10));
 };
 
-const clickedReceiveProduct = (newStatus) => {
-  // Implement your API call / store update here
-  // Example:
-  // salesReportStore.updateTransactionStatus(props.productDetails.id, newStatus)
-  $q.notify({
-    type: newStatus === "confirmed" ? "positive" : "negative",
-    message: `Transaction ${
-      newStatus === "confirmed" ? "confirmed" : "declined"
-    }`,
+const clickedReceiveProduct = (status) => {
+  $q.dialog({
+    component: TransactionProceedDialog,
+    componentProps: {
+      productDetails: props.productDetails,
+      category: props.category,
+      status: status,
+    },
   });
-  dialog.value = false;
 };
 </script>
 

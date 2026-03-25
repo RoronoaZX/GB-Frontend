@@ -3,7 +3,7 @@
     <div class="item-start q-gutter-md" align="center">
       <BreadReport :userData="props.user" />
       <SelectaReport :userData="props.user" />
-      <NestleReport />
+      <NestleReport :userData="props.user" />
       <SoftdrinksReport :userData="props.user" />
       <CakeReport />
       <OtherProductsReport :userData="props.user" />

@@ -84,7 +84,7 @@
     </div>
 
     <!-- Empty State with Animation -->
-    <div v-else-if="!rows.length" class="empty-state-modern">
+    <div v-else-if="!filteredTransactions.length" class="empty-state-modern">
       <div class="empty-illustration">
         <lottie-player
           src="https://assets3.lottiefiles.com/packages/lf20_p1qiuaov.json"
@@ -319,6 +319,28 @@ const rows = ref([]);
 const loading = ref(false);
 const showJumpDialog = ref(false);
 
+// Stats data
+const stats = computed(() => [
+  {
+    label: "Total",
+    value: pagination.value.rowsNumber,
+    icon: "inventory",
+    color: "primary-stat",
+  },
+  {
+    label: "Sent",
+    value: sentCount.value,
+    icon: "arrow_upward",
+    color: "secondary-stat",
+  },
+  {
+    label: "Received",
+    value: receivedCount.value,
+    icon: "arrow_downward",
+    color: "success-stat",
+  },
+]);
+
 // Computed properties
 const totalTransactions = computed(() => pagination.value.rowsNumber);
 const sentCount = computed(
@@ -397,11 +419,11 @@ const fetchASBranchProd = async (page = 1, rowsPerPage = 10, search = "") => {
 
     const { data, current_page, per_page, total } = branchProducts.value;
 
-    rows.value = data;
+    rows.value = data || [];
     pagination.value = {
       page: current_page,
       rowsPerPage: per_page,
-      rowsNumber: total,
+      rowsNumber: total || 0,
     };
   } catch (err) {
     console.error("Failed to load branch products:", err);
@@ -433,10 +455,24 @@ const onVirtualScroll = ({ to, direction, ref }) => {
   // Optional: Implement infinite scroll
 };
 
+// Clear all filters
+const clearFilters = () => {
+  filter.value = "";
+  quickFilter.value = "all";
+};
+
 // Watch for filter changes
 watch(filter, async (newVal) => {
   pagination.value.page = 1;
   await fetchASBranchProd(1, pagination.value.rowsPerPage, newVal);
+});
+
+// Watch for quick filter changes to reset pagination
+watch(quickFilter, () => {
+  // Reset page to 1 when changing filters
+  if (pagination.value.page !== 1) {
+    pagination.value.page = 1;
+  }
 });
 
 const getStatusColor = (status) => {

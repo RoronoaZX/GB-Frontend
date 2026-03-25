@@ -193,6 +193,8 @@ const searchQuery = ref("");
 
 const props = defineProps(["userData"]);
 
+console.log("propssss", props);
+
 const openDialog = () => {
   dialog.value = true;
 };
