@@ -25,7 +25,7 @@
     </div>
   </div>
   <div>
-    <NestleCard />
+    <NestleCard :filter="filter" />
   </div>
 </template>
 

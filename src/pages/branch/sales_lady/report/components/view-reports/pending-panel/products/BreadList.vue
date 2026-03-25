@@ -57,6 +57,8 @@
                   no-caps
                   @click="handleConfirm(props.bread[index])"
                 >
+                  <!-- :loading="loadingStates[bread.id] === 'confirm'"
+                  :disable="loadingStates[bread.id]" -->
                   <div class="row q-px-xm">
                     <q-icon left size="1.5em" name="check" />
                     <!-- <div>Confirm</div> -->
@@ -93,6 +95,8 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportStore = useSalesReportsStore();
 
+const loadingStates = ref({});
+
 const loading = ref(false);
 
 const userData = computed(() => salesReportStore.user);
@@ -110,6 +114,8 @@ const props = defineProps({
   bread: Array,
   sales_report_id: Number,
 });
+
+const emit = defineEmits(["action-complete"]);
 
 const $q = useQuasar();
 
@@ -134,13 +140,24 @@ const handleConfirm = async (bread) => {
       message: "Processing...", // optional message
       messageColor: "white", // optional message color
       backgroundColor: "rgba(0,0,0,0.5)", // overlay background
-      delay: 400, // ms
+      delay: 0, // ms
     });
 
     await salesReportStore.confirmProductsReport(payload);
+
+    // wait for 3 seconds after successful API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Emit mevent to parent that action is complete
+    emit("action-complete");
   } catch (error) {
     console.log(error);
+    $q.notify({
+      type: "negative",
+      message: "Failed to confirm product. Please try again.",
+    });
   } finally {
+    loadingStates.value[bread.id] = null;
     Loading.hide();
   }
 };
@@ -152,6 +169,10 @@ const handleDecline = (breadData, sales_report_id) => {
       category: "bread",
       productData: breadData,
       sales_report_id: sales_report_id,
+      onActionComplete: () => {
+        // This will be called when the decline dailog complete its action
+        emit("action-complete");
+      },
     },
   });
 };

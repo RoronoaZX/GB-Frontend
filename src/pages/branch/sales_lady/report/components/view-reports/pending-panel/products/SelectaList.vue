@@ -84,11 +84,13 @@ import { Loading, useQuasar } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import DeclineDialog from "../actions-dialog/DeclineDialog.vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportStore = useSalesReportsStore();
+
+const loadingStates = ref({});
 
 const userData = computed(() => salesReportStore.user);
 console.log("user datasss", userData.value);
@@ -106,6 +108,8 @@ const props = defineProps({
   sales_report_id: Number,
 });
 
+const emit = defineEmits(["action-complete"]);
+
 const $q = useQuasar();
 
 console.log("selessssscta", props.selecta);
@@ -121,18 +125,33 @@ const handleConfirm = async (selecta) => {
     remaining: selecta.remaining,
   };
 
+  console.log("payload to confirm", payload);
+
   try {
     Loading.show({
       spinnerColor: "white",
       message: "Processing...",
       messageColor: "white",
       backgroundColor: "rgba(0,0,0,0.5)",
-      delay: 400,
+      delay: 0,
     });
     await salesReportStore.confirmProductsReport(payload);
+
+    // wait for 3 seconds after successful API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Emit event to parent that action is complete
+    emit("action-complete");
   } catch (error) {
     console.log(error);
+
+    $q.notify({
+      type: "negative",
+      message: "Failed to confirm product. Please try again.",
+    });
   } finally {
+    loadingStates.value[selecta.id] = false;
+
     Loading.hide();
   }
 };

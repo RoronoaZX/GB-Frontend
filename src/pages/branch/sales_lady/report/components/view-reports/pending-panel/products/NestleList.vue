@@ -83,11 +83,13 @@ import { Loading, useQuasar } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import DeclineDialog from "../actions-dialog/DeclineDialog.vue";
 import { useSalesReportsStore } from "src/stores/sales-report";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportStore = useSalesReportsStore();
+
+const loadingStates = ref({});
 
 const userData = computed(() => salesReportStore.user);
 
@@ -105,6 +107,8 @@ const props = defineProps({
 });
 
 console.log("Porpsosp", props);
+
+const emit = defineEmits(["action-complete"]);
 
 const $q = useQuasar();
 
@@ -129,13 +133,25 @@ const handleConfirm = async (nestle) => {
       message: "Processing...",
       messageColor: "white",
       backgroundColor: "rgba(0,0,0,0.5)",
-      delay: 400,
+      delay: 0,
     });
 
     await salesReportStore.confirmProductsReport(payload);
+
+    // wait for 3 parent after successful API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Emit event to parent that action is complete
+    emit("action-complete");
   } catch (error) {
     console.log(error);
+    $q.notify({
+      type: "negative",
+      message: "Failed to  confirm product. Please try again.",
+    });
   } finally {
+    loadingStates.value[nestle.id] = false;
+
     Loading.hide();
   }
 };
@@ -147,6 +163,11 @@ const handleDecline = (nestleData, sales_report_id) => {
       category: "nestle",
       productData: nestleData,
       sales_report_id: sales_report_id,
+      onActionComplete: () => {
+        // This will be called when the declune dialog complete its action
+
+        emit("action-comlete");
+      },
     },
   });
 };
