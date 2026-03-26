@@ -164,7 +164,7 @@ const handleDecline = (nestleData, sales_report_id) => {
       productData: nestleData,
       sales_report_id: sales_report_id,
       onActionComplete: () => {
-        // This will be called when the declune dialog complete its action
+        // This will be called when the decline dialog complete its action
 
         emit("action-comlete");
       },
