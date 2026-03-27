@@ -20,11 +20,37 @@
               label="Request Leave"
               class="file-leave-btn"
               @click="openCreateLeaveDialog()"
-            />
+            >
+              <q-tooltip anchor="top left" self="bottom right">
+                Request a new leave
+              </q-tooltip>
+            </q-btn>
+
+            <!-- Leave Requests Button with Badge -->
+            <q-btn flat round dense icon="event_note" class="header-action-btn">
+              <!-- @click="openLeaveRequestPanel" -->
+              <q-badge
+                v-if="pendingLeaveCount > 0"
+                floating
+                color="negative"
+                rounded
+              >
+                <!-- {{ pendingLeaveCount }} -->
+                Pending Leave Count
+              </q-badge>
+              <q-tooltip>View Leave Requests</q-tooltip>
+            </q-btn>
+
+            <!-- Leave Button -->
+            <q-btn flat round dense icon="person" class="header-action-btn">
+              <!-- @click="openMyLeavePanel" -->
+              <q-tooltip> Leave History</q-tooltip>
+            </q-btn>
+
+            <q-avatar size="44px" class="header-avatar">
+              <q-icon name="people" color="primary" size="24px" />
+            </q-avatar>
           </div>
-          <q-avatar size="44px" class="header-avatar">
-            <q-icon name="people" color="primary" size="24px" />
-          </q-avatar>
         </div>
 
         <!-- Glass morphic Search -->
