@@ -10,12 +10,24 @@
               Manage your team members
             </div>
           </div>
+          <div class="row q-gutter-sm">
+            <!-- File Leave -->
+            <q-btn
+              outline
+              rounded
+              dense
+              icon="event_note"
+              label="Request Leave"
+              class="file-leave-btn"
+              @click="openCreateLeaveDialog()"
+            />
+          </div>
           <q-avatar size="44px" class="header-avatar">
             <q-icon name="people" color="primary" size="24px" />
           </q-avatar>
         </div>
 
-        <!-- Glassmorphic Search -->
+        <!-- Glass morphic Search -->
         <q-input
           v-model="filter"
           outlined
@@ -241,7 +253,7 @@
               </div>
 
               <div class="detail-box">
-                <span class="detail-label">Work Scheduless</span>
+                <span class="detail-label">Work Schedule</span>
                 <span class="detail-value"
                   >{{ item.employee?.branch_employee?.time_in || "08:00" }} -
                   {{
@@ -290,15 +302,6 @@
       </div>
     </div>
 
-    <!-- Floating Action Button -->
-    <!-- <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn fab icon="add" class="fab-moder">
-        <q-tooltip anchor="top left" self="bottom right">
-          Add Employee
-        </q-tooltip>
-      </q-btn>
-    </q-page-sticky> -->
-
     <!-- Employee Details Dialog with Edit Mode -->
     <q-dialog v-model="showDetails" position="bottom" full-width>
       <q-card class="employee-details-dialog">
@@ -334,7 +337,7 @@
           </div>
 
           <!-- View Mode Details -->
-          <div v-if="!editMode" class="details-section">
+          <div class="details-section">
             <div class="details-row">
               <div class="details-label">Designation</div>
               <div class="details-value">
@@ -440,7 +443,7 @@
                     map-options
                     outlined
                     dense
-                    bahavior="menu"
+                    behavior="menu"
                     @key.enter="scope.set(scope.value)"
                   />
                 </q-popup-edit>
@@ -669,7 +672,7 @@
                       map-options
                       outlined
                       dense
-                      bahavior="menu"
+                      behavior="menu"
                       @key.enter="scope.set(scope.value)"
                     />
                   </q-popup-edit>
@@ -780,32 +783,6 @@
             </div>
           </div>
         </q-card-section>
-
-        <!-- <q-card-actions align="right" class="dialog-actions">
-          <q-btn
-            v-if="editMode"
-            flat
-            label="Cancel"
-            color="grey"
-            @click="cancelEdit"
-          />
-          <q-btn v-else flat label="Close" color="primary" v-close-popup />
-          <q-btn
-            v-if="!editMode"
-            flat
-            label="Edit"
-            color="primary"
-            @click="enterEditMode"
-          />
-          <q-btn
-            v-if="editMode"
-            flat
-            label="Save Changes"
-            color="primary"
-            @click="saveEmployeeChanges"
-            :loading="saving"
-          />
-        </q-card-actions> -->
       </q-card>
     </q-dialog>
   </div>
@@ -815,8 +792,10 @@
 import { useQuasar } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { useEmployeeStore } from "src/stores/employee";
+import { useEmployeeLeaveStore } from "src/stores/employee-leave";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import LeaveRequestForm from "../form/LeaveRequestForm.vue";
 import {
   formatFullname,
   capitalizeAddress,
@@ -836,7 +815,7 @@ import {
   employmentTypeOptions,
   validateTimeFormat,
 } from "src/composables/employeeFunction/useEmployeeFunctions";
-import { useEmployeeIDPrinter } from "src/composables/employeeFunction/useEmployeeIDPrinter";
+
 import { useEmploymentTypeStore } from "src/stores/employment-type";
 import { useSupervisorStore } from "src/stores/supervisor";
 
@@ -846,12 +825,28 @@ const { capitalizeFirstLetter } = typographyFormat();
 
 const employeeStore = useEmployeeStore();
 const employmentStore = useEmploymentTypeStore();
-
 const supervisorStore = useSupervisorStore();
+const leaveStore = useEmployeeLeaveStore();
 
+const userData = computed(() => supervisorStore.user);
 const branchList = computed(() => supervisorStore.supervisorBranch);
+const branchEmployee = computed(() => employeeStore.branchEmployees || []);
 
-console.log("badsfasbnd", branchList.value);
+// State
+const filter = ref("");
+const quickFilter = ref("all");
+const loading = ref(false);
+const showDetails = ref(false);
+const showLeaveForm = ref(false);
+const selectedEmployee = ref(null);
+const selectedEmployeeForLeave = ref(null);
+
+const isSupervisor = computed(() => {
+  // Determine if current user is supervisor
+  return (
+    userData.value?.role === "Supervisor" || userData.value?.role === "Admin"
+  );
+});
 
 const branchOptions = computed(() =>
   branchList.value.map((branch) => ({
@@ -863,25 +858,60 @@ const branchOptions = computed(() =>
 
 console.log("branchList", branchList.value);
 
-const branchEmployee = computed(() => employeeStore.branchEmployees || []);
+// Computed properties for stats
+const totalEmployees = computed(() => branchEmployee.value.length);
+const activeEmployees = computed(
+  () =>
+    branchEmployee.value.filter(
+      (item) => item.employee?.status?.toLowerCase() === "active"
+    ).length
+);
 
-// State
-const filter = ref("");
-const quickFilter = ref("all");
-const loading = ref(false);
-const showDetails = ref(false);
-const selectedEmployee = ref(null);
-// const editMode = ref(false);
-const saving = ref(false);
+const onLeaveCount = computed(
+  () =>
+    branchEmployee.value.filter(
+      (item) => item.employee?.status?.toLowerCase() === "on leave"
+    ).length
+);
 
-// Employment type options
-const employmentTyeOptions = ref([]);
+// Filters
+const filters = [
+  { label: "All", value: "all" },
+  { label: "Active", value: "active" },
+  { label: "On Leave", value: "on leave" },
+  { label: "Inactive", value: "inactive" },
+];
 
-const employmentTypes = computed(() => employmentStore.employmentType || []);
+// Filtered employees based on search and quick filter
+const filteredEmployees = computed(() => {
+  let filtered = branchEmployee.value;
+
+  console.log("filteredss", filtered);
+
+  // Apply quick filter
+  if (quickFilter.value !== "all") {
+    filtered = filtered.filter(
+      (emp) => emp.employee?.status?.toLowerCase() === quickFilter.value
+    );
+  }
+
+  // Apply search filter
+  if (filter.value) {
+    const searchTerm = filter.value.toLocaleLowerCase();
+    filtered = filtered.filter(
+      (item) =>
+        item.employee?.firstname?.toLowerCase().includes(searchTerm) ||
+        item.employee?.lastname?.toLowerCase().includes(searchTerm) ||
+        item.employee?.middlename?.toLowerCase().includes(searchTerm) ||
+        item.employee?.position?.toLowerCase().includes(searchTerm) ||
+        item.employee?.phone?.includes(searchTerm) ||
+        item.employee?.email?.toLowerCase().includes(searchTerm)
+    );
+  }
+  return filtered;
+});
 
 const genderOptions = ["Male", "Female"];
-
-// Position options
 const positionOptions = [
   "Scaler",
   "Lamesador",
@@ -894,24 +924,71 @@ const positionOptions = [
   "Not Yet Assigned",
 ];
 
-const logOptions = (row) => {
-  console.log("designation_type:", row.designation?.designation_type);
-  const opts = getOptions(row);
-  return opts;
+// Methods
+const fetchBranchEmployees = async () => {
+  if (!branchId) return;
+
+  loading.value = true;
+
+  try {
+    await employeeStore.fetchBranchEmployee(branchId);
+  } catch (error) {
+    console.error("Failed to fetch branch employees: ", error);
+    $q.notify({
+      type: "negative",
+      message: "Failed to load employees",
+      position: "top",
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 
-const fetchEmploymentTypeData = async () => {
-  await employmentStore.fetchEmploymentType();
-  employmentTypeOptions.value = employmentTypes.value.map((val) => ({
-    label: val.category,
-    value: val.id,
-  }));
-  console.log("Employment Type Options:", employmentTypeOptions.value);
+const reloadData = async () => {
+  await fetchBranchEmployees();
 };
 
-onMounted(fetchEmploymentTypeData);
+const getEmployeeAvatar = (employee) => {
+  if (!employee)
+    return `https://ui-avatars.com/api/?name=NA&background=667eea&color=fff&size=128`;
 
-// Helper function to update branchEmployee data by employee ID
+  if (employee?.avatar) return employee.avatar;
+
+  // Generate avatar from initials
+  const firstInitial = employee?.firstname?.[0] || "";
+  const lastInitial = employee?.lastname?.[0] || "";
+  const initials = firstInitial + lastInitial || "NA";
+
+  return `https://ui-avatars.com/api/?name=${initials}&background=667eea&color=fff&size=128`;
+};
+
+const formatPhoneNumber = (phone) => {
+  if (!phone) return null;
+  // Format: (+63) 095 - 661 - 5819 (if it matches your format)
+  return phone;
+};
+
+const viewEmployeeDetails = (item) => {
+  selectedEmployee.value = JSON.parse(JSON.stringify(item));
+  showDetails.value = true;
+};
+
+const openCreateLeaveDialog = (employee) => {
+  $q.dialog({
+    component: LeaveRequestForm,
+  });
+};
+
+// Add methods
+const handleLeaveSubmitted = async () => {
+  await reloadData();
+  $q.notify({
+    type: "positive",
+    message: "Leave request submitted successfully",
+    position: "top",
+  });
+};
+
 const updateBranchEmployeeData = (employeeId, updatedFields) => {
   const index = branchEmployee.value.findIndex(
     (item) => item.employee.id === employeeId
@@ -978,7 +1055,6 @@ const updateEmployeeBranchDesignation = async (employee, branch) => {
   }
 };
 
-// Helper function to get employment type name by ID
 const getEmploymentTypeName = (employmentTypeId) => {
   if (!employmentTypeId) return "N/A";
 
@@ -988,235 +1064,28 @@ const getEmploymentTypeName = (employmentTypeId) => {
   return found ? found.category : "N/A";
 };
 
-// Helper function to get color by employment type ID
-const getEmployementTypeColor = (employmentTypeId) => {
-  if (!employmentTypeId) return "grey";
+const employmentTypes = computed(() => employmentStore.employmentType || []);
+const employmentTypeOptionsList = ref([]);
 
-  const found = employmentTypes.value.find(
-    (type) => type.id === employmentTypeId
-  );
-  if (!found) return "grey";
-
-  const colorMap = {
-    Regular: "primary",
-    Probationary: "warning",
-    Contractual: "info",
-    "Part-time": "secondary",
-    Trainee: "accent",
-  };
-
-  return colorMap[found.category] || "grey";
+const fetchEmploymentTypeData = async () => {
+  await employmentStore.fetchEmploymentType();
+  employmentTypeOptions.value = employmentTypes.value.map((val) => ({
+    label: val.category,
+    value: val.id,
+  }));
+  console.log("Employment Type Options:", employmentTypeOptions.value);
 };
 
-// Edit Form
-const editForm = ref({
-  designation: "",
-  employment_type_id: null,
-  time_in: "",
-  time_out: "",
-  status: "",
-});
-
-// // Options for selects
-// const employmentTypeOptions = [
-//   { label: "Regular", value: 1 },
-//   { label: "Part-time", value: 4 },
-//   { label: "Trainee", value: 5 },
-// ];
-
-const statusOptions = [
-  { label: "Active", value: "active" },
-  { label: "Inactive", value: "inactive" },
-  { label: "On Leave", value: "on leave" },
-];
-
-// Branch ID from route
 const branchId = route.params.branch_id;
 
 console.log("branchId", branchId);
 
-// Filters
-const filters = [
-  { label: "All", value: "all" },
-  { label: "Active", value: "active" },
-  { label: "On Leave", value: "on leave" },
-  { label: "Inactive", value: "inactive" },
-];
-
-// Computed properties for stats
-const totalEmployees = computed(() => branchEmployee.value.length);
-
-const activeEmployees = computed(
-  () =>
-    branchEmployee.value.filter(
-      (item) => item.employee?.status?.toLowerCase() === "active"
-    ).length
-);
-
-const onLeaveCount = ref("0");
-
-// Filtered employees based on search and quick filter
-const filteredEmployees = computed(() => {
-  let filtered = branchEmployee.value;
-
-  console.log("filteredss", filtered);
-
-  // Apply quick filter
-  if (quickFilter.value !== "all") {
-    filtered = filtered.filter(
-      (emp) => emp.employee?.status?.toLowerCase() === quickFilter.value
-    );
-  }
-
-  // Apply search filter
-  if (filter.value) {
-    const searchTerm = filter.value.toLocaleLowerCase();
-    filtered = filtered.filter(
-      (item) =>
-        item.employee?.firstname?.toLowerCase().includes(searchTerm) ||
-        item.employee?.lastname?.toLowerCase().includes(searchTerm) ||
-        item.employee?.middlename?.toLowerCase().includes(searchTerm) ||
-        item.employee?.position?.toLowerCase().includes(searchTerm) ||
-        item.employee?.phone?.includes(searchTerm) ||
-        item.employee?.email?.toLowerCase().includes(searchTerm)
-    );
-  }
-  return filtered;
-});
-
-// Methods
-const fetchBranchEmployees = async () => {
-  if (!branchId) return;
-
-  loading.value = true;
-
-  try {
-    await employeeStore.fetchBranchEmployee(branchId);
-  } catch (error) {
-    console.error("Failed to fetch branch employees: ", error);
-    $q.notify({
-      type: "negative",
-      message: "Failed to load employees",
-      position: "top",
-    });
-  } finally {
-    loading.value = false;
-  }
-};
-
-const reloadData = async () => {
-  await fetchBranchEmployees();
-};
-
-const getEmployeeAvatar = (employee) => {
-  if (!employee)
-    return `https://ui-avatars.com/api/?name=NA&background=667eea&color=fff&size=128`;
-
-  if (employee?.avatar) return employee.avatar;
-
-  // Generate avatar from initials
-  const firstInitial = employee?.firstname?.[0] || "";
-  const lastInitial = employee?.lastname?.[0] || "";
-  const initials = firstInitial + lastInitial || "NA";
-
-  return `https://ui-avatars.com/api/?name=${initials}&background=667eea&color=fff&size=128`;
-};
-
-const formatPhoneNumber = (phone) => {
-  if (!phone) return null;
-  // Format: (+63) 095 - 661 - 5819 (if it matches your format)
-  return phone;
-};
-
-const getDesignationOptions = (employee) => {
-  if (!employee?.designation?.designation_type) return [];
-  return getOptions(employee);
-};
-
-const viewEmployeeDetails = (item) => {
-  selectedEmployee.value = JSON.parse(JSON.stringify(item));
-  showDetails.value = true;
-};
-
-const enterEditMode = () => {
-  // Populate form with current employee data
-  editForm.value = {
-    designation: selectedEmployee.value.employee?.designation || "",
-    employment_type_id:
-      selectedEmployee.value.employee?.employment_type_id || null,
-    time_in: selectedEmployee.value.employee?.time_in || "08:00",
-    time_out:
-      selectedEmployee.value.employee?.status?.toLowerCase() || "active",
-  };
-  editMode.value = true;
-};
-
-const cancelEdit = () => {
-  editMode.value = false;
-};
-
-const saveEmployeeChanges = async () => {
-  // Validate form
-  if (
-    !editForm.value.designation ||
-    !editForm.value.employment_type_id ||
-    !editForm.value.time_in ||
-    !editForm.value.time_out
-  ) {
-    $q.notify({
-      type: "warning",
-      message: "Please fill in all required fields",
-      position: "top",
-    });
-    return;
-  }
-
-  saving.value = true;
-
-  try {
-    // prepare update data
-    const updateData = {
-      designation: editForm.value.designation,
-      employment_type_id: editForm.value.employment_type_id,
-      time_in: editForm.value.time_in,
-      time_out: editForm.value.time_out,
-      status: editForm.value.status,
-    };
-
-    console.log("updateData", updateData);
-  } catch (error) {
-    console.error("Error updating employee: ", error);
-    $q.notify({
-      type: "negative",
-      message: "Failed to update employee",
-      position: "top",
-    });
-  }
-};
-
-const addEmployee = () => {
-  $q.notify({
-    type: "info",
-    message: "Add new employee",
-    position: "top",
-  });
-
-  // Navigate to add employee page or open form
-};
-
-const editEmployee = (employee) => {
-  enterEditMode();
-};
-
-// Watch for filter changes
-watch(filter, () => {
-  // Filtering is done locally, no need to refetch
-});
-
-// LIfecycle
 onMounted(() => {
   fetchBranchEmployees();
+  fetchEmploymentTypeData();
 });
+
+watch(filter, () => {});
 </script>
 
 <style lang="scss" scoped>
@@ -1402,6 +1271,25 @@ onMounted(() => {
   }
 }
 
+// File leave button styling
+.file-leave-btn {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  transition: all 0.3w ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 /* Loading State */
 .loading-state {
   display: flex;
@@ -1411,6 +1299,47 @@ onMounted(() => {
 
   .loading-animation {
     text-align: center;
+  }
+}
+
+/* Empty State */
+.empty-state-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 32px;
+  text-align: center;
+
+  .empty-illustration {
+    position: relative;
+    margin-bottom: 24px;
+
+    .search-icon {
+      position: absolute;
+      bottom: 0;
+      right: -10px;
+    }
+  }
+
+  .empty-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+  }
+
+  .empty-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 24px;
+  }
+
+  .clear-btn {
+    border-radius: 30px;
+    padding: 8px 24px;
+    background: #f8faff;
   }
 }
 
@@ -1726,63 +1655,6 @@ onMounted(() => {
   }
 }
 
-/* Empty State */
-.empty-state-modern {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  padding: 32px;
-  text-align: center;
-
-  .empty-illustration {
-    position: relative;
-    margin-bottom: 24px;
-
-    .search-icon {
-      position: absolute;
-      bottom: 0;
-      right: -10px;
-    }
-  }
-
-  .empty-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 8px;
-  }
-
-  .empty-subtitle {
-    font-size: 14px;
-    color: #94a3b8;
-    margin-bottom: 24px;
-  }
-
-  .clear-btn {
-    border-radius: 30px;
-    padding: 8px 24px;
-    background: #f8faff;
-  }
-}
-
-/* FAB */
-.fab-modern {
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s ease;
-
-  &:active {
-    transform: scale(0.9);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  }
-}
-
 /* Employee Details Dialog */
 .employee-details-dialog {
   border-radius: 30px 32px 0 0;
@@ -1848,6 +1720,9 @@ onMounted(() => {
         font-size: 13px;
         font-weight: 500;
         color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
 
         .status-badge {
           display: inline-block;
@@ -1873,11 +1748,6 @@ onMounted(() => {
         }
       }
     }
-  }
-
-  .dialog-actions {
-    padding: 16px 20px;
-    border-top: 1px solid #edf2f7;
   }
 }
 
@@ -1937,31 +1807,6 @@ onMounted(() => {
 }
 
 /* Add these styles for the edit icon */
-.profile-name-row,
-.profile-position-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  .profile-name,
-  .profile-position {
-    font-size: 16px;
-    font-weight: 500;
-  }
-}
-
-.profile-name-row {
-  margin-bottom: 4px;
-}
-
-.profile-position-row {
-  margin-bottom: 4px;
-
-  .profile-position {
-    color: $grey-7;
-    font-size: 14px;
-  }
-}
 
 .details-row {
   display: flex;
@@ -2045,12 +1890,6 @@ onMounted(() => {
   }
 }
 
-.schedule-edit-group {
-  display: inline-flex;
-  gap: 8px;
-  margin-left: 8px;
-}
-
 .profile-name {
   display: flex;
   align-items: center;
@@ -2073,11 +1912,6 @@ onMounted(() => {
       opacity: 1;
     }
   }
-}
-
-.print-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  padding-top: 16px;
 }
 
 /* Loading state for save button */

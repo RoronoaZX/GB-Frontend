@@ -142,7 +142,7 @@
 
                     <q-linear-progress
                       :value="getTargetProgress(premix)"
-                      :color="getProgessColor(premix)"
+                      :color="getProgressColor(premix)"
                       class="q-my-sm"
                       rounded
                     />
@@ -323,7 +323,7 @@ const getTargetProgress = (premix) => {
   return Math.min(production / target, 1);
 };
 
-const getProgessColor = (premix) => {
+const getProgressColor = (premix) => {
   const target = 10;
   const production = premix.available_stocks || 0;
 
