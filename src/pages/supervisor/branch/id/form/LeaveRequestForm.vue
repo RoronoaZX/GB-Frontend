@@ -1,22 +1,401 @@
 <template>
   <q-dialog
-    v-model="internalDialog"
+    ref="dialogRef"
+    @hide="onDialogHide"
+    v-model="dialog"
     persistent
-    transition-show="scale"
-    transition-hide="scale"
-    @before-hide="resetForm"
+    :maximized="maximizedToggle"
+    transition-show="slide-up"
+    transition-hide="slide-down"
   >
-    <h1>tHIS IS THE DAILOG</h1>
+    <q-card
+      class="leave-form-card"
+      style="min-width: 380px; max-width: 550px; width: 100%"
+    >
+      <!-- Animated Header -->
+      <div class="form-header">
+        <div class="header-gradient"></div>
+        <div class="header-content">
+          <div class="row items-center justify-between">
+            <div>
+              <q-icon name="event_note" size="28px" class="q-mr-sm" />
+              <span>{{
+                isEditing ? "Edit Leave Request" : "Request Leave"
+              }}</span>
+            </div>
+            <q-btn
+              flat
+              round
+              dense
+              icon="close"
+              v-close-popup
+              class="close-btn"
+            />
+          </div>
+          <div class="text-caption q-mt-xs">
+            {{
+              isEditing
+                ? "Update your leave request details"
+                : "Fill out the form to request time off"
+            }}
+          </div>
+        </div>
+      </div>
+
+      <q-card-section class="q-pa-lg scrollable-form-content">
+        <q-form @submit="submitForm" id="leaveForm" class="q-gutter-md">
+          <!-- Employee Selection (Supervisor Only) -->
+          <div v-if="isSupervisor" class="field-wrapper">
+            <div class="field-label">
+              <q-icon name="person" size="18px" class="q-mr-xs" />
+              <span>Select Employee</span>
+              <span class="required-star">*</span>
+            </div>
+            <q-select
+              v-model="formData.employee_id"
+              :options="employeeOptions"
+              outlined
+              dense
+              placeholder="Choose employee"
+              emit-value
+              map-options
+              option-label="label"
+              option-value="value"
+              :rules="[(val) => !!val || 'Please select an employee']"
+              class="elegant-select"
+            >
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps" class="employee-option">
+                  <q-item-section avatar>
+                    <q-avatar size="36px">
+                      <!-- <img :src="getEmployeeAvatar(scope.opt.employee)" /> -->
+                      sample Avatar
+                    </q-avatar>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-weight-medium">
+                      {{ scope.opt.label }}
+                    </q-item-label>
+                    <q-item-label caption>
+                      {{ scope.opt.position }} • ID: EMP-{{
+                        String(scope.opt.employee.id).padStart(4, "0")
+                      }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-badge
+                      :color="
+                        getLeaveBalanceColor(scope.opt.employee.leave_balance)
+                      "
+                      rounded
+                    >
+                      {{ scope.opt.employee.leave_balance || 0 }} days left
+                    </q-badge>
+                  </q-item-section>
+                </q-item>
+              </template>
+
+              <template v-slot:selected>
+                <div v-if="selectedEmployee" class="selected-employee">
+                  <q-avatar size="24px" class="q-mr-sm">
+                    <!-- <img :src="getEmployeeAvatar(selectedEmployee)" /> -->
+                    sample Avatar
+                  </q-avatar>
+                  <span>{{ formatFullname(selectedEmployee) }}</span>
+                  <q-badge
+                    :color="
+                      getLeaveBalanceColor(selectedEmployee.leave_balance)
+                    "
+                    class="q-ml-sm"
+                    rounded
+                  >
+                    {{ selectedEmployee.leave_balance || 0 }} days
+                  </q-badge>
+                </div>
+              </template>
+            </q-select>
+          </div>
+
+          <!-- Leave Type Selection -->
+          <div class="field-wrapper">
+            <div class="field-label">
+              <q-icon name="category" size="18px" class="q-mr-xs" />
+              <span>Leave Type</span>
+              <span class="required-star">*</span>
+            </div>
+            <div class="leave-type-grid">
+              <div
+                v-for="type in leaveTypes"
+                :key="type.value"
+                class="leave-type-card"
+                :class="{ active: formData.leave_type === type.value }"
+                @click="formData.leave_type = type.value"
+              >
+                <div class="card-icon" :style="{ background: type.gradient }">
+                  <q-icon :name="type.icon" size="24px" />
+                </div>
+                <div class="card-info">
+                  <div class="card-title">{{ type.label }}</div>
+                  <div class="card-description">{{ type.description }}</div>
+                </div>
+                <q-icon
+                  v-if="formData.leave_type === type.value"
+                  name="check_circle"
+                  size="20px"
+                  class="check-icon"
+                  color="primary"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Range Selection -->
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
+              <div class="field-wrapper">
+                <div class="field-label">
+                  <q-icon name="event" size="18px" class="q-mr-xs" />
+                  <span>Start Date</span>
+                  <span class="required-star">*</span>
+                </div>
+                <q-input
+                  v-model="formData.start_date"
+                  outlined
+                  dense
+                  placeholder="Select date"
+                  :rules="[(val) => !!val || 'Start date required']"
+                  class="date-input"
+                >
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        <q-date
+                          v-model="formData.start_date"
+                          :options="disablePastDates"
+                          @update:model-value="calculatedDays"
+                          mask="YYYY-MM-DD"
+                        >
+                          <div class="row items-center justify-end">
+                            <q-btn
+                              v-close-popup
+                              label="Close"
+                              color="primary"
+                              flat
+                            />
+                          </div>
+                        </q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="field-wrapper">
+                <div class="field-label">
+                  <q-icon name="event" size="18px" class="q-mr-xs" />
+                  <span>End Date</span>
+                  <span class="required-star">*</span>
+                </div>
+                <q-input
+                  v-model="formData.end_date"
+                  outlined
+                  dense
+                  aria-placeholder="Select date"
+                  :rules="[(val) => !!val || 'End date required']"
+                  class="date-input"
+                >
+                  <template v-slot:append>
+                    <q-icon nma="event" class="cursor-pointer">
+                      <q-popup-proxy
+                        cover
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        <q-date
+                          v-model="formData.end_date"
+                          :options="disablePastDates"
+                          @update:model-value="calculatedDays"
+                          mask="YYYY-MM-DD"
+                        >
+                          <div class="row items-center justify-end">
+                            <q-btn
+                              v-close-popup
+                              label="Close"
+                              color="primary"
+                              flat
+                            />
+                          </div>
+                        </q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+            </div>
+          </div>
+
+          <!-- Days Calculation Card -->
+          <div
+            v-if="formData.start_date && formData.end_date"
+            class="calculation-card"
+          >
+            <div class="row items-center justify-between">
+              <div class="calc-item">
+                <div class="calc-label">Total Days</div>
+                <div class="calc-value">
+                  {{ calculatedDays }}
+                  <span class="calc-unit">
+                    day{{ calculatedDays !== 1 ? "s" : "" }}
+                  </span>
+                </div>
+              </div>
+              <div class="calc-divider"></div>
+              <div class="calc-item">
+                <div class="calc-label">Available Balance</div>
+                <div
+                  class="calc-value"
+                  :class="{ 'text-negative': calculatedDays > currentBalance }"
+                >
+                  {{ currentBalance }}
+                  <span class="calc-unit">days</span>
+                </div>
+              </div>
+              <div class="calc-divider"></div>
+              <div class="calc-item">
+                <div class="calc-label">Remaining</div>
+                <div
+                  class="calc-value"
+                  :class="{ 'text-negative': remainingBalance < 0 }"
+                >
+                  {{ remainingBalance }}
+                  <span class="calc-unit">days</span>
+                </div>
+              </div>
+            </div>
+            <q-linear-progress
+              :value="calculatedDays / currentBalance"
+              :color="remainingBalance >= 0 ? 'primary' : 'negative'"
+              class="balance-progress q-mt-md"
+              style="height: 4px; border-radius: 2px"
+            />
+            <div
+              v-if="calculatedDays > currentBalance"
+              class="warning-message q-mt-sm"
+            >
+              <q-icon name="warning" size="14px" />
+              <span
+                >Insufficient leave balance. You need
+                {{ calculatedDays - currentBalance }} more days(s).</span
+              >
+            </div>
+          </div>
+
+          <!-- Reason Field -->
+          <div class="field-wrapper">
+            <div class="field-label">
+              <q-icon name="description" size="18px" class="q-mt-xs" />
+              <span>Reason</span>
+              <span class="optional-badge">Optional </span>
+            </div>
+            <q-input
+              v-model="formData.reason"
+              outlined
+              dense
+              type="textarea"
+              rows="3"
+              placeholder="Please provider a brief reason for your leave request..."
+              counter
+              maxlength="500"
+              class="reason-input"
+            />
+          </div>
+
+          <!-- Attachment Section -->
+          <div class="field-wrapper">
+            <div class="field-label">
+              <q-icon name="attach_file" size="18px" class="q-mr-xs" />
+              <span>Attachment</span>
+              <span class="optional-badge">Optional</span>
+            </div>
+            <div class="attachment-area" @click="triggerFileInput">
+              <input
+                ref="fileInput"
+                type="file"
+                accept=".pdf,.doc,.jpg,.png,.jpeg"
+                style="display: none"
+                @change="handleFileChange"
+              />
+              <div v-if="!formData.attachment" class="attachment-placeholder">
+                <q-icon name="cloud_upload" size="32px" color="grey-5" />
+                <div class="placeholder-text">
+                  Click to upload or drag and drop
+                </div>
+                <div class="placeholder-hint">PDF, DOC, JPG, PNG (Max 5MB)</div>
+              </div>
+              <div v-else class="attachment-preview">
+                <q-icon
+                  :name="getFileIcon(formData.attachment.name)"
+                  size="32px"
+                  :color="getFileColor(formData.attachment.name)"
+                />
+                <div class="file-info">
+                  <div class="file-name">{{ formData.attachment.name }}</div>
+                  <div class="file-size">
+                    {{ formatFileSize(formData.attachment.size) }}
+                  </div>
+                </div>
+
+                <q-btn
+                  flat
+                  dense
+                  icon="close"
+                  size="sm"
+                  @click.stop="removeAttachment"
+                />
+              </div>
+            </div>
+          </div>
+        </q-form>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right" class="q-pa-md bg-white">
+        <div class="form-actions">
+          <q-btn flat label="Cancel" v-close-popup class="cancel-btn" />
+          <q-btn
+            type="submit"
+            form="leaveForm"
+            :label="isEditing ? 'Update Request' : 'Submit Request'"
+            color="primary"
+            :loading="submitting"
+            class="submit-btn"
+          />
+        </div>
+      </q-card-actions>
+    </q-card>
   </q-dialog>
 </template>
 
 <script setup>
 import { ref, computed, watch } from "vue";
-import { useQuasar, Notify } from "quasar";
+import { useQuasar, Notify, useDialogPluginComponent } from "quasar";
 import { useEmployeeLeaveStore } from "src/stores/employee-leave";
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { useSupervisorStore } from "src/stores/supervisor";
 
 const { formatFullname, formatDate } = typographyFormat();
+
+const { dialogRef, onDialogHide } = useDialogPluginComponent();
+
+const dialog = ref(false);
+const maximizedToggle = ref(true);
+
 const $q = useQuasar();
 const leaveStore = useEmployeeLeaveStore();
 
@@ -337,9 +716,13 @@ watch(
   border-radius: 28px;
   overflow: hidden;
   background: white;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-header {
+  flex-shrink: 0;
   position: relative;
   padding: 24px 24px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -372,6 +755,26 @@ watch(
       background: rgba(255, 255, 255, 0.3);
     }
   }
+}
+
+.scrollable-form-content {
+  flex-grow: 1;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+  }
+}
+
+.q-card-action {
+  flex-shrink: 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.form-actions {
+  margin-top: 0 !important;
+  padding: 0 8px;
 }
 
 .field-wrapper {

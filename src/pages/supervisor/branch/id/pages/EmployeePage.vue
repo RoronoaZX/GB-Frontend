@@ -13,17 +13,14 @@
           <div class="row q-gutter-sm">
             <!-- File Leave -->
             <q-btn
-              outline
+              unelevated
               rounded
               dense
               icon="event_note"
               label="Request Leave"
-              class="file-leave-btn"
-              @click="openCreateLeaveDialog()"
+              class="request-leave-btn-modern"
+              @click="openLeaveRequestPanel()"
             >
-              <q-tooltip anchor="top left" self="bottom right">
-                Request a new leave
-              </q-tooltip>
             </q-btn>
 
             <!-- Leave Requests Button with Badge -->
@@ -999,7 +996,7 @@ const viewEmployeeDetails = (item) => {
   showDetails.value = true;
 };
 
-const openCreateLeaveDialog = (employee) => {
+const openLeaveRequestPanel = (employee) => {
   $q.dialog({
     component: LeaveRequestForm,
   });
@@ -1163,6 +1160,112 @@ watch(filter, () => {});
     height: 40px;
     background: #f8faff;
     border-radius: 40px 40px 0 0;
+  }
+}
+
+/* Enhanced Request Leave Button */
+.request-leave-btn-modern {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.15)
+  );
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.35),
+      rgba(255, 255, 255, 0.25)
+    );
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+    &::before {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  :deep(.q-icon) {
+    font-size: 20px;
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover :deep(.q-icon) {
+    transform: scale(1.1);
+  }
+}
+
+.header-action-btn {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Animated Badge */
+.animated-badge {
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Custom Tooltip */
+.custom-tooltip {
+  .tooltip-content {
+    padding: 4px 0;
+
+    .text-weight-bold {
+      font-size: 14px;
+    }
+
+    .text-caption {
+      font-size: 11px;
+      opacity: 0.9;
+    }
   }
 }
 
