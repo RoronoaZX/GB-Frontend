@@ -126,7 +126,7 @@ import DenominationReport from "./sales-report/DenominationReport.vue";
 import ExpensesReport from "./sales-report/expenses/ExpensesReport.vue";
 import CreditsReport from "./sales-report/credit/CreditsReport.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { useProductionStore } from "src/stores/production";
 
 import { typographyFormat } from "src/composables/typography/typography-format";

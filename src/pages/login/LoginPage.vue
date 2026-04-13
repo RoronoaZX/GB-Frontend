@@ -20,9 +20,7 @@
       <div class="text-h5 text-red-6 q-mb-sm">
         <img src="../../assets/GB_LOGO.png" class="logo" />
       </div>
-      <div class="text-caption text-grey-8 q-mb-sm">
-        Please log in to continue.
-      </div>
+      <div class="text-caption text-grey-8 q-mb-sm">Please log in to continue.</div>
     </q-card-section>
 
     <!-- <q-card-section>
@@ -97,9 +95,9 @@ import axios, { api } from "src/boot/axios";
 // ); //SA
 // 631cee3486ce71af // null
 
-// const uuid = ref("b76baeef9c2aef9a"); // branch id 6 endrina ----
+const uuid = ref("b76baeef9c2aef9a"); // branch id 6 endrina ----
 
-const uuid = ref("b5afe408-4f23-44ad-8440-608444d833b7"); // branch id 6 endrina
+// const uuid = ref("b5afe408-4f23-44ad-8440-608444d833b7"); // branch id 6 endrina
 // const uuid = ref("707b814b9877bcb4"); // branch id 2 Branch 2
 // const uuid = ref("2c1d4509090802cb"); // branch id 1 endrina
 // const uuid = ref(
@@ -213,8 +211,7 @@ const login = async () => {
     const device = response.data.device;
 
     // Determine the correct key based on designation
-    const storageKey =
-      device.designation === "branch" ? "branch_id" : "warehouse_id";
+    const storageKey = device.designation === "branch" ? "branch_id" : "warehouse_id";
 
     // Store the reference_id with the correct key
     localStorage.setItem(storageKey, device.reference_id);
@@ -259,8 +256,7 @@ const login = async () => {
   } catch (error) {
     console.error("Error during login:", error);
     const errorDisplay =
-      error.response?.data?.message ||
-      "Login failed. Incorrect email & password.";
+      error.response?.data?.message || "Login failed. Incorrect email & password.";
     Notify.create({
       type: "negative",
       message: errorDisplay,

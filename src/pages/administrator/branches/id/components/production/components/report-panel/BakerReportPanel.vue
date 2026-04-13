@@ -163,7 +163,7 @@ import { date, useQuasar } from "quasar";
 import BreadView from "./baker-report/BreadView.vue";
 import IngredientsView from "./baker-report/IngredientsView.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import EditBakersReport from "./baker-report/EditBakersReport.vue";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
