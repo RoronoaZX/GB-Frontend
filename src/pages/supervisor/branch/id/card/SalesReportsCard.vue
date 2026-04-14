@@ -341,7 +341,7 @@ import { computed, ref, watchEffect } from "vue";
 import NegativeProductsDialog from "../card/sale-report-card-chilld-component/pages/NegativeDialog.vue";
 
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
 const {
   capitalizeFirstLetter,

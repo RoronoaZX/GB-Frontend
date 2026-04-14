@@ -16,7 +16,7 @@
           <div class="row items-center justify-between">
             <div>
               <q-icon name="event_note" size="28px" class="q-mr-sm" />
-              <span class="text-h6 text-weight-bold">
+              <span>
                 {{ isEditing ? "Edit Leave Request" : "Request Leave" }}
               </span>
             </div>
@@ -50,30 +50,27 @@
       </div>
 
       <q-card-section class="q-pa-lg scrollable-form-content">
-        <q-form @submit="submitForm" is="leaveForm" class="q-gutter-md">
+        <q-form @submit="submitForm" id="leaveForm" class="q-gutter-md">
           <!-- Enhanced Employee Selection with Search -->
           <div v-if="isSupervisor" class="field-wrapper">
             <div class="field-label">
-              <q-icon name="person" size="18px" class="qmr-xs" />
+              <q-icon name="person" size="18px" class="q-mr-xs" />
               <span>Select Employee</span>
               <span class="required-star">*</span>
             </div>
 
             <!-- Search Input -->
-            <div class="employee-search-container">
+            <div class="employee-search-container" ref="searchContainerRef">
               <q-input
                 v-model="employeeSearch"
                 outlined
                 dense
-                placeholder="Search by name (first, middle, last), ID, or positive..."
+                placeholder="Search by name, ID, or position..."
                 class="employee-search-input"
                 @update:model-value="filterEmployees"
                 @focus="showEmployeeDropDown = true"
               >
                 <template v-slot:prepend>
-                  <q-icon name="search" size="20px" color="grey-6" />
-                </template>
-                <template v-slot:append v-if="employeeSearch">
                   <q-icon
                     name="close"
                     class="cursor-pointer"
@@ -84,113 +81,347 @@
                 </template>
               </q-input>
 
-              <!-- Search Results Dropdown -->
-              <div
-                v-if="
-                  showEmployeeDropDown && filteredEmployeeOptions.length > 0
-                "
-                class="employee-dropdown"
-              >
-                <div class="dropdown-header">
-                  <span class="text-caption text-grey-6">
-                    <q-icon name="people" size="14px" />
-                    {{ filteredEmployeeOptions.length }} employee(s) found
-                  </span>
-                  <q-btn
-                    flat
-                    round
-                    dense
-                    icon="close"
-                    size="xs"
-                    @click="showEmployeeDropDown = false"
-                  />
-                </div>
-
-                <q-scroll-area style="height: 320px">
-                  <div
-                    v-for="emp in filteredEmployeeOptions"
-                    :key="emp.value"
-                    class="employee-search-item"
-                    :class="{ select: formatDate.employee_id === emp.value }"
-                    @click="selectEmployee(emp)"
-                  >
-                    <div class="employee-avatar-wrapper">
-                      <q-avatar size="44px" class="employee-avatar">
-                        <img :src="getEmployeeAvatar(emp.employee)" />
-                      </q-avatar>
-                      <div
-                        class="status-indicator-small"
-                        :class="emp.employee?.status?.toLowerCase()"
-                      ></div>
-                    </div>
-
-                    <div class="employee-info">
-                      <div class="employee-name">
-                        {{ emp.label }}
-                        <q-badge
-                          :color="
-                            getLeaveBalanceColor(emp.employee.leave_balance)
-                          "
-                          rounded
-                          class="q-ml-sm"
-                          size="sm"
-                        >
-                          {{ emp.employee.leave_balance || 0 }} days left
-                        </q-badge>
-                      </div>
-
-                      <div class="employee-details">
-                        <span class="employee-position">
-                          <q-icon name="work" size="12px" />
-                          {{ emp.position }}
-                        </span>
-                        <span class="employee-id">
-                          <q-icon name="badge" size="12px" />
-                          ID: EMP-{{ String(emp.employee.id).padStart(4, "0") }}
-                        </span>
-                        <span class="employee-name-detail">
-                          <q-icon name="person" size="12px" />
-                          {{ emp.employee.firstname || "" }}
-                          {{ emp.employee.middlename || "" }}
-                          {{ emp.employee.lastname || "" }}
-                        </span>
-                        <span
-                          class="employee-status"
-                          :class="emp.employee?.status?.toLowerCase()"
-                        >
-                          <span class="status-dot"></span>
-                          {{ emp.employee?.status || "Active" }}
-                        </span>
-                      </div>
-                    </div>
-
+              <!-- Search Results Dropdown - Fixed to show no-results -->
+              <div v-if="showEmployeeDropDown" class="employee-dropdown">
+                <div v-if="filteredEmployeeOptions.length > 0">
+                  <div class="dropdown-header">
+                    <span class="text-caption text-grey-6">
+                      <q-icon name="people" size="14px" />
+                      {{ filteredEmployeeOptions.length }} employee(s) found
+                    </span>
                     <q-btn
                       flat
                       round
                       dense
-                      icon="chevron_right"
-                      color="primary"
-                      size="sm"
+                      icon="close"
+                      size="xs"
+                      @click="showEmployeeDropDown = false"
                     />
                   </div>
-                </q-scroll-area>
+                  <q-scroll-area style="height: 320px">
+                    <div
+                      v-for="emp in filteredEmployeeOptions"
+                      :key="emp.value"
+                      class="employee-search-item"
+                      :class="{ selected: formData.employee_id === emp.value }"
+                      @click="selectedEmployee(emp)"
+                    >
+                      <div class="employee-avatar-wrapper">
+                        <q-avatar size="44px" class="employee-avatar">
+                          <img :src="getEmployeeAvatar(emp.employee)" />
+                        </q-avatar>
+                        <div
+                          class="status-indicator-small"
+                          :class="emp.employee?.status?.toLowerCase()"
+                        ></div>
+                      </div>
+
+                      <div class="employee-info">
+                        <div class="employee-name">
+                          {{ emp.label }}
+                          <q-badge
+                            :color="
+                              getLeaveBalanceColor(emp.employee.leave_balance)
+                            "
+                            rounded
+                            class="q-ml-sm"
+                            size="sm"
+                          >
+                            {{ emp.employee.leave_balance || 0 }} days left
+                          </q-badge>
+                        </div>
+
+                        <div class="employee-deatils">
+                          <span class="employee-position">
+                            <q-icon name="work" size="12px" />
+                            {{ emp.position }}
+                          </span>
+                          <span class="employee-id">
+                            <q-icon name="badge" size="12px" />
+                            ID: EMP-{{
+                              String(emp.employee.id).padStart(4, "0")
+                            }}
+                          </span>
+                          <span
+                            class="employee-status"
+                            :class="emp.employee?.status?.toLowerCase()"
+                          >
+                            <span class="status-dot"></span>
+                            {{ emp.employee?.status || "Active" }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="chevron_right"
+                        color="primary"
+                        size="sm"
+                      />
+                    </div>
+                  </q-scroll-area>
+                </div>
+
+                <!-- No Results Section - Now properly displayed -->
+                <div v-else class="no-results-content">
+                  <q-icon name="search_off" size="56px" color="grey-4" />
+                  <div class="text-subtitle1 q-mt-md text-grey-7">
+                    No employees found
+                  </div>
+                  <div class="text-subtitle1 q-mt-xs text-grey-5">
+                    Try searching with different keywords
+                  </div>
+                  <div class="suggestions q-mt-md">
+                    <div class="text-caption text-grey-6">Suggestions:</div>
+                    <ul class="suggestions-list">
+                      <li>Check the spelling of the name</li>
+                      <li>Try using the employee ID</li>
+                      <li>Search by position or department</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
-              <!-- No results -->
-              <div
-                v-if="
-                  showEmployeeDropDown &&
-                  filteredEmployeeOptions.length === 0 &&
-                  employeeSearch
-                "
-                class="employee-dropdown no-results"
-              >
-                <div class="no-results-content"></div>
+              <!-- Selected Employee Display -->
+              <div v-if="selectedEmployee" class="selected-employee-card">
+                <div class="selected-employee-content">
+                  <q-avatar size="48px" class="selected-avatar">
+                    <img :src="getEmployeeAvatar(selectedEmployee)" />
+                  </q-avatar>
+
+                  <div class="selected-info">
+                    <div class="selected-name">
+                      {{ formatFullname(selectedEmployee) }}
+                      <q-badge
+                        :color="
+                          getLeaveBalanceColor(selectedEmployee.leave_balance)
+                        "
+                        rounded
+                        class="q-ml-sm"
+                      >
+                        {{ selectedEmployee.leave_balance || 0 }} days left
+                      </q-badge>
+                    </div>
+
+                    <div class="selected-details">
+                      <span>{{ selectedEmployee.position || "Staff" }}</span>
+                      <span class="separator">•</span>
+                      <span
+                        >ID: EMP-{{
+                          String(selectedEmployee.id).padStart(4, "0")
+                        }}</span
+                      >
+                      <span class="separator">•</span>
+                      <span
+                        class="status-text"
+                        :class="selectedEmployee?.status?.toLowerCase()"
+                      >
+                        <span class="status-dot-small"></span>
+                        {{ selectedEmployee?.status || "Active" }}
+                      </span>
+                    </div>
+                  </div>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="edit"
+                    size="sm"
+                    color="primary"
+                    @click="changeEmployee"
+                  >
+                    <q-tooltip>Change Employee</q-tooltip>
+                  </q-btn>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Leave Type Selection -->
+          <div class="field-wrapper">
+            <div class="field-label">
+              <q-icon name="category" size="18px" class="q-mr-xs" />
+              <span>Leave Type</span>
+              <span class="reqiured-star">*</span>
+            </div>
+            <div class="leave-type-grid">
+              <div
+                v-for="type in leaveTypes"
+                :key="type.value"
+                class="leave-type-card"
+                :class="{ active: formData.leave_type === type.value }"
+                @click="formData.leave_type = type.value"
+              >
+                <div class="card-icon" :style="{ background: type.gradient }">
+                  <q-icon :name="type.icon" size="24px" />
+                </div>
+
+                <div class="card-info">
+                  <div class="card-title">
+                    {{ type.label }}
+                  </div>
+                  <div class="card-description">
+                    {{ type.description }}
+                  </div>
+                  <q-icon
+                    v-if="formData.leave_type === type.value"
+                    name="check_circle"
+                    size="20px"
+                    class="check-icon"
+                    color="primary"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Range Selection -->
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-sm-6">
+                <div class="field-wrapper">
+                  <div class="field-label">
+                    <q-icon name="event" size="18px" class="q-mr-xs" />
+                    <span>Start Date</span>
+                    <span class="required-star">*</span>
+                  </div>
+                  <q-input
+                    v-model="formData.start_date"
+                    outlined
+                    dense
+                    type="date"
+                    placeholder="YYYY-MM-DD"
+                    :rules="[(val) => !!val || 'Start date required']"
+                    class="date-input"
+                    @update:model-value="calculateDays"
+                  >
+                    <template v-slot:append>
+                      <q-icon name="event" class="cursor-pointer" />
+                    </template>
+                  </q-input>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <div class="field-wrapper">
+                  <div class="field-label">
+                    <q-icon name="event" size="18px" class="q-mr-xs" />
+                    <span>End Date</span>
+                    <span class="required">*</span>
+                  </div>
+
+                  <q-input
+                    v-model="formData.end_date"
+                    outlined
+                    type="date"
+                    dense
+                    placeholder="YYYY-MM-DD"
+                    :rules="[(val) => !!val || 'End date required']"
+                    class="date-input"
+                    @update:model-value="calculateDays"
+                  >
+                    <template v-slot:append>
+                      <q-icon name="event" class="cursor-pointer" />
+                    </template>
+                  </q-input>
+                </div>
+              </div>
+            </div>
+
+            <!-- Days Calculation Card -->
+            <div
+              v-if="formData.start_date && formData.end_date"
+              class="calculation-card"
+            >
+              <div class="row items-center justify-between">
+                <div class="calc-label">Total Days</div>
+                <div class="calc-value">
+                  {{ calculatedDays }}
+                  <span class="calc-unit"
+                    >day{{ calculatedDays !== 1 ? "s" : "" }}</span
+                  >
+                </div>
+              </div>
+              <div class="calc-divider"></div>
+              <div class="calc-item">
+                <div class="calc-label">Available Balance</div>
+                <div
+                  class="calc-value"
+                  :class="{ 'text-negative': calculatedDays > currentBalance }"
+                >
+                  {{ currentBalance }}
+                  <span class="calc-unit">days</span>
+                </div>
+              </div>
+              <div class="calc-divider"></div>
+              <div class="clac-item">
+                <div class="calc-label">Remaining</div>
+                <div
+                  class="calc-value"
+                  :class="{ 'text-negative': remainingBalance < 0 }"
+                >
+                  {{ remainingBalance }}
+                  <span class="calc-unit">days</span>
+                </div>
+              </div>
+            </div>
+
+            <q-linear-progress
+              :value="Math.min(calculatedDays / currentBalance, 1)"
+              :color="remainingBalance >= 0 ? 'primary' : 'negative'"
+              class="balance-progress q-mt-md"
+              style="height: 4px; border-radius: 2px"
+            />
+            <div
+              v-if="calculatedDays > currentBalance"
+              class="warning-message q-mt-sm"
+            >
+              <q-icon name="warning" size="14px" />
+              <span>
+                Insufficient leave balance. Yopu need
+                {{ calculatedDays - currentBalance }} more day(s).
+              </span>
+            </div>
+          </div>
+
+          <!-- Reason Field -->
+
+          <div class="field-wrapper">
+            <div class="field-label">
+              <q-icon name="description" size="18px" class="q-mr-sm" />
+              <span>Reason</span>
+              <span class="optional-badge">Optional</span>
+            </div>
+
+            <q-input
+              v-model="formData.reason"
+              outlined
+              dense
+              type="textarea"
+              rows="3"
+              placeholder="Please provide a brief reason for your leave request..."
+              counter
+              maxlength="500"
+              class="reason-input"
+            />
+          </div>
         </q-form>
       </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right" class="q-pa-md bg-white">
+        <div class="form-actions">
+          <q-btn flat label="Cancel" vclose-popup class="cancel-btn" />
+          <q-btn
+            typre="submit"
+            form="leaveForm"
+            :label="isEditing ? 'Update Request' : 'Submit Request'"
+            class="submit-btn"
+            :loading="submitting"
+          />
+        </div>
+      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
@@ -207,7 +438,8 @@ const { formatFullname, formatDate } = typographyFormat();
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const dialog = ref(false);
-const maximizedToggle = ref(true);
+const maximizedToggle = ref(false);
+const searchContainerRef = ref(null);
 
 const $q = useQuasar();
 const leaveStore = useEmployeeLeaveStore();
@@ -412,7 +644,7 @@ const remainingBalance = computed(() => {
 // Methods
 const calculateDays = () => {
   if (!formData.value.start_date || !formData.value.end_date) {
-    calculateDays.value = 0;
+    calculatedDays.value = 0;
 
     return;
   }
@@ -433,7 +665,7 @@ const calculateDays = () => {
   }
 
   const diffTime = Math.abs(end - start);
-  calculateDays.value = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  calculatedDays.value = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 };
 
 const disablePastDates = (date) => {
@@ -551,7 +783,7 @@ const resetForm = () => {
     attachment: null,
   };
 
-  (calculateDays.value = 0), (isEditing.value = false);
+  (calculatedDays.value = 0), (isEditing.value = false);
 };
 
 // Watch for employee changes
@@ -561,7 +793,7 @@ watch(
     // Reset dates when employee changes
     formData.value.start_date = null;
     formData.value.end_date = null;
-    calculateDays = 0;
+    calculatedDays.value = 0;
   }
 );
 </script>
@@ -573,6 +805,9 @@ watch(
   background: white;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
 }
 
 .form-header {
@@ -627,7 +862,7 @@ watch(
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
+    background: #cbd5e1;
     border-radius: 10px;
 
     &:hover {
@@ -671,40 +906,39 @@ watch(
   }
 }
 
-.employee-dropdown.no-results {
-  padding: 0;
-  animation: slideDown 0.3s ease;
+/* No Results Section Styling */
+.no-result-content {
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
 
-  .no-results-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 32px;
-    text-align: center;
+  .q-icon {
+    opacity: 0.5s;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
 
-    .no-results-icon {
-      margin-bottom: 20px;
-      position: relative;
+  .suggestions {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    text-align: left;
 
-      .q-icon {
-        transition: all 0.3s ease;
-        filter: drop-shadow(0 20px 4px rgba(0, 0, 0, 0.05));
+    .suggestion-list {
+      margin: 8px 0 0 20px;
+      padding: 0;
 
-        &:hover {
-          transform: scale(1.05);
+      li {
+        font-size: 12px;
+        color: #64748b;
+        margin: 4px 0;
+
+        &::marker {
+          color: #667eea;
         }
-      }
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-        border-radius: 2px;
       }
     }
   }
@@ -738,15 +972,26 @@ watch(
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .online-indicator {
+    .status-indicator-small {
       position: absolute;
       bottom: 2px;
       right: 2px;
       width: 10px;
       height: 10px;
-      background: #10b981;
       border-radius: 50%;
       border: 2px solid white;
+
+      &.active {
+        background: #10b981;
+      }
+
+      &.on-leave {
+        background: #f59e0b;
+      }
+
+      &.inactive {
+        background: #ef4444;
+      }
     }
   }
 
@@ -867,23 +1112,41 @@ watch(
         }
 
         .status-text {
+          display: flex;
+          align-items: center;
+          gap: 4px;
           padding: 2px 8px;
           border-radius: 20px;
           font-weight: 500;
 
+          .status-dot-small {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+          }
+
           &.active {
             background: #e8f5e9;
             color: #10b981;
+            .status-dot-small {
+              background: #10b981;
+            }
           }
 
           &.inactive {
             background: #ffebbe;
             color: #ef4444;
+            .status-dot-small {
+              background: #ef4444;
+            }
           }
 
           &.on-leave {
             background: #fff3e0;
             color: #f59e0b;
+            .status-dot-small {
+              background: #f59e0b;
+            }
           }
         }
       }
@@ -912,7 +1175,8 @@ watch(
       font-size: 11px;
       font-weight: normal;
       color: #94a3b8;
-      background: 2px 8px;
+      background: #f1f5f9;
+      padding: 2px 8px;
       border-radius: 20px;
       margin-left: 8px;
     }
@@ -1008,7 +1272,7 @@ watch(
       .calc.unit {
         font-size: 12px;
         font-weight: normal;
-        color: #96a3b8;
+        color: #94a3b8;
       }
 
       &.text-negative {
@@ -1024,7 +1288,7 @@ watch(
   }
 
   .balance-progress {
-    :deep(.q.linear-progress__track) {
+    :deep(.q-linear-progress__track) {
       background: #e2e8f0;
     }
   }
@@ -1034,7 +1298,8 @@ watch(
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: #fef2f2;
+    color: #ef4444;
+    background: #fef2f2;
     padding: 8px;
     border-radius: 8px;
   }
@@ -1091,6 +1356,53 @@ watch(
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 600px) {
+  .leave-form-card {
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  .leave-type-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calculation-card {
+    .row {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .calc-divider {
+      display: none;
+    }
+  }
+
+  .selected-employee-card {
+    .selected-employee-content {
+      flex-direction: column;
+      text-align: center;
+      .selected-info {
+        text-align: center;
+      }
+    }
+  }
+
+  .employee-search-item {
+    .employee-info {
+      .employee-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+    }
+  }
+
+  .no-results-content {
+    padding: 32px 24px;
   }
 }
 
@@ -1166,50 +1478,6 @@ watch(
 
   &:hover {
     background: #f8fafc;
-  }
-}
-
-// Responsive
-@media (max-width: 600px) {
-  .leave-form-card {
-    max-width: 100%;
-    border-radius: 0;
-  }
-
-  .leave-type-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .calculation-card {
-    .row {
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .calc.divider {
-      display: none;
-    }
-  }
-
-  .selected-employee-card {
-    .selected-employee-content {
-      flex-direction: column;
-      text-align: center;
-
-      .selected-info {
-        text-align: center;
-      }
-    }
-  }
-
-  .employee-search-item {
-    .employee-info {
-      .employee-details {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-      }
-    }
   }
 }
 </style>

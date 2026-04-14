@@ -95,7 +95,7 @@
 import { ref } from "vue";
 import { useDialogPluginComponent } from "quasar";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { usePayslipStore } from "src/stores/payslip";
 import GB_LOGO from "src/assets/GB_LOGO.png";
 

@@ -1,13 +1,20 @@
 import { boot } from "quasar/wrappers";
 import axios from "axios";
-// http://localhost:8000
-// https://gb-bakeshop.store
-//https://gbebakeshop.com
-let url = "http://localhost:8000";
-if (process.env.NODE_ENV === "production") {
-  url = "https://gbebakeshop.com";
-}
-const api = axios.create({ baseURL: url });
+import { Platform } from "quasar";
+const API_HOSTS = {
+  production: "https://gbebakeshop.com",
+  capacitor: "http://10.0.2.2:8000",
+  development: "http://localhost:8000",
+};
+
+const baseURL =
+  process.env.NODE_ENV === "production"
+    ? API_HOSTS.production
+    : Platform.is.capacitor
+    ? API_HOSTS.capacitor
+    : API_HOSTS.development;
+
+const api = axios.create({ baseURL });
 
 export default boot(({ app }) => {
   app.config.globalProperties.$axios = axios;

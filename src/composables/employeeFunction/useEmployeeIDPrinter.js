@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { formatFullname } from "./useEmployeeFunctions";
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fontes";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.default;
 
 export function useEmployeeIDPrinter(IDLogo, GB_LOGO) {
