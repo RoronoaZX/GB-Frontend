@@ -104,7 +104,7 @@
                       :key="emp.value"
                       class="employee-search-item"
                       :class="{ selected: formData.employee_id === emp.value }"
-                      @click="selectedEmployee(emp)"
+                      @click="selectEmployee(emp)"
                     >
                       <div class="employee-avatar-wrapper">
                         <q-avatar size="44px" class="employee-avatar">
@@ -277,7 +277,7 @@
             </div>
 
             <!-- Date Range Selection -->
-            <div class="row q-col-gutter-md">
+            <div class="row q-col-gutter-md q-mt-sm">
               <div class="col-12 col-sm-6">
                 <div class="field-wrapper">
                   <div class="field-label">
@@ -419,6 +419,7 @@
             :label="isEditing ? 'Update Request' : 'Submit Request'"
             class="submit-btn"
             :loading="submitting"
+            @click="submitForm"
           />
         </div>
       </q-card-actions>
@@ -446,7 +447,10 @@ const leaveStore = useEmployeeLeaveStore();
 
 const props = defineProps({
   modelValue: Boolean,
-  employee: Object,
+  employee: {
+    type: Object,
+    default: null,
+  },
   isSupervisor: {
     type: Boolean,
     default: false,
@@ -456,6 +460,8 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+console.log("propdsss... ", props);
 
 const emit = defineEmits(["update:modelValue", "submitted"]);
 
@@ -553,14 +559,14 @@ const filterEmployees = () => {
   const searchTerm = employeeSearch.value.toLowerCase().trim();
 
   filteredEmployeeOptions.value = employeeOptions.value.filter((emp) => {
-    // Search through all name parts and other fields
+    const employee = emp.employee;
     return (
-      emp.searchFields.firstname.includes(searchTerm) ||
-      emp.searchFields.middlename.includes(searchTerm) ||
-      emp.searchFields.lastname.includes(searchTerm) ||
-      emp.searchFields.position.includes(searchTerm) ||
-      emp.searchFields.id.includes(searchTerm) ||
-      emp.searchFields.email.includes(searchTerm)
+      (employee?.firstname?.toLowerCase() || "").includes(searchTerm) ||
+      (employee?.middlename?.toLowerCase() || "").includes(searchTerm) ||
+      (employee?.lastname?.toLowerCase() || "").includes(searchTerm) ||
+      (emp.position?.toLowerCase() || "").includes(searchTerm) ||
+      (String(employee?.id) || "").includes(searchTerm) ||
+      (employee?.email?.toLowerCase() || "").includes(searchTerm)
     );
   });
 };
@@ -569,7 +575,6 @@ const filterEmployees = () => {
 const filterEmployeeFuzzy = () => {
   if (!employeeSearch.value.trim()) {
     filteredEmployeeOptions.value = employeeOptions.value;
-
     return;
   }
 
@@ -577,24 +582,27 @@ const filterEmployeeFuzzy = () => {
   const searchWords = searchTerm.split(/\s+/);
 
   filteredEmployeeOptions.value = employeeOptions.value.filter((emp) => {
+    const employee = emp.employee;
     // Combine all name parts into one string for searching
-    const fullNameString = `${emp.searchFields.firstname} ${emp.searchFields.middlename} ${emp.searchFields.lastname}`;
+    const fullNameString = `${employee?.firstname || ""} ${
+      employee?.middlename || ""
+    } ${employee?.lastname || ""}`;
     const fullNameLower = fullNameString.toLowerCase();
 
     // Check if any search word matches any part of the name
     const matchesName = searchWords.some(
       (word) =>
         fullNameLower.includes(word) ||
-        emp.searchFields.firstname.includes(word) ||
-        emp.searchFields.middlename.includes(word) ||
-        emp.searchFields.lastname.includes(word)
+        (employee?.firstname?.toLowerCase() || "").includes(word) ||
+        (employee?.middlename?.toLowerCase() || "").includes(word) ||
+        (employee?.lastname?.toLowerCase() || "").includes(word)
     );
 
     // Check other fields
     const matchesOther =
-      emp.searchFields.position.includes(searchTerm) ||
-      emp.searchFields.id.includes(searchTerm) ||
-      emp.searchField.email.includes(searchTerm);
+      (emp.position?.toLowerCase() || "").includes(searchTerm) ||
+      (String(employee?.id) || "").includes(searchTerm) ||
+      (employee?.email?.toLowerCase() || "").includes(searchTerm);
 
     return matchesName || matchesOther;
   });
@@ -761,7 +769,14 @@ const formatFileSize = (bytes) => {
 };
 
 const submitForm = async () => {
-  console.log("submit form");
+  if (!formData.value.employee_id) {
+    Notify.create({
+      type: "warning",
+      message: "Please select an employee for the leave request",
+      position: "top",
+    });
+    return;
+  }
 
   if (!formData.value.leave_type) {
     Notify.create({
@@ -770,6 +785,82 @@ const submitForm = async () => {
       position: "top",
     });
     return;
+  }
+
+  if (!formData.value.start_date) {
+    Notify.create({
+      type: "warning",
+      message: "Please choose a start date",
+      position: "top",
+    });
+    return;
+  }
+
+  if (!formData.value.end_date) {
+    Notify.create({
+      type: "warning",
+      message: "Please choose an end date",
+      position: "top",
+    });
+    return;
+  }
+
+  if (calculatedDays.value <= 0) {
+    Notify.create({
+      type: "negative",
+      message: "Please provide a valid date range for your leave",
+      position: "top",
+    });
+    return;
+  }
+
+  if (calculatedDays.value > currentBalance.value) {
+    Notify.create({
+      type: "negative",
+      message: `Insufficient leave balance. You need ${
+        calculatedDays.value - currentBalance.value
+      } more day(s).`,
+      position: "top",
+    });
+    return;
+  }
+
+  submitting.value = true;
+
+  try {
+    const payload = {
+      employee_id: formData.value.employee_id,
+      leave_type: formData.value.leave_type,
+      start_date: formData.value.start_date,
+      end_date: formData.value.end_date,
+      total_days: calculatedDays.value,
+      reason: formData.value.reason || "",
+    };
+
+    console.log("payload....", payload);
+
+    await leaveStore.createLeaveRequest(payload);
+
+    Notify.create({
+      type: "positive",
+      message: isEditing.value
+        ? "Leave request updated successfully"
+        : "Leave request submitted successfully",
+      position: "top",
+      timeout: 3000,
+    });
+
+    emit("submitted");
+    dialogRef.value?.hide();
+    resetForm();
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: error?.message || "Failed to submit leave request",
+      position: "top",
+    });
+  } finally {
+    submitting.value = false;
   }
 };
 
@@ -783,7 +874,8 @@ const resetForm = () => {
     attachment: null,
   };
 
-  (calculatedDays.value = 0), (isEditing.value = false);
+  calculatedDays.value = 0;
+  isEditing.value = false;
 };
 
 // Watch for employee changes
@@ -907,7 +999,7 @@ watch(
 }
 
 /* No Results Section Styling */
-.no-result-content {
+.no-results-content {
   padding: 48px 32px;
   text-align: center;
   display: flex;

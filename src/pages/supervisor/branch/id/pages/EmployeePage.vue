@@ -17,7 +17,7 @@
               rounded
               dense
               icon="event_note"
-              label="Request Leave"
+              label="Request Leavess"
               class="request-leave-btn-modern"
               @click="openLeaveRequestPanel()"
             >
@@ -852,6 +852,8 @@ const supervisorStore = useSupervisorStore();
 const leaveStore = useEmployeeLeaveStore();
 
 const userData = computed(() => supervisorStore.user);
+
+console.log("userDatadddd..", userData.value);
 const branchList = computed(() => supervisorStore.supervisorBranch);
 const branchEmployee = computed(() => employeeStore.branchEmployees || []);
 
@@ -996,9 +998,17 @@ const viewEmployeeDetails = (item) => {
   showDetails.value = true;
 };
 
-const openLeaveRequestPanel = (employee) => {
+const openLeaveRequestPanel = (item) => {
   $q.dialog({
     component: LeaveRequestForm,
+    componentProps: {
+      modelValue: true,
+      employee: userData.value.data.employee, // ← Access the nested employee object
+      isSupervisor: true,
+      employeeList: branchEmployee.value,
+    },
+  }).onOk(() => {
+    handleLeaveSubmitted();
   });
 };
 
