@@ -342,45 +342,26 @@
                   >
                 </div>
               </div>
-              <div class="calc-divider"></div>
-              <div class="calc-item">
-                <div class="calc-label">Available Balance</div>
-                <div
-                  class="calc-value"
-                  :class="{ 'text-negative': calculatedDays > currentBalance }"
-                >
-                  {{ currentBalance }}
-                  <span class="calc-unit">days</span>
-                </div>
-              </div>
-              <div class="calc-divider"></div>
-              <div class="clac-item">
-                <div class="calc-label">Remaining</div>
-                <div
-                  class="calc-value"
-                  :class="{ 'text-negative': remainingBalance < 0 }"
-                >
-                  {{ remainingBalance }}
-                  <span class="calc-unit">days</span>
-                </div>
-              </div>
             </div>
 
-            <q-linear-progress
-              :value="Math.min(calculatedDays / currentBalance, 1)"
-              :color="remainingBalance >= 0 ? 'primary' : 'negative'"
-              class="balance-progress q-mt-md"
-              style="height: 4px; border-radius: 2px"
-            />
-            <div
-              v-if="calculatedDays > currentBalance"
-              class="warning-message q-mt-sm"
-            >
-              <q-icon name="warning" size="14px" />
-              <span>
-                Insufficient leave balance. Yopu need
-                {{ calculatedDays - currentBalance }} more day(s).
-              </span>
+            <div class="field-wrapper">
+              <div class="field-label">
+                <q-icon name="swap_horiz" size="18px" class="q-mr-xs" />
+                <span>Duration Type</span>
+              </div>
+              <q-select
+                v-model="formData.duration_type"
+                :options="durationTypeOptions"
+                option-label="label"
+                option-value="value"
+                outlined
+                dense
+                class="duration-select"
+              />
+              <div class="text-caption q-mt-xs">
+                Duration value will be sent as a number along with the selected
+                unit.
+              </div>
             </div>
           </div>
 
@@ -479,10 +460,11 @@ const filteredEmployeeOptions = ref([]);
 
 // Form data
 const formData = ref({
-  employee_id: props.employee?.id || null,
+  employee_id: null,
   leave_type: null,
   start_date: null,
   end_date: null,
+  duration_type: "days",
   reason: "",
   attachment: null,
 });
@@ -531,7 +513,32 @@ const leaveTypes = [
     gradient: "linear-gradient(135deg, #6b7280, #4b5563)",
     description: "Family bereavement",
   },
+  {
+    value: "others",
+    label: "Others",
+    icon: "more_horiz",
+    gradient: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+    description: "Other leave reasons",
+  },
 ];
+
+const durationTypeOptions = [
+  { label: "Days", value: "days" },
+  { label: "Months", value: "months" },
+];
+
+const durationValue = computed(() => {
+  if (!calculatedDays.value || calculatedDays.value <= 0) return 0;
+
+  if (formData.value.duration_type === "months") {
+    return Math.max(1, Math.round(calculatedDays.value / 30));
+  }
+
+  return calculatedDays.value;
+});
+
+// Computed property to check if "Others" is selected
+const isOtherLeaveType = computed(() => formData.value.leave_type === "others");
 
 // Employee options for supervisor
 const employeeOptions = computed(() => {
@@ -632,22 +639,14 @@ const toggleMaximize = () => {
 };
 
 const selectedEmployee = computed(() => {
-  if (!formData.value.employee_id) return props.employee;
+  if (!formData.value.employee_id) return null;
   const found = employeeOptions.value.find(
     (opt) => opt.value === formData.value.employee_id
   );
   return found?.employee || null;
 });
 
-const currentBalance = computed(() => {
-  return selectedEmployee.value?.leave_balance || 15;
-});
-
 const calculatedDays = ref(0);
-
-const remainingBalance = computed(() => {
-  return currentBalance.value - calculatedDays.value;
-});
 
 // Methods
 const calculateDays = () => {
@@ -688,11 +687,7 @@ const getEmployeeAvatar = (employee) => {
     return `https://ui-avatars.com/api/?name=NA&background=668eea&color-fff&size=128`;
 
   if (employee?.avatar) return employee.avatar;
-  const firstInitial = employee?.firstname?.[0] || "";
-  const lastInitial = employee?.lastname?.[0] || "";
-  const initials = firstInitial + lastInitial || "NA";
-
-  return `https://ui-avatar.com/api/?name=${initials}&background=667eea&color=fff&size=128`;
+  return "https://cdn.quasar.dev/img/boy-avatar.png";
 };
 
 const getLeaveBalanceColor = (balance) => {
@@ -814,17 +809,6 @@ const submitForm = async () => {
     return;
   }
 
-  if (calculatedDays.value > currentBalance.value) {
-    Notify.create({
-      type: "negative",
-      message: `Insufficient leave balance. You need ${
-        calculatedDays.value - currentBalance.value
-      } more day(s).`,
-      position: "top",
-    });
-    return;
-  }
-
   submitting.value = true;
 
   try {
@@ -834,6 +818,10 @@ const submitForm = async () => {
       start_date: formData.value.start_date,
       end_date: formData.value.end_date,
       total_days: calculatedDays.value,
+      duration_value: durationValue.value,
+      duration_type: formData.value.duration_type,
+      handled_by: props.employee.id,
+      status: "confirmed",
       reason: formData.value.reason || "",
     };
 
@@ -866,7 +854,7 @@ const submitForm = async () => {
 
 const resetForm = () => {
   formData.value = {
-    employee_id: props.employee?.id || null,
+    employee_id: null,
     leave_type: null,
     start_date: null,
     end_date: null,
@@ -1377,23 +1365,6 @@ watch(
     width: 1px;
     height: 40px;
     background: #e2e8f0;
-  }
-
-  .balance-progress {
-    :deep(.q-linear-progress__track) {
-      background: #e2e8f0;
-    }
-  }
-
-  .warning-message {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #ef4444;
-    background: #fef2f2;
-    padding: 8px;
-    border-radius: 8px;
   }
 }
 
