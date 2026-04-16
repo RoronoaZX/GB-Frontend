@@ -23,13 +23,12 @@
             </q-btn>
 
             <q-btn
-              :unelevated="!showLeaveList"
               rounded
               dense
-              :icon="showLeaveList ? 'people' : 'event_available'"
-              :label="showLeaveList ? 'Employees' : 'Leave List'"
+              icon="event_available"
+              label="Leave List"
               class="leave-list-btn-modern"
-              @click="toggleLeaveList()"
+              @click="openLeaveListDialog"
             >
             </q-btn>
 
@@ -118,13 +117,7 @@
           </div>
         </div>
         <div class="col-6 col-sm-3">
-          <div
-            class="stat-card-modern"
-            style="
-              background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-              color: white;
-            "
-          >
+          <div class="stat-card-modern pending-stat">
             <div class="stat-icon">
               <q-icon name="pending" size="22px" />
             </div>
@@ -206,7 +199,7 @@
                 </q-avatar>
                 <div
                   class="status-indicator"
-                  :class="item.employee?.status?.toLowerCase() || 'inactive'"
+                  :class="normalizeStatusClass(item.employee?.status)"
                 ></div>
               </div>
               <div class="employee-basic-info">
@@ -225,7 +218,7 @@
             </div>
             <div
               class="employee-status-chip"
-              :class="item.employee?.status?.toLowerCase() || 'inactive'"
+              :class="normalizeStatusClass(item.employee?.status)"
             >
               <span class="status-dot"></span>
               {{ item.employee?.status || "Inactive" }}
@@ -345,99 +338,12 @@
       </div>
     </div>
 
-    <!-- Leave Requests List -->
-    <div
-      v-if="showLeaveList"
-      class="leave-list-section q-px-md q-mt-md q-mb-xl"
-    >
-      <div class="section-header q-mb-md">
-        <div class="text-h6 text-weight-bold">Leave Requests This Year</div>
-        <div class="text-caption text-grey-6">
-          {{ new Date().getFullYear() }}
-        </div>
-      </div>
-
-      <!-- Loading State -->
-      <div v-if="loadingLeaves" class="loading-state q-pa-xl">
-        <div class="loading-animation">
-          <q-spinner-ios size="48px" color="primary" />
-          <div class="text-caption text-grey-6 q-mt-sm">
-            Loading leave requests...
-          </div>
-        </div>
-      </div>
-
-      <!-- Leave Requests List -->
-      <div v-else-if="leaveRequestsThisYear.length" class="leave-requests-list">
-        <q-card
-          v-for="leave in leaveRequestsThisYear"
-          :key="leave.id"
-          class="leave-request-card q-mb-sm"
-          flat
-          bordered
-        >
-          <q-card-section class="row items-center q-pb-none">
-            <div class="col">
-              <div class="text-subtitle2 text-weight-medium">
-                {{ formatFullname(leave.employee || {}) }}
-              </div>
-              <div class="text-caption text-grey-6">
-                {{ leave.employee?.position || "Staff" }}
-              </div>
-            </div>
-            <div class="col-auto">
-              <q-chip
-                :color="getLeaveStatusColor(leave.status)"
-                text-color="white"
-                dense
-                class="leave-status-chip"
-              >
-                {{ leave.status || "Pending" }}
-              </q-chip>
-            </div>
-          </q-card-section>
-
-          <q-card-section class="q-pt-none">
-            <div class="leave-details">
-              <div class="detail-row">
-                <q-icon name="event" size="16px" />
-                <span>From: {{ formatDate(leave.start_date) }}</span>
-              </div>
-              <div class="detail-row">
-                <q-icon name="event_available" size="16px" />
-                <span>To: {{ formatDate(leave.end_date) }}</span>
-              </div>
-              <div class="detail-row">
-                <q-icon name="schedule" size="16px" />
-                <span
-                  >Duration: {{ leave.duration_value }}
-                  {{ leave.duration_type }}</span
-                >
-              </div>
-              <div class="detail-row" v-if="leave.reason">
-                <q-icon name="description" size="16px" />
-                <span>Reason: {{ leave.reason }}</span>
-              </div>
-              <div class="detail-row" v-if="leave.handled_by">
-                <q-icon name="person" size="16px" />
-                <span>Handled by: {{ leave.handled_by }}</span>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else class="empty-state-modern">
-        <div class="empty-illustration">
-          <q-icon name="event_note" size="80px" color="grey-3" />
-        </div>
-        <div class="empty-title">No leave requests found</div>
-        <div class="text-caption text-grey-6">
-          No leave requests for {{ new Date().getFullYear() }}
-        </div>
-      </div>
-    </div>
+    <!-- Modern Leave List Dialog -->
+    <LeaveListDialog
+      v-model="showLeaveDialog"
+      :leave-requests="leaveRequestsThisYear"
+      :loading="loadingLeaves"
+    />
 
     <!-- Employee Details Dialog with Edit Mode -->
     <q-dialog v-model="showDetails" position="bottom" full-width>
@@ -873,8 +779,7 @@
                 <span
                   class="status-badge"
                   :class="
-                    selectedEmployee.employee?.status?.toLocaleLowerCase() ||
-                    'inactive'
+                    normalizeStatusClass(selectedEmployee.employee?.status)
                   "
                 >
                   {{ selectedEmployee.employee?.status || "Inactive" }}
@@ -933,6 +838,7 @@ import { useEmployeeLeaveStore } from "src/stores/employee-leave";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import LeaveRequestForm from "../form/LeaveRequestForm.vue";
+import LeaveListDialog from "../employee_components/LeaveListDialog.vue";
 import {
   formatFullname,
   capitalizeAddress,
@@ -976,11 +882,10 @@ const filter = ref("");
 const quickFilter = ref("all");
 const loading = ref(false);
 const showDetails = ref(false);
+const showLeaveDialog = ref(false);
 const showLeaveForm = ref(false);
 const selectedEmployee = ref(null);
 const selectedEmployeeForLeave = ref(null);
-const showLeaveList = ref(false);
-const leaveRequests = ref([]);
 const loadingLeaves = ref(false);
 
 const isSupervisor = computed(() => {
@@ -1122,8 +1027,15 @@ const fetchLeaveRequestsThisYear = async () => {
 };
 
 const toggleLeaveList = async () => {
-  showLeaveList.value = !showLeaveList.value;
-  if (showLeaveList.value && leaveRequestsThisYear.value.length === 0) {
+  showLeaveDialog.value = true;
+  if (leaveRequestsThisYear.value.length === 0) {
+    await fetchLeaveRequestsThisYear();
+  }
+};
+
+const openLeaveListDialog = async () => {
+  showLeaveDialog.value = true;
+  if (leaveRequestsThisYear.value.length === 0) {
     await fetchLeaveRequestsThisYear();
   }
 };
@@ -1157,6 +1069,12 @@ const formatPhoneNumber = (phone) => {
   // Format: (+63) 095 - 661 - 5819 (if it matches your format)
   return phone;
 };
+
+const normalizeStatusClass = (status) =>
+  String(status || "inactive")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
 
 const viewEmployeeDetails = (item) => {
   selectedEmployee.value = JSON.parse(JSON.stringify(item));
@@ -1550,6 +1468,11 @@ watch(filter, () => {});
 
   &.warning-stat .stat-icon {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+  }
+
+  &.pending-stat .stat-icon {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
     color: white;
   }
 }
@@ -2287,29 +2210,122 @@ watch(filter, () => {});
     }
   }
 
+  .leave-summary-cards {
+    margin-bottom: 18px;
+
+    .leave-summary-card {
+      border-radius: 20px;
+      padding: 20px;
+      min-height: 110px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+
+      .summary-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #64748b;
+      }
+
+      .summary-value {
+        font-size: 26px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+    }
+
+    .summary-total {
+      background: #eef2ff;
+    }
+
+    .summary-pending {
+      background: #fdf2f8;
+    }
+
+    .summary-approved {
+      background: #ecfdf5;
+    }
+
+    .summary-rejected {
+      background: #fef3f2;
+    }
+  }
+
+  .leave-filters {
+    margin-bottom: 18px;
+
+    .leave-search {
+      :deep(.q-field__control) {
+        border-radius: 16px;
+      }
+    }
+
+    .leave-filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .leave-filter-pill {
+      background: #f8fafc;
+      color: #475569;
+      min-width: 96px;
+      font-weight: 500;
+      border: 1px solid rgba(100, 116, 139, 0.12);
+      transition: all 0.2s ease;
+    }
+
+    .leave-filter-pill.active-pill {
+      background: #667eea;
+      color: white;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    }
+  }
+
   .leave-request-card {
-    border-radius: 12px;
+    border-radius: 18px;
     transition: all 0.3s ease;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.12);
 
     &:hover {
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
       transform: translateY(-2px);
     }
 
+    .leave-card-header {
+      .text-subtitle2 {
+        font-size: 16px;
+        color: #0f172a;
+      }
+
+      .text-caption {
+        font-size: 13px;
+      }
+    }
+
     .leave-status-chip {
-      font-weight: 500;
+      font-weight: 600;
       text-transform: capitalize;
+      border-radius: 999px;
+      padding: 0 12px;
     }
 
     .leave-details {
+      margin-top: 16px;
+
       .detail-row {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
+        gap: 10px;
+        margin-bottom: 10px;
         font-size: 14px;
-        color: #64748b;
+        color: #475569;
 
         &:last-child {
           margin-bottom: 0;
@@ -2319,6 +2335,15 @@ watch(filter, () => {});
           color: #94a3b8;
           flex-shrink: 0;
         }
+      }
+    }
+
+    .leave-card-actions {
+      padding-top: 10px;
+
+      .leave-action-btn {
+        color: #3b82f6;
+        font-weight: 600;
       }
     }
   }
