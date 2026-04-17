@@ -356,16 +356,18 @@
 
       <div class="edit-actions-modern">
         <q-btn flat label="Cancel" color="grey-7" v-close-popup class="btn-cancel" no-caps />
-        <q-btn label="Save Changes" color="primary" @click="saveEdit" class="btn-save" no-caps unelevated />
+        <q-btn label="Save Changes" color="primary" @click="saveEdit" :loading="isSaving" class="btn-save" no-caps unelevated />
       </div>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useQuasar } from "quasar";
 import LeaveCard from "./LeaveCard.vue";
 import { getAllMockLeaves } from "./mockLeaveData.js";
+import { useEmployeeLeaveStore } from "src/stores/employee-leave";
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -373,9 +375,24 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "updated"]);
 
+const leaveStore = useEmployeeLeaveStore();
+const $q = useQuasar();
+
+const isSaving = ref(false);
 const searchQuery = ref("");
+
+// Fetch on open if needed
+watch(() => props.modelValue, async (isOpen) => {
+  if (isOpen && (!props.leaveRequests || props.leaveRequests.length === 0)) {
+    try {
+      await leaveStore.fetchLeaveRequests();
+    } catch (e) {
+      console.error('Failed to fetch leaves on dialog open:', e);
+    }
+  }
+});
 const selectedFilter = ref("all");
 
 const dialogOpen = computed({
@@ -394,10 +411,15 @@ const statusButtons = [
 const normalizeStatus = (status = "") =>
   String(status).trim().toLowerCase().replace(/\s+/g, "-");
 
-// Use mockLeaveData if no real data is provided
+// Use real data from props or store, otherwise mock
 const displayRequests = computed(() => {
-  const hasRealData = props.leaveRequests && props.leaveRequests.length > 0;
-  return hasRealData ? props.leaveRequests : getAllMockLeaves();
+  if (props.leaveRequests && props.leaveRequests.length > 0) {
+    return props.leaveRequests;
+  }
+  if (leaveStore.employeeLeavesRequests && leaveStore.employeeLeavesRequests.length > 0) {
+    return leaveStore.employeeLeavesRequests;
+  }
+  return getAllMockLeaves();
 });
 
 const filteredRequests = computed(() => {
@@ -572,24 +594,44 @@ const getStatusIcon = (status) => {
   return icons[status] || 'help';
 };
 
-const saveEdit = () => {
-  // UI ONLY: In the future, call API here
-  console.log('Saving leave request...', {
-    id: activeLeave.value?.id,
-    newStatus: editLeaveForm.value.status,
-    remarks: editLeaveForm.value.remarks,
-    start_date: editLeaveForm.value.start_date,
-    end_date: editLeaveForm.value.end_date
-  });
-  
-  // Optimistic UI update (optional, just for demonstration)
-  if (activeLeave.value) {
-    activeLeave.value.status = editLeaveForm.value.status.toLowerCase();
-    activeLeave.value.start_date = editLeaveForm.value.start_date;
-    activeLeave.value.end_date = editLeaveForm.value.end_date;
-  }
+const saveEdit = async () => {
+  if (!activeLeave.value) return;
 
-  editDialogOpen.value = false;
+  isSaving.value = true;
+  try {
+    await leaveStore.updateLeaveStatus(activeLeave.value.id, {
+      status: editLeaveForm.value.status.toLowerCase(),
+      remarks: editLeaveForm.value.remarks,
+      start_date: editLeaveForm.value.start_date,
+      end_date: editLeaveForm.value.end_date
+    });
+    
+    $q.notify({
+      type: 'positive',
+      message: 'Leave request updated successfully',
+      position: 'top-right'
+    });
+
+    // Optimistic UI update
+    if (activeLeave.value) {
+      activeLeave.value.status = editLeaveForm.value.status.toLowerCase();
+      activeLeave.value.start_date = editLeaveForm.value.start_date;
+      activeLeave.value.end_date = editLeaveForm.value.end_date;
+      activeLeave.value.remarks = editLeaveForm.value.remarks;
+    }
+
+    emit("updated");
+    editDialogOpen.value = false;
+  } catch (error) {
+    console.error('Save error:', error);
+    $q.notify({
+      type: 'negative',
+      message: leaveStore.error || 'Failed to update leave request',
+      position: 'top-right'
+    });
+  } finally {
+    isSaving.value = false;
+  }
 };
 </script>
 

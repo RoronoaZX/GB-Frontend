@@ -39,7 +39,7 @@
                 color="negative"
                 rounded
               >
-                Pending Leave Count
+                {{ pendingLeaveCount }}
               </q-badge>
               <q-tooltip>View Leave Requests</q-tooltip>
             </q-btn>
@@ -356,6 +356,23 @@
         </q-card-section>
 
         <q-card-section v-if="selectedEmployee" class="dialog-content">
+
+          <!-- PENDING LEAVE ALERT BANNER -->
+          <q-banner
+            v-if="hasPendingLeaveForSelected"
+            class="bg-warning text-white q-mb-md"
+            rounded
+            dense
+          >
+            <template v-slot:avatar>
+              <q-icon name="warning" color="white" />
+            </template>
+            This employee has a pending leave request that requires your attention.
+            <template v-slot:action>
+              <q-btn flat color="white" label="View Requests" @click="openLeaveListDialog" />
+            </template>
+          </q-banner>
+
           <!-- Employee Profile Header -->
           <div class="employee-profile-header">
             <q-avatar size="80px" class="profile-avatar">
@@ -923,8 +940,8 @@ const onLeaveCount = computed(
 
 const pendingLeaveCount = computed(
   () =>
-    branchEmployee.value.filter(
-      (item) => item.employee?.status?.toLowerCase() === "pending leave"
+    (leaveStore.employeeLeavesRequests || []).filter(
+      (req) => req.status?.toLowerCase() === "pending"
     ).length
 );
 
@@ -932,6 +949,13 @@ const pendingLeaveCount = computed(
 const leaveRequestsThisYear = computed(
   () => leaveStore.employeeLeavesRequests || []
 );
+
+const hasPendingLeaveForSelected = computed(() => {
+  if (!selectedEmployee.value?.employee?.id) return false;
+  return (leaveStore.employeeLeavesRequests || []).some(
+    (req) => req.employee_id === selectedEmployee.value.employee.id && req.status?.toLowerCase() === "pending"
+  );
+});
 
 // Filters
 const filters = [

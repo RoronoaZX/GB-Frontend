@@ -1,5 +1,11 @@
 <template>
-  <q-dialog v-model="dialogValue" position="bottom" full-width transition-show="slide-up" transition-hide="slide-down">
+  <q-dialog
+    v-model="dialogValue"
+    position="bottom"
+    full-width
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
     <q-card class="employee-details-card" v-if="employee">
       <div class="drag-handle-wrapper">
         <div class="drag-handle"></div>
@@ -9,7 +15,14 @@
         <div class="header-text">
           <h6 class="text-h5 text-weight-bolder q-my-none">Employee Profile</h6>
         </div>
-        <q-btn v-close-popup flat round dense icon="close" class="close-icon-btn" />
+        <q-btn
+          v-close-popup
+          flat
+          round
+          dense
+          icon="close"
+          class="close-icon-btn"
+        />
       </q-card-section>
 
       <q-card-section class="dialog-body-modern">
@@ -337,6 +350,69 @@
             </div>
           </div>
         </div>
+
+        <!-- NEW LEAVE BALANCE DASHBOARD -->
+        <div class="leave-dashboard-section">
+          <div class="section-title">
+            <q-icon
+              name="event_available"
+              size="20px"
+              class="q-mr-sm"
+              color="primary"
+            />
+            Leave Balances Dashboard
+          </div>
+
+          <div class="leave-balance-grid">
+            <!-- Vacation Leave -->
+            <div class="leave-card vacation">
+              <div class="leave-card-icon">
+                <q-icon name="beach_access" size="24px" />
+              </div>
+              <div class="leave-card-content">
+                <div class="leave-name">Vacation Leave</div>
+                <div class="leave-stats">
+                  <span class="days-left">{{
+                    employee.employee?.vl_balance ?? 15
+                  }}</span>
+                  <span class="days-label">days left</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sick Leave -->
+            <div class="leave-card sick">
+              <div class="leave-card-icon">
+                <q-icon name="sick" size="24px" />
+              </div>
+              <div class="leave-card-content">
+                <div class="leave-name">Sick Leave</div>
+                <div class="leave-stats">
+                  <span class="days-left">{{
+                    employee.employee?.sl_balance ?? 15
+                  }}</span>
+                  <span class="days-label">days left</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Emergency Leave -->
+            <div class="leave-card emergency">
+              <div class="leave-card-icon">
+                <q-icon name="warning" size="24px" />
+              </div>
+              <div class="leave-card-content">
+                <div class="leave-name">Emergency Leave</div>
+                <div class="leave-stats">
+                  <span class="days-left">{{
+                    employee.employee?.el_balance ?? 5
+                  }}</span>
+                  <span class="days-label">days left</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -458,7 +534,7 @@ const formatPhoneNumber = (phone) => phone;
     padding: 16px 28px 20px;
     background: #ffffff;
     border-bottom: 1px solid #f1f5f9;
-    
+
     .header-text {
       .text-h5 {
         color: #0f172a;
@@ -472,7 +548,7 @@ const formatPhoneNumber = (phone) => phone;
       color: #64748b;
       transition: all 0.2s ease;
       border-radius: 12px;
-      
+
       &:hover {
         background: #e2e8f0;
         color: #0f172a;
@@ -494,9 +570,9 @@ const formatPhoneNumber = (phone) => phone;
     padding: 24px 28px;
     background: #ffffff;
     position: relative;
-    
+
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: 0;
       left: 28px;
@@ -508,7 +584,7 @@ const formatPhoneNumber = (phone) => phone;
     .avatar-container {
       position: relative;
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         inset: -4px;
         border-radius: 50%;
@@ -585,7 +661,7 @@ const formatPhoneNumber = (phone) => phone;
       font-size: 0.95rem;
       font-weight: 600;
       color: #1e293b;
-      
+
       &.schedule-value {
         width: 100%;
       }
@@ -603,7 +679,7 @@ const formatPhoneNumber = (phone) => phone;
       border-radius: 10px;
       padding: 4px;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      
+
       /* Make it visible on touch devices or hover */
       @media (hover: none) {
         opacity: 1;
@@ -613,7 +689,7 @@ const formatPhoneNumber = (phone) => phone;
     .details-row:hover .edit-icon-btn {
       opacity: 1;
       background: #eef2ff;
-      
+
       &:hover {
         background: #667eea;
         color: #ffffff !important;
@@ -629,13 +705,14 @@ const formatPhoneNumber = (phone) => phone;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      
+
       &.active {
         background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
         color: #047857;
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
       }
-      &.on-leave, &[class*="leave"] {
+      &.on-leave,
+      &[class*="leave"] {
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         color: #b45309;
         box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
@@ -644,6 +721,125 @@ const formatPhoneNumber = (phone) => phone;
         background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
         color: #b91c1c;
         box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+      }
+    }
+  }
+
+  /* LEAVE DASHBOARD STYLES */
+  .leave-dashboard-section {
+    padding: 0 28px 28px;
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      letter-spacing: -0.3px;
+    }
+
+    .leave-balance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+    }
+
+    .leave-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+      }
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      &.vacation {
+        &::before {
+          background: linear-gradient(90deg, #10b981, #059669);
+        }
+        .leave-card-icon {
+          color: #10b981;
+          background: #ecfdf5;
+        }
+      }
+
+      &.sick {
+        &::before {
+          background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .leave-card-icon {
+          color: #667eea;
+          background: #eef2ff;
+        }
+      }
+
+      &.emergency {
+        &::before {
+          background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        .leave-card-icon {
+          color: #f59e0b;
+          background: #fffbeb;
+        }
+      }
+
+      .leave-card-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .leave-card-content {
+        .leave-name {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+        }
+
+        .leave-stats {
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+
+          .days-left {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -1px;
+            line-height: 1;
+          }
+
+          .days-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #94a3b8;
+          }
+        }
       }
     }
   }
