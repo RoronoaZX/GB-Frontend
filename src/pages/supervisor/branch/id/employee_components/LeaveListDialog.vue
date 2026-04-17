@@ -411,15 +411,14 @@ const statusButtons = [
 const normalizeStatus = (status = "") =>
   String(status).trim().toLowerCase().replace(/\s+/g, "-");
 
-// Use real data from props or store, otherwise mock
 const displayRequests = computed(() => {
   if (props.leaveRequests && props.leaveRequests.length > 0) {
     return props.leaveRequests;
   }
-  if (leaveStore.employeeLeavesRequests && leaveStore.employeeLeavesRequests.length > 0) {
+  if (leaveStore.employeeLeavesRequests) {
     return leaveStore.employeeLeavesRequests;
   }
-  return getAllMockLeaves();
+  return [];
 });
 
 const filteredRequests = computed(() => {
