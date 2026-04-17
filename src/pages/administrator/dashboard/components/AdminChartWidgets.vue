@@ -4,8 +4,8 @@
     <div class="col-12 col-md-8">
       <q-card class="chart-card" flat bordered>
         <q-card-section>
-          <div class="text-h6 text-weight-bolder text-grey-8">Weekly Sales Trend</div>
-          <div class="text-caption text-grey-5">Gross revenue aggregated across all branches over the last 7 days.</div>
+          <div class="text-h6 text-weight-bolder text-grey-8">{{ timeRangeDescription }} Sales Trend</div>
+          <div class="text-caption text-grey-5">True Net revenue (Sales minus branch operating expenses) mapped over the selected timeline.</div>
         </q-card-section>
         <q-card-section>
           <div class="chart-container">
@@ -43,6 +43,14 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  trendLabels: {
+    type: Array,
+    default: () => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  },
+  timeRangeDescription: {
+    type: String,
+    default: 'Weekly'
+  },
   distributionData: {
     type: Array,
     default: () => []
@@ -70,11 +78,11 @@ const renderCharts = () => {
     trendChartInstance = new Chart(ctx, {
       type: "line",
       data: {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        labels: props.trendLabels,
         datasets: [
           {
-            label: "Gross Sales (₱)",
-            data: props.trendData.length ? props.trendData : [1200, 1900, 1500, 2200, 1800, 2900, 3100],
+            label: "Net Sales (₱)",
+            data: props.trendData.length ? props.trendData : [0,0,0,0,0,0,0],
             borderColor: "#3b82f6",
             backgroundColor: gradient,
             borderWidth: 3,

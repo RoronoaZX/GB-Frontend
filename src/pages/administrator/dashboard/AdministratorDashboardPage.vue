@@ -5,18 +5,43 @@
       <div class="row items-center justify-between">
         <div>
           <div class="text-h4 text-weight-bolder text-dark q-mb-xs">
-            Admin Dashboard
+            Admin Dashboard <span v-if="dashboardStore.selectedBranch !== 'global'" class="text-primary text-h5 q-ml-sm">- {{ dashboardStore.stats.branchesList.find(b => b.id === dashboardStore.selectedBranch)?.name }}</span>
           </div>
           <div class="text-subtitle1 text-grey-6">
-            System overview and business intelligence
+            <span v-if="dashboardStore.selectedBranch === 'global'">System overview and business intelligence</span>
+            <span v-else>Localized branch analytics and intelligence</span>
           </div>
         </div>
-        <div class="header-actions">
+        <div class="header-actions row items-center no-wrap">
+          <q-select
+            v-model="dashboardStore.selectedBranch"
+            :options="[{label: 'Network Global', value: 'global'}, ...dashboardStore.stats.branchesList.map(b => ({label: b.name, value: b.id}))]"
+            emit-value
+            map-options
+            dense
+            outlined
+            bg-color="white"
+            class="q-mr-sm"
+            style="min-width: 220px; border-radius: 8px;"
+            @update:model-value="val => dashboardStore.setBranch(val)"
+          />
+
+          <q-btn
+            unelevated
+            outline
+            color="primary"
+            icon="print"
+            label="Export PDF"
+            class="q-mr-sm"
+            @click="openPrintDialog"
+            style="border-radius: 8px;"
+          />
+
           <q-btn
             unelevated
             color="primary"
             icon="sync"
-            label="Refresh Data"
+            label="Refresh"
             :loading="dashboardStore.loading"
             @click="dashboardStore.fetchDashboardMetrics()"
             class="refresh-btn"
@@ -43,26 +68,233 @@
       <!-- Top Cards -->
       <AdminDashboardCards :stats="dashboardStore.stats" />
 
+      <!-- Time Range Selection Controls -->
+      <div class="row justify-end q-mt-md q-mb-sm">
+        <q-btn-group outline rounded>
+          <q-btn 
+            :color="dashboardStore.timeRange === '7D' ? 'primary' : 'grey-7'" 
+            :flat="dashboardStore.timeRange !== '7D'" 
+            label="7D" 
+            @click="dashboardStore.setTimeRange('7D')" 
+          />
+          <q-btn 
+            :color="dashboardStore.timeRange === '1M' ? 'primary' : 'grey-7'" 
+            :flat="dashboardStore.timeRange !== '1M'" 
+            label="1M" 
+            @click="dashboardStore.setTimeRange('1M')" 
+          />
+          <q-btn 
+            :color="dashboardStore.timeRange === '3M' ? 'primary' : 'grey-7'" 
+            :flat="dashboardStore.timeRange !== '3M'" 
+            label="3M" 
+            @click="dashboardStore.setTimeRange('3M')" 
+          />
+          <q-btn 
+            :color="dashboardStore.timeRange === '1Y' ? 'primary' : 'grey-7'" 
+            :flat="dashboardStore.timeRange !== '1Y'" 
+            label="1Y" 
+            @click="dashboardStore.setTimeRange('1Y')" 
+          />
+        </q-btn-group>
+      </div>
+
       <!-- Analytics Charts -->
       <AdminChartWidgets 
         :trendData="dashboardStore.stats.totalSalesData"
+        :trendLabels="dashboardStore.chartLabels"
+        :timeRangeDescription="timeRangeText"
         :distributionData="dashboardStore.stats.branchSalesDistribution"
       />
 
       <!-- Bottom Activity Feed -->
       <AdminRecentActivity :activities="dashboardStore.stats.recentActivity" />
     </div>
+
+    <!-- PDF Print Dialog -->
+    <q-dialog
+      v-model="printDialog"
+      maximized
+      persistent
+      transition-show="slide-up"
+      transition-hide="slide-down"
+    >
+      <div class="q-pa-md" style="width: 100%;">
+        <q-card class="bg-dark column full-height">
+          <q-card-section class="row justify-between items-center bg-primary text-white q-py-sm">
+            <div class="row items-center">
+              <q-icon name="picture_as_pdf" size="sm" class="q-mr-sm" />
+              <div class="text-h6">System Analytics Report PDF</div>
+            </div>
+            <div>
+              <q-btn dense flat icon="print" class="q-mr-md" @click="triggerPhysicalPrint">
+                <q-tooltip>Print Document</q-tooltip>
+              </q-btn>
+              <q-btn dense flat icon="close" v-close-popup>
+                <q-tooltip>Close</q-tooltip>
+              </q-btn>
+            </div>
+          </q-card-section>
+
+          <q-card-section class="col q-pa-none">
+            <iframe :src="pdfUrl" width="100%" height="100%" style="border: none;" />
+          </q-card-section>
+        </q-card>
+      </div>
+    </q-dialog>
+
   </q-page>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, computed, ref } from "vue";
 import { useDashboardStore } from "src/stores/dashboard";
 import AdminDashboardCards from "./components/AdminDashboardCards.vue";
 import AdminChartWidgets from "./components/AdminChartWidgets.vue";
 import AdminRecentActivity from "./components/AdminRecentActivity.vue";
 
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
+
+pdfMake.vfs = pdfFonts.default;
+
 const dashboardStore = useDashboardStore();
+const printDialog = ref(false);
+const pdfUrl = ref("");
+
+const timeRangeText = computed(() => {
+  const map = {
+    '7D': 'Weekly',
+    '1M': 'Monthly',
+    '3M': 'Quarterly',
+    '1Y': 'Yearly'
+  };
+  return map[dashboardStore.timeRange] || 'Weekly';
+});
+
+// Formal PDF Generation Logic
+let currentDocDefinition = null;
+
+const openPrintDialog = () => {
+  currentDocDefinition = generateDashboardDocDefinition();
+  pdfMake.createPdf(currentDocDefinition).getDataUrl((dataUrl) => {
+    pdfUrl.value = dataUrl;
+    printDialog.value = true;
+  });
+};
+
+const triggerPhysicalPrint = () => {
+  if (currentDocDefinition) {
+    pdfMake.createPdf(currentDocDefinition).print();
+  }
+};
+
+const generateDashboardDocDefinition = () => {
+  const branchName = dashboardStore.selectedBranch !== 'global' 
+    ? dashboardStore.stats.branchesList.find(b => b.id === dashboardStore.selectedBranch)?.name || 'Specific Branch'
+    : 'Network Global';
+    
+  const totalRevenue = (dashboardStore.stats.totalSalesData || []).reduce((a,b)=>a+b, 0);
+
+  // Map Sales Data into a printable table
+  const salesTableBody = [
+    [
+      { text: 'Timeline Interval', style: 'tableHeader' },
+      { text: 'Net Revenue (₱)', style: 'tableHeader', alignment: 'right' }
+    ]
+  ];
+
+  dashboardStore.chartLabels.forEach((label, index) => {
+    salesTableBody.push([
+      label,
+      { text: `₱${(dashboardStore.stats.totalSalesData[index] || 0).toLocaleString()}`, alignment: 'right' }
+    ]);
+  });
+
+  // Calculate totals to inject at bottom
+  salesTableBody.push([
+    { text: 'Total Selected Revenue', style: 'tableHeader' },
+    { text: `₱${totalRevenue.toLocaleString()}`, style: 'tableHeader', alignment: 'right' }
+  ]);
+
+  return {
+    content: [
+      { text: 'GB Bakeshop Analytics', style: 'superHeader' },
+      { text: `Executive Dashboard Report | Location: ${branchName}`, style: 'subtext', margin: [0, 0, 0, 20] },
+      
+      { text: 'Top-Level System Metrics', style: 'header', marginTop: 10 },
+      {
+        table: {
+          widths: ['*', '*', '*', '*'],
+          body: [
+            [
+              { text: 'Active Locations', bold: true },
+              { text: 'Registered Staff', bold: true },
+              { text: 'Active Recipes', bold: true },
+              { text: 'Low Stock Warnings', bold: true, color: 'red' }
+            ],
+            [
+              { text: dashboardStore.stats.totalBranches.toString(), fontSize: 16 },
+              { text: dashboardStore.stats.totalEmployees.toString(), fontSize: 16 },
+              { text: dashboardStore.stats.totalRecipes.toString(), fontSize: 16 },
+              { text: dashboardStore.stats.lowStockItems.toString(), fontSize: 16, color: 'red' }
+            ]
+          ]
+        },
+        layout: 'lightHorizontalLines',
+        margin: [0, 10, 0, 20]
+      },
+
+      { text: `Financial Performance (${timeRangeText.value})`, style: 'header', marginTop: 20 },
+      { text: 'Aggregated revenue scaled over the selected time bracket.', style: 'subtext', margin: [0, 0, 0, 10] },
+      {
+        table: {
+          headerRows: 1,
+          widths: ['*', '*'],
+          body: salesTableBody
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return (rowIndex === 0) ? '#f3f4f6' : null;
+          }
+        },
+        margin: [0, 0, 0, 30]
+      },
+      
+      { text: 'Report automatically generated via Administrator Console', style: 'footer', alignment: 'center', margin: [0, 40, 0, 0] }
+    ],
+    styles: {
+      superHeader: {
+        fontSize: 22,
+        bold: true,
+        color: '#1f2937'
+      },
+      header: {
+        fontSize: 16,
+        bold: true,
+        color: '#4b5563',
+        marginBottom: 5
+      },
+      subtext: {
+        fontSize: 10,
+        color: '#6b7280',
+        italics: true
+      },
+      tableHeader: {
+        bold: true,
+        fontSize: 12,
+        color: '#374151'
+      },
+      footer: {
+        fontSize: 9,
+        color: '#9ca3af',
+        italics: true
+      }
+    },
+    defaultStyle: {
+      font: 'Roboto'
+    }
+  };
+};
 
 onMounted(() => {
   // Fetch high-level analytics in parallel over network

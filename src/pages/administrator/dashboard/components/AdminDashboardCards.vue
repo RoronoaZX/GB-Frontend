@@ -52,7 +52,7 @@
             </div>
             <div class="card-info q-ml-md">
               <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
-                Weekly Revenue
+                {{ timeRangeText }} Revenue
               </div>
               <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
                 ₱{{ ((stats.totalSalesData || []).reduce((a,b)=>a+b, 0)).toLocaleString() }}
@@ -83,15 +83,96 @@
         </q-card-section>
       </q-card>
     </div>
+
+    <!-- NEW ROW: SECONDARY METRICS -->
+    
+    <!-- Total Recipes -->
+    <div class="col-12 col-sm-4 col-lg-4">
+      <q-card class="dashboard-stat-card elegant-card" flat>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-emerald">
+              <q-icon name="restaurant_menu" size="32px" />
+            </div>
+            <div class="card-info q-ml-md">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                Total Recipes
+              </div>
+              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
+                {{ stats.totalRecipes || 0 }}
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Total Suppliers -->
+    <div class="col-12 col-sm-4 col-lg-4">
+      <q-card class="dashboard-stat-card elegant-card" flat>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-blue">
+              <q-icon name="local_shipping" size="32px" />
+            </div>
+            <div class="card-info q-ml-md">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                Active Suppliers
+              </div>
+              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
+                {{ stats.totalSuppliers || 0 }}
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Total Baker Reports -->
+    <div class="col-12 col-sm-4 col-lg-4">
+      <q-card class="dashboard-stat-card elegant-card" flat>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-purple">
+              <q-icon name="assignment_turned_in" size="32px" />
+            </div>
+            <div class="card-info q-ml-md">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                Baker Reports
+              </div>
+              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
+                {{ stats.totalBakerReports || 0 }}
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+import { useDashboardStore } from "src/stores/dashboard";
+
+const props = defineProps({
   stats: {
     type: Object,
     required: true,
   },
+});
+
+const dashboardStore = useDashboardStore();
+
+const timeRangeText = computed(() => {
+  const map = {
+    '7D': '7-Day',
+    '1M': 'Monthly',
+    '3M': 'Quarterly',
+    '1Y': 'Yearly'
+  };
+  return map[dashboardStore.timeRange] || 'Weekly';
 });
 </script>
 
