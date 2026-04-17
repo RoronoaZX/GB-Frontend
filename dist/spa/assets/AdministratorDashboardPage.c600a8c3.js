@@ -1,0 +1,1 @@
+import{Q as e}from"./QPage.14a00a99.js";import{o as t,e as r,w as o,Z as s}from"./index.342faf3d.js";const m={__name:"AdministratorDashboardPage",setup(d){return(n,a)=>(t(),r(e,{padding:""},{default:o(()=>[...a[0]||(a[0]=[s(" Dashboard Page ",-1)])]),_:1}))}};export{m as default};

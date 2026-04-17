@@ -146,7 +146,11 @@
             :key="`${leave.id}-${index}`"
             class="leave-item"
           >
-            <LeaveCard :leave="leave" @edit="openEditDialog(leave)" @view="openViewDialog(leave)" />
+            <LeaveCard
+              :leave="leave"
+              @edit="openEditDialog(leave)"
+              @view="openViewDialog(leave)"
+            />
           </div>
         </div>
 
@@ -173,14 +177,34 @@
   </q-dialog>
 
   <!-- Full Leave Details View Dialog -->
-  <q-dialog v-model="viewDialogOpen" position="right" maximized transition-show="slide-left" transition-hide="slide-down">
+  <q-dialog
+    v-model="viewDialogOpen"
+    position="right"
+    maximized
+    transition-show="slide-left"
+    transition-hide="slide-down"
+  >
     <q-card class="view-details-card">
       <q-card-section class="view-header">
-        <q-btn icon="arrow_back" flat round dense v-close-popup class="back-btn q-mr-sm" />
+        <q-btn
+          icon="arrow_back"
+          flat
+          round
+          dense
+          v-close-popup
+          class="back-btn q-mr-sm"
+        />
         <div class="header-content">
           <h6 class="text-h6 text-weight-bolder q-my-none">Leave Details</h6>
         </div>
-        <q-btn icon="close" flat round dense v-close-popup class="close-icon-btn q-ml-auto" />
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          v-close-popup
+          class="close-icon-btn q-ml-auto"
+        />
       </q-card-section>
 
       <q-card-section class="view-body" v-if="activeLeave">
@@ -191,11 +215,16 @@
           </q-avatar>
           <div class="profile-info">
             <div class="profile-name">{{ getEmployeeName(activeLeave) }}</div>
-            <div class="profile-position">{{ activeLeave.employee?.position || 'Staff' }}</div>
+            <div class="profile-position">
+              {{ activeLeave.employee?.position || "Staff" }}
+            </div>
           </div>
           <div class="status-wrapper">
-            <div class="status-badge" :class="activeLeave.status?.toLowerCase() || 'pending'">
-              {{ activeLeave.status || 'Pending' }}
+            <div
+              class="status-badge"
+              :class="activeLeave.status?.toLowerCase() || 'pending'"
+            >
+              {{ activeLeave.status || "Pending" }}
             </div>
           </div>
         </div>
@@ -208,7 +237,9 @@
             </div>
             <div class="info-content">
               <div class="info-label">Leave Type</div>
-              <div class="info-value">{{ activeLeave.leave_type || activeLeave.type || 'N/A' }}</div>
+              <div class="info-value">
+                {{ activeLeave.leave_type || activeLeave.type || "N/A" }}
+              </div>
             </div>
           </div>
           <div class="info-box duration-box">
@@ -217,7 +248,9 @@
             </div>
             <div class="info-content">
               <div class="info-label">Duration</div>
-              <div class="info-value">{{ activeLeave.duration_value }} {{ activeLeave.duration_type }}</div>
+              <div class="info-value">
+                {{ activeLeave.duration_value }} {{ activeLeave.duration_type }}
+              </div>
             </div>
           </div>
         </div>
@@ -228,7 +261,9 @@
             <div class="timeline-dot bg-primary"></div>
             <div class="timeline-content">
               <div class="timeline-label">Start Date</div>
-              <div class="timeline-date">{{ formatDateDefault(activeLeave.start_date) }}</div>
+              <div class="timeline-date">
+                {{ formatDateDefault(activeLeave.start_date) }}
+              </div>
             </div>
           </div>
           <div class="timeline-line"></div>
@@ -236,7 +271,9 @@
             <div class="timeline-dot bg-secondary"></div>
             <div class="timeline-content">
               <div class="timeline-label">End Date</div>
-              <div class="timeline-date">{{ formatDateDefault(activeLeave.end_date) }}</div>
+              <div class="timeline-date">
+                {{ formatDateDefault(activeLeave.end_date) }}
+              </div>
             </div>
           </div>
         </div>
@@ -244,37 +281,66 @@
         <!-- Reason -->
         <div class="section-title">Reason for Leave</div>
         <div class="reason-block q-mb-lg">
-          <p class="reason-text">{{ activeLeave.reason || 'No reason provided.' }}</p>
+          <p class="reason-text">
+            {{ activeLeave.reason || "No reason provided." }}
+          </p>
         </div>
 
         <!-- Meta Info -->
         <div class="meta-section">
           <div class="meta-row">
             <span class="meta-label">Date Requested</span>
-            <span class="meta-value">{{ formatDateTime(activeLeave.created_at || activeLeave.requested_at) }}</span>
+            <span class="meta-value">{{
+              formatDateTime(activeLeave.created_at || activeLeave.requested_at)
+            }}</span>
           </div>
           <div class="meta-separator" v-if="activeLeave.handled_by"></div>
           <div class="meta-row" v-if="activeLeave.handled_by">
             <span class="meta-label">Handled By</span>
-            <span class="meta-value text-weight-bold text-primary">{{ activeLeave.handled_by }}</span>
+            <span class="meta-value text-weight-bold text-primary">{{
+              activeLeave.handled_by
+            }}</span>
           </div>
           <div class="meta-separator" v-if="activeLeave.remarks"></div>
           <div class="meta-row remarks-row" v-if="activeLeave.remarks">
             <span class="meta-label">Supervisor Remarks</span>
-            <span class="meta-value remarks-text">"{{ activeLeave.remarks }}"</span>
+            <span class="meta-value remarks-text"
+              >"{{ activeLeave.remarks }}"</span
+            >
           </div>
         </div>
       </q-card-section>
-      
+
       <div class="view-footer" v-if="activeLeave">
-         <q-btn flat outline no-caps label="Close" color="grey-8" v-close-popup class="btn-close" />
-         <q-btn unelevated no-caps label="Edit Status" color="primary" @click="openEditDialog(activeLeave)" class="btn-edit" />
+        <q-btn
+          flat
+          outline
+          no-caps
+          label="Close"
+          color="grey-8"
+          v-close-popup
+          class="btn-close"
+        />
+        <q-btn
+          unelevated
+          no-caps
+          label="Edit Status"
+          color="primary"
+          @click="openEditDialog(activeLeave)"
+          class="btn-edit"
+        />
       </div>
     </q-card>
   </q-dialog>
 
   <!-- Improved Elegant Edit Status Dialog -->
-  <q-dialog v-model="editDialogOpen" position="bottom" full-width transition-show="slide-up" transition-hide="slide-down">
+  <q-dialog
+    v-model="editDialogOpen"
+    position="bottom"
+    full-width
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
     <q-card class="edit-status-card">
       <!-- Drag Handle for Mobile Feel -->
       <div class="drag-handle-wrapper">
@@ -284,9 +350,18 @@
       <q-card-section class="edit-header">
         <div class="header-content">
           <h6 class="text-h5 text-weight-bolder q-my-none">Update Request</h6>
-          <div class="text-caption text-grey-6 q-mt-xs font-medium">Set the status and modify dates if needed</div>
+          <div class="text-caption text-grey-6 q-mt-xs font-medium">
+            Set the status and modify dates if needed
+          </div>
         </div>
-        <q-btn icon="close" flat round dense v-close-popup class="close-icon-btn" />
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          v-close-popup
+          class="close-icon-btn"
+        />
       </q-card-section>
 
       <q-card-section class="edit-body">
@@ -298,7 +373,7 @@
             class="status-option-modern"
             :class="[
               { 'is-active': editLeaveForm.status === status },
-              status.toLowerCase()
+              status.toLowerCase(),
             ]"
             @click="editLeaveForm.status = status"
           >
@@ -306,7 +381,10 @@
               <q-icon :name="getStatusIcon(status)" size="22px" />
             </div>
             <div class="status-label">{{ status }}</div>
-            <div class="active-dot" v-if="editLeaveForm.status === status"></div>
+            <div
+              class="active-dot"
+              v-if="editLeaveForm.status === status"
+            ></div>
           </div>
         </div>
 
@@ -322,7 +400,12 @@
               color="primary"
             >
               <template v-slot:prepend>
-                <q-icon name="event" size="18px" color="primary" class="q-ml-sm" />
+                <q-icon
+                  name="event"
+                  size="18px"
+                  color="primary"
+                  class="q-ml-sm"
+                />
               </template>
             </q-input>
           </div>
@@ -336,7 +419,12 @@
               color="primary"
             >
               <template v-slot:prepend>
-                <q-icon name="date_range" size="18px" color="primary" class="q-ml-sm" />
+                <q-icon
+                  name="date_range"
+                  size="18px"
+                  color="primary"
+                  class="q-ml-sm"
+                />
               </template>
             </q-input>
           </div>
@@ -355,8 +443,23 @@
       </q-card-section>
 
       <div class="edit-actions-modern">
-        <q-btn flat label="Cancel" color="grey-7" v-close-popup class="btn-cancel" no-caps />
-        <q-btn label="Save Changes" color="primary" @click="saveEdit" :loading="isSaving" class="btn-save" no-caps unelevated />
+        <q-btn
+          flat
+          label="Cancel"
+          color="grey-7"
+          v-close-popup
+          class="btn-cancel"
+          no-caps
+        />
+        <q-btn
+          label="Save Changes"
+          color="primary"
+          @click="saveEdit"
+          :loading="isSaving"
+          class="btn-save"
+          no-caps
+          unelevated
+        />
       </div>
     </q-card>
   </q-dialog>
@@ -384,15 +487,18 @@ const isSaving = ref(false);
 const searchQuery = ref("");
 
 // Fetch on open if needed
-watch(() => props.modelValue, async (isOpen) => {
-  if (isOpen && (!props.leaveRequests || props.leaveRequests.length === 0)) {
-    try {
-      await leaveStore.fetchLeaveRequests();
-    } catch (e) {
-      console.error('Failed to fetch leaves on dialog open:', e);
+watch(
+  () => props.modelValue,
+  async (isOpen) => {
+    if (isOpen && (!props.leaveRequests || props.leaveRequests.length === 0)) {
+      try {
+        await leaveStore.fetchLeaveRequests();
+      } catch (e) {
+        console.error("Failed to fetch leaves on dialog open:", e);
+      }
     }
   }
-});
+);
 const selectedFilter = ref("all");
 
 const dialogOpen = computed({
@@ -407,7 +513,7 @@ const statusButtons = [
   { label: "Rejected", value: "rejected" },
   { label: "Cancelled", value: "cancelled" },
 ];
-
+// Normalize status to lowercase and replace spaces with hyphens
 const normalizeStatus = (status = "") =>
   String(status).trim().toLowerCase().replace(/\s+/g, "-");
 
@@ -521,76 +627,97 @@ const openViewDialog = (leave) => {
 
 const getEmployeeName = (leave) => {
   const emp = leave?.employee || {};
-  return (`${emp.firstname || ''} ${emp.lastname || ''}`).trim() || 'Unknown Employee';
+  return (
+    `${emp.firstname || ""} ${emp.lastname || ""}`.trim() || "Unknown Employee"
+  );
 };
 
 const getEmployeeAvatar = (leave) => {
   const emp = leave?.employee || {};
   if (emp.avatar) return emp.avatar;
-  const initials = ((emp.firstname?.[0] || '') + (emp.lastname?.[0] || '')).trim() || "NA";
+  const initials =
+    ((emp.firstname?.[0] || "") + (emp.lastname?.[0] || "")).trim() || "NA";
   return `https://ui-avatars.com/api/?name=${initials}&background=667eea&color=fff&size=128`;
 };
 
 const formatDateDefault = (dateStr) => {
   if (!dateStr) return "N/A";
   try {
-    return new Date(dateStr).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  } catch { return dateStr; }
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
 };
 
 const formatDateTime = (dateStr) => {
   if (!dateStr) return "N/A";
   try {
-    return new Date(dateStr).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: '2-digit', minute: '2-digit' });
-  } catch { return dateStr; }
+    return new Date(dateStr).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return dateStr;
+  }
 };
 
 // Edit Functionality
 const editDialogOpen = ref(false);
 const activeLeave = ref(null);
 const editLeaveForm = ref({
-  status: '',
-  remarks: '',
-  start_date: '',
-  end_date: ''
+  status: "",
+  remarks: "",
+  start_date: "",
+  end_date: "",
 });
 
 const openEditDialog = (leave) => {
   activeLeave.value = leave;
   // Initialize form with current values
   // We use capitalized status to match the UI options
-  const currentStatus = leave.status ? capitalizeFirstFilter(leave.status) : 'Pending';
-  
-  let start = '';
-  let end = '';
+  const currentStatus = leave.status
+    ? capitalizeFirstFilter(leave.status)
+    : "Pending";
+
+  let start = "";
+  let end = "";
   try {
-    if (leave.start_date) start = new Date(leave.start_date).toISOString().split('T')[0];
-    if (leave.end_date) end = new Date(leave.end_date).toISOString().split('T')[0];
+    if (leave.start_date)
+      start = new Date(leave.start_date).toISOString().split("T")[0];
+    if (leave.end_date)
+      end = new Date(leave.end_date).toISOString().split("T")[0];
   } catch (e) {
-    console.error('Date parsing error', e);
+    console.error("Date parsing error", e);
   }
 
   editLeaveForm.value = {
     status: currentStatus,
-    remarks: leave.remarks || '',
+    remarks: leave.remarks || "",
     start_date: start,
-    end_date: end
+    end_date: end,
   };
   editDialogOpen.value = true;
 };
 
 const capitalizeFirstFilter = (str) => {
-  if (!str) return '';
+  if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
 const getStatusIcon = (status) => {
   const icons = {
-    'Pending': 'schedule',
-    'Approved': 'check_circle',
-    'Rejected': 'cancel'
+    Pending: "schedule",
+    Approved: "check_circle",
+    Rejected: "cancel",
   };
-  return icons[status] || 'help';
+  return icons[status] || "help";
 };
 
 const saveEdit = async () => {
@@ -602,13 +729,13 @@ const saveEdit = async () => {
       status: editLeaveForm.value.status.toLowerCase(),
       remarks: editLeaveForm.value.remarks,
       start_date: editLeaveForm.value.start_date,
-      end_date: editLeaveForm.value.end_date
+      end_date: editLeaveForm.value.end_date,
     });
-    
+
     $q.notify({
-      type: 'positive',
-      message: 'Leave request updated successfully',
-      position: 'top-right'
+      type: "positive",
+      message: "Leave request updated successfully",
+      position: "top-right",
     });
 
     // Optimistic UI update
@@ -622,11 +749,11 @@ const saveEdit = async () => {
     emit("updated");
     editDialogOpen.value = false;
   } catch (error) {
-    console.error('Save error:', error);
+    console.error("Save error:", error);
     $q.notify({
-      type: 'negative',
-      message: leaveStore.error || 'Failed to update leave request',
-      position: 'top-right'
+      type: "negative",
+      message: leaveStore.error || "Failed to update leave request",
+      position: "top-right",
     });
   } finally {
     isSaving.value = false;
@@ -999,21 +1126,26 @@ const saveEdit = async () => {
   display: flex;
   flex-direction: column;
   background: #f8fafc;
-  
+
   .view-header {
     display: flex;
     align-items: center;
     padding: 18px 24px;
     background: #ffffff;
     border-bottom: 1px solid #f1f5f9;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
     z-index: 10;
-    
-    .back-btn, .close-icon-btn {
+
+    .back-btn,
+    .close-icon-btn {
       color: #64748b;
       background: #f1f5f9;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      &:hover { background: #e2e8f0; color: #1e293b; transform: scale(1.05); }
+      &:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+        transform: scale(1.05);
+      }
     }
   }
 
@@ -1062,10 +1194,22 @@ const saveEdit = async () => {
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.8px;
-          
-          &.pending { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #b45309; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15); }
-          &.approved { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); color: #047857; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); }
-          &.rejected { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); color: #b91c1c; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); }
+
+          &.pending {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #b45309;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+          }
+          &.approved {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            color: #047857;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+          }
+          &.rejected {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            color: #b91c1c;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+          }
         }
       }
     }
@@ -1103,7 +1247,7 @@ const saveEdit = async () => {
           background: #fef3c7;
           color: #d97706;
         }
-        
+
         .info-content {
           .info-label {
             font-size: 0.7rem;
@@ -1129,7 +1273,7 @@ const saveEdit = async () => {
       border: 1px solid #f1f5f9;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
       position: relative;
-      
+
       .timeline-item {
         display: flex;
         align-items: flex-start;
@@ -1163,8 +1307,17 @@ const saveEdit = async () => {
           }
         }
 
-        &.start { margin-bottom: 30px; .timeline-dot { background: #3b82f6; } }
-        &.end { .timeline-dot { background: #10b981; } }
+        &.start {
+          margin-bottom: 30px;
+          .timeline-dot {
+            background: #3b82f6;
+          }
+        }
+        &.end {
+          .timeline-dot {
+            background: #10b981;
+          }
+        }
       }
 
       .timeline-line {
@@ -1194,7 +1347,7 @@ const saveEdit = async () => {
       border-radius: 20px;
       border: 1px solid #fde68a;
       border-left: 5px solid #f59e0b;
-      
+
       .reason-text {
         margin: 0;
         font-size: 0.95rem;
@@ -1225,15 +1378,24 @@ const saveEdit = async () => {
         justify-content: space-between;
         align-items: center;
 
-        .meta-label { color: #64748b; font-weight: 600; font-size: 0.85rem; }
-        .meta-value { color: #1e293b; text-align: right; font-weight: 600; font-size: 0.9rem; }
+        .meta-label {
+          color: #64748b;
+          font-weight: 600;
+          font-size: 0.85rem;
+        }
+        .meta-value {
+          color: #1e293b;
+          text-align: right;
+          font-weight: 600;
+          font-size: 0.9rem;
+        }
       }
 
       .remarks-row {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
-        
+
         .remarks-text {
           width: 100%;
           text-align: left;
@@ -1248,14 +1410,14 @@ const saveEdit = async () => {
     }
   }
 
-  .view-footer { 
+  .view-footer {
     background: #ffffff;
     border-top: 1px solid #f1f5f9;
     padding: 20px 24px 28px;
     display: flex;
     gap: 16px;
     z-index: 10;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
 
     .btn-close {
       flex: 1;
@@ -1263,10 +1425,13 @@ const saveEdit = async () => {
       font-weight: 700;
       font-size: 0.95rem;
       border: 2px solid #e2e8f0;
-      
-      &:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+      &:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+      }
     }
-    
+
     .btn-edit {
       flex: 2;
       border-radius: 16px;
@@ -1311,7 +1476,7 @@ const saveEdit = async () => {
     justify-content: space-between;
     align-items: flex-start;
     padding: 16px 28px 20px;
-    
+
     .header-content {
       .text-h5 {
         color: #0f172a;
@@ -1329,7 +1494,7 @@ const saveEdit = async () => {
       color: #64748b;
       transition: all 0.2s ease;
       border-radius: 12px;
-      
+
       &:hover {
         background: #e2e8f0;
         color: #0f172a;
@@ -1404,67 +1569,85 @@ const saveEdit = async () => {
         &.is-active {
           transform: translateY(-4px);
           box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
-          
+
           &.pending {
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
             border-color: rgba(245, 158, 11, 0.4);
             color: #b45309;
-            .status-icon-wrapper { color: #d97706; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); }
-            .active-dot { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+            .status-icon-wrapper {
+              color: #d97706;
+              box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+            }
+            .active-dot {
+              background: #f59e0b;
+              box-shadow: 0 0 8px #f59e0b;
+            }
           }
           &.approved {
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
             border-color: rgba(16, 185, 129, 0.4);
             color: #047857;
-            .status-icon-wrapper { color: #059669; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2); }
-            .active-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
+            .status-icon-wrapper {
+              color: #059669;
+              box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+            }
+            .active-dot {
+              background: #10b981;
+              box-shadow: 0 0 8px #10b981;
+            }
           }
           &.rejected {
             background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
             border-color: rgba(239, 68, 68, 0.4);
             color: #b91c1c;
-            .status-icon-wrapper { color: #dc2626; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2); }
-            .active-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+            .status-icon-wrapper {
+              color: #dc2626;
+              box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+            }
+            .active-dot {
+              background: #ef4444;
+              box-shadow: 0 0 8px #ef4444;
+            }
           }
         }
       }
     }
-    
+
     .elegant-input {
       :deep(.q-field__control) {
         border-radius: 16px;
         background: #f8fafc;
         transition: all 0.3s ease;
         padding: 0 16px;
-        
+
         &:before {
           border-color: transparent !important;
           border-width: 2px;
           transition: all 0.3s ease;
         }
-        
+
         &:hover {
           background: #f1f5f9;
         }
       }
-      
+
       &.q-field--focused {
         :deep(.q-field__control) {
           background: #ffffff;
           box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
-          
+
           &:before {
             border-color: #667eea !important;
           }
         }
       }
-      
+
       :deep(input[type="date"]) {
         font-weight: 500;
         color: #1e293b;
       }
     }
-    
+
     .text-area-input {
       :deep(.q-field__control) {
         border-radius: 20px;
@@ -1488,11 +1671,11 @@ const saveEdit = async () => {
       font-size: 0.95rem;
       background: #f1f5f9;
       color: #475569 !important;
-      
+
       :deep(.q-focus-helper) {
         opacity: 0 !important;
       }
-      
+
       &:hover {
         background: #e2e8f0;
         color: #1e293b !important;
@@ -1512,7 +1695,7 @@ const saveEdit = async () => {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
       }
-      
+
       &:active {
         transform: translateY(1px);
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
