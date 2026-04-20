@@ -106,6 +106,15 @@
         :distributionData="dashboardStore.stats.branchSalesDistribution"
       />
 
+      <!-- Inventory Metrics Widget -->
+      <AdminInventoryWidget
+        :inventoryLabels="dashboardStore.inventoryLabels"
+        :inventoryInData="dashboardStore.inventoryInData"
+        :inventoryOutData="dashboardStore.inventoryOutData"
+        :inventoryBalances="dashboardStore.inventoryBalances"
+        :timeRangeDescription="timeRangeText"
+      />
+
       <!-- Bottom Activity Feed -->
       <AdminRecentActivity :activities="dashboardStore.stats.recentActivity" />
     </div>
@@ -150,6 +159,7 @@ import { onMounted, computed, ref } from "vue";
 import { useDashboardStore } from "src/stores/dashboard";
 import AdminDashboardCards from "./components/AdminDashboardCards.vue";
 import AdminChartWidgets from "./components/AdminChartWidgets.vue";
+import AdminInventoryWidget from "./components/AdminInventoryWidget.vue";
 import AdminRecentActivity from "./components/AdminRecentActivity.vue";
 
 import * as pdfMake from "pdfmake/build/pdfmake";

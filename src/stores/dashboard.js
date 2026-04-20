@@ -12,11 +12,18 @@ export const useDashboardStore = defineStore("dashboard", {
       branchSalesDistribution: [],
       recentActivity: [],
       // NEW METRICS
-      totalRecipes: 0,
       totalSuppliers: 0,
       totalBakerReports: 0
     },
     rawSales: [],
+    // New Inventory Activity States
+    inventoryBalances: [],
+    rawInventoryIn: [],
+    rawInventoryOut: [],
+    inventoryLabels: [],
+    inventoryInData: [],
+    inventoryOutData: [],
+    
     timeRange: '7D', // '7D', '1M', '3M', '1Y'
     chartLabels: [],
     selectedBranch: 'global', // 'global' or branchId
@@ -27,6 +34,7 @@ export const useDashboardStore = defineStore("dashboard", {
     setTimeRange(range) {
       this.timeRange = range;
       this.processTimeRangeData();
+      this.processInventoryTimeRangeData();
     },
     setBranch(branchId) {
       this.selectedBranch = branchId;
@@ -90,11 +98,61 @@ export const useDashboardStore = defineStore("dashboard", {
         this.chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       }
     },
+    processInventoryTimeRangeData() {
+      // Very similar robust grouping engine for Inventory IN and OUT movements
+      const inMap = {};
+      const outMap = {};
+      
+      const processArray = (arr, mapRef) => {
+        arr.forEach(item => {
+           let key = '';
+           const dateObj = new Date(item.date);
+           if (this.timeRange === '7D' || this.timeRange === '1M') {
+             key = dateObj.toISOString().split('T')[0];
+           } else {
+             key = dateObj.toISOString().substring(0, 7);
+           }
+           mapRef[key] = (mapRef[key] || 0) + Number(item.total_qty || 0);
+        });
+      };
+
+      processArray(this.rawInventoryIn, inMap);
+      processArray(this.rawInventoryOut, outMap);
+
+      // Merge keys to ensure chart lines map to correct labels symmetrically
+      const allKeys = Array.from(new Set([...Object.keys(inMap), ...Object.keys(outMap)])).sort();
+      let slicedKeys = [];
+
+      if (this.timeRange === '7D') {
+        slicedKeys = allKeys.slice(-7);
+        this.inventoryLabels = slicedKeys.map(d => new Date(d).toLocaleDateString('en-US', { weekday: 'short' }));
+      } else if (this.timeRange === '1M') {
+        slicedKeys = allKeys.slice(-30);
+        this.inventoryLabels = slicedKeys.map(d => new Date(d).getDate().toString());
+      } else if (this.timeRange === '3M') {
+        slicedKeys = allKeys.slice(-3); // last 3 months
+        this.inventoryLabels = slicedKeys.map(d => new Date(d + '-01').toLocaleDateString('en-US', { month: 'short' }));
+      } else if (this.timeRange === '1Y') {
+        slicedKeys = allKeys.slice(-12); // last 12 months
+        this.inventoryLabels = slicedKeys.map(d => new Date(d + '-01').toLocaleDateString('en-US', { month: 'short' }));
+      }
+
+      this.inventoryInData = slicedKeys.map(k => inMap[k] || 0);
+      this.inventoryOutData = slicedKeys.map(k => outMap[k] || 0);
+
+      // Edge case if absolutely no data exists
+      if (slicedKeys.length === 0) {
+         this.inventoryLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+         this.inventoryInData = [0, 0, 0, 0, 0, 0, 0];
+         this.inventoryOutData = [0, 0, 0, 0, 0, 0, 0];
+      }
+    },
     async fetchDashboardMetrics() {
       this.loading = true;
       this.error = null;
       try {
-        const routeSuffix = this.selectedBranch !== 'global' ? `&branch_id=${this.selectedBranch}` : '';
+        const routeSuffix = this.selectedBranch !== 'global' ? `?branch_id=${this.selectedBranch}` : '';
+        const concatSuffix = this.selectedBranch !== 'global' ? `&branch_id=${this.selectedBranch}` : '';
         
         // Robust Parallel fetching to drastically reduce load time
         const [
@@ -104,15 +162,17 @@ export const useDashboardStore = defineStore("dashboard", {
           salesRes,
           recipesRes,
           suppliersRes,
-          bakerReportsRes
+          bakerReportsRes,
+          inventoryMetricsRes // NEW Call
         ] = await Promise.all([
           api.get("/api/branches").catch(() => ({ data: [] })),
           api.get("/api/employee").catch(() => ({ data: [] })),
           api.get("/api/raw-materials").catch(() => ({ data: [] })),
-          api.get(`/api/sales-report?dashboard=true${routeSuffix}`).catch(() => ({ data: [] })),
+          api.get(`/api/sales-report?dashboard=true${concatSuffix}`).catch(() => ({ data: [] })),
           api.get("/api/recipes").catch(() => ({ data: [] })),
           api.get("/api/fetch-supplier-records").catch(() => ({ data: [] })),
-          api.get(`/api/initial-baker-report?dashboard=true${routeSuffix}`).catch(() => ({ data: [] }))
+          api.get(`/api/initial-baker-report?dashboard=true${concatSuffix}`).catch(() => ({ data: [] })),
+          api.get(`/api/dashboard/inventory-metrics${routeSuffix}`).catch(() => ({ data: { currentBalances: [], inMovements: [], outMovements: [] } }))
         ]);
 
         const branches = Array.isArray(branchesRes.data) ? branchesRes.data : (branchesRes.data?.data || []);
@@ -171,6 +231,14 @@ export const useDashboardStore = defineStore("dashboard", {
         // Store raw sales for instantaneous dynamic aggregation without refetching from server
         this.rawSales = sales;
         this.processTimeRangeData();
+
+        // Feed Inventory Analytics Maps
+        const invData = inventoryMetricsRes.data || {};
+        this.rawInventoryIn = invData.inMovements || [];
+        this.rawInventoryOut = invData.outMovements || [];
+        this.inventoryBalances = invData.currentBalances || [];
+        
+        this.processInventoryTimeRangeData();
 
         // Branch Distribution mapped from actual live branches
         this.stats.branchSalesDistribution = branches.length > 0 ? branches.slice(0, 5).map(b => ({
