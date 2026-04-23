@@ -27,80 +27,67 @@
         <div class="text-h6" align="center">Ingredients List</div>
       </q-card-section>
       <q-card-section>
-        <q-list dense separator class="box">
-          <q-item>
-            <q-item-section>
-              <q-item-label class="text-overline">
-                Raw Materials Name
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-overline"> Code </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-overline"> Quantity </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-overline"> TCPI </q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-item-label class="text-overline"> Total Cost </q-item-label>
-            </q-item-section>
-          </q-item>
+        <q-table
+          :rows="props.row.supplier_ingredients"
+          :columns="ingredientColumns"
+          row-key="id"
+          flat
+          bordered
+          dense
+          hide-bottom
+          :pagination="{ rowsPerPage: 0 }"
+          class="ingredient-table"
+        >
+          <template v-slot:header="props">
+            <q-tr :props="props" class="bg-grey-2 text-weight-bold">
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
 
-          <q-item
-            v-for="(ingredient, index) in props.row.supplier_ingredients"
-            :key="index"
-          >
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ ingredient.raw_materials?.name || "N/A" }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ ingredient.raw_materials?.code || "N/A" }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ parseFloat(ingredient.quantity || "N/A") }}
-                {{ ingredient.category || "" }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{
-                  formatPrice(parseFloat(ingredient.price_per_unit || "N/A"))
-                }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-item-label class="text-caption">
-                {{ formatPrice(calculateTotalCost(ingredient) || "N/A") }}
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
+          <template v-slot:body-cell-quantity="props">
+            <q-td :props="props">
+              {{ parseFloat(props.value) }} {{ props.row.category || "" }}
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-price_per_unit="props">
+            <q-td :props="props">
+              {{ formatPrice(props.value) }}
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-total_cost="props">
+            <q-td :props="props" class="text-weight-bold text-primary">
+              {{ formatPrice(calculateTotalCost(props.row)) }}
+            </q-td>
+          </template>
+        </q-table>
       </q-card-section>
-      <q-card-section class="q-mt-md text-right text-subtitle1">
-        <strong>Total Cost:</strong>
-        {{
-          formatPrice(
-            calculateOverallTotalCost(props.row.supplier_ingredients) || "₱0.00"
-          )
-        }}
+
+      <q-card-section class="q-pt-none">
+        <div class="row justify-end items-center q-gutter-sm">
+          <div class="text-subtitle1 text-grey-7">Overall Delivery Total:</div>
+          <div class="text-h5 text-weight-bolder text-primary">
+            {{ formatPrice(calculateOverallTotalCost(props.row.supplier_ingredients)) }}
+          </div>
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { useDialogPluginComponent, date as quasarDate } from "quasar";
+import { useDialogPluginComponent } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
 
-const { capitalizeFirstLetter } = typographyFormat();
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 const { getStatusColor } = badgeColor();
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
@@ -112,16 +99,37 @@ const props = defineProps({
   },
 });
 
-console.log("props", props.row);
-
-const formatPrice = (value) => {
-  const num = parseFloat(value);
-  if (isNaN(num)) return "₱0.00";
-  return `₱${num.toLocaleString("en-PH", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-};
+const ingredientColumns = [
+  {
+    name: "name",
+    label: "Raw Materials Name",
+    align: "left",
+    field: (row) => row.raw_materials?.name || "N/A",
+  },
+  {
+    name: "code",
+    label: "Code",
+    align: "left",
+    field: (row) => row.raw_materials?.code || "N/A",
+  },
+  {
+    name: "quantity",
+    label: "Quantity",
+    align: "center",
+    field: "quantity",
+  },
+  {
+    name: "price_per_unit",
+    label: "Price/Unit",
+    align: "right",
+    field: "price_per_unit",
+  },
+  {
+    name: "total_cost",
+    label: "Total Cost",
+    align: "right",
+  },
+];
 
 const calculateTotalCost = (ingredient) => {
   const quantity = parseFloat(ingredient.quantity) || 0;
@@ -129,24 +137,19 @@ const calculateTotalCost = (ingredient) => {
   return quantity * pricePerUnit;
 };
 
-const calculateOverallTotalCost = (ingredient) => {
-  const total = ingredient.reduce((sum, ing) => {
-    const quantity = parseFloat(ing.quantity) || 0;
-    const pricePerUnit = parseFloat(ing.price_per_unit) || 0;
-    return sum + quantity * pricePerUnit;
+const calculateOverallTotalCost = (ingredients) => {
+  return ingredients.reduce((sum, ing) => {
+    return sum + calculateTotalCost(ing);
   }, 0);
-
-  return total;
 };
 </script>
 
 <style scoped>
 .bg-background {
-  background: linear-gradient(to right, #4b0082, #800080, #9932cc, #d8bfd8);
+  background: linear-gradient(135deg, #1e293b, #334155);
 }
 
-.box {
-  border: 1px dashed grey;
-  border-radius: 10px;
+.ingredient-table {
+  background: #fafafa;
 }
 </style>

@@ -55,35 +55,38 @@
                   {{ capitalizeFirstLetter(delivery.to_data?.name || "N/A") }}
                 </q-item-label>
                 <q-item-label caption class="text-grey-6">
-                  {{ delivery.items.length || "N/A" }} items
+                  <q-icon name="schedule" size="xs" class="q-mr-xs" />
+                  {{ formatTimestamp(delivery.created_at) || "N/A" }}
+                </q-item-label>
+                <q-item-label caption class="text-teal text-weight-medium">
+                  {{ delivery.items.length || "0" }} items
                 </q-item-label>
               </q-item-section>
 
-              <q-item-section side>
-                <q-item-label>
-                  {{ formatTimestamp(delivery.created_at) || "N/A" }}
-                </q-item-label>
-                <div class="row items-center text-caption">
-                  <q-icon
-                    name="fiber_manual_record"
-                    :color="
-                      delivery.status
-                        ? getStatusColor(delivery.status)
-                        : 'grey-6'
-                    "
-                    size="8px"
-                    class="q-mr-xs"
-                  />
-
-                  <span
-                    :class="
-                      delivery.status
-                        ? `text-${getStatusColor(delivery.status)}`
-                        : 'text-grey-6'
-                    "
-                  >
-                    {{ capitalizeFirstLetter(delivery.status || "No Status") }}
-                  </span>
+              <q-item-section side top>
+                <div class="column items-end">
+                  <div class="row items-center text-caption q-mb-xs">
+                    <q-icon
+                      name="fiber_manual_record"
+                      :color="
+                        delivery.status
+                          ? getStatusColor(delivery.status)
+                          : 'grey-6'
+                      "
+                      size="10px"
+                      class="q-mr-xs"
+                    />
+                    <span
+                      class="text-weight-bold"
+                      :class="
+                        delivery.status
+                          ? `text-${getStatusColor(delivery.status)}`
+                          : 'text-grey-6'
+                      "
+                    >
+                      {{ capitalizeFirstLetter(delivery.status || "No Status") }}
+                    </span>
+                  </div>
                 </div>
               </q-item-section>
             </q-item>
@@ -250,89 +253,71 @@
               </div>
             </div>
 
-            <div>
+            <div class="q-mt-md">
               <span class="text-grey-7 text-caption">Items:</span>
 
-              <template
+              <q-table
                 v-if="selectedDelivery.items && selectedDelivery.items.length"
+                :rows="selectedDelivery.items"
+                :columns="itemColumns"
+                row-key="id"
+                flat
+                bordered
+                dense
+                hide-bottom
+                :pagination="{ rowsPerPage: 0 }"
+                class="item-table q-mt-sm"
               >
-                <q-list dense separator class="box">
-                  <q-item class="bg-grey-1 text-weight-bold">
-                    <q-item-section>
-                      <q-item-label> Raw Materials Name </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label> Raw Materials Code </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label> Stocks Category </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label> Quantity </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label> Price per Unit </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label> Price per Gram </q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-item-label> Action </q-item-label>
-                    </q-item-section>
-                  </q-item>
+                <template v-slot:header="props">
+                  <q-tr :props="props" class="bg-grey-1">
+                    <q-th
+                      v-for="col in props.cols"
+                      :key="col.name"
+                      :props="props"
+                      class="text-weight-bold text-grey-8"
+                    >
+                      {{ col.label }}
+                    </q-th>
+                  </q-tr>
+                </template>
 
-                  <q-item
-                    v-for="(item, index) in selectedDelivery.items"
-                    :key="index"
-                  >
-                    <q-item-section>
-                      <q-item-label>
-                        {{ item.raw_material?.name || "No Name" }}
-                      </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>
-                        {{ item.raw_material?.code || "No Code" }}
-                      </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>
-                        {{ item.category || "No Category" }}
-                      </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>
-                        {{ formatQuantity(item.quantity) }}
-                      </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>
-                        {{ formatPrice(item.price_per_unit) }}
-                      </q-item-label>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>
-                        {{ formatPricePerGram(item.price_per_gram) }}
-                      </q-item-label>
-                    </q-item-section>
-                    <q-item-section side>
-                      <q-item-label>
-                        <q-btn
-                          color="dark"
-                          flat
-                          round
-                          dense
-                          icon="edit"
-                          @click="openEditDialog(item, selectedDelivery)"
-                        />
-                        <q-tooltip>
-                          <span>Edit</span>
-                        </q-tooltip>
-                      </q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </template>
+                <template v-slot:body-cell-quantity="props">
+                  <q-td :props="props">
+                    <q-badge outline color="primary" class="text-weight-bold">
+                      {{ formatQuantity(props.value) }}
+                    </q-badge>
+                  </q-td>
+                </template>
+
+                <template v-slot:body-cell-price_per_unit="props">
+                  <q-td :props="props" class="text-weight-medium">
+                    {{ formatPrice(props.value) }}
+                  </q-td>
+                </template>
+
+                <template v-slot:body-cell-price_per_gram="props">
+                  <q-td :props="props" class="text-grey-7">
+                    {{ formatPricePerGram(props.value) }}
+                  </q-td>
+                </template>
+
+                <template v-slot:body-cell-action="props">
+                  <q-td :props="props">
+                    <q-btn
+                      color="primary"
+                      flat
+                      round
+                      dense
+                      icon="edit"
+                      size="sm"
+                      @click="openEditDialog(props.row, selectedDelivery)"
+                    >
+                      <q-tooltip>Edit Item</q-tooltip>
+                    </q-btn>
+                  </q-td>
+                </template>
+              </q-table>
+
               <div v-else class="text-caption text-grey-6 q-mt-md">
                 No items in this delivery
               </div>
@@ -589,6 +574,51 @@ const getItemClass = (delivery) => {
       return "";
   }
 };
+
+const itemColumns = [
+  {
+    name: "name",
+    label: "Raw Materials Name",
+    align: "left",
+    field: (row) => row.raw_material?.name || "N/A",
+    style: "min-width: 200px; font-weight: 500;",
+  },
+  {
+    name: "code",
+    label: "Code",
+    align: "left",
+    field: (row) => row.raw_material?.code || "N/A",
+  },
+  {
+    name: "category",
+    label: "Category",
+    align: "left",
+    field: "category",
+  },
+  {
+    name: "quantity",
+    label: "Qty",
+    align: "center",
+    field: "quantity",
+  },
+  {
+    name: "price_per_unit",
+    label: "Price/Unit",
+    align: "right",
+    field: "price_per_unit",
+  },
+  {
+    name: "price_per_gram",
+    label: "Price/Gram",
+    align: "right",
+    field: "price_per_gram",
+  },
+  {
+    name: "action",
+    label: "Action",
+    align: "center",
+  },
+];
 </script>
 
 <style scoped>
@@ -630,17 +660,25 @@ const getItemClass = (delivery) => {
 
 .q-btn {
   transition: all 0.3s ease-in-out;
-  transform: translateY(0);
 }
 
 .q-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
-.q-btn:active {
-  transform: translateY(-1px) scale(0.98);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+.selected-delivery-item {
+  background-color: #e3f2fd !important;
+  border-left: 5px solid #1976d2;
+}
+
+.branch-selected-item {
+  background-color: #fce4ec !important;
+  border-left: 5px solid #d81b60;
+}
+
+.default-selected-item {
+  background-color: #f5f5f5 !important;
+  border-left: 5px solid #757575;
 }
 
 .btn-cancel {
@@ -665,8 +703,17 @@ const getItemClass = (delivery) => {
   background-color: #f5f7fa !important;
 }
 
-.box {
-  border: 1px dashed grey;
-  border-radius: 10px;
+.item-table {
+  max-height: 350px;
+}
+
+.item-table thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.item-table .q-tr:hover {
+  background: #f1f8ff !important;
 }
 </style>

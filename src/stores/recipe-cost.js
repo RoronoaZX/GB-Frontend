@@ -7,12 +7,6 @@ export const useRecipeCostStore = defineStore("recipe-cost", () => {
   const recipeCosts = ref([]);
 
   const fetchRecipeCosts = async (branchId, page, rowsPerPage, search) => {
-    console.log("Fetching recipe costs in store...");
-    console.log("branchId in recipe cost", branchId);
-    console.log("page in recipe cost", page);
-    console.log("rowsPerPage in recipe cost", rowsPerPage);
-    console.log("search in recipe cost", search);
-
     try {
       const response = await api.get(`/api/fetch-recipe-costs/${branchId}`, {
         params: {
@@ -22,8 +16,6 @@ export const useRecipeCostStore = defineStore("recipe-cost", () => {
         },
       });
 
-      console.log("recipeCosts", response.data);
-
       recipeCosts.value = response.data;
       return response.data;
     } catch (error) {
@@ -32,9 +24,25 @@ export const useRecipeCostStore = defineStore("recipe-cost", () => {
     }
   };
 
+  const fetchGlobalRecipeCosts = async (recipeId, page, rowsPerPage) => {
+    try {
+      const response = await api.get(`/api/fetch-global-recipe-costs/${recipeId}`, {
+        params: {
+          page,
+          per_page: rowsPerPage,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching global recipe costs:", error);
+      throw error;
+    }
+  };
+
   return {
     recipeCost,
     recipeCosts,
     fetchRecipeCosts,
+    fetchGlobalRecipeCosts,
   };
 });

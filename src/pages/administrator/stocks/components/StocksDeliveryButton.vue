@@ -169,81 +169,71 @@
         </q-card-section>
         <q-separator class="q-my-md" />
         <q-card-section>
-          <div>
-            <div>
-              <q-list dense separator class="box">
-                <q-item>
-                  <q-item-section>
-                    <q-item-label class="text-overline">
-                      Raw Materials Name
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-overline">
-                      Stocks Category
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-overline">
-                      Quantity
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-overline">
-                      Price per Unit
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-overline">
-                      Price per Gram
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <!-- for the remove button -->
-                    <q-item-label>Action</q-item-label>
-                  </q-item-section>
-                </q-item>
+          <div class="q-px-sm">
+            <q-table
+              :rows="rawMaterialsGroups"
+              :columns="stagingColumns"
+              row-key="raw_materials_id"
+              flat
+              bordered
+              dense
+              hide-bottom
+              :pagination="{ rowsPerPage: 0 }"
+              class="staging-table bg-grey-1"
+            >
+              <template v-slot:header="props">
+                <q-tr :props="props" class="bg-primary text-white">
+                  <q-th
+                    v-for="col in props.cols"
+                    :key="col.name"
+                    :props="props"
+                  >
+                    {{ col.label }}
+                  </q-th>
+                </q-tr>
+              </template>
 
-                <q-item v-for="item in rawMaterialsGroups" :key="item.id">
-                  <q-item-section>
-                    <q-item-label>
-                      {{ item.raw_materials_name }}
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label>
-                      {{ item.category }}
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label>
-                      {{ item.quantity }}
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label> ₱ {{ item.price_per_unit }} </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label> ₱ {{ item.price_per_gram }} </q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-btn
-                      dense
-                      flat
-                      round
-                      icon="delete"
-                      color="red"
-                      @click="
-                        rawMaterialsGroups.splice(
-                          rawMaterialsGroups.indexOf(item),
-                          1
-                        )
-                      "
-                    />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
+              <template v-slot:body-cell-quantity="props">
+                <q-td :props="props">
+                  <q-badge color="purple" label-color="white">
+                    {{ props.value }}
+                  </q-badge>
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-price_per_unit="props">
+                <q-td :props="props"> ₱{{ props.value }} </q-td>
+              </template>
+
+              <template v-slot:body-cell-price_per_gram="props">
+                <q-td :props="props" class="text-caption text-grey-7">
+                  ₱{{ props.value.toFixed(4) }}
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-action="props">
+                <q-td :props="props">
+                  <q-btn
+                    dense
+                    flat
+                    round
+                    icon="delete_sweep"
+                    color="negative"
+                    size="sm"
+                    @click="rawMaterialsGroups.splice(rawMaterialsGroups.indexOf(props.row), 1)"
+                  >
+                    <q-tooltip>Remove from list</q-tooltip>
+                  </q-btn>
+                </q-td>
+              </template>
+
+              <template v-slot:no-data>
+                <div class="full-width row flex-center q-pa-md text-grey-6 italic">
+                  <q-icon name="shopping_cart" size="sm" class="q-mr-sm" />
+                  No items added yet. Use the form below to add items.
+                </div>
+              </template>
+            </q-table>
           </div>
         </q-card-section>
         <q-card-section>
@@ -621,11 +611,13 @@ const filterRawMaterialsOptions = ref(rawMaterialsOptions.value);
 
 const fetchRawMaterials = async () => {
   const to_designation = to.value; // Warehouse | Branch
-  const to_id = deliveryStocks.to.value || null;
+  const to_id = deliveryStocks.to?.value || deliveryStocks.to || null;
+
+  // 🛑 Prevent call if we don't have a destination yet
+  if (!to_designation || !to_id) return;
+
   try {
     loading.value = true;
-    // fetchBranchWarehouseRawMaterials
-    // fetchRawMaterials
     await rawMaterialsStore.fetchBranchWarehouseRawMaterials(
       to_designation,
       to_id
@@ -645,7 +637,12 @@ const fetchRawMaterials = async () => {
   }
 };
 
-onMounted(fetchRawMaterials);
+onMounted(() => {
+  // Only fetch if we have initial values
+  if (to.value && deliveryStocks.to) {
+    fetchRawMaterials();
+  }
+});
 
 const clearData = () => {
   // reset selected raw materials
@@ -795,6 +792,43 @@ const save = async () => {
     $q.loading.hide();
   }
 };
+const stagingColumns = [
+  {
+    name: "name",
+    label: "Raw Materials Name",
+    align: "left",
+    field: "raw_materials_name",
+  },
+  {
+    name: "category",
+    label: "Category",
+    align: "left",
+    field: "category",
+  },
+  {
+    name: "quantity",
+    label: "Qty",
+    align: "center",
+    field: "quantity",
+  },
+  {
+    name: "price_per_unit",
+    label: "Price/Unit",
+    align: "right",
+    field: "price_per_unit",
+  },
+  {
+    name: "price_per_gram",
+    label: "Price/Gram",
+    align: "right",
+    field: "price_per_gram",
+  },
+  {
+    name: "action",
+    label: "Action",
+    align: "center",
+  },
+];
 </script>
 
 <style scoped>
@@ -821,5 +855,24 @@ const save = async () => {
 .box {
   border: 1px dashed grey;
   border-radius: 10px;
+}
+.staging-table {
+  max-height: 250px;
+}
+
+.staging-table thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #103432, #2d5a57);
+  color: white;
+}
+
+.box {
+  border: 1px dashed #ccc;
+  border-radius: 8px;
 }
 </style>

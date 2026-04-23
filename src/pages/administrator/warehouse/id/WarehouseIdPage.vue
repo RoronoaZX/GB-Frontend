@@ -1,74 +1,97 @@
 <template>
-  <q-page padding>
-    <div class="elegant-container q-gutter-md">
-      <div class="text-h6 row justify-between">
-        <div>
-          <q-btn
-            outline
-            flat
-            icon="arrow_back"
-            to="/admin/warehouse"
-            @click="navigateBack"
-          />
-          <q-space />
-        </div>
-        <div>
-          <q-icon name="factory" />
+  <q-page class="q-pa-lg bg-grey-2">
+    <div class="row items-center q-mb-lg">
+      <q-btn
+        flat
+        round
+        dense
+        icon="arrow_back"
+        color="primary"
+        to="/admin/warehouse"
+        class="q-mr-md"
+      />
+      <div>
+        <div class="text-h4 text-weight-bolder text-grey-9">
           {{ capitalizeFirstLetter(warehouseName) }}
         </div>
-      </div>
-      <div class="q-gutter-sm">
-        <div class="tab-container">
-          <q-tabs
-            v-model="tab"
-            dense
-            class="bg-grey-2 text-grey-7 tabs-as-cards"
-            active-color="red-6"
-            indicator-color="transparent"
-            align="justify"
-          >
-            <q-tab
-              name="warehouseRawMaterials"
-              label="Warehouse Raw Materials"
-            />
-            <q-tab name="branchRawMaterials" label="Branch Raw Materials" />
-            <q-tab name="transactions" label="Transactions" />
-          </q-tabs>
+        <div class="row items-center text-grey-6">
+          <q-icon name="factory" size="xs" class="q-mr-xs" />
+          <span>Warehouse ID: {{ warehouseId }}</span>
         </div>
-        <q-card class="q-mt-sm">
-          <q-tab-panels v-model="tab" animated>
-            <q-tab-panel name="warehouseRawMaterials">
-              <WarehouseRawMaterialsPage />
-            </q-tab-panel>
-            <q-tab-panel name="branchRawMaterials">
-              <BranchCard />
-            </q-tab-panel>
-            <q-tab-panel name="transactions">
-              <TransactionWarehouse />
-            </q-tab-panel>
+      </div>
+    </div>
 
-            <!-- <q-tab-panel name="transactions">
-              <TransactionWarehouse />
-            </q-tab-panel> -->
-
-            <!-- <q-tab-panel name="recipe">
-              <RecipePage />
-            </q-tab-panel>
-
-            <q-tab-panel name="production">
-              <ProductionPage />
-            </q-tab-panel> -->
-          </q-tab-panels>
+    <!-- Warehouse Status & Info Bar -->
+    <div class="row q-col-gutter-md q-mb-lg">
+      <div class="col-12">
+        <q-card flat bordered class="bg-white rounded-borders-lg shadow-1">
+          <q-card-section class="row items-center q-gutter-xl">
+            <div class="row items-center">
+              <q-icon name="place" color="red-5" size="md" class="q-mr-sm" />
+              <div>
+                <div class="text-caption text-grey-7">Location</div>
+                <div class="text-subtitle2">{{ warehouse?.location || 'Processing...' }}</div>
+              </div>
+            </div>
+            <div class="row items-center">
+              <q-icon name="account_circle" color="blue-5" size="md" class="q-mr-sm" />
+              <div>
+                <div class="text-caption text-grey-7">Manager / In-charge</div>
+                <div class="text-subtitle2">
+                  {{ warehouse?.employees ? (warehouse.employees.firstname + ' ' + warehouse.employees.lastname) : 'N/A' }}
+                </div>
+              </div>
+            </div>
+            <div class="row items-center">
+              <q-icon name="phone" color="green-5" size="md" class="q-mr-sm" />
+              <div>
+                <div class="text-caption text-grey-7">Contact Number</div>
+                <div class="text-subtitle2">{{ warehouse?.phone || 'N/A' }}</div>
+              </div>
+            </div>
+          </q-card-section>
         </q-card>
       </div>
     </div>
+
+    <div class="q-gutter-y-md">
+      <q-tabs
+        v-model="tab"
+        dense
+        no-caps
+        inline-label
+        class="text-grey-7 bg-transparent"
+        active-color="primary"
+        indicator-color="primary"
+        align="left"
+      >
+        <q-tab name="warehouseRawMaterials" icon="inventory" label="Warehouse Inventory" />
+        <q-tab name="branchRawMaterials" icon="storefront" label="Branch Distribution" />
+        <q-tab name="transactions" icon="history_edu" label="Transaction History" />
+      </q-tabs>
+
+      <q-card flat bordered class="shadow-2 rounded-borders-lg">
+        <q-tab-panels v-model="tab" animated class="bg-transparent">
+          <q-tab-panel name="warehouseRawMaterials" class="q-pa-none">
+            <WarehouseRawMaterialsPage />
+          </q-tab-panel>
+          <q-tab-panel name="branchRawMaterials" class="q-pa-none">
+            <BranchCard />
+          </q-tab-panel>
+          <q-tab-panel name="transactions" class="q-pa-none">
+            <TransactionWarehouse />
+          </q-tab-panel>
+        </q-tab-panels>
+      </q-card>
+    </div>
   </q-page>
 </template>
+
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import WarehouseRawMaterialsPage from "./components/warehouse-raw-materials/WarehouseRawMaterialsPage.vue";
 import BranchCard from "./components/branch-raw-materials/BranchCard.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { api } from "src/boot/axios";
 import TransactionWarehouse from "./components/transaction-raw-materials/TransactionsWarehouse.vue";
@@ -77,83 +100,40 @@ import { typographyFormat } from "src/composables/typography/typography-format";
 const { capitalizeFirstLetter } = typographyFormat();
 
 const route = useRoute();
-const router = useRouter();
 const warehouseStore = useWarehousesStore();
 const warehouseName = ref("");
 const warehouse = computed(() => warehouseStore.warehouse);
-// const warehouseName = warehouse.value.name;
-const warehouseId = computed(
-  () => route.params.warehouse_id || "Unknown Warehouse"
-);
+const warehouseId = computed(() => route.params.warehouse_id || "Unknown");
 
 const tab = ref("warehouseRawMaterials");
 
-const getWarehouseById = async (warehouseId) => {
-  const res = await api.get(`/api/warehouse/${warehouseId}`);
-  return res.data;
-};
-
-const fetchWarehouse = async () => {
+const fetchWarehouseData = async () => {
   try {
-    const warehouse = await getWarehouseById(warehouseId.value);
-    if (warehouse && warehouse.name) {
-      warehouseName.value = warehouse.name;
-    } else {
-      console.error("Warehouse name data is missing", warehouse);
+    const res = await api.get(`/api/warehouse/${warehouseId.value}`);
+    if (res.data) {
+      warehouseName.value = res.data.name;
+      warehouseStore.warehouse = res.data; // Sync with store
     }
   } catch (error) {
     console.error("Error fetching warehouse data:", error);
   }
 };
-onMounted(() => {
-  fetchWarehouse();
-});
 
-const navigateBack = () => {
-  Loading.show();
-  router.push("/admin/warehouse").finally(() => {
-    Loading.hide();
-  });
-};
+onMounted(() => {
+  fetchWarehouseData();
+});
 </script>
 
 <style scoped>
-.q-tabs--not-scrollable .q-tabs__content,
-body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
-  overflow: visible;
-}
-.tabs-as-cards {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 16px;
+.rounded-borders-lg {
+  border-radius: 16px;
 }
 
-.tabs-as-cards .q-tab {
-  background-color: white;
-  color: #333;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  margin: 0 8px;
-  padding: 10px 20px;
-  transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+:deep(.q-tab-panel) {
+  background-color: transparent !important;
 }
 
-.tabs-as-cards .q-tab:hover {
-  background-color: #f0f0f0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
-}
-
-.tabs-as-cards .q-tab--active {
-  background-color: #e0e0e0;
-  color: #333;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-.tab-content {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  background-color: #fff;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+.bg-grey-2 {
+  background-color: #f4f7f6 !important;
 }
 </style>

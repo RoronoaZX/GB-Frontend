@@ -74,7 +74,17 @@
       </template>
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
-          <div class="row justify-center q-gutter-x-md">
+          <div class="row justify-center q-gutter-x-sm">
+            <q-btn
+              flat
+              round
+              color="accent"
+              icon="history"
+              size="sm"
+              @click="viewRecipeHistory(props.row)"
+            >
+              <q-tooltip>Transaction History</q-tooltip>
+            </q-btn>
             <RecipeDelete :delete="props" />
           </div>
         </q-td>
@@ -86,11 +96,13 @@
 <script setup>
 import { onMounted, computed, ref, watch } from "vue";
 import RecipeDelete from "./RecipeDelete.vue";
+import GlobalRecipeHistory from "./GlobalRecipeHistory.vue";
 import { useRecipeStore } from "src/stores/recipe";
-import { Notify } from "quasar";
+import { useQuasar, Notify } from "quasar";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
 
+const $q = useQuasar();
 const { capitalizeFirstLetter } = typographyFormat();
 const { getRecipeBadgeCategoryColor } = badgeColor();
 
@@ -148,6 +160,16 @@ const reloadTableData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const viewRecipeHistory = (row) => {
+  $q.dialog({
+    component: GlobalRecipeHistory,
+    componentProps: {
+      recipeId: row.id,
+      recipeName: row.name,
+    },
+  });
 };
 
 watch(filter, async (newFilter) => {

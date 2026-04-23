@@ -1,21 +1,21 @@
 <template>
   <div>
-    <q-input
-      class="q-pb-lg q-pl-mb"
-      v-model="filter"
-      @update:model-value="filter"
-      outlined
-      placeholder="Search"
-      debounce="1000"
-      flat
-      dense
-      rounded
-      style="width: 450px; max-width: 1500px; min-width: 100px"
-    >
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
+    <div class="row items-center q-mb-lg">
+      <q-input
+        v-model="filter"
+        class="search-input"
+        outlined
+        dense
+        placeholder="Search"
+        rounded
+        bg-color="white"
+        debounce="1000"
+      >
+        <template v-slot:append>
+          <q-icon name="search" size="sm" color="grey-7" />
+        </template>
+      </q-input>
+    </div>
   </div>
 
   <q-table
@@ -45,56 +45,60 @@
 
     <template v-slot:body-cell-date="props">
       <q-td :props="props" class="cursor-pointer">
-        <span>
-          {{
-            props.row.created_at ? formatTimestamp(props.row.created_at) : "N/A"
-          }}
-          <q-tooltip class="bg-blue-grey-8"> Edit Date </q-tooltip>
-        </span>
+        <div class="row items-center no-wrap">
+          <q-icon name="schedule" color="grey-6" size="xs" class="q-mr-sm" />
+          <span class="text-weight-medium text-grey-9">
+            {{
+              props.row.created_at ? formatTimestamp(props.row.created_at) : "N/A"
+            }}
+          </span>
+          <q-icon name="edit" color="primary" size="12px" class="q-ml-xs opacity-50" />
+        </div>
+        <q-tooltip class="bg-blue-grey-8"> Click to Edit Date/Time </q-tooltip>
         <q-popup-edit
           v-model="props.row.created_at"
           v-slot="scope"
           persistent
           @save="(newVal) => updateSupplierHistoriesDateTime(props.row, newVal)"
         >
-          <div>
-            <div class="text-h6 text-primary text-center q-mb-sm">
-              Edit Date & Time
+          <div class="q-pa-md" style="min-width: 250px">
+            <div class="text-h6 text-primary text-center q-mb-md">
+              ✏️ Edit Record
             </div>
-            <div class="text-subtitle2 q-mb-sm">
-              Supplier: {{ capitalizeFirstLetter(props.row.supplier_name) }}
+            <div class="text-caption text-grey-7 q-mb-lg text-center">
+              Supplier: <strong>{{ capitalizeFirstLetter(props.row.supplier_name) }}</strong>
             </div>
 
             <q-input
-              filled
+              outlined
+              dense
               :model-value="splitDateTime(props.row.created_at).datePart"
-              @update:model-value="
-                (val) => updateCombinedDateTime(scope, val, 'date')
-              "
+              @update:model-value="(val) => updateCombinedDateTime(scope, val, 'date')"
               mask="####-##-##"
-              label="Date"
-              hint="Format: YYYY-MM-DD"
-              class="q-mb-sm"
-            />
+              label="Delivery Date"
+              class="q-mb-md"
+            >
+              <template v-slot:append>
+                <q-icon name="event" color="grey-6" />
+              </template>
+            </q-input>
 
             <q-input
-              filled
+              outlined
+              dense
               :model-value="splitDateTime(props.row.created_at).timePart"
-              @update:model-value="
-                (val) => updateCombinedDateTime(scope, val, 'time')
-              "
+              @update:model-value="(val) => updateCombinedDateTime(scope, val, 'time')"
               mask="##:## AA"
-              label="Time (AM/PM)"
-            />
+              label="Delivery Time"
+            >
+              <template v-slot:append>
+                <q-icon name="access_time" color="grey-6" />
+              </template>
+            </q-input>
 
-            <div class="row justify-end q-mt-md">
-              <q-btn
-                flat
-                label="Cancel"
-                color="primary"
-                @click="scope.cancel"
-              />
-              <q-btn flat label="Save" color="primary" @click="scope.set" />
+            <div class="row justify-end q-mt-lg q-gutter-sm">
+              <q-btn flat label="Cancel" color="grey-7" @click="scope.cancel" />
+              <q-btn unelevated label="Save Changes" color="primary" @click="scope.set" />
             </div>
           </div>
         </q-popup-edit>
@@ -102,29 +106,32 @@
     </template>
 
     <template v-slot:body-cell-status="props">
-      <q-td :props="props">
-        <q-chip
+      <q-td :props="props" class="text-center">
+        <q-badge
+          rounded
+          padding="xs md"
+          class="text-weight-bold"
           :color="getStatusColor(props.row.status)"
-          text-color="white"
-          size="sm"
-          square
         >
-          {{ capitalizeFirstLetter(props.row.status) || "N/A" }}
-        </q-chip>
+          {{ props.row.status.toUpperCase() || "N/A" }}
+        </q-badge>
       </q-td>
     </template>
 
     <template v-slot:body-cell-number_of_items="props">
-      <q-td :props="props">
+      <q-td :props="props" class="text-center">
         <q-btn
-          flat
+          outline
+          rounded
           dense
           color="primary"
-          :label="`${props.row.supplier_ingredients.length} ${
-            props.row.supplier_ingredients.length === 1 ? 'item' : 'items'
-          }`"
+          class="q-px-md text-caption text-weight-bold"
           @click="openSupplierIngredients(props.row)"
-        />
+        >
+          <q-icon name="list" size="xs" class="q-mr-xs" />
+          {{ props.row.supplier_ingredients.length }}
+          {{ props.row.supplier_ingredients.length === 1 ? 'ITEM' : 'ITEMS' }}
+        </q-btn>
       </q-td>
     </template>
 
@@ -339,31 +346,26 @@ const updateSupplierHistoriesDateTime = async (row, newTime) => {
 //   }
 // };
 
-const fetchSupplierHistory = async (page = 0, rowsPerPage = 5, search = "") => {
-  console.log("Fetching recipe costs in store...");
+const fetchSupplierHistory = async (page = 1, rowsPerPage = 5, search = "") => {
   try {
     loading.value = true;
-    // ✅ If it's the first load (page just opened), show full spinner
-    supplierHistories.value = await supplierHistoryStore.fetchSupplierHistory(
+    // ✅ Ensure we start on Page 1
+    const response = await supplierHistoryStore.fetchSupplierHistory(
       page,
       rowsPerPage,
       search
     );
-    console.log("supplierHistories", supplierHistories.value);
+    console.log("supplierHistories", response);
 
-    const { data, current_page, per_page, total } = supplierHistories.value;
+    const { data, current_page, per_page, total } = response;
     supplierHistoriesData.value = data;
-    console.log("supplierHistoriesData.value", supplierHistoriesData.value);
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
   } catch (error) {
-    console.log("Error fetching recipe costs:", error);
+    console.log("Error fetching supplier history:", error);
     Notify.create({
-      message: "Error fetching recipe costs",
+      message: "Error fetching supplier history",
       color: "negative",
       position: "top",
     });
@@ -374,7 +376,6 @@ const fetchSupplierHistory = async (page = 0, rowsPerPage = 5, search = "") => {
 onMounted(fetchSupplierHistory);
 
 const onPageRequest = (props) => {
-  console.log("props", props);
   fetchSupplierHistory(
     props.pagination.page,
     props.pagination.rowsPerPage,
@@ -383,7 +384,7 @@ const onPageRequest = (props) => {
 };
 
 const openSupplierIngredients = (row) => {
-  console.log("Editing row:", row);
+  console.log("Viewing ingredients for row:", row);
 
   $q.dialog({
     component: ViewIngredientItems,
@@ -398,14 +399,14 @@ const supplierHistoryColumns = [
     name: "date",
     required: true,
     label: "Date",
-    align: "center",
+    align: "left",
     field: "created_at",
   },
   {
     name: "supplier",
     required: true,
-    label: "Supplier",
-    align: "center",
+    label: "Supplier Name",
+    align: "left",
     field: (row) =>
       row.supplier_name ? capitalizeFirstLetter(row.supplier_name) : "N/A",
   },
@@ -419,7 +420,7 @@ const supplierHistoryColumns = [
   {
     name: "number_of_items",
     required: true,
-    label: "Items",
+    label: "Items Count",
     align: "center",
   },
 ];
@@ -440,12 +441,45 @@ const supplierHistoryColumns = [
   align-items: center;
 }
 
+.search-input {
+  width: 100%;
+  max-width: 500px;
+}
+
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 28px;
+  background: white;
+}
+
+:deep(.q-field--outlined .q-field__control:before) {
+  border: 1px solid #333 !important;
+  opacity: 1 !important;
+}
+
 .table-container {
-  max-height: 450px; /* Adjust as needed */
+  max-height: 450px;
   overflow: hidden;
 }
 
 .gradient-header {
-  background: #155e75;
+  background: linear-gradient(135deg, #155e75, #1e293b);
+  color: white;
+}
+
+:deep(.q-table tbody tr:hover) {
+  background-color: #f8fafc !important;
+  transition: background-color 0.3s ease;
+}
+
+:deep(.q-table td) {
+  padding: 12px 16px !important;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.q-td.cursor-pointer:hover .opacity-50 {
+  opacity: 1;
 }
 </style>

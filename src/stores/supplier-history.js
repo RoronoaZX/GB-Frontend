@@ -22,8 +22,10 @@ export const useSupplierHistoryStore = defineStore("supplier-history", () => {
       supplierHistories.value = response.data;
 
       console.log("supplierHistoriesssss", supplierHistories.value);
+      return response.data;
     } catch (error) {
       console.log("error", error);
+      throw error;
     }
   };
 

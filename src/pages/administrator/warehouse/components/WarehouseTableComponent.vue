@@ -1,79 +1,122 @@
 <template>
-  <div>
-    <q-input
-      v-model="filter"
-      class="q-pb-lg q-pl-sm dynamic-width"
-      outlined
-      placeholder="Search"
-      flat
-      rounded
-      dense
-      debounce="100"
-    >
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-  </div>
-  <div class="spinner-wrapper" v-if="loading">
-    <q-spinner-dots size="50px" color="primary" />
-  </div>
-  <div v-else>
-    <div v-if="filteredRows.length === 0" class="data-error">
-      <q-icon name="warning" color="warning" size="4em" />
-      <div class="q-ml-sm text-h6">No data available</div>
+    <div class="q-px-sm">
+    <div class="row items-center q-mb-lg">
+      <q-input
+        v-model="filter"
+        class="search-input"
+        outlined
+        dense
+        placeholder="Search"
+        rounded
+        bg-color="white"
+        debounce="100"
+      >
+        <template v-slot:append>
+          <q-icon name="search" size="sm" color="grey-7" />
+        </template>
+      </q-input>
     </div>
-    <q-table
-      v-else
-      class="table-container elegant-container sticky-header"
-      :filter="filter"
-      :virtual-scroll-sticky-size-start="48"
-      flat
-      style="height: 500px"
-      :columns="warehouseColumns"
-      :rows="filteredRows"
-      row-key="name"
-      v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      hide-bottom
-    >
-      <!-- virtual-scroll -->
-      <template v-slot:body-cell-name="props">
-        <q-td key="name" :props="props">
-          <a @click.prevent="goToWarehouse(props.row)" class="warehouse-link">
-            {{ capitalizeFirstLetter(props.row.name) }}
-          </a>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-location="props">
-        <q-td :props="props">
-          {{ capitalizeFirstLetter(props.row.location) }}
-        </q-td>
-      </template>
-      <template v-slot:body-cell-personIncharge="props">
-        <q-td :props="props">
-          {{ formatFullname(props.row.employees) }}
-        </q-td>
-      </template>
-      <template v-slot:body-cell-status="props">
-        <q-td key="name" :props="props">
-          <q-badge
-            outline
-            :color="getWarehouseStatusBadgeColor(props.row.status)"
-          >
-            {{ props.row.status }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-action="props">
-        <q-td :props="props">
-          <div class="row justify-center q-gutter-x-md">
-            <WarehouseEditComponent :edit="props" />
-            <WarehouseDeleteComponent :delete="props" />
-          </div>
-        </q-td>
-      </template>
-    </q-table>
+
+    <div class="spinner-wrapper" v-if="loading">
+      <q-spinner-dots size="50px" color="primary" />
+    </div>
+
+    <div v-else>
+      <div v-if="filteredRows.length === 0" class="data-error column items-center">
+        <q-icon name="inventory" color="grey-4" size="6em" />
+        <div class="text-h6 text-grey-6 q-mt-sm">No warehouses found</div>
+      </div>
+
+      <q-table
+        v-else
+        class="warehouse-table shadow-1"
+        :filter="filter"
+        flat
+        bordered
+        :columns="warehouseColumns"
+        :rows="filteredRows"
+        row-key="id"
+        v-model:pagination="pagination"
+        :rows-per-page-options="[10, 20, 50, 0]"
+      >
+        <!-- Header Customization -->
+        <template v-slot:header="props">
+          <q-tr :props="props" class="gradient-header text-white">
+            <q-th
+              v-for="col in props.cols"
+              :key="col.name"
+              :props="props"
+              class="text-weight-bold"
+            >
+              {{ col.label }}
+            </q-th>
+          </q-tr>
+        </template>
+
+        <!-- Body Customization -->
+        <template v-slot:body-cell-name="props">
+          <q-td :props="props">
+            <div class="row items-center no-wrap">
+              <q-avatar size="sm" color="primary" text-color="white" class="q-mr-sm">
+                {{ props.row.name.charAt(0).toUpperCase() }}
+              </q-avatar>
+              <a @click.prevent="goToWarehouse(props.row)" class="warehouse-link text-weight-bold">
+                {{ capitalizeFirstLetter(props.row.name) }}
+              </a>
+            </div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-location="props">
+          <q-td :props="props">
+            <div class="row items-center text-grey-8">
+              <q-icon name="place" color="red-5" size="xs" class="q-mr-xs" />
+              {{ capitalizeFirstLetter(props.row.location) }}
+            </div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-personIncharge="props">
+          <q-td :props="props">
+            <div class="row items-center">
+              <q-icon name="account_circle" color="blue-grey-4" size="xs" class="q-mr-xs" />
+              {{ formatFullname(props.row.employees) }}
+            </div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-phone="props">
+          <q-td :props="props">
+            <div class="row items-center justify-center text-grey-7">
+              <q-icon name="phone" size="14px" class="q-mr-xs" />
+              {{ props.row.phone || 'N/A' }}
+            </div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-status="props">
+          <q-td :props="props">
+            <q-badge
+              rounded
+              padding="xs md"
+              class="text-weight-bold"
+              :color="getWarehouseStatusBadgeColor(props.row.status)"
+            >
+              {{ props.row.status.toUpperCase() }}
+            </q-badge>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-action="props">
+          <q-td :props="props">
+            <div class="row justify-center q-gutter-sm">
+              <WarehouseEditComponent :edit="props" />
+              <WarehouseDeleteComponent :delete="props" />
+            </div>
+          </q-td>
+        </template>
+      </q-table>
+    </div>
   </div>
 </template>
 
@@ -97,31 +140,31 @@ const loading = ref(true);
 const warehouseRow = computed(() => warehouseStore.warehouses);
 const showNoDataMessage = ref(false);
 const pagination = ref({
-  rowPerPage: 0,
+  rowsPerPage: 10,
 });
 
 const filteredRows = computed(() => {
   if (!filter.value) {
     return warehouseRow.value;
   }
+  const needle = filter.value.toLowerCase();
   return warehouseRow.value.filter((row) =>
-    row.name.toLowerCase().includes(filter.value.toLowerCase())
+    row.name.toLowerCase().includes(needle) ||
+    row.location.toLowerCase().includes(needle)
   );
 });
 
 onMounted(async () => {
-  const resaponse = await reloadTableData();
-  console.log("respisne warehouse", resaponse);
+  await reloadTableData();
 });
 
 const reloadTableData = async () => {
   try {
     loading.value = true;
-    const response = await warehouseStore.fetchWarehouses();
+    await warehouseStore.fetchWarehouses();
     if (!warehouseRow.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("wawrehouse respo", response);
   } catch (error) {
     showNoDataMessage.value = true;
   } finally {
@@ -129,20 +172,12 @@ const reloadTableData = async () => {
   }
 };
 
-watch(filter, async (newFilter) => {
-  loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  loading.value = false;
-  showNoDataMessage.value = filteredRows.value.length === 0;
-});
-
 const warehouseColumns = [
   {
     name: "name",
     label: "Name of Warehouse",
     align: "left",
     field: (row) => row.name,
-    format: (val) => `${val}`,
     sortable: true,
   },
   {
@@ -179,8 +214,10 @@ const warehouseColumns = [
 ];
 
 const goToWarehouse = async (warehouse) => {
-  console.log("waraehouse", warehouse);
-  Loading.show();
+  Loading.show({
+    message: `Opening ${warehouse.name}...`,
+    spinnerColor: "white",
+  });
   try {
     await router.push({
       name: "WarehouseDetail",
@@ -194,98 +231,64 @@ const goToWarehouse = async (warehouse) => {
   }
 };
 </script>
+
 <style scoped>
-.elegant-container {
-  background: #f7f8fc;
-  padding: 1rem;
-  border-radius: 8px;
-}
-.absolute-full {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-.table-container {
-  max-height: 500px; /* Adjust as needed */
+.warehouse-table {
+  border-radius: 12px;
   overflow: hidden;
 }
-.spinner-wrapper {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+.gradient-header {
+  background: linear-gradient(135deg, #155e75, #1e293b);
 }
-.data-error {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 .warehouse-link {
   cursor: pointer;
-  position: relative;
-  color: #ef4444;
-  font-weight: bold;
-  text-decoration: none; /* No underline by default */
-}
-.warehouse-link:hover {
-  text-decoration: underline; /* Underline on hover */
-}
-.warehouse-link .tooltip-text {
-  visibility: hidden;
-  width: 100px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -50px;
-  opacity: 0;
-  transition: opacity 0.3s;
+  color: #155e75;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #0e7490;
+    text-decoration: underline;
+  }
 }
 
-.warehouse-link .tooltip-text::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555555 transparent transparent transparent;
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.warehouse-link:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
-.dynamic-width {
-  width: 100%; /* default width */
+
+.search-input {
+  width: 100%;
   max-width: 500px;
-  min-width: 300px; /* set a minimum width */
 }
 
-@media (max-width: 1500px) {
-  .dynamic-width {
-    max-width: 500px; /* smaller width for medium-sized screens */
-  }
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 28px;
+  background: white;
 }
 
-@media (max-width: 768px) {
-  .dynamic-width {
-    max-width: 500px; /* smaller width for tablets */
-  }
+:deep(.q-field--outlined .q-field__control:before) {
+  border: 1px solid #333 !important;
+  opacity: 1 !important;
 }
 
-@media (max-width: 480px) {
-  .dynamic-width {
-    max-width: 200px; /* smaller width for mobile screens */
-  }
+:deep(.q-table__card) {
+  border-radius: 12px;
+}
+
+:deep(.q-table tbody tr:hover) {
+  background-color: #f8fafc !important;
 }
 </style>
