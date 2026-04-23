@@ -1,25 +1,31 @@
 <template>
   <div>
     <q-btn
-      class="bg-gradient text-white q-pa-sm"
-      icon="add_circle"
+      unelevated
+      rounded
+      color="secondary"
+      class="q-px-md"
+      icon="add_box"
       label="Create All"
       @click="openDialog"
     />
-    <q-dialog v-model="dialog">
-      <q-card style="width: 700px; max-width: 80vw">
-        <q-card-section class="row items-center text-white bg-gradient">
-          <div class="text-h6">Create Warehouse Raw Materials</div>
+    <q-dialog v-model="dialog" persistent>
+      <q-card style="width: 700px; max-width: 90vw" class="rounded-borders-lg">
+        <q-card-section class="row items-center text-white gradient-header">
+          <div class="text-h6 text-weight-bolder">Bulk Inventory Creation</div>
           <q-space />
           <q-btn icon="close" flat dense round v-close-popup />
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section class="q-pa-md">
           <q-btn
-            class="bg-gradient text-white q-pa-sm"
-            icon="add_circle"
-            label="Fetch All"
+            unelevated
+            rounded
+            color="primary"
+            icon="download"
+            label="Fetch All Available Materials"
             @click="fetchAllWarehouseRawMaterials"
+            class="full-width q-py-sm"
           />
         </q-card-section>
         <q-card-section>
@@ -161,7 +167,12 @@ const createAllRawMaterials = async () => {
 </script>
 
 <style lang="scss" scoped>
-.bg-gradient {
-  background: linear-gradient(135deg, #1d2423, #00796b);
+.gradient-header {
+  background: linear-gradient(135deg, #155e75, #1e293b);
+  color: white;
+}
+
+.rounded-borders-lg {
+  border-radius: 16px;
 }
 </style>

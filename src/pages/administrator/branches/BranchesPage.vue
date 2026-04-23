@@ -1,5 +1,7 @@
 <template>
   <q-page class="elegant-container" flat>
+    <BranchesSummary />
+
     <q-card-section class="row justify-between">
       <div class="text-h6 text-dark">
         <!-- <q-icon name="fa-solid fa-store" /> -->
@@ -30,6 +32,7 @@
 <script setup>
 import BranchesCreate from "./components/BranchesCreateComponent.vue";
 import BranchesTable from "./components/BranchesTableComponent.vue";
+import BranchesSummary from "./components/BranchesSummary.vue";
 </script>
 <style scoped>
 .elegant-container {

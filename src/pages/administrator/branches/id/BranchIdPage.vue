@@ -20,8 +20,11 @@
             class="bg-grey-2 text-grey-7 tabs-as-cards"
             active-color="red-6"
             indicator-color="transparent"
-            align="justify"
+            align="left"
+            outside-arrows
+            mobile-arrows
           >
+            <q-tab name="overview" label="Overview" />
             <q-tab name="products" label="Products" />
             <q-tab name="rawMaterials" label="Raw Materials" />
             <q-tab name="recipe" label="Recipe" />
@@ -35,6 +38,10 @@
 
         <q-card class="q-mt-sm">
           <q-tab-panels v-model="tab" animated>
+            <q-tab-panel name="overview">
+              <BranchAnalytics />
+            </q-tab-panel>
+
             <q-tab-panel name="products">
               <ProductPage />
             </q-tab-panel>
@@ -72,6 +79,7 @@
   </q-page>
 </template>
 <script setup>
+import BranchAnalytics from "./components/analytics/BranchAnalytics.vue";
 import ProductPage from "./components/products/ProductPage.vue";
 import RawMaterialsPage from "./components/raw_materials/RawMaterialsPage.vue";
 import ProductionPage from "./components/production/ProductionPage.vue";
@@ -113,7 +121,7 @@ onMounted(() => {
   getBranch();
 });
 
-const tab = ref("products");
+const tab = ref("overview");
 
 const navigateBack = () => {
   Loading.show();

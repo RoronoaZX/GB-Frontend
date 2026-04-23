@@ -8,15 +8,29 @@
     v-model:pagination="pagination"
     :rows-per-page-options="[0]"
     hide-bottom
-    class="q-mt-md sticky-header3"
+    class="q-mt-md distribution-table shadow-1"
     style="height: 450px"
   >
+    <template v-slot:header="props">
+      <q-tr :props="props" class="gradient-header text-white">
+        <q-th
+          v-for="col in props.cols"
+          :key="col.name"
+          :props="props"
+          class="text-weight-bold text-subtitle2"
+        >
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
+
     <template v-slot:body-cell-total_quantity="props">
       <q-td :props="props">
         <q-badge
-          square
-          class="text-white cursor-pointer"
-          :class="getRawMaterialBadgeColorForStocks(props.row)"
+          rounded
+          padding="xs md"
+          class="text-weight-bold cursor-pointer"
+          :color="getRawMaterialBadgeColorName(props.row)"
         >
           {{ formatTotalQuantity(props.row) }}
         </q-badge>
@@ -25,9 +39,10 @@
     <template v-slot:body-cell-category="props">
       <q-td key="name" :props="props">
         <q-badge
-          :color="
-            getRawMaterialBadgeCategoryColor(props.row.raw_material.category)
-          "
+          rounded
+          padding="xs md"
+          class="text-weight-bold"
+          :color="getRawMaterialBadgeCategoryColor(props.row.raw_material.category)"
         >
           {{ props.row.raw_material.category }}
         </q-badge>
@@ -49,7 +64,11 @@ const props = defineProps({
   getRawMaterialBadgeColorForStocks: Function,
   formatTotalQuantity: Function,
 });
-console.log("branchReportss", props.branchReport);
+
+const getRawMaterialBadgeColorName = (row) => {
+  const cls = props.getRawMaterialBadgeColorForStocks(row);
+  return cls.replace("bg-", "");
+};
 
 // Table columns for the reports
 const tableColumns = ref([
@@ -81,3 +100,20 @@ const tableColumns = ref([
   },
 ]);
 </script>
+
+<style lang="scss" scoped>
+.gradient-header {
+  background: linear-gradient(135deg, #155e75, #1e293b);
+  color: white;
+}
+
+.distribution-table {
+  border-radius: 12px;
+  overflow: hidden;
+
+  :deep(.q-table tbody tr:hover) {
+    background-color: #f8fafc !important;
+    transition: background-color 0.3s ease;
+  }
+}
+</style>

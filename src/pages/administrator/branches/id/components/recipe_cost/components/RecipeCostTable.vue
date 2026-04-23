@@ -202,7 +202,7 @@ const recipeCostColumn = [
     label: "Kilo",
     align: "center",
     field: "kilo",
-    format: (val) => trimTrailingZeros(val || 0),
+    format: (val) => `${trimTrailingZeros(val || 0)} kg`,
     sortable: true,
   },
   {

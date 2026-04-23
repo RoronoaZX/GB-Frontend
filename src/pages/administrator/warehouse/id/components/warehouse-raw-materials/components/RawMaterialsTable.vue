@@ -1,31 +1,27 @@
 <template>
-  <div class="row justify-between">
-    <div>
-      <q-input
-        class="q-pb-lg q-pl-md"
-        v-model="filter"
-        outlined
-        placeholder="Search"
-        debounce="1000"
-        style="width: 450px; max-width: 5000px; min-width: 100px"
-        flat
-        dense
-        rounded
-      >
-        <template v-slot:append>
-          <q-icon name="search" />
-        </template>
-      </q-input>
-    </div>
-    <div class="row q-gutter-x-sm">
+  <div class="q-pa-md">
+    <div class="row justify-between items-center q-mb-md">
       <div>
-        <RawMaterialsCreate />
+        <q-input
+          v-model="filter"
+          class="search-input"
+          outlined
+          dense
+          placeholder="Search"
+          rounded
+          bg-color="white"
+          debounce="1000"
+        >
+          <template v-slot:append>
+            <q-icon name="search" size="sm" color="grey-7" />
+          </template>
+        </q-input>
       </div>
-      <div>
+      <div class="row q-gutter-x-sm">
+        <RawMaterialsCreate />
         <RawMaterialsCreateAll />
       </div>
     </div>
-  </div>
   <div class="spinner-wrapper" v-if="loading">
     <q-spinner-dots size="50px" color="primary" />
   </div>
@@ -39,26 +35,38 @@
       class="table-container sticky-header"
       :filter="filter"
       flat
+      bordered
       :columns="rawMaterialsColumns"
       :rows="filteredRows"
       row-key="name"
       v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      hide-bottom
-      style="height: 375px"
+      :rows-per-page-options="[10, 20, 50, 0]"
+      style="height: 450px"
     >
-      <!-- :virtual-scroll-sticky-size-start="48"
-      virtual-scroll -->
+      <template v-slot:header="props">
+        <q-tr :props="props" class="gradient-header text-white">
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="text-weight-bold text-subtitle2"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
       <template v-slot:body-cell-total_quantity="props">
         <q-td :props="props">
           <q-badge
-            square
-            class="text-white cursor-pointer"
-            :class="getRawMaterialBadgeColor(props.row)"
+            rounded
+            padding="xs md"
+            class="text-weight-bold cursor-pointer"
+            :color="getRawMaterialBadgeColorName(props.row)"
           >
             {{ formatTotalQuantity(props.row) }}
             <q-tooltip class="bg-blue-grey-8" :offset="[10, 10]">
-              <div class="text-white">Edit Available Stocks</div>
+              Click to Edit Stocks
             </q-tooltip>
 
             <q-popup-edit
@@ -70,10 +78,10 @@
               <q-input
                 v-model="scope.value"
                 dense
+                outlined
                 :suffix="props.row.raw_materials.unit"
                 mask="########"
                 autofocus
-                counter
                 @keyup.enter="scope.set"
               />
             </q-popup-edit>
@@ -82,12 +90,13 @@
       </template>
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
-          <div class="row justify-center q-gutter-x-md">
+          <div class="row justify-center q-gutter-x-sm">
             <RawMaterialsTableDelete :delete="props" />
           </div>
         </q-td>
       </template>
     </q-table>
+    </div>
   </div>
 </template>
 
@@ -183,12 +192,12 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
-const getRawMaterialBadgeColor = (row) => {
+const getRawMaterialBadgeColorName = (row) => {
   const totalQuantity = row.total_quantity;
   const unit = row.raw_materials.unit;
-  console.log("unit test", unit);
+
   if (unit === "Grams" && totalQuantity < 1000) {
-    return "bg-red";
+    return "red";
   }
 
   let stockValue;
@@ -200,14 +209,14 @@ const getRawMaterialBadgeColor = (row) => {
 
   if (stockValue < 5) {
     if (stockValue <= 2) {
-      return "bg-red";
+      return "red";
     } else if (stockValue <= 3) {
-      return "bg-warning";
+      return "warning";
     } else {
-      return "bg-warning";
+      return "warning";
     }
   } else {
-    return "bg-positive";
+    return "positive";
   }
 };
 
@@ -275,36 +284,47 @@ const rawMaterialsColumns = [
 </script>
 
 <style scoped>
-.elegant-container {
-  background: #f7f8fc;
-  padding: 2rem;
-  border-radius: 8px;
+.search-input {
+  width: 100%;
+  max-width: 500px;
 }
-.absolute-full {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 28px;
+  background: white;
 }
-.spinner-wrapper {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+:deep(.q-field--outlined .q-field__control:before) {
+  border: 1px solid #333 !important;
+  opacity: 1 !important;
 }
-.data-error {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+.gradient-header {
+  background: linear-gradient(135deg, #155e75, #1e293b);
+  color: white;
 }
+
+:deep(.q-table tbody tr:hover) {
+  background-color: #f8fafc !important;
+  transition: background-color 0.3s ease;
+}
+
 .table-container {
-  max-height: 400px; /* Adjust as needed */
+  max-height: 450px;
   overflow: hidden;
 }
 
-.q-table-container {
-  overflow: hidden !important; /* Target the container generated by q-table */
+.spinner-wrapper {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.data-error {
+  min-height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

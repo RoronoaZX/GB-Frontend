@@ -39,21 +39,26 @@ export function typographyFormat() {
   };
 
   const formatQuantity = (quantity, unit) => {
-    if (unit === "Pcs") {
-      return `${quantity} pcs`; // Keep as is for pieces
+    if (!unit) return `${quantity}`;
+
+    const normalizedUnit = unit.toLowerCase();
+
+    if (normalizedUnit === "pcs" || normalizedUnit === "piece" || normalizedUnit === "pieces") {
+      return `${quantity} pcs`;
     }
 
-    if (unit === "Grams") {
-      if (quantity >= 1000) {
-        let kg = quantity / 1000;
-        let formattedKg =
-          kg % 1 === 0 ? kg.toString() : kg.toString().replace(/^0+/, "");
-        return `${formattedKg} kgs`;
-      }
-      return `${quantity} g`;
+    if (normalizedUnit === "grams" || normalizedUnit === "g" || normalizedUnit === "gram") {
+      const kg = Number(quantity) / 1000;
+      // If it's a whole number or simple decimal, trim it
+      const formattedKg = parseFloat(kg.toFixed(3));
+      return `${formattedKg} kg`;
     }
 
-    return `${quantity} ${unit}`; // Default case if unit is different
+    if (normalizedUnit === "kg" || normalizedUnit === "kilogram" || normalizedUnit === "kilograms") {
+      return `${trimTrailingZeros(quantity)} kg`;
+    }
+
+    return `${quantity} ${unit}`;
   };
 
   const formatRequestQuantity = (quantity) => {

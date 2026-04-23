@@ -20,21 +20,37 @@
     </div>
 
     <!-- Branch cards -->
-    <div v-else class="q-pa-md row q-col-gutter-md">
+    <div v-else class="q-pa-lg row q-col-gutter-lg">
       <div
         v-for="branchReport in branchReports"
         :key="branchReport.branch_id"
         class="col-xs-12 col-sm-6 col-md-4 col-lg-3"
       >
-        <q-card class="user-card" @click="handleBranchDialog(branchReport)">
-          <img src="https://cdn.quasar.dev/img/mountains.jpg" />
-          <q-card-section class="text-center">
-            <div class="q-mt-lg">
-              <div
-                class="text-h6 text-weight-medium elegant-name text-capitalize"
-              >
-                {{ capitalizeFirstLetter(branchReport.branch_name) }}
-              </div>
+        <q-card class="branch-card cursor-pointer" @click="handleBranchDialog(branchReport)">
+          <q-card-section class="text-center q-pa-xl bg-grey-1 relative-position">
+            <div class="card-accent bg-primary"></div>
+            <q-avatar
+              size="100px"
+              font-size="42px"
+              color="white"
+              text-color="primary"
+              class="shadow-5 branch-avatar"
+            >
+              {{ branchReport.branch_name.charAt(0).toUpperCase() }}
+            </q-avatar>
+          </q-card-section>
+          
+          <q-separator />
+
+          <q-card-section class="text-center q-pa-md">
+            <div class="text-h6 text-weight-bolder text-grey-9 text-capitalize">
+              {{ branchReport.branch_name }}
+            </div>
+            <div class="row items-center justify-center q-gutter-x-sm q-mt-xs">
+              <q-badge rounded color="blue-1" text-color="blue-8" class="text-weight-bold">
+                {{ branchReport.reports.length }} Materials
+              </q-badge>
+              <q-badge rounded color="green-1" text-color="green-8" label="Active" class="text-weight-bold" />
             </div>
           </q-card-section>
         </q-card>
@@ -152,23 +168,45 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.user-card {
-  height: 300px; /* Fixed height for all cards */
+.branch-card {
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12) !important;
+    
+    .branch-avatar {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.branch-avatar {
+  transition: transform 0.3s ease;
+  border: 4px solid #fff;
+}
+
+.card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.data-error {
+  min-height: 40vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  color: #64748b;
 }
 
-.elegant-name {
-  font-size: clamp(14px, 2vw, 20px); /* Adjust based on card width */
-  line-height: 1.2;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  padding: 0 8px;
-}
-
-.user-card img {
-  height: 180px;
-  object-fit: cover;
+.skeleton-card {
+  border-radius: 20px;
 }
 </style>

@@ -57,7 +57,7 @@
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ formatQuantity(ingredient) || "0.00000" }}
+                {{ formatQuantity(ingredient.quantity, ingredient.unit) || "0.00000" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
@@ -87,7 +87,7 @@ import { useDialogPluginComponent } from "quasar";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 
-const { capitalizeFirstLetter } = typographyFormat();
+const { capitalizeFirstLetter, formatQuantity, formatPrice } = typographyFormat();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -95,36 +95,9 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const props = defineProps(["ingredientGroups"]);
 console.log("ingredientGroupsss", props.ingredientGroups);
 
-const formatQuantity = (ingredient) => {
-  const formattedQuantity = Number(ingredient.quantity) || 0; // Convert to a number, fallback to 0
-  const unit = ingredient.unit || ""; // Ensure unit is a string
+// Local formatQuantity removed in favor of global helper
 
-  if (formattedQuantity > 1000) {
-    const formattedQuantityInKg = parseFloat(
-      (formattedQuantity / 1000).toFixed(3)
-    ); // Remove trailing zeros
-    return `${formattedQuantityInKg} kg`;
-  } else if (formattedQuantity > 1) {
-    return `${parseFloat(formattedQuantity.toFixed(3))} ${unit}`; // ${unit ? "s" : ""} Pluralize unit
-  } else {
-    return `${parseFloat(formattedQuantity.toFixed(3))} ${unit}`; // Keep decimal formatting
-    //
-  }
-};
-
-const formatPrice = (value) => {
-  if (value == null || isNaN(value)) return "0.00";
-
-  // Convert to number first
-  const num = Number(value);
-
-  // Format with comma separators
-
-  return num.toLocaleString("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 6,
-  });
-};
+// Local formatPrice removed in favor of global helper
 
 // ✅ Calculate total cost of all price_per_gram
 const calculateTotalCostPerIngredient = (ingredient) => {

@@ -1,14 +1,18 @@
 <template>
-  <div>
+  <div class="row items-center q-mb-md">
     <q-input
-      rounded
+      v-model="filter"
+      class="search-input"
       outlined
       dense
+      placeholder="Search transactions..."
+      rounded
+      bg-color="white"
       debounce="300"
-      v-model="filter"
-      placeholder="Search"
-      style="width: 500px; max-width: 1500px; min-width: 100px"
     >
+      <template v-slot:append>
+        <q-icon name="search" size="sm" color="grey-7" />
+      </template>
     </q-input>
   </div>
   <div class="spinner-wrapper" v-if="loading">
@@ -23,29 +27,44 @@
     <q-table
       v-else
       bordered
-      class="q-mt-md"
+      class="transaction-table shadow-1"
       flat
       :columns="transactionListColumns"
       :rows="branchPremixDatas"
       v-model:pagination="pagination"
-      :rows-per-page-options="[5, 7, 10, 0]"
+      :rows-per-page-options="[5, 10, 20, 0]"
       row-key="id"
       @request="onPageRequest"
       :loading="loading"
     >
+      <template v-slot:header="props">
+        <q-tr :props="props" class="gradient-header text-white">
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="text-weight-bold text-subtitle2"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
           <q-badge
-            outlined
+            rounded
+            padding="xs md"
+            class="text-weight-bold text-uppercase"
             :color="getPremixBadgeStatusColor(props.row.status)"
           >
-            {{ capitalizeFirstLetter(props.row.status) }}
+            {{ props.row.status }}
           </q-badge>
         </q-td>
       </template>
       <template v-slot:body-cell-view="props">
         <q-td :props="props">
-          <div>
+          <div class="row justify-center">
             <TransactionView
               :report="props.row"
               @update-history="updateReportHistory"
@@ -53,11 +72,6 @@
           </div>
         </q-td>
       </template>
-      <!-- <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-gears size="50px" color="grey-9" />
-        </q-inner-loading>
-      </template> -->
     </q-table>
   </div>
 </template>
@@ -197,34 +211,33 @@ const transactionListColumns = [
 </script>
 
 <style lang="scss" scoped>
-.sticky-header-top {
-  /* height or max-height is important */
-  // height: 342px;
+.search-input {
+  width: 100%;
+  max-width: 500px;
+}
 
-  .q-table__top,
-  .q-table__bottom,
-  thead tr:first-child th {
-    /* bg color is important for th; just specify one */
-    background-color: #ffffff;
-    color: rgb(0, 0, 0);
-    // #1d1d1d
-  }
-  thead tr th {
-    position: sticky;
-    z-index: 1;
-  }
-  thead tr:first-child th {
-    top: 0;
-  }
-  /* this is when the loading indicator appears */
-  &.q-table--loading thead tr:last-child th {
-    /* height of all previous header rows */
-    top: 48px;
-  }
-  /* prevent scrolling behind sticky top row on focus */
-  tbody {
-    /* height of all previous header rows */
-    scroll-margin-top: 48px;
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 28px;
+  background: white;
+}
+
+:deep(.q-field--outlined .q-field__control:before) {
+  border: 1px solid #333 !important;
+  opacity: 1 !important;
+}
+
+.gradient-header {
+  background: linear-gradient(135deg, #155e75, #1e293b);
+  color: white;
+}
+
+.transaction-table {
+  border-radius: 12px;
+  overflow: hidden;
+
+  :deep(.q-table tbody tr:hover) {
+    background-color: #f8fafc !important;
+    transition: background-color 0.3s ease;
   }
 }
 
@@ -234,6 +247,7 @@ const transactionListColumns = [
   justify-content: center;
   align-items: center;
 }
+
 .data-error {
   min-height: 40vh;
   display: flex;

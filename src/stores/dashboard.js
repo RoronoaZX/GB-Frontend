@@ -338,6 +338,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
     totalEmployees: 0,
     lowStockItems: 0,
     totalSalesData: [],
+    totalGrossSalesData: [],
+    totalExpensesData: [],
     branchSalesDistribution: [],
     recentActivity: [],
     totalSuppliers: 0,
@@ -417,7 +419,12 @@ export const useDashboardStore = defineStore("dashboard", () => {
         key = dateObj.toISOString().substring(0, 7);
       }
 
-      salesMap[key] = (salesMap[key] || 0) + net;
+      if (!salesMap[key]) {
+        salesMap[key] = { net: 0, gross: 0, expenses: 0 };
+      }
+      salesMap[key].net += net;
+      salesMap[key].gross += gross;
+      salesMap[key].expenses += expenses;
     });
 
     const sortedKeys = Object.keys(salesMap).sort();
@@ -445,7 +452,9 @@ export const useDashboardStore = defineStore("dashboard", () => {
       );
     }
 
-    stats.value.totalSalesData = slicedKeys.map((k) => salesMap[k]);
+    stats.value.totalSalesData = slicedKeys.map((k) => salesMap[k]?.net || 0);
+    stats.value.totalGrossSalesData = slicedKeys.map((k) => salesMap[k]?.gross || 0);
+    stats.value.totalExpensesData = slicedKeys.map((k) => salesMap[k]?.expenses || 0);
   };
 
   // =========================

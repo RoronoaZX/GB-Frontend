@@ -57,7 +57,7 @@ import { useDialogPluginComponent } from "quasar";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 
-const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+const { capitalizeFirstLetter, formatPrice, formatQuantity } = typographyFormat();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -88,7 +88,7 @@ const ingredientColumns = [
     name: "quantity",
     label: "Qty Used",
     align: "center",
-    field: (row) => row.quantity_used,
+    field: (row) => formatQuantity(row.quantity_used, row.unit),
   },
   {
     name: "ppg",
