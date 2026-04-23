@@ -50,11 +50,14 @@
             <div class="card-icon-wrapper text-purple">
               <q-icon name="payments" size="32px" />
             </div>
-            <div class="card-info q-ml-md">
-              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+            <div class="card-info q-ml-md" style="min-width: 0">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide no-wrap overflow-hidden text-overflow-ellipsis">
                 {{ timeRangeText }} Revenue
               </div>
-              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
+              <div 
+                class="text-weight-bolder text-dark q-mt-xs ds-number no-wrap overflow-hidden text-overflow-ellipsis"
+                :style="{ fontSize: getFontSize(stats.totalSalesData) }"
+              >
                 ₱{{ ((stats.totalSalesData || []).reduce((a,b)=>a+b, 0)).toLocaleString() }}
               </div>
             </div>
@@ -86,8 +89,29 @@
 
     <!-- NEW ROW: SECONDARY METRICS -->
     
+    <!-- Total Warehouses -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <q-card class="dashboard-stat-card elegant-card" flat>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-orange">
+              <q-icon name="warehouse" size="32px" />
+            </div>
+            <div class="card-info q-ml-md">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                Total Warehouses
+              </div>
+              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
+                {{ stats.totalWarehouses || 0 }}
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
     <!-- Total Recipes -->
-    <div class="col-12 col-sm-4 col-lg-4">
+    <div class="col-12 col-sm-6 col-lg-3">
       <q-card class="dashboard-stat-card elegant-card" flat>
         <q-card-section class="q-pa-lg">
           <div class="row items-center no-wrap">
@@ -108,7 +132,7 @@
     </div>
 
     <!-- Total Suppliers -->
-    <div class="col-12 col-sm-4 col-lg-4">
+    <div class="col-12 col-sm-6 col-lg-3">
       <q-card class="dashboard-stat-card elegant-card" flat>
         <q-card-section class="q-pa-lg">
           <div class="row items-center no-wrap">
@@ -129,7 +153,7 @@
     </div>
 
     <!-- Total Baker Reports -->
-    <div class="col-12 col-sm-4 col-lg-4">
+    <div class="col-12 col-sm-6 col-lg-3">
       <q-card class="dashboard-stat-card elegant-card" flat>
         <q-card-section class="q-pa-lg">
           <div class="row items-center no-wrap">
@@ -174,6 +198,13 @@ const timeRangeText = computed(() => {
   };
   return map[dashboardStore.timeRange] || 'Weekly';
 });
+const getFontSize = (data) => {
+  const value = (data || []).reduce((a, b) => a + b, 0);
+  const len = value.toLocaleString().length;
+  if (len > 12) return '1.25rem'; // Smaller for billions
+  if (len > 9) return '1.5rem';  // Medium for millions
+  return '2.125rem';             // Default text-h4 size
+};
 </script>
 
 <style lang="scss" scoped>
@@ -205,6 +236,18 @@ const timeRangeText = computed(() => {
   letter-spacing: -0.5px;
 }
 
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.text-overflow-ellipsis {
+  text-overflow: ellipsis;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
 /* Icon Wrappers */
 .card-icon-wrapper {
   width: 64px;
@@ -231,6 +274,10 @@ const timeRangeText = computed(() => {
   &.text-rose {
     background: #fff1f2;
     color: #f43f5e;
+  }
+  &.text-orange {
+    background: #fff7ed;
+    color: #f97316;
   }
 }
 </style>

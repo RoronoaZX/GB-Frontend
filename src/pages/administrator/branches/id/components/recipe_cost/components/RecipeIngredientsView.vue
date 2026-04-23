@@ -17,76 +17,37 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="text-h6" align="center">Ingredients Cost List</div>
-      </q-card-section>
-      <q-card-section>
-        <q-list dense separator class="box">
-          <q-item>
-            <q-item-section>
-              <q-item-label class="text-overline">
-                Raw Materials Name
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-overline"> Code </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-overline">
-                Ingredient Status</q-item-label
+        <q-table
+          flat
+          dense
+          :rows="props.row.items || []"
+          :columns="ingredientColumns"
+          row-key="raw_material_name"
+          hide-pagination
+          :rows-per-page-options="[0]"
+          class="ingredients-table"
+        >
+          <template v-slot:body-cell-status="props">
+            <q-td :props="props">
+              <q-badge
+                :color="props.value === 'confirmed' ? 'positive' : 'warning'"
+                rounded
               >
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-overline"> Quantity Used </q-item-label>
-            </q-item-section>
+                {{ props.value }}
+              </q-badge>
+            </q-td>
+          </template>
+        </q-table>
+      </q-card-section>
 
-            <q-item-section>
-              <q-item-label class="text-overline"> PPG </q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-item-label class="text-overline"> TCPI </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-item v-for="(ingredient, index) in props.row.items" :key="index">
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{
-                  capitalizeFirstLetter(ingredient.raw_material_name) || "N/A"
-                }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ ingredient.raw_material_code || "N/A" }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ ingredient.status || "N/A" }}</q-item-label
-              >
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ parseFloat(ingredient.quantity_used || "N/A") }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{
-                  formatPrice(parseFloat(ingredient.price_per_gram || "N/A"))
-                }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-item-label class="text-caption">
-                {{ formatPrice(calculateTotalCostPerIngredient(ingredient)) }}
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-card-section>
-      <q-card-section class="q-mt-md text-right text-subtitle1">
-        <strong>Total Cost:</strong>
-        {{ calculateTotalCost(props.row) || "₱0.00" }}
+      <q-card-section class="row items-center q-pt-md">
+        <q-space />
+        <div class="text-subtitle1">
+          <span class="text-grey-7">Total Recipe Cost: </span>
+          <span class="text-weight-bold text-primary text-h6">
+            {{ formatPrice(props.row.recipe_total_cost || 0) }}
+          </span>
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -96,7 +57,7 @@ import { useDialogPluginComponent } from "quasar";
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 
-const { capitalizeFirstLetter } = typographyFormat();
+const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
@@ -110,35 +71,39 @@ const props = defineProps({
 
 console.log("props", props.row);
 
-const formatPrice = (value) => {
-  if (value == null || isNaN(value)) return "0.00";
-
-  return `₱${parseFloat(value)
-    .toFixed(2)
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-};
-
-const calculateTotalCostPerIngredient = (ingredient) => {
-  const quantity = parseFloat(ingredient.quantity_used);
-  const pricePerGram = parseFloat(ingredient.price_per_gram);
-
-  return quantity * pricePerGram;
-};
-
-const calculateTotalCost = (ingredient) => {
-  if (!ingredient || !ingredient.items) return "₱0.00";
-
-  const total = ingredient.items.reduce((sum, ing) => {
-    const quantity = parseFloat(ing.quantity_used) || 0;
-    const pricePerGram = parseFloat(ing.price_per_gram) || 0;
-    return sum + quantity * pricePerGram; // ✅ Correct summation
-  }, 0);
-
-  return `₱${total.toFixed(2).toLocaleString("en-PH", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })}`;
-};
+const ingredientColumns = [
+  {
+    name: "name",
+    label: "Raw Material",
+    align: "left",
+    field: (row) => capitalizeFirstLetter(row.raw_material_name),
+  },
+  {
+    name: "status",
+    label: "Status",
+    align: "center",
+    field: "status",
+  },
+  {
+    name: "quantity",
+    label: "Qty Used",
+    align: "center",
+    field: (row) => row.quantity_used,
+  },
+  {
+    name: "ppg",
+    label: "Price/Gram",
+    align: "right",
+    field: (row) => formatPrice(row.price_per_gram),
+  },
+  {
+    name: "subtotal",
+    label: "Subtotal",
+    align: "right",
+    field: (row) => formatPrice(row.total_cost),
+    classes: "text-weight-bold",
+  },
+];
 </script>
 
 <style scoped>
@@ -146,8 +111,17 @@ const calculateTotalCost = (ingredient) => {
   background: linear-gradient(to right, #4b0082, #800080, #9932cc, #d8bfd8);
 }
 
-.box {
-  border: 1px dashed grey;
-  border-radius: 10px;
+.ingredients-table :deep(.q-table__card) {
+  box-shadow: none;
+}
+
+.ingredients-table :deep(thead tr th) {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 11px;
 }
 </style>

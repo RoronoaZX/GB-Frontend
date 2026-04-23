@@ -22,16 +22,27 @@
         class="activity-item q-py-md"
       >
         <q-item-section avatar>
-          <q-avatar color="blue-1" text-color="primary" icon="person_add" />
+          <q-avatar
+            :color="getActivityStyle(act).bgColor"
+            :text-color="getActivityStyle(act).textColor"
+            :icon="getActivityStyle(act).icon"
+          />
         </q-item-section>
 
         <q-item-section>
-          <q-item-label class="text-weight-bold text-dark">{{ act.action }}</q-item-label>
+          <q-item-label class="text-weight-bold text-dark text-capitalize"
+            >{{ act.action }}
+            <span class="text-grey-6 text-weight-medium" v-if="act.field"
+              >({{ act.field }})</span
+            ></q-item-label
+          >
           <q-item-label caption lines="2">{{ act.details }}</q-item-label>
         </q-item-section>
 
         <q-item-section side top>
-          <q-item-label caption class="time-label">{{ formatTimeAgo(act.time) }}</q-item-label>
+          <q-item-label caption class="time-label">{{
+            formatTimeAgo(act.time)
+          }}</q-item-label>
         </q-item-section>
       </q-item>
     </q-list>
@@ -42,17 +53,39 @@
 defineProps({
   activities: {
     type: Array,
-    default: () => []
-  }
+    default: () => [],
+  },
 });
 
+const getActivityStyle = (act) => {
+  const type = act.type?.toLowerCase() || "";
+
+  if (type.includes("bread")) {
+    return { icon: "bakery_dining", bgColor: "orange-1", textColor: "orange-9" };
+  }
+  if (type.includes("nestle") || type.includes("softdrink") || type.includes("selecta")) {
+    return { icon: "local_drink", bgColor: "blue-1", textColor: "blue-9" };
+  }
+  if (type.includes("other products")) {
+    return { icon: "inventory_2", bgColor: "purple-1", textColor: "purple-9" };
+  }
+  if (type.includes("employee") || type.includes("user")) {
+    return { icon: "person", bgColor: "teal-1", textColor: "teal-9" };
+  }
+  if (type.includes("branch") || type.includes("warehouse")) {
+    return { icon: "store", bgColor: "indigo-1", textColor: "indigo-9" };
+  }
+
+  return { icon: "notifications", bgColor: "grey-2", textColor: "grey-7" };
+};
+
 const formatTimeAgo = (dateStr) => {
-  if (!dateStr) return 'Just now';
+  if (!dateStr) return "Just now";
   const diffMs = new Date() - new Date(dateStr);
   const diffDays = Math.floor(diffMs / 86400000);
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays > 30) return 'A month ago';
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays > 30) return "A month ago";
   return `${diffDays} days ago`;
 };
 </script>

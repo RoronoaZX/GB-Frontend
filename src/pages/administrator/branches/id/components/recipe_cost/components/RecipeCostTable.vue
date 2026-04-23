@@ -1,66 +1,72 @@
 <template>
-  <div>
-    <q-input
-      class="q-pb-lg q-pl-md"
-      outlined
-      v-model="filter"
-      placeholder="Search"
-      debounce="1000"
-      style="width: 450px; max-width: 1500px; min-width: 100px"
-      flat
-      dense
-      rounded
-    >
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-  </div>
+  <q-card flat bordered class="recipe-cost-card">
+    <q-card-section class="row items-center q-pb-none">
+      <div class="text-h6 text-weight-bold color-primary">Recipe Cost Tracking</div>
+      <q-space />
+      <q-input
+        outlined
+        v-model="filter"
+        placeholder="Search recipe or baker..."
+        debounce="1000"
+        style="width: 300px"
+        dense
+        rounded
+      >
+        <template v-slot:append>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </q-card-section>
 
-  <div class="spinner-wrapper" v-if="loading">
-    <q-spinner-dots size="50px" color="primary" />
-  </div>
+    <q-card-section>
+      <div class="spinner-wrapper" v-if="loading">
+        <q-spinner-dots size="50px" color="primary" />
+      </div>
 
-  <div v-else>
-    <div v-if="recipeCostData.length === 0" class="data-error">
-      <q-icon name="warning" color="warning" size="4em" />
-      <div class="q-ml-sm text-h6">No data available</div>
-    </div>
-    <!-- class="table-container sticky-header" -->
-    <q-table
-      v-else
-      flat
-      row-key="id"
-      :columns="recipeCostColumn"
-      :rows="recipeCostData || []"
-      v-model:pagination="pagination"
-      :rows-per-page-options="[3, 5, 7, 10, 0]"
-      :loading="tableLoading"
-      :filter="filter"
-      @request="onPageRequest"
-    >
-      <template v-slot:body-cell-action="props">
-        <q-td :props="props">
-          <div class="row justify-center q-gutter-x-md">
-            <q-btn
-              color="black"
-              icon="visibility"
-              size="sm"
-              flat
-              round
-              dense
-              @click="openRecipeIngredients(props.row)"
-            />
-          </div>
-        </q-td>
-      </template>
-      <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-ios size="50px" color="grey-10" />
-        </q-inner-loading>
-      </template>
-    </q-table>
-  </div>
+      <div v-else>
+        <div v-if="recipeCostData.length === 0" class="data-error">
+          <q-icon name="inventory_2" color="grey-5" size="4em" />
+          <div class="q-mt-sm text-grey-7 text-subtitle1">No recipe costs recorded yet</div>
+        </div>
+        
+        <q-table
+          v-else
+          flat
+          row-key="id"
+          :columns="recipeCostColumn"
+          :rows="recipeCostData || []"
+          v-model:pagination="pagination"
+          :rows-per-page-options="[5, 10, 20, 50]"
+          :loading="tableLoading"
+          binary-state-sort
+          @request="onPageRequest"
+          class="recipe-table"
+        >
+          <template v-slot:body-cell-action="props">
+            <q-td :props="props">
+              <q-btn
+                color="primary"
+                icon="visibility"
+                size="sm"
+                flat
+                round
+                dense
+                @click="openRecipeIngredients(props.row)"
+              >
+                <q-tooltip>View Detailed Ingredients Cost</q-tooltip>
+              </q-btn>
+            </q-td>
+          </template>
+          
+          <template #loading>
+            <q-inner-loading showing>
+              <q-spinner-ios size="50px" color="primary" />
+            </q-inner-loading>
+          </template>
+        </q-table>
+      </div>
+    </q-card-section>
+  </q-card>
 </template>
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
@@ -97,7 +103,7 @@ const pagination = ref({
 
 const filter = ref("");
 
-const fetchRecipeCosts = async (page = 0, rowsPerPage = 5, search = "") => {
+const fetchRecipeCosts = async (page = 1, rowsPerPage = 5, search = "") => {
   try {
     // ✅ If it's the first load (page just opened), show full spinner
     if (recipeCostData.value.length === 0 && !search) {
@@ -106,16 +112,16 @@ const fetchRecipeCosts = async (page = 0, rowsPerPage = 5, search = "") => {
       tableLoading.value = true;
     }
 
-    recipeCost.value = await recipeCostStore.fetchRecipeCosts(
+    const response = await recipeCostStore.fetchRecipeCosts(
       branchId,
       page,
       rowsPerPage,
       search
     );
 
-    console.log("recipeCosts", recipeCost.value);
+    console.log("recipeCosts response", response);
 
-    const { data, current_page, per_page, total } = recipeCost.value;
+    const { data, current_page, per_page, total } = response;
     recipeCostData.value = data;
     console.log("recipeCostData.value", recipeCostData.value);
     pagination.value.page = current_page;
@@ -171,40 +177,46 @@ const onPageRequest = (props) => {
 const recipeCostColumn = [
   {
     name: "date",
-    label: "Date",
-    align: "center",
-    field: (row) => formatTimestamp(row.created_at || "N/A"),
+    label: "Date Created",
+    align: "left",
+    field: "created_at",
+    format: (val) => formatTimestamp(val || "N/A"),
+    sortable: true,
   },
   {
     name: "baker_name",
-    label: "Baker's name",
-    align: "center",
+    label: "Baker Name",
+    align: "left",
     field: (row) => formatFullname(row.user.employee || "N/A"),
+    sortable: true,
   },
   {
     name: "recipe_name",
-    label: "Recipe name",
-    align: "center",
+    label: "Recipe Name",
+    align: "left",
     field: (row) => capitalizeFirstLetter(row.recipe_name) || "N/A",
-  },
-  {
-    name: "total_cost",
-    label: "Total Cost",
-    align: "center",
-    field: (row) =>
-      formatPrice(trimTrailingZeros(row.recipe_total_cost || "N/A")),
+    sortable: true,
   },
   {
     name: "kilo",
     label: "Kilo",
     align: "center",
-    field: (row) => trimTrailingZeros(row.kilo || "N/A"),
+    field: "kilo",
+    format: (val) => trimTrailingZeros(val || 0),
+    sortable: true,
+  },
+  {
+    name: "total_cost",
+    label: "Total Cost",
+    align: "right",
+    field: "recipe_total_cost",
+    format: (val) => formatPrice(val || 0),
+    sortable: true,
   },
   {
     name: "action",
-    label: "Action",
+    label: "Details",
     align: "center",
-    sortable: true,
   },
 ];
 </script>

@@ -25,8 +25,10 @@ export const useRecipeCostStore = defineStore("recipe-cost", () => {
       console.log("recipeCosts", response.data);
 
       recipeCosts.value = response.data;
+      return response.data;
     } catch (error) {
       console.log("Error fetching recipe costs:", error);
+      throw error;
     }
   };
 

@@ -1,84 +1,97 @@
 <template>
-  <div align="left">
-    <q-input
-      v-model="filter"
-      class="q-pb-lg q-pl-sm dynamic-width"
-      outlined
-      placeholder="Search"
-      flat
-      rounded
-      dense
-      debounce="100"
-    >
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-  </div>
-  <div class="spinner-wrapper" v-if="loading">
-    <q-spinner-dots size="50px" color="primary" />
-  </div>
-  <div v-else>
-    <div v-if="filteredRows.length === 0" class="data-error">
-      <q-icon name="warning" color="warning" size="4em" />
-      <div class="q-ml-sm text-h6">No data available</div>
+  <div class="raw-materials-table-container">
+    <div class="row items-center justify-between q-mb-lg">
+      <div class="search-wrapper">
+        <q-input
+          v-model="filter"
+          outlined
+          placeholder="Search materials by name or code..."
+          dense
+          bg-color="white"
+          class="search-input"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" color="primary" />
+          </template>
+        </q-input>
+      </div>
+      <div class="q-gutter-sm">
+         <q-btn flat round color="grey-7" icon="filter_list">
+            <q-tooltip>Filter Options</q-tooltip>
+         </q-btn>
+         <q-btn flat round color="grey-7" icon="refresh" @click="reloadTableData">
+            <q-tooltip>Refresh Data</q-tooltip>
+         </q-btn>
+      </div>
     </div>
-    <q-table
-      v-else
-      class="table-container elegant-container sticky-header"
-      :filter="filter"
-      :virtual-scroll-sticky-size-start="48"
-      flat
-      style="height: 500px"
-      :columns="rawMaterialsColumns"
-      :rows="filteredRows"
-      row-key="name"
-      v-model:pagination="pagination"
-      :rows-per-page-options="[0]"
-      hide-bottom
-    >
-      <!-- virtual-scroll -->
-      <template v-slot:body-cell-name="props">
-        <q-td key="name" :props="props">
-          {{ props.row.code }}
-        </q-td>
-      </template>
-      <template v-slot:body-cell-category="props">
-        <q-td key="name" :props="props">
-          <q-badge
-            :color="getRawMaterialBadgeCategoryColor(props.row.category)"
-          >
-            {{ props.row.category }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-unit="props">
-        <q-td key="name" :props="props">
-          <q-badge :color="getRawMaterialsBadgeUnitColor(props.row.unit)">
-            {{ props.row.unit }}
-          </q-badge>
-        </q-td>
-      </template>
-      <!-- <template v-slot:body-cell-availableStocks="props">
-        <q-td :props="props">
-          <q-badge
-            square
-            class="text-white"
-            :class="getRawMaterialBadgeColor(props.row.availableStocks)"
-          >
-            {{ props.row.availableStocks }}
-          </q-badge>
-        </q-td>
-      </template> -->
-      <template v-slot:body-cell-action="props">
-        <q-td :props="props">
-          <div class="row justify-center q-gutter-x-md">
-            <RawMaterialsTableEdit :edit="props" />
-            <RawMaterialsTableDelete :delete="props" />
-          </div>
-        </q-td>
-      </template>
-    </q-table>
+
+    <div class="spinner-wrapper" v-if="loading">
+      <q-spinner-tail size="50px" color="primary" />
+    </div>
+    
+    <div v-else>
+      <div v-if="filteredRows.length === 0" class="data-error flex flex-center column">
+        <q-icon name="inventory_2" color="grey-4" size="80px" />
+        <div class="text-h6 text-grey-5 q-mt-md">No materials found</div>
+        <div class="text-caption text-grey-4">Try adjusting your search or filters</div>
+      </div>
+
+      <q-table
+        v-else
+        class="premium-table"
+        :filter="filter"
+        flat
+        :columns="rawMaterialsColumns"
+        :rows="filteredRows"
+        row-key="id"
+        :pagination="pagination"
+        hide-bottom
+      >
+        <template v-slot:body-cell-name="props">
+          <q-td :props="props">
+            <div class="row items-center no-wrap">
+              <q-avatar size="32px" color="teal-1" text-color="teal" class="q-mr-sm">
+                {{ props.row.code.charAt(0) }}
+              </q-avatar>
+              <div class="column">
+                <div class="text-weight-bold text-dark">{{ props.row.code }}</div>
+                <div class="text-caption text-grey-6">{{ props.row.name || 'Master Ingredient' }}</div>
+              </div>
+            </div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-category="props">
+          <q-td :props="props">
+            <q-chip
+              outline
+              size="sm"
+              :color="getRawMaterialBadgeCategoryColor(props.row.category)"
+              class="text-weight-bold text-uppercase"
+            >
+              {{ props.row.category }}
+            </q-chip>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-unit="props">
+          <q-td :props="props">
+            <div class="unit-badge">
+               {{ props.row.unit }}
+            </div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-action="props">
+          <q-td :props="props">
+            <div class="row justify-center q-gutter-x-sm">
+              <RawMaterialsTableEdit :edit="props" />
+              <RawMaterialsTableDelete :delete="props" />
+            </div>
+          </q-td>
+        </template>
+      </q-table>
+    </div>
   </div>
 </template>
 
@@ -184,61 +197,75 @@ const getRawMaterialBadgeColor = (availableStocks) => {
   }
 };
 </script>
-<style scoped>
-.elegant-container {
-  background: #f7f8fc;
-  /* padding: 1rem; */
-  border-radius: 8px;
+<style lang="scss" scoped>
+.raw-materials-table-container {
+  padding: 8px;
 }
-.absolute-full {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+
+.search-input {
+  min-width: 350px;
+  :deep(.q-field__control) {
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    &:before {
+      border: none;
+    }
+  }
 }
+
+.premium-table {
+  background: white;
+  border-radius: 16px;
+  
+  :deep(.q-table__card) {
+    box-shadow: none;
+  }
+  
+  :deep(.q-table th) {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    padding: 16px;
+    background: #f8fafc;
+  }
+  
+  :deep(.q-table tbody td) {
+    padding: 16px;
+    font-size: 14px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  :deep(.q-table tbody tr) {
+    transition: all 0.2s ease;
+    &:hover {
+      background-color: #f1f5f9;
+      transform: scale(1.002);
+    }
+  }
+}
+
+.unit-badge {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+  display: inline-block;
+}
+
 .spinner-wrapper {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
+  min-height: 400px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .data-error {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.table-container {
-  max-height: 500px; /* Adjust as needed */
-  overflow: hidden;
-}
-
-.q-table-container {
-  overflow: hidden !important; /* Target the container generated by q-table */
-}
-
-.dynamic-width {
-  width: 100%; /* default width */
-  max-width: 500px;
-  min-width: 300px; /* set a minimum width */
-}
-
-@media (max-width: 1500px) {
-  .dynamic-width {
-    max-width: 500px; /* smaller width for medium-sized screens */
-  }
-}
-
-@media (max-width: 768px) {
-  .dynamic-width {
-    max-width: 500px; /* smaller width for tablets */
-  }
-}
-
-@media (max-width: 480px) {
-  .dynamic-width {
-    max-width: 200px; /* smaller width for mobile screens */
-  }
+  min-height: 400px;
 }
 </style>
