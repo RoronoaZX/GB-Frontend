@@ -346,6 +346,13 @@ export const useDashboardStore = defineStore("dashboard", () => {
     totalBakerReports: 0,
   });
 
+  const predictiveStocking = ref([]);
+  const recipeCostMetrics = ref({
+    averageCost: 0,
+    topRecipes: [],
+    recentChanges: [],
+  });
+
   const rawSales = ref([]);
 
   const inventoryBalances = ref([]);
@@ -688,6 +695,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
 
       processTimeRangeData();
       processInventoryTimeRangeData();
+      fetchPredictiveStocking();
+      fetchRecipeCostMetrics();
     } catch (err) {
       console.error("Dashboard error:", err);
       error.value = "Failed to load dashboard";
@@ -698,6 +707,43 @@ export const useDashboardStore = defineStore("dashboard", () => {
       });
     } finally {
       loading.value = false;
+    }
+  };
+
+  const fetchPredictiveStocking = async (params = {}) => {
+    try {
+      let suffix = "";
+      
+      if (params.branch_id) {
+        suffix = `?branch_id=${params.branch_id}`;
+      } else if (params.warehouse_id) {
+        suffix = `?warehouse_id=${params.warehouse_id}`;
+      } else if (selectedBranch.value !== "global") {
+        if (String(selectedBranch.value).startsWith("warehouse-")) {
+          const wId = selectedBranch.value.split("-")[1];
+          suffix = `?warehouse_id=${wId}`;
+        } else {
+          suffix = `?branch_id=${selectedBranch.value}`;
+        }
+      }
+
+      const res = await api.get(`/api/dashboard/predictive-stocking${suffix}`);
+      predictiveStocking.value = res.data?.data || [];
+    } catch (err) {
+      console.error("Failed to fetch predictive stocking:", err);
+    }
+  };
+
+  const fetchRecipeCostMetrics = async () => {
+    try {
+      const res = await api.get("/api/dashboard/recipe-cost-metrics");
+      recipeCostMetrics.value = {
+        averageCost: res.data?.averageCost || 0,
+        topRecipes: res.data?.topRecipes || [],
+        recentChanges: res.data?.recentChanges || [],
+      };
+    } catch (err) {
+      console.error("Failed to fetch recipe cost metrics:", err);
     }
   };
 
@@ -713,6 +759,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
     inventoryLabels,
     inventoryInData,
     inventoryOutData,
+    predictiveStocking,
+    recipeCostMetrics,
     rmTransactions,
     rmTransactionsPagination,
     timeRange,
@@ -725,5 +773,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     setBranch,
     fetchDashboardMetrics,
     fetchRMTransactions,
+    fetchPredictiveStocking,
+    fetchRecipeCostMetrics,
   };
 });

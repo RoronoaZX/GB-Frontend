@@ -77,6 +77,7 @@ import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials
 
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 
+
 const rawMaterials = computed(() => warehouseRawMaterialsStore.warehouseRawMaterials);
 
 const totalItems = computed(() => rawMaterials.value.length);

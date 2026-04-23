@@ -145,6 +145,16 @@
         :distributionData="dashboardStore.stats.branchSalesDistribution"
       />
 
+      <!-- Recipe Cost Analysis -->
+      <AdminRecipeCostWidget 
+        v-if="dashboardStore.recipeCostMetrics"
+        :metrics="dashboardStore.recipeCostMetrics" 
+        class="q-mt-md" 
+      />
+
+      <!-- Predictive Stocking Engine -->
+      <AdminPredictiveStockCard :predictions="dashboardStore.predictiveStocking" />
+
       <!-- Inventory Metrics Widget -->
       <AdminInventoryWidget
         :inventoryLabels="dashboardStore.inventoryLabels"
@@ -210,6 +220,8 @@ import { onMounted, computed, ref } from "vue";
 import { useDashboardStore } from "src/stores/dashboard";
 import AdminDashboardCards from "./components/AdminDashboardCards.vue";
 import AdminChartWidgets from "./components/AdminChartWidgets.vue";
+import AdminRecipeCostWidget from "./components/AdminRecipeCostWidget.vue";
+import AdminPredictiveStockCard from "src/components/PredictiveStockCard.vue";
 import AdminInventoryWidget from "./components/AdminInventoryWidget.vue";
 import AdminRecentActivity from "./components/AdminRecentActivity.vue";
 

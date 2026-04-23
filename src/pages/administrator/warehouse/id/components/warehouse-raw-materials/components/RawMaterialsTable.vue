@@ -88,6 +88,63 @@
           </q-badge>
         </q-td>
       </template>
+      <template v-slot:body-cell-depletion="props">
+        <q-td :props="props" style="min-width: 160px">
+          <!-- Case 1: has a prediction match from usage data -->
+          <div v-if="getPrediction(props.row)" class="depletion-cell">
+            <div class="row items-center justify-between q-mb-xs">
+              <q-badge
+                rounded
+                padding="xs sm"
+                :color="getPrediction(props.row).status === 'critical' ? 'negative' : 'warning'"
+                class="text-weight-bold"
+              >
+                <q-icon
+                  :name="getPrediction(props.row).status === 'critical' ? 'warning' : 'schedule'"
+                  size="10px"
+                  class="q-mr-xs"
+                />
+                {{ getPrediction(props.row).days_remaining }}d left
+              </q-badge>
+              <span class="text-caption text-grey-6">
+                ~{{ getPrediction(props.row).daily_usage }}/day
+              </span>
+            </div>
+            <q-linear-progress
+              rounded
+              size="6px"
+              :value="Math.min(getPrediction(props.row).days_remaining / 14, 1)"
+              :color="getPrediction(props.row).status === 'critical' ? 'negative' : 'warning'"
+              track-color="grey-3"
+            />
+          </div>
+          <!-- Case 2: no usage data, but absolute stock is critically low -->
+          <div v-else-if="isAbsoluteLowStock(props.row)" class="row items-center q-gutter-x-xs">
+            <q-badge rounded padding="xs sm" color="negative" class="text-weight-bold">
+              <q-icon name="warning" size="10px" class="q-mr-xs" />
+              Low Stock
+            </q-badge>
+            <q-tooltip class="bg-grey-8" :offset="[0, 8]">
+              No delivery history. Based on current quantity only.
+            </q-tooltip>
+          </div>
+          <!-- Case 3: no usage data but stock is moderate -->
+          <div v-else-if="isAbsoluteWarnStock(props.row)" class="row items-center q-gutter-x-xs">
+            <q-badge rounded padding="xs sm" color="warning" class="text-weight-bold">
+              <q-icon name="schedule" size="10px" class="q-mr-xs" />
+              Monitor
+            </q-badge>
+            <q-tooltip class="bg-grey-8" :offset="[0, 8]">
+              No delivery history yet. Quantity is moderate.
+            </q-tooltip>
+          </div>
+          <!-- Case 4: genuinely healthy with no prediction needed -->
+          <div v-else class="row items-center q-gutter-x-xs">
+            <q-icon name="check_circle" color="positive" size="16px" />
+            <span class="text-caption text-positive text-weight-medium">Healthy</span>
+          </div>
+        </q-td>
+      </template>
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-sm">
@@ -106,6 +163,7 @@ import RawMaterialsCreate from "./RawMaterialsCreate.vue";
 import RawMaterialsTableDelete from "./RawMaterialsTableDelete.vue";
 import { useRoute } from "vue-router";
 import { useWarehouseRawMaterialsStore } from "src/stores/warehouse-rawMaterials";
+import { useDashboardStore } from "src/stores/dashboard";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 import RawMaterialsCreateAll from "./RawMaterialsCreateAll.vue";
@@ -113,6 +171,7 @@ import RawMaterialsCreateAll from "./RawMaterialsCreateAll.vue";
 const route = useRoute();
 const warehouseId = route.params.warehouse_id;
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
+const dashboardStore = useDashboardStore();
 const filter = ref("");
 const loading = ref(true);
 const warehouseRawMaterials = ref([]);
@@ -137,6 +196,7 @@ onMounted(async () => {
   console.log("props.warehouseId in onMounted:", warehouseId);
   if (warehouseId) {
     await reloadTableData(warehouseId);
+    await dashboardStore.fetchPredictiveStocking({ warehouse_id: warehouseId });
   }
 });
 
@@ -275,12 +335,44 @@ const rawMaterialsColumns = [
     sortable: true,
   },
   {
+    name: "depletion",
+    label: "Depletion Forecast",
+    align: "center",
+    field: "depletion",
+    sortable: false,
+  },
+  {
     name: "action",
     label: "Action",
     align: "center",
     sortable: true,
   },
 ];
+
+// Map a table row to its prediction entry (try both possible ID paths)
+const getPrediction = (row) => {
+  // row.raw_materials.id is the RawMaterial model PK
+  // row.raw_material_id is the FK stored on WarehouseRawMaterialsReport
+  const rmId = row?.raw_materials?.id ?? row?.raw_material_id ?? null;
+  if (!rmId) return null;
+  return dashboardStore.predictiveStocking.find(p => Number(p.id) === Number(rmId)) || null;
+};
+
+// Absolute stock thresholds — used when no usage/delivery history exists
+const getAbsoluteStockKg = (row) => {
+  const qty = Number(row?.total_quantity) || 0;
+  const unit = row?.raw_materials?.unit || '';
+  // Quantities stored in grams → convert to kg for threshold checks
+  return unit === 'Grams' ? qty / 1000 : qty;
+};
+
+// < 2 kg / 2 pcs — critical
+const isAbsoluteLowStock = (row) => getAbsoluteStockKg(row) < 2;
+// 2–5 kg — monitor
+const isAbsoluteWarnStock = (row) => {
+  const kg = getAbsoluteStockKg(row);
+  return kg >= 2 && kg < 5;
+};
 </script>
 
 <style scoped>

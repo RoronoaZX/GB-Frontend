@@ -41,7 +41,7 @@
       v-model:pagination="pagination"
       :rows-per-page-options="[0]"
       hide-bottom
-      style="height: 420px"
+      style="height: 450px"
     >
       <template v-slot:body-cell-total_quantity="props">
         <q-td :props="props">
@@ -77,6 +77,65 @@
           </q-badge>
         </q-td>
       </template>
+      <template v-slot:body-cell-depletion="props">
+        <q-td :props="props" style="min-width: 140px">
+          <!-- Case 1: has a usage-based prediction -->
+          <div v-if="getPrediction(props.row)" class="depletion-cell q-py-xs">
+            <q-badge
+              rounded
+              padding="xs sm"
+              :color="getPredictionBadgeColor(getPrediction(props.row).status)"
+              class="text-weight-bold q-mb-xs"
+            >
+              <q-icon
+                :name="getPredictionIcon(getPrediction(props.row).status)"
+                size="10px"
+                class="q-mr-xs"
+              />
+              {{ getPredictionLabel(getPrediction(props.row)) }}
+            </q-badge>
+            <q-linear-progress
+              rounded
+              size="6px"
+              :value="Math.min(getPrediction(props.row).days_remaining / 14, 1)"
+              :color="getPredictionBadgeColor(getPrediction(props.row).status)"
+              track-color="grey-3"
+            />
+          </div>
+          <!-- Case 2: no history, but stock is critically low -->
+          <div v-else-if="isAbsoluteLowStock(props.row)" class="row items-center q-gutter-x-xs">
+            <q-badge rounded padding="xs sm" color="negative" class="text-weight-bold">
+              <q-icon name="warning" size="10px" class="q-mr-xs" />
+              Low Stock
+            </q-badge>
+          </div>
+          <!-- Case 3: no history, moderate stock -->
+          <div v-else-if="isAbsoluteWarnStock(props.row)" class="row items-center q-gutter-x-xs">
+            <q-badge rounded padding="xs sm" color="warning" class="text-weight-bold">
+              <q-icon name="schedule" size="10px" class="q-mr-xs" />
+              Monitor
+            </q-badge>
+          </div>
+          <!-- Case 4: genuinely healthy and no history -->
+          <div v-else class="row items-center q-gutter-x-xs">
+            <q-icon name="check_circle" color="positive" size="16px" />
+            <span class="text-caption text-positive text-weight-medium">Healthy</span>
+          </div>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-consumption="props">
+        <q-td :props="props">
+          <div v-if="getPrediction(props.row)" class="row items-center justify-center">
+            <span class="text-weight-bold text-dark">
+              {{ formatConsumptionRate(getPrediction(props.row).daily_usage, props.row.ingredients?.unit) }}
+            </span>
+          </div>
+          <div v-else class="text-grey-5 text-caption text-center italic">
+            No history
+          </div>
+        </q-td>
+      </template>
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <div class="row justify-center q-gutter-x-md">
@@ -98,6 +157,7 @@ import RawMaterialsAddAll from "./RawMaterialsAddAll.vue";
 import RawMaterialsTableDelete from "./RawMaterialsTableDelete.vue";
 import { useRoute } from "vue-router";
 import { useBranchRawMaterialsStore } from "src/stores/branch-rawMaterials";
+import { useDashboardStore } from "src/stores/dashboard";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 import { useUsersStore } from "src/stores/user";
@@ -113,6 +173,7 @@ const userId = userData.value?.data?.id || "0";
 // console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
 const branchRawMaterialsStore = useBranchRawMaterialsStore();
+const dashboardStore = useDashboardStore();
 const filter = ref("");
 const loading = ref(true);
 const branchRawMaterials = ref([]);
@@ -134,9 +195,9 @@ const filteredRows = computed(() => {
 });
 
 onMounted(async () => {
-  // console.log("props.branchId in onMounted:", branchId);
   if (branchId) {
     await reloadTableData(branchId);
+    await dashboardStore.fetchPredictiveStocking({ branch_id: branchId });
   }
 });
 
@@ -274,6 +335,13 @@ const formatTotalQuantity = (row) => {
   }
 };
 
+const formatConsumptionRate = (rate, unit) => {
+  if (unit === 'Grams' && rate >= 1000) {
+    return `${(rate / 1000).toFixed(2)} kg/day`;
+  }
+  return `${rate} ${unit || 'g'}/day`;
+};
+
 const ingredientsColumns = [
   {
     name: "code",
@@ -283,14 +351,6 @@ const ingredientsColumns = [
     format: (val) => `${val}`,
     sortable: true,
   },
-  // {
-  //   name: "name",
-  //   label: "Raw Materials Name",
-  //   align: "center",
-  //   field: (row) => capitalizeFirstLetter(row?.ingredients?.name ?? "No Code"),
-  //   format: (val) => `${val}`,
-  //   sortable: true,
-  // },
   {
     name: "total_quantity",
     label: "Available Stocks",
@@ -298,14 +358,20 @@ const ingredientsColumns = [
     field: "total_quantity",
     sortable: true,
   },
-  // {
-  //   name: "price_per_gram",
-  //   label: "Price Per Gram / Pcs",
-  //   align: "center",
-  //   field: (row) =>
-  //     formatPrice(row?.oldest_non_zero_stock?.price_per_gram ?? "0.00"),
-  //   format: (val) => `${val}`,
-  // },
+  {
+    name: "consumption",
+    label: "Daily Consumption",
+    align: "center",
+    field: "consumption",
+    sortable: false,
+  },
+  {
+    name: "depletion",
+    label: "Depletion Forecast",
+    align: "center",
+    field: "depletion",
+    sortable: false,
+  },
   {
     name: "action",
     label: "Action",
@@ -313,6 +379,50 @@ const ingredientsColumns = [
     sortable: true,
   },
 ];
+
+// ── Predictive Stocking Helpers ──────────────────────────────────────────────
+const getPredictionBadgeColor = (status) => {
+  if (status === 'critical') return 'negative';
+  if (status === 'warning') return 'warning';
+  return 'positive';
+};
+
+const getPredictionIcon = (status) => {
+  if (status === 'critical') return 'warning';
+  if (status === 'warning') return 'schedule';
+  return 'check_circle';
+};
+
+const getPredictionLabel = (prediction) => {
+  if (prediction.status === 'healthy') return 'Healthy';
+  return `${prediction.days_remaining}d left`;
+};
+
+// Map each table row to its prediction entry.
+// Branch rows use `row.ingredients_id` as the FK and `row.ingredients?.id` as the PK.
+const getPrediction = (row) => {
+  const rmId = row?.ingredients_id ?? row?.ingredients?.id ?? null;
+  if (!rmId) return null;
+  return dashboardStore.predictiveStocking.find(
+    (p) => Number(p.id) === Number(rmId)
+  ) || null;
+};
+
+// Convert stored quantity to kg for threshold comparison.
+const getAbsoluteStockKg = (row) => {
+  const qty = Number(row?.total_quantity) || 0;
+  const unit = row?.ingredients?.unit || '';
+  return unit === 'Grams' ? qty / 1000 : qty;
+};
+
+// < 2 kg / 2 pcs → critical (no history path)
+const isAbsoluteLowStock = (row) => getAbsoluteStockKg(row) < 2;
+
+// 2–5 kg → monitor (no history path)
+const isAbsoluteWarnStock = (row) => {
+  const kg = getAbsoluteStockKg(row);
+  return kg >= 2 && kg < 5;
+};
 </script>
 
 <style scoped>
