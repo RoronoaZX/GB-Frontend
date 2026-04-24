@@ -180,6 +180,13 @@ const rawMaterialsColumns = [
     field: "unit",
   },
   {
+    name: "lead_time",
+    label: "Lead Time (Days)",
+    align: "center",
+    field: "supplier_lead_time",
+    sortable: true,
+  },
+  {
     name: "action",
     label: "Action",
     align: "center",

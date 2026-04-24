@@ -140,6 +140,8 @@
       <!-- Analytics Charts -->
       <AdminChartWidgets
         :trendData="dashboardStore.stats.totalSalesData"
+        :grossSalesData="dashboardStore.stats.totalGrossSalesData"
+        :expensesData="dashboardStore.stats.totalExpensesData"
         :trendLabels="dashboardStore.chartLabels"
         :timeRangeDescription="timeRangeText"
         :distributionData="dashboardStore.stats.branchSalesDistribution"
@@ -149,7 +151,15 @@
       <AdminRecipeCostWidget 
         v-if="dashboardStore.recipeCostMetrics"
         :metrics="dashboardStore.recipeCostMetrics" 
+        @refresh="dashboardStore.fetchRecipeCostMetrics"
         class="q-mt-md" 
+      />
+
+      <!-- Profit Margin Analysis -->
+      <AdminProfitMarginWidget
+        v-if="dashboardStore.profitMargins"
+        :profitMargins="dashboardStore.profitMargins"
+        class="q-mt-md"
       />
 
       <!-- Predictive Stocking Engine -->
@@ -221,6 +231,7 @@ import { useDashboardStore } from "src/stores/dashboard";
 import AdminDashboardCards from "./components/AdminDashboardCards.vue";
 import AdminChartWidgets from "./components/AdminChartWidgets.vue";
 import AdminRecipeCostWidget from "./components/AdminRecipeCostWidget.vue";
+import AdminProfitMarginWidget from "./components/AdminProfitMarginWidget.vue";
 import AdminPredictiveStockCard from "src/components/PredictiveStockCard.vue";
 import AdminInventoryWidget from "./components/AdminInventoryWidget.vue";
 import AdminRecentActivity from "./components/AdminRecentActivity.vue";

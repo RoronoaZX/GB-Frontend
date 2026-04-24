@@ -4,14 +4,32 @@
     <div class="col-12 col-md-8">
       <q-card flat bordered class="rounded-borders lush-card full-height">
         <q-card-section>
-          <div class="text-h6 text-grey-9 text-weight-bold">
-            Inventory Activity (<span class="text-primary">{{
-              timeRangeDescription
-            }}</span
-            >)
-          </div>
-          <div class="text-caption text-grey-6">
-            Track of raw materials (Volume IN vs OUT)
+          <div class="row items-center justify-between">
+            <div>
+              <div class="text-h6 text-grey-9 text-weight-bold">
+                Inventory Activity (<span class="text-primary">{{
+                  timeRangeDescription
+                }}</span
+                >)
+              </div>
+              <div class="text-caption text-grey-6">
+                Track of raw materials (volume IN vs OUT)
+              </div>
+            </div>
+            <div class="row q-gutter-xs">
+              <q-btn-toggle
+                v-model="chartType"
+                flat
+                dense
+                toggle-color="primary"
+                color="grey-6"
+                :options="[
+                  { label: 'Linear', value: 'line', icon: 'show_chart' },
+                  { label: 'Bar', value: 'bar', icon: 'bar_chart' },
+                  { label: 'Pie', value: 'pie', icon: 'pie_chart' },
+                ]"
+              />
+            </div>
           </div>
         </q-card-section>
 
@@ -46,6 +64,34 @@
             hide-bottom
             class="custom-table"
           >
+            <template v-slot:body-cell-name="props">
+              <q-td :props="props">
+                <div class="text-weight-bold text-dark cursor-pointer">
+                  {{ props.row.name }}
+                  <q-tooltip anchor="top middle" self="bottom middle" :offset="[0, 10]" class="bg-dark q-pa-none" style="border-radius: 12px; min-width: 150px">
+                    <div class="q-pa-sm">
+                      <div class="text-caption text-grey-4 text-uppercase text-weight-bold q-mb-xs tracking-widest">7-DAY USAGE TREND</div>
+                      <div class="row items-center justify-between q-mb-sm">
+                        <div class="text-h6 text-white">{{ props.row.usage_trend?.reduce((a,b)=>a+b, 0).toLocaleString() }}</div>
+                        <div class="text-caption text-grey-5">{{ props.row.unit }} used</div>
+                      </div>
+                      <!-- Sparkline SVG -->
+                      <svg width="100%" height="40" viewBox="0 0 100 40" preserveAspectRatio="none">
+                        <polyline
+                          fill="none"
+                          stroke="#4ade80"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          :points="generateSparklinePoints(props.row.usage_trend)"
+                        />
+                      </svg>
+                    </div>
+                  </q-tooltip>
+                </div>
+              </q-td>
+            </template>
+
             <template v-slot:body-cell-total_quantity="props">
               <q-td
                 :props="props"
@@ -137,55 +183,94 @@ function displayQuantity(row) {
   return { val: formatNumber(qty), unit: row.unit };
 }
 
+function generateSparklinePoints(trend) {
+  if (!trend || trend.length === 0) return "0,40 100,40";
+  
+  const max = Math.max(...trend, 1); // Avoid division by zero
+  const height = 40;
+  const width = 100;
+  
+  return trend.map((val, i) => {
+    const x = (i / (trend.length - 1)) * width;
+    const y = height - (val / max) * height;
+    return `${x},${y}`;
+  }).join(" ");
+}
+
 const inventoryChartCanvas = ref(null);
 let chartInstance = null;
+const chartType = ref("bar");
 
 const renderChart = () => {
   if (inventoryChartCanvas.value) {
     if (chartInstance) chartInstance.destroy();
 
     const ctx = inventoryChartCanvas.value.getContext("2d");
+    const isPie = chartType.value === "pie";
 
-    chartInstance = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: props.inventoryLabels,
+    let chartData = {
+      labels: props.inventoryLabels,
+      datasets: [
+        {
+          label: "Deliveries IN (Grams)",
+          backgroundColor: isPie ? "#22c55e" : "rgba(74, 222, 128, 0.85)",
+          borderColor: "#22c55e",
+          borderWidth: isPie ? 1 : (chartType.value === "line" ? 3 : 1),
+          borderRadius: chartType.value === "bar" ? 4 : 0,
+          data: props.inventoryInData,
+          fill: chartType.value === "line",
+          tension: 0.4,
+        },
+        {
+          label: "Usage OUT (Grams)",
+          backgroundColor: isPie ? "#f43f5e" : "rgba(244, 63, 94, 0.15)",
+          borderColor: "#f43f5e",
+          borderWidth: isPie ? 1 : 3,
+          pointBackgroundColor: "#f43f5e",
+          pointBorderColor: "#ffffff",
+          pointBorderWidth: 2,
+          pointRadius: chartType.value === "line" ? 5 : 0,
+          fill: chartType.value === "line",
+          data: props.inventoryOutData,
+          tension: 0.4,
+        },
+      ],
+    };
+
+    if (isPie) {
+      chartData = {
+        labels: ["Total Deliveries IN", "Total Usage OUT"],
         datasets: [
           {
-            type: "bar",
-            label: "Deliveries IN (Grams)",
-            backgroundColor: "rgba(74, 222, 128, 0.85)",
-            borderColor: "#22c55e",
-            borderWidth: 1,
-            borderRadius: 4,
-            data: props.inventoryInData,
-          },
-          {
-            type: "line",
-            label: "Usage OUT (Grams)",
-            backgroundColor: "rgba(244, 63, 94, 0.15)",
-            borderColor: "#f43f5e",
-            borderWidth: 3,
-            pointBackgroundColor: "#f43f5e",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            pointHoverRadius: 7,
-            fill: true,
-            data: props.inventoryOutData,
-            tension: 0.4,
+            data: [
+              props.inventoryInData.reduce((a, b) => a + b, 0),
+              props.inventoryOutData.reduce((a, b) => a + b, 0),
+            ],
+            backgroundColor: ["#22c55e", "#f43f5e"],
+            hoverOffset: 10,
           },
         ],
-      },
+      };
+    }
+
+    chartInstance = new Chart(ctx, {
+      type:
+        chartType.value === "line"
+          ? "line"
+          : chartType.value === "pie"
+          ? "pie"
+          : "bar",
+      data: chartData,
       options: {
         responsive: true,
         maintainAspectRatio: false,
         interaction: {
-          mode: "index",
-          intersect: false,
+          mode: isPie ? "point" : "index",
+          intersect: isPie,
         },
         plugins: {
           legend: {
+            display: true,
             position: "top",
             align: "end",
             labels: {
@@ -196,35 +281,35 @@ const renderChart = () => {
           },
           tooltip: {
             backgroundColor: "rgba(15, 23, 42, 0.9)",
-            titleFont: { family: "Inter, sans-serif", size: 13, weight: 600 },
-            bodyFont: { family: "Inter, sans-serif", size: 13 },
             padding: 12,
             cornerRadius: 8,
             displayColors: true,
-            boxPadding: 6,
+            callbacks: {
+              label: function (context) {
+                const label = context.dataset.label || context.label || "";
+                const value =
+                  context.parsed.y !== undefined
+                    ? context.parsed.y
+                    : context.parsed;
+                return `${label}: ${value.toLocaleString()}g`;
+              },
+            },
           },
         },
         scales: {
           y: {
+            display: !isPie,
             beginAtZero: true,
-            grid: {
-              color: "#f1f5f9",
-              drawBorder: false,
-            },
+            grid: { color: "#f1f5f9", drawBorder: false },
             ticks: {
               color: "#64748b",
-              font: { family: "Inter, sans-serif" },
+              callback: (value) => `${(value / 1000).toLocaleString()}kg`,
             },
           },
           x: {
-            grid: {
-              display: false,
-              drawBorder: false,
-            },
-            ticks: {
-              color: "#64748b",
-              font: { family: "Inter, sans-serif" },
-            },
+            display: !isPie,
+            grid: { display: false, drawBorder: false },
+            ticks: { color: "#64748b" },
           },
         },
       },
@@ -237,7 +322,7 @@ onMounted(() => {
 });
 
 watch(
-  () => props.inventoryLabels,
+  [() => props.inventoryLabels, chartType],
   () => {
     renderChart();
   },

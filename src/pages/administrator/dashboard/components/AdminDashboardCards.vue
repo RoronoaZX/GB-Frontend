@@ -1,5 +1,77 @@
 <template>
   <div class="row q-col-gutter-lg">
+    <!-- Gross Revenue -->
+    <div class="col-12 col-sm-6 col-lg-4">
+      <q-card class="dashboard-stat-card elegant-card" flat>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-emerald">
+              <q-icon name="trending_up" size="32px" />
+            </div>
+            <div class="card-info q-ml-md" style="min-width: 0">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                {{ timeRangeText }} Gross Revenue
+              </div>
+              <div 
+                class="text-weight-bolder text-dark q-mt-xs ds-number no-wrap overflow-hidden text-overflow-ellipsis"
+                :style="{ fontSize: getFontSize(stats.totalGrossSalesData) }"
+              >
+                ₱{{ (stats.totalGrossSalesData || []).reduce((a,b)=>a+b, 0).toLocaleString() }}
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Operating Expenses -->
+    <div class="col-12 col-sm-6 col-lg-4">
+      <q-card class="dashboard-stat-card elegant-card" flat>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-rose">
+              <q-icon name="receipt_long" size="32px" />
+            </div>
+            <div class="card-info q-ml-md" style="min-width: 0">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                {{ timeRangeText }} Expenses
+              </div>
+              <div 
+                class="text-weight-bolder text-dark q-mt-xs ds-number no-wrap overflow-hidden text-overflow-ellipsis"
+                :style="{ fontSize: getFontSize(stats.totalExpensesData) }"
+              >
+                ₱{{ (stats.totalExpensesData || []).reduce((a,b)=>a+b, 0).toLocaleString() }}
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Net Profit -->
+    <div class="col-12 col-sm-6 col-lg-4">
+      <q-card class="dashboard-stat-card elegant-card" flat>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-blue">
+              <q-icon name="account_balance_wallet" size="32px" />
+            </div>
+            <div class="card-info q-ml-md" style="min-width: 0">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                {{ timeRangeText }} Net Profit
+              </div>
+              <div 
+                class="text-weight-bolder text-dark q-mt-xs ds-number no-wrap overflow-hidden text-overflow-ellipsis"
+                :style="{ fontSize: getFontSize(stats.totalSalesData) }"
+              >
+                ₱{{ (stats.totalSalesData || []).reduce((a,b)=>a+b, 0).toLocaleString() }}
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
     <!-- Total Branches -->
     <div class="col-12 col-sm-6 col-lg-3">
       <q-card class="dashboard-stat-card elegant-card" flat>
@@ -42,74 +114,6 @@
       </q-card>
     </div>
 
-    <!-- Total Sales (mock sum) -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <q-card class="dashboard-stat-card elegant-card" flat>
-        <q-card-section class="q-pa-lg">
-          <div class="row items-center no-wrap">
-            <div class="card-icon-wrapper text-purple">
-              <q-icon name="payments" size="32px" />
-            </div>
-            <div class="card-info q-ml-md" style="min-width: 0">
-              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide no-wrap overflow-hidden text-overflow-ellipsis">
-                {{ timeRangeText }} Revenue
-              </div>
-              <div 
-                class="text-weight-bolder text-dark q-mt-xs ds-number no-wrap overflow-hidden text-overflow-ellipsis"
-                :style="{ fontSize: getFontSize(stats.totalSalesData) }"
-              >
-                ₱{{ ((stats.totalSalesData || []).reduce((a,b)=>a+b, 0)).toLocaleString() }}
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
-
-    <!-- Low Stock Warning -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <q-card class="dashboard-stat-card elegant-card" flat>
-        <q-card-section class="q-pa-lg">
-          <div class="row items-center no-wrap">
-            <div class="card-icon-wrapper text-rose">
-              <q-icon name="warning_amber" size="32px" />
-            </div>
-            <div class="card-info q-ml-md">
-              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
-                Low Stock Alerts
-              </div>
-              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
-                {{ stats.lowStockItems || 0 }}
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
-
-    <!-- NEW ROW: SECONDARY METRICS -->
-    
-    <!-- Total Warehouses -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <q-card class="dashboard-stat-card elegant-card" flat>
-        <q-card-section class="q-pa-lg">
-          <div class="row items-center no-wrap">
-            <div class="card-icon-wrapper text-orange">
-              <q-icon name="warehouse" size="32px" />
-            </div>
-            <div class="card-info q-ml-md">
-              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
-                Total Warehouses
-              </div>
-              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
-                {{ stats.totalWarehouses || 0 }}
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
-
     <!-- Total Recipes -->
     <div class="col-12 col-sm-6 col-lg-3">
       <q-card class="dashboard-stat-card elegant-card" flat>
@@ -131,41 +135,20 @@
       </q-card>
     </div>
 
-    <!-- Total Suppliers -->
+    <!-- Low Stock Warning -->
     <div class="col-12 col-sm-6 col-lg-3">
       <q-card class="dashboard-stat-card elegant-card" flat>
         <q-card-section class="q-pa-lg">
           <div class="row items-center no-wrap">
-            <div class="card-icon-wrapper text-blue">
-              <q-icon name="local_shipping" size="32px" />
+            <div class="card-icon-wrapper text-rose">
+              <q-icon name="warning_amber" size="32px" />
             </div>
             <div class="card-info q-ml-md">
               <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
-                Active Suppliers
+                Low Stock Alerts
               </div>
               <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
-                {{ stats.totalSuppliers || 0 }}
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
-
-    <!-- Total Baker Reports -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <q-card class="dashboard-stat-card elegant-card" flat>
-        <q-card-section class="q-pa-lg">
-          <div class="row items-center no-wrap">
-            <div class="card-icon-wrapper text-purple">
-              <q-icon name="assignment_turned_in" size="32px" />
-            </div>
-            <div class="card-info q-ml-md">
-              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
-                Baker Reports
-              </div>
-              <div class="text-h4 text-weight-bolder text-dark q-mt-xs ds-number">
-                {{ stats.totalBakerReports || 0 }}
+                {{ stats.lowStockItems || 0 }}
               </div>
             </div>
           </div>

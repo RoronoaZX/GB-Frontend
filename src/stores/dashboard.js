@@ -353,6 +353,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
     recentChanges: [],
   });
 
+  const profitMargins = ref([]);
+
   const rawSales = ref([]);
 
   const inventoryBalances = ref([]);
@@ -697,6 +699,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
       processInventoryTimeRangeData();
       fetchPredictiveStocking();
       fetchRecipeCostMetrics();
+      fetchProfitMargins();
     } catch (err) {
       console.error("Dashboard error:", err);
       error.value = "Failed to load dashboard";
@@ -747,6 +750,19 @@ export const useDashboardStore = defineStore("dashboard", () => {
     }
   };
 
+  const fetchProfitMargins = async () => {
+    try {
+      let suffix = "";
+      if (selectedBranch.value !== "global") {
+        suffix = `?branch_id=${selectedBranch.value}`;
+      }
+      const res = await api.get(`/api/dashboard/profit-margins${suffix}`);
+      profitMargins.value = res.data?.data || [];
+    } catch (err) {
+      console.error("Failed to fetch profit margins:", err);
+    }
+  };
+
   // =========================
   // RETURN
   // =========================
@@ -761,6 +777,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     inventoryOutData,
     predictiveStocking,
     recipeCostMetrics,
+    profitMargins,
     rmTransactions,
     rmTransactionsPagination,
     timeRange,
@@ -775,5 +792,6 @@ export const useDashboardStore = defineStore("dashboard", () => {
     fetchRMTransactions,
     fetchPredictiveStocking,
     fetchRecipeCostMetrics,
+    fetchProfitMargins,
   };
 });

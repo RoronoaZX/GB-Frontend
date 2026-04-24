@@ -84,6 +84,17 @@
               :rules="[(val) => (val && val.length > 0) || 'Unit is required']"
             />
           </div>
+          <div class="q-mt-md q-animated q-animate-bounce">
+            <q-input
+              v-model.number="addRawMaterialsForm.supplier_lead_time"
+              type="number"
+              outlined
+              dense
+              label="Supplier Lead Time (Days)"
+              hint="Days it takes for the supplier to deliver"
+              :rules="[(val) => (val !== null && val >= 0) || 'Lead time is required']"
+            />
+          </div>
           <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
             <q-btn
               class="btn-cancel glossy"
@@ -124,6 +135,7 @@ const addRawMaterialsForm = reactive({
   code: "",
   category: null,
   unit: null,
+  supplier_lead_time: 3,
 });
 
 const create = async () => {
@@ -150,6 +162,7 @@ const resetCreateRawMaterials = () => {
   addRawMaterialsForm.code = "";
   addRawMaterialsForm.category = null;
   addRawMaterialsForm.unit = null;
+  addRawMaterialsForm.supplier_lead_time = 3;
 };
 </script>
 

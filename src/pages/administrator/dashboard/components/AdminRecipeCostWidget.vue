@@ -1,5 +1,5 @@
 <template>
-  <div v-if="metrics" class="recipe-cost-widget animate-fade">
+  <div v-if="metrics" class="recipe-cost-widget animate-fade q-mb-md">
     <div class="row q-col-gutter-md">
       <!-- Summary Card -->
       <div class="col-12 col-md-4">
@@ -16,7 +16,7 @@
               Weighted average across all recipe runs
             </div>
           </q-card-section>
-          
+
           <q-separator inset />
 
           <q-card-section>
@@ -46,10 +46,48 @@
           <q-card-section class="row items-center q-pb-none">
             <div class="text-h6 text-weight-bold">Recent Cost Adjustments</div>
             <q-space />
-            <q-btn flat round dense icon="more_vert" color="grey-7" />
+            <div class="q-gutter-sm">
+              <q-btn
+                flat
+                dense
+                round
+                icon="description"
+                color="primary"
+                @click="exportCSV"
+              >
+                <q-tooltip>Export to CSV</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                dense
+                round
+                icon="picture_as_pdf"
+                color="negative"
+                @click="exportPDF"
+              >
+                <q-tooltip>Export to PDF</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                dense
+                round
+                icon="edit_note"
+                color="orange-8"
+                @click="showBulkEdit = true"
+              >
+                <q-tooltip>Bulk Edit Costs</q-tooltip>
+              </q-btn>
+              <q-btn flat round dense icon="more_vert" color="grey-7" />
+            </div>
           </q-card-section>
 
           <q-card-section>
+            <!-- Bulk Edit Dialog -->
+            <BulkRecipeCostEdit
+              v-model="showBulkEdit"
+              :recipeCosts="flattenedCosts"
+              @updated="$emit('refresh')"
+            />
             <q-table
               flat
               dense
@@ -60,6 +98,14 @@
               :rows-per-page-options="[0]"
               class="audit-table"
             >
+              <template v-slot:body-cell-recipe="props">
+                <q-td :props="props">
+                  <div class="text-weight-bold text-dark text-capitalize">
+                    {{ props.row.recipe_name }}
+                  </div>
+                </q-td>
+              </template>
+
               <template v-slot:body-cell-change="p">
                 <q-td :props="p">
                   <div class="row items-center no-wrap">
@@ -77,7 +123,7 @@
                 </q-td>
               </template>
             </q-table>
-            
+
             <div v-if="metrics.recentChanges.length === 0" class="text-center q-pa-xl text-grey-5">
               <q-icon name="history_toggle_off" size="3em" />
               <div class="q-mt-sm">No recent cost changes recorded</div>
@@ -91,6 +137,8 @@
 
 <script setup>
 import { typographyFormat } from "src/composables/typography/typography-format";
+import BulkRecipeCostEdit from "./BulkRecipeCostEdit.vue";
+import { ref, computed } from "vue";
 
 const props = defineProps({
   metrics: {
@@ -99,7 +147,85 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["refresh"]);
+
+const showBulkEdit = ref(false);
+
+const flattenedCosts = computed(() => {
+  return props.metrics.recentChanges.map(r => ({
+    id: r.id, // This is the ID from recentChanges, which maps to recipe_cost_id
+    recipe_name: r.recipe_name,
+    raw_material_name: r.changed_field === 'price_per_gram' ? 'Main Ingredient' : 'Quantity Update',
+    price_per_gram: r.new_value // Simplified
+  }));
+});
+
 const { formatPrice, formatTimestamp } = typographyFormat();
+
+const exportCSV = () => {
+  const rows = props.metrics.recentChanges;
+  if (!rows || rows.length === 0) return;
+
+  const headers = ["Recipe", "Field", "Old Value", "New Value", "Modified By", "Date"];
+  const csvContent = [
+    headers.join(","),
+    ...rows.map(r => [
+      `"${r.recipe_name}"`,
+      `"${formatField(r.changed_field)}"`,
+      `"${r.old_value}"`,
+      `"${r.new_value}"`,
+      `"${r.changed_by}"`,
+      `"${formatTimestamp(r.date)}"`
+    ].join(","))
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", `recipe_cost_history_${new Date().getTime()}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const exportPDF = () => {
+  const rows = props.metrics.recentChanges;
+  if (!rows || rows.length === 0) return;
+
+  const docDefinition = {
+    content: [
+      { text: "Recipe Cost Adjustment History", style: "header" },
+      { text: `Generated on: ${new Date().toLocaleString()}`, margin: [0, 0, 0, 20] },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+          body: [
+            ["Recipe", "Field", "Old", "New", "By", "Date"],
+            ...rows.map(r => [
+              r.recipe_name,
+              formatField(r.changed_field),
+              r.old_value,
+              r.new_value,
+              r.changed_by,
+              formatTimestamp(r.date)
+            ])
+          ]
+        }
+      }
+    ],
+    styles: {
+      header: { fontSize: 18, bold: true, marginBottom: 10 }
+    }
+  };
+  
+  import("pdfmake/build/pdfmake").then((pdfMake) => {
+    import("pdfmake/build/vfs_fonts").then((pdfFonts) => {
+      pdfMake.default.vfs = pdfFonts.default.vfs;
+      pdfMake.default.createPdf(docDefinition).download(`recipe_cost_history_${new Date().getTime()}.pdf`);
+    });
+  });
+};
 
 const columns = [
   { name: "recipe", label: "Recipe", align: "left", field: "recipe_name", classes: "text-weight-medium" },
