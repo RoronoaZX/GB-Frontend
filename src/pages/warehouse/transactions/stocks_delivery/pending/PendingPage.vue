@@ -74,7 +74,7 @@
 import { date as quasarDate, useQuasar } from "quasar";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useStockDelivery } from "src/stores/stock-delivery";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import TransactionView from "./TransactionView.vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
 
@@ -86,8 +86,8 @@ console.log("userdata", userData.value);
 const stocksDeliveryStore = useStockDelivery();
 const stockDelivery = computed(() => stocksDeliveryStore.pendingStocks);
 
-const warehouseId = userData.value.device.reference_id;
-console.log("warehouseId", warehouseId);
+const warehouseId = computed(() => userData.value?.device?.reference_id);
+console.log("warehouseId", warehouseId.value);
 const status = ref("pending");
 const to_designation = ref("Warehouse");
 const loading = ref(true);
@@ -99,10 +99,11 @@ const formatTimeStamp = (val) => {
 };
 
 const fetchPendingStocksDelivery = async () => {
+  if (!warehouseId.value) return;
   try {
     loading.value = true;
     await stocksDeliveryStore.fetchPendingDeliveryReports(
-      warehouseId,
+      warehouseId.value,
       status.value,
       to_designation.value
     );
@@ -117,9 +118,19 @@ const fetchPendingStocksDelivery = async () => {
   }
 };
 
+watch(
+  warehouseId,
+  (newId) => {
+    if (newId) {
+      fetchPendingStocksDelivery();
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(async () => {
-  if (warehouseId) {
-    await fetchPendingStocksDelivery(warehouseId, status.value, to_designation);
+  if (warehouseId.value) {
+    await fetchPendingStocksDelivery();
   }
 });
 

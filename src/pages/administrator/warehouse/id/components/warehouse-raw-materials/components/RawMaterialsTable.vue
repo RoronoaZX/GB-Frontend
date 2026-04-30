@@ -88,6 +88,13 @@
           </q-badge>
         </q-td>
       </template>
+      <template v-slot:body-cell-fifo_price="props">
+        <q-td :props="props">
+          <div class="text-weight-bold text-blue-grey-9">
+            {{ formatFIFOPrice(props.row) }}
+          </div>
+        </q-td>
+      </template>
       <template v-slot:body-cell-depletion="props">
         <q-td :props="props" style="min-width: 160px">
           <!-- Case 1: has a prediction match from usage data -->
@@ -204,9 +211,8 @@ const reloadTableData = async (warehouseId) => {
   // console.log("Fetching products for branch ID:", warehouseId);
   try {
     loading.value = true;
-    const response =
-      await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
-    warehouseRawMaterialsRows.value = response;
+    await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);
+    // warehouseRawMaterialsRows.value = response; // Removed: warehouseRawMaterialsRows is a computed property and the store already updates state
     if (!warehouseRawMaterialsRows.value.length) {
       showNoDataMessage.value = true;
     }
@@ -283,31 +289,61 @@ const getRawMaterialBadgeColorName = (row) => {
 const formatTotalQuantity = (row) => {
   const totalQuantity = Number(row?.total_quantity) || 0; // Ensure it's a valid number
   const unit = row?.raw_materials?.unit || "units"; // Default unit
-
-  console.log("totalQuantity:", totalQuantity);
-  console.log("unit:", unit);
+  const deliveryUnit = row?.raw_materials?.delivery_unit;
+  const unitWeight = Number(row?.raw_materials?.unit_weight) || 0;
+  const unitPcs = Number(row?.raw_materials?.unit_pcs) || 0;
 
   const formatNumber = (value) => {
     const num = Number(value); // Ensure conversion
     return Number.isInteger(num) ? num : num.toFixed(2);
   };
 
-  // Convert to kilos if total quantity exceeds 1000
-  if (totalQuantity > 1000) {
-    const totalQuantityKilo = totalQuantity / 1000;
-
-    // If kilos are 25 or above, change unit to sacks
-    if (totalQuantityKilo >= 25) {
-      const sacks = totalQuantityKilo / 25;
-      return `${formatNumber(sacks)} sacks`;
+  // 1. Use custom delivery unit if available
+  if (deliveryUnit) {
+    if (unitWeight > 0) {
+      const units = totalQuantity / unitWeight;
+      return `${formatNumber(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
+    } else if (unitPcs > 0) {
+      const units = totalQuantity / unitPcs;
+      return `${formatNumber(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
     }
+  }
 
-    // Return in kilos otherwise
+  // 2. Fallback to standard conversion logic (Kilos/Grams/Pcs)
+  if (totalQuantity >= 1000 && unit === "Grams") {
+    const totalQuantityKilo = totalQuantity / 1000;
     return `${formatNumber(totalQuantityKilo)} kilos`;
   }
 
-  // Return with unit
   return `${formatNumber(totalQuantity)} ${unit}`;
+};
+
+const formatFIFOPrice = (row) => {
+  const pricePerGram = Number(row?.fifo_price_per_gram) || 0;
+  const deliveryUnit = row?.raw_materials?.delivery_unit;
+  const unitWeight = Number(row?.raw_materials?.unit_weight) || 0;
+  const unitPcs = Number(row?.raw_materials?.unit_pcs) || 0;
+
+  if (pricePerGram === 0) return "No Price";
+
+  const formatCurrency = (val) => `₱${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  // 1. Calculate based on delivery unit if set
+  if (deliveryUnit) {
+    if (unitWeight > 0) {
+      return `${formatCurrency(pricePerGram * unitWeight)} / ${deliveryUnit}`;
+    } else if (unitPcs > 0) {
+      // Assuming pricePerGram is used as pricePerPiece for non-gram units
+      return `${formatCurrency(pricePerGram * unitPcs)} / ${deliveryUnit}`;
+    }
+  }
+
+  // 2. Fallback to kilo/pcs base
+  if (row?.raw_materials?.unit === "Grams") {
+    return `${formatCurrency(pricePerGram * 1000)} / kilo`;
+  }
+
+  return `${formatCurrency(pricePerGram)} / ${row?.raw_materials?.unit || 'unit'}`;
 };
 
 const rawMaterialsColumns = [
@@ -332,6 +368,13 @@ const rawMaterialsColumns = [
     label: "Available Stocks",
     align: "center",
     field: "total_quantity",
+    sortable: true,
+  },
+  {
+    name: "fifo_price",
+    label: "FIFO Price",
+    align: "center",
+    field: "fifo_price_per_gram",
     sortable: true,
   },
   {

@@ -16,6 +16,14 @@
             @click="handleSendProductDialog('Bread')"
           />
         </div>
+        <div>
+          <q-btn
+            class="repurpose-bg-gradient text-white"
+            outlined
+            label="Repurpose Bread Out"
+            @click="handleRepurposeBreadDialog"
+          />
+        </div>
 
         <div>
           <q-btn
@@ -46,6 +54,7 @@ import BreadSearch from "./SearchEngine.vue";
 import SendBreadToOtherBranch from "../bread/components/SendBreadToOtherBranch.vue";
 import BreadAddedView from "../bread/components/BreadAddedView.vue";
 import SendingProductsToBranchButton from "../components/buttons/SendingProductsToBranchButton.vue";
+import SendBreadForRepurposeButton from "../components/buttons/SendBreadForRepurposeButton.vue";
 import ViewAddProductsButton from "../components/buttons/ViewAddProductsButton.vue";
 import { useQuasar } from "quasar";
 
@@ -64,6 +73,12 @@ const handleSendProductDialog = (category) => {
     componentProps: {
       category,
     },
+  });
+};
+
+const handleRepurposeBreadDialog = () => {
+  $q.dialog({
+    component: SendBreadForRepurposeButton,
   });
 };
 
@@ -86,5 +101,9 @@ const handleAddProductDialog = (category) => {
   // background: linear-gradient(135deg, #6a11cb, #2575fc);
   background: linear-gradient(135deg, #2c3e50, #4ca1af);
   // background: linear-gradient(135deg, #8e44ad, #3498db);
+}
+
+.repurpose-bg-gradient {
+  background: linear-gradient(135deg, #d35400, #e67e22);
 }
 </style>

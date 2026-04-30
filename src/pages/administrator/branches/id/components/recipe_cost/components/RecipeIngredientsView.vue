@@ -103,7 +103,7 @@
       <q-card-section class="q-gutter-md q-pt-lg">
         <q-input
           v-model.number="edit.pricePerGram"
-          label="Price Per Gram"
+          :label="getUnitBaseLabel(edit.item?.unit) === 'Pc' ? 'Price Per Piece' : 'Price Per Gram'"
           type="number"
           outlined dense
           :hint="`Current: ${edit.item?.price_per_gram}`"
@@ -178,13 +178,13 @@
             icon="edit"
           >
             <div class="row items-center q-gutter-x-xs">
-              <span class="text-weight-medium">{{ formatField(log.changed_field) }}:</span>
+              <span class="text-weight-medium">{{ formatField(log.changed_field, history.item?.unit) }}:</span>
               <q-chip dense color="red-2" text-color="red-9" size="sm">
-                {{ log.changed_field === 'price_per_gram' ? '₱' : '' }}{{ log.old_value }}
+                {{ isPriceField(log.changed_field) ? '₱' : '' }}{{ log.old_value }}
               </q-chip>
               <q-icon name="arrow_forward" size="14px" color="grey-6" />
               <q-chip dense color="green-2" text-color="green-9" size="sm">
-                {{ log.changed_field === 'price_per_gram' ? '₱' : '' }}{{ log.new_value }}
+                {{ isPriceField(log.changed_field) ? '₱' : '' }}{{ log.new_value }}
               </q-chip>
             </div>
             <div v-if="log.reason" class="text-caption text-grey-7 q-mt-xs">
@@ -231,7 +231,7 @@ const ingredientColumns = [
   { name: 'name',       label: 'Raw Material', align: 'left',   field: r => capitalizeFirstLetter(r.raw_material_name) },
   { name: 'status',     label: 'Status',       align: 'center', field: 'status' },
   { name: 'quantity',   label: 'Qty Used',     align: 'center', field: r => formatQuantity(r.quantity_used, r.unit) },
-  { name: 'ppg',        label: 'Price/Gram',   align: 'right',  field: r => formatPrice(r.price_per_gram) },
+  { name: 'ppg',        label: 'Unit Price',   align: 'right',  field: r => `${formatPrice(r.price_per_gram)} / ${getUnitBaseLabel(r.unit)}` },
   { name: 'subtotal',   label: 'Subtotal',     align: 'right',  field: 'total_cost' },
   { name: 'actions',    label: 'Actions',      align: 'center', field: 'actions' },
 ];
@@ -321,7 +321,19 @@ async function openHistory(item) {
   }
 }
 
-const formatField = (field) => field === 'price_per_gram' ? 'Price/Gram' : 'Qty Used';
+const getUnitBaseLabel = (unit) => {
+  if (!unit) return 'Gram';
+  return unit.toLowerCase().includes('pc') ? 'Pc' : 'Gram';
+};
+
+const formatField = (field, unit) => {
+  if (field === 'price_per_gram') {
+    return getUnitBaseLabel(unit) === 'Pc' ? 'Price/Pc' : 'Price/Gram';
+  }
+  return 'Qty Used';
+};
+
+const isPriceField = (field) => field === 'price_per_gram';
 </script>
 
 <style scoped>

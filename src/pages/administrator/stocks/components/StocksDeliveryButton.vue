@@ -201,6 +201,14 @@
                 </q-td>
               </template>
 
+              <template v-slot:body-cell-total_amount="props">
+                <q-td :props="props">
+                  <q-badge color="teal" label-color="white">
+                    {{ props.value }}
+                  </q-badge>
+                </q-td>
+              </template>
+
               <template v-slot:body-cell-price_per_unit="props">
                 <q-td :props="props"> ₱{{ props.value }} </q-td>
               </template>
@@ -252,6 +260,7 @@
               use-input
               hide-dropdown-icon
               @filter="filterRawMaterials"
+              @update:model-value="onRawMaterialSelected"
             >
               <template v-slot:no-option>
                 <q-item>
@@ -261,6 +270,14 @@
                 </q-item>
               </template>
             </q-select>
+            <div v-if="from !== 'Supplier' && selectedRawMaterials.name && selectedRawMaterials.name.available_at_source !== undefined" class="q-mt-xs">
+              <q-chip dense outline color="primary" icon="inventory_2" size="11px" class="q-px-sm">
+                Available at Source: 
+                <span class="text-weight-bold q-ml-xs">
+                  {{ formatSourceAvailability(selectedRawMaterials.name) }}
+                </span>
+              </q-chip>
+            </div>
           </div>
           <div>
             <div>
@@ -344,6 +361,8 @@ const rawMaterialsGroups = ref([]);
 const rawMaterialsOptions = ref([]);
 const emit = defineEmits(["reFetchDelivery"]);
 
+const isInternalChange = ref(false); // Flag to prevent watcher reset during auto-fill
+
 const $q = useQuasar();
 
 const selectedRawMaterials = reactive({
@@ -374,10 +393,10 @@ const stocksCategoryOptions = [
   { label: "Can", value: "can" },
   { label: "Bottle", value: "bottle" },
   { label: "Box", value: "box" },
-  { label: "Margarine Tub", value: "baro" },
+  { label: "Margarine Tub", value: "tub" },
   { label: "Gallon", value: "gallon" },
   { label: "Kilo", value: "kilo" },
-  { label: "Gram", value: "gram" },
+  { label: "Grams", value: "gram" },
   { label: "Pieces", value: "pcs" },
 ];
 
@@ -398,85 +417,74 @@ const categoryConfigs = {
       { model: "kilo", label: "Kilo per Sack", type: "number" },
       { model: "gram", label: "Grams", type: "number", readonly: true },
       { model: "price", label: "Price per Sack", type: "number", prefix: "₱" },
-      {
-        model: "pricePerGram",
-        label: "Price per Gram",
-        readonly: true,
-        prefix: "₱",
-      },
+      { model: "pricePerGram", label: "Price per Grams", type: "number", readonly: true, prefix: "₱" },
     ],
   },
   can: {
     fields: [
       { model: "quantity", label: "Can Quantity", type: "number" },
       { model: "kilo", label: "Kilo per Can", type: "number" },
-      { model: "gram", label: "Grams", type: "number" },
-      {
-        model: "price",
-        label: "Price per Can",
-        type: "number",
-        prefix: "₱",
-      },
-      {
-        model: "pricePerGram",
-        label: "Price per Gram",
-        readonly: true,
-        prefix: "₱",
-      },
+      { model: "gram", label: "Grams per Can", type: "number" },
+      { model: "price", label: "Price per Can", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per Gram", type: "number", readonly: true, prefix: "₱" },
     ],
   },
   bottle: {
     fields: [
       { model: "quantity", label: "Bottle Quantity", type: "number" },
       { model: "kilo", label: "Kilo per Bottle", type: "number" },
-      { model: "gram", label: "Grams" },
-      // readonly: true
-      {
-        model: "price",
-        label: "Price per Bottle",
-        type: "number",
-        prefix: "₱",
-      },
-      {
-        model: "pricePerGram",
-        label: "Price per Gram",
-        readonly: true,
-        prefix: "₱",
-      },
+      { model: "gram", label: "Grams per Bottle", type: "number" },
+      { model: "price", label: "Price per Bottle", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per Gram", type: "number", readonly: true, prefix: "₱" },
     ],
   },
   box: {
     fields: [
       { model: "quantity", label: "Box Quantity", type: "number" },
       { model: "pcs", label: "Pieces per Box", type: "number" },
-      { model: "kilo", label: "Kilo per Piece", type: "number" },
-      { model: "gram", label: "Grams" },
-      { model: "price", label: "Price per Pcs", type: "number", prefix: "₱" },
-      {
-        model: "pricePerGram",
-        label: "Price per Gram",
-        readonly: true,
-        prefix: "₱",
-      },
+      { model: "kilo", label: "Kilo per Pieces", type: "number" },
+      { model: "gram", label: "Grams Per Pieces", type: "number" },
+      { model: "price", label: "Price per Pieces", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per grams", type: "number", readonly: true, prefix: "₱" },
+    ],
+  },
+  tub: {
+    fields: [
+      { model: "quantity", label: "Tub Quantity", type: "number" },
+      { model: "kilo", label: "Kilo per Tub", type: "number" },
+      { model: "gram", label: "Grams per Tub", type: "number", readonly: true },
+      { model: "price", label: "Price per Tub", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price Per Gram", type: "number", readonly: true, prefix: "₱" },
     ],
   },
   gallon: {
     fields: [
       { model: "quantity", label: "Gallon Quantity", type: "number" },
       { model: "kilo", label: "Kilo per Gallon", type: "number" },
-      { model: "gram", label: "Grams" },
-      // readonly: true
-      { model: "price", label: "Price per Gallon", type: "number" },
-      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+      { model: "gram", label: "Grams per Gallon", type: "number" },
+      { model: "price", label: "Price per Gallon", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per Grams", type: "number", readonly: true, prefix: "₱" },
     ],
   },
-  baro: {
+  kilo: {
     fields: [
-      { model: "quantity", label: "Tub Quantity", type: "number" },
-      { model: "kilo", label: "Kilo per Tub", type: "number" },
-      { model: "gram", label: "Grams", readonly: true },
-      { model: "price", label: "Price per Tub", type: "number" },
-      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+      { model: "quantity", label: "Kilo Quantity", type: "number" },
+      { model: "gram", label: "Grams per Kilo", type: "number" },
+      { model: "price", label: "Price per Kilo", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per Gram", type: "number", readonly: true, prefix: "₱" },
+    ],
+  },
+  gram: {
+    fields: [
+      { model: "quantity", label: "Quantity Grams", type: "number" },
+      { model: "price", label: "Price", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per Gram", type: "number", readonly: true, prefix: "₱" },
+    ],
+  },
+  pcs: {
+    fields: [
+      { model: "quantity", label: "Quantity Pcs", type: "number" },
+      { model: "price", label: "Price per pcs", type: "number", prefix: "₱" },
     ],
   },
 };
@@ -487,21 +495,98 @@ const selectedCategoryConfig = computed(() => {
 
 // 🧮 CALCULATIONS
 watch(
-  stocks,
-  (val) => {
-    // always sync grams with kilo
-    if (val.kilo && !isNaN(val.kilo)) {
-      val.gram = val.kilo * 1000;
+  stocksCategory,
+  (newCategory, oldCategory) => {
+    // 🛑 If this change was triggered by onRawMaterialSelected (auto-fill), DO NOT RESET.
+    if (isInternalChange.value) return;
+
+    const material = selectedRawMaterials.name;
+    if (!material) {
+      // If no material, just reset
+      stocks.value.kilo = 0;
+      stocks.value.gram = 0;
+      stocks.value.price = 0;
+      stocks.value.pricePerGram = 0;
+      stocks.value.pcs = 0;
+      return;
     }
 
-    // compute price per gram if we have price & gram
-    if (val.price > 0 && val.gram > 0) {
-      val.pricePerGram = val.price / val.gram;
-    } else {
-      val.pricePerGram = 0;
+    const pricePerGram = stocks.value.pricePerGram;
+    const weight = Number(material.unit_weight) || 0;
+    const pcsPerUnit = Number(material.unit_pcs) || 0;
+
+    if (["sack", "can", "bottle", "tub", "gallon"].includes(newCategory)) {
+      if (weight > 0) {
+        stocks.value.kilo = weight / 1000;
+        stocks.value.gram = weight;
+        stocks.value.price = pricePerGram * weight;
+      } else {
+        stocks.value.kilo = 0;
+        stocks.value.gram = 0;
+        stocks.value.price = 0;
+      }
+    } else if (newCategory === "box") {
+      if (pcsPerUnit > 0) {
+        stocks.value.pcs = pcsPerUnit;
+        stocks.value.price = pricePerGram * pcsPerUnit;
+      } else {
+        stocks.value.pcs = 0;
+        stocks.value.price = 0;
+      }
+
+      // Automatically map the unit weight to kilo and gram if available
+      if (weight > 0) {
+        stocks.value.kilo = weight / 1000;
+        stocks.value.gram = weight;
+      } else {
+        stocks.value.kilo = 0;
+        stocks.value.gram = 0;
+      }
+    } else if (newCategory === "pcs") {
+      stocks.value.gram = 1; 
+      stocks.value.price = pricePerGram;
+    } else if (newCategory === "gram") {
+      stocks.value.gram = 1; 
+      stocks.value.price = pricePerGram;
+    } else if (newCategory === "kilo") {
+      stocks.value.gram = 1000;
+      stocks.value.price = pricePerGram * 1000;
     }
-  },
-  { deep: true }
+  }
+);
+
+watch(
+  () => stocks.value.kilo,
+  (newKilo) => {
+    // sync grams with kilo if kilo is provided
+    if (newKilo && !isNaN(newKilo)) {
+      stocks.value.gram = newKilo * 1000;
+    }
+  }
+);
+
+watch(
+  () => [stocks.value.price, stocks.value.gram, stocks.value.quantity, stocksCategory.value],
+  ([newPrice, newGram, newQuantity, category]) => {
+    if (category === "gram") {
+      if (newPrice > 0 && newQuantity > 0) {
+        stocks.value.pricePerGram = newPrice / newQuantity;
+      } else if (stocks.value.pricePerGram === 0) {
+        stocks.value.pricePerGram = 0;
+      }
+    } else {
+      // 🛡️ Safety: If grams is 0 but we have a price, don't wipe the pricePerGram
+      // if it was already set by auto-fill.
+      if (newPrice > 0 && newGram > 0) {
+        stocks.value.pricePerGram = newPrice / newGram;
+      } else if (newPrice > 0 && (newGram === 0 || !newGram)) {
+        // Keep existing pricePerGram if math is impossible
+      } else {
+        // Only reset if both are zero
+        if (newPrice === 0) stocks.value.pricePerGram = 0;
+      }
+    }
+  }
 );
 
 const unitOptions = [
@@ -524,12 +609,12 @@ const addToList = () => {
     raw_materials_name: selectedRawMaterials.name.label,
     unit_type: selectedRawMaterials.name.suffix,
     category: stocksCategory.value,
-    quantity: stocks.value.quantity,
-    kilo: stocks.value.kilo,
-    gram: stocks.value.gram,
-    pcs: stocks.value.pcs,
-    price_per_unit: stocks.value.price,
-    price_per_gram: stocks.value.pricePerGram,
+    quantity: Number(stocks.value.quantity) || 0,
+    kilo: Number(stocks.value.kilo) || 0,
+    gram: Number(stocks.value.gram) || 0,
+    pcs: Number(stocks.value.pcs) || 0,
+    price_per_unit: Number(stocks.value.price) || 0,
+    price_per_gram: Number(stocks.value.pricePerGram) || 0,
   });
 
   // log the updated list
@@ -610,23 +695,38 @@ const filteredWarehouse = (val, update) => {
 const filterRawMaterialsOptions = ref(rawMaterialsOptions.value);
 
 const fetchRawMaterials = async () => {
-  const to_designation = to.value; // Warehouse | Branch
+  const from_designation = from.value; // Supplier | Warehouse | Branch
+  const from_id = deliveryStocks.from?.value || deliveryStocks.from || null;
+  const to_designation = to.value;
   const to_id = deliveryStocks.to?.value || deliveryStocks.to || null;
 
-  // 🛑 Prevent call if we don't have a destination yet
-  if (!to_designation || !to_id) return;
+  // 🛑 If Source is Supplier, we need to know the Destination to show relevant items
+  const fetch_designation = from_designation === "Supplier" ? to_designation : from_designation;
+  const fetch_id = from_designation === "Supplier" ? to_id : from_id;
+
+  if (!fetch_designation || !fetch_id) return;
 
   try {
     loading.value = true;
     await rawMaterialsStore.fetchBranchWarehouseRawMaterials(
-      to_designation,
-      to_id
+      fetch_designation,
+      fetch_id
     );
 
     rawMaterialsOptions.value = rawMaterialsStore.rawMaterials.map((val) => ({
       label: val.name,
       value: val.id,
       suffix: val.unit,
+      delivery_unit: val.delivery_unit,
+      available_at_source: val.available_at_source || 0,
+      fifo_price: val.fifo_price || 0,
+      unit_weight: val.unit_weight || 0,
+      unit_pcs: val.unit_pcs || 0,
+      // FIFO Packaging Info
+      fifo_category: val.fifo_category,
+      fifo_kilo: val.fifo_kilo,
+      fifo_pcs: val.fifo_pcs,
+      fifo_price_per_unit: val.fifo_price_per_unit,
     }));
 
     filterRawMaterialsOptions.value = rawMaterialsOptions.value;
@@ -685,6 +785,116 @@ const clearData = () => {
   to.value = "";
 };
 
+const formatSourceAvailability = (opt) => {
+  if (!opt || opt.available_at_source === undefined) return "";
+  const qty = Number(opt.available_at_source);
+  const deliveryUnit = opt.delivery_unit;
+  const unitWeight = Number(opt.unit_weight) || 0;
+  const unitPcs = Number(opt.unit_pcs) || 0;
+  const unit = opt.suffix;
+
+  const formatNum = (v) => Number.isInteger(v) ? v : v.toFixed(2);
+
+  if (deliveryUnit) {
+    if (unitWeight > 0) {
+      const units = qty / unitWeight;
+      return `${formatNum(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
+    } else if (unitPcs > 0) {
+      const units = qty / unitPcs;
+      return `${formatNum(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
+    }
+  }
+
+  if (qty >= 1000 && unit === "Grams") {
+    return `${formatNum(qty / 1000)} kilos`;
+  }
+
+  return `${formatNum(qty)} ${unit}`;
+};
+
+const onRawMaterialSelected = (val) => {
+  if (!val) {
+    stocksCategory.value = "";
+    return;
+  }
+
+  isInternalChange.value = true; // 🛡️ Start Protection
+
+  // 1. Set the category based on the material's default delivery unit or FIFO data
+  const preferredCategory = val.fifo_category || val.delivery_unit;
+  if (preferredCategory) {
+    stocksCategory.value = preferredCategory;
+  }
+
+  // 2. If it's an internal transfer (not Supplier), auto-fill the price and units
+  if (from.value !== "Supplier") {
+    const pricePerGram = Number(val.fifo_price) || 0;
+    const category = preferredCategory || "gram";
+
+    // Set shared fields
+    stocks.value.pricePerGram = pricePerGram;
+
+    // Use FIFO specific data if available, otherwise fallback to material master data
+    const weight =
+      val.fifo_kilo !== null && val.fifo_kilo !== undefined
+        ? Number(val.fifo_kilo) * 1000
+        : Number(val.unit_weight) || 0;
+    const pcsPerUnit =
+      val.fifo_pcs !== null && val.fifo_pcs !== undefined
+        ? Number(val.fifo_pcs)
+        : Number(val.unit_pcs) || 0;
+    const pricePerUnit =
+      val.fifo_price_per_unit !== null && val.fifo_price_per_unit !== undefined
+        ? Number(val.fifo_price_per_unit)
+        : 0;
+
+    // Calculate price and conversion based on the category
+    if (["sack", "can", "bottle", "tub", "gallon"].includes(category)) {
+      if (weight > 0) {
+        stocks.value.kilo = weight / 1000;
+        stocks.value.gram = weight;
+        stocks.value.price = pricePerUnit || pricePerGram * weight;
+      } else {
+        stocks.value.kilo = 0;
+        stocks.value.gram = 0;
+        stocks.value.price = 0;
+      }
+    } else if (category === "box") {
+      if (pcsPerUnit > 0) {
+        stocks.value.pcs = pcsPerUnit;
+        stocks.value.price = pricePerUnit || pricePerGram * pcsPerUnit;
+      } else {
+        stocks.value.pcs = 0;
+        stocks.value.price = 0;
+      }
+
+      if (weight > 0) {
+        stocks.value.kilo = weight / 1000;
+        stocks.value.gram = weight;
+      } else {
+        stocks.value.kilo = 0;
+        stocks.value.gram = 0;
+      }
+    } else if (category === "kilo") {
+      stocks.value.gram = 1000;
+      stocks.value.price = pricePerUnit || pricePerGram * 1000;
+    } else if (category === "pcs" || category === "gram") {
+      stocks.value.gram = 1;
+      stocks.value.price = pricePerUnit || pricePerGram;
+    }
+
+    // 🚀 CRITICAL: Force the pricePerGram to be exactly what came from the DB
+    setTimeout(() => {
+      stocks.value.pricePerGram = pricePerGram;
+    }, 50);
+  }
+
+  // 🔓 Lift protection after values are set
+  setTimeout(() => {
+    isInternalChange.value = false;
+  }, 100);
+};
+
 const filterRawMaterials = (val, update) => {
   update(() => {
     if (val === "") {
@@ -714,42 +924,32 @@ const deliveryStocks = reactive({
 });
 
 // ---- WATCHES ---- //
-watch(from, (newVal) => {
-  deliveryStocks.from_designation = newVal;
+watch([from, () => deliveryStocks.from], async ([newFromDesignation, newFromValue]) => {
+  deliveryStocks.from_designation = newFromDesignation;
 
-  if (newVal === "Supplier") {
-    deliveryStocks.from = "";
-    deliveryStocks.from_name = "";
-    deliveryStocks.supplier_name = "";
-  } else if (newVal === "Warehouse") {
-    deliveryStocks.from = "";
-    deliveryStocks.from_name = "";
-  } else if (newVal === "Branch") {
-    deliveryStocks.from = "";
-    deliveryStocks.from_name = "";
-  }
-});
-
-watch(to, (newVal) => {
-  deliveryStocks.to_designation = newVal;
-
-  if (newVal === "Warehouse") {
-    deliveryStocks.to = "";
-  } else if (newVal === "Branch") {
-    deliveryStocks.to = "";
+  if (newFromDesignation === "Supplier") {
+    // Only fetch if we have 'to' destination
+    if (to.value && deliveryStocks.to) await fetchRawMaterials();
+  } else if (newFromDesignation && newFromValue) {
+    // Fetch stocks from the Source (Warehouse/Branch)
+    await fetchRawMaterials();
   }
 });
 
 watch([to, () => deliveryStocks.to], async ([newToDesignation, newToValue]) => {
-  if (newToDesignation && newToValue) {
-    console.log("📦 Fetching raw materials for:", newToDesignation, newToValue);
+  deliveryStocks.to_designation = newToDesignation;
+
+  if (from.value === "Supplier" && newToDesignation && newToValue) {
     await fetchRawMaterials();
+  } else if (from.value && from.value !== "Supplier") {
+    // Already fetched based on source, but we might want to refresh
+    // await fetchRawMaterials();
   }
 });
 
 const save = async () => {
   const payload = {
-    employee_id: userData.value?.data?.employee_id || "0",
+    employee_id: employeeId,
     from_designation: from.value, // Supplier | Warehouse | Branch
     from_id: deliveryStocks.from || null, // warehouse_id or branch_id
     from_name:
@@ -757,7 +957,10 @@ const save = async () => {
         ? deliveryStocks.supplier_name
         : deliveryStocks.from_name,
     to_designation: to.value, // Warehouse | Branch
-    to_id: deliveryStocks.to.value || null,
+    to_id:
+      typeof deliveryStocks.to === "object"
+        ? deliveryStocks.to?.value
+        : deliveryStocks.to || null,
     remarks: deliveryStocks.remarks,
     status: "pending",
 
@@ -792,6 +995,39 @@ const save = async () => {
     $q.loading.hide();
   }
 };
+
+const formatTotalAmount = (row) => {
+  const qty = Number(row.quantity) || 0;
+  const category = (row.category || "").toLowerCase();
+
+  if (category === "pcs") {
+    return `${qty} pcs`;
+  }
+
+  const gramsPerUnit = Number(row.gram) || 0;
+  const pcsPerUnit = Number(row.pcs) || 0;
+  
+  if (gramsPerUnit > 0) {
+    let totalGrams = qty * gramsPerUnit;
+    if (category === "gram") {
+      totalGrams = qty; 
+    }
+    
+    if (totalGrams >= 1000) {
+      const kgs = totalGrams / 1000;
+      return `${Number.isInteger(kgs) ? kgs : kgs.toFixed(2)} kgs`;
+    } else {
+      return `${totalGrams} grams`;
+    }
+  } else {
+    if (pcsPerUnit > 0) {
+      const totalPcs = qty * pcsPerUnit;
+      return `${totalPcs} pcs`;
+    }
+    return `0`;
+  }
+};
+
 const stagingColumns = [
   {
     name: "name",
@@ -810,6 +1046,12 @@ const stagingColumns = [
     label: "Qty",
     align: "center",
     field: "quantity",
+  },
+  {
+    name: "total_amount",
+    label: "Total Amount",
+    align: "center",
+    field: (row) => formatTotalAmount(row),
   },
   {
     name: "price_per_unit",

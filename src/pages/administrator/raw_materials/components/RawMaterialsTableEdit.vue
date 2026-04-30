@@ -75,6 +75,40 @@
             />
           </div>
         </div>
+        <q-separator />
+        <div class="text-subtitle2 q-mb-sm text-grey-8">Inventory Unit Conversion</div>
+        <div class="q-mt-sm q-animated q-animate-bounce">
+          <div class="q-my-sm">Standard Delivery Unit</div>
+          <q-select
+            v-model="editRawMaterialsForm.delivery_unit"
+            :options="deliveryUnitOptions"
+            hint="How is this usually delivered? (e.g. Sack, Can)"
+            emit-value
+            map-options
+            outlined
+            dense
+          />
+        </div>
+        <div v-if="editRawMaterialsForm.delivery_unit && editRawMaterialsForm.unit === 'Grams'" class="q-mt-md q-animated q-animate-bounce">
+          <div class="q-my-sm">Grams per Unit</div>
+          <q-input
+            v-model.number="editRawMaterialsForm.unit_weight"
+            type="number"
+            outlined
+            dense
+            hint="e.g. 25000 for a 25kg sack"
+          />
+        </div>
+        <div v-if="editRawMaterialsForm.delivery_unit && editRawMaterialsForm.unit === 'Pcs'" class="q-mt-md q-animated q-animate-bounce">
+          <div class="q-my-sm">Pieces per Unit</div>
+          <q-input
+            v-model.number="editRawMaterialsForm.unit_pcs"
+            type="number"
+            outlined
+            dense
+            hint="e.g. 100 per box"
+          />
+        </div>
       </q-card-section>
       <q-card-actions class="row q-ma-md" align="right">
         <q-btn
@@ -103,6 +137,17 @@ const rawMaterialsStore = useRawMaterialsStore();
 const editRawMaterialsDialog = ref(false);
 const rawMaterialsCategory = ["Ingredients", "Packaging Materials"];
 const ingredientsUnitOptions = ["Grams", "Pcs"];
+const deliveryUnitOptions = [
+  { label: "Sack", value: "sack" },
+  { label: "Can", value: "can" },
+  { label: "Bottle", value: "bottle" },
+  { label: "Box", value: "box" },
+  { label: "Margarine Tub", value: "tub" },
+  { label: "Gallon", value: "gallon" },
+  { label: "Kilo", value: "kilo" },
+  { label: "Gram", value: "gram" },
+  { label: "Pieces", value: "pcs" },
+];
 
 const props = defineProps(["edit"]);
 
@@ -111,6 +156,9 @@ const editRawMaterialsForm = reactive({
   code: "",
   category: null,
   unit: null,
+  delivery_unit: null,
+  unit_weight: null,
+  unit_pcs: null,
 });
 
 const openEditForm = () => {

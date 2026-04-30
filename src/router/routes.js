@@ -381,6 +381,10 @@ const routes = [
         path: "employee",
         component: () => import("pages/supervisor/employees/EmployeesPage.vue"),
       },
+      {
+        path: "repurposing",
+        component: () => import("pages/supervisor/repurposing/BreadOutManagement.vue"),
+      },
     ],
   },
 

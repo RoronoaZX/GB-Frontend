@@ -213,6 +213,14 @@ const menuItems = [
     separator: true,
     toolbarDisplay: "👥 Employee",
   },
+  {
+    name: "repurposing",
+    icon: "loop",
+    to: "/supervisor/repurposing",
+    label: "Repurposing",
+    separator: true,
+    toolbarDisplay: "♻️ Repurposing",
+  },
 ];
 onMounted(() => {
   const storedActiveMenuItem = localStorage.getItem("activeMenuItem");

@@ -118,7 +118,7 @@
 import { date as quasarDate, useQuasar } from "quasar";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { useWarehousesStore } from "src/stores/warehouse";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import TransactionView from "./TransactionView.vue";
 
 const warehouseStore = useWarehousesStore();
@@ -127,8 +127,8 @@ console.log("userdata", userData.value);
 const stocksDeliveryStore = useStockDelivery();
 const stockDelivery = computed(() => stocksDeliveryStore.confirmStocks);
 
-const warehouseId = userData.value.device.reference_id;
-console.log("warehouseId", warehouseId);
+const warehouseId = computed(() => userData.value?.device?.reference_id);
+console.log("warehouseId", warehouseId.value);
 const status = ref("confirmed");
 const to_designation = ref("Warehouse");
 const loading = ref(true);
@@ -177,10 +177,11 @@ const formatTimeStamp = (val) => {
 };
 
 const fetchConfirmStocksDelivery = async () => {
+  if (!warehouseId.value) return;
   try {
     loading.value = true;
     await stocksDeliveryStore.fetchConfirmedDeliveryReports(
-      warehouseId,
+      warehouseId.value,
       status.value,
       to_designation.value,
       pagination.value.current_page,
@@ -198,24 +199,24 @@ const fetchConfirmStocksDelivery = async () => {
   }
 };
 
+watch(
+  warehouseId,
+  (newId) => {
+    if (newId) {
+      fetchConfirmStocksDelivery();
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(async () => {
-  if (warehouseId) {
-    await fetchConfirmStocksDelivery(
-      warehouseId,
-      status.value,
-      to_designation.value,
-      pagination.value.current_page
-    );
+  if (warehouseId.value) {
+    await fetchConfirmStocksDelivery();
   }
 });
 
 const onPageChange = async () => {
-  fetchConfirmStocksDelivery(
-    warehouseId,
-    status.value,
-    to_designation.value,
-    pagination.value.current_page
-  );
+  fetchConfirmStocksDelivery();
 };
 
 const onSearch = () => {

@@ -16,6 +16,9 @@
         </q-input>
       </div>
       <div class="q-gutter-sm">
+         <q-btn flat round color="grey-7" icon="file_download" @click="exportToExcel">
+            <q-tooltip>Export to Excel</q-tooltip>
+         </q-btn>
          <q-btn flat round color="grey-7" icon="filter_list">
             <q-tooltip>Filter Options</q-tooltip>
          </q-btn>
@@ -51,11 +54,11 @@
           <q-td :props="props">
             <div class="row items-center no-wrap">
               <q-avatar size="32px" color="teal-1" text-color="teal" class="q-mr-sm">
-                {{ props.row.code.charAt(0) }}
+                {{ (props.row.name || 'M').charAt(0).toUpperCase() }}
               </q-avatar>
               <div class="column">
-                <div class="text-weight-bold text-dark">{{ props.row.code }}</div>
-                <div class="text-caption text-grey-6">{{ props.row.name || 'Master Ingredient' }}</div>
+                <div class="text-weight-bold text-dark">{{ props.row.name || 'Master Ingredient' }}</div>
+                <div class="text-caption text-grey-6">{{ props.row.code }}</div>
               </div>
             </div>
           </q-td>
@@ -102,6 +105,7 @@ import RawMaterialsTableDelete from "./RawMaterialsTableDelete.vue";
 import { useRawMaterialsStore } from "src/stores/raw-material";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
+import * as XLSX from "xlsx";
 
 const { capitalizeFirstLetter } = typographyFormat();
 const { getRawMaterialBadgeCategoryColor, getRawMaterialsBadgeUnitColor } =
@@ -151,12 +155,32 @@ watch(filter, async (newFilter) => {
   showNoDataMessage.value = filteredRows.value.length === 0;
 });
 
+const exportToExcel = () => {
+  const data = filteredRows.value.map((row) => ({
+    "Raw Material Name": row.name,
+    Code: row.code,
+    Category: row.category,
+    Unit: row.unit,
+    "Lead Time (Days)": row.supplier_lead_time,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Raw Materials");
+
+  // Auto-size columns
+  const maxWidth = data.reduce((w, r) => Math.max(w, r["Raw Material Name"].length), 10);
+  worksheet["!cols"] = [{ wch: maxWidth + 5 }, { wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 20 }];
+
+  XLSX.writeFile(workbook, "Raw_Materials_List.xlsx");
+};
+
 const rawMaterialsColumns = [
   {
     name: "name",
     label: "Raw Materials Name",
     align: "left",
-    field: (row) => row.code,
+    field: (row) => row.name,
     format: (val) => `${val}`,
     sortable: true,
   },
@@ -175,9 +199,25 @@ const rawMaterialsColumns = [
   },
   {
     name: "unit",
-    label: "Unit",
+    label: "Inventory Unit",
     align: "left",
     field: "unit",
+  },
+  {
+    name: "delivery_unit",
+    label: "Delivery Unit",
+    align: "left",
+    field: (row) => row.delivery_unit ? capitalizeFirstLetter(row.delivery_unit) : 'None',
+  },
+  {
+    name: "conversion",
+    label: "Conversion",
+    align: "left",
+    field: (row) => {
+      if (row.unit === 'Grams' && row.unit_weight) return `${row.unit_weight}g / unit`;
+      if (row.unit === 'Pcs' && row.unit_pcs) return `${row.unit_pcs}pcs / unit`;
+      return 'N/A';
+    },
   },
   {
     name: "lead_time",

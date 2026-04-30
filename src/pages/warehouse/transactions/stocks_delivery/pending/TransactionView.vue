@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialogRef" v-model="dialog" @hide="onDialogHide">
+  <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card style="width: 700px; max-width: 80vw">
       <q-card-section class="emphasized-header">
         <div class="row justify-between">
@@ -44,8 +44,11 @@
                 <q-item-section>
                   <q-item-label>Stocks Category</q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section>
                   <q-item-label> Quantity </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label> Total Amount </q-item-label>
                 </q-item-section>
               </q-item>
               <q-item v-for="(item, index) in report.items" :key="index">
@@ -59,9 +62,16 @@
                     {{ item.category || "No Category" }}
                   </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section>
                   <q-item-label>
                     {{ formatQuantity(item.quantity || "No Quantity") }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label>
+                    <q-badge color="teal" label-color="white">
+                      {{ formatTotalAmount(item) }}
+                    </q-badge>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -133,15 +143,47 @@ const formatQuantity = (val) => {
   return parseFloat(val);
 };
 
+const formatTotalAmount = (row) => {
+  const qty = Number(row.quantity) || 0;
+  const category = (row.category || "").toLowerCase();
+
+  if (category === "pcs") {
+    return `${qty} pcs`;
+  }
+
+  const gramsPerUnit = Number(row.gram) || 0;
+  const pcsPerUnit = Number(row.pcs) || 0;
+  
+  if (gramsPerUnit > 0) {
+    let totalGrams = qty * gramsPerUnit;
+    if (category === "gram") {
+      totalGrams = qty; 
+    }
+    
+    if (totalGrams >= 1000) {
+      const kgs = totalGrams / 1000;
+      return `${Number.isInteger(kgs) ? kgs : kgs.toFixed(2)} kgs`;
+    } else {
+      return `${totalGrams} grams`;
+    }
+  } else {
+    if (pcsPerUnit > 0) {
+      const totalPcs = qty * pcsPerUnit;
+      return `${totalPcs} pcs`;
+    }
+    return `0`;
+  }
+};
+
 const openConfirmDialog = () => {
   $q.dialog({
     component: ConfirmDialog,
   })
     .onOk((data) => {
-      // ✅ Called when confirm button is clicked
-      console.log("Remarks from child:", data);
-      confirmReport(props.report);
-      // Call your save function here
+      // ✅ Small delay to let the ConfirmDialog finish unmounting
+      setTimeout(() => {
+        confirmReport(props.report);
+      }, 100);
     })
     .onCancel(() => {
       console.log("Cancelled");
@@ -156,11 +198,19 @@ const confirmReport = async (data) => {
     // Add total grams for each item
     const itemsWithTotals = data.items.map((item) => {
       const qty = parseFloat(item.quantity) || 0;
-      const gramsPerUnit = parseFloat(item.gram) || 0;
+      const category = (item.category || "").toLowerCase();
+      let totalGrams = 0;
+
+      if (category === "pcs" || category === "gram") {
+        totalGrams = qty;
+      } else {
+        const gramsPerUnit = parseFloat(item.gram) || 0;
+        totalGrams = qty * gramsPerUnit;
+      }
 
       return {
         ...item,
-        total_grams: qty * gramsPerUnit,
+        total_grams: totalGrams,
       };
     });
 
@@ -169,7 +219,7 @@ const confirmReport = async (data) => {
 
     const confirmData = {
       ...data,
-      employee_id: userData.value?.data?.employee?.id || "0",
+      employee_id: userData.value?.data?.employee?.id || userData.value?.data?.employee_id || userData.value?.employee_id || "0",
       status: "confirmed",
       items: itemsWithTotals,
     };

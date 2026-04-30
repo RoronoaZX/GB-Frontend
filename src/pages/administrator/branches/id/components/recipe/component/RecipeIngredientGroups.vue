@@ -24,12 +24,7 @@
         <q-list dense separator class="box">
           <q-item>
             <q-item-section>
-              <q-item-label class="text-overline"
-                >Raw Materials Name</q-item-label
-              >
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-overline">Code</q-item-label>
+              <q-item-label class="text-overline">Raw Materials Name</q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-overline">Quantity</q-item-label>
@@ -47,17 +42,12 @@
           >
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.code || "0.00000" }}
+                {{ ingredient.code || "N/A" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.code || "0.00000" }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="text-caption">
-                {{ formatQuantity(ingredient.quantity, ingredient.unit) || "0.00000" }}
+                {{ formatQuantity(ingredient.quantity, ingredient.unit) || "0" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>

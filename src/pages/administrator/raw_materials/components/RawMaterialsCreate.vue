@@ -95,6 +95,40 @@
               :rules="[(val) => (val !== null && val >= 0) || 'Lead time is required']"
             />
           </div>
+          <q-separator class="q-my-md" />
+          <div class="text-subtitle2 q-mb-sm text-grey-8">Inventory Unit Conversion</div>
+          <div class="q-mt-sm q-animated q-animate-bounce">
+            <q-select
+              v-model="addRawMaterialsForm.delivery_unit"
+              :options="deliveryUnitOptions"
+              label="Standard Delivery Unit"
+              hint="How is this usually delivered? (e.g. Sack, Can)"
+              emit-value
+              map-options
+              outlined
+              dense
+            />
+          </div>
+          <div v-if="addRawMaterialsForm.delivery_unit && addRawMaterialsForm.unit === 'Grams'" class="q-mt-md q-animated q-animate-bounce">
+            <q-input
+              v-model.number="addRawMaterialsForm.unit_weight"
+              type="number"
+              outlined
+              dense
+              label="Grams per Unit"
+              hint="e.g. 25000 for a 25kg sack"
+            />
+          </div>
+          <div v-if="addRawMaterialsForm.delivery_unit && addRawMaterialsForm.unit === 'Pcs'" class="q-mt-md q-animated q-animate-bounce">
+            <q-input
+              v-model.number="addRawMaterialsForm.unit_pcs"
+              type="number"
+              outlined
+              dense
+              label="Pieces per Unit"
+              hint="e.g. 100 per box"
+            />
+          </div>
           <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="right">
             <q-btn
               class="btn-cancel glossy"
@@ -124,6 +158,17 @@ const rawMaterialStore = useRawMaterialsStore();
 const createRawMaterialsDialog = ref(false);
 const rawMaterialsCategory = ["Ingredients", "Packaging Materials"];
 const ingredientsUnitOptions = ["Grams", "Pcs"];
+const deliveryUnitOptions = [
+  { label: "Sack", value: "sack" },
+  { label: "Can", value: "can" },
+  { label: "Bottle", value: "bottle" },
+  { label: "Box", value: "box" },
+  { label: "Margarine Tub", value: "tub" },
+  { label: "Gallon", value: "gallon" },
+  { label: "Kilo", value: "kilo" },
+  { label: "Gram", value: "gram" },
+  { label: "Pieces", value: "pcs" },
+];
 const loading = ref(false);
 
 const open_add_ingredients_dialog = () => {
@@ -135,6 +180,9 @@ const addRawMaterialsForm = reactive({
   code: "",
   category: null,
   unit: null,
+  delivery_unit: null,
+  unit_weight: null,
+  unit_pcs: null,
   supplier_lead_time: 3,
 });
 
@@ -162,6 +210,9 @@ const resetCreateRawMaterials = () => {
   addRawMaterialsForm.code = "";
   addRawMaterialsForm.category = null;
   addRawMaterialsForm.unit = null;
+  addRawMaterialsForm.delivery_unit = null;
+  addRawMaterialsForm.unit_weight = null;
+  addRawMaterialsForm.unit_pcs = null;
   addRawMaterialsForm.supplier_lead_time = 3;
 };
 </script>

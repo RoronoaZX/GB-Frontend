@@ -199,11 +199,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       return response;
     } catch (error) {
       console.log("error", error);
-      Notify.create({
-        type: "negative",
-        message: "Failed to Confirm the Stocks Delivery",
-        timeout: 3000,
-      });
+      return error.response;
     }
   };
 
@@ -246,6 +242,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     console.log("stock", stock);
 
     try {
+      console.log("Full Delivery Payload:", stock);
       const response = await api.post("/api/raw-materials-delivery", stock);
       console.log("response", response.data);
 

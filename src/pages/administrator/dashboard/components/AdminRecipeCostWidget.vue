@@ -109,7 +109,7 @@
               <template v-slot:body-cell-change="p">
                 <q-td :props="p">
                   <div class="row items-center no-wrap">
-                    <span class="text-caption text-grey-7 q-mr-xs">{{ formatField(p.row.changed_field) }}:</span>
+                    <span class="text-caption text-grey-7 q-mr-xs">{{ formatField(p.row.changed_field, p.row.unit) }}:</span>
                     <span class="text-strike text-grey-6 q-mr-xs">{{ p.row.old_value }}</span>
                     <q-icon name="arrow_forward" size="12px" color="primary" class="q-mr-xs" />
                     <span class="text-weight-bold text-positive">{{ p.row.new_value }}</span>
@@ -155,6 +155,7 @@ const flattenedCosts = computed(() => {
   return props.metrics.recentChanges.map(r => ({
     id: r.id, // This is the ID from recentChanges, which maps to recipe_cost_id
     recipe_name: r.recipe_name,
+    unit: r.unit,
     raw_material_name: r.changed_field === 'price_per_gram' ? 'Main Ingredient' : 'Quantity Update',
     price_per_gram: r.new_value // Simplified
   }));
@@ -171,7 +172,7 @@ const exportCSV = () => {
     headers.join(","),
     ...rows.map(r => [
       `"${r.recipe_name}"`,
-      `"${formatField(r.changed_field)}"`,
+      `"${formatField(r.changed_field, r.unit)}"`,
       `"${r.old_value}"`,
       `"${r.new_value}"`,
       `"${r.changed_by}"`,
@@ -204,7 +205,7 @@ const exportPDF = () => {
             ["Recipe", "Field", "Old", "New", "By", "Date"],
             ...rows.map(r => [
               r.recipe_name,
-              formatField(r.changed_field),
+              formatField(r.changed_field, r.unit),
               r.old_value,
               r.new_value,
               r.changed_by,
@@ -234,7 +235,12 @@ const columns = [
   { name: "date", label: "Date", align: "right" },
 ];
 
-const formatField = (field) => field === 'price_per_gram' ? 'Price/G' : 'Qty';
+const formatField = (field, unit) => {
+  if (field === 'price_per_gram') {
+    return unit?.toLowerCase().includes('pc') ? 'Price/Pc' : 'Price/G';
+  }
+  return 'Qty';
+};
 </script>
 
 <style scoped>

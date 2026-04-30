@@ -40,7 +40,7 @@
                 v-model="form.changed_field"
                 label="Field to Update"
                 :options="[
-                  { label: 'Price per Gram', value: 'price_per_gram' },
+                  { label: 'Unit Price (Gram/Pc)', value: 'price_per_gram' },
                   { label: 'Quantity Used', value: 'quantity_used' }
                 ]"
                 emit-value
@@ -119,7 +119,7 @@ const form = reactive({
 
 const columns = [
   { name: "recipe", label: "Recipe / Ingredient", align: "left" },
-  { name: "current", label: "Current Price", align: "right", field: row => row.price_per_gram },
+  { name: "current", label: "Current Price", align: "right", field: row => `${row.price_per_gram} / ${row.unit || 'Unit'}` },
 ];
 
 const onSubmit = async () => {

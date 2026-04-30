@@ -50,7 +50,10 @@
                   <q-item-label>Stocks Category</q-item-label>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label side>Quantity</q-item-label>
+                  <q-item-label> Quantity </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label> Total Amount </q-item-label>
                 </q-item-section>
               </q-item>
               <q-item v-for="(item, index) in report.items" :key="index">
@@ -64,9 +67,16 @@
                     {{ item.category || "No Category" }}
                   </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section>
                   <q-item-label>
                     {{ formatQuantity(item.quantity || "No Quantity") }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label>
+                    <q-badge color="teal" label-color="white">
+                      {{ formatTotalAmount(item) }}
+                    </q-badge>
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -104,6 +114,38 @@ const dialog = ref(false);
 const formatQuantity = (val) => {
   if (val == null) return "No Quantity";
   return parseFloat(val);
+};
+
+const formatTotalAmount = (row) => {
+  const qty = Number(row.quantity) || 0;
+  const category = (row.category || "").toLowerCase();
+
+  if (category === "pcs") {
+    return `${qty} pcs`;
+  }
+
+  const gramsPerUnit = Number(row.gram) || 0;
+  const pcsPerUnit = Number(row.pcs) || 0;
+  
+  if (gramsPerUnit > 0) {
+    let totalGrams = qty * gramsPerUnit;
+    if (category === "gram") {
+      totalGrams = qty; 
+    }
+    
+    if (totalGrams >= 1000) {
+      const kgs = totalGrams / 1000;
+      return `${Number.isInteger(kgs) ? kgs : kgs.toFixed(2)} kgs`;
+    } else {
+      return `${totalGrams} grams`;
+    }
+  } else {
+    if (pcsPerUnit > 0) {
+      const totalPcs = qty * pcsPerUnit;
+      return `${totalPcs} pcs`;
+    }
+    return `0`;
+  }
 };
 </script>
 

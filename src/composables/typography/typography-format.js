@@ -48,10 +48,15 @@ export function typographyFormat() {
     }
 
     if (normalizedUnit === "grams" || normalizedUnit === "g" || normalizedUnit === "gram") {
-      const kg = Number(quantity) / 1000;
-      // If it's a whole number or simple decimal, trim it
-      const formattedKg = parseFloat(kg.toFixed(3));
-      return `${formattedKg} kg`;
+      const q = Number(quantity);
+      if (q < 1000) {
+        return `${q} grams`;
+      } else {
+        const kg = q / 1000;
+        // If it's a whole number or simple decimal, trim it
+        const formattedKg = parseFloat(kg.toFixed(3));
+        return `${formattedKg} kg`;
+      }
     }
 
     if (normalizedUnit === "kg" || normalizedUnit === "kilogram" || normalizedUnit === "kilograms") {

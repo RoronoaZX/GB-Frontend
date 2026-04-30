@@ -75,7 +75,7 @@
 import { date as quasarDate, useQuasar } from "quasar";
 import { useBakerReportsStore } from "src/stores/baker-report";
 import { useStockDelivery } from "src/stores/stock-delivery";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import TransactionView from "./TransactionView.vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
@@ -88,7 +88,7 @@ const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
 console.log("userData in RawMaterialsTable:", userData.value);
 
-const branchId = userData.value?.device?.reference_id || "";
+const branchId = computed(() => userData.value?.device?.reference_id);
 const stocksDeliveryStore = useStockDelivery();
 const $q = useQuasar();
 
@@ -123,17 +123,18 @@ const onSearch = () => {
 };
 
 const fetchDeliveryStocks = async (page = 1) => {
+  if (!branchId.value) return;
   $q.loading.show();
   try {
     await stocksDeliveryStore.fetchDeliveryStocksBranch(
-      branchId,
+      branchId.value,
       page,
       pagination.value.per_page,
       searchQuery.value
     );
 
     // if deliveryList becomes empty after search/pagination, clear selected delivery
-    if (!deliveryList.value.length && selectedDelivery.value) {
+    if (!deliveryList.value?.length && selectedDelivery.value) {
       selectedDelivery.value = null;
     }
 
@@ -146,7 +147,7 @@ const fetchDeliveryStocks = async (page = 1) => {
     }
 
     // Automatically select the first delivery if none is selected and list is not empty
-    if ((!selectedDelivery.value && deliveryList.value, length > 0)) {
+    if (!selectedDelivery.value && deliveryList.value?.length > 0) {
       selectedDelivery.value = deliveryList.value[0];
     }
 
@@ -159,8 +160,20 @@ const fetchDeliveryStocks = async (page = 1) => {
   }
 };
 
+watch(
+  branchId,
+  (newId) => {
+    if (newId) {
+      fetchDeliveryStocks(pagination.value.current_page);
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
-  fetchDeliveryStocks(pagination.value.current_page);
+  if (branchId.value) {
+    fetchDeliveryStocks(pagination.value.current_page);
+  }
 });
 
 const onPageChange = (page) => {

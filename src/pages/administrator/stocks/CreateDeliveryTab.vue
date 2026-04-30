@@ -254,7 +254,15 @@
             </div>
 
             <div class="q-mt-md">
-              <span class="text-grey-7 text-caption">Items:</span>
+              <div class="row justify-between items-center q-mb-xs">
+                <span class="text-grey-7 text-caption">Items:</span>
+                <div
+                  v-if="deliveryTotals"
+                  class="text-subtitle2 text-weight-bold text-primary"
+                >
+                  Total: {{ deliveryTotals }}
+                </div>
+              </div>
 
               <q-table
                 v-if="selectedDelivery.items && selectedDelivery.items.length"
@@ -314,6 +322,14 @@
                     >
                       <q-tooltip>Edit Item</q-tooltip>
                     </q-btn>
+                  </q-td>
+                </template>
+
+                <template v-slot:body-cell-total_delivered="props">
+                  <q-td :props="props">
+                    <span class="text-weight-bold text-grey-9">
+                      {{ props.value }}
+                    </span>
                   </q-td>
                 </template>
               </q-table>
@@ -601,6 +617,13 @@ const itemColumns = [
     align: "center",
     field: "quantity",
   },
+   {
+    name: "total_delivered",
+    label: "Total Quantity Delivered",
+    align: "center",
+    field: (row) => formatItemTotal(row),
+    style: "min-width: 150px; font-weight: bold;",
+  },
   {
     name: "price_per_unit",
     label: "Price/Unit",
@@ -618,7 +641,84 @@ const itemColumns = [
     label: "Action",
     align: "center",
   },
+
 ];
+
+const formatItemTotal = (row) => {
+  const qty = parseFloat(row.quantity || 0);
+  const gram = parseFloat(row.gram || 0);
+  const pcs = parseFloat(row.pcs || 0);
+
+  if (
+    ["sack", "can", "bottle", "tub", "gallon", "kilo", "gram"].includes(
+      row.category
+    )
+  ) {
+    const totalGrams = qty * gram;
+    if (totalGrams >= 1000) {
+      const kg = totalGrams / 1000;
+      return `${kg.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      })} ${kg === 1 ? "kg" : "kgs"}`;
+    } else {
+      return `${totalGrams.toLocaleString()} grams`;
+    }
+  } else if (row.category === "pcs") {
+    return `${qty.toLocaleString()} ${qty === 1 ? "pc" : "pcs"}`;
+  } else if (row.category === "box") {
+    const totalPcs = qty * pcs;
+    return `${totalPcs.toLocaleString()} ${totalPcs === 1 ? "pc" : "pcs"}`;
+  }
+  return "N/A";
+};
+
+const deliveryTotals = computed(() => {
+  if (!selectedDelivery.value || !selectedDelivery.value.items) return "";
+
+  let totalWeightGrams = 0;
+  let totalPcs = 0;
+
+  selectedDelivery.value.items.forEach((item) => {
+    const qty = parseFloat(item.quantity || 0);
+    const gram = parseFloat(item.gram || 0);
+    const pcs = parseFloat(item.pcs || 0);
+
+    if (
+      ["sack", "can", "bottle", "tub", "gallon", "kilo", "gram"].includes(
+        item.category
+      )
+    ) {
+      totalWeightGrams += qty * gram;
+    } else if (item.category === "pcs") {
+      totalPcs += qty;
+    } else if (item.category === "box") {
+      totalPcs += qty * pcs;
+    }
+  });
+
+  const parts = [];
+
+  if (totalWeightGrams > 0) {
+    if (totalWeightGrams >= 1000) {
+      const kg = totalWeightGrams / 1000;
+      parts.push(
+        `${kg.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        })} ${kg === 1 ? "kg" : "kgs"}`
+      );
+    } else {
+      parts.push(`${totalWeightGrams.toLocaleString()} grams`);
+    }
+  }
+
+  if (totalPcs > 0) {
+    parts.push(`${totalPcs.toLocaleString()} ${totalPcs === 1 ? "pc" : "pcs"}`);
+  }
+
+  return parts.join(" | ");
+});
 </script>
 
 <style scoped>
