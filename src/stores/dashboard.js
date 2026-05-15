@@ -16,6 +16,11 @@ import { ref } from "vue";
 //       // NEW METRICS
 //       totalSuppliers: 0,
 //       totalBakerReports: 0,
+//       totalGrossRevenue: 0,
+//       totalExpenses: 0,
+//       totalNetProfit: 0,
+//       totalCashOnHand: 0,
+//     },
 //     },
 //     rawSales: [],
 //     // New Inventory Activity States
@@ -401,6 +406,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
   const processTimeRangeData = () => {
     if (rawSales.value.length === 0) {
       stats.value.totalSalesData = [0, 0, 0, 0, 0, 0, 0];
+      stats.value.totalGrossSalesData = [0, 0, 0, 0, 0, 0, 0];
+      stats.value.totalExpensesData = [0, 0, 0, 0, 0, 0, 0];
       chartLabels.value = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
       return;
     }
@@ -464,6 +471,70 @@ export const useDashboardStore = defineStore("dashboard", () => {
     stats.value.totalSalesData = slicedKeys.map((k) => salesMap[k]?.net || 0);
     stats.value.totalGrossSalesData = slicedKeys.map((k) => salesMap[k]?.gross || 0);
     stats.value.totalExpensesData = slicedKeys.map((k) => salesMap[k]?.expenses || 0);
+
+    // Update branch distribution whenever time range data is processed
+    updateBranchDistribution();
+  };
+
+  const updateBranchDistribution = () => {
+    const branches = stats.value.branchesList || [];
+    const sales = rawSales.value || [];
+
+    if (branches.length === 0) {
+      stats.value.branchSalesDistribution = [];
+      return;
+    }
+
+    const branchMap = {};
+    // Initialize with all available branches
+    branches.forEach((b) => {
+      branchMap[b.id] = 0;
+    });
+
+    const now = new Date();
+    let cutoffDate = new Date(0); // Default to all time
+    if (timeRange.value === "7D") cutoffDate = new Date(new Date().setDate(now.getDate() - 7));
+    else if (timeRange.value === "1M") cutoffDate = new Date(new Date().setMonth(now.getMonth() - 1));
+    else if (timeRange.value === "3M") cutoffDate = new Date(new Date().setMonth(now.getMonth() - 3));
+    else if (timeRange.value === "1Y") cutoffDate = new Date(new Date().setFullYear(now.getFullYear() - 1));
+
+    sales.forEach((s) => {
+      const dateObj = new Date(s.created_at);
+      if (dateObj >= cutoffDate) {
+        const gross = Number(String(s.products_total_sales || 0).replace(/[^0-9.-]+/g, ""));
+        const expenses = Number(String(s.expenses_total || 0).replace(/[^0-9.-]+/g, ""));
+        const net = gross - expenses;
+        if (branchMap[s.branch_id] !== undefined) {
+          branchMap[s.branch_id] += net;
+        }
+      }
+    });
+
+    let distribution = Object.keys(branchMap).map((bId) => {
+      const branch = branches.find((b) => b.id == bId);
+      return {
+        id: bId,
+        name: branch ? branch.name : `Branch ${bId}`,
+        sales: branchMap[bId],
+      };
+    });
+
+    // Filtering logic based on selection
+    if (selectedBranch.value !== "global") {
+      if (String(selectedBranch.value).startsWith("warehouse-")) {
+        stats.value.branchSalesDistribution = [];
+      } else {
+        // Show only the selected branch
+        stats.value.branchSalesDistribution = distribution.filter(
+          (d) => String(d.id) === String(selectedBranch.value)
+        );
+      }
+    } else {
+      // Global View: Top 5 by sales
+      stats.value.branchSalesDistribution = distribution
+        .sort((a, b) => b.sales - a.sales)
+        .slice(0, 5);
+    }
   };
 
   // =========================
@@ -576,142 +647,75 @@ export const useDashboardStore = defineStore("dashboard", () => {
         }
       }
 
+      // Parallel fetching of optimized dashboard endpoints
       const [
+        summaryRes,
         branchesRes,
-        employeesRes,
-        rawMaterialsRes,
-        salesRes,
         warehousesRes,
-        recipesRes,
-        suppliersRes,
-        bakerReportsRes,
+        salesRes,
         inventoryMetricsRes,
-        historyLogsRes,
-        confirmedDeliveriesRes,
       ] = await Promise.all([
+        api.get(`/api/dashboard/summary${suffix}`).catch(() => ({ data: {} })),
         api.get("/api/branches").catch(() => ({ data: [] })),
-        api.get("/api/employee").catch(() => ({ data: [] })),
-        api.get("/api/raw-materials").catch(() => ({ data: [] })),
-        api
-          .get(`/api/sales-report?dashboard=true${suffix.replace("?", "&")}`)
-          .catch(() => ({ data: [] })),
         api.get("/api/warehouses").catch(() => ({ data: [] })),
-        api.get("/api/recipes").catch(() => ({ data: [] })),
-        api.get("/api/fetch-supplier-records").catch(() => ({ data: [] })),
-        api
-          .get(`/api/initial-baker-report?dashboard=true${suffix.replace("?", "&")}`)
-          .catch(() => ({ data: [] })),
-        api
-          .get(`/api/dashboard/inventory-metrics${suffix}`)
-          .catch(() => ({
-            data: { currentBalances: [], inMovements: [], outMovements: [] },
-          })),
-        api.get("/api/history-logs?per_page=5").catch(() => ({ data: { data: [] } })),
-        api.get("/api/raw-materials-delivery?search=confirmed&per_page=5").catch(() => ({ data: { data: [] } })),
+        api.get(`/api/sales-report?dashboard=true${suffix.replace("?", "&")}`).catch(() => ({ data: [] })),
+        api.get(`/api/dashboard/inventory-metrics${suffix}`).catch(() => ({
+          data: { currentBalances: [], inMovements: [], outMovements: [] },
+        })),
       ]);
 
+      const summary = summaryRes.data || {};
       const branches = branchesRes.data || [];
-      const employees = employeesRes.data || [];
-      const rawMaterials = rawMaterialsRes.data || [];
-      const sales = salesRes.data || [];
       const warehouses = warehousesRes.data || [];
-      const recipes = recipesRes.data || [];
-      const suppliers = suppliersRes.data || [];
-      const bakerReports = bakerReportsRes.data || [];
+      const sales = salesRes.data || [];
       const invData = inventoryMetricsRes.data || {};
-      const historyLogs = historyLogsRes.data?.data || [];
-      const confirmedDeliveries = confirmedDeliveriesRes.data?.data || [];
 
-      stats.value.totalBranches = branches.length;
+      // 1. Map Counts from Unified Summary
+      stats.value.totalBranches = summary.counts?.total_branches || branches.length;
       stats.value.branchesList = branches;
-      stats.value.totalEmployees = employees.length;
-      stats.value.totalWarehouses = warehouses.length;
+      stats.value.totalEmployees = summary.counts?.total_employees || 0;
+      stats.value.totalWarehouses = summary.counts?.total_warehouses || warehouses.length;
       stats.value.warehousesList = warehouses;
-      stats.value.totalRecipes = recipes.length;
-      stats.value.totalSuppliers = suppliers.length;
-      stats.value.totalBakerReports = bakerReports.length;
+      stats.value.totalRecipes = summary.counts?.total_recipes || 0;
+      stats.value.totalSuppliers = summary.counts?.total_suppliers || 0;
+      stats.value.totalBakerReports = summary.counts?.total_baker_reports || 0;
+      stats.value.lowStockItems = summary.low_stock_count || 0;
 
-      stats.value.lowStockItems = rawMaterials.filter((rm) => {
-        const qty = Number(rm.available_stock ?? rm.quantity ?? 0);
-        return qty < 50;
-      }).length;
-
+      // 2. Map Financials from Summary (Optional fallback to raw sales processing)
       rawSales.value = sales;
 
-      // Group sales by branch for distribution chart
-      if (selectedBranch.value === "global") {
-        const branchMap = {};
-        sales.forEach((s) => {
-          const gross = Number(
-            String(s.products_total_sales || s.total_sales || 0).replace(
-              /[^0-9.-]+/g,
-              ""
-            )
-          );
-          const expenses = Number(
-            String(s.expenses_total || 0).replace(/[^0-9.-]+/g, "")
-          );
-          const net = gross - expenses;
-          branchMap[s.branch_id] = (branchMap[s.branch_id] || 0) + net;
-        });
+      // 3. Map Recent Activity
+      stats.value.recentActivity = (summary.recent_activity || []).map((log) => ({
+        id: log.id,
+        action: log.action || "System Action",
+        details: log.details || "",
+        time: log.time,
+      }));
 
-        stats.value.branchSalesDistribution = Object.keys(branchMap).map(
-          (bId) => {
-            const branch = branches.find((b) => b.id == bId);
-            return {
-              name: branch ? branch.name : `Branch ${bId}`,
-              sales: branchMap[bId],
-            };
-          }
-        ).sort((a, b) => b.sales - a.sales).slice(0, 5);
-      } else {
-        stats.value.branchSalesDistribution = [];
-      }
+      // 4. Group sales by branch for distribution chart
+      updateBranchDistribution();
 
       inventoryBalances.value = invData.currentBalances || [];
       rawInventoryIn.value = invData.inMovements || [];
       rawInventoryOut.value = invData.outMovements || [];
 
-      stats.value.recentActivity = historyLogs.map((log) => ({
-        id: log.id,
-        action: log.action || "System Action",
-        details: `${log.name || "Action"} - ${log.type_of_report || ""}`,
-        type: log.type_of_report || "",
-        field: log.updated_field || "",
-        time: log.created_at,
-      }));
-
-      stats.value.rmTransactions = confirmedDeliveries.flatMap((delivery) => 
-        (delivery.items || []).map((item) => ({
-          id: `${delivery.id}-${item.id}`,
-          name: item.raw_material?.name || "Ingredient",
-          action: "Delivery IN",
-          details: `${item.quantity} ${item.unit_type} from ${delivery.from_name}`,
-          type: "IN",
-          time: delivery.created_at,
-        }))
-      ).slice(0, 10);
-
-      // Initial fetch for paginated transactions
+      // Paginated items (Keep separate for now as they are specific feeds)
       fetchRMTransactions(1, 5);
 
       processTimeRangeData();
       processInventoryTimeRangeData();
       fetchPredictiveStocking();
       fetchRecipeCostMetrics();
-      fetchProfitMargins();
+      fetchProfitMargins(selectedBranch.value);
+
     } catch (err) {
       console.error("Dashboard error:", err);
       error.value = "Failed to load dashboard";
-      Notify.create({
-        type: "negative",
-        message: "Failed to load dashboard",
-        position: "top",
-      });
     } finally {
       loading.value = false;
     }
   };
+
 
   const fetchPredictiveStocking = async (params = {}) => {
     try {
@@ -750,11 +754,18 @@ export const useDashboardStore = defineStore("dashboard", () => {
     }
   };
 
-  const fetchProfitMargins = async () => {
+  const fetchProfitMargins = async (branchIdParam = null) => {
     try {
       let suffix = "";
-      if (selectedBranch.value !== "global") {
-        suffix = `?branch_id=${selectedBranch.value}`;
+      const bId = branchIdParam || selectedBranch.value;
+      
+      if (bId !== "global") {
+        if (String(bId).startsWith("warehouse-")) {
+          const wId = bId.split("-")[1];
+          suffix = `?warehouse_id=${wId}`;
+        } else {
+          suffix = `?branch_id=${bId}`;
+        }
       }
       const res = await api.get(`/api/dashboard/profit-margins${suffix}`);
       profitMargins.value = res.data?.data || [];

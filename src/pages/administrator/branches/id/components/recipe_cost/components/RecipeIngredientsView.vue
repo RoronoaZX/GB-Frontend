@@ -27,6 +27,10 @@
           <q-icon name="scale" size="14px" class="q-mr-xs" />
           {{ row.kilo }} kg produced
         </span>
+        <span v-if="row.kilo" class="text-weight-bold text-primary">
+          <q-icon name="payments" size="14px" class="q-mr-xs" />
+          {{ formatPrice(costPerKilo) }} / kg
+        </span>
       </q-card-section>
 
       <q-separator />
@@ -225,6 +229,11 @@ const localItems = ref((props.row.items || []).map(i => ({ ...i })));
 const currentTotal = computed(() =>
   localItems.value.reduce((sum, i) => sum + (Number(i.total_cost) || 0), 0)
 );
+
+const costPerKilo = computed(() => {
+  const kilo = parseFloat(props.row.kilo || 0);
+  return kilo > 0 ? currentTotal.value / kilo : 0;
+});
 
 // ── Table columns ─────────────────────────────────────────────
 const ingredientColumns = [

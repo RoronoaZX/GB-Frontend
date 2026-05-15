@@ -44,7 +44,7 @@
       <div class="col-12 col-md-8">
         <q-card flat bordered class="log-card">
           <q-card-section class="row items-center q-pb-none">
-            <div class="text-h6 text-weight-bold">Recent Cost Adjustments</div>
+            <div class="text-h6 text-weight-bold">Raw Material Cost Adjustments</div>
             <q-space />
             <div class="q-gutter-sm">
               <q-btn
@@ -229,7 +229,7 @@ const exportPDF = () => {
 };
 
 const columns = [
-  { name: "recipe", label: "Recipe", align: "left", field: "recipe_name", classes: "text-weight-medium" },
+  { name: "recipe", label: "Raw Material", align: "left", field: "recipe_name", classes: "text-weight-medium" },
   { name: "change", label: "Adjustment", align: "left" },
   { name: "user", label: "Modified By", align: "left", field: "changed_by" },
   { name: "date", label: "Date", align: "right" },

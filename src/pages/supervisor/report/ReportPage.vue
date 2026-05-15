@@ -40,10 +40,10 @@
 
 <script setup>
 import { useSupervisorStore } from "src/stores/supervisor";
-import { computed, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 const supervisorStore = useSupervisorStore();
-const branches = computed(() => supervisorStore.supervisors);
+const branches = ref([]);
 const employeeData = computed(() => supervisorStore.user);
 const employee_id = employeeData?.value?.data?.employee_id;
 console.log("employee_id", employee_id);
@@ -54,9 +54,8 @@ onMounted(async () => {
 
 const reloadBranchData = async (employee_id) => {
   try {
-    branches.value = await supervisorStore.fetchSupervisorUnderBranch(
-      employee_id
-    );
+    await supervisorStore.fetchSupervisorUnderBranch(employee_id);
+    branches.value = supervisorStore.supervisorBranch;
     console.log("branches", branches.value);
   } catch (error) {
     console.log("error fetching recipe: ", error);

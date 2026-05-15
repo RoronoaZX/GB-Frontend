@@ -148,9 +148,11 @@ export default boot(async ({ router }) => {
           } else if (role === "Cashier" || role === "Sales Clerk") {
             next("/branch/sales_lady/products");
           } else if (role === "Scaler") {
-            next("/warehouse"); // Or whatever your default logged-in page is
+            next("/warehouse");
+          } else if (role === "Supervisor") {
+            next("/supervisor");
           } else {
-            next("/");
+            next();
           }
         } else {
           next();

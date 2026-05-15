@@ -117,7 +117,7 @@ console.log("branchList", branchList.value);
 const router = useRouter();
 
 const fetchBranch = async () => {
-  await supervisorStore.fetchSupervisorBranch(employeeId);
+  await supervisorStore.fetchSupervisorUnderBranch(employeeId);
   console.log("branchList", branchList.value);
 };
 

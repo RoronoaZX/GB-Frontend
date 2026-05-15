@@ -47,7 +47,6 @@
         :clickable="true"
         :active="activeMenuItem === item.name"
         active-class="my-menu-link"
-        @click="setActiveMenuItem(item.name)"
       >
         <q-item-section avatar>
           <q-icon :name="item.icon" />
@@ -61,8 +60,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { useRoute } from "vue-router";
 import ProfileAvatarComponent from "./ProfileAvatarComponent.vue";
+
+const route = useRoute();
 
 // Role & drawer state
 const role = ref(localStorage.getItem("role"));
@@ -172,23 +174,27 @@ const menuItems = [
   // },
 ];
 
-// Sync with localStorage on mount
+// Automatically sync sidebar highlight with current URL
+watch(
+  () => route.path,
+  (newPath) => {
+    const activeItem = menuItems.find((item) => {
+      if (item.to === "/admin/dashboard") return newPath === item.to;
+      return item.to && newPath.startsWith(item.to);
+    });
+    if (activeItem) {
+      activeMenuItem.value = activeItem.name;
+      localStorage.setItem("activeMenuItem", activeItem.name);
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
-  const saved = localStorage.getItem("activeMenuItem");
-  if (saved) {
-    activeMenuItem.value = saved;
-  } else {
-    localStorage.setItem("activeMenuItem", activeMenuItem.value);
-  }
+  // Initial sync already handled by immediate watch
 });
 
-// Update on click
-const setActiveMenuItem = (itemName) => {
-  if (bar.value) bar.value.start();
-  activeMenuItem.value = itemName;
-  localStorage.setItem("activeMenuItem", itemName);
-  if (bar.value) bar.value.stop();
-};
+
 
 // Display toolbar label
 const getActiveMenuItemLabel = computed(() => {

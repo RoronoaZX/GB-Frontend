@@ -1,6 +1,168 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide" v-model="dialog" persistent>
-    <h1>This is a dialog</h1>
+  <q-dialog
+    ref="dialogRef"
+    @hide="onDialogHide"
+    v-model="dialog"
+    persistent
+    :position="isMobile ? 'bottom' : 'standard'"
+  >
+    <q-card
+      class="mobile-remark-dialog"
+      :class="{ 'mobile-fullscreen': isMobile }"
+    >
+      <!-- Premium Header -->
+      <div class="mobile-dialog-header" :class="`header-${status}`">
+        <div class="header-content">
+          <div class="row items-center justify-between no-wrap">
+            <div class="header-title">
+              <q-icon
+                :name="status === 'confirmed' ? 'check_circle' : 'warning'"
+                size="24px"
+                class="q-mr-sm"
+              />
+              {{ getHeaderTitle() }}
+            </div>
+            <q-btn flat round dense icon="close" v-close-popup class="close-btn" />
+          </div>
+          <div class="header-subtitle">
+            Please provide a remark to complete this transaction update.
+          </div>
+        </div>
+        <div class="header-wave"></div>
+      </div>
+
+      <q-card-section class="q-pa-lg">
+        <!-- Compact Product Summary -->
+        <div class="product-card-modern q-mb-xl">
+          <div class="product-category-badge" :class="`bg-${category?.toLowerCase() || 'primary'}`">
+            <q-icon :name="getCategoryIcon()" size="24px" />
+          </div>
+          <div class="product-info-content">
+            <div class="product-name-mobile">
+              {{ capitalizeFirstLetter(productDetails?.product?.name || 'Unknown Product') }}
+            </div>
+            <div class="product-details-grid">
+              <div class="detail-item">
+                <q-icon name="inventory_2" size="16px" class="detail-icon" />
+                <span class="detail-label">Qty:</span>
+                <span class="detail-value quantity-highlight">{{ productDetails?.added_product || 0 }} pcs</span>
+              </div>
+              <div class="detail-divider"></div>
+              <div class="detail-item">
+                <q-icon name="payments" size="16px" class="detail-icon" />
+                <span class="detail-label">Price:</span>
+                <span class="detail-value">{{ formatPrice(productDetails?.price) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Repurposing Manual Choice (Only for Pull Out + Confirmed status) -->
+        <div v-if="isPullOut && status === 'confirmed'" class="repurposing-action-section q-mb-xl">
+          <div class="text-subtitle2 q-mb-sm text-weight-bold color-primary">
+            <q-icon name="recycling" class="q-mr-xs" />
+            Manual Repurposing Action
+          </div>
+          <q-btn-toggle
+            v-model="repurposeType"
+            spread
+            no-caps
+            rounded
+            unelevated
+            toggle-color="primary"
+            color="grey-2"
+            text-color="grey-7"
+            class="q-mb-md"
+            :options="[
+              {label: 'Toasted', value: 'toasted'},
+              {label: 'Crumbs', value: 'crumbs'},
+              {label: 'Spoilage', value: 'spoiled'}
+            ]"
+          />
+
+          <!-- Conditional Fields based on choice -->
+          <div v-if="repurposeType === 'toasted'" class="q-gutter-sm">
+            <q-select
+              v-model="outputProduct"
+              :options="productOptions"
+              label="Output Toasted Product"
+              outlined
+              dense
+            />
+            <q-select
+              v-model="destinationBranch"
+              :options="branchOptions"
+              label="Destination Branch"
+              outlined
+              dense
+            />
+          </div>
+
+          <div v-if="repurposeType === 'crumbs'" class="q-gutter-sm">
+            <q-select
+              v-model="outputRawMaterial"
+              :options="rawMaterialOptions"
+              label="Output Raw Material"
+              outlined
+              dense
+            />
+          </div>
+          
+          <div v-if="repurposeType !== 'spoiled'" class="q-mt-sm">
+            <q-input
+              v-model.number="repurposeQuantity"
+              type="number"
+              label="Quantity to Produce"
+              outlined
+              dense
+              suffix="pcs"
+            />
+          </div>
+        </div>
+
+        <!-- Remark Input Section -->
+        <div class="remark-section">
+          <div class="remark-label">
+            <q-icon name="edit_note" size="20px" />
+            <span>Transaction Remark</span>
+          </div>
+          <q-input
+            v-model="remark"
+            type="textarea"
+            outlined
+            placeholder="E.g., Received in good condition, Items verified, etc."
+            rows="3"
+            class="remark-input"
+          />
+          <div class="tip-text">
+            <q-icon name="info" size="12px" />
+            A remark is required for audit tracking
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-card-actions class="q-pa-lg">
+        <div class="action-buttons full-width">
+          <q-btn
+            unelevated
+            class="action-btn full-width"
+            :class="status"
+            :loading="loading"
+            :disable="!remark.trim()"
+            @click="receiveProduct"
+          >
+            {{ getButtonLabel() }}
+          </q-btn>
+          <q-btn
+            flat
+            class="cancel-btn full-width"
+            label="Discard Changes"
+            v-close-popup
+            :disable="loading"
+          />
+        </div>
+      </q-card-actions>
+    </q-card>
   </q-dialog>
 </template>
 
@@ -10,11 +172,12 @@ import { typographyFormat } from "src/composables/typography/typography-format";
 import { useSupervisorStore } from "src/stores/supervisor";
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useBranchProductsStore } from "src/stores/branch-product";
+import { api } from "src/boot/axios";
+import { useBreadOutStore } from "src/stores/bread-out";
 
-const { dialogRef, onDialogHide } = useDialogPluginComponent();
+const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 
-const { formatDate, formatFullname, formatPrice, capitalizeFirstLetter } =
-  typographyFormat();
+const { formatPrice, capitalizeFirstLetter } = typographyFormat();
 
 const props = defineProps({
   productDetails: Object,
@@ -23,68 +186,170 @@ const props = defineProps({
 });
 
 const supervisorStore = useSupervisorStore();
-
-const userData = supervisorStore.user;
-
-console.log("userDatsssasss", userData);
-
-const userId = computed(
-  () =>
-    userData.value?.data?.employee_id ||
-    userData.value?.data?.employee?.id ||
-    ""
-);
-
 const branchProductsStore = useBranchProductsStore();
+const breadOutStore = useBreadOutStore();
+const $q = useQuasar();
+
+const userData = computed(() => supervisorStore.user);
+const userId = computed(() => userData.value?.data?.employee_id || userData.value?.data?.employee?.id || "");
+const branchId = computed(() => props.productDetails?.from_branch_id || props.productDetails?.branch_id || "");
+
+const isPullOut = computed(() => props.productDetails?.action?.toLowerCase() === 'pull out');
 
 const dialog = ref(false);
 const remark = ref("");
 const loading = ref(false);
 const isMobile = ref(false);
 
-const $q = useQuasar();
+// Repurposing State
+const repurposeType = ref('toasted');
+const repurposeQuantity = ref(props.productDetails?.added_product || 0);
+const outputProduct = ref(null);
+const destinationBranch = ref(null);
+const outputRawMaterial = ref(null);
 
-// Check if mobile
+const productOptions = ref([]);
+const branchOptions = ref([]);
+const rawMaterialOptions = ref([]);
+
 const checkMobile = () => {
   isMobile.value = window.innerWidth <= 768;
+};
+
+const fetchOptions = async () => {
+  if (!isPullOut.value) return;
+  
+  try {
+    const [productsRes, branchesRes, rmRes] = await Promise.all([
+      api.get('/api/products'),
+      api.get('/api/branches'),
+      api.get('/api/raw-materials')
+    ]);
+    
+    productOptions.value = productsRes.data
+      .filter(p => p.category?.toLowerCase() === 'toasted' || p.category?.toLowerCase() === 'bread')
+      .map(p => ({ label: p.name, value: p.id }));
+      
+    branchOptions.value = branchesRes.data.map(b => ({ label: b.name, value: b.id }));
+    rawMaterialOptions.value = rmRes.data.map(rm => ({ label: rm.name, value: rm.id }));
+    
+    // Set default branch
+    const currentBranch = branchOptions.value.find(b => b.value === branchId.value);
+    if (currentBranch) destinationBranch.value = currentBranch;
+  } catch (error) {
+    console.error("Error fetching repurpose options", error);
+  }
 };
 
 onMounted(() => {
   checkMobile();
   window.addEventListener("resize", checkMobile);
+  fetchOptions();
 });
 
 onUnmounted(() => {
-  checkMobile();
-  window.addEventListener("resize", checkMobile);
+  window.removeEventListener("resize", checkMobile);
 });
 
 const getHeaderTitle = () => {
   const statusMap = {
     confirmed: "Confirm Transaction",
-    decline: "Decline Transaction",
-    pending: "Review Traansaction",
+    declined: "Decline Transaction",
+    pending: "Review Transaction",
   };
-
-  return (
-    statusMap[status?.toLowerCase()] ||
-    `Add ${capitalizeFirstLetter(status || "N/A")} Remark`
-  );
+  return statusMap[props.status?.toLowerCase()] || `Update Transaction`;
 };
 
 const getButtonLabel = () => {
   const statusMap = {
-    continue: "Confirm Transaction",
-    declined: "Decline Transaction",
-    pending: "Submit Review",
+    confirmed: "Confirm & Receive",
+    declined: "Decline & Close",
   };
-
-  return statusMap[status?.toLowerCase()] || status || "Proceed";
+  return statusMap[props.status?.toLowerCase()] || "Proceed";
 };
 
-const receiveProduct = async (product) => {
-  console.log("product", product);
+const getCategoryIcon = () => {
+  const cat = props.category?.toLowerCase();
+  if (cat === 'bread') return 'bakery_dining';
+  if (cat === 'selecta') return 'icecream';
+  return 'inventory_2';
+};
+
+const receiveProduct = async () => {
   if (!remark.value.trim()) return;
+
+  loading.value = true;
+  try {
+    // Check if it's a Bread Out (Pull Out) transaction
+    if (isPullOut.value) {
+      if (props.status === 'confirmed') {
+        // First, receive the bread
+        await api.put(`/api/bread-outs/${props.productDetails.id}/status`, {
+          status: 'received',
+          remark: remark.value
+        });
+
+        // Then, immediately process repurposing based on manual choice
+        if (repurposeType.value === 'spoiled') {
+          await breadOutStore.processSpoilage({
+            bread_out_id: props.productDetails.id,
+            quantity: props.productDetails.added_product,
+            reason: remark.value
+          });
+        } else {
+          await breadOutStore.processConversion({
+            bread_out_id: props.productDetails.id,
+            action_type: repurposeType.value,
+            output_id: repurposeType.value === 'toasted' ? outputProduct.value?.value : outputRawMaterial.value?.value,
+            output_quantity: repurposeQuantity.value,
+            destination_branch_id: repurposeType.value === 'toasted' ? destinationBranch.value?.value : null
+          });
+        }
+      } else {
+        // Just mark as spoiled if declined
+        await api.put(`/api/bread-outs/${props.productDetails.id}/status`, {
+          status: 'spoiled',
+          remark: remark.value
+        });
+      }
+      
+      $q.notify({
+        type: "positive",
+        message: "Bread Out processed and repurposed successfully!",
+        position: "top",
+      });
+    } else {
+      // Regular Branch Product Transaction
+      const payload = {
+        id: props.productDetails.id,
+        employee_id: userId.value,
+        branch_id: branchId.value,
+        product_id: props.productDetails.product_id,
+        quantity: props.productDetails.added_product,
+        status: props.status,
+        remark: remark.value,
+      };
+
+      await branchProductsStore.receivedSendBranchProducts(payload);
+      
+      $q.notify({
+        type: "positive",
+        message: "Transaction processed successfully!",
+        position: "top",
+      });
+    }
+    
+    onDialogOK();
+  } catch (error) {
+    console.error("Transaction Error:", error);
+    $q.notify({
+      type: "negative",
+      message: error.response?.data?.message || "Failed to process transaction. Please try again.",
+      position: "top",
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 

@@ -11,7 +11,7 @@
       :filter="filter"
       :loading="loading"
       @request="onRequest"
-      title="System Activity Logs"
+      :title="title"
     >
       <!-- Top Right Search Slot -->
       <template v-slot:top-right>
@@ -35,7 +35,7 @@
           <div class="details-container q-py-sm">
             <div class="row items-center q-gutter-x-xs text-body2 wrap">
               <!-- User Name -->
-              <span class="text-weight-bold text-primary">{{ formatFullname(props.row?.userId?.employee) || "System / Unknown User" }}</span>
+              <span class="text-weight-bold text-primary">{{ formatFullname(props.row?.user?.employee) || "System / Unknown User" }}</span>
               
               <!-- Action Statement -->
               <span class="text-grey-8 text-lowercase">{{ props.row?.action || "performed action on" }}</span>
@@ -122,6 +122,17 @@ import { computed, onMounted, ref } from "vue";
 import { useHistoryLogsStore } from "src/stores/history-log";
 import { date } from "quasar";
 
+const props = defineProps({
+  filters: {
+    type: Object,
+    default: () => ({})
+  },
+  title: {
+    type: String,
+    default: "System Activity Logs"
+  }
+});
+
 const useHistoryLogs = useHistoryLogsStore();
 const historyLogsData = computed(() => useHistoryLogs.historyLogs);
 
@@ -135,13 +146,13 @@ const pagination = ref({
 const filter = ref('');
 const loading = ref(false);
 
-const onRequest = async (props) => {
-  const { page, rowsPerPage } = props.pagination;
-  const searchTerm = props.filter;
+const onRequest = async (requestProps) => {
+  const { page, rowsPerPage } = requestProps.pagination;
+  const searchTerm = requestProps.filter;
   
   loading.value = true;
   try {
-    await useHistoryLogs.fetchHistoryLogs(page, rowsPerPage, searchTerm);
+    await useHistoryLogs.fetchHistoryLogs(page, rowsPerPage, searchTerm, props.filters);
     
     // Sync table pagination state with server response mapped in Pinia
     pagination.value.page = useHistoryLogs.pagination.page;

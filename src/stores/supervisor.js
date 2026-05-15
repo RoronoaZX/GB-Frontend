@@ -12,7 +12,7 @@ export const useSupervisorStore = defineStore("supervisors", () => {
     user.value = newUser;
   };
 
-  const fetchSupervisorBranch = async (employee_id) => {
+  const fetchSupervisorUnderBranch = async (employee_id) => {
     console.log("fetchSupervisorBranch", employee_id);
     try {
       const response = await api.get(
@@ -32,6 +32,6 @@ export const useSupervisorStore = defineStore("supervisors", () => {
     supervisors,
     supervisorBranch,
     setUser,
-    fetchSupervisorBranch,
+    fetchSupervisorUnderBranch,
   };
 });

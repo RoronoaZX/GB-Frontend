@@ -241,6 +241,7 @@ watch(
     () => props.grossSalesData,
     () => props.expensesData,
     () => props.trendLabels,
+    () => props.distributionData,
     chartType,
   ],
   () => {

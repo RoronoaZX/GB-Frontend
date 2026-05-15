@@ -8,21 +8,34 @@
         </div>
       </div>
       <q-space />
-      <div class="q-gutter-sm">
+      <div class="q-gutter-sm row items-center">
+        <q-select
+          v-model="selectedCategory"
+          :options="categoryOptions"
+          dense
+          outlined
+          bg-color="white"
+          label="Category"
+          style="min-width: 150px"
+          class="q-mr-sm"
+        />
         <q-btn flat round dense icon="info_outline" color="grey-6">
-          <q-tooltip>Margin = ((Revenue - Cost) / Revenue) * 100</q-tooltip>
+          <q-tooltip>
+            <div>Bread: (Price * Qty Produced) - Recipe Cost</div>
+            <div>Others: (Actual Sales) - (Purchase Cost * Qty Sold)</div>
+          </q-tooltip>
         </q-btn>
       </div>
     </q-card-section>
 
     <q-card-section>
       <q-table
-        :rows="profitMargins"
+        :rows="filteredProfitMargins"
         :columns="columns"
         row-key="id"
         flat
         dense
-        :pagination="{ rowsPerPage: 5 }"
+        :pagination="{ rowsPerPage: 10, sortBy: 'margin' }"
         class="margin-table"
       >
         <template v-slot:body-cell-name="props">
@@ -33,9 +46,42 @@
           </q-td>
         </template>
 
-        <template v-slot:body-cell-revenue="props">
+        <template v-slot:body-cell-production="props">
+          <q-td :props="props" class="text-center">
+            <q-badge color="blue-1" text-color="blue-8" class="text-weight-bold">
+              {{ props.row.production }} {{ props.row.category === 'Bread' ? 'PCS' : 'UNITS' }}
+            </q-badge>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-category="props">
+          <q-td :props="props" align="center">
+            <q-chip
+              size="xs"
+              outline
+              :color="getCategoryColor(props.row.category)"
+              class="text-weight-bold"
+            >
+              {{ props.row.category }}
+            </q-chip>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-unit_cost="props">
+          <q-td :props="props" class="text-weight-bold text-teal-8">
+            {{ formatPrice(props.row.unit_cost) }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-price="props">
+          <q-td :props="props" class="text-weight-bold text-deep-orange-8">
+            {{ formatPrice(props.row.price) }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-total_sales_amount="props">
           <q-td :props="props" class="text-weight-medium">
-            {{ formatPrice(props.row.revenue) }}
+            {{ formatPrice(props.row.total_sales_amount) }}
           </q-td>
         </template>
 
@@ -86,9 +132,15 @@
         v-if="profitMargins.length === 0"
         class="flex flex-center column q-pa-xl text-grey-5"
       >
-        <q-icon name="analytics" size="3em" />
-        <div class="q-mt-sm">
-          No sales or cost data available for calculation
+        <q-icon :name="isWarehouse ? 'warehouse' : 'analytics'" size="3em" />
+        <div class="q-mt-sm text-center">
+          <template v-if="isWarehouse">
+            Profit analysis is only available for production branches.
+            <div class="text-caption">Warehouses handle inventory and raw material storage.</div>
+          </template>
+          <template v-else>
+            No sales or cost data available for calculation in this period.
+          </template>
         </div>
       </div>
     </q-card-section>
@@ -96,7 +148,11 @@
 </template>
 
 <script setup>
+import { ref, computed } from "vue";
+import { useDashboardStore } from "src/stores/dashboard";
 import { typographyFormat } from "src/composables/typography/typography-format";
+
+const dashboardStore = useDashboardStore();
 
 const props = defineProps({
   profitMargins: {
@@ -104,6 +160,10 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const isWarehouse = computed(() => 
+  String(dashboardStore.selectedBranch).startsWith('warehouse-')
+);
 
 const { formatPrice } = typographyFormat();
 
@@ -116,17 +176,45 @@ const columns = [
     sortable: true,
   },
   {
-    name: "revenue",
-    label: "Sales Revenue",
+    name: "category",
+    label: "Category",
+    align: "center",
+    field: "category",
+    sortable: true,
+  },
+  {
+    name: "production",
+    label: "Qty Produced",
+    align: "center",
+    field: "production",
+    sortable: true,
+  },
+  {
+    name: "unit_cost",
+    label: "Unit Cost",
     align: "right",
-    field: "revenue",
+    field: "unit_cost",
+    sortable: true,
+  },
+  {
+    name: "price",
+    label: "Selling Price",
+    align: "right",
+    field: "price",
     sortable: true,
   },
   {
     name: "cost",
-    label: "Production Cost",
+    label: "Total Cost",
     align: "right",
     field: "cost",
+    sortable: true,
+  },
+  {
+    name: "total_sales_amount",
+    label: "Total Sales Amount",
+    align: "right",
+    field: "total_sales_amount",
     sortable: true,
   },
   {
@@ -145,6 +233,27 @@ const getMarginColor = (margin) => {
   if (margin >= 20) return "warning";
   return "negative";
 };
+
+const getCategoryColor = (category) => {
+  const map = {
+    Bread: "brown",
+    Selecta: "blue",
+    Nestle: "orange",
+    Softdrinks: "red",
+    Others: "grey-7",
+  };
+  return map[category] || "primary";
+};
+
+const selectedCategory = ref("All");
+const categoryOptions = ["All", "Bread", "Selecta", "Nestle", "Softdrinks", "Others"];
+
+const filteredProfitMargins = computed(() => {
+  if (selectedCategory.value === "All") return props.profitMargins;
+  return props.profitMargins.filter(
+    (item) => item.category === selectedCategory.value
+  );
+});
 </script>
 
 <style scoped>

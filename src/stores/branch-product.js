@@ -176,7 +176,8 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
       console.log("response", response.data);
       return response;
     } catch (error) {
-      console.log("error", error);
+      console.error("error in updateProductBranch:", error);
+      throw error; // Rethrow so the component's catch block handles it
     }
   };
 

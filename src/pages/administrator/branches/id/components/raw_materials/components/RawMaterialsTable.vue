@@ -65,10 +65,10 @@
               v-slot="scope"
             >
               <q-input
-                v-model="scope.value"
+                v-model.number="scope.value"
+                type="number"
                 dense
                 :suffix="props.row.ingredients.unit"
-                mask="########"
                 autofocus
                 counter
                 @keyup.enter="scope.set"
@@ -168,8 +168,7 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 const route = useRoute();
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
-// console.log("producttable user data", userData.value);
-const userId = userData.value?.data?.id || "0";
+const userId = computed(() => userData.value?.data?.id || userData.value?.id || "0");
 // console.log("user_id branch product table", userId);
 const branchId = route.params.branch_id;
 const branchRawMaterialsStore = useBranchRawMaterialsStore();
@@ -232,7 +231,7 @@ async function updatedStocks(data, val) {
   const designation_type = "branch";
   const action = "updated";
   const type_of_report = "Branch Raw Materials Table";
-  const user_id = userId;
+  const user_id = userId.value;
 
   const payload = {
     report_id,
@@ -356,6 +355,39 @@ const ingredientsColumns = [
     label: "Available Stocks",
     align: "center",
     field: "total_quantity",
+    sortable: true,
+  },
+  {
+    name: "price_per_kilo",
+    label: "Price per Kilo",
+    align: "center",
+    field: (row) => {
+      const ppg = row.oldest_non_zero_stock?.price_per_gram ?? 0;
+      const baseUnit = row.ingredients?.unit || "Grams";
+      if (baseUnit === "Grams") {
+        return ppg * 1000;
+      }
+      return ppg;
+    },
+    format: (val, row) => {
+      const baseUnit = row.ingredients?.unit || "Grams";
+      if (baseUnit === "Grams") {
+        return `${formatPrice(val)} / kilo`;
+      }
+      return `${formatPrice(val)} / pc`;
+    },
+    sortable: true,
+  },
+  {
+    name: "price_per_gram",
+    label: "Price per Gram/Pc",
+    align: "center",
+    field: (row) => row.oldest_non_zero_stock?.price_per_gram ?? 0,
+    format: (val, row) => {
+      const baseUnit = row.ingredients?.unit || "g";
+      const unitLabel = baseUnit === "Grams" ? "g" : "pc";
+      return `${formatPrice(val)} / ${unitLabel}`;
+    },
     sortable: true,
   },
   {

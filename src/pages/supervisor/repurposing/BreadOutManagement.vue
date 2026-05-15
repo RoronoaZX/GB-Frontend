@@ -202,7 +202,8 @@ const fetchData = async () => {
   try {
     const res = await breadOutStore.fetchBreadOuts({ status: 'pending' });
     if (res) {
-      pendingBreadOuts.value = res;
+      // Handle both paginated responses (res.data) and simple arrays (res)
+      pendingBreadOuts.value = Array.isArray(res) ? res : (res.data || []);
     }
     
     // Fetch dropdown data
@@ -212,7 +213,7 @@ const fetchData = async () => {
       api.get('/api/raw-materials')
     ]);
     
-    rawProducts.value = productsRes.data.filter(p => p.category === 'Toasted'); // Or however Toasted is categorized
+    rawProducts.value = productsRes.data.filter(p => p.category === 'Others'); // User specified toasted products are in 'Others' category
     if (rawProducts.value.length === 0) {
         rawProducts.value = productsRes.data; // fallback
     }

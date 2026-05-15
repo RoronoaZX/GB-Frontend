@@ -77,7 +77,7 @@
         <q-card class="elegant-card" flat bordered>
           <q-card-section class="row items-center justify-between">
             <div class="text-h6 text-weight-bolder text-grey-8">Branch Activity Feed</div>
-            <q-btn flat color="primary" label="View All History" icon-right="chevron_right" />
+            <q-btn flat color="primary" label="View All History" icon-right="chevron_right" @click="openHistoryDialog" />
           </q-card-section>
           <q-separator />
           <q-card-section class="q-pa-none">
@@ -104,6 +104,9 @@
         </q-card>
       </div>
     </div>
+
+    <!-- Activity History Dialog -->
+    <BranchHistoryDialog ref="historyDialogRef" :branch-id="branchId" />
   </div>
 </template>
 
@@ -114,6 +117,7 @@ import { useRoute } from "vue-router";
 import { Chart, registerables } from "chart.js";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import BranchHistoryDialog from "./components/BranchHistoryDialog.vue";
 
 dayjs.extend(relativeTime);
 Chart.register(...registerables);
@@ -126,6 +130,12 @@ const salesChartCanvas = ref(null);
 const inventoryChartCanvas = ref(null);
 let salesChartInstance = null;
 let inventoryChartInstance = null;
+
+const historyDialogRef = ref(null);
+
+const openHistoryDialog = () => {
+  historyDialogRef.value?.open();
+};
 
 const kpiCards = computed(() => [
   {

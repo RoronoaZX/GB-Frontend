@@ -189,7 +189,7 @@ import { useSupervisorStore } from "src/stores/supervisor";
 
 import { useQuasar } from "quasar";
 
-const { capitalizeFirstLetter, formatPrice } = typographyFormat();
+const { capitalizeFirstLetter, formatPrice, formatFullname } = typographyFormat();
 
 const route = useRoute();
 const branchProductStore = useBranchProductsStore();
@@ -199,12 +199,21 @@ const supervisorStore = useSupervisorStore();
 
 const userId = computed(
   () =>
-    supervisorStore.user.data.employee.id ||
-    supervisorStore.user.data.employee_id ||
+    supervisorStore.user?.data?.employee?.id ||
+    supervisorStore.user?.data?.employee_id ||
     ""
 );
 
+const userName = computed(() => {
+  const employee = supervisorStore.user?.data?.employee;
+  if (employee) {
+    return formatFullname(employee);
+  }
+  return supervisorStore.user?.data?.name || "Unknown";
+});
+
 console.log("userId", userId.value);
+console.log("userName", userName.value);
 
 const filter = defineProps({
   filter: String,
@@ -327,8 +336,8 @@ const handleGlobalUpdate = async (product, field, newVal) => {
 
   const meta = {
     id: product.id,
-    // branches_id: route.params.branch_id,
-    // product_id: product.product_id || product.product.id,
+    user_id: userId.value,
+    name: userName.value,
     updated_data: newVal,
     updated_field: field,
   };
@@ -339,6 +348,10 @@ const handleGlobalUpdate = async (product, field, newVal) => {
     const response = await branchProductStore.updateProductBranch(meta);
 
     console.log("responsesssssss", response);
+
+    if (!response || !response.data) {
+      throw new Error("Invalid response from server");
+    }
 
     // ✅ Extract from backend response
     const { status, message } = response.data;

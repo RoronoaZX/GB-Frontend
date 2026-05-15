@@ -134,7 +134,9 @@ export const useProductsStore = defineStore("products", () => {
   };
 
   const fetchProductsByCategory = async (category) => {
-    const response = await api.get("/api/bread-products", category);
+    const response = await api.get("/api/bread-products", {
+      params: { category },
+    });
     breads.value = response.data;
   };
 

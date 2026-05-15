@@ -112,13 +112,20 @@
                 </div>
               </div>
             </div>
-            <div class="info-item">
+            <div class="info-item" v-if="productDetails?.employee">
               <q-icon name="person" size="22px" color="primary" />
               <div>
                 <div class="label">Processed By</div>
                 <div class="value">
-                  {{ formatFullname(productDetails?.employee) || "—" }}
+                  {{ formatFullname(productDetails?.employee) }}
                 </div>
+              </div>
+            </div>
+            <div class="info-item" v-else>
+              <q-icon name="store" size="22px" color="primary" />
+              <div>
+                <div class="label">Processed By</div>
+                <div class="value">Branch Staff</div>
               </div>
             </div>
             <div class="info-item full-width">
@@ -185,6 +192,9 @@ const {
 } = typographyFormat();
 
 const headerClass = computed(() => {
+  if (props.productDetails?.action?.toLowerCase() === "pull out") {
+    return "bg-pull-out";
+  }
   const cat = props.category?.toLowerCase() || "";
   return (
     {
@@ -279,6 +289,9 @@ const clickedReceiveProduct = (status) => {
   }
   &.bg-bread {
     background: linear-gradient(135deg, #92400e, #451a03);
+  }
+  &.bg-pull-out {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
   }
   &.bg-nestle {
     background: linear-gradient(135deg, #0ea5e9, #0369a1);

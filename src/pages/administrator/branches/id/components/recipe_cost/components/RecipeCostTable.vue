@@ -214,6 +214,18 @@ const recipeCostColumn = [
     sortable: true,
   },
   {
+    name: "cost_per_kilo",
+    label: "Cost per Kilo",
+    align: "right",
+    field: (row) => {
+      const totalCost = parseFloat(row.recipe_total_cost || 0);
+      const kilo = parseFloat(row.kilo || 0);
+      return kilo > 0 ? totalCost / kilo : 0;
+    },
+    format: (val) => formatPrice(val),
+    sortable: true,
+  },
+  {
     name: "action",
     label: "Details",
     align: "center",

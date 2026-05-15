@@ -90,7 +90,6 @@
               :clickable="true"
               v-for="(item, index) in menuItems"
               :key="index"
-              @click="setActiveMenuItem(item.name)"
               :to="item.to"
               :active="activeMenuItem === item.name"
               active-class="my-menu-link"
@@ -124,9 +123,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { LocalStorage, useQuasar } from "quasar";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { api } from "src/boot/axios";
 import { useSupervisorStore } from "src/stores/supervisor";
 
@@ -138,47 +137,8 @@ const drawer = ref(false);
 const activeMenuItem = ref("0");
 const quasar = useQuasar();
 const router = useRouter();
+const route = useRoute();
 const loading = ref(false);
-
-// onMounted(async () => {
-//   try {
-//     const response = await api.get("/api/profile");
-//     user.value = response.data;
-//   } catch (error) {
-//     console.error("Error fetching user data:", error);
-//   }
-// });
-
-const formatFullname = (row) => {
-  const capitalize = (str) =>
-    str
-      ? str
-          .split(" ")
-          .map(
-            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-          )
-          .join(" ")
-      : "";
-
-  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
-  const middlename = row.middlename
-    ? capitalize(row.middlename).charAt(0) + "."
-    : "";
-  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
-
-  return `${firstname} ${middlename} ${lastname}`.trim();
-};
-
-const signOut = () => {
-  loading.value = true;
-  setTimeout(() => {
-    LocalStorage.removeItem("token");
-    LocalStorage.removeItem("role");
-    LocalStorage.removeItem("activeMenuItem");
-    loading.value = false;
-    router.push("/");
-  }, 1000);
-};
 
 const menuItems = [
   {
@@ -187,7 +147,7 @@ const menuItems = [
     to: "/supervisor",
     label: "Branches",
     separator: true,
-    toolbarDisplay: "🏭 Branches",
+    toolbarDisplay: "🏪 Branches",
   },
   {
     name: "reports",
@@ -222,21 +182,58 @@ const menuItems = [
     toolbarDisplay: "♻️ Repurposing",
   },
 ];
-onMounted(() => {
-  const storedActiveMenuItem = localStorage.getItem("activeMenuItem");
-  if (storedActiveMenuItem) {
-    activeMenuItem.value = storedActiveMenuItem;
-  }
-});
 
-// Function to update activeMenuItem and store it in localStorage
-const setActiveMenuItem = (itemName) => {
-  activeMenuItem.value = itemName;
-  localStorage.setItem("activeMenuItem", itemName);
+const formatFullname = (row) => {
+  const capitalize = (str) =>
+    str
+      ? str
+          .split(" ")
+          .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(" ")
+      : "";
+
+  const firstname = row.firstname ? capitalize(row.firstname) : "No Firstname";
+  const middlename = row.middlename
+    ? capitalize(row.middlename).charAt(0) + "."
+    : "";
+  const lastname = row.lastname ? capitalize(row.lastname) : "No Lastname";
+
+  return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
+const signOut = () => {
+  loading.value = true;
+  setTimeout(() => {
+    LocalStorage.removeItem("token");
+    LocalStorage.removeItem("role");
+    LocalStorage.removeItem("activeMenuItem");
+    loading.value = false;
+    router.push("/");
+  }, 1000);
+};
+
+// Automatically sync sidebar highlight with current URL
+watch(
+  () => route.path,
+  (newPath) => {
+    const activeItem = menuItems.find((item) => {
+      if (item.to === "/supervisor") return newPath === item.to;
+      return item.to && newPath.startsWith(item.to);
+    });
+    if (activeItem) {
+      activeMenuItem.value = activeItem.name;
+      localStorage.setItem("activeMenuItem", activeItem.name);
+    }
+  },
+  { immediate: true }
+);
+
 const getActiveMenuItemLabel = computed(() => {
-  const activeItem = menuItems.find((item) => item.me === activeMenuItem.value);
+  const activeItem = menuItems.find(
+    (item) => item.name === activeMenuItem.value
+  );
   return activeItem?.toolbarDisplay || "Menu";
 });
 </script>

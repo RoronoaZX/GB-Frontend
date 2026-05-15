@@ -7,10 +7,15 @@ export const useHistoryLogsStore = defineStore("history-log", () => {
   const historyLogs = ref([]);
   const pagination = ref({ page: 1, rowsPerPage: 15, rowsNumber: 0 });
 
-  const fetchHistoryLogs = async (page = 1, perPage = 15, search = '') => {
+  const fetchHistoryLogs = async (page = 1, perPage = 15, search = '', filters = {}) => {
     try {
       const response = await api.get("/api/history-logs", {
-        params: { page, per_page: perPage, search }
+        params: { 
+          page, 
+          per_page: perPage, 
+          search,
+          ...filters
+        }
       });
 
       if (response.data.data) {

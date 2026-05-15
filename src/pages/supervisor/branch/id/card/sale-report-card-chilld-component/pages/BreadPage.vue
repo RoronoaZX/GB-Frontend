@@ -191,77 +191,93 @@
                       <div class="text-weight-bold text-brown-9">
                         {{ capitalizeFirstLetter(item.bread.name) }}
                       </div>
-                      <q-btn
-                        flat
-                        round
-                        icon="edit"
-                        color="brown-7"
-                        size="sm"
-                        @click="storeOriginal(item)"
-                      >
-                        <q-popup-proxy
-                          v-model="item.editPopup"
-                          cover
-                          transition-show="scale"
-                          transition-hide="scale"
+                      <div class="row items-center q-gutter-x-xs">
+                        <!-- Manual Repurpose Button -->
+                        <q-btn
+                          v-if="item.bread_out > 0"
+                          flat
+                          round
+                          icon="recycling"
+                          color="orange-8"
+                          size="sm"
+                          @click="handleManualRepurpose(item)"
                         >
-                          <q-card class="edit-popup">
-                            <q-card-section
-                              class="bg-brown-7 text-white q-py-sm"
-                            >
-                              <div class="text-caption text-weight-bold">
-                                Edit
-                                {{
-                                  capitalizeFirstLetter(
-                                    item.bread.name || "Unknown"
-                                  )
-                                }}
-                              </div>
-                            </q-card-section>
-
-                            <q-card-section class="q-gutter-md q-pa-md">
-                              <q-input
-                                v-model.number="item.beginnings"
-                                label="Beginnings"
-                                dense
-                                type="number"
-                                outlined
-                              />
-
-                              <q-input
-                                v-model.number="item.new_production"
-                                label="New Production"
-                                dense
-                                type="number"
-                                outlined
-                              />
-                              <q-input
-                                v-model.number="item.remaining"
-                                label="Remaining"
-                                dense
-                                type="number"
-                                outlined
-                              />
-                              <q-input
-                                v-model.number="item.bread_out"
-                                label="Out"
-                                dense
-                                type="number"
-                                outlined
-                              />
-                            </q-card-section>
-
-                            <q-card-actions align="right" class="q-pa-sm">
-                              <q-btn
-                                flat
-                                label="Done"
-                                color="brown-7"
-                                @click="saveBreadEdit(item)"
-                              />
-                            </q-card-actions>
-                          </q-card>
-                        </q-popup-proxy>
-                      </q-btn>
+                          <q-tooltip>Manually trigger repurposing for this item</q-tooltip>
+                        </q-btn>
+                        
+                        <q-btn
+                          flat
+                          round
+                          icon="edit"
+                          color="brown-7"
+                          size="sm"
+                          @click="storeOriginal(item)"
+                        >
+                          <q-popup-proxy
+                            v-model="item.editPopup"
+                            cover
+                            transition-show="scale"
+                            transition-hide="scale"
+                          >
+                            <q-card class="edit-popup">
+                              <q-card-section
+                                class="bg-brown-7 text-white q-py-sm"
+                              >
+                                <div class="text-caption text-weight-bold">
+                                  Edit
+                                  {{
+                                    capitalizeFirstLetter(
+                                      item.bread.name || "Unknown"
+                                    )
+                                  }}
+                                </div>
+                              </q-card-section>
+  
+                              <q-card-section class="q-gutter-md q-pa-md">
+                                <q-input
+                                  v-model.number="item.beginnings"
+                                  label="Beginnings"
+                                  dense
+                                  type="number"
+                                  outlined
+                                />
+  
+                                <q-input
+                                  v-model.number="item.new_production"
+                                  label="New Production"
+                                  dense
+                                  type="number"
+                                  outlined
+                                />
+                                <q-input
+                                  v-model.number="item.remaining"
+                                  label="Remaining"
+                                  dense
+                                  type="number"
+                                  outlined
+                                />
+                                <q-input
+                                  v-model.number="item.bread_out"
+                                  label="Out"
+                                  dense
+                                  type="number"
+                                  outlined
+                                  :disable="isAlreadyClaimed(item)"
+                                />
+                              </q-card-section>
+  
+                              <q-card-actions align="right" class="q-pa-sm">
+                                <q-btn
+                                  flat
+                                  label="Done"
+                                  color="brown-7"
+                                  @click="saveBreadEdit(item)"
+                                />
+                              </q-card-actions>
+                            </q-card>
+                          </q-popup-proxy>
+                        </q-btn>
+                      </div>
                     </div>
 
                     <!-- Price and Status -->
@@ -275,6 +291,19 @@
                         rounded
                       >
                         {{ item.status || "N/A" }}
+                      </q-badge>
+                      <q-badge
+                        v-if="isAlreadyClaimed(item)"
+                        :color="item.bread_out_relation?.status === 'processed' ? 'blue-1' : 'orange-1'"
+                        :text-color="item.bread_out_relation?.status === 'processed' ? 'blue-10' : 'orange-10'"
+                        rounded
+                      >
+                        <q-icon
+                          :name="item.bread_out_relation?.status === 'processed' ? 'check_circle' : 'pending'"
+                          size="12px"
+                          class="q-mr-xs"
+                        />
+                        {{ item.bread_out_relation?.status.toUpperCase() }}
                       </q-badge>
                     </div>
 
@@ -360,19 +389,22 @@
 
 <script setup>
 // import AddingBreadReport from "./AddingBreadReport.vue";
-import { Notify, useDialogPluginComponent } from "quasar";
+import { Notify, useDialogPluginComponent, useQuasar } from "quasar";
 import { computed, ref } from "vue";
 import { useUsersStore } from "src/stores/user";
 import { useRoute } from "vue-router";
 import { useProductionStore } from "src/stores/production";
+import { useBreadOutStore } from "src/stores/bread-out";
 import { typographyFormat } from "src/composables/typography/typography-format";
 
 const { capitalizeFirstLetter, formatPrice, formatDate, formatFullname } =
   typographyFormat();
 const { dialogRef, onDialogHide, onDialogCancel } = useDialogPluginComponent();
 const productionStore = useProductionStore();
+const breadOutStore = useBreadOutStore();
 const userStore = useUsersStore();
 const route = useRoute();
+const $q = useQuasar();
 
 const props = defineProps([
   "reports",
@@ -409,7 +441,7 @@ const saveBreadEdit = async (item) => {
 
   for (const field of fields) {
     if (item[field] !== item.original[field]) {
-      await handleGlobalUpdate(item, field, item[field]);
+      await handleGlobalUpdate(item, field, item[field], item.original[field]);
     }
   }
 
@@ -467,7 +499,7 @@ const overallTotal = computed(() => {
   }, 0);
 });
 
-const handleGlobalUpdate = async (row, field, newVal) => {
+const handleGlobalUpdate = async (row, field, newVal, oldVal = null) => {
   if (!userId.value) return;
 
   if (newVal < 0) {
@@ -484,7 +516,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   const meta = {
     report_id: row.id,
     name: row?.bread?.name || "Unknown",
-    original_data: row[field],
+    original_data: oldVal !== null ? oldVal : row[field],
     updated_data: newVal,
     updated_field: field,
     designation: branchId,
@@ -503,15 +535,6 @@ const handleGlobalUpdate = async (row, field, newVal) => {
       "bread",
       field
     );
-
-    // Notify.create({
-    //   message: `Updated successfully`,
-    //   color: "positive",
-    //   icon: "check_circle",
-    //   position: "top",
-    //   timeout: 1000,
-    // });
-    // dialog.value = false;
   } catch (e) {
     Notify.create({
       message: "Failed to update",
@@ -520,6 +543,59 @@ const handleGlobalUpdate = async (row, field, newVal) => {
       position: "top",
     });
   }
+};
+
+const isAlreadyClaimed = (item) => {
+  // Check if the item has a linked bread_out record and its status
+  return item.bread_out_relation?.status === 'pending' || item.bread_out_relation?.status === 'processed';
+};
+
+const handleManualRepurpose = (item) => {
+  $q.dialog({
+    title: "Manual Repurposing",
+    message: `Enter the quantity of ${capitalizeFirstLetter(item.bread.name)} to repurpose:`,
+    prompt: {
+      model: item.bread_out || 0,
+      type: 'number',
+      isValid: val => val >= 0 // Allow 0 if they want to clear it? But Rule 11 says only bread out.
+    },
+    cancel: true,
+    persistent: true,
+  }).onOk(async (quantity) => {
+    if (quantity === 0) {
+       Notify.create({
+        message: "Quantity must be greater than 0 to repurpose.",
+        color: "warning",
+        position: "top"
+      });
+      return;
+    }
+
+    try {
+      // Rule 10 & 19: Update the bread_out quantity in the report.
+      // This will also trigger the backend to create/update the BreadOut record.
+      await handleGlobalUpdate(item, 'bread_out', quantity);
+      
+      // Update local state to show it's claimed (if the update was successful)
+      item.bread_out = quantity;
+      
+      // Initialize or update the relationship object to trigger reactivity
+      if (!item.bread_out_relation) {
+        item.bread_out_relation = { status: 'pending' };
+      } else {
+        item.bread_out_relation.status = 'pending';
+      }
+
+      Notify.create({
+        message: "Repurposing task created/updated successfully.",
+        color: "positive",
+        icon: "recycling",
+        position: "top",
+      });
+    } catch (error) {
+      console.error("Manual Repurpose Error:", error);
+    }
+  });
 };
 </script>
 

@@ -130,15 +130,17 @@
           <!-- Top Row -->
           <div class="top-row">
             <div class="product-info">
-              <div class="icon-wrapper" :class="getProcedureColor(item.action)">
+              <div class="icon-wrapper" :class="getActionClass(item.action)">
                 <q-icon
                   :name="
                     item.action?.toLowerCase() === 'send'
                       ? 'arrow_upward'
+                      : item.action?.toLowerCase() === 'pull out'
+                      ? 'recycling'
                       : 'arrow_downward'
                   "
                   size="20px"
-                  color="grey"
+                  color="white"
                 />
               </div>
               <div class="product-details">
@@ -160,11 +162,15 @@
           </div>
 
           <!-- Staff Info -->
-          <div class="staff-info">
+          <div class="staff-info" v-if="item.employee">
             <q-avatar size="24px" icon="person" class="staff-avatar">
-              <!-- <img :src="getStaffAvatar(item.employee)" /> -->
             </q-avatar>
             <span class="staff-name">{{ formatFullname(item.employee) }}</span>
+          </div>
+          <div class="staff-info" v-else>
+            <q-avatar size="24px" icon="store" class="staff-avatar">
+            </q-avatar>
+            <span class="staff-name">Branch Staff</span>
           </div>
 
           <!-- Movement Visualization -->
@@ -485,7 +491,10 @@ const getStatusColor = (status) => {
 
 const getProcedureColor = (value) => {
   if (!value) return "grey";
-  return value.toLowerCase() === "send" ? "blue" : "green";
+  const v = value.toLowerCase();
+  if (v === "send") return "blue";
+  if (v === "pull out") return "orange";
+  return "green";
 };
 
 const viewDetails = (row) => {
@@ -519,7 +528,10 @@ const getActionIcon = (action) => {
 
 const getActionClass = (action) => {
   if (!action) return "grey";
-  return action.toLowerCase() === "send" ? "send-action" : "receive-action";
+  const a = action.toLowerCase();
+  if (a === "send") return "send-action";
+  if (a === "pull out") return "pull-out-action";
+  return "receive-action";
 };
 
 const getStatusClass = (status) => {
@@ -822,6 +834,10 @@ const getStatusClass = (status) => {
 
     &.receive-action {
       background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    &.pull-out-action {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
     }
   }
 

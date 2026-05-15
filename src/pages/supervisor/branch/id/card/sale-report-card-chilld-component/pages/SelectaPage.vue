@@ -416,7 +416,7 @@ const saveSelectaEdit = async (item) => {
 
   for (const field of fields) {
     if (item[field] !== item.original[field]) {
-      await handleGlobalUpdate(item, field, item[field]);
+      await handleGlobalUpdate(item, field, item[field], item.original[field]);
     }
   }
 
@@ -479,7 +479,7 @@ const overallTotal = computed(() => {
 });
 
 // Methods
-const handleGlobalUpdate = async (row, field, newVal) => {
+const handleGlobalUpdate = async (row, field, newVal, oldVal = null) => {
   if (!userId.value) return;
 
   if (newVal < 0) {
@@ -496,7 +496,8 @@ const handleGlobalUpdate = async (row, field, newVal) => {
   const meta = {
     report_id: row.id,
     name: row?.selecta?.name || "Unkown",
-    original_data: row[field],
+    original_data: oldVal !== null ? oldVal : row[field],
+    updated_data: newVal,
     updated_field: field,
     designation: branchId,
     designation_type: "branch",
