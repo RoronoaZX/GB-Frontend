@@ -87,11 +87,11 @@ import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
 
-const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); // super admin
+// const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); // super admin
 // const uuid = ref(
 //  "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
 // ); //laptop / warehouse
-
+const uuid = ref("b76baeef9c2aef9a"); // Endrina Branch ID 6
 // const uuid = ref("e31eaea24d126881"); // Warehouse Endrina
 
 // const uuid = ref("victorias1"); // victorias
