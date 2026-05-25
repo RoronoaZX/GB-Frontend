@@ -238,15 +238,15 @@ const autoFillWarehouse = (warehouse) => {
 };
 
 const createDevice = async () => {
-  console.log("deviceForm", deviceForm);
+  /* console.log("deviceForm", deviceForm); */
   try {
     loading.value = true;
     const response = await deviceStore.createDevices(deviceForm);
-    console.log("reponse", response);
+    /* console.log("reponse", response); */
     addDeviceDialog.value = false;
     // resetDeviceForm();
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }

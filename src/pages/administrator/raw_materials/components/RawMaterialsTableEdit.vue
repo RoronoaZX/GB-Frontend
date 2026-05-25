@@ -164,7 +164,7 @@ const editRawMaterialsForm = reactive({
 const openEditForm = () => {
   const editRawMaterials = Object.assign(editRawMaterialsForm, props.edit.row);
   editRawMaterialsDialog.value = true;
-  console.log("editRawMaterials", editRawMaterials);
+  /* console.log("editRawMaterials", editRawMaterials); */
 };
 
 const saveEditedIngredient = async () => {

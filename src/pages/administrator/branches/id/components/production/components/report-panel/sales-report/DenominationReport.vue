@@ -32,7 +32,7 @@ import DenominationDialogReport from "./DenominationDialogReport.vue";
 
 const props = defineProps(["sales_Reports"]);
 const productsReport = props.sales_Reports;
-console.log("Denomination report", props);
+/* console.log("Denomination report", props); */
 const $q = useQuasar();
 
 const handleDenominationDialog = (dataReports, total) => {

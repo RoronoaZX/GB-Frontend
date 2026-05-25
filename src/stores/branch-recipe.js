@@ -14,22 +14,22 @@ export const useBranchRecipeStore = defineStore("branchRecipe", () => {
   };
 
   const fetchBranchRawMaterials = async (category, branchId) => {
-    console.log("fetchBranchRawMaterials", category, branchId);
+    /* console.log("fetchBranchRawMaterials", category, branchId); */
     try {
       const response = await api.get(`/api/branch/${branchId}/ingredients`, {
         params: {
           category: category,
         },
       });
-      console.log("ingredients", response.data);
+      /* console.log("ingredients", response.data); */
       ingredients.value = response.data;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
   const saveBranchRecipe = async (data) => {
-    console.log("saveBranchRecipeStore", data);
+    /* console.log("saveBranchRecipeStore", data); */
     Loading.show();
     try {
       const response = await api.post("/api/branch-recipe", data);
@@ -39,7 +39,7 @@ export const useBranchRecipeStore = defineStore("branchRecipe", () => {
           (item) => item.id === data.recipe_id
         );
         branchRecipes.value = response.data;
-        console.log("branchRecipes", response.data);
+        /* console.log("branchRecipes", response.data); */
         Notify.create({
           type: "positive",
           message: "Branch product saved successfully",
@@ -57,7 +57,7 @@ export const useBranchRecipeStore = defineStore("branchRecipe", () => {
 
       fetchBranchRecipes();
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     } finally {
       Loading.hide();
     }
@@ -90,8 +90,8 @@ export const useBranchRecipeStore = defineStore("branchRecipe", () => {
   };
 
   const searchBranchRecipe = async (searchQuery, branchId) => {
-    console.log("searchBranchRecipe", searchQuery);
-    console.log("searchBranchRecipe", branchId);
+    /* console.log("searchBranchRecipe", searchQuery); */
+    /* console.log("searchBranchRecipe", branchId); */
 
     const response = await api.get(`/api/branch-recipe-search`, {
       params: {
@@ -100,7 +100,7 @@ export const useBranchRecipeStore = defineStore("branchRecipe", () => {
       },
     });
     branchRecipe.value = response.data;
-    console.log("branch recipe", response.data);
+    /* console.log("branch recipe", response.data); */
   };
 
   return {

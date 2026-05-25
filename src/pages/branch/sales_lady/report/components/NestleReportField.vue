@@ -120,7 +120,7 @@ const salesReportsStore = useSalesReportsStore();
 
 const nestleReports = computed(() => salesReportsStore.nestleReports);
 
-console.log("nestlessssReports", nestleReports.value);
+/* console.log("nestlessssReports", nestleReports.value); */
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

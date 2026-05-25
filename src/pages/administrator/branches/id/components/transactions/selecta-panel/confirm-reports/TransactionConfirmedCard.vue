@@ -114,21 +114,21 @@ const fetchConfirmedSelectaStocks = async (
       page,
       rowsPerPage
     );
-    console.log(
+    /* console.log(
       "selectaProductsConfirmed.value",
       selectaProductsConfirmed.value
-    );
+    ); */
     const { data, current_page, per_page, total } =
       selectaProductsConfirmed.value;
 
     selectaData.value = data;
-    console.log("selectaData.value", selectaData.value);
+    /* console.log("selectaData.value", selectaData.value); */
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
+    /* console.log("pagination.value.page", pagination.value.page); */
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.per_page", pagination.value.rowsPerPage);
+    /* console.log("pagination.value.per_page", pagination.value.rowsPerPage); */
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.total", pagination.value.rowsNumber);
+    /* console.log("pagination.value.total", pagination.value.rowsNumber); */
   } catch (error) {
     console.error("Error fetching confirmed stocks:", error);
   } finally {

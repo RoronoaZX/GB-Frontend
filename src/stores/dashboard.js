@@ -587,7 +587,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
       const data = res.data?.data || [];
       const pagination = res.data?.pagination || {};
 
-      console.log("--- RM TRANSACTIONS LIST (API PAGINATED) ---", {
+      /* console.log("--- RM TRANSACTIONS LIST (API PAGINATED) ---", {
         processedList: data.flatMap((delivery) =>
           (delivery.items || []).map((item) => ({
             id: `${delivery.id}-${item.id}`,
@@ -605,7 +605,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
           perPage: pagination.per_page,
         },
         rawApiResponse: res.data,
-      });
+      }); */
 
       rmTransactions.value = data.flatMap((delivery) =>
         (delivery.items || []).map((item) => ({

@@ -349,7 +349,7 @@ const dialog = ref(false);
 const maximizedToggle = ref(true);
 const props = defineProps(["negativeProducts"]);
 
-console.log("negativeProducts", props.negativeProducts);
+/* console.log("negativeProducts", props.negativeProducts); */
 
 const filter = ref("");
 
@@ -411,7 +411,7 @@ const filteredTotals = computed(() => {
     "Other Products": 0,
   };
 
-  console.log("totals", totals);
+  /* console.log("totals", totals); */
 
   filteredProducts.value.forEach((product) => {
     const type = product.type;
@@ -423,7 +423,7 @@ const filteredTotals = computed(() => {
 });
 
 const getBadgeColor = (type) => {
-  console.log("adsfasdfa", type);
+  /* console.log("adsfasdfa", type); */
   switch (type?.toLowerCase()) {
     case "bread":
       return "brown";

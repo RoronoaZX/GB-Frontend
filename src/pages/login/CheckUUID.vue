@@ -17,7 +17,7 @@ const checkDevice = async () => {
   try {
     const info = await Device.getId();
     uuid.value = info; // Store the UUID in the reactive variable
-    console.log("Device UUID:", uuid.value); // Log the UUID
+    /* console.log("Device UUID:", uuid.value); */ // Log the UUID
   } catch (error) {
     console.error("Error fetching device UUID:", error);
   }

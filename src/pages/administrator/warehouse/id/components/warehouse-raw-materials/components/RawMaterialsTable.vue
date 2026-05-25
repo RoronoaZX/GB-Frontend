@@ -200,7 +200,7 @@ const filteredRows = computed(() => {
 });
 
 onMounted(async () => {
-  console.log("props.warehouseId in onMounted:", warehouseId);
+  /* console.log("props.warehouseId in onMounted:", warehouseId); */
   if (warehouseId) {
     await reloadTableData(warehouseId);
     await dashboardStore.fetchPredictiveStocking({ warehouse_id: warehouseId });
@@ -216,9 +216,9 @@ const reloadTableData = async (warehouseId) => {
     if (!warehouseRawMaterialsRows.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Warehouse Raw Materials", warehouseRawMaterialsRows.value);
+    /* console.log("Warehouse Raw Materials", warehouseRawMaterialsRows.value); */
   } catch (error) {
-    console.log("Error fetching branch product:", error);
+    /* console.log("Error fetching branch product:", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;

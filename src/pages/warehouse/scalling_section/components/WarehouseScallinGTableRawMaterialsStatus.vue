@@ -96,7 +96,7 @@ const open_branch_status_dialog = () => {
 };
 
 const updateSearch = (searchTerm) => {
-  console.log("Received search term in parent:", searchTerm); // Log the received value
+  /* console.log("Received search term in parent:", searchTerm); */ // Log the received value
   searchEngine.value = searchTerm.toLowerCase();
 };
 

@@ -13,21 +13,21 @@ export const useBranchesStore = defineStore("branches", () => {
   const employees = computed(() => employeeStore.employees);
   const warehousesStore = useWarehousesStore();
   const warehouses = computed(() => warehousesStore.warehouses);
-  console.log("warehouses", warehouses.value);
+  /* console.log("warehouses", warehouses.value); */
 
   const search = async (keyword) => {
     try {
-      console.log("Searching for branch with keyword:", keyword);
+      /* console.log("Searching for branch with keyword:", keyword); */
 
       const response = await api.post(`/api/search-branch?keyword=${keyword}`);
 
-      console.log("Search branch:", response);
+      /* console.log("Search branch:", response); */
 
       if (response && response.data && response.data.length > 0) {
-        console.log("Search Results:", response.data);
+        /* console.log("Search Results:", response.data); */
         branch.value = response.data;
       } else {
-        console.log("No employees found or empty response");
+        /* console.log("No employees found or empty response"); */
         branch.value = [];
       }
     } catch (error) {
@@ -38,7 +38,7 @@ export const useBranchesStore = defineStore("branches", () => {
   const fetchBranches = async () => {
     const response = await api.get("/api/branches");
     branches.value = response.data;
-    console.log("response", response.data);
+    /* console.log("response", response.data); */
 
     // branches.value = response.data.map((branch) => {
     //   const data = { ...branch };
@@ -70,11 +70,11 @@ export const useBranchesStore = defineStore("branches", () => {
   };
 
   const createBranches = async (data) => {
-    console.log("Data parameters being sent:", data);
+    /* console.log("Data parameters being sent:", data); */
     // Loading.show();
     try {
       const response = await api.post("/api/branches", data);
-      console.log("create branchssss", response);
+      /* console.log("create branchssss", response); */
       fetchBranches();
       Notify.create({
         type: "positive",
@@ -82,7 +82,7 @@ export const useBranchesStore = defineStore("branches", () => {
         setTimeout: 1000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       if (error.response.data.message === "The name has already been taken.") {
         Notify.create({
           type: "warning",
@@ -108,7 +108,7 @@ export const useBranchesStore = defineStore("branches", () => {
       Loading.show();
       const response = await api.put(`/api/branches/${id}`, data);
 
-      console.log("response edit", response.data);
+      /* console.log("response edit", response.data); */
       const updatedBranch = response.data;
 
       // Find and update the branch in the local branches array
@@ -125,7 +125,7 @@ export const useBranchesStore = defineStore("branches", () => {
         message: "Branch updated successfully",
       });
     } catch (error) {
-      console.log("updateBranches", error);
+      /* console.log("updateBranches", error); */
       if (
         error.response?.data?.message === "The name has already been taken."
       ) {

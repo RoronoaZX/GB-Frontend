@@ -119,20 +119,20 @@ const fetchRecipeCosts = async (page = 1, rowsPerPage = 5, search = "") => {
       search
     );
 
-    console.log("recipeCosts response", response);
+    /* console.log("recipeCosts response", response); */
 
     const { data, current_page, per_page, total } = response;
     recipeCostData.value = data;
-    console.log("recipeCostData.value", recipeCostData.value);
+    /* console.log("recipeCostData.value", recipeCostData.value); */
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
+    /* console.log("pagination.value.page", pagination.value.page); */
     pagination.value.rowsPerPage =
       per_page === 0 ? pagination.value.rowsNumber : per_page;
-    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    /* console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage); */
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
+    /* console.log("pagination.value.rowsNumber", pagination.value.rowsNumber); */
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
 
     Notify.create({
       message: "Error fetching recipe costs",
@@ -147,7 +147,7 @@ const fetchRecipeCosts = async (page = 1, rowsPerPage = 5, search = "") => {
 onMounted(fetchRecipeCosts);
 
 const openRecipeIngredients = (row) => {
-  console.log("Editing row:", row);
+  /* console.log("Editing row:", row); */
 
   $q.dialog({
     component: RecipeIngredientsView,
@@ -158,7 +158,7 @@ const openRecipeIngredients = (row) => {
 };
 
 const onPageRequest = (props) => {
-  console.log("props", props);
+  /* console.log("props", props); */
   fetchRecipeCosts(
     props.pagination.page,
     props.pagination.rowsPerPage,

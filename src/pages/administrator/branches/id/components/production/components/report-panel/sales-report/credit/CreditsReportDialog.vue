@@ -123,10 +123,10 @@ const props = defineProps({
   },
 });
 
-console.log("Credit Reports:", props.reports);
-console.log("User Data:", props.user);
-console.log("Sales Report ID:", props.salesReportId);
-console.log("User ID:", props.userId);
+/* console.log("Credit Reports:", props.reports); */
+/* console.log("User Data:", props.user); */
+/* console.log("Sales Report ID:", props.salesReportId); */
+/* console.log("User ID:", props.userId); */
 const filter = ref("");
 const pagination = ref({
   rowsPerPage: 0,

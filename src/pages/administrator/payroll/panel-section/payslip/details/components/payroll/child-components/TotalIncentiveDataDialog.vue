@@ -170,12 +170,12 @@ const props = defineProps({
     required: true,
   },
 });
-console.log("incentiveDatas", props.incentiveDatas);
+/* console.log("incentiveDatas", props.incentiveDatas); */
 
 // ✅ Define the emitter
 const emit = defineEmits(["update:totalIncentive", "update:incentiveData"]);
 
-console.log("incentiveDatas in the dialog", props.incentiveDatas);
+/* console.log("incentiveDatas in the dialog", props.incentiveDatas); */
 
 const formatDateString = (dateStr) => {
   if (!dateStr) return "";
@@ -230,7 +230,7 @@ const props = defineProps({
     required: true,
   },
 });
-console.log("incentiveDatas in the dailog", props.incentiveDatas);
+/* console.log("incentiveDatas in the dailog", props.incentiveDatas); */
 
 const formatDateString = (dateStr) => {
   if (!dateStr) return "";

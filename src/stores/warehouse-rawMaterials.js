@@ -24,7 +24,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
     const rawMaterialsData = computed(() => rawMaterialsStore.rawMaterials);
 
     const setReport = (report) => {
-      console.log("report", report);
+      /* console.log("report", report); */
       warehouseRawMaterialsReport.value.push(report);
       branchRecipe.value = [];
     };
@@ -34,16 +34,16 @@ export const useWarehouseRawMaterialsStore = defineStore(
     };
 
     const fetchWarehouseRawMaterials = async (warehouseId) => {
-      console.log("warehouseId", warehouseId);
+      /* console.log("warehouseId", warehouseId); */
       try {
         const response = await api.get(
           `/api/warehouse/${warehouseId}/rawMaterials`
         );
 
-        console.log("responsesss", response.data);
+        /* console.log("responsesss", response.data); */
         warehouseRawMaterials.value = response.data;
       } catch (error) {
-        console.log("error", error);
+        /* console.log("error", error); */
       }
     };
 
@@ -52,7 +52,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
       page,
       rowsPerPage
     ) => {
-      console.log("warehouse id", warehouseId);
+      /* console.log("warehouse id", warehouseId); */
       try {
         const response = await api.get(
           `/api/warehouse/${warehouseId}/added-stocks-history`,
@@ -63,7 +63,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
             },
           }
         );
-        console.log("historyRawMaterials.value", response.data);
+        /* console.log("historyRawMaterials.value", response.data); */
         historyRawMaterials.value = response.data;
       } catch (error) {
         console.error(error);
@@ -73,21 +73,21 @@ export const useWarehouseRawMaterialsStore = defineStore(
     const fetchBranchUnderWarehouse = async (warehouseId) => {
       try {
         const response = await api.get(`/api/warehouse/${warehouseId}/branch`);
-        console.log("responsesss", response.data);
+        /* console.log("responsesss", response.data); */
         branch.value = response.data;
       } catch (error) {
-        console.log("error", error);
+        /* console.log("error", error); */
       }
     };
 
     const fetchBranchRawMaterials = async (branchId) => {
-      console.log("branchIdss", branchId);
+      /* console.log("branchIdss", branchId); */
       try {
         const response = await api.get(`/api/branch/${branchId}/rawMaterials`);
-        console.log("responsesss", response.data);
+        /* console.log("responsesss", response.data); */
         branchRawMaterials.value = response.data;
       } catch (error) {
-        console.log("error", error);
+        /* console.log("error", error); */
       }
     };
 
@@ -108,19 +108,19 @@ export const useWarehouseRawMaterialsStore = defineStore(
         },
       });
       branchRecipe.value = response.data;
-      console.log("branch recipe", response.data);
+      /* console.log("branch recipe", response.data); */
     };
 
     const createWarehouseRawMaterials = async (data) => {
       Loading.show();
-      console.log("datassss", data);
+      /* console.log("datassss", data); */
       try {
         const response = await api.post(
           `/api/warehouse-raw-materials-report`,
           data
         );
 
-        console.log("responsedfasdfasd", response.data);
+        /* console.log("responsedfasdfasd", response.data); */
 
         // warehouseRawMaterials.value = response.data;
         if (
@@ -138,7 +138,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
             total_quantity: data.total_quantity,
           };
 
-          console.log("newRawMaterials", newRawMaterials);
+          /* console.log("newRawMaterials", newRawMaterials); */
 
           warehouseRawMaterials.value.unshift(newRawMaterials);
           Notify.create({
@@ -157,7 +157,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
           });
         }
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
         Notify.create({
           type: "negative",
           message: "An error occurred while saving the branch product.",
@@ -176,7 +176,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
             materials,
           }
         );
-        console.log("warehouse raw materials", response.data);
+        /* console.log("warehouse raw materials", response.data); */
         response.data.data.forEach((item) => {
           const exists = warehouseRawMaterials.value.find(
             (mat) => mat.id === item.id
@@ -186,7 +186,7 @@ export const useWarehouseRawMaterialsStore = defineStore(
           }
         });
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     };
 
@@ -248,15 +248,15 @@ export const useWarehouseRawMaterialsStore = defineStore(
 
     const saveWarehouseRawMaterialsReport = async () => {
       try {
-        console.log(
+        /* console.log(
           "warehouseRawMaterialsReport",
           warehouseRawMaterialsReport.value
-        );
+        ); */
 
         const response = await api.post(`/api/warehouse-rawMaterials-report`, {
           reports: warehouseRawMaterialsReport.value,
         });
-        console.log("Report saved successfully:", response.data);
+        /* console.log("Report saved successfully:", response.data); */
       } catch (error) {
         if (error.response && error.response.data) {
           console.error("Error response:", error.response.data);
@@ -268,14 +268,14 @@ export const useWarehouseRawMaterialsStore = defineStore(
     };
 
     const warehouseAddSupply = async (data) => {
-      console.log("data, ", data);
+      /* console.log("data, ", data); */
       try {
         const response = await api.post(
           `/api/warehouseRawMaterials-add-supply`,
           data
         );
         warehouseRawMaterials.value = response.data;
-        console.log("warehouseRawMaterials save", warehouseRawMaterials);
+        /* console.log("warehouseRawMaterials save", warehouseRawMaterials); */
       } catch (error) {
         console.error(error);
       }

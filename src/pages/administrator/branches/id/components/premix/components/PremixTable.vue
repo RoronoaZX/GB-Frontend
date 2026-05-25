@@ -144,12 +144,12 @@ const { getPremixBadgeActiveInactiveStatusColor } = badgeColor();
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
-console.log("producttable user data", userData.value);
+/* console.log("producttable user data", userData.value); */
 const userId = userData.value?.data?.id || "0";
-console.log("user_id branch product table", userId);
+/* console.log("user_id branch product table", userId); */
 const premixStore = usePremixStore();
 const premixRows = computed(() => premixStore.premixes);
-console.log("premixRows", premixRows.value);
+/* console.log("premixRows", premixRows.value); */
 const route = useRoute();
 const branchId = route.params.branch_id;
 const loading = ref(false);
@@ -181,16 +181,16 @@ const reloadTableData = async (branchId) => {
     loading.value = true;
     const response = await premixStore.fetchBranchPremix(branchId);
     premixRows.value = response;
-    console.log("premix branch fetch data", premixRows.value);
+    /* console.log("premix branch fetch data", premixRows.value); */
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }
 };
 
 const updateAvailableStocks = async (data, val) => {
-  console.log("branch recipe taable", data);
+  /* console.log("branch recipe taable", data); */
   const formatNumber = (num) => {
     const parsed = parseFloat(num);
     // If it's a whole number, return as string without decimals

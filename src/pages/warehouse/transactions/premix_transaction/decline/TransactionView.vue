@@ -137,11 +137,11 @@ const props = defineProps({
   },
 });
 
-console.log("report to decline", props.report);
+/* console.log("report to decline", props.report); */
 
 const ingrdientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
-console.log("ingrdientsData", ingrdientsData);
+/* console.log("ingrdientsData", ingrdientsData); */
 </script>
 
 <style lang="scss" scoped>

@@ -181,8 +181,8 @@ import { ref, watch, computed, onMounted } from "vue";
 import { date } from "quasar";
 
 const props = defineProps(["dtrRows", "employeeData", "dtrHolidays"]);
-console.log("dtrHolidays", props.dtrHolidays);
-console.log("dtrRows", props.dtrRows);
+/* console.log("dtrHolidays", props.dtrHolidays); */
+/* console.log("dtrRows", props.dtrRows); */
 
 const internalEmployeeData = ref(props.employeeData);
 

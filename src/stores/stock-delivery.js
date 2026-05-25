@@ -55,10 +55,10 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       });
       deliveryStocks.data = response.data;
       deliveryStocks.pagination = response.data.pagination;
-      console.log("response", response.data);
-      console.log("  deliveryStocks.data", deliveryStocks.data);
+      /* console.log("response", response.data); */
+      /* console.log("  deliveryStocks.data", deliveryStocks.data); */
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
@@ -68,7 +68,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     per_page = 5,
     search = ""
   ) => {
-    console.log("branchId in store: ", branchId);
+    /* console.log("branchId in store: ", branchId); */
 
     try {
       const response = await api.get(
@@ -83,10 +83,10 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       );
       deliveryStocks.data = response.data;
       deliveryStocks.pagination = response.data.pagination;
-      console.log("responsesss", response.data);
-      console.log("  deliveryStocks.data", deliveryStocks.data);
+      /* console.log("responsesss", response.data); */
+      /* console.log("  deliveryStocks.data", deliveryStocks.data); */
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
@@ -95,9 +95,9 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     status,
     to_designation
   ) => {
-    console.log("warehouseIdsss", warehouseId);
-    console.log("categoryss", status);
-    console.log("to_designationss", to_designation);
+    /* console.log("warehouseIdsss", warehouseId); */
+    /* console.log("categoryss", status); */
+    /* console.log("to_designationss", to_designation); */
 
     try {
       const pending = await api.get(
@@ -109,10 +109,10 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
           },
         }
       );
-      console.log("pendingsss", pending.data);
+      /* console.log("pendingsss", pending.data); */
       pendingStocks.value = pending.data;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
@@ -124,12 +124,12 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     per_page = 3,
     search = ""
   ) => {
-    console.log("fetchConfirmedDeliveryReportswarehouseId", warehouseId);
-    console.log("fetchConfirmedDeliveryReportsstatus", status);
-    console.log("fetchConfirmedDeliveryReportsto_designation", to_designation);
-    console.log("fetchConfirmedDeliveryReportspage", page);
-    console.log("fetchConfirmedDeliveryReportsper_page", per_page);
-    console.log("fetchConfirmedDeliveryReportssearch", search);
+    /* console.log("fetchConfirmedDeliveryReportswarehouseId", warehouseId); */
+    /* console.log("fetchConfirmedDeliveryReportsstatus", status); */
+    /* console.log("fetchConfirmedDeliveryReportsto_designation", to_designation); */
+    /* console.log("fetchConfirmedDeliveryReportspage", page); */
+    /* console.log("fetchConfirmedDeliveryReportsper_page", per_page); */
+    /* console.log("fetchConfirmedDeliveryReportssearch", search); */
 
     try {
       const confirm = await api.get(
@@ -144,10 +144,10 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
           },
         }
       );
-      console.log("confirm", confirm.data);
+      /* console.log("confirm", confirm.data); */
       confirmStocks.value = confirm.data;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
@@ -159,12 +159,12 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     per_page = 3,
     search = ""
   ) => {
-    console.log("warehouseId", warehouseId);
-    console.log("category", status);
-    console.log("to_designation", to_designation);
-    console.log("page", page);
-    console.log("per_page", per_page);
-    console.log("search", search);
+    /* console.log("warehouseId", warehouseId); */
+    /* console.log("category", status); */
+    /* console.log("to_designation", to_designation); */
+    /* console.log("page", page); */
+    /* console.log("per_page", per_page); */
+    /* console.log("search", search); */
 
     try {
       const declined = await api.get(
@@ -179,15 +179,15 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
           },
         }
       );
-      console.log("declinedssss", declined.data);
+      /* console.log("declinedssss", declined.data); */
       declinedStocks.value = declined.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const confirmDeliveryStocks = async (data) => {
-    console.log("data in storesss", data);
+    /* console.log("data in storesss", data); */
 
     try {
       const response = await api.post(
@@ -195,40 +195,40 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
         data
       );
 
-      console.log("response", response);
+      /* console.log("response", response); */
       return response;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       return error.response;
     }
   };
 
   const updateDeliveryStocks = async (data) => {
-    console.log("data in store", data);
+    /* console.log("data in store", data); */
 
     try {
       const response = await api.put(`/api/editDeliveryStocks`, data);
 
-      console.log("response", response);
+      /* console.log("response", response); */
       return response;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
   const declineDeliveryStocks = async (data) => {
-    console.log("data in store", data);
+    /* console.log("data in store", data); */
     try {
       const response = await api.post(
         `/api/raw-materials-delivery-declined`,
         data
       );
 
-      console.log("responsessss", response);
+      /* console.log("responsessss", response); */
 
       return response;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
 
       Notify.create({
         type: "negative",
@@ -239,12 +239,12 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
   };
 
   const createDeliveryStock = async (stock) => {
-    console.log("stock", stock);
+    /* console.log("stock", stock); */
 
     try {
-      console.log("Full Delivery Payload:", stock);
+      /* console.log("Full Delivery Payload:", stock); */
       const response = await api.post("/api/raw-materials-delivery", stock);
-      console.log("response", response.data);
+      /* console.log("response", response.data); */
 
       Notify.create({
         type: "positive",
@@ -253,7 +253,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       });
       return response.data;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
 
       Notify.create({
         type: "negative",
@@ -266,7 +266,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
 
   const updateDeliveryDate = async (deliveryId, newDate) => {
     try {
-      console.log("Updating delivery date:", deliveryId, newDate);
+      /* console.log("Updating delivery date:", deliveryId, newDate); */
       const response = await api.put(
         `/api/update-delivery-date/${deliveryId}`,
         {
@@ -275,7 +275,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       );
       return response.data;
     } catch (error) {
-      console.log("Error updating delivery date:", error);
+      /* console.log("Error updating delivery date:", error); */
     }
   };
 

@@ -81,18 +81,18 @@ watch(filter, async (newFilter) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   loadingSearchIcon.value = false;
   showNoDataMessage.value = !loading.value && filteredRows.value.length === 0;
-  console.log("Filtered Rows:", filteredRows.value);
+  /* console.log("Filtered Rows:", filteredRows.value); */
 });
 
 onMounted(async () => {
-  console.log("props.branchId in onMounted:", branchId);
+  /* console.log("props.branchId in onMounted:", branchId); */
   if (branchId) {
     await reloadTableData(branchId);
   }
 });
 
 const reloadTableData = async (branchId) => {
-  console.log("Fetching products for branch ID:", branchId);
+  /* console.log("Fetching products for branch ID:", branchId); */
   try {
     loading.value = true;
     const response = await bakerReportStore.fetchBranchRawMaterials(branchId);
@@ -100,9 +100,9 @@ const reloadTableData = async (branchId) => {
     if (!rawMaterialsRow.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Branch Raw Materials", rawMaterialsRow.value);
+    /* console.log("Branch Raw Materials", rawMaterialsRow.value); */
   } catch (error) {
-    console.log("Error fetching branch product:", error);
+    /* console.log("Error fetching branch product:", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;
@@ -138,7 +138,7 @@ const rawMaterialsStatusColumns = [
 ];
 
 const getRawMaterialBadgeColor = (row) => {
-  console.log("check total quantity", row.total_quantity);
+  /* console.log("check total quantity", row.total_quantity); */
   const totalQuantity = row.total_quantity;
   const unit = row.ingredients.unit;
   if (unit === "Grams" && totalQuantity < 1000) {

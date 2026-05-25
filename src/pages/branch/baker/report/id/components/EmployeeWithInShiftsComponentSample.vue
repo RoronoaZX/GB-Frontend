@@ -156,7 +156,7 @@ const search = async () => {
     await employeesStore.searchEmployee(searchKeyword.value);
     searchLoading.value = false;
     showUserCard.value = true;
-    console.log("employeess", employees);
+    /* console.log("employeess", employees); */
   }
 };
 
@@ -187,9 +187,9 @@ const clearAutoFilledEmployee = () => {
 };
 
 const addToShiftList = () => {
-  console.log("Employee ID:", employeeWithInShift.employee_id);
-  console.log("Designation:", employeeWithInShift.designation);
-  console.log("Shift Status:", employeeWithInShift.shift_status);
+  /* console.log("Employee ID:", employeeWithInShift.employee_id); */
+  /* console.log("Designation:", employeeWithInShift.designation); */
+  /* console.log("Shift Status:", employeeWithInShift.shift_status); */
 
   if (
     !employeeWithInShift.employee_id ||
@@ -201,9 +201,9 @@ const addToShiftList = () => {
   } // 💡 Check if list already has data
 
   if (employeeWithInShiftList.value.length > 0) {
-    console.log("⚠️ List already has data");
+    /* console.log("⚠️ List already has data"); */
   } else {
-    console.log("✅ List is currently empty");
+    /* console.log("✅ List is currently empty"); */
   }
 
   const exist = employeeWithInShiftList.value.some(
@@ -215,7 +215,7 @@ const addToShiftList = () => {
     clearAutoFilledEmployee();
   }
 
-  console.log("📋 Updated List:", employeeWithInShiftList.value);
+  /* console.log("📋 Updated List:", employeeWithInShiftList.value); */
 };
 </script>
 

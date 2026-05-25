@@ -112,7 +112,7 @@ const { capitalizeFirstLetter } = typographyFormat();
 const bakerReportStore = useBakerReportsStore();
 const bakerReport = computed(() => bakerReportStore.reports);
 
-console.log("bakers report:", bakerReport.value);
+/* console.log("bakers report:", bakerReport.value); */
 const removeReports = (index) => {
   bakerReportStore.removeReport(index);
 };

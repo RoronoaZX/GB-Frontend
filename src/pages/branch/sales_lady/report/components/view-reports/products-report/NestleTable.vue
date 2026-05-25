@@ -116,7 +116,7 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const props = defineProps(["nestleReports"]);
 
-console.log("nestleReports Data:", props.nestleReports);
+/* console.log("nestleReports Data:", props.nestleReports); */
 
 const confirmedNestleReports = computed(() => {
   if (!Array.isArray(props.nestleReports)) return [];

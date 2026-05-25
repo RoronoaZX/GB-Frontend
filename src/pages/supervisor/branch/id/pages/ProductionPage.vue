@@ -141,12 +141,12 @@ const reloadTableData = async (
       search
     );
 
-    console.log("Fetch data: ", productions.value);
+    /* console.log("Fetch data: ", productions.value); */
 
     const { data, current_page, per_page, total } = productions.value;
 
     productionRows.value = data;
-    console.log("Production rows: ", productionRows.value);
+    /* console.log("Production rows: ", productionRows.value); */
 
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
@@ -164,7 +164,7 @@ const reloadTableData = async (
 };
 
 const handleRequest = (props) => {
-  console.log("Request props: ", props);
+  /* console.log("Request props: ", props); */
   reloadTableData(
     branchId,
     props.pagination.page,
@@ -203,7 +203,7 @@ const productionColumn = [
 const $q = useQuasar();
 
 const handleDialog = (report, label, index, date) => {
-  console.log("Report data for dialogss:", report, label, index, date);
+  /* console.log("Report data for dialogss:", report, label, index, date); */
 
   $q.dialog({
     component: ProductionDialog,

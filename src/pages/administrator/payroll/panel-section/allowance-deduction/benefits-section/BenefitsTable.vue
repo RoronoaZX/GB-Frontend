@@ -323,7 +323,7 @@ function formatForEdit(val) {
 }
 
 async function updateSSSNumber(data, val) {
-  console.log("Updating SSS Number for", data, "to", val);
+  /* console.log("Updating SSS Number for", data, "to", val); */
   try {
     tableLoading.value = true;
     await api.put("/api/update-employee-sss-number-benefit/" + data.id, {
@@ -337,7 +337,7 @@ async function updateSSSNumber(data, val) {
       timeout: 2000,
     });
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
 
     Notify.create({
       message: "Error updating SSS Number",
@@ -351,7 +351,7 @@ async function updateSSSNumber(data, val) {
 }
 
 async function updateSSS(data, val) {
-  console.log("Updating SSS for", data, "to", val);
+  /* console.log("Updating SSS for", data, "to", val); */
   try {
     tableLoading.value = true;
     await api.put("/api/update-employee-sss-benefit/" + data.id, {
@@ -378,7 +378,7 @@ async function updateSSS(data, val) {
 }
 
 async function updateHDMFNumber(data, val) {
-  console.log("Updating HDMF Number for", data, "to", val);
+  /* console.log("Updating HDMF Number for", data, "to", val); */
   try {
     tableLoading.value = true;
     await api.put("/api/update-employee-hdmf-number-benefit/" + data.id, {
@@ -406,7 +406,7 @@ async function updateHDMFNumber(data, val) {
 }
 
 async function updateHDMF(data, val) {
-  console.log("Updating HDMF for", data, "to", val);
+  /* console.log("Updating HDMF for", data, "to", val); */
   try {
     tableLoading.value = true;
     await api.put("/api/update-employee-hdmf-benefit/" + data.id, {
@@ -426,7 +426,7 @@ async function updateHDMF(data, val) {
 }
 
 async function updatePHICNumber(data, val) {
-  console.log("Updating PHIC Number for", data, "to", val);
+  /* console.log("Updating PHIC Number for", data, "to", val); */
   try {
     tableLoading.value = true;
     await api.put("/api/update-employee-phic-number-benefit/" + data.id, {
@@ -454,7 +454,7 @@ async function updatePHICNumber(data, val) {
 }
 
 async function updatePHIC(data, val) {
-  console.log("Updating PHIC for", data, "to", val);
+  /* console.log("Updating PHIC for", data, "to", val); */
   try {
     tableLoading.value = true;
     await api.put("/api/update-employee-phic-benefit/" + data.id, {
@@ -494,21 +494,21 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
 
     const { data, current_page, per_page, total } = employeeBenefit.value;
     employeeBenefitRows.value = data;
-    console.log("employee benefit", employeeBenefitRows.value);
+    /* console.log("employee benefit", employeeBenefitRows.value); */
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;
 
-    console.log("benefit", employeeBenefitRows.value);
+    /* console.log("benefit", employeeBenefitRows.value); */
   } catch (error) {
-    console.log("error fetching", error);
+    /* console.log("error fetching", error); */
   } finally {
     tableLoading.value = false;
   }
 };
 
 const handleRequest = (props) => {
-  console.log("handle benefits request", props);
+  /* console.log("handle benefits request", props); */
 
   reloadTableData(
     props.pagination.page,

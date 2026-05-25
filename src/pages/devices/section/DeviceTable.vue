@@ -77,7 +77,7 @@ const filteredRows = computed(() => {
 
 onMounted(async () => {
   const response = await reloadTableData();
-  console.log("response device", response);
+  /* console.log("response device", response); */
 });
 
 const reloadTableData = async () => {
@@ -87,9 +87,9 @@ const reloadTableData = async () => {
     if (!deviceRow.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("device fetch:", deviceRow.value);
+    /* console.log("device fetch:", deviceRow.value); */
   } catch (error) {
-    console.log("error fetching device", error);
+    /* console.log("error fetching device", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;

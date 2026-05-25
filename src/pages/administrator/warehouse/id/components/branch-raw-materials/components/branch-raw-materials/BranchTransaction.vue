@@ -91,7 +91,7 @@ const route = useRoute();
 const warehouseID = computed(() => route.params.warehouse_id || null);
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.branchPremix);
-console.log("premixDatas", premixDatas.value);
+/* console.log("premixDatas", premixDatas.value); */
 const branchPremixDatas = ref([]);
 
 const filter = ref("");
@@ -123,18 +123,18 @@ const fetchRequestBranchPremix = async (
       rowsPerPage,
       search
     );
-    console.log("Fetch premix data", premixDatas.value);
+    /* console.log("Fetch premix data", premixDatas.value); */
 
     const { data, current_page, per_page, total } = premixDatas.value;
     branchPremixDatas.value = data;
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
+    /* console.log("pagination.value.page", pagination.value.page); */
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    /* console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage); */
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
+    /* console.log("pagination.value.rowsNumber", pagination.value.rowsNumber); */
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
@@ -144,7 +144,7 @@ onMounted(async () => {
   if (branchId) {
     await fetchRequestBranchPremix(branchId);
   }
-  console.log("premixdatas", premixDatas.value);
+  /* console.log("premixdatas", premixDatas.value); */
 });
 
 const onPageRequest = (props) => {

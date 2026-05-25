@@ -193,7 +193,7 @@ const searchQuery = ref("");
 
 const props = defineProps(["userData"]);
 
-console.log("propssss", props);
+/* console.log("propssss", props); */
 
 const openDialog = () => {
   dialog.value = true;
@@ -202,9 +202,9 @@ const openDialog = () => {
 const category = ref("Nestle");
 
 const search = async () => {
-  console.log("branch_id.value: ", branch_id);
-  console.log("searchQuery.value: ", searchQuery.value);
-  console.log("category.value: ", category.value);
+  /* console.log("branch_id.value: ", branch_id); */
+  /* console.log("searchQuery.value: ", searchQuery.value); */
+  /* console.log("category.value: ", category.value); */
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -215,7 +215,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addNestleReport.product_id = data.product.id;
   addNestleReport.product_name = capitalizeFirstLetter(data.product.name);
   addNestleReport.category = data.category;
@@ -309,7 +309,7 @@ const handleSubmit = async () => {
     new_production: addNestleReport.added_stocks,
   };
 
-  console.log("Nestle", payload);
+  /* console.log("Nestle", payload); */
 
   salesReportsStore.updateNestleReport(payload);
   Notify.create({

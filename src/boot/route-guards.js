@@ -121,9 +121,7 @@ export default boot(async ({ router }) => {
           },
         });
 
-        console.log("userss:", user.data);
         const deviceData = user.data.device;
-        console.log("device:", deviceData);
 
         // Set user data to stores
         useUsersStore().setUser(user.data);

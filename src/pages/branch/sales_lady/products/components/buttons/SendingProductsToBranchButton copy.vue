@@ -937,7 +937,7 @@ const sendProducts = async () => {
       })),
     };
 
-    console.log("Sending products to branch:", dataToSend);
+    /* console.log("Sending products to branch:", dataToSend); */
 
     const response = await branchProductsStore.sendProductsToBranch(dataToSend);
 

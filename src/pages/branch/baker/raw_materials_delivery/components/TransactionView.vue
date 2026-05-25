@@ -132,9 +132,9 @@ const { getHeaderClass } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("userData in RawMaterialsTable:", userData.value);
+/* console.log("userData in RawMaterialsTable:", userData.value); */
 const employeeId = userData.value?.data?.employee_id || "";
-console.log("employeeIdsssssssssssssss:", employeeId);
+/* console.log("employeeIdsssssssssssssss:", employeeId); */
 
 const stocksDeliveryStore = useStockDelivery();
 
@@ -142,7 +142,7 @@ const loading = computed(() => stocksDeliveryStore.loading);
 const declineReportMessage = computed(() => stocksDeliveryStore.declinedStocks);
 
 const props = defineProps({ report: { type: Object, required: true } });
-console.log("props in Transaction view:", props.report);
+/* console.log("props in Transaction view:", props.report); */
 
 const emit = defineEmits(["fetchAgain"]);
 
@@ -201,7 +201,7 @@ const openConfirmDialog = () => {
       }, 100);
     })
     .onCancel(() => {
-      console.log("Cancelled");
+      /* console.log("Cancelled"); */
     });
 };
 
@@ -211,17 +211,17 @@ const openDeclineDialog = () => {
   })
     .onOk((data) => {
       // ✅ Called when decline button is clicked
-      console.log("Decliene remark from child:", data);
+      /* console.log("Decliene remark from child:", data); */
       // const message = declineReportMessage.value;
       declineReport(props.report.id, data);
     })
     .onCancel(() => {
-      console.log("Cancelled");
+      /* console.log("Cancelled"); */
     });
 };
 
 const confirmReport = async (data) => {
-  console.log("Confirming report", data);
+  /* console.log("Confirming report", data); */
 
   try {
     $q.loading.show();
@@ -245,7 +245,7 @@ const confirmReport = async (data) => {
       };
     });
 
-    console.log("Per Item Totals:", itemsWithTotals);
+    /* console.log("Per Item Totals:", itemsWithTotals); */
 
     const confirmData = {
       ...data,
@@ -254,13 +254,13 @@ const confirmReport = async (data) => {
       items: itemsWithTotals,
     };
 
-    console.log("Confirm Datasss:", confirmData);
+    /* console.log("Confirm Datasss:", confirmData); */
 
     const response = await stocksDeliveryStore.confirmDeliveryStocks(
       confirmData
     );
 
-    console.log("responsesssssss", response);
+    /* console.log("responsesssssss", response); */
     // ✅ Check backend response for success
     if (response?.data || response?.data?.message === "Delivery confirmed.") {
       Notify.create({
@@ -280,9 +280,9 @@ const confirmReport = async (data) => {
       });
     }
 
-    console.log("responsesss", response);
+    /* console.log("responsesss", response); */
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     Notify.create({
       type: "negative",
       message: error?.response?.data?.message || "Failed to Confirm Delivery",
@@ -295,7 +295,7 @@ const confirmReport = async (data) => {
 const declineReport = async (reportId, remarks) => {
   try {
     $q.loading.show();
-    console.log("declining report", reportId, "with remarks:", remarks);
+    /* console.log("declining report", reportId, "with remarks:", remarks); */
 
     const declineData = {
       id: reportId,
@@ -304,7 +304,7 @@ const declineReport = async (reportId, remarks) => {
       remarks: remarks.remarks,
     };
 
-    console.log("declineData", declineData);
+    /* console.log("declineData", declineData); */
 
     const response = await stocksDeliveryStore.declineDeliveryStocks(
       declineData
@@ -332,9 +332,9 @@ const declineReport = async (reportId, remarks) => {
       });
     }
 
-    console.log("responsesssss", response);
+    /* console.log("responsesssss", response); */
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     Notify.create({
       type: "negative",
       message:

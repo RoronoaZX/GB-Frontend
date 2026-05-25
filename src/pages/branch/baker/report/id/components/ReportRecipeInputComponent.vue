@@ -159,10 +159,10 @@ import { is, Loading, Notify } from "quasar";
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("ersssssw:", userData.value);
+/* console.log("ersssssw:", userData.value); */
 const isLoading = ref(false);
 const recipe = computed(() => bakerReportStore.recipes);
-console.log("erwe:", recipe.value);
+/* console.log("erwe:", recipe.value); */
 
 const recipeName = computed(() => {
   const name = recipe.value?.name ?? "Recipe Name";
@@ -261,7 +261,7 @@ const resetReportForm = () => {
 };
 
 const autoFillReport = () => {
-  console.log("Report datasss:", bakersReport);
+  /* console.log("Report datasss:", bakersReport); */
 
   isLoading.value = true;
   setTimeout(async () => {
@@ -297,7 +297,7 @@ const autoFillReport = () => {
           unit: ingredient.unit,
         })),
       };
-      console.log("reportssss dATA:", reportData);
+      /* console.log("reportssss dATA:", reportData); */
       bakerReportStore.setReport(reportData);
 
       // const elapsedTime = Date.now() - startTime;
@@ -306,7 +306,7 @@ const autoFillReport = () => {
       // setTimeout(() => {
       //   isLoading.value = false; // Stop loading after 1 second
       // }, remainingTime);
-      console.log("Report data set to store:", bakerReportStore.reports);
+      /* console.log("Report data set to store:", bakerReportStore.reports); */
       Notify.create({
         message: `${recipeName.value} added to list`,
         type: "positive",

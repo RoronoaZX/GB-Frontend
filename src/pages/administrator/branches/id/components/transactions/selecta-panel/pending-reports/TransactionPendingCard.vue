@@ -116,7 +116,7 @@ const fetchPendingSelectaStocks = async (
       page,
       rowsPerPage
     );
-    console.log("selectaProductsPending.value", selectaProductsPending.value);
+    /* console.log("selectaProductsPending.value", selectaProductsPending.value); */
 
     const { data, current_page, per_page, total } =
       selectaProductsPending.value;

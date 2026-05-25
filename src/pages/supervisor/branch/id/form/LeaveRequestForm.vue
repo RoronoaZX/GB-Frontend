@@ -442,7 +442,7 @@ const props = defineProps({
   },
 });
 
-console.log("propdsss... ", props);
+/* console.log("propdsss... ", props); */
 
 const emit = defineEmits(["update:modelValue", "submitted"]);
 
@@ -825,7 +825,7 @@ const submitForm = async () => {
       reason: formData.value.reason || "",
     };
 
-    console.log("payload....", payload);
+    /* console.log("payload....", payload); */
 
     await leaveStore.createLeaveRequest(payload);
 

@@ -213,7 +213,7 @@ const reloadTableData = async (branchId) => {
     }
     // console.log("Branch Raw Materials", branchRawMaterialsRows.value);
   } catch (error) {
-    console.log("Error fetching branch product:", error);
+    /* console.log("Error fetching branch product:", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;
@@ -246,7 +246,7 @@ async function updatedStocks(data, val) {
     user_id,
   };
 
-  console.log("payload raw materials", payload);
+  /* console.log("payload raw materials", payload); */
 
   try {
     const response = await api.put(

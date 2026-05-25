@@ -318,7 +318,7 @@ const localFilter = ref(props.filter || "");
 // Computed properties
 const branchRecipe = computed(() => branchRecipeStore.branchRecipes || []);
 
-console.log("Branch Recipes:", branchRecipe.value);
+/* console.log("Branch Recipes:", branchRecipe.value); */
 
 // const filteredRecipes = computed(() => {
 //   let recipes = branchRecipe.value || [];

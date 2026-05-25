@@ -106,10 +106,10 @@ const createProducts = async () => {
     await productsStore.createProducts({ ...addNewProductForm });
 
     dialog.value = false;
-    console.log("Products Data", addNewProductForm);
+    /* console.log("Products Data", addNewProductForm); */
     resetFormData();
   } catch (error) {
-    console.log("Error saving product:", error);
+    /* console.log("Error saving product:", error); */
   }
 };
 

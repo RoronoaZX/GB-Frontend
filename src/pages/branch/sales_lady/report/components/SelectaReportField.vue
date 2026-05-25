@@ -143,7 +143,7 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 const salesReportsStore = useSalesReportsStore();
 const selectaReports = computed(() => salesReportsStore.selectaReports);
 
-console.log("Selecta Reportssss:", selectaReports.value);
+/* console.log("Selecta Reportssss:", selectaReports.value); */
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

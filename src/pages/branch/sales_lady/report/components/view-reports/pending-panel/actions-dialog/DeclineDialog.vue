@@ -78,7 +78,7 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const salesReportStore = useSalesReportsStore();
 
 const userData = computed(() => salesReportStore.user);
-console.log("user datasss", userData.value);
+/* console.log("user datasss", userData.value); */
 
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
@@ -101,7 +101,7 @@ const props = defineProps({
   sales_report_id: Number,
 });
 
-console.log("propssssssss", props);
+/* console.log("propssssssss", props); */
 
 const decline = async () => {
   const payload = {
@@ -115,7 +115,7 @@ const decline = async () => {
     remaining: props.productData.remaining,
   };
 
-  console.log("paysssssload", payload);
+  /* console.log("paysssssload", payload); */
   try {
     Loading.show({
       spinnerColor: "white",
@@ -130,7 +130,7 @@ const decline = async () => {
     // ✅ close dialog
     onDialogHide();
   } catch (error) {
-    console.log("Error declining products report", error);
+    /* console.log("Error declining products report", error); */
   } finally {
     Loading.hide();
   }

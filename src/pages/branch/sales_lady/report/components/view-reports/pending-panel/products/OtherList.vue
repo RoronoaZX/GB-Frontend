@@ -113,7 +113,7 @@ const emit = defineEmits(["action-complete"]);
 
 const $q = useQuasar();
 
-console.log("othersssss", props.others);
+/* console.log("othersssss", props.others); */
 
 const handleConfirm = async (other) => {
   const payload = {
@@ -126,7 +126,7 @@ const handleConfirm = async (other) => {
     remaining: other.remaining,
   };
 
-  console.log("payload to confirm", payload);
+  /* console.log("payload to confirm", payload); */
 
   try {
     Loading.show({
@@ -145,7 +145,7 @@ const handleConfirm = async (other) => {
     // Emit event to parent that action is complete
     emit("action-complete");
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
 
     $q.notify({
       type: "negative",

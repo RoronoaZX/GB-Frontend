@@ -64,15 +64,15 @@ const fetchWarehouseAddedStocks = async (
       rowsPerPage
     );
 
-    console.log("historyRawMaterials", historyRawMaterials.value);
+    /* console.log("historyRawMaterials", historyRawMaterials.value); */
     const { data, current_page, per_page, total } = historyRawMaterials.value;
     historyRawMaterialsData.value = data;
-    console.log("historyRawMaterialsData.value", historyRawMaterialsData.value);
+    /* console.log("historyRawMaterialsData.value", historyRawMaterialsData.value); */
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }
@@ -85,7 +85,7 @@ onMounted(async () => {
 });
 
 const onPageRequest = (props) => {
-  console.log("props", props);
+  /* console.log("props", props); */
   fetchWarehouseAddedStocks(
     warehouseID,
     props.pagination.page,

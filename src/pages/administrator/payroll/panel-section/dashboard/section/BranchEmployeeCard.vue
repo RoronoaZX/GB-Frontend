@@ -55,7 +55,7 @@ import { computed, onMounted, ref, watch } from "vue";
 const branchStore = useBranchesStore();
 const branches = computed(() => branchStore.branches);
 
-console.log("branchWithEmploye", branches.value);
+/* console.log("branchWithEmploye", branches.value); */
 
 onMounted(async () => {
   await fetchBranchData();
@@ -64,9 +64,9 @@ onMounted(async () => {
 const fetchBranchData = async () => {
   try {
     branches.value = await branchStore.fetchBranchWithEmployee();
-    console.log("branches", branches.value);
+    /* console.log("branches", branches.value); */
   } catch (error) {
-    console.log("error fetching branch: ", error);
+    /* console.log("error fetching branch: ", error); */
   }
 };
 </script>

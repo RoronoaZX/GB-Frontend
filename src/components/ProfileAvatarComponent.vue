@@ -56,19 +56,21 @@ import { useRouter } from "vue-router";
 
 const usersStore = useUsersStore();
 const user = computed(() => usersStore.userData);
-console.log("usertDatass", user.value);
 const loading = ref(false);
 const router = useRouter();
 
-const signOut = () => {
+const signOut = async () => {
   loading.value = true;
-  setTimeout(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("activeMenuItem");
-    loading.value = false;
-    router.push("/");
-  }, 1000);
+  try {
+    await api.post("/api/logout");
+  } catch (err) {
+    console.warn("Logout API failed:", err);
+  }
+  localStorage.removeItem("token");
+  localStorage.removeItem("role");
+  localStorage.removeItem("activeMenuItem");
+  loading.value = false;
+  router.push("/");
 };
 
 const formatFullname = (row) => {

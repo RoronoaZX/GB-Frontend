@@ -13,16 +13,16 @@ export const useProductsStore = defineStore("products", () => {
       params: { keyword: searchQuery },
     });
     products.value = response.data;
-    console.log("searched products", response.data);
+    /* console.log("searched products", response.data); */
   };
 
   const fetchProducts = async () => {
     try {
       const response = await api.get("/api/products");
       products.value = response.data;
-      console.log("====================================");
-      console.log("products.value ", products.value);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("products.value ", products.value); */
+      /* console.log("===================================="); */
     } catch (error) {
       Notify.create({
         type: "negative",
@@ -36,14 +36,14 @@ export const useProductsStore = defineStore("products", () => {
     try {
       Loading.show();
       const response = await api.post("/api/products", data);
-      console.log("data", response.data);
+      /* console.log("data", response.data); */
       fetchProducts();
       Notify.create({
         type: "positive",
         message: "Product created successfully",
       });
     } catch (error) {
-      console.log("erroe", error);
+      /* console.log("erroe", error); */
       if (error.response.data.message === "The name has already been taken.") {
         Notify.create({
           type: "warning",
@@ -110,13 +110,13 @@ export const useProductsStore = defineStore("products", () => {
   // };
 
   const updatedProducts = async (data) => {
-    console.log("datsssa", data);
+    /* console.log("datsssa", data); */
 
     try {
       const response = await api.patch(`/api/update-products`, data);
-      console.log("response", response);
+      /* console.log("response", response); */
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 

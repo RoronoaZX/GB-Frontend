@@ -88,20 +88,20 @@ const { formatDate } = typographyFormat();
 
 const salesReportStore = useSalesReportsStore();
 const salesReport = computed(() => salesReportStore.salesReport);
-console.log("sales report in page", salesReport.value);
+/* console.log("sales report in page", salesReport.value); */
 const salesReportRows = ref([]);
 const productsReportRows = computed(
   () => salesReportStore.branchPendingSalesReport
 );
 
-console.log("sales report in pagess", productsReportRows.value);
+/* console.log("sales report in pagess", productsReportRows.value); */
 const userData = computed(() => salesReportStore.user);
-console.log("user datasss", userData.value);
+/* console.log("user datasss", userData.value); */
 const branchId = userData.value?.device?.reference?.id || "";
-console.log("sales branch id", branchId);
+/* console.log("sales branch id", branchId); */
 
 const userId = computed(() => salesReportStore.user.data.id);
-console.log("salesssss report in page user ID", userId.value);
+/* console.log("salesssss report in page user ID", userId.value); */
 const loading = ref(true);
 
 const dialog = ref(false);
@@ -117,12 +117,12 @@ const fetchConfirmationSalesReport = async () => {
       branchId
     );
   } catch (error) {
-    console.log("Error fetching confirmation sales report", error);
+    /* console.log("Error fetching confirmation sales report", error); */
   }
 };
 
 onMounted(async () => {
-  console.log("Onmountedssss data", branchId);
+  /* console.log("Onmountedssss data", branchId); */
   await fetchConfirmationSalesReport(userId.value, branchId);
 });
 
@@ -137,7 +137,7 @@ const pagination = ref({
 });
 
 onMounted(async () => {
-  console.log("Onmounted data", branchId);
+  /* console.log("Onmounted data", branchId); */
   if (branchId) {
     await reloadTableData(branchId);
   }
@@ -145,17 +145,17 @@ onMounted(async () => {
 
 const reloadTableData = async (branchId, page = 0, rowsPerPage = 5) => {
   try {
-    console.log("branch data", branchId);
+    /* console.log("branch data", branchId); */
     loading.value = true;
     await salesReportStore.fetchSalesReports(branchId, page, rowsPerPage);
 
-    console.log("Fetched data:", salesReport.value); // Log the raw response data
-    console.log("Production rows:", salesReportRows.value); // Log the computed production rows
+    /* console.log("Fetched data:", salesReport.value); */ // Log the raw response data
+    /* console.log("Production rows:", salesReportRows.value); */ // Log the computed production rows
 
     const { data, current_page, per_page, total } = salesReport.value;
 
     salesReportRows.value = data;
-    console.log("salesReport.value", salesReportRows.value);
+    /* console.log("salesReport.value", salesReportRows.value); */
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;
@@ -172,7 +172,7 @@ const reloadTableData = async (branchId, page = 0, rowsPerPage = 5) => {
 };
 
 const handleRequest = (props) => {
-  console.log("[ropss]", props);
+  /* console.log("[ropss]", props); */
   reloadTableData(
     branchId,
     props.pagination.page,

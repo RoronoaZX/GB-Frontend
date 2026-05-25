@@ -536,7 +536,7 @@ const addToList = () => {
   });
 
   // log the updated list
-  console.log("📦 rawMaterialsGroups:", rawMaterialsGroups.value);
+  /* console.log("📦 rawMaterialsGroups:", rawMaterialsGroups.value); */
 
   // clear after add
   selectedRawMaterials.name = "";
@@ -749,10 +749,10 @@ const save = async () => {
 
   try {
     loading.value = true;
-    console.log("Payload : ", payload);
+    /* console.log("Payload : ", payload); */
     const response = await stocksDeliveryStore.createDeliveryStock(payload);
 
-    console.log("Response : ", response);
+    /* console.log("Response : ", response); */
     // if your backend sends a success flag/message, check it
     if (
       response &&

@@ -141,8 +141,8 @@ const open_dialog = () => {
 const searchQuery = ref("");
 const search = async () => {
   branchRecipeStore.searchBranchRecipe(searchQuery.value, branchId);
-  console.log("searchQuery.value", searchQuery.value);
-  console.log("branchId", branchId);
+  /* console.log("searchQuery.value", searchQuery.value); */
+  /* console.log("branchId", branchId); */
 };
 
 const isFormValid = computed(() => {
@@ -174,7 +174,7 @@ const addBranchPremixRecipe = reactive({
 });
 
 const save = async () => {
-  console.log(addBranchPremixRecipe);
+  /* console.log(addBranchPremixRecipe); */
   await premixStore.savePremix(addBranchPremixRecipe);
 };
 </script>

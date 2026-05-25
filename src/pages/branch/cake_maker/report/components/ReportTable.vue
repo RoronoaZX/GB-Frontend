@@ -62,7 +62,7 @@ import { date as quasarDate } from "quasar";
 
 const useCakeMakerReport = useCakeMakerReportStore();
 const branchId = localStorage.getItem("branch_id");
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 const cakeReportsRow = computed(() => useCakeMakerReport.cakeMakerReports);
 const userData = computed(() => useCakeMakerReport.user);
 const userId = userData.value?.data?.id || "";
@@ -76,7 +76,7 @@ onMounted(async () => {
 });
 
 const reloadTableData = async (userId) => {
-  console.log("user_id", userId);
+  /* console.log("user_id", userId); */
   try {
     const response = await useCakeMakerReport.fetchCakeReport(userId);
   } catch (error) {}

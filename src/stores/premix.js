@@ -61,7 +61,7 @@ export const usePremixStore = defineStore("premix", () => {
   };
 
   const fetchWarehousePremix = async (warehouseId) => {
-    console.log("warehouseId", warehouseId);
+    /* console.log("warehouseId", warehouseId); */
   };
 
   const fetchRequestBranchEmployeePremix = async (
@@ -84,27 +84,27 @@ export const usePremixStore = defineStore("premix", () => {
       );
 
       branchEmployeePremix.value.data = response.data;
-      console.log("branchEmployeePremix", branchEmployeePremix.value.data);
+      /* console.log("branchEmployeePremix", branchEmployeePremix.value.data); */
       branchEmployeePremix.value.pagination = response.data.pagination;
-      console.log(
+      /* console.log(
         "branchEmployeePremix.pagination",
         branchEmployeePremix.value.pagination
-      );
+      ); */
     } catch (error) {
       console.error(error);
     }
   };
 
   const fetchPendingPremix = async (warehouseId, status) => {
-    console.log("warehouseId", warehouseId);
-    console.log("category", status);
+    /* console.log("warehouseId", warehouseId); */
+    /* console.log("category", status); */
     try {
       const pending = await api.get(`/api/pending-premix/${warehouseId}`, {
         params: {
           status: status,
         },
       });
-      console.log("pending", pending.data);
+      /* console.log("pending", pending.data); */
       pendingPremixData.value = pending.data;
     } catch (error) {
       console.error("error", error);
@@ -112,11 +112,11 @@ export const usePremixStore = defineStore("premix", () => {
   };
 
   const fetchConfirmPremix = async (warehouseId) => {
-    console.log("warehouseId", warehouseId);
+    /* console.log("warehouseId", warehouseId); */
 
     try {
       const confirmed = await api.get(`/api/get-confirm-premix/${warehouseId}`);
-      console.log("confirmed.data", confirmed.data);
+      /* console.log("confirmed.data", confirmed.data); */
       confirmPremixData.value = confirmed.data;
     } catch (error) {
       console.error(error);
@@ -124,11 +124,11 @@ export const usePremixStore = defineStore("premix", () => {
   };
 
   const confirmPremix = async (data) => {
-    console.log("confirmdata", data);
+    /* console.log("confirmdata", data); */
     Loading.show();
     try {
       const confirm = await api.post(`/api/confirm-premix`, data);
-      console.log("confirm", confirm.data);
+      /* console.log("confirm", confirm.data); */
       if (confirm.status === 200) {
         const id = data.id;
         // Find the index of the report in the pendingSelectaReports array
@@ -143,63 +143,63 @@ export const usePremixStore = defineStore("premix", () => {
       }
       return confirm.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     } finally {
       Loading.hide();
     }
   };
 
   const fetchProcessPremix = async (warehouseId) => {
-    console.log("warehouseId", warehouseId);
+    /* console.log("warehouseId", warehouseId); */
     // console.log("status", status);
     try {
       const process = await api.get(`/api/get-process-premix/${warehouseId}`);
-      console.log("process.data", process.data);
+      /* console.log("process.data", process.data); */
       processPremixData.value = process.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const processPremix = async (data) => {
-    console.log("process data", data);
+    /* console.log("process data", data); */
     Loading.show();
     try {
       const process = await api.post(`/api/process-premix`, data);
-      console.log("process.data.premix_history.status", process.status);
+      /* console.log("process.data.premix_history.status", process.status); */
       if (process.status === 200) {
         const id = data.id;
         const index = confirmPremixData.value.findIndex(
           (report) => report.id === id
         );
 
-        console.log("index", index);
+        /* console.log("index", index); */
 
         if (index !== -1) {
           confirmPremixData.value.splice(index, 1);
         }
       }
 
-      console.log("process", process.data);
+      /* console.log("process", process.data); */
       return process.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     } finally {
       Loading.hide();
     }
   };
 
   const fetchCompletedPremix = async (warehouseId) => {
-    console.log("warehouseId", warehouseId);
+    /* console.log("warehouseId", warehouseId); */
     // console.log("status", status);
 
     const completed = await api.get(`/api/get-completed-premix/${warehouseId}`);
-    console.log("process.data", completed.data);
+    /* console.log("process.data", completed.data); */
     completedPremixData.value = completed.data;
   };
 
   const completedPremix = async (data) => {
-    console.log("data completed premix", data);
+    /* console.log("data completed premix", data); */
 
     Loading.show();
     try {
@@ -210,35 +210,35 @@ export const usePremixStore = defineStore("premix", () => {
           (report) => report.id === id
         );
 
-        console.log("index", index);
+        /* console.log("index", index); */
 
         if (index !== -1) {
           processPremixData.value.splice(index, 1);
         }
       }
 
-      console.log("completed", completed.data);
+      /* console.log("completed", completed.data); */
       return completed.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     } finally {
       Loading.hide();
     }
   };
 
   const fetchToDeliverPremix = async (warehouseId) => {
-    console.log("warehouseId", warehouseId);
+    /* console.log("warehouseId", warehouseId); */
     // console.log("status", status);
 
     const toDeliver = await api.get(
       `/api/get-to-deliver-premix/${warehouseId}`
     );
-    console.log("TO Deliver data", toDeliver.data);
+    /* console.log("TO Deliver data", toDeliver.data); */
     toDeliverPremixData.value = toDeliver.data;
   };
 
   const toDeliverPremix = async (data) => {
-    console.log("data completed premix", data);
+    /* console.log("data completed premix", data); */
 
     Loading.show();
     try {
@@ -255,28 +255,28 @@ export const usePremixStore = defineStore("premix", () => {
         }
       }
 
-      console.log("toDeliver", toDeliver.data);
+      /* console.log("toDeliver", toDeliver.data); */
       toDeliverPremixData.value = toDeliver.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     } finally {
       Loading.hide();
     }
   };
 
   const fetchToReceivePremix = async (warehouseId) => {
-    console.log("warehouseId", warehouseId);
+    /* console.log("warehouseId", warehouseId); */
     // console.log("status", status);
 
     const toReceive = await api.get(
       `/api/get-to-receive-premix/${warehouseId}`
     );
-    console.log("TO receive data", toReceive.data);
+    /* console.log("TO receive data", toReceive.data); */
     toReceivePremixData.value = toReceive.data;
   };
 
   const toReceivePremix = async (data) => {
-    console.log("data receive premix", data);
+    /* console.log("data receive premix", data); */
 
     Loading.show();
     try {
@@ -292,10 +292,10 @@ export const usePremixStore = defineStore("premix", () => {
           toDeliverPremixData.value.splice(index, 1);
         }
       }
-      console.log("toReceive", toReceive.data);
+      /* console.log("toReceive", toReceive.data); */
       toReceivePremixData.value = toReceive.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     } finally {
       Loading.hide();
     }
@@ -308,11 +308,11 @@ export const usePremixStore = defineStore("premix", () => {
     per_page = 1,
     search = ""
   ) => {
-    console.log("fetchDeclinePremix warehouseId", warehouseId);
-    console.log("status", status);
-    console.log("page", page);
-    console.log("per_page", per_page);
-    console.log("search", search);
+    /* console.log("fetchDeclinePremix warehouseId", warehouseId); */
+    /* console.log("status", status); */
+    /* console.log("page", page); */
+    /* console.log("per_page", per_page); */
+    /* console.log("search", search); */
 
     try {
       const decline = await api.get(`/api/get-decline-premix/${warehouseId}`, {
@@ -324,15 +324,15 @@ export const usePremixStore = defineStore("premix", () => {
         },
       });
 
-      console.log("decline.data", decline.data);
+      /* console.log("decline.data", decline.data); */
       declinePremixData.value = decline.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const declinePremix = async (data) => {
-    console.log("declineData", data);
+    /* console.log("declineData", data); */
     try {
       const decline = await api.post(`/api/decline-premix`, data);
 
@@ -345,23 +345,23 @@ export const usePremixStore = defineStore("premix", () => {
           pendingPremixData.value.splice(index, 1);
         }
       }
-      console.log("decline Reports", decline.data);
+      /* console.log("decline Reports", decline.data); */
       declinePremixData.value = decline.data;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
   const searchPremix = async (searchQuery, branchId) => {
-    console.log("searchQuery", searchQuery);
-    console.log("branchId", branchId);
+    /* console.log("searchQuery", searchQuery); */
+    /* console.log("branchId", branchId); */
     const response = await api.get(`/api/search-premix`, {
       params: {
         keyword: searchQuery,
         branch_id: branchId,
       },
     });
-    console.log("premix search", response.data);
+    /* console.log("premix search", response.data); */
     premixes.value = response.data;
   };
 
@@ -375,11 +375,11 @@ export const usePremixStore = defineStore("premix", () => {
   };
 
   const receivePremix = async (data) => {
-    console.log("data to be received", data);
+    /* console.log("data to be received", data); */
     Loading.show();
     try {
       const response = await api.post(`/api/receive-premix`, data);
-      console.log("response to recieve", response.data);
+      /* console.log("response to recieve", response.data); */
       // return response.data;
       if (response.message === "Branch raw materials updated successfully") {
         const id = response.data.receivePremixes.request_premixes_id;
@@ -395,7 +395,7 @@ export const usePremixStore = defineStore("premix", () => {
       }
       // branchPremix.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     } finally {
       Loading.hide();
     }
@@ -414,13 +414,13 @@ export const usePremixStore = defineStore("premix", () => {
       // return response.data;
       receivePremixData.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const savePremix = async (data) => {
-    console.log("data from store", data);
-    console.log("data from store branch id", data.branch_id);
+    /* console.log("data from store", data); */
+    /* console.log("data from store branch id", data.branch_id); */
 
     Loading.show();
     try {
@@ -434,9 +434,9 @@ export const usePremixStore = defineStore("premix", () => {
     }
   };
   const saveRequestPremix = async (data, branchId, employeeId) => {
-    console.log("data request oremix", data);
-    console.log("data request branchId", branchId);
-    console.log("data request employeeId", employeeId);
+    /* console.log("data request oremix", data); */
+    /* console.log("data request branchId", branchId); */
+    /* console.log("data request employeeId", employeeId); */
 
     const page = 10;
     const per_page = 10;
@@ -446,7 +446,7 @@ export const usePremixStore = defineStore("premix", () => {
       const response = await api.post("/api/request-premix", {
         requests: data,
       });
-      console.log("response", response.data);
+      /* console.log("response", response.data); */
       fetchRequestBranchEmployeePremix(branchId, employeeId, page, per_page);
       Notify.create({
         type: "positive",

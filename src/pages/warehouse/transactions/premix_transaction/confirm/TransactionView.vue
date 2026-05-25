@@ -136,7 +136,7 @@ const openDialog = () => {
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const warehouseEmployeeId = userData.value.data.employee_id;
 const premixStore = usePremixStore();
 
@@ -149,9 +149,9 @@ const props = defineProps({
 
 const ingrdientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
-console.log("ingrdientsData", ingrdientsData);
+/* console.log("ingrdientsData", ingrdientsData); */
 
-console.log("report to proceed", props.report);
+/* console.log("report to proceed", props.report); */
 
 const processPremix = async () => {
   try {
@@ -166,7 +166,7 @@ const processPremix = async () => {
       notes: "Process Premix",
     };
     const processedReport = await premixStore.processPremix(payload);
-    console.log("Report Process:", processedReport);
+    /* console.log("Report Process:", processedReport); */
     Notify.create({
       type: "positive",
       message: "Premix proceed to process successfully",

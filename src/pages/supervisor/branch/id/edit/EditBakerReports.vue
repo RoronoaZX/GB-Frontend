@@ -298,7 +298,7 @@ const productionStore = useProductionStore();
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const props = defineProps(["bakerReports", "sales_report_id"]);
 
-console.log("porpssdsf..", props);
+/* console.log("porpssdsf..", props); */
 
 const maximizedToggle = ref(true);
 

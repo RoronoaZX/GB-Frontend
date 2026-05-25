@@ -26,7 +26,7 @@ const emit = defineEmits(["update-search"]);
 
 // Emit search term to parent
 const emitSearch = () => {
-  console.log("Emitting search term:", searchEngine.value); // Log emitted value
+  /* console.log("Emitting search term:", searchEngine.value); */ // Log emitted value
   emit("update-search", searchEngine.value);
 };
 </script>

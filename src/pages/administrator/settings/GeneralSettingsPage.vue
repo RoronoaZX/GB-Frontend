@@ -166,7 +166,7 @@ const save = async () => {
     clear();
     dialog.value = false;
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
 
     Notify.create({
       message: "Error saving data",

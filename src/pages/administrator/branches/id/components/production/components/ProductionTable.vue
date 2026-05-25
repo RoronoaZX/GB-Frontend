@@ -106,7 +106,7 @@ const filter = ref("");
 // const productionRows = computed(() => productionStore.productions.data);
 const productions = computed(() => productionStore.productions);
 const productionRows = ref([]);
-console.log("productionRows:", productionRows.value); // Log the computed production rows
+/* console.log("productionRows:", productionRows.value); */ // Log the computed production rows
 // const isLoading = ref(true);
 const loading = ref(true);
 const showNoDataMessage = ref(false);
@@ -132,13 +132,13 @@ const reloadTableData = async (
       search
     );
 
-    console.log("Fetched data:", productions.value); // Log the raw response data
-    console.log("Production rows:", productionRows.value); // Log the computed production rows
+    /* console.log("Fetched data:", productions.value); */ // Log the raw response data
+    /* console.log("Production rows:", productionRows.value); */ // Log the computed production rows
 
     const { data, current_page, per_page, total } = productions.value;
 
     productionRows.value = data;
-    console.log("productions.value", productionRows.value);
+    /* console.log("productions.value", productionRows.value); */
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;
@@ -154,7 +154,7 @@ const reloadTableData = async (
 };
 
 const handleRequest = (props) => {
-  console.log("[ropss]", props);
+  /* console.log("[ropss]", props); */
   reloadTableData(
     branchId,
     props.pagination.page,

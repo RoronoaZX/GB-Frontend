@@ -125,7 +125,7 @@ const saveEditedDevice = async () => {
     dialog.value = false;
     emit("device-updated");
   } catch (error) {
-    console.log("error update device", error);
+    /* console.log("error update device", error); */
   }
 };
 </script>

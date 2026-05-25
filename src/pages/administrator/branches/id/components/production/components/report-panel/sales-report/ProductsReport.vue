@@ -141,13 +141,13 @@ const props = defineProps([
   "reportId",
 ]);
 
-console.log("Sales reportDate", props.reportDate);
+/* console.log("Sales reportDate", props.reportDate); */
 
-console.log("Products Report", props.reportId);
+/* console.log("Products Report", props.reportId); */
 
 const productsReportsss = props.sales_Reports;
 
-console.log("sales report2sss", productsReportsss);
+/* console.log("sales report2sss", productsReportsss); */
 const $q = useQuasar();
 
 const emit = defineEmits(["update-summary"]);

@@ -73,7 +73,7 @@ const onDelete = async () => {
 };
 const dialog = ref(false);
 const open_dialog = () => {
-  console.log("ID", props.delete.row.id);
+  /* console.log("ID", props.delete.row.id); */
   dialog.value = true;
 };
 </script>

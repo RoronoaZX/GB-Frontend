@@ -311,13 +311,13 @@ const fetchCreditsPerCutOff = async () => {
     props.dtrTo,
     employeeID
   );
-  console.log("Creditssss", credits.value);
+  /* console.log("Creditssss", credits.value); */
 };
 onMounted(fetchCreditsPerCutOff);
 
 const fetchUniformsDeduction = async () => {
   await uniformStore.fetchUniformForDeduction(employeeID);
-  console.log("Uniforms Deduction", uniformsData.value);
+  /* console.log("Uniforms Deduction", uniformsData.value); */
 };
 onMounted(fetchUniformsDeduction);
 

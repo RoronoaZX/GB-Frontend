@@ -49,17 +49,17 @@ import { computed, ref } from "vue";
 import { useDTRStore } from "src/stores/dtr";
 
 const props = defineProps(["approve"]);
-console.log("approve", props.approve);
+/* console.log("approve", props.approve); */
 const dtrStore = useDTRStore();
 const userData = computed(() => dtrStore.user);
-console.log("userDatafromApprovebutton", userData.value);
+/* console.log("userDatafromApprovebutton", userData.value); */
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
 };
 
 const onApproveOvertime = async () => {
-  console.log("Approving overtime for ID:", props.approve.id);
+  /* console.log("Approving overtime for ID:", props.approve.id); */
 
   await dtrStore.approveOvertime({
     id: props.approve.id,

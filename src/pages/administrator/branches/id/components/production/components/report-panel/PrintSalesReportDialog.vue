@@ -39,7 +39,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]);
 const props = defineProps(["reports"]);
 const salesReport = props.reports;
-console.log("Print Sales Report", props.reports);
+/* console.log("Print Sales Report", props.reports); */
 
 const maximizedToggle = ref(true);
 const pdfUrl = ref("");

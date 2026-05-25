@@ -212,8 +212,8 @@ const userName = computed(() => {
   return supervisorStore.user?.data?.name || "Unknown";
 });
 
-console.log("userId", userId.value);
-console.log("userName", userName.value);
+/* console.log("userId", userId.value); */
+/* console.log("userName", userName.value); */
 
 const filter = defineProps({
   filter: String,
@@ -232,7 +232,7 @@ const filteredProducts = computed(
     ) || []
 );
 
-console.log("filteredProducts", filteredProducts.value);
+/* console.log("filteredProducts", filteredProducts.value); */
 
 const statFields = [
   {
@@ -330,9 +330,9 @@ const getCategoryColor = (category) => {
 const handleGlobalUpdate = async (product, field, newVal) => {
   if (!userId.value) return;
 
-  console.log("product", product);
-  console.log("field", field);
-  console.log("newVal", newVal);
+  /* console.log("product", product); */
+  /* console.log("field", field); */
+  /* console.log("newVal", newVal); */
 
   const meta = {
     id: product.id,
@@ -342,12 +342,12 @@ const handleGlobalUpdate = async (product, field, newVal) => {
     updated_field: field,
   };
 
-  console.log("meta", meta);
+  /* console.log("meta", meta); */
 
   try {
     const response = await branchProductStore.updateProductBranch(meta);
 
-    console.log("responsesssssss", response);
+    /* console.log("responsesssssss", response); */
 
     if (!response || !response.data) {
       throw new Error("Invalid response from server");
@@ -356,8 +356,8 @@ const handleGlobalUpdate = async (product, field, newVal) => {
     // ✅ Extract from backend response
     const { status, message } = response.data;
 
-    console.log("status", status);
-    console.log("message", message);
+    /* console.log("status", status); */
+    /* console.log("message", message); */
 
     const typeMap = {
       success: "positive",
@@ -379,9 +379,9 @@ const handleGlobalUpdate = async (product, field, newVal) => {
       icon: iconMap[status] || "info",
     });
 
-    console.log();
+    /* console.log(); */
   } catch (error) {
-    console.log("Error updating product:", error);
+    /* console.log("Error updating product:", error); */
 
     $q.notify({
       type: "negative",

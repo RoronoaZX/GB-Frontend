@@ -204,9 +204,9 @@ const openDialog = () => {
 const category = ref("Softdrinks");
 
 const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
+  /* console.log("branch_id.value:", branch_id); */
+  /* console.log("searchQuery.value:", searchQuery.value); */
+  /* console.log("category.value:", category.value); */
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -217,7 +217,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addSoftdrinksReport.product_id = data.product.id;
   addSoftdrinksReport.product_name = capitalizeFirstLetter(data.product.name);
   addSoftdrinksReport.category = data.category;
@@ -317,7 +317,7 @@ const handleSubmit = async () => {
     sales: addSoftdrinksReport.sales,
     new_production: addSoftdrinksReport.added_stocks,
   };
-  console.log("Softdrinks", payload);
+  /* console.log("Softdrinks", payload); */
   salesReportsStore.updateSoftdrinksReport(payload);
   Notify.create({
     message: "Product added successfully",

@@ -223,7 +223,7 @@ const selectEmployee = async (employee) => {
     };
 
     await dtrStore.fetchDTRRange(requestData);
-    console.log("Request Data:", requestData);
+    /* console.log("Request Data:", requestData); */
   } else {
     console.error("Failed to format the current date");
   }
@@ -309,8 +309,8 @@ const getDTRPeriod = (formattedDate) => {
     endDate = `${formattedDate.slice(0, 4)}-${nextMonth}-10`;
   }
 
-  console.log("Calculated Start Date:", startDate);
-  console.log("Calculated End Date:", endDate);
+  /* console.log("Calculated Start Date:", startDate); */
+  /* console.log("Calculated End Date:", endDate); */
 
   return { startDate, endDate };
 };
@@ -331,7 +331,7 @@ const formatDateToCustomString = (dateString) => {
 };
 
 const formattedStart = formatDateToCustomString(startDate.value);
-console.log("formattedStart", formattedStart);
+/* console.log("formattedStart", formattedStart); */
 
 // Format the dates for display
 const formattedStartDate = formatDateToCustomString(new Date(startDate));
@@ -339,7 +339,7 @@ const formattedEndDate = formatDateToCustomString(new Date(endDate));
 
 const dtrRow = computed(() => {
   const data = dtrStore.dtrCutOffData;
-  console.log("DTR Data", data);
+  /* console.log("DTR Data", data); */
 
   // Capitalize first letter
   const capitalize = (text) => {
@@ -426,7 +426,7 @@ const fetchDTRData = async () => {
   }
 };
 
-console.log("DTR ROW", dtrRow.value);
+/* console.log("DTR ROW", dtrRow.value); */
 
 // "Prev" Button Action: Move to the previous 15-day range
 const onPrev = () => {

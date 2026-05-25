@@ -182,7 +182,7 @@ const filterRawMaterialsOptions = ref(rawmaterialsOptions.value);
 const userData = computed(() => useCakeMakerReport.user);
 
 const user_id = userData.value?.data?.id || "";
-console.log("user_id", user_id);
+/* console.log("user_id", user_id); */
 
 const selectedRawMaterials = reactive({
   name: "",
@@ -193,7 +193,7 @@ const fetchRawMaterialsData = async (branchId) => {
   const rawMaterials = await branchRawMaterialsStore.fetchBranchRawMaterials(
     branchId
   );
-  console.log("branch raw Materials", rawMaterials);
+  /* console.log("branch raw Materials", rawMaterials); */
 
   loading.value = false;
   rawmaterialsOptions.value = branchRawMaterialsStore.branchRawMaterials.map(
@@ -209,7 +209,7 @@ const fetchRawMaterialsData = async (branchId) => {
 };
 
 onMounted(async () => {
-  console.log("props.branchId in onMounted:", branchId);
+  /* console.log("props.branchId in onMounted:", branchId); */
   if (branchId) {
     await fetchRawMaterialsData(branchId);
   }

@@ -109,10 +109,10 @@ const fetchDeclinedOtherProdStocks = async (
       page,
       rowsPerPage
     );
-    console.log(
+    /* console.log(
       "selectedOtherProductDeclined",
       selectedOtherProductDeclined.value
-    );
+    ); */
     const { data, current_page, per_page, total } =
       selectedOtherProductDeclined.value;
 

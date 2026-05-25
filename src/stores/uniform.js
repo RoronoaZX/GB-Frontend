@@ -14,15 +14,15 @@ export const useUniformStore = defineStore("uniform", () => {
   });
 
   const fetchUniformForDeduction = async (employee_id) => {
-    console.log("fetchUniformForDeduction", employee_id);
+    /* console.log("fetchUniformForDeduction", employee_id); */
     try {
       const response = await api.get(
         `/api/fetch-uniform-for-deduction/${employee_id}`
       );
-      console.log("Uniform Response", response.data);
+      /* console.log("Uniform Response", response.data); */
       uniforms.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
@@ -37,15 +37,15 @@ export const useUniformStore = defineStore("uniform", () => {
       });
       uniforms.value = response.data;
     } catch (error) {
-      console.log("error fetching uniform", error);
+      /* console.log("error fetching uniform", error); */
     }
   };
 
   const searchUniform = async (keyword) => {
     try {
-      console.log("Searching with keyword:", keyword);
+      /* console.log("Searching with keyword:", keyword); */
       const response = await api.post(`/api/search-uniform?keyword=${keyword}`);
-      console.log("UNIFORm response:", response);
+      /* console.log("UNIFORm response:", response); */
       uniforms.value = response.data;
     } catch (error) {
       console.error("Error searching employee:", error);
@@ -64,7 +64,7 @@ export const useUniformStore = defineStore("uniform", () => {
 
       return response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
 
       Notify.create({
         type: "negative",
@@ -75,7 +75,7 @@ export const useUniformStore = defineStore("uniform", () => {
   };
 
   const updateUnifrom = (form) => {
-    console.log("Updating uniform with data:", form);
+    /* console.log("Updating uniform with data:", form); */
     const payload = {
       employee_id: form.employee.id,
       numberOfPayments: parseFloat(form.number_of_payments),
@@ -89,7 +89,7 @@ export const useUniformStore = defineStore("uniform", () => {
       pantsPrice: form.pants?.[0]?.price || null,
       pantsSize: form.pants?.[0]?.size || null,
     };
-    console.log("Payload for update:", payload);
+    /* console.log("Payload for update:", payload); */
     try {
       const response = api.put(`/api/update/uniform/${form.id}`, payload);
       // console.log("Update response:", response);

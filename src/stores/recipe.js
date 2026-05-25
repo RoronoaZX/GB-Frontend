@@ -16,7 +16,7 @@ export const useRecipeStore = defineStore("recipes", () => {
     try {
       Loading.show();
       const response = await api.post("/api/recipes", data);
-      console.log("response.response", response.data);
+      /* console.log("response.response", response.data); */
       fetchRecipes();
       Notify.create({
         type: "positive",
@@ -46,7 +46,7 @@ export const useRecipeStore = defineStore("recipes", () => {
   };
 
   const updateRecipeName = async (data, val) => {
-    console.log("data", data);
+    /* console.log("data", data); */
     try {
       Loading.show();
       const response = await api.put("/api/update-name/" + data.id, {
@@ -55,7 +55,7 @@ export const useRecipeStore = defineStore("recipes", () => {
 
       const updatedRecipe = response.data;
 
-      console.log("recipe response", response.data);
+      /* console.log("recipe response", response.data); */
 
       const index = recipes.value.findIndex((item) => item.id == data.id);
       if (index !== -1) {
@@ -70,7 +70,7 @@ export const useRecipeStore = defineStore("recipes", () => {
         setTimeout: 5000,
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
       if (error.response.data.message === "The name has already been taken.") {
         Notify.create({
           type: "warning",
@@ -119,7 +119,7 @@ export const useRecipeStore = defineStore("recipes", () => {
       params: { keyword: searchQuery },
     });
     recipes.value = response.data;
-    console.log("recipe:", response.data);
+    /* console.log("recipe:", response.data); */
   };
 
   return {

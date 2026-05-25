@@ -12,7 +12,7 @@ export const useDeviceStore = defineStore("devices", () => {
       const response = await api.get("/api/device");
       devices.value = response.data;
     } catch (error) {
-      console.log("error fetchig  device", error);
+      /* console.log("error fetchig  device", error); */
       Notify.create({
         type: "negative",
         message: "Failed to fetch devices",
@@ -23,7 +23,7 @@ export const useDeviceStore = defineStore("devices", () => {
 
   const createDevices = async (data) => {
     Loading.show();
-    console.log("Data parameters being sent:", data);
+    /* console.log("Data parameters being sent:", data); */
     // return data;
     try {
       const response = await api.post("/api/device", data);
@@ -64,7 +64,7 @@ export const useDeviceStore = defineStore("devices", () => {
         // position: "top",
       });
     } catch (error) {
-      console.log("update device error", error);
+      /* console.log("update device error", error); */
       Notify.create({
         type: "negative",
         message: "Failed to update device",

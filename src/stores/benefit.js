@@ -26,7 +26,7 @@ export const useEmployeeBenefitStore = defineStore("benefits", () => {
       });
       benefits.value = response.data;
     } catch (error) {
-      console.log("error fetching benefits", error);
+      /* console.log("error fetching benefits", error); */
     }
   };
 
@@ -40,9 +40,9 @@ export const useEmployeeBenefitStore = defineStore("benefits", () => {
 
   const searchBenefit = async (keyword) => {
     try {
-      console.log("Searching for employee with keyword:", keyword);
+      /* console.log("Searching for employee with keyword:", keyword); */
       const response = await api.post(`/api/search-benefit?keyword=${keyword}`);
-      console.log("Allowance response:", response.data);
+      /* console.log("Allowance response:", response.data); */
       benefits.value = response.data;
     } catch (error) {
       console.error("Benefits error", error);
@@ -60,8 +60,8 @@ export const useEmployeeBenefitStore = defineStore("benefits", () => {
 
       return response.data;
     } catch (error) {
-      console.log(error);
-      console.log("responce", error.response);
+      /* console.log(error); */
+      /* console.log("responce", error.response); */
       let errorMessage = "An error occurred. Please try again.";
       if (error.response?.status === 409) {
         errorMessage = error.response.data.error || "ssdd";

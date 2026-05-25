@@ -155,9 +155,9 @@ onMounted(async () => {
 });
 
 const updateTableData = async (data, val, type) => {
-  console.log("Updating table data...", data);
-  console.log("Updating table val...", val);
-  console.log("Updating table type...", type);
+  /* console.log("Updating table data...", data); */
+  /* console.log("Updating table val...", val); */
+  /* console.log("Updating table type...", type); */
 
   try {
     const updatedData = {
@@ -166,7 +166,7 @@ const updateTableData = async (data, val, type) => {
       value: val,
     };
 
-    console.log("Updated Data:", updatedData);
+    /* console.log("Updated Data:", updatedData); */
 
     // Optimistic UI update
     data[type] = val;
@@ -174,7 +174,7 @@ const updateTableData = async (data, val, type) => {
     // Send to store / backend
     await productsStore.updatedProducts(updatedData);
   } catch (error) {
-    console.log("Failed to update table data:", error);
+    /* console.log("Failed to update table data:", error); */
   }
 };
 

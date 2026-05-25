@@ -18,7 +18,7 @@ export const useEmployeeDeductions = defineStore("employee-deductions", () => {
         setTimeout: 1000,
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
       Notify.create({
         type: "negative",
         position: "top",

@@ -345,7 +345,7 @@ import { useUsersStore } from "src/stores/user";
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
 
-console.log("producttable user data", userData.value);
+/* console.log("producttable user data", userData.value); */
 
 const employeeId = userData.value?.data?.employee?.id || "0";
 
@@ -618,7 +618,7 @@ const addToList = () => {
   });
 
   // log the updated list
-  console.log("📦 rawMaterialsGroups:", rawMaterialsGroups.value);
+  /* console.log("📦 rawMaterialsGroups:", rawMaterialsGroups.value); */
 
   // clear after add
   selectedRawMaterials.name = "";
@@ -968,15 +968,15 @@ const save = async () => {
     raw_materials_groups: rawMaterialsGroups.value || [],
   };
 
-  console.log("Payloadssss : ", payload);
+  /* console.log("Payloadssss : ", payload); */
 
   $q.loading.show();
   try {
-    console.log("Payload : ", payload);
+    /* console.log("Payload : ", payload); */
 
     const response = await stocksDeliveryStore.createDeliveryStock(payload);
 
-    console.log("Response : ", response);
+    /* console.log("Response : ", response); */
     // if your backend sends a success flag/message, check it
     if (
       response &&

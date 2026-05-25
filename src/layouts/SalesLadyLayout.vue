@@ -144,7 +144,7 @@ import { api } from "src/boot/axios";
 
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
-console.log("sales data for header", userData.value);
+/* console.log("sales data for header", userData.value); */
 const user = ref({});
 const drawer = ref(false);
 const activeMenuItem = ref("0");
@@ -181,18 +181,20 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
-const signOut = () => {
+const signOut = async () => {
   loading.value = true;
+  try {
+    await api.post("/api/logout");
+  } catch (err) {
+    console.warn("Logout API failed:", err);
+  }
+  LocalStorage.removeItem("token");
+  LocalStorage.removeItem("role");
+  LocalStorage.removeItem("activeMenuItem");
 
-  setTimeout(() => {
-    LocalStorage.removeItem("token");
-    LocalStorage.removeItem("role");
-    LocalStorage.removeItem("activeMenuItem");
-
-    salesReportsStore.logout();
-    loading.value = false;
-    router.push("/");
-  }, 1000);
+  salesReportsStore.logout();
+  loading.value = false;
+  router.push("/");
 };
 
 const menuItems = [

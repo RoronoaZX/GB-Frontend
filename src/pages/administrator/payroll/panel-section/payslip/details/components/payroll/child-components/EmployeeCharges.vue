@@ -232,7 +232,7 @@ const onItemUpdate = (index, newValue) => {
   const item = localList.value[index];
   const updatedAmount = parseFloat(newValue) || 0;
 
-  console.log("Updating local item:", item); // check id
+  /* console.log("Updating local item:", item); */ // check id
 
   item.charge_amount = updatedAmount;
 
@@ -245,7 +245,7 @@ const onItemUpdate = (index, newValue) => {
     console.warn("Cannot update store: item.id is missing");
   }
 
-  console.log("Emitting updated item:", localList.value[index]);
+  /* console.log("Emitting updated item:", localList.value[index]); */
 };
 const formatDateString = (d) => date.formatDate(d, "MMM. DD, YYYY");
 const capitalizeFirstLetter = (str) =>

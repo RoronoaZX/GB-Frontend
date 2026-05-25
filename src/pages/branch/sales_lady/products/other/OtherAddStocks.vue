@@ -145,7 +145,7 @@ import { Notify } from "quasar";
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
 
-console.log("usessrDatasssssss", userData.value);
+/* console.log("usessrDatasssssss", userData.value); */
 
 const branchId =
   userData.value?.device?.reference?.id ||
@@ -176,7 +176,7 @@ const fetchBranchOtherProducts = async () => {
     const categoryValue = category.value;
 
     if (!branchesId || !categoryValue) {
-      console.log("Invalid branchesId or category value.");
+      /* console.log("Invalid branchesId or category value."); */
       return;
     }
 
@@ -304,7 +304,7 @@ const save = async () => {
     // Call the API to save the data
     await otherProductStore.createOtherStocks(data);
 
-    console.log("Data sent to backend:", data);
+    /* console.log("Data sent to backend:", data); */
 
     // Clear form and close dialog
     clearForm();

@@ -151,14 +151,14 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["reports", "reportLabel"]);
-console.log("props sales report", props.reports[0]);
+/* console.log("props sales report", props.reports[0]); */
 
 const $q = useQuasar();
 
 // Determine the active report (use reports[0] or fall back to reports[1])
 const currentReport = props.reports[0] || props.reports[1] || null;
 
-console.log("currentReport", currentReport);
+/* console.log("currentReport", currentReport); */
 
 // Handle report-specific data
 const breadReports = currentReport?.bread_reports || "No report";
@@ -174,7 +174,7 @@ const denominationReports = currentReport?.denomination_reports || "No report";
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
 
 const username = props.reports.user;
-console.log("username", username);
+/* console.log("username", username); */
 const maximizedToggle = ref(true);
 const dialog = ref(false);
 
@@ -248,12 +248,12 @@ const negativeProducts = computed(() => {
   processCategory(currentReport.softdrinks_reports, "Soft Drinks");
   processCategory(currentReport.other_products_reports, "Other Products");
 
-  console.log("Negative Products:", negatives);
+  /* console.log("Negative Products:", negatives); */
 
   return negatives;
 });
 
-console.log("negativeProducts", negativeProducts.value);
+/* console.log("negativeProducts", negativeProducts.value); */
 
 // Alias for template clarity
 const confirmedOrDeclinedNegativeProducts = negativeProducts;

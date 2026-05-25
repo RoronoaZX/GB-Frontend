@@ -162,10 +162,10 @@ const selectedSoftdrinksProducts = reactive({
   added_stocks: "",
 });
 const filterSoftdrinksProductsOptions = ref(softdrinksProductsOptions.value);
-console.log(
+/* console.log(
   "filterSoftdrinksProductsOptions",
   filterSoftdrinksProductsOptions.value
-);
+); */
 const fetchBranchSoftdrinks = async () => {
   try {
     const branchesId = branchId;
@@ -185,10 +185,10 @@ const fetchBranchSoftdrinks = async () => {
           price: val.price,
         };
       });
-    console.log(
+    /* console.log(
       "softdrinksProductsOptions.value",
       softdrinksProductsOptions.value
-    );
+    ); */
   } catch (error) {
     console.error("Error fetching branch softdrinks:", error);
   }
@@ -296,7 +296,7 @@ const save = async () => {
     // Call the API to save the data
     await softdrinksProductStore.createSoftdrinksStocks(data);
 
-    console.log("Data sent to backend:", data);
+    /* console.log("Data sent to backend:", data); */
 
     // Clear form and close dialog
     clearForm();

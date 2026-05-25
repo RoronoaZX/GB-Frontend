@@ -170,9 +170,9 @@ const { getPremixBadgeStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("userData in RawMaterialsTable:", userData.value);
+/* console.log("userData in RawMaterialsTable:", userData.value); */
 const employeeId = userData.value?.data?.employee_id || "";
-console.log("employeeId in PremixPage:", employeeId);
+/* console.log("employeeId in PremixPage:", employeeId); */
 // console.log("warehouseId in PremixPage:", warehouseId);
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.branchPremix);
@@ -181,10 +181,10 @@ const dialog = ref(false);
 const loading = ref(false);
 const props = defineProps({ report: { type: Object, required: true } });
 
-console.log("props", props.report);
+/* console.log("props", props.report); */
 
 const branchId = props.report.branch_premix.branch_id;
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 const emit = defineEmits(["update-history"]);
 
 const openDialog = () => {
@@ -254,7 +254,7 @@ const formatQuantity = (quantity, unit) => {
 
 const ingredientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
-console.log("ingrdientsData", ingredientsData);
+/* console.log("ingrdientsData", ingredientsData); */
 
 const computedIngredients = computed(() =>
   ingredientsData.map((ingredient) => {
@@ -271,12 +271,12 @@ const computedIngredients = computed(() =>
   })
 );
 
-console.log("report to proceed", props.report);
+/* console.log("report to proceed", props.report); */
 
 const lastStatus = computed(
   () => props.report.history?.[props.report.history.length - 1]?.status || null
 );
-console.log("lastStatus", lastStatus.value);
+/* console.log("lastStatus", lastStatus.value); */
 const activeStep = computed(
   () =>
     filteredSteps.value.findIndex((step) => step.value === lastStatus.value) + 1
@@ -300,7 +300,7 @@ const confirmReceived = async () => {
       unit: ingredient.ingredient.unit,
     })),
   };
-  console.log("payload", payload);
+  /* console.log("payload", payload); */
   await premixStore.receivePremix(payload);
   await premixStore.fetchRequestBranchPremix(branchId);
   dialog.value = false;

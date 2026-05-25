@@ -12,7 +12,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   const user = ref({});
 
   const setUser = (newUser) => {
-    console.log("Setting user in DTR store:", newUser.data);
+    /* console.log("Setting user in DTR store:", newUser.data); */
     user.value = newUser.data;
   };
 
@@ -38,18 +38,18 @@ export const useDTRStore = defineStore("dtrs", () => {
 
   const fetchDTRRange = async (data) => {
     // Send a POST request to fetch DTR data
-    console.log("Fetching DTR Range with data:", data);
+    /* console.log("Fetching DTR Range with data:", data); */
     const response = await api.post("/api/dtr-data", data);
-    console.log("DTR Range response:", response);
+    /* console.log("DTR Range response:", response); */
 
     // Assuming your DTR store has a method to set the fetched data
     dtrCutOffData.value = response.data;
   };
   const fetchEmployeeDTRRange = async (data) => {
     // Send a POST request to fetch DTR data
-    console.log("Fetching DTR Range with data:", data);
+    /* console.log("Fetching DTR Range with data:", data); */
     const response = await api.post("/api/dtr-data", data);
-    console.log("DTR Range response:", response);
+    /* console.log("DTR Range response:", response); */
 
     // Assuming your DTR store has a method to set the fetched data
     dtrCutOffData.value = response.data;
@@ -57,9 +57,9 @@ export const useDTRStore = defineStore("dtrs", () => {
 
   const searchDTR = async (keyword) => {
     try {
-      console.log("Searching for DTR with keyword:", keyword);
+      /* console.log("Searching for DTR with keyword:", keyword); */
       const response = await api.post(`/api/search-drt?keyword=${keyword}`);
-      console.log("DTR response:", response);
+      /* console.log("DTR response:", response); */
       dtrs.value = response.data;
     } catch (error) {
       console.error("Error searching DTR:", error);
@@ -67,7 +67,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const saveEmployeeDtr = async (data) => {
-    console.log("Saving employee DTR with data:", data);
+    /* console.log("Saving employee DTR with data:", data); */
 
     try {
       const response = await api.post("/api/saveEmployeeDtr", data);
@@ -78,7 +78,7 @@ export const useDTRStore = defineStore("dtrs", () => {
       });
       return response.data;
     } catch (error) {
-      console.log("Error saving employee DTR:", error);
+      /* console.log("Error saving employee DTR:", error); */
       Notify.create({
         type: "negative",
         message: "Failed to save DTR",
@@ -97,7 +97,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const fetchDTRPayrollPerCutOff = async (id) => {
-    console.log("fetchDTRPayrollPerCutOff", id);
+    /* console.log("fetchDTRPayrollPerCutOff", id); */
 
     try {
       const response = await api.get(
@@ -105,12 +105,12 @@ export const useDTRStore = defineStore("dtrs", () => {
       );
       dtrCutOffData.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const approveOvertime = async (data) => {
-    console.log("Approving overtime with data:", data);
+    /* console.log("Approving overtime with data:", data); */
     try {
       const response = await api.post("/api/approveOvertime", data);
       Notify.create({
@@ -135,7 +135,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDtrScheduleIn = async (data) => {
-    console.log("updateDtrScheduleIn in store:", data);
+    /* console.log("updateDtrScheduleIn in store:", data); */
     const id = data.id;
 
     try {
@@ -148,7 +148,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update schedule in",
         color: "negative",
@@ -159,7 +159,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDtrSheduleOut = async (data) => {
-    console.log("updateDtrSheduleOut in store", data);
+    /* console.log("updateDtrSheduleOut in store", data); */
     const id = data.id;
 
     try {
@@ -175,7 +175,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
       Notify.create({
         message: "Schedules out updated successfully",
         color: "positive",
@@ -188,15 +188,15 @@ export const useDTRStore = defineStore("dtrs", () => {
   const getBranchWithWarehouses = async () => {
     try {
       const response = await api.get("/api/getBranchWithWarehouses");
-      console.log("getBranchWithWarehouses response", response);
+      /* console.log("getBranchWithWarehouses response", response); */
       branchWithWarehouses.value = response.data;
     } catch (error) {
-      console.log("getBranchWithWarehouses error", error);
+      /* console.log("getBranchWithWarehouses error", error); */
     }
   };
 
   const updateDTRWhereIN = async (data) => {
-    console.log("updateDTRWhereIN in store:", data);
+    /* console.log("updateDTRWhereIN in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRWhereIN`, data);
@@ -207,7 +207,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Where IN",
         color: "negative",
@@ -218,7 +218,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRWhereOUT = async (data) => {
-    console.log("updateDTRWhereOUT in store:", data);
+    /* console.log("updateDTRWhereOUT in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRWhereOUT`, data);
@@ -229,7 +229,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Where OUT",
         color: "negative",
@@ -240,7 +240,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRShiftStatus = async (data) => {
-    console.log("updateDTRShiftStatus in store:", data);
+    /* console.log("updateDTRShiftStatus in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRShiftStatus`, data);
@@ -251,7 +251,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Shift Status",
         color: "negative",
@@ -262,7 +262,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRDateIN = async (data) => {
-    console.log("updateDTRDateIN in store:", data);
+    /* console.log("updateDTRDateIN in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRDateIN`, data);
@@ -273,7 +273,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Date IN",
         color: "negative",
@@ -284,7 +284,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRTimeIN = async (data) => {
-    console.log("updateDTRTimeIN in store", data);
+    /* console.log("updateDTRTimeIN in store", data); */
 
     try {
       const response = await api.put(`/api/updateDTRTimeIN`, data);
@@ -295,7 +295,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Time IN",
         color: "negative",
@@ -306,7 +306,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRDateOUT = async (data) => {
-    console.log("updateDTRDateOUT in store:", data);
+    /* console.log("updateDTRDateOUT in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTROUT`, data);
@@ -317,7 +317,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Date OUT",
         color: "negative",
@@ -328,7 +328,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRTimeOUT = async (data) => {
-    console.log("updateDTRTimeOUT in store", data);
+    /* console.log("updateDTRTimeOUT in store", data); */
 
     try {
       const response = await api.put(`/api/updateDTRTimeOUT`, data);
@@ -339,7 +339,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Time OUT",
         color: "negative",
@@ -350,7 +350,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRLunchBreakStart = async (data) => {
-    console.log("updateDTRLunchBreakStart in store:", data);
+    /* console.log("updateDTRLunchBreakStart in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRLunchBreakStart`, data);
@@ -362,7 +362,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Lunch Break Start",
         color: "negative",
@@ -373,7 +373,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRLunchBreakEnd = async (data) => {
-    console.log("updateDTRLunchBreakEnd in store:", data);
+    /* console.log("updateDTRLunchBreakEnd in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRLunchBreakEnd`, data);
@@ -385,7 +385,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Lunch Break End",
         color: "negative",
@@ -396,7 +396,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTRBreakStart = async (data) => {
-    console.log("updateDTRBreakStart in store:", data);
+    /* console.log("updateDTRBreakStart in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRBreakStart`, data);
@@ -408,7 +408,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Break Start",
         color: "negative",
@@ -419,7 +419,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updatedDTRBreakEnd = async (data) => {
-    console.log("updateDTRBreakEnd in store:", data);
+    /* console.log("updateDTRBreakEnd in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTRBreakEnd`, data);
@@ -431,7 +431,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Break End",
         color: "negative",
@@ -442,7 +442,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updatedDTROvertimeStart = async (data) => {
-    console.log("updateDTROvertimeStart in store:", data);
+    /* console.log("updateDTROvertimeStart in store:", data); */
 
     try {
       const response = await api.put(`/api/updatedDTROvertimeStart`, data);
@@ -454,7 +454,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Overtime Start",
         color: "negative",
@@ -465,7 +465,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updatedDTROvertimeEnd = async (data) => {
-    console.log("updateDTROvertimeEnd in store:", data);
+    /* console.log("updateDTROvertimeEnd in store:", data); */
 
     try {
       const response = await api.put(`/api/updatedDTROvertimeEnd`, data);
@@ -477,7 +477,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Overtime End",
         color: "negative",
@@ -488,7 +488,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTROvertimeReasons = async (data) => {
-    console.log("updateDTROvertimeReason in store:", data);
+    /* console.log("updateDTROvertimeReason in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTROvertimeReasons`, data);
@@ -500,7 +500,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         message: "Failed to update DTR Overtime Reason",
         color: "negative",
@@ -511,7 +511,7 @@ export const useDTRStore = defineStore("dtrs", () => {
   };
 
   const updateDTROvertimeDeclinedReasons = async (data) => {
-    console.log("updateDTROvertimeDeclinedReason in store:", data);
+    /* console.log("updateDTROvertimeDeclinedReason in store:", data); */
 
     try {
       const response = await api.put(
@@ -526,12 +526,12 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
   const updateDTROTStatus = async (data) => {
-    console.log("updateDTRStatus in store:", data);
+    /* console.log("updateDTRStatus in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTROTStatus`, data);
@@ -543,12 +543,12 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
   const updateDTROTApprovedBy = async (data) => {
-    console.log("updateDTRApprovedBy in store:", data);
+    /* console.log("updateDTRApprovedBy in store:", data); */
 
     try {
       const response = await api.put(`/api/updateDTROTApprovedBy`, data);
@@ -560,7 +560,7 @@ export const useDTRStore = defineStore("dtrs", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
 
       Notify.create({
         message: "Failed to update DTR Approved By",

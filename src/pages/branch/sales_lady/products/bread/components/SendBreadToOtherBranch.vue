@@ -187,10 +187,10 @@ const showBranchCard = ref(false);
 const branchSelected = ref(false);
 
 const userData = salesReportsStore.user;
-console.log("userData from send", userData);
+/* console.log("userData from send", userData); */
 const branchId =
   userData?.device?.reference_id || userData?.device?.reference?.id || "";
-console.log("branch id", branchId);
+/* console.log("branch id", branchId); */
 const employee_id = userData?.employee?.employee_id || "";
 
 const category = ref("Bread");
@@ -247,7 +247,7 @@ const fetchBranchBread = async () => {
       category.value
     );
     loading.value = false;
-    console.log("bread", breads.value);
+    /* console.log("bread", breads.value); */
     breadProductOptions.value = breadProductStore.breads.map((val) => {
       return {
         label: capitalizeFirstLetter(val.name),
@@ -255,7 +255,7 @@ const fetchBranchBread = async () => {
         price: val.price,
       };
     });
-    console.log("breadProductOptions.value", breadProductOptions.value);
+    /* console.log("breadProductOptions.value", breadProductOptions.value); */
   } catch (error) {
     console.error("Error fetching branch selecta:", error);
   }
@@ -291,7 +291,7 @@ const addBreadStocks = async () => {
       const selectedProduct = breadProductOptions.value.find(
         (product) => product.value === idToSearch
       );
-      console.log("selected product", selectedProduct);
+      /* console.log("selected product", selectedProduct); */
       breadProductGroups.value = [
         ...data,
         {
@@ -301,7 +301,7 @@ const addBreadStocks = async () => {
           price: selectedProduct.price,
         },
       ];
-      console.log("breadProductGroups.value", breadProductGroups.value);
+      /* console.log("breadProductGroups.value", breadProductGroups.value); */
     }
     clearBreadAndQuantityInput();
   } catch (error) {
@@ -337,14 +337,14 @@ const save = async () => {
       status: "pending",
       products: breadProductGroups.value,
     };
-    console.log("bread data to  be sent to the data base", data);
+    /* console.log("bread data to  be sent to the data base", data); */
     await breadProductStore.sendBreadToBranch(data);
     Notify.create({
       type: "positive",
       message: "Sending Bread successfully!",
     });
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     Notify.create({
       type: "negative",
       message: "Sending Bread unsuccessfull!",

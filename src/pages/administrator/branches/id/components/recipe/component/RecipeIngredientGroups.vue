@@ -83,7 +83,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["ingredientGroups"]);
-console.log("ingredientGroupsss", props.ingredientGroups);
+/* console.log("ingredientGroupsss", props.ingredientGroups); */
 
 // Local formatQuantity removed in favor of global helper
 

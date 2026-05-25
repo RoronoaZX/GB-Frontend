@@ -15,11 +15,11 @@ export const useEmployeeAllowance = defineStore("employee-allowance", () => {
 
   const searchAllowance = async (keyword) => {
     try {
-      console.log("Searching for employee with keyword:", keyword);
+      /* console.log("Searching for employee with keyword:", keyword); */
       const response = await api.post(
         `/api/search-allowance?keyword=${keyword}`
       );
-      console.log("Allowance response:", response);
+      /* console.log("Allowance response:", response); */
       allowances.value = response.data;
     } catch (error) {
       console.error("Error searching employee:", error);
@@ -71,7 +71,7 @@ export const useEmployeeAllowance = defineStore("employee-allowance", () => {
   };
 
   const updateAmount = async (data, val) => {
-    console.log("updateAmount store", data, val);
+    /* console.log("updateAmount store", data, val); */
     try {
       const response = await api.put(
         "/api/update-employee-allowance/" + data.id,
@@ -81,7 +81,7 @@ export const useEmployeeAllowance = defineStore("employee-allowance", () => {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 

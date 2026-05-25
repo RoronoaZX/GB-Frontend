@@ -62,7 +62,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["breadProduction", "branchRecipe"]);
-console.log("breadReportsaaasss", props.breadProduction);
+/* console.log("breadReportsaaasss", props.breadProduction); */
 </script>
 
 <style lang="scss" scoped>

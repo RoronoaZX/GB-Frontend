@@ -174,9 +174,9 @@ const route = useRoute();
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
-console.log("producttable user data", userData.value);
+/* console.log("producttable user data", userData.value); */
 const userId = userData.value?.data?.id || "0";
-console.log("user_id branch product table", userId);
+/* console.log("user_id branch product table", userId); */
 const branchId = route.params.branch_id;
 const branchRecipeStore = useBranchRecipeStore();
 const filter = ref("");
@@ -188,7 +188,7 @@ const pagination = ref({
 });
 const status = ["inactive", "active"];
 const branchRecipeRows = computed(() => branchRecipeStore.branchRecipes);
-console.log("branch recipe", branchRecipeRows.value);
+/* console.log("branch recipe", branchRecipeRows.value); */
 
 const filteredRows = computed(() => {
   if (!filter.value) {
@@ -210,13 +210,13 @@ const reloadTableData = async (branchId) => {
     loading.value = true;
     const response = await branchRecipeStore.fetchBranchRecipes(branchId);
     branchRecipeRows.value = response;
-    console.log("branchRecipeRows", branchRecipeRows.value);
+    /* console.log("branchRecipeRows", branchRecipeRows.value); */
     if (!branchRecipeRows.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Branch recipe", branchRecipeRows.value);
+    /* console.log("Branch recipe", branchRecipeRows.value); */
   } catch (error) {
-    console.log("Error fetching recipe", error);
+    /* console.log("Error fetching recipe", error); */
   } finally {
     loading.value = false;
   }
@@ -232,7 +232,7 @@ const formatNumber = (value) => {
 };
 
 async function updateRecipe(data, val) {
-  console.log("branch recipe taable", data);
+  /* console.log("branch recipe taable", data); */
   const formatNumber = (num) => {
     const parsed = parseFloat(num);
     // If it's a whole number, return as string without decimals
@@ -270,7 +270,7 @@ async function updateRecipe(data, val) {
       user_id,
     });
 
-    console.log("response", response);
+    /* console.log("response", response); */
     if (response.status == 200) {
       const i = branchRecipes.value.findIndex((item) => item.id == data.id);
       branchRecipes.value[i] = val;
@@ -407,7 +407,7 @@ const branchRecipeColumns = [
 const $q = useQuasar();
 
 const handleRecipeBreadGroupsDialog = (breadGroups) => {
-  console.log("Bread Groups:", breadGroups);
+  /* console.log("Bread Groups:", breadGroups); */
   $q.dialog({
     component: RecipeBreadGroups,
     componentProps: {
@@ -416,7 +416,7 @@ const handleRecipeBreadGroupsDialog = (breadGroups) => {
   });
 };
 const handleRecipeIngredientGroupsDialog = (ingredientGroups) => {
-  console.log("Ingredients Groups:", ingredientGroups);
+  /* console.log("Ingredients Groups:", ingredientGroups); */
   $q.dialog({
     component: RecipeIngredientGroups,
     componentProps: {

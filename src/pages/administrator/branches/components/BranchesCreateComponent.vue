@@ -205,7 +205,7 @@ const search = async () => {
 
 const autoFillEmployee = (employee) => {
   // Log the selected employee data
-  console.log("Selected Employee:", employee);
+  /* console.log("Selected Employee:", employee); */
 
   addNewBranchForm.employee_id = employee.id;
   addNewBranchForm.employee_name = `${employee.firstname} ${
@@ -217,7 +217,7 @@ const autoFillEmployee = (employee) => {
 
   showDropdown.value = false;
   // Log the filled designation data
-  console.log("Filled addNewBranchForm Data:", addNewBranchForm);
+  /* console.log("Filled addNewBranchForm Data:", addNewBranchForm); */
   // setTimeout(() => {
   //   searchKeyword.value = null;
   // }, 0);
@@ -283,10 +283,10 @@ const addNewBranch = async () => {
       ...addNewBranchForm,
       warehouse_id: selectedWarehouse.value?.value || null,
     };
-    console.log("brabrbbar", formData);
+    /* console.log("brabrbbar", formData); */
 
     const data = await branchStore.createBranches(formData);
-    console.log(data);
+    /* console.log(data); */
 
     addNewBranchDialogVisible.value = false;
     resetFormData();

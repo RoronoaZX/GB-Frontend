@@ -277,7 +277,7 @@ const props = defineProps({
   },
 });
 
-console.log("Summary Data:", props);
+/* console.log("Summary Data:", props); */
 
 // Define the emits for the component.
 // 'summaryUpdated' will be used to send all calculated data to the parent.
@@ -293,11 +293,11 @@ const parentTotalIncentive = ref(0);
 const incentiveDatasFromChild = ref([]);
 
 watch(parentTotalIncentive, (newValue) => {
-  console.log("Parent total incentive updated:", newValue);
+  /* console.log("Parent total incentive updated:", newValue); */
 });
 
 const logIncentive = () => {
-  console.log("Parent total incentive now:", parentTotalIncentive.value);
+  /* console.log("Parent total incentive now:", parentTotalIncentive.value); */
 };
 
 const employeeSchedule = computed(() => {

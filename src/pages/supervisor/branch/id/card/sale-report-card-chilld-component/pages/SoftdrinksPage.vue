@@ -396,7 +396,7 @@ const props = defineProps([
   "reportDate",
 ]);
 
-console.log("Softdrinks Reports:", props.reports);
+/* console.log("Softdrinks Reports:", props.reports); */
 
 const emit = defineEmits(["summary-updated", "ok"]);
 

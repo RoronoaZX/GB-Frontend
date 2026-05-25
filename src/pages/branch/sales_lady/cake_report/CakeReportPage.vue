@@ -57,10 +57,10 @@ import { computed, onMounted } from "vue";
 
 const useCakeMakerReport = useCakeMakerReportStore();
 const cakeMakerReport = computed(() => useCakeMakerReport.pendingReports);
-console.log("pendong report", cakeMakerReport.value);
+/* console.log("pendong report", cakeMakerReport.value); */
 const branchId = localStorage.getItem("branch_id");
 
-console.log("branch IDss", branchId);
+/* console.log("branch IDss", branchId); */
 
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");

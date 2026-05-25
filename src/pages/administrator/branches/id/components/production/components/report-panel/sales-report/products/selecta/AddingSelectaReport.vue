@@ -205,22 +205,22 @@ const props = defineProps({
   reportDate: String,
 });
 
-console.log("propsss..", props);
+/* console.log("propsss..", props); */
 
 const emit = defineEmits(["selecta-added"]);
 
 const userStore = useUsersStore();
 
 const userData = computed(() => userStore.userData);
-console.log("usersssData", userData.value);
+/* console.log("usersssData", userData.value); */
 
 const userId = computed(
   () =>
     userStore.userData?.data?.employee_id || userStore.userData?.data?.id || 0
 );
 
-console.log("props.sales_Reports", props.sales_Reports);
-console.log("props.user", props.user);
+/* console.log("props.sales_Reports", props.sales_Reports); */
+/* console.log("props.user", props.user); */
 
 const route = useRoute();
 const branch_id = route.params.branch_id; // Assuming branch_id is passed as a route parameter
@@ -232,7 +232,7 @@ const branchProductsStore = useBranchProductsStore();
 const dialog = ref(false);
 const searchQuery = ref("");
 const branchProduct = computed(() => branchProductsStore.branchProducts);
-console.log("branchProduct", branchProduct);
+/* console.log("branchProduct", branchProduct); */
 
 const sales_report_id = props.sales_report_id;
 
@@ -305,9 +305,9 @@ const openDialog = () => {
 
 const category = ref("Selecta"); // Add a ref for the category
 const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
+  /* console.log("branch_id.value:", branch_id); */
+  /* console.log("searchQuery.value:", searchQuery.value); */
+  /* console.log("category.value:", category.value); */
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -318,7 +318,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addSelectaReport.product_id = data.product.id;
   addSelectaReport.product_name = capitalizeFirstLetter(data.product.name);
   addSelectaReport.category = data.category;

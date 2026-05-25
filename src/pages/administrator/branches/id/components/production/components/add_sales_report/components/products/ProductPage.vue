@@ -20,7 +20,7 @@ import NestleReport from "./components/NestleReport.vue";
 import SoftdrinksReport from "./components/SoftdrinksReport.vue";
 
 const props = defineProps(["user"]);
-console.log("user from Add sales", props.user);
+/* console.log("user from Add sales", props.user); */
 </script>
 
 <style lang="scss" scoped>

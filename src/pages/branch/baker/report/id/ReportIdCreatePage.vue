@@ -60,7 +60,7 @@ const router = useRouter();
 const bakerReport = useBakerReportsStore();
 const report = computed(() => bakerReport.recipes);
 
-console.log("report", report);
+/* console.log("report", report); */
 const goBack = () => {
   bakerReport.clearData(); // Clear the data in the store
   router.push("/branch/baker/report"); // Navigate back

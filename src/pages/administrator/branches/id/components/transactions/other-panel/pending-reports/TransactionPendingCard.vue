@@ -118,7 +118,7 @@ const fetchPendingOtherStocks = async (branchId, page = 1, rowsPerPage = 5) => {
       page,
       rowsPerPage
     );
-    console.log("otherProductsPending.value", otherProductsPending.value);
+    /* console.log("otherProductsPending.value", otherProductsPending.value); */
 
     const { data, current_page, per_page, total } = otherProductsPending.value;
     otherProductsData.value = data;

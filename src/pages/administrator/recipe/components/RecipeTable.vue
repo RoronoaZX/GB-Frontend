@@ -153,9 +153,9 @@ const reloadTableData = async () => {
       showNoDataMessage.value = true;
     }
 
-    console.log("Recipe", recipeRows.value);
+    /* console.log("Recipe", recipeRows.value); */
   } catch (error) {
-    console.log("error fetching recipe: ", error);
+    /* console.log("error fetching recipe: ", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;

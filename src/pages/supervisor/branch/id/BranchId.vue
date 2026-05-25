@@ -81,7 +81,7 @@ const branchId = route.params.branch_id;
 
 const branchName = ref("");
 
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 
 const tab = ref("products");
 

@@ -122,12 +122,12 @@ const props = defineProps({
   },
 });
 
-console.log(
+/* console.log(
   "props holiday to edit: ",
   props.holidayToEdit,
   props.currentYear,
   props.currentMonth
-);
+); */
 
 const emit = defineEmits(["refreshHolidays"]);
 
@@ -261,7 +261,7 @@ watch(
 );
 
 const save = async () => {
-  console.log("Holiday Form Submitted:", holidayForm);
+  /* console.log("Holiday Form Submitted:", holidayForm); */
   // On success, you might want to close the dialog
   // dialog.value = false;
   if (props.editMode) {

@@ -890,7 +890,7 @@ const leaveStore = useEmployeeLeaveStore();
 
 const userData = computed(() => supervisorStore.user);
 
-console.log("userDatadddd..", userData.value);
+/* console.log("userDatadddd..", userData.value); */
 const branchList = computed(() => supervisorStore.supervisorBranch);
 const branchEmployee = computed(() => employeeStore.branchEmployees || []);
 
@@ -920,7 +920,7 @@ const branchOptions = computed(() =>
   }))
 );
 
-console.log("branchList", branchList.value);
+/* console.log("branchList", branchList.value); */
 
 // Computed properties for stats
 const totalEmployees = computed(() => branchEmployee.value.length);
@@ -970,7 +970,7 @@ const filters = [
 const filteredEmployees = computed(() => {
   let filtered = branchEmployee.value;
 
-  console.log("filteredss", filtered);
+  /* console.log("filteredss", filtered); */
 
   // Apply quick filter
   if (quickFilter.value !== "all") {
@@ -1144,8 +1144,8 @@ const updateBranchEmployeeData = (employeeId, updatedFields) => {
     (item) => item.employee.id === employeeId
   );
 
-  console.log("index", index);
-  console.log("updatedFields", updatedFields);
+  /* console.log("index", index); */
+  /* console.log("updatedFields", updatedFields); */
 
   if (index !== -1) {
     // Update the employee data in the branchEmployee list
@@ -1158,8 +1158,8 @@ const updateBranchEmployeeBranchEmployeeData = (employeeId, updatedFields) => {
     (item) => item.employee.id === employeeId
   );
 
-  console.log("index", index);
-  console.log("updatedFields", updatedFields);
+  /* console.log("index", index); */
+  /* console.log("updatedFields", updatedFields); */
 
   if (index !== -1) {
     // Update the employee data in the branchEmployee list
@@ -1171,7 +1171,7 @@ const updateBranchEmployeeBranchEmployeeData = (employeeId, updatedFields) => {
 };
 
 const updateEmployeeBranchDesignation = async (employee, branch) => {
-  console.log("branchsss", branch);
+  /* console.log("branchsss", branch); */
 
   const employeeId = employee.id;
 
@@ -1179,7 +1179,7 @@ const updateEmployeeBranchDesignation = async (employee, branch) => {
     (item) => item.employee_id === employeeId
   );
 
-  console.log("index", index);
+  /* console.log("index", index); */
 
   if (index !== -1) {
     // Replace the entire branch object
@@ -1201,7 +1201,7 @@ const updateEmployeeBranchDesignation = async (employee, branch) => {
         selectedEmployee.value.employee.branch_employee.branch_id = branch.id;
       }
     }
-    console.log("Updated brach: ", branchEmployee.value[index].branch);
+    /* console.log("Updated brach: ", branchEmployee.value[index].branch); */
   }
 };
 
@@ -1223,12 +1223,12 @@ const fetchEmploymentTypeData = async () => {
     label: val.category,
     value: val.id,
   }));
-  console.log("Employment Type Options:", employmentTypeOptions.value);
+  /* console.log("Employment Type Options:", employmentTypeOptions.value); */
 };
 
 const branchId = route.params.branch_id;
 
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 
 onMounted(() => {
   fetchBranchEmployees();

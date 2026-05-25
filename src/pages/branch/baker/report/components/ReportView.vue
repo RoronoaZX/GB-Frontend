@@ -223,7 +223,7 @@ const props = defineProps({
   },
 });
 
-console.log("bakerView", props.report);
+/* console.log("bakerView", props.report); */
 
 const bakersReportDialog = ref(false);
 

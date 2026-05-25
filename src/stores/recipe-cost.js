@@ -19,7 +19,7 @@ export const useRecipeCostStore = defineStore("recipe-cost", () => {
       recipeCosts.value = response.data;
       return response.data;
     } catch (error) {
-      console.log("Error fetching recipe costs:", error);
+      /* console.log("Error fetching recipe costs:", error); */
       throw error;
     }
   };
@@ -34,7 +34,7 @@ export const useRecipeCostStore = defineStore("recipe-cost", () => {
       });
       return response.data;
     } catch (error) {
-      console.log("Error fetching global recipe costs:", error);
+      /* console.log("Error fetching global recipe costs:", error); */
       throw error;
     }
   };

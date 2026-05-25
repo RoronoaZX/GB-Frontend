@@ -69,7 +69,7 @@ const props = defineProps({
   payslipDataToBeSend: Object,
 });
 
-console.log("print or saave options", props.payslipDataToBeSend);
+/* console.log("print or saave options", props.payslipDataToBeSend); */
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
@@ -96,7 +96,7 @@ const formatCurrency = (value) => {
 };
 
 const generatePayslip = (payslipData) => {
-  console.log("payslip data to be send", payslipData);
+  /* console.log("payslip data to be send", payslipData); */
   const docDefinition = {
     pageMargins: [20, 10, 20, 10],
     // [left, top, right, bottom] → shrink to your liking
@@ -466,7 +466,7 @@ const onOKClick = async () => {
       props.payslipDataToBeSend
     );
 
-    console.log("Payslip saved successfully:", response);
+    /* console.log("Payslip saved successfully:", response); */
     // ✅ only continue to print if backend confirms succuess
     if (response?.message === "Payslip saved successfully") {
       generatePayslip(props.payslipDataToBeSend);

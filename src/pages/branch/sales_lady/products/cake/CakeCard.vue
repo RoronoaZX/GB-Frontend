@@ -111,7 +111,7 @@ onMounted(async () => {
 const fetchOnDisplayProducts = async () => {
   const response = await useCakeMakerReport.fetchOnDisplayProducts(branchId);
   onDisplayCake.value = response;
-  console.log("sdfasdfas", onDisplayCake.value);
+  /* console.log("sdfasdfas", onDisplayCake.value); */
 };
 
 const capitalizeFirstLetter = (location) => {
@@ -146,7 +146,7 @@ const sold = async () => {
       price: selectedItem.value.price,
       sales_status: "sold",
     };
-    console.log(report);
+    /* console.log(report); */
     salesReportsStore.updateCakeReport(report);
     Notify.create({
       type: "positive",

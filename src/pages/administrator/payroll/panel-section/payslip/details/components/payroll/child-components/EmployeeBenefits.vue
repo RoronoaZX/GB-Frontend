@@ -64,7 +64,7 @@ import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const props = defineProps(["dtrFrom", "dtrTo"]);
-console.log("props", props.dtrTo, props.dtrFrom);
+/* console.log("props", props.dtrTo, props.dtrFrom); */
 
 const emit = defineEmits(["update:total"]);
 
@@ -170,7 +170,7 @@ const fetchEmployeeBenefits = async () => {
   // Only perform fetch if the DTR date match the 26th and 10th cutoff pattern
   if (isDtrFromCorrectDay && isDtrToCorrectDay && isMonthSequenceCorrect) {
     await employeeBenefitsStore.fetchEmployeeBenefitsDeductions(employeeID);
-    console.log("employee benefits", employeeBenefitsStore.benefits);
+    /* console.log("employee benefits", employeeBenefitsStore.benefits); */
   } else {
     console.warn(
       "DTR dates do not match the required cutoff pattern (26th of a month to 10th of the next month). Fetching benefits skipped."

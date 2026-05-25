@@ -64,7 +64,7 @@ const pagination = ref({
 
 const breadProductStore = useBreadProductStore();
 const pendingReports = computed(() => breadProductStore.pendingBreads);
-console.log("pendingReportsadmin", pendingReports.value);
+/* console.log("pendingReportsadmin", pendingReports.value); */
 const breadData = ref([]);
 const branchId = route.params.branch_id;
 const showNoDataMessage = ref(false);
@@ -87,19 +87,19 @@ const fetchSendBreadPendingReports = async (
       search
     );
 
-    console.log("Pending bread reports:", response);
-    console.log("Pending bread reports:", pendingReports.value);
+    /* console.log("Pending bread reports:", response); */
+    /* console.log("Pending bread reports:", pendingReports.value); */
 
     const { data, current_page, per_page, total } = pendingReports.value;
 
     breadData.value = data;
-    console.log("breadData", breadData.value);
+    /* console.log("breadData", breadData.value); */
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
+    /* console.log("pagination.value.page", pagination.value.page); */
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.per_page", pagination.value.rowsPerPage);
+    /* console.log("pagination.value.per_page", pagination.value.rowsPerPage); */
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.total", pagination.value.rowsNumber);
+    /* console.log("pagination.value.total", pagination.value.rowsNumber); */
 
     if (!breadData.value.length) {
       showNoDataMessage.value = true;
@@ -119,7 +119,7 @@ onMounted(async () => {
 });
 
 const handleRequest = (props) => {
-  console.log("props", props);
+  /* console.log("props", props); */
   fetchSendBreadPendingReports(
     branchId,
     props.pagination.page,

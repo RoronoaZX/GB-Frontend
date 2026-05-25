@@ -145,7 +145,7 @@ async function updateAmount(data, val) {
       timeout: 2000,
     });
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     Notify.create({
       message: "Failed to update amount",
       color: "negative",
@@ -168,7 +168,7 @@ async function updateReason(data, val) {
       timeout: 2000,
     });
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     Notify.create({
       message: "Cash Advance reasons updated successfully!",
       color: "negative",
@@ -191,14 +191,14 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
 
     const { data, current_page, per_page, total } = cashAdvance.value;
     cashAdvanceRows.value = data;
-    console.log("Cash Advance", cashAdvanceRows.value);
+    /* console.log("Cash Advance", cashAdvanceRows.value); */
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;
   } catch (error) {
-    console.log("====================================");
-    console.log(error);
-    console.log("====================================");
+    /* console.log("===================================="); */
+    /* console.log(error); */
+    /* console.log("===================================="); */
   } finally {
     loading.value = false;
   }

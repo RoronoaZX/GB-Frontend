@@ -21,16 +21,16 @@ import { date } from "quasar";
 const route = useRoute();
 const breadProductStore = useBreadProductStore();
 const pendingReports = computed(() => breadProductStore.pendingBreads);
-console.log("pending bread reports", pendingReports.value);
+/* console.log("pending bread reports", pendingReports.value); */
 const branchId = route.params.branch_id;
-console.log("branch idss", branchId);
+/* console.log("branch idss", branchId); */
 
 const status = ref("pending");
 
 const fetchSendBreadPendingReports = async () => {
   try {
     await breadProductStore.fetchPendingBreadsReport(branchId);
-    console.log("pending bread reports", pendingReports.value);
+    /* console.log("pending bread reports", pendingReports.value); */
   } catch (error) {
     console.error("Error fetching pending bread reports:", error);
   }

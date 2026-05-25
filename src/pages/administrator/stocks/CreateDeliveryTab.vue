@@ -436,7 +436,7 @@ const saveEditedDateTime = async () => {
     if (!selectedDelivery.value?.id) return;
 
     const finalDateTime = `${tempDate.value} ${tempTime.value}`;
-    console.log("Saving new datetime:", finalDateTime);
+    /* console.log("Saving new datetime:", finalDateTime); */
 
     // 🟢 Await and receive backend response
     const response = await stocksDeliveryStore.updateDeliveryDate(
@@ -444,7 +444,7 @@ const saveEditedDateTime = async () => {
       finalDateTime
     );
 
-    console.log("Response after update:", response);
+    /* console.log("Response after update:", response); */
 
     // ✅ Handle backend message dynamically
     const message = response?.message || "Unknown server response.";
@@ -457,10 +457,10 @@ const saveEditedDateTime = async () => {
         message: message,
       });
 
-      console.log(
+      /* console.log(
         "Updated created_at inUI:",
         selectedDelivery.value.created_at
-      );
+      ); */
     } else {
       $q.notify({
         type: "warning",
@@ -524,8 +524,8 @@ const fetchDeliveryStocks = async (page = 1) => {
       selectedDelivery.value = deliveryList.value[0];
     }
 
-    console.log("deliveryList", deliveryList.value);
-    console.log("pagination", pagination.value);
+    /* console.log("deliveryList", deliveryList.value); */
+    /* console.log("pagination", pagination.value); */
   } catch (error) {
     console.error("Error fetching delivery stocks in component:", error);
     $q.notify({
@@ -546,8 +546,8 @@ onMounted(() => {
 // as `deliveryList` is now a computed property directly accessing `stocksDeliveryStore.deliveryStocks.data`
 
 const openEditDialog = (item, delivery) => {
-  console.log("Editing item:", item);
-  console.log("Parent delivery:", delivery);
+  /* console.log("Editing item:", item); */
+  /* console.log("Parent delivery:", delivery); */
 
   $q.dialog({
     component: EditDialog,
@@ -573,7 +573,7 @@ const formatQuantity = (val) => {
 };
 
 watch(selectedDelivery, (newVal) => {
-  console.log("Selected Delivery changed:", newVal);
+  /* console.log("Selected Delivery changed:", newVal); */
 });
 
 const getItemClass = (delivery) => {

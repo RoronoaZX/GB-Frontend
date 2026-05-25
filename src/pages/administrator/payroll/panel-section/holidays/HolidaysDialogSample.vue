@@ -122,12 +122,12 @@ const props = defineProps({
   },
 });
 
-console.log(
+/* console.log(
   "props holiday to edit: ",
   props.holidayToEdit,
   props.currentYear,
   props.currentMonth
-);
+); */
 
 const emit = defineEmits(["refreshHolidays"]);
 
@@ -177,7 +177,7 @@ const save = async () => {
 
   try {
     if (props.editMode) {
-      console.log("Holiday Form Submitted:", holidayForm);
+      /* console.log("Holiday Form Submitted:", holidayForm); */
       // Call your update API
       await holidaysStore.updateHoliday(
         holidayForm.id,
@@ -192,7 +192,7 @@ const save = async () => {
     resetForm();
     dialog.value = false;
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     Loading.hide();
   }
@@ -263,7 +263,7 @@ watch(
 );
 
 const save = async () => {
-  console.log("Holiday Form Submitted:", holidayForm);
+  /* console.log("Holiday Form Submitted:", holidayForm); */
   // On success, you might want to close the dialog
   // dialog.value = false;
   if (props.editMode) {

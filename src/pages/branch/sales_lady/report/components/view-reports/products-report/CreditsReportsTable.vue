@@ -57,7 +57,7 @@
 import ViewCreditsReport from "./ViewCreditsReport.vue";
 const props = defineProps(["creditsReports"]);
 
-console.log("creditsReports Data:", props.creditsReports);
+/* console.log("creditsReports Data:", props.creditsReports); */
 
 const formatPrice = (price) => {
   if (price == null || isNaN(price)) {

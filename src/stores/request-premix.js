@@ -8,13 +8,13 @@ export const useRequestPremixStore = defineStore("request-premix", () => {
   const requestPremixes = ref([]);
 
   const saveRequestPremix = async (data) => {
-    console.log("data request oremix", data);
+    /* console.log("data request oremix", data); */
     Loading.show();
     try {
       const response = await api.post("/api/request-premix", {
         requests: data,
       });
-      console.log("response", response.data);
+      /* console.log("response", response.data); */
       Notify.create({
         type: "positive",
         message: "Request Premix successfully",

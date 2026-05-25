@@ -230,7 +230,7 @@ const save = async () => {
     overtime_out: overtime_out,
   };
   await dtrStore.saveOvertime(dataToSend);
-  console.log("overtime dATA", dataToSend);
+  /* console.log("overtime dATA", dataToSend); */
 };
 </script>
 

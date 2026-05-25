@@ -31,7 +31,7 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
 
   const fetchCakeReport = async (userId) => {
     const response = await api.get(`/api/branch/${userId}/cake-report`);
-    console.log("response", response.data);
+    /* console.log("response", response.data); */
     cakeMakerReports.value = response.data;
   };
 
@@ -40,15 +40,15 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
       const response = await api.get(
         `/api/branch/${branchId}/cakePendingReport`
       );
-      console.log("response", response.data);
+      /* console.log("response", response.data); */
       pendingReports.value = response.data;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
   const fetchOnDisplayProducts = async (branchId) => {
-    console.log("sdasdf", branchId);
+    /* console.log("sdasdf", branchId); */
     const response = await api.get(
       `/api/branch/${branchId}/getCakeOnDisplayProduct`
     );
@@ -57,7 +57,7 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
   };
 
   const createReports = async (data) => {
-    console.log("cake maker reports", data);
+    /* console.log("cake maker reports", data); */
     Loading.show();
     try {
       const response = await api.post("/api/cake-report", data);
@@ -67,7 +67,7 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
         message: "Report save successfully!",
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       Notify.create({
         type: "negative",
         message: "Error saving report",
@@ -78,7 +78,7 @@ export const useCakeMakerReportStore = defineStore("cakeMakerReport", () => {
   };
 
   const confirmReports = async (id) => {
-    console.log("id to be edit", id);
+    /* console.log("id to be edit", id); */
     const response = await api.post(`/api/branch/${id}/cakeConfirmedReport`);
     if (response.status === 200) {
       const index = pendingReports.value.findIndex(

@@ -54,7 +54,7 @@
 import { computed } from "vue";
 
 const props = defineProps(["expensesReports"]);
-console.log("expensesReports", props.expensesReports);
+/* console.log("expensesReports", props.expensesReports); */
 
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";
@@ -87,7 +87,7 @@ const expensesReportColumn = [
     name: "name",
     label: "Expenses Name",
     field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
+      /* console.log("Row data:", row); */ // Debug each row's data
       return row.name || "N/A"; // Adjust this according to your data
     },
     align: "center",

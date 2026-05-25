@@ -460,7 +460,7 @@ const negativeSalesRows = computed(() => {
     .filter((row) => row.salesAmount < 0);
 });
 
-console.log("Negative Sales Rows:", negativeSalesRows.value);
+/* console.log("Negative Sales Rows:", negativeSalesRows.value); */
 
 const overallTotal = computed(() => {
   return filteredRows.value.reduce((acc, row) => {

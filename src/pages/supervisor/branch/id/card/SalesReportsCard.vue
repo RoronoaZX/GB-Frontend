@@ -369,9 +369,9 @@ const props = defineProps([
 ]);
 
 const reportsData = props.salesReport;
-console.log("reportsDatasssss", reportsData);
-console.log("reportsDatasssss", props.salesReport);
-console.log("reportDatessssss", props.reportDate);
+/* console.log("reportsDatasssss", reportsData); */
+/* console.log("reportsDatasssss", props.salesReport); */
+/* console.log("reportDatessssss", props.reportDate); */
 
 const $q = useQuasar();
 
@@ -456,7 +456,7 @@ const negativeProducts = computed(() => {
   processCategory(report.softdrinks_reports, "Soft Drinks");
   processCategory(report.other_products_reports, "Other Products");
 
-  console.log("Negative Products:", negatives);
+  /* console.log("Negative Products:", negatives); */
 
   return negatives;
 });
@@ -560,7 +560,7 @@ watchEffect(() => {
 });
 
 const handleNegativeProductsDialog = (negativeProducts) => {
-  console.log("negativeProducts", negativeProducts);
+  /* console.log("negativeProducts", negativeProducts); */
   $q.dialog({
     component: NegativeProductsDialog,
     componentProps: {

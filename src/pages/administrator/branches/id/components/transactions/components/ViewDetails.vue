@@ -222,7 +222,7 @@ const props = defineProps({
   category: { type: String, required: true },
 });
 
-console.log("props", props);
+/* console.log("props", props); */
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 

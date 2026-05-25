@@ -136,7 +136,7 @@ const handleImageError = () => {
 
 const editImage = () => {
   // Logic for editing the image (e.g., open a modal or navigate to an edit page)
-  console.log("Edit image clicked");
+  /* console.log("Edit image clicked"); */
 };
 
 const handleFileChange = (event) => {

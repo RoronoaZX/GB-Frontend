@@ -203,15 +203,18 @@ const formatFullname = (row) => {
   return `${firstname} ${middlename} ${lastname}`.trim();
 };
 
-const signOut = () => {
+const signOut = async () => {
   loading.value = true;
-  setTimeout(() => {
-    LocalStorage.removeItem("token");
-    LocalStorage.removeItem("role");
-    LocalStorage.removeItem("activeMenuItem");
-    loading.value = false;
-    router.push("/");
-  }, 1000);
+  try {
+    await api.post("/api/logout");
+  } catch (err) {
+    console.warn("Logout API failed:", err);
+  }
+  LocalStorage.removeItem("token");
+  LocalStorage.removeItem("role");
+  LocalStorage.removeItem("activeMenuItem");
+  loading.value = false;
+  router.push("/");
 };
 
 // Automatically sync sidebar highlight with current URL

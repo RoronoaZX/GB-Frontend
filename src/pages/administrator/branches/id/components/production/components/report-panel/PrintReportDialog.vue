@@ -38,7 +38,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["reports"]);
-console.log("Print Report", props.reports);
+/* console.log("Print Report", props.reports); */
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]);
 const maximizedToggle = ref(true);

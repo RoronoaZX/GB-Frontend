@@ -49,7 +49,7 @@ const fetchEmployeeData = async () => {
   try {
     employees.value = await employeeStore.fetchAllEmployee();
   } catch (error) {
-    console.log("error fetching employee: ", error);
+    /* console.log("error fetching employee: ", error); */
   }
 };
 </script>

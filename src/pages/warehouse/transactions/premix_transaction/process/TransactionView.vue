@@ -143,7 +143,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const warehouseEmployeeId = userData.value.data.employee_id;
 const premixStore = usePremixStore();
 const props = defineProps({
@@ -153,7 +153,7 @@ const props = defineProps({
   },
 });
 
-console.log("report", props.report);
+/* console.log("report", props.report); */
 
 const dialog = ref(false);
 const openDialog = () => {
@@ -162,7 +162,7 @@ const openDialog = () => {
 
 const ingredientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
-console.log("ingrdientsData", ingredientsData);
+/* console.log("ingrdientsData", ingredientsData); */
 
 const computedIngredients = computed(() =>
   ingredientsData.map((ingredient) => {
@@ -179,7 +179,7 @@ const computedIngredients = computed(() =>
   })
 );
 
-console.log("computedIngredients", computedIngredients.value);
+/* console.log("computedIngredients", computedIngredients.value); */
 
 const completedPremix = async () => {
   try {
@@ -200,7 +200,7 @@ const completedPremix = async () => {
     };
 
     const completedReport = await premixStore.completedPremix(payload);
-    console.log("Report Process:", completedReport);
+    /* console.log("Report Process:", completedReport); */
 
     Notify.create({
       type: "positive",

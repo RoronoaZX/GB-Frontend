@@ -82,7 +82,7 @@ const openCreditDialog = () => {
   creditDialog.value = true;
 };
 
-console.log("Received creditsReportList:", props.creditsReportList);
+/* console.log("Received creditsReportList:", props.creditsReportList); */
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-US", {

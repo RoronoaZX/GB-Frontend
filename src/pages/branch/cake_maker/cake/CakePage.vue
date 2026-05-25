@@ -8,7 +8,7 @@
 
 <script setup>
 const branchId = localStorage.getItem("branch_id");
-console.log("Current branch ID:", branchId);
+/* console.log("Current branch ID:", branchId); */
 </script>
 
 <style lang="scss" scoped></style>

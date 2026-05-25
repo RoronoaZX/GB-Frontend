@@ -43,7 +43,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 
 const props = defineProps(["breadGroups"]);
 
-console.log("breadGroups", props.breadGroups);
+/* console.log("breadGroups", props.breadGroups); */
 </script>
 
 <style lang="scss" scoped>

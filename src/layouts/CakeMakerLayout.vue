@@ -213,17 +213,20 @@ const formattedUserName = computed(() => {
 //   }
 // });
 
-const signOut = () => {
+const signOut = async () => {
   loading.value = true;
-  setTimeout(() => {
-    LocalStorage.removeItem("token");
-    LocalStorage.removeItem("role");
-    // LocalStorage.removeItem("activeMenuItem");
-    LocalStorage.removeItem("uuid");
-    LocalStorage.removeItem("branch_id");
-    loading.value = false;
-    router.push("/");
-  }, 1000);
+  try {
+    await api.post("/api/logout");
+  } catch (err) {
+    console.warn("Logout API failed:", err);
+  }
+  LocalStorage.removeItem("token");
+  LocalStorage.removeItem("role");
+  // LocalStorage.removeItem("activeMenuItem");
+  LocalStorage.removeItem("uuid");
+  LocalStorage.removeItem("branch_id");
+  loading.value = false;
+  router.push("/");
 };
 
 const menuItems = [

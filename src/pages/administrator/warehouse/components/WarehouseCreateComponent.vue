@@ -166,7 +166,7 @@ const search = async () => {
 
 const autoFillEmployee = (employee) => {
   // Log the selected employee data
-  console.log("Selected Employee:", employee);
+  /* console.log("Selected Employee:", employee); */
 
   addNewWarehouseForm.employee_id = employee.id;
   addNewWarehouseForm.employee_name = `${employee.firstname} ${
@@ -178,7 +178,7 @@ const autoFillEmployee = (employee) => {
 
   showDropdown.value = false;
   // Log the filled designation data
-  console.log("Filled addNewBranchForm Data:", addNewWarehouseForm);
+  /* console.log("Filled addNewBranchForm Data:", addNewWarehouseForm); */
   // setTimeout(() => {
   //   searchKeyword.value = null;
   // }, 0);
@@ -223,7 +223,7 @@ const addNewWarehouseForm = reactive({
 
 //create warehouse
 const createWarehouse = async () => {
-  console.log("awarehoouse data send", addNewWarehouseForm);
+  /* console.log("awarehoouse data send", addNewWarehouseForm); */
   loading.value = true;
   const res = await warehousesStore.createWarehouses(addNewWarehouseForm);
   // console.log("redssdfs", res);

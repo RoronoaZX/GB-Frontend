@@ -50,19 +50,19 @@ const searchQuery = ref("");
 const bakerReportStore = useBakerReportsStore();
 const branchRecipeStore = useBranchRecipeStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("erw:", userData.value);
+/* console.log("erw:", userData.value); */
 const branhRecipes = computed(() => branchRecipeStore.branchRecipe);
 const branch_id = userData.value?.employee?.branch_id || "";
-console.log("branch_id", branch_id);
+/* console.log("branch_id", branch_id); */
 const search = async () => {
   branchRecipeStore.searchBranchRecipe(searchQuery.value, branch_id);
-  console.log("searchQuery.value", searchQuery.value);
-  console.log("branch_id", branch_id);
+  /* console.log("searchQuery.value", searchQuery.value); */
+  /* console.log("branch_id", branch_id); */
 };
 // watch(searchQuery, (newQuery) => {
 //
 const autoFillRecipe = (recipe) => {
-  console.log("branch recipe", recipe);
+  /* console.log("branch recipe", recipe); */
   bakerReports.setRecipe(recipe);
   searchQuery.value = "";
 };
@@ -74,7 +74,7 @@ const capitalizeFirstLetter = (location) => {
     .join(" ");
 };
 
-console.log("recipessss", branhRecipes.value);
+/* console.log("recipessss", branhRecipes.value); */
 </script>
 
 <style lang="scss" scoped>

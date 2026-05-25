@@ -103,7 +103,7 @@ const props = defineProps({
     required: true,
   },
 });
-console.log("report", props.report);
+/* console.log("report", props.report); */
 const dialog = ref(false);
 
 const formatQuantity = (val) => {

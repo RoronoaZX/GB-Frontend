@@ -119,7 +119,7 @@ function formatForEdit(val) {
 }
 
 async function updateAmount(data, val) {
-  console.log("updateteAmount", data, val);
+  /* console.log("updateteAmount", data, val); */
   tableLoading.value = true;
   try {
     await employeeAllowanceStore.updateAmount(data, val);
@@ -155,24 +155,24 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
       rowsPerPage,
       search
     );
-    console.log("allowance", employeeAllowance.value);
+    /* console.log("allowance", employeeAllowance.value); */
 
     const { data, current_page, per_page, total } = employeeAllowance.value;
 
     employeeAllowanceRows.value = data;
-    console.log("employeeAllowance", employeeAllowanceRows.value);
+    /* console.log("employeeAllowance", employeeAllowanceRows.value); */
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;
   } catch (error) {
-    console.log("Error fetching allowance", error);
+    /* console.log("Error fetching allowance", error); */
   } finally {
     tableLoading.value = false;
   }
 };
 
 const handleRequest = (props) => {
-  console.log("handle request", props);
+  /* console.log("handle request", props); */
   reloadTableData(
     props.pagination.page,
     props.pagination.rowsPerPage,

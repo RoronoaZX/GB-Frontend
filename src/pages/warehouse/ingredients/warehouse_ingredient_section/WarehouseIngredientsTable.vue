@@ -61,7 +61,7 @@ import { computed, onMounted, ref, watch } from "vue";
 
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 const userData = computed(() => warehouseRawMaterialsStore.user);
-console.log("userData", userData.value);
+/* console.log("userData", userData.value); */
 const warehouseId = userData.value?.device?.reference_id || "";
 const warehouseRawMaterialsRows = computed(
   () => warehouseRawMaterialsStore.warehouseRawMaterials
@@ -69,7 +69,7 @@ const warehouseRawMaterialsRows = computed(
 
 const loading = ref(true);
 
-console.log("warehouse id", warehouseId);
+/* console.log("warehouse id", warehouseId); */
 const filter = ref("");
 const loadingSearchIcon = ref(false);
 const showNoDataMessage = ref(false);
@@ -101,14 +101,14 @@ watch(filter, async (newFilter) => {
 // });
 
 onMounted(async () => {
-  console.log("props.warehouseId in onMounted:", warehouseId);
+  /* console.log("props.warehouseId in onMounted:", warehouseId); */
   if (warehouseId) {
     await reloadTableData(warehouseId);
   }
 });
 
 const reloadTableData = async (warehouseId) => {
-  console.log("Fetching raw materials for warehouse ID:", warehouseId);
+  /* console.log("Fetching raw materials for warehouse ID:", warehouseId); */
   try {
     loading.value = true;
     const response =
@@ -117,9 +117,9 @@ const reloadTableData = async (warehouseId) => {
     if (!warehouseRawMaterialsRows.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Warehouse Raw Materialsss", warehouseRawMaterialsRows.value);
+    /* console.log("Warehouse Raw Materialsss", warehouseRawMaterialsRows.value); */
   } catch (error) {
-    console.log("Error fetching warehouse product:", error);
+    /* console.log("Error fetching warehouse product:", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;
@@ -129,7 +129,7 @@ const reloadTableData = async (warehouseId) => {
 const getRawMaterialBadgeColor = (row) => {
   const totalQuantity = row.total_quantity;
   const unit = row.raw_materials.unit;
-  console.log("unit test", unit);
+  /* console.log("unit test", unit); */
   if (unit === "Grams" && totalQuantity < 1000) {
     return "bg-red";
   }
@@ -158,8 +158,8 @@ const formatTotalQuantity = (row) => {
   const totalQuantity = Number(row?.total_quantity) || 0; // Ensure it's a valid number
   const unit = row?.raw_materials?.unit || "units"; // Default unit
 
-  console.log("totalQuantity:", totalQuantity);
-  console.log("unit:", unit);
+  /* console.log("totalQuantity:", totalQuantity); */
+  /* console.log("unit:", unit); */
 
   const formatNumber = (value) => {
     const num = Number(value); // Ensure conversion

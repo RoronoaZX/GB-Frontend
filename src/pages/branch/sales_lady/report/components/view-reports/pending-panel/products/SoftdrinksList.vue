@@ -102,7 +102,7 @@ const salesReportStore = useSalesReportsStore();
 const loadingStates = ref({});
 
 const userData = computed(() => salesReportStore.user);
-console.log("user datasss", userData.value);
+/* console.log("user datasss", userData.value); */
 
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
@@ -121,7 +121,7 @@ const emit = defineEmits(["action-complete"]);
 
 const $q = useQuasar();
 
-console.log("softdrinks", props.softdrinks);
+/* console.log("softdrinks", props.softdrinks); */
 
 const handleConfirm = async (softdrinks) => {
   const payload = {
@@ -134,7 +134,7 @@ const handleConfirm = async (softdrinks) => {
     remaining: softdrinks.remaining,
   };
 
-  console.log("paysssload", payload);
+  /* console.log("paysssload", payload); */
 
   try {
     Loading.show({
@@ -153,7 +153,7 @@ const handleConfirm = async (softdrinks) => {
     // Emit event to parent that action is complete
     emit("action-complete");
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
 
     $q.notify({
       type: "negative",

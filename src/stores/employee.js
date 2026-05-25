@@ -19,12 +19,12 @@ export const useEmployeeStore = defineStore("employees", () => {
   };
 
   const fetchBranchEmployee = async (branchId) => {
-    console.log("branchId in store", branchId);
+    /* console.log("branchId in store", branchId); */
 
     const response = await api.get(`/api/fetchBranchEmployee/${branchId}`);
 
     branchEmployees.value = response.data;
-    console.log("branchEmployeesssss.value", branchEmployees.value);
+    /* console.log("branchEmployeesssss.value", branchEmployees.value); */
   };
 
   const fetchEmployeeWithEmploymentType = async (page, rowsPerPage, search) => {
@@ -36,13 +36,13 @@ export const useEmployeeStore = defineStore("employees", () => {
       },
     });
     employees.value = response.data;
-    console.log("employees.value", employees.value);
+    /* console.log("employees.value", employees.value); */
   };
 
   const fetchEmployeeUserID = async (employee_id) => {
     const response = await api.get(`/api/fetchEmployeeUserID/${employee_id}`);
     employees.value = response.data;
-    console.log("employees.value fetchEmployeeUserIDsssssss", employees.value);
+    /* console.log("employees.value fetchEmployeeUserIDsssssss", employees.value); */
   };
 
   const fetchEmployeeWithEmploymentTypeAndDesignation = async (
@@ -61,20 +61,20 @@ export const useEmployeeStore = defineStore("employees", () => {
       }
     );
     employees.value = response.data;
-    console.log("employees.value", employees.value);
+    /* console.log("employees.value", employees.value); */
   };
   const fetchCertianEmployeeWithEmploymentTypeAndDesignation = async (id) => {
     const response = await api.get(
       `/api/fetchCertianEmployeeWithEmploymentTypeAndDesignation/${id}`
     );
     employees.value = response.data;
-    console.log("employeessssss.value", employees.value);
+    /* console.log("employeessssss.value", employees.value); */
   };
   const createEmployee = async (data) => {
     // Loading.show();
     try {
       const response = await api.post("/api/employee", data); // Ensure you await the API call
-      console.log("response employee data", response.data);
+      /* console.log("response employee data", response.data); */
       const newEmployee = {
         id: response.data.employee.id,
         birthdate: response.data.employee.birthdate,
@@ -112,7 +112,7 @@ export const useEmployeeStore = defineStore("employees", () => {
 
   const searchEmployee = async (keyword) => {
     try {
-      console.log("Searching for employee with keyword:", keyword); // Log the keyword
+      /* console.log("Searching for employee with keyword:", keyword); */ // Log the keyword
 
       // API call
       const response = await api.post(
@@ -120,14 +120,14 @@ export const useEmployeeStore = defineStore("employees", () => {
       );
 
       // Log the raw response to see what is returned
-      console.log("Raw API Responsessss:", response);
+      /* console.log("Raw API Responsessss:", response); */
 
       // Check if response and data are valid before processing
       if (response && response.data && response.data.length > 0) {
-        console.log("Search Resultsssss:", response.data); // Log the valid API response
+        /* console.log("Search Resultsssss:", response.data); */ // Log the valid API response
         employees.value = response.data; // Update the employees list with the search results
       } else {
-        console.log("No employees found or empty response");
+        /* console.log("No employees found or empty response"); */
         employees.value = []; // Reset the employee list if no results
       }
     } catch (error) {
@@ -137,7 +137,7 @@ export const useEmployeeStore = defineStore("employees", () => {
 
   const searchCertainEmployee = async (keyword) => {
     try {
-      console.log("Searching for employee with keyword:", keyword); // Log the keyword
+      /* console.log("Searching for employee with keyword:", keyword); */ // Log the keyword
 
       // API call
       const response = await api.post(
@@ -145,14 +145,14 @@ export const useEmployeeStore = defineStore("employees", () => {
       );
 
       // Log the raw response to see what is returned
-      console.log("Raw API Response:", response);
+      /* console.log("Raw API Response:", response); */
 
       // Check if response and data are valid before processing
       if (response && response.data && response.data.length > 0) {
-        console.log("Search Results:", response.data); // Log the valid API response
+        /* console.log("Search Results:", response.data); */ // Log the valid API response
         employee.value = response.data; // Update the employees list with the search results
       } else {
-        console.log("No employees found or empty response");
+        /* console.log("No employees found or empty response"); */
         employee.value = []; // Reset the employee list if no results
       }
     } catch (error) {
@@ -161,7 +161,7 @@ export const useEmployeeStore = defineStore("employees", () => {
   };
   const searchPersonInCharge = async (keyword) => {
     try {
-      console.log("Searching for employee with keyword:", keyword); // Log the keyword
+      /* console.log("Searching for employee with keyword:", keyword); */ // Log the keyword
 
       // API call
       const response = await api.post(
@@ -169,14 +169,14 @@ export const useEmployeeStore = defineStore("employees", () => {
       );
 
       // Log the raw response to see what is returned
-      console.log("Raw API Response:", response);
+      /* console.log("Raw API Response:", response); */
 
       // Check if response and data are valid before processing
       if (response && response.data && response.data.length > 0) {
-        console.log("Search Results:", response.data); // Log the valid API response
+        /* console.log("Search Results:", response.data); */ // Log the valid API response
         employee.value = response.data; // Update the employees list with the search results
       } else {
-        console.log("No employees found or empty response");
+        /* console.log("No employees found or empty response"); */
         employee.value = []; // Reset the employee list if no results
       }
     } catch (error) {
@@ -185,8 +185,8 @@ export const useEmployeeStore = defineStore("employees", () => {
   };
 
   const searchEmployeeWithBranchID = async (keyword, branchId) => {
-    console.log("data to be send", keyword);
-    console.log("data to be send", branchId);
+    /* console.log("data to be send", keyword); */
+    /* console.log("data to be send", branchId); */
     try {
       const response = await api.post(`/api/search-branch-employee`, {
         keyword: keyword,
@@ -194,7 +194,7 @@ export const useEmployeeStore = defineStore("employees", () => {
       });
       branchEmployees.value = response.data;
 
-      console.log("Searh branch employee", branchEmployees.value);
+      /* console.log("Searh branch employee", branchEmployees.value); */
     } catch (error) {
       console.error("Error searching user with ID:", error);
       Notify.create({
@@ -206,7 +206,7 @@ export const useEmployeeStore = defineStore("employees", () => {
 
   const searchEmployeesWithDesignation = async (keyword) => {
     try {
-      console.log("Searching for employee with keyword:", keyword); // Log the keyword
+      /* console.log("Searching for employee with keyword:", keyword); */ // Log the keyword
 
       // API call
       const response = await api.post(
@@ -214,14 +214,14 @@ export const useEmployeeStore = defineStore("employees", () => {
       );
 
       // Log the raw response to see what is returned
-      console.log("Raw API Response:", response);
+      /* console.log("Raw API Response:", response); */
 
       // Check if response and data are valid before processing
       if (response && response.data && response.data.length > 0) {
-        console.log("Search Results:", response.data); // Log the valid API response
+        /* console.log("Search Results:", response.data); */ // Log the valid API response
         employees.value = response.data; // Update the employees list with the search results
       } else {
-        console.log("No employees found or empty response");
+        /* console.log("No employees found or empty response"); */
         employees.value = []; // Reset the employee list if no results
       }
     } catch (error) {
@@ -230,16 +230,16 @@ export const useEmployeeStore = defineStore("employees", () => {
   };
 
   const updateEmployeeFullname = async (data) => {
-    console.log("updateEmployeeFullname", data);
+    /* console.log("updateEmployeeFullname", data); */
     const id = data.id;
     try {
       const response = await api.put(
         `/api/update-employee-fullname/${id}`,
         data
       );
-      console.log("====================================");
-      console.log("response", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response", response.data); */
+      /* console.log("===================================="); */
       const index = employees.value.findIndex((item) => item.id === id);
       if (index !== -1) {
         // Update the specific employee's fullname data in the employees array
@@ -251,12 +251,12 @@ export const useEmployeeStore = defineStore("employees", () => {
         };
       }
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updateEmployeeEmploymentType = async (data) => {
-    console.log("updateEmployeeEmploymentTypestore", data);
+    /* console.log("updateEmployeeEmploymentTypestore", data); */
 
     const id = data.employee_id;
     try {
@@ -265,16 +265,16 @@ export const useEmployeeStore = defineStore("employees", () => {
         data
       );
 
-      console.log("====================================");
-      console.log("response employment type", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response employment type", response.data); */
+      /* console.log("===================================="); */
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updatedEmployeePosition = async (data) => {
-    console.log("updateEmployeePosition", data);
+    /* console.log("updateEmployeePosition", data); */
 
     const id = data.id;
     try {
@@ -282,9 +282,9 @@ export const useEmployeeStore = defineStore("employees", () => {
         `/api/update-employee-position/${id}`,
         data
       );
-      console.log("====================================");
-      console.log("response position", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response position", response.data); */
+      /* console.log("===================================="); */
       const index = employees.value.findIndex((item) => item.id === id);
       if (index !== -1) {
         employees.value[index] = {
@@ -293,20 +293,20 @@ export const useEmployeeStore = defineStore("employees", () => {
         };
       }
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updatedEmployeeStatus = async (data) => {
-    console.log("updateEmployeeStatus in store", data);
+    /* console.log("updateEmployeeStatus in store", data); */
 
     const id = data.id;
 
     try {
       const response = await api.put(`/api/update-employee-status/${id}`, data);
-      console.log("====================================");
-      console.log("response addresss", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response addresss", response.data); */
+      /* console.log("===================================="); */
 
       const index = employees.value.findIndex((item) => item.id === id);
 
@@ -317,12 +317,12 @@ export const useEmployeeStore = defineStore("employees", () => {
         };
       }
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updateEmployeeAddress = async (data) => {
-    console.log("updateEmployeeAddress", data);
+    /* console.log("updateEmployeeAddress", data); */
     const id = data.id;
     try {
       const response = await api.put(
@@ -330,9 +330,9 @@ export const useEmployeeStore = defineStore("employees", () => {
         data
       );
 
-      console.log("====================================");
-      console.log("response addresss", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response addresss", response.data); */
+      /* console.log("===================================="); */
       const index = employees.value.findIndex((item) => item.id === id);
       if (index !== -1) {
         employees.value[index] = {
@@ -341,20 +341,20 @@ export const useEmployeeStore = defineStore("employees", () => {
         };
       }
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updateEmployeeSex = async (data) => {
-    console.log("updateEmployeePhone", data);
+    /* console.log("updateEmployeePhone", data); */
     const id = data.id;
 
     try {
       const response = await api.put(`/api/update-employee-sex/${id}`, data);
 
-      console.log("====================================");
-      console.log("response data", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response data", response.data); */
+      /* console.log("===================================="); */
       const index = employees.value.findIndex((item) => item.id === id);
 
       if (index !== -1) {
@@ -364,33 +364,33 @@ export const useEmployeeStore = defineStore("employees", () => {
         };
       }
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updateEmployeeBranch = async (data) => {
-    console.log("updateEmployeeBranchssss", data);
+    /* console.log("updateEmployeeBranchssss", data); */
     const id = data.id;
 
     try {
       const response = await api.put(`/api/update-employee-branch/${id}`, data);
-      console.log("====================================");
-      console.log("response addresss", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response addresss", response.data); */
+      /* console.log("===================================="); */
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updateEmployeePhone = async (data) => {
-    console.log("updateEmployeePhone", data);
+    /* console.log("updateEmployeePhone", data); */
     const id = data.id;
     try {
       const response = await api.put(`/api/update-employee-phone/${id}`, data);
 
-      console.log("====================================");
-      console.log("response phone", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response phone", response.data); */
+      /* console.log("===================================="); */
       const index = employees.value.findIndex((item) => item.id === id);
       if (index !== -1) {
         employees.value[index] = {
@@ -399,11 +399,11 @@ export const useEmployeeStore = defineStore("employees", () => {
         };
       }
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
   const updateEmployeebirthdate = async (data) => {
-    console.log("updateEmployeebirthdate", data);
+    /* console.log("updateEmployeebirthdate", data); */
     const id = data.id;
     try {
       const response = await api.put(
@@ -411,9 +411,9 @@ export const useEmployeeStore = defineStore("employees", () => {
         data
       );
 
-      console.log("====================================");
-      console.log("response birthdate", response.data);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log("response birthdate", response.data); */
+      /* console.log("===================================="); */
       const index = employees.value.findIndex((item) => item.id === id);
       if (index !== -1) {
         employees.value[index] = {
@@ -422,11 +422,11 @@ export const useEmployeeStore = defineStore("employees", () => {
         };
       }
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
   const updateEmployeeDesignation = async (data) => {
-    console.log("Employee Designation Data in store", data);
+    /* console.log("Employee Designation Data in store", data); */
     const id = data.id;
 
     try {
@@ -435,8 +435,8 @@ export const useEmployeeStore = defineStore("employees", () => {
         data
       );
 
-      console.log("====================================");
-      console.log("response time IN", response.data);
+      /* console.log("===================================="); */
+      /* console.log("response time IN", response.data); */
 
       Notify.create({
         message: "Time designation updated successfully",
@@ -445,7 +445,7 @@ export const useEmployeeStore = defineStore("employees", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
       Notify.create({
         message: "Failed to update designation",
         color: "negative",
@@ -456,7 +456,7 @@ export const useEmployeeStore = defineStore("employees", () => {
   };
 
   const updateEmployeeTimeIn = async (data) => {
-    console.log("updateEmployeeTimeIn in store", data);
+    /* console.log("updateEmployeeTimeIn in store", data); */
     const id = data.designation_id;
     try {
       const response = await api.put(
@@ -464,8 +464,8 @@ export const useEmployeeStore = defineStore("employees", () => {
         data
       );
 
-      console.log("====================================");
-      console.log("response time IN", response.data);
+      /* console.log("===================================="); */
+      /* console.log("response time IN", response.data); */
       // console.log("====================================");
       // const index = employees.value.findIndex((item) => item.id === id);
       // if (index !== -1) {
@@ -482,7 +482,7 @@ export const useEmployeeStore = defineStore("employees", () => {
         timeout: 2000,
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
       Notify.create({
         message: "Failed to update time in",
         color: "negative",
@@ -492,17 +492,17 @@ export const useEmployeeStore = defineStore("employees", () => {
     }
   };
   const updateEmployeeTimeOut = async (data) => {
-    console.log("updateEmployeeTimeOut in store", data);
+    /* console.log("updateEmployeeTimeOut in store", data); */
     const id = data.designation_id;
     try {
       const response = await api.put(
         `/api/update-employee-time-out/${id}`,
         data
       );
-      console.log("====================================");
-      console.log("response time out", response.data);
+      /* console.log("===================================="); */
+      /* console.log("response time out", response.data); */
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 

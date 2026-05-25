@@ -21,7 +21,7 @@ import { computed } from "vue";
 
 const { userData } = defineProps(["userData"]);
 const { save } = defineEmits(["save"]);
-console.log("user data", userData);
+/* console.log("user data", userData); */
 
 function formatAddress(rawAddress) {
   // Use regex to match words and retain specific characters

@@ -70,7 +70,7 @@ const { capitalizeFirstLetter } = typographyFormat();
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps(["ingredientProduction", "branchRecipe"]);
-console.log("ingredientProduction", props.ingredientProduction);
+/* console.log("ingredientProduction", props.ingredientProduction); */
 
 const formatQuantity = (ingredient) => {
   const formattedQuantity = Number(ingredient.quantity) || 0; // Convert to a number, fallback to 0

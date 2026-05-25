@@ -34,9 +34,9 @@ import ExpensesDialog from "./ExpensesDialog.vue";
 
 const props = defineProps(["sales_Reports"]);
 
-console.log("Expenses Report", props.sales_Reports);
+/* console.log("Expenses Report", props.sales_Reports); */
 
-console.log("Expenses Datassssss", props.sales_Reports);
+/* console.log("Expenses Datassssss", props.sales_Reports); */
 
 const $q = useQuasar();
 

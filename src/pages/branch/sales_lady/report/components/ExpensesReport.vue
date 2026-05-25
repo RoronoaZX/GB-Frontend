@@ -105,7 +105,7 @@ const userDataStore = useUsersStore();
 const userDataSearch = computed(() => userDataStore.users);
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-console.log("userdatasss", userData);
+/* console.log("userdatasss", userData); */
 const dialog = ref(false);
 const tab = ref("with_out_receipt");
 // const searchQuery = ref("");

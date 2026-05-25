@@ -146,7 +146,7 @@ const employees = computed(() => employeesStore.employees);
 
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 
 const employeeWithInShiftList = computed(
   () => salesReportsStore.employeeInShift
@@ -174,7 +174,7 @@ const search = async () => {
       await employeesStore.searchEmployee(searchKeyword.value);
       searchLoading.value = false;
       showUserCard.value = true;
-      console.log("employeess", employees);
+      /* console.log("employeess", employees); */
     } catch (error) {
       console.error("Search failed:", error);
       $q.notify({
@@ -214,7 +214,7 @@ const clearAutoFilledEmployee = () => {
 };
 
 const addTOShiftList = () => {
-  console.log("Employee ID:", employeeWithInShift.employee_id);
+  /* console.log("Employee ID:", employeeWithInShift.employee_id); */
 
   if (!employeeWithInShift.employee_id) {
     $q.notify({
@@ -258,7 +258,7 @@ const handleSubmit = async () => {
     Loading.show();
     await salesReportsStore.submitSalesReports();
   } catch (error) {
-    console.log("Error submitting data:", error);
+    /* console.log("Error submitting data:", error); */
   } finally {
     Loading.hide();
   }

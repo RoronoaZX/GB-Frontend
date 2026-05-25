@@ -157,18 +157,18 @@ const capitalizeFirstLetter = (string) => {
     .join(" ");
 };
 const confirmReport = async () => {
-  console.log("report id", props.report.id);
+  /* console.log("report id", props.report.id); */
   try {
     const confirmedReport = await useCakeMakerReport.confirmReports(
       props.report.id
     );
-    console.log("Report Confirmed", confirmedReport);
+    /* console.log("Report Confirmed", confirmedReport); */
     Notify.create({
       type: "positive",
       message: "Report confirmed",
     });
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     Notify.create({
       type: "negative",
       message: "Failed to confirm",
@@ -192,7 +192,7 @@ const declineReport = async () => {
     remarkDialog.value = false;
     dialog.value = false;
   } catch (error) {
-    console.log("Error decline report", error);
+    /* console.log("Error decline report", error); */
   }
 };
 </script>

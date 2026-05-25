@@ -180,7 +180,7 @@ const router = useRouter();
 const emailPopup = ref(null);
 const $q = useQuasar();
 const users = computed(() => userStore.users);
-console.log("userdatasssss  ", users.value);
+/* console.log("userdatasssss  ", users.value); */
 
 onMounted(async () => {
   await reloadUserData();
@@ -193,9 +193,9 @@ const reloadUserData = async () => {
     if (!users.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("Users", users.value);
+    /* console.log("Users", users.value); */
   } catch (error) {
-    console.log("error fetching recipe: ", error);
+    /* console.log("error fetching recipe: ", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;
@@ -209,7 +209,7 @@ const openChangePasswordDialog = (user) => {
       user: user,
     },
   }).onOk((data) => {
-    console.log("Password changed data:", data);
+    /* console.log("Password changed data:", data); */
   });
 };
 
@@ -238,9 +238,9 @@ const onSave = async (user, newEmail) => {
       message: "yeah",
     });
   } catch (error) {
-    console.log("====================================");
-    console.log("ERRRR", error);
-    console.log("====================================");
+    /* console.log("===================================="); */
+    /* console.log("ERRRR", error); */
+    /* console.log("===================================="); */
   }
 };
 

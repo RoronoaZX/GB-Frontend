@@ -7,7 +7,7 @@ export const usePayrollStore = defineStore("payroll", () => {
   const payrollPerCutOff = ref([]);
 
   const fetchPayrollPerCutOff = async (id) => {
-    console.log("employee ID in fetfching payrol:", id);
+    /* console.log("employee ID in fetfching payrol:", id); */
     try {
       const response = await api.get(`/api/fetch-payroll-cut-off/${id}`);
     } catch (error) {}

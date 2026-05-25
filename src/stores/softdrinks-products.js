@@ -28,11 +28,11 @@ export const useSoftdrinksProductStore = defineStore(
           }
         );
 
-        console.log("response", response.data);
+        /* console.log("response", response.data); */
         return response.data;
         // return the full response for use in the component
       } catch (error) {
-        console.log("Error fetching selecta product reports:", error);
+        /* console.log("Error fetching selecta product reports:", error); */
         throw error; // Propagate the error for handling in the component
       }
     };
@@ -43,8 +43,8 @@ export const useSoftdrinksProductStore = defineStore(
       page,
       perPage
     ) => {
-      console.log("branchId", branchId);
-      console.log("category", status);
+      /* console.log("branchId", branchId); */
+      /* console.log("category", status); */
 
       try {
         const response = await api.get(
@@ -59,7 +59,7 @@ export const useSoftdrinksProductStore = defineStore(
         );
         pendingSoftdrinksReports.value = response.data;
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     };
 
@@ -69,8 +69,8 @@ export const useSoftdrinksProductStore = defineStore(
       page,
       rowsPerPage
     ) => {
-      console.log("branchId", branchId);
-      console.log("category", status);
+      /* console.log("branchId", branchId); */
+      /* console.log("category", status); */
 
       try {
         const response = await api.get(
@@ -85,7 +85,7 @@ export const useSoftdrinksProductStore = defineStore(
         );
         confirmedSoftdrinksReports.value = response.data;
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     };
 
@@ -95,8 +95,8 @@ export const useSoftdrinksProductStore = defineStore(
       page,
       rowsPerPage
     ) => {
-      console.log("branchId", branchId);
-      console.log("category", status);
+      /* console.log("branchId", branchId); */
+      /* console.log("category", status); */
 
       try {
         const response = await api.get(
@@ -111,13 +111,13 @@ export const useSoftdrinksProductStore = defineStore(
         );
         declinedSoftdrinksReports.value = response.data;
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     };
 
     const fetchBranchSoftdrinksProduct = async (branchesId, category) => {
-      console.log("ID", branchesId);
-      console.log("category", category);
+      /* console.log("ID", branchesId); */
+      /* console.log("category", category); */
       try {
         // Construct the query parameters dynamically based on input
         const response = await api.get(`/api/fetch-softdrinks-products`, {
@@ -129,7 +129,7 @@ export const useSoftdrinksProductStore = defineStore(
 
         softdrinksProducts.value = response.data;
 
-        console.log("fetch datasss", response.data);
+        /* console.log("fetch datasss", response.data); */
       } catch (error) {
         console.error("Error fetching branch selecta products:", error);
         throw error; // Re-throw the error to handle it in the calling function if necessary
@@ -141,9 +141,9 @@ export const useSoftdrinksProductStore = defineStore(
       query,
       category,
     }) => {
-      console.log(branches_id);
-      console.log(query);
-      console.log(category);
+      /* console.log(branches_id); */
+      /* console.log(query); */
+      /* console.log(category); */
       try {
         const response = await api.post("/api/search-selecta-products", {
           branches_id,
@@ -157,18 +157,18 @@ export const useSoftdrinksProductStore = defineStore(
     };
 
     const createSoftdrinksStocks = async (data) => {
-      console.log(data);
+      /* console.log(data); */
       try {
         const response = await api.post("/api/softdrinks-stocks-report", data);
         // await fetchSelectaProductReports();
         softdrinksProductsReport.value = response.data;
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     };
 
     const confirmReport = async (id) => {
-      console.log("id", id);
+      /* console.log("id", id); */
       try {
         const response = await api.post(`/api/confirm-softdrinks-report/${id}`);
         if (response.status === 200) {
@@ -185,13 +185,13 @@ export const useSoftdrinksProductStore = defineStore(
 
         return response.data;
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     };
 
     const declineReport = async (id, remark) => {
-      console.log("id", id);
-      console.log("remark", remark);
+      /* console.log("id", id); */
+      /* console.log("remark", remark); */
       try {
         const response = await api.post(
           `/api/reports/${id}/decline-softdrinks-reports`,
@@ -215,7 +215,7 @@ export const useSoftdrinksProductStore = defineStore(
 
         return response.data;
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     };
 

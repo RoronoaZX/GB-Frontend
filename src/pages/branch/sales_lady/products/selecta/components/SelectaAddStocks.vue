@@ -152,11 +152,11 @@ const { capitalizeFirstLetter } = typographyFormat();
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-console.log("userData in selecta add stocks", userData);
+/* console.log("userData in selecta add stocks", userData); */
 const branchId =
   userData?.device?.reference_id || userData?.device?.reference?.id || "";
 
-console.log("branchId in selecta add stocks", branchId);
+/* console.log("branchId in selecta add stocks", branchId); */
 
 const employee_id = userData?.employee?.employee_id || "";
 const selectaProductStore = useSelectaProductsStore();
@@ -179,7 +179,7 @@ const selectedSelectaProducts = reactive({
 const filterSelectaProductsOptions = ref(selectaProductsOptions.value);
 
 const fetchBranchSelecta = async () => {
-  console.log("branchId in fetchBranchSelecta", branchId);
+  /* console.log("branchId in fetchBranchSelecta", branchId); */
   try {
     const branchesId = branchId; // Ensure compatibility with the object structure
     const categoryValue = category.value;
@@ -303,7 +303,7 @@ const save = async () => {
     // Call the API to save the data
     await selectaProductStore.createSelectaStocks(data);
 
-    console.log("Data sent to backend:", data);
+    /* console.log("Data sent to backend:", data); */
 
     // Clear form and close dialog
     clearForm();

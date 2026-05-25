@@ -238,18 +238,18 @@ const props = defineProps({
   },
 });
 
-console.log("Expenses Data created_at", props.created_at);
+/* console.log("Expenses Data created_at", props.created_at); */
 
 const sales_report_id = props.sales_report_id || "N/A"; // Fallback if undefined
 const branch_id = route.params.branch_id;
 // Fallback if reports is empty
-console.log("branch_idssss", branch_id);
+/* console.log("branch_idssss", branch_id); */
 const user_id = props.user_id || "Unknown"; // Fallback if undefined
 const dialog = ref(false);
 const expensesList = ref([]);
 const radioBtnVATIndicator = ref("");
 
-console.log("Expenses Data", props.reports);
+/* console.log("Expenses Data", props.reports); */
 
 const expensesForm = reactive({
   user_expense_id: "",
@@ -314,7 +314,7 @@ const handleSubmit = async () => {
       created_at: expense.created_at,
     })),
   };
-  console.log("expenseReport", expenseReport);
+  /* console.log("expenseReport", expenseReport); */
   await expensesStore.addingExpense(expenseReport);
   Notify.create({
     type: "positive",

@@ -813,7 +813,7 @@ const supervisorStore = useSupervisorStore();
 
 const branchList = computed(() => supervisorStore.supervisorBranch);
 
-console.log("branchList", branchList.value);
+/* console.log("branchList", branchList.value); */
 
 const branchEmployee = computed(() => employeeStore.branchEmployees || []);
 
@@ -847,7 +847,7 @@ const positionOptions = [
 ];
 
 const logOptions = (row) => {
-  console.log("designation_type:", row.designation?.designation_type);
+  /* console.log("designation_type:", row.designation?.designation_type); */
   const opts = getOptions(row);
   return opts;
 };
@@ -858,7 +858,7 @@ const fetchEmploymentTypeData = async () => {
     label: val.category,
     value: val.id,
   }));
-  console.log("Employment Type Options:", employmentTypeOptions.value);
+  /* console.log("Employment Type Options:", employmentTypeOptions.value); */
 };
 
 onMounted(fetchEmploymentTypeData);
@@ -869,8 +869,8 @@ const updateBranchEmployeeData = (employeeId, updatedFields) => {
     (item) => item.employee.id === employeeId
   );
 
-  console.log("index", index);
-  console.log("updatedFields", updatedFields);
+  /* console.log("index", index); */
+  /* console.log("updatedFields", updatedFields); */
 
   if (index !== -1) {
     // Update the employee data in the branchEmployee list
@@ -883,8 +883,8 @@ const updateBranchEmployeeBranchEmployeeData = (employeeId, updatedFields) => {
     (item) => item.employee.id === employeeId
   );
 
-  console.log("index", index);
-  console.log("updatedFields", updatedFields);
+  /* console.log("index", index); */
+  /* console.log("updatedFields", updatedFields); */
 
   if (index !== -1) {
     // Update the employee data in the branchEmployee list
@@ -950,7 +950,7 @@ const statusOptions = [
 // Branch ID from route
 const branchId = route.params.branch_id;
 
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 
 // Filters
 const filters = [
@@ -976,7 +976,7 @@ const onLeaveCount = ref("0");
 const filteredEmployees = computed(() => {
   let filtered = branchEmployee.value;
 
-  console.log("filteredss", filtered);
+  /* console.log("filteredss", filtered); */
 
   // Apply quick filter
   if (quickFilter.value !== "all") {
@@ -1121,7 +1121,7 @@ const saveEmployeeChanges = async () => {
       status: editForm.value.status,
     };
 
-    console.log("updateData", updateData);
+    /* console.log("updateData", updateData); */
   } catch (error) {
     console.error("Error updating employee: ", error);
     $q.notify({

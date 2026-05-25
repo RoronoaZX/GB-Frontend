@@ -147,7 +147,7 @@ const drawer = ref(false);
 const activeMenuItem = ref("0");
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("userData in HeaderComponent:", userData.value);
+/* console.log("userData in HeaderComponent:", userData.value); */
 const user = ref({});
 const quasar = useQuasar();
 const loading = ref(false);
@@ -199,15 +199,18 @@ const formatFullname = (row) => {
 //   }
 // });
 
-const signOut = () => {
+const signOut = async () => {
   loading.value = true;
-  setTimeout(() => {
-    LocalStorage.removeItem("token");
-    LocalStorage.removeItem("role");
-    LocalStorage.removeItem("activeMenuItem");
-    loading.value = false;
-    router.push("/");
-  }, 1000);
+  try {
+    await api.post("/api/logout");
+  } catch (err) {
+    console.warn("Logout API failed:", err);
+  }
+  LocalStorage.removeItem("token");
+  LocalStorage.removeItem("role");
+  LocalStorage.removeItem("activeMenuItem");
+  loading.value = false;
+  router.push("/");
 };
 
 const menuItems = [

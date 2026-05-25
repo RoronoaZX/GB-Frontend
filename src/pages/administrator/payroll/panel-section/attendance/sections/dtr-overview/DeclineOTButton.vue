@@ -50,9 +50,9 @@ import { useDTRStore } from "src/stores/dtr";
 
 const props = defineProps(["decline"]);
 const dtrStore = useDTRStore();
-console.log("decline", props.decline);
+/* console.log("decline", props.decline); */
 const userData = computed(() => dtrStore.user);
-console.log("userDatafromDeclineButton", userData.value);
+/* console.log("userDatafromDeclineButton", userData.value); */
 const dialog = ref(false);
 const reason = ref("");
 

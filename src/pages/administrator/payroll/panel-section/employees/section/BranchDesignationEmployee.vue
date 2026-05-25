@@ -233,7 +233,7 @@ const filteredBranches = (val, update) => {
 
 const autoFillEmployee = (employee) => {
   // Log the selected employee data
-  console.log("Selected Employee:", employee);
+  /* console.log("Selected Employee:", employee); */
 
   addDesignation.employee_id = employee.id;
   addDesignation.employee_name = formatFullname(employee);
@@ -243,7 +243,7 @@ const autoFillEmployee = (employee) => {
   addDesignation.position = employee.position;
   searchKeyword.value = "";
   // Log the filled designation data
-  console.log("Filled Designation Data:", addDesignation);
+  /* console.log("Filled Designation Data:", addDesignation); */
 };
 
 const formatFullname = (row) => {
@@ -291,7 +291,7 @@ const save = async () => {
   };
 
   await designationStore.createDesignation(designation);
-  console.log("Designation Data to Save:", designation);
+  /* console.log("Designation Data to Save:", designation); */
   loading.value = false;
   designationDialog.value = false;
   clearDesignationForm();

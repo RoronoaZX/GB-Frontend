@@ -166,7 +166,7 @@ import { useProductionStore } from "stores/production";
 const productionStore = useProductionStore();
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const props = defineProps(["bakerReports", "sales_report_id"]);
-console.log("bakers report", props.bakerReports);
+/* console.log("bakers report", props.bakerReports); */
 
 const editBakerReport = reactive({
   target: 0,
@@ -315,8 +315,8 @@ const saveEditedBakerReport = async () => {
     ),
   };
 
-  console.log("Edited Bakers Report", dataToSave);
-  console.log("Edited Bakers Report", reportId);
+  /* console.log("Edited Bakers Report", dataToSave); */
+  /* console.log("Edited Bakers Report", reportId); */
 
   try {
     await productionStore.updateBakerReport(reportId, dataToSave);

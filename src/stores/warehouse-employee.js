@@ -10,7 +10,7 @@ export const useWarehouseEmployeeStore = defineStore(
     const warehouseEmployees = ref([]);
 
     const createWarehouseEmployee = async (data) => {
-      console.log("Creating employee with data:", data);
+      /* console.log("Creating employee with data:", data); */
       try {
         const response = await api.post(`/api/warehouse-employee`, data);
         warehouseEmployees.value = response.data;
@@ -20,7 +20,7 @@ export const useWarehouseEmployeeStore = defineStore(
           setTimeout: 1000,
           position: "top",
         });
-        console.log("Response:", response.data);
+        /* console.log("Response:", response.data); */
       } catch (error) {
         console.error("Error creating employee:", error);
         Notify.create({

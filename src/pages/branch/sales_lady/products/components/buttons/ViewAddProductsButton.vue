@@ -221,13 +221,13 @@ const fetchASBranchProd = async (page = 0, rowsPerPage = 5, search = "") => {
 
     const { data, current_page, per_page, total } = branchProducts.value;
 
-    console.log("branchProducts.value", branchProducts.value);
+    /* console.log("branchProducts.value", branchProducts.value); */
 
-    console.log("data", data);
+    /* console.log("data", data); */
 
     rows.value = data;
 
-    console.log("rows.value", rows.value);
+    /* console.log("rows.value", rows.value); */
     pagination.value = {
       page: current_page,
       rowsPerPage: per_page,
@@ -291,7 +291,7 @@ const getStatusColor = (status) => {
 };
 
 const viewDetails = (row) => {
-  console.log("View:", row);
+  /* console.log("View:", row); */
   // → open details drawer / modal / page
 
   $q.dialog({
@@ -305,7 +305,7 @@ const viewDetails = (row) => {
 
 function approveItem(row) {
   // TODO: implement approve logic + optimistic update
-  console.log("Approve:", row);
+  /* console.log("Approve:", row); */
 }
 
 // Columns – added sortable flags & better alignment

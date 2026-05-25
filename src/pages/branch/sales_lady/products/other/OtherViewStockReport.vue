@@ -54,7 +54,7 @@ const openDialog = () => {
 
 const props = defineProps(["report"]);
 
-console.log("report", props.report.other_added_stock);
+/* console.log("report", props.report.other_added_stock); */
 
 const capitalizeFirstLetter = (location) => {
   if (!location) return "";

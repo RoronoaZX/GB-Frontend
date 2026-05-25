@@ -313,7 +313,7 @@ const props = defineProps({
 const expandedBreads = ref({});
 const expandedIngredients = ref({});
 
-console.log("baker reportssss: ", props.bakerReports);
+/* console.log("baker reportssss: ", props.bakerReports); */
 
 const statFields = [
   {

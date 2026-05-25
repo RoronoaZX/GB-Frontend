@@ -206,7 +206,7 @@ const categoryFilter = ref("all");
 // Computed properties
 const branchPremixes = computed(() => branchPremixStore.premixes || []);
 
-console.log("Branch Premixes:", branchPremixes.value);
+/* console.log("Branch Premixes:", branchPremixes.value); */
 
 const filteredPremixes = computed(
   () =>
@@ -227,7 +227,7 @@ const filteredPremixesByCategory = computed(() => {
   return premixes;
 });
 
-console.log("Filtered Premssixes:", filteredPremixesByCategory.value);
+/* console.log("Filtered Premssixes:", filteredPremixesByCategory.value); */
 
 const activePremixesCount = computed(() => {
   return filteredPremixesByCategory.value.filter((p) => p.status === "active")
@@ -315,7 +315,7 @@ const getStockLevelClass = (premix) => {
 };
 
 const getTargetProgress = (premix) => {
-  console.log("Calculating progress for premix:", premix);
+  /* console.log("Calculating progress for premix:", premix); */
 
   const target = 10;
   const production = premix.available_stocks || 0;

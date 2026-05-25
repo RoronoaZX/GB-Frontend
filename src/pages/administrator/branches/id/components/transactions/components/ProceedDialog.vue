@@ -106,11 +106,11 @@ const props = defineProps({
   status: String,
 });
 
-console.log("propsss", props);
+/* console.log("propsss", props); */
 
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
-console.log("user datssa", userData.value);
+/* console.log("user datssa", userData.value); */
 
 const userId = computed(
   () =>
@@ -119,7 +119,7 @@ const userId = computed(
     ""
 );
 
-console.log("useeessrId", userId.value);
+/* console.log("useeessrId", userId.value); */
 
 const branchProductsStore = useBranchProductsStore();
 
@@ -132,9 +132,9 @@ const $q = useQuasar();
 const receiveProduct = async (product) => {
   if (!remark.value.trim()) return;
 
-  console.log("Remark:", remark.value.trim());
+  /* console.log("Remark:", remark.value.trim()); */
 
-  console.log("product", product);
+  /* console.log("product", product); */
 
   const data = {
     id: product.id,
@@ -146,19 +146,19 @@ const receiveProduct = async (product) => {
     remark: remark.value.trim(),
   };
 
-  console.log("datssa", data);
+  /* console.log("datssa", data); */
 
   try {
     loading.value = true;
-    console.log("datssa", data);
+    /* console.log("datssa", data); */
     const response = await branchProductsStore.receivedSendBranchProducts(data);
 
-    console.log("Received Branch Products: ", response);
+    /* console.log("Received Branch Products: ", response); */
 
     resetForm();
     dialog.value = false;
 
-    console.log("responsesss", response);
+    /* console.log("responsesss", response); */
 
     if (response.status === 200) {
       $q.notify({
@@ -167,7 +167,7 @@ const receiveProduct = async (product) => {
       });
     }
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
 
     $q.notify({
       type: "negative",

@@ -1230,7 +1230,7 @@ const validateTimeFormat = (val) => {
 };
 
 const updateEmployeeScheduleIn = async (data, val) => {
-  console.log("updateEmployeeScheduleIn composables", data, val);
+  /* console.log("updateEmployeeScheduleIn composables", data, val); */
 
   loading.value = true;
   try {
@@ -1238,17 +1238,17 @@ const updateEmployeeScheduleIn = async (data, val) => {
       id: data.id,
       schedule_in: val,
     };
-    console.log("employeeScheduleIn", employeeScheduleIn);
+    /* console.log("employeeScheduleIn", employeeScheduleIn); */
     await dtrStore.updateDtrScheduleIn(employeeScheduleIn);
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
 };
 
 const updateEmployeeScheduleOut = async (data, val) => {
-  console.log("updateEmployeeScheduleOut composables", data, val);
+  /* console.log("updateEmployeeScheduleOut composables", data, val); */
 
   loading.value = true;
 
@@ -1258,10 +1258,10 @@ const updateEmployeeScheduleOut = async (data, val) => {
       schedule_out: val,
     };
 
-    console.log("employeeScheduleOut", employeeScheduleOut);
+    /* console.log("employeeScheduleOut", employeeScheduleOut); */
     await dtrStore.updateDtrSheduleOut(employeeScheduleOut);
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }
@@ -1272,7 +1272,7 @@ const getBranchWithWarehouses = async () => {
   try {
     const response = await dtrStore.getBranchWithWarehouses();
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
@@ -1287,7 +1287,7 @@ const branchWithWarehousesOptions = computed(() => {
 });
 
 const updateDTRWhereIN = async (data, val) => {
-  console.log("updateDTRWhereIN composables", data, val);
+  /* console.log("updateDTRWhereIN composables", data, val); */
 
   loading.value = true;
   try {
@@ -1306,14 +1306,14 @@ const updateDTRWhereIN = async (data, val) => {
       data.device_in_reference_name = match.label; // update the row's display field
     }
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
 };
 
 const updateDTRWhereOUT = async (data, val) => {
-  console.log("updateDTRWhereOUT composables", data, val);
+  /* console.log("updateDTRWhereOUT composables", data, val); */
 
   loading.value = true;
   try {
@@ -1333,14 +1333,14 @@ const updateDTRWhereOUT = async (data, val) => {
       data.device_out_reference_name = match.label; // update the row's display field
     }
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
 };
 
 const updateDTRShiftStatus = async (data, val) => {
-  console.log("updateDTRShiftStatus composables", data, val);
+  /* console.log("updateDTRShiftStatus composables", data, val); */
 
   loading.value = true;
   try {
@@ -1354,14 +1354,14 @@ const updateDTRShiftStatus = async (data, val) => {
     // Update the row's display field directly
     data.shift_status = val;
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
 };
 
 const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
-  console.log("updateDTRTimeINDateOnly composables", row, newDateTime, type);
+  /* console.log("updateDTRTimeINDateOnly composables", row, newDateTime, type); */
 
   // Example: If you want to keep the original time when only date is changed
   let updatedDateTime;
@@ -1393,7 +1393,7 @@ const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
   }
 
   // --- Send updatedDateTime to your backend ---
-  console.log("Updating row with new time_in:", updatedDateTime);
+  /* console.log("Updating row with new time_in:", updatedDateTime); */
   // Example API call (replace with your actual API integration)
   loading.value = true;
   try {
@@ -1404,7 +1404,7 @@ const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
 
     const response = await dtrStore.updateDTRDateIN(dtrDateIN);
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
@@ -1465,7 +1465,7 @@ const updateDTRTimeINDateOnly = async (row, newDateTime, type) => {
 // };
 
 const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
-  console.log("updateDTRTimeOUTDateOnly composables", row, newDateTime, type);
+  /* console.log("updateDTRTimeOUTDateOnly composables", row, newDateTime, type); */
 
   let updatedDateTime;
   if (row.time_out && type === "date") {
@@ -1494,21 +1494,21 @@ const updateDTRTimeOUTDateOnly = async (row, newDateTime, type) => {
     updatedDateTime = newDateTime;
   }
 
-  console.log("Updating row with new time_out:", updatedDateTime);
+  /* console.log("Updating row with new time_out:", updatedDateTime); */
 
   loading.value = true;
   try {
     await dtrStore.updateDTRDateOUT({ id: row.id, time_out: updatedDateTime });
     row.time_out = updatedDateTime;
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
 };
 
 const updateDTRTimeINOnly = async (row, newTime, type) => {
-  console.log("updateDTRTimeINOnly composables", row, newTime, type);
+  /* console.log("updateDTRTimeINOnly composables", row, newTime, type); */
 
   let updatedDateTime;
 
@@ -1534,7 +1534,7 @@ const updateDTRTimeINOnly = async (row, newTime, type) => {
     updatedDateTime = newTime;
   }
 
-  console.log("Updating row with new time_in:", updatedDateTime);
+  /* console.log("Updating row with new time_in:", updatedDateTime); */
 
   loading.value = true;
 
@@ -1555,7 +1555,7 @@ const updateDTRTimeINOnly = async (row, newTime, type) => {
 };
 
 const updateDTRTimeOutOnly = async (row, newTime, type) => {
-  console.log("updateDTRTimeOutOnly composables", row, newTime, type);
+  /* console.log("updateDTRTimeOutOnly composables", row, newTime, type); */
 
   let updatedDateTime;
   if (row.time_out && type === "time") {
@@ -1578,7 +1578,7 @@ const updateDTRTimeOutOnly = async (row, newTime, type) => {
     updatedDateTime = newTime;
   }
 
-  console.log("Updating row with new time_out:", updatedDateTime);
+  /* console.log("Updating row with new time_out:", updatedDateTime); */
   loading.value = true;
   try {
     const dtrTimeOUT = {
@@ -1597,7 +1597,7 @@ const updateDTRTimeOutOnly = async (row, newTime, type) => {
 };
 
 const updateDTRLunchBreakStart = async (row, newTime, type) => {
-  console.log("updateDTRLunchBreakStart composables", row, newTime, type);
+  /* console.log("updateDTRLunchBreakStart composables", row, newTime, type); */
 
   let updatedDateTime;
 
@@ -1628,7 +1628,7 @@ const updateDTRLunchBreakStart = async (row, newTime, type) => {
     updatedDateTime = newTime;
   }
 
-  console.log("Updating row with new lunch_break_start:", updatedDateTime);
+  /* console.log("Updating row with new lunch_break_start:", updatedDateTime); */
   loading.value = true;
   try {
     const dtrLunchBreakStart = {
@@ -1648,7 +1648,7 @@ const updateDTRLunchBreakStart = async (row, newTime, type) => {
 };
 
 const updateDTRLunchBreakEnd = async (row, newTime, type) => {
-  console.log("updateDTRLunchBreakEnd composables", row, newTime, type);
+  /* console.log("updateDTRLunchBreakEnd composables", row, newTime, type); */
 
   let updatedDateTime;
 
@@ -1679,7 +1679,7 @@ const updateDTRLunchBreakEnd = async (row, newTime, type) => {
     updatedDateTime = newTime;
   }
 
-  console.log("Updating row with new lunch_break_end:", updatedDateTime);
+  /* console.log("Updating row with new lunch_break_end:", updatedDateTime); */
   loading.value = true;
   try {
     const dtrLunchBreakEnd = {
@@ -1699,8 +1699,8 @@ const updateDTRLunchBreakEnd = async (row, newTime, type) => {
 };
 
 const updateDTRBreakStart = async (row, newTime, type) => {
-  console.log("updateDTRBreakStart composables", row, newTime, type);
-  console.log("row updateDTRBreakStart", row.break_start);
+  /* console.log("updateDTRBreakStart composables", row, newTime, type); */
+  /* console.log("row updateDTRBreakStart", row.break_start); */
 
   let updatedDateTime;
 
@@ -1731,7 +1731,7 @@ const updateDTRBreakStart = async (row, newTime, type) => {
     updatedDateTime = newTime;
   }
 
-  console.log("Updating row with new break_start:", updatedDateTime);
+  /* console.log("Updating row with new break_start:", updatedDateTime); */
   loading.value = true;
   try {
     const dtrLunchBreakEnd = {
@@ -1750,8 +1750,8 @@ const updateDTRBreakStart = async (row, newTime, type) => {
 };
 
 const updateDTRBreakEnd = async (row, newTime, type) => {
-  console.log("updateDTRBreakEnd composables", row, newTime, type);
-  console.log("row updateDTRBreakEnd", row.break_end);
+  /* console.log("updateDTRBreakEnd composables", row, newTime, type); */
+  /* console.log("row updateDTRBreakEnd", row.break_end); */
 
   let updatedDateTime;
 
@@ -1783,7 +1783,7 @@ const updateDTRBreakEnd = async (row, newTime, type) => {
     updatedDateTime = newTime;
   }
 
-  console.log("Updating row with new break_end:", updatedDateTime);
+  /* console.log("Updating row with new break_end:", updatedDateTime); */
   loading.value = true;
   try {
     const dtrBreakEnd = {
@@ -1812,13 +1812,13 @@ const convertDisplayToInput = (displayVal) => {
 };
 
 const updateDTROvertimeStart = async (row, newTime) => {
-  console.log("updateDTROvertimeStart composables", row, newTime);
+  /* console.log("updateDTROvertimeStart composables", row, newTime); */
 
   // Parse the string inti Date
   const parsed = new Date(newTime);
 
   if (isNaN(parsed)) {
-    console.log("⚠️ Invalid datetime:", newTime);
+    /* console.log("⚠️ Invalid datetime:", newTime); */
     return;
   }
 
@@ -1826,7 +1826,7 @@ const updateDTROvertimeStart = async (row, newTime) => {
   const formatted = date.formatDate(parsed, "MMM. DD, YYYY, hh:mm A");
 
   // Build backend payload (keep ISO for)
-  console.log("🔹 Formatted for display:", formatted);
+  /* console.log("🔹 Formatted for display:", formatted); */
   loading.value = true;
   try {
     const dtrOvertimeStart = {
@@ -1845,13 +1845,13 @@ const updateDTROvertimeStart = async (row, newTime) => {
 };
 
 const updateDTROvertimeEnd = async (row, newTime) => {
-  console.log("updateDTROvertimeOver composables", row, newTime);
+  /* console.log("updateDTROvertimeOver composables", row, newTime); */
 
   // Parse the string intial date
   const parsed = new Date(newTime);
 
   if (isNaN(parsed)) {
-    console.log("⚠️ Invalid datetime:", newTime);
+    /* console.log("⚠️ Invalid datetime:", newTime); */
     return;
   }
 
@@ -1859,7 +1859,7 @@ const updateDTROvertimeEnd = async (row, newTime) => {
   const formatted = date.formatDate(parsed, "MMM. DD, YYYY, hh:mm A");
 
   // Build backend payload (keep ISO for)
-  console.log("🔹 Formatted for display:", formatted);
+  /* console.log("🔹 Formatted for display:", formatted); */
   loading.value = true;
   try {
     const dtrOvertimeEnd = {
@@ -1878,7 +1878,7 @@ const updateDTROvertimeEnd = async (row, newTime) => {
 };
 
 const updateDTROvertimeReasons = async (row, newReason) => {
-  console.log("updateDTRReasons composables", row, newReason);
+  /* console.log("updateDTRReasons composables", row, newReason); */
 
   loading.value = true;
   try {
@@ -1896,7 +1896,7 @@ const updateDTROvertimeReasons = async (row, newReason) => {
 };
 
 const updateDTRDeclineReasons = async (row, newReason) => {
-  console.log("updateDTRDeclineReasons composables", row, newReason);
+  /* console.log("updateDTRDeclineReasons composables", row, newReason); */
   loading.value = true;
   try {
     const declineReasons = {
@@ -1912,7 +1912,7 @@ const updateDTRDeclineReasons = async (row, newReason) => {
 };
 
 const updateDTROTStatus = async (row, newStatus) => {
-  console.log("updateDTROTStatus composables", row, newStatus);
+  /* console.log("updateDTROTStatus composables", row, newStatus); */
   loading.value = true;
   try {
     const overtimeStatus = {
@@ -1934,7 +1934,7 @@ const updateDTROTApprovedBy = async (row, val) => {
   if (!emp) return;
 
   // Call your API here with emp.id
-  console.log("updateDTROTApprovedBy composables", row, emp);
+  /* console.log("updateDTROTApprovedBy composables", row, emp); */
   loading.value = true;
   try {
     const approvedBy = {
@@ -1969,7 +1969,7 @@ const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
     await dtrStore.fetchDTR(page, rowsPerPage, search);
     const { data, current_page, per_page, total } = dtrData.value;
     dtrRows.value = data;
-    console.log("dtrRows.value", dtrRows.value);
+    /* console.log("dtrRows.value", dtrRows.value); */
     pagination.value = {
       page: current_page,
       rowsPerPage: per_page,

@@ -11,8 +11,8 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
   const otherProductReports = ref([]);
 
   const fetchBranchOtherProduct = async (branchesId, category) => {
-    console.log("ID", branchesId);
-    console.log("category", category);
+    /* console.log("ID", branchesId); */
+    /* console.log("category", category); */
     try {
       // Construct the query parameters dynamically based on input
       const response = await api.get(`/api/fetch-other-products`, {
@@ -21,7 +21,7 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
           category: category,
         },
       });
-      console.log("fetch datasss", response.data);
+      /* console.log("fetch datasss", response.data); */
       otherProducts.value = response.data;
     } catch (error) {
       console.error("Error fetching branch selecta products:", error);
@@ -37,10 +37,10 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
           per_page: rowsPerPage, //pagination
         },
       });
-      console.log(response.data);
+      /* console.log(response.data); */
       return response.data;
     } catch (error) {
-      console.log("Error fetching selecta product reports:", error);
+      /* console.log("Error fetching selecta product reports:", error); */
       throw error; // Propagate the error for handling in the component
     }
   };
@@ -51,8 +51,8 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
     page,
     rowsPerPage
   ) => {
-    console.log("branchId", branchId);
-    console.log("category", status);
+    /* console.log("branchId", branchId); */
+    /* console.log("category", status); */
 
     try {
       const response = await api.get(
@@ -67,7 +67,7 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
       );
       pendingOtherReports.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
@@ -77,8 +77,8 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
     page,
     rowsPerPage
   ) => {
-    console.log("branchId", branchId);
-    console.log("category", status);
+    /* console.log("branchId", branchId); */
+    /* console.log("category", status); */
 
     try {
       const response = await api.get(
@@ -91,7 +91,7 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
           },
         }
       );
-      console.log("response", response.data);
+      /* console.log("response", response.data); */
       confirmedOtherReports.value = response.data;
     } catch (error) {
       console.error(error);
@@ -104,8 +104,8 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
     page,
     rowsPerPage
   ) => {
-    console.log("branchId", branchId);
-    console.log("category", status);
+    /* console.log("branchId", branchId); */
+    /* console.log("category", status); */
 
     try {
       const response = await api.get(
@@ -120,22 +120,22 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
       );
       declinedOtherReports.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const createOtherStocks = async (data) => {
-    console.log(data);
+    /* console.log(data); */
     try {
       const response = await api.post("/api/other-stocks-report", data);
       otherProducts.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const confirmReport = async (id) => {
-    console.log("id", id);
+    /* console.log("id", id); */
     try {
       const response = await api.post(`/api/confirm-otherProd-report/${id}`);
       if (response.status === 200) {
@@ -151,13 +151,13 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
       }
       return response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const declineReport = async (id, remark) => {
-    console.log("id", id);
-    console.log("remark", remark);
+    /* console.log("id", id); */
+    /* console.log("remark", remark); */
 
     try {
       const response = await api.post(
@@ -179,7 +179,7 @@ export const useOtherProductStore = defineStore("otherProduct", () => {
       }
       return response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 

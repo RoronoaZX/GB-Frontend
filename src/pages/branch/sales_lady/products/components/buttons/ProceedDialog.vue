@@ -115,11 +115,11 @@ const props = defineProps({
   category: String,
 });
 
-console.log("propssss", props);
+/* console.log("propssss", props); */
 
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
-console.log("user datsssssa", userData.value);
+/* console.log("user datsssssa", userData.value); */
 
 const userId = computed(
   () =>
@@ -128,7 +128,7 @@ const userId = computed(
     ""
 );
 
-console.log("useeessrId", userId.value);
+/* console.log("useeessrId", userId.value); */
 
 const branchProductsStore = useBranchProductsStore();
 
@@ -141,9 +141,9 @@ const $q = useQuasar();
 const receiveProduct = async (product) => {
   if (!remark.value.trim()) return;
   // Handle saving the remark
-  console.log("Remark:", remark.value.trim());
+  /* console.log("Remark:", remark.value.trim()); */
 
-  console.log("product", product);
+  /* console.log("product", product); */
 
   const data = {
     id: product.id,
@@ -157,15 +157,15 @@ const receiveProduct = async (product) => {
 
   try {
     loading.value = true;
-    console.log("datssa", data);
+    /* console.log("datssa", data); */
     const response = await branchProductsStore.receivedSendBranchProducts(data);
 
-    console.log("Received Branch Products:", response);
+    /* console.log("Received Branch Products:", response); */
 
     resetForm();
     dialog.value = false;
 
-    console.log("responsdssse", response);
+    /* console.log("responsdssse", response); */
     if (response.status === 200) {
       $q.notify({
         type: "positive",
@@ -173,7 +173,7 @@ const receiveProduct = async (product) => {
       });
     }
   } catch (error) {
-    console.log("Error saving remark:", error);
+    /* console.log("Error saving remark:", error); */
 
     // Show error (optional)
     $q.notify({

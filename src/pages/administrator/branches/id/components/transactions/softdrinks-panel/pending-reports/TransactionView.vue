@@ -147,7 +147,7 @@ const declineReport = async () => {
       props.report.id,
       remark.value
     );
-    console.log("Report declined:", declineReport);
+    /* console.log("Report declined:", declineReport); */
     $q.notify({ type: "negative", message: "Report declined successfully" });
     remarkDialog.value = false;
     dialog.value = false;
@@ -163,7 +163,7 @@ const confirmReport = async () => {
     const confirmedReport = await softdrinksProductStore.confirmReport(
       props.report.id
     );
-    console.log("Report confirmed:", confirmedReport);
+    /* console.log("Report confirmed:", confirmedReport); */
     $q.notify({ type: "positive", message: "Report confirmed successfully" });
     dialog.value = false;
   } catch (error) {

@@ -56,7 +56,7 @@ export const useBranchRawMaterialsStore = defineStore(
           });
         }
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
         Notify.create({
           type: "negative",
           message: "An error occurred while saving the branch product.",
@@ -73,7 +73,7 @@ export const useBranchRawMaterialsStore = defineStore(
           "/api/branch/raw-materials/bulk-create",
           { materials }
         );
-        console.log("multipleRawMAterials", response.data);
+        /* console.log("multipleRawMAterials", response.data); */
         response.data.data.forEach((item) => {
           const exists = branchRawMaterials.value.find(
             (mat) => mat.id === item.id
@@ -97,14 +97,14 @@ export const useBranchRawMaterialsStore = defineStore(
     };
 
     const updateBranchRawMaterialsStocks = async (id, val, payload) => {
-      console.log("reportss id", id);
+      /* console.log("reportss id", id); */
 
       const response = await api.put(`/api/update-branch-rawMaterials/${id}`, {
         total_quantity: parseInt(val),
         ...payload,
       });
 
-      console.log("responssse stockss", response);
+      /* console.log("responssse stockss", response); */
 
       return response;
     };

@@ -170,10 +170,10 @@ const props = defineProps({
   dtrDeductionsData: Object,
 });
 
-console.log("propssssss", props);
+/* console.log("propssssss", props); */
 
 const holidays = props.dtrRecord.holidays || [];
-console.log("holidays", holidays);
+/* console.log("holidays", holidays); */
 
 const getPayrollReleaseDate = (from, end) => {
   const fromDate = date.extractDate(from, "MMMM DD, YYYY");
@@ -310,10 +310,10 @@ const deductions = [
 ];
 
 // Example run
-console.log(
+/* console.log(
   "Payroll Release:",
   getPayrollReleaseDate(props.dtrRecord.from, props.dtrRecord.end)
-);
+); */
 </script>
 
 <style lang="scss" scoped>

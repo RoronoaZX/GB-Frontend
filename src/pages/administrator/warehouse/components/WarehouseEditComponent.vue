@@ -161,7 +161,7 @@ const search = async () => {
 
 const autoFillEmployee = (employee) => {
   // Log the selected employee data
-  console.log("Selected Employee:", employee);
+  /* console.log("Selected Employee:", employee); */
 
   editWarehouseForm.employee_id = employee.id;
   editWarehouseForm.employee_name = `${employee.firstname} ${
@@ -173,7 +173,7 @@ const autoFillEmployee = (employee) => {
 
   showDropdown.value = false;
   // Log the filled designation data
-  console.log("Filled editBranchesForm Data:", editWarehouseForm);
+  /* console.log("Filled editBranchesForm Data:", editWarehouseForm); */
 };
 
 const editWarehouseForm = reactive({
@@ -189,7 +189,7 @@ const editWarehouseForm = reactive({
 const openEditForm = () => {
   // Object.assign(editWarehouseForm, props.edit.row);
   const editRow = props.edit.row;
-  console.log("Edit Row Data:", editRow);
+  /* console.log("Edit Row Data:", editRow); */
   showDropdown.value = false;
   editWarehouseForm.name = editRow.name;
   editWarehouseForm.location = editRow.location;
@@ -208,7 +208,7 @@ const openEditForm = () => {
   editWarehouseForm.phone = editRow.phone;
   editWarehouseForm.status = editRow.status;
   dialog.value = true;
-  console.log("Edit Data:", editWarehouseForm);
+  /* console.log("Edit Data:", editWarehouseForm); */
 };
 
 const clearForm = () => {
@@ -225,7 +225,7 @@ const clearForm = () => {
 
 const saveEditedWarehouse = async () => {
   // console.log("editRow.id", editRow.id);
-  console.log("updatedWarehouse", editWarehouseForm);
+  /* console.log("updatedWarehouse", editWarehouseForm); */
   try {
     // const updatedWarehouse = { ...props.edit.row, ...editWarehouseForm };
     await warehouseStore.updateWarehouses(props.edit.row.id, editWarehouseForm);

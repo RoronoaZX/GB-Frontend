@@ -191,7 +191,7 @@ const save = async () => {
     clearForm();
     dialog.value = false;
   } catch (error) {
-    console.log("dafsdf", error);
+    /* console.log("dafsdf", error); */
   }
 };
 </script>

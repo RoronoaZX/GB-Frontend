@@ -15,7 +15,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
 
   const productsStore = useProductsStore();
   const products = computed(() => productsStore.products);
-  console.log("Branch PRoductssss:", products.value);
+  /* console.log("Branch PRoductssss:", products.value); */
 
   const fetchBranchProducts = async (branchId) => {
     const response = await api.get(`/api/branches/${branchId}/products`);
@@ -29,27 +29,27 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     rowsPerPage,
     branchId,
   }) => {
-    console.log("Page:", page);
-    console.log("RowsPerPage:", rowsPerPage);
-    console.log("Branch ID:", branchId);
+    /* console.log("Page:", page); */
+    /* console.log("RowsPerPage:", rowsPerPage); */
+    /* console.log("Branch ID:", branchId); */
     try {
       const response = await api.get(
         `/api/sample-fetch-pagination-branch-products?page=${page}&rowsPerPage=${rowsPerPage}&branchId=${branchId}`
       );
       sampleFetchPagination.value = response.data.data;
-      console.log("Sample Fetch Pagination:", response.data.data);
+      /* console.log("Sample Fetch Pagination:", response.data.data); */
       totalFetch.value = response.data.total;
-      console.log("Total Fetch:", response.data.total);
+      /* console.log("Total Fetch:", response.data.total); */
     } catch (error) {
-      console.log("Error:", error);
+      /* console.log("Error:", error); */
     }
   };
 
   // New Search Function
   const searchBranchProducts = async ({ branches_id, query, category }) => {
-    console.log("Branch ID:", branches_id);
-    console.log("Query:", query);
-    console.log("Category:", category);
+    /* console.log("Branch ID:", branches_id); */
+    /* console.log("Query:", query); */
+    /* console.log("Category:", category); */
 
     try {
       const response = await api.post("/api/search-branch-products", {
@@ -59,9 +59,9 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
       });
 
       branchProducts.value = response.data;
-      console.log("Branch Products:", response.data);
+      /* console.log("Branch Products:", response.data); */
     } catch (error) {
-      console.log("Error:", error);
+      /* console.log("Error:", error); */
     }
   };
 
@@ -72,7 +72,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     rowsPerPage,
     search
   ) => {
-    console.log("Datassss:", category, branchId, page, rowsPerPage);
+    /* console.log("Datassss:", category, branchId, page, rowsPerPage); */
 
     try {
       const response = await api.get(
@@ -85,13 +85,13 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
           },
         }
       );
-      console.log("Responsesss:", response.data);
+      /* console.log("Responsesss:", response.data); */
       branchSendAddedProd.value = response.data;
 
-      console.log("branchSendAddedProd.value:", branchSendAddedProd.value);
+      /* console.log("branchSendAddedProd.value:", branchSendAddedProd.value); */
       // return response.data;
     } catch (error) {
-      console.log("Error:", error);
+      /* console.log("Error:", error); */
     }
   };
 
@@ -99,7 +99,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
     try {
       const response = await api.post("/api/added-branch-products", data);
 
-      console.log("Responsssssse:", response.data);
+      /* console.log("Responsssssse:", response.data); */
 
       return {
         success: true,
@@ -107,7 +107,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
         data: response.data,
       };
     } catch (error) {
-      console.log("Error:", error);
+      /* console.log("Error:", error); */
       return {
         success: false,
         status: error.response?.status || 500,
@@ -168,12 +168,12 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
   };
 
   const updateProductBranch = async (data) => {
-    console.log("data from store", data);
+    /* console.log("data from store", data); */
 
     try {
       const response = await api.post("api/update-product-branch", data);
 
-      console.log("response", response.data);
+      /* console.log("response", response.data); */
       return response;
     } catch (error) {
       console.error("error in updateProductBranch:", error);
@@ -227,7 +227,7 @@ export const useBranchProductsStore = defineStore("branchProducts", () => {
 
       return response;
     } catch (error) {
-      console.log("Error:", error);
+      /* console.log("Error:", error); */
       throw error;
     }
   };

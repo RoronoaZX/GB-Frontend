@@ -272,7 +272,7 @@ const props = defineProps({
   },
 });
 
-console.log("Summary Data:", props.summaryData);
+/* console.log("Summary Data:", props.summaryData); */
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
@@ -283,12 +283,12 @@ const employeesData = ref(null); // This will hold the fetched employee data
 const parentTotalIncentive = ref(0);
 
 watch(parentTotalIncentive, (newValue) => {
-  console.log("Parent total incentive updated:", newValue);
+  /* console.log("Parent total incentive updated:", newValue); */
 });
 
 // You can also log anytime, e.g. on button click
 const logIncentive = () => {
-  console.log("Parent total incentive now:", parentTotalIncentive.value);
+  /* console.log("Parent total incentive now:", parentTotalIncentive.value); */
 };
 
 // Computed property for employee's schedule display
@@ -479,7 +479,7 @@ const totalIncome = computed(() => {
     totalEmployeeAllowances.value.replace(/[₱,]/g, "") || 0
   );
 
-  console.log("employeeAllowances", employeeAllowances);
+  /* console.log("employeeAllowances", employeeAllowances); */
 
   const totalHours = workingHours + overtimeHours;
   const hourlyIncome = totalHours * hourlyRate.value;

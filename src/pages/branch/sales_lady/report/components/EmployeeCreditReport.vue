@@ -245,9 +245,9 @@ const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const salesReportsStore = useSalesReportsStore();
 const productSearchData = computed(() => salesReportsStore.products);
-console.log("products search", productSearchData.value);
+/* console.log("products search", productSearchData.value); */
 const userData = salesReportsStore.user;
-console.log("userdata", userData);
+/* console.log("userdata", userData); */
 const branchId = userData?.device?.reference_id || "";
 const dialog = ref(false);
 const searchQuery = ref("");
@@ -271,7 +271,7 @@ const searchUsers = async () => {
   if (searchQuery.value) {
     employeeSearchLoading.value = true; // Set loading to true
     // const branchId = branchId;
-    console.log("searchQuery.value", searchQuery.value);
+    /* console.log("searchQuery.value", searchQuery.value); */
     // console.log("branchId", branchId);
     await employeeStore.searchEmployee(searchQuery.value);
     // console.log("response user",);
@@ -325,7 +325,7 @@ const isDropdownVisible = computed(() => {
 });
 
 const autoFillUser = (user) => {
-  console.log("credit", user);
+  /* console.log("credit", user); */
   searchQuery.value = `${user.firstname} ${
     user.middlename ? user.middlename.charAt(0) + "." : ""
   } ${user.lastname}`;
@@ -345,7 +345,7 @@ const searchProducts = async () => {
       productSearch.value,
       branchId
     );
-    console.log("response", response);
+    /* console.log("response", response); */
     productSearchLoading.value = false;
     showProductCard.value = true;
   }
@@ -354,7 +354,7 @@ const searchProducts = async () => {
 const isDropDownProductVisible = computed(() => {
   return productSearch.value && productSearchData.value.length > 0;
 });
-console.log("Product search datasss:", productSearchData.value);
+/* console.log("Product search datasss:", productSearchData.value); */
 
 const autoFillProduct = (product) => {
   productSearch.value = product.name;
@@ -379,7 +379,7 @@ const calculateProductCreditTotalAmount = () => {
     productCreditTotalAmount.value = "";
   }
 
-  console.log("productCreditTotalAmount", productCreditTotalAmount.value);
+  /* console.log("productCreditTotalAmount", productCreditTotalAmount.value); */
 };
 const addCreditToList = () => {
   const totalAmount = productCreditTotalAmount.value;
@@ -393,7 +393,7 @@ const addCreditToList = () => {
     pieces: creditForm.pieces,
     totalAmount: totalAmount,
   });
-  console.log("creditList", creditList.value);
+  /* console.log("creditList", creditList.value); */
   clearProduct();
 };
 
@@ -436,7 +436,7 @@ watch(
   calculateProductCreditTotalAmount
 );
 watch(productCreditTotalAmount, (newVal) => {
-  console.log("productCreditTotalAmoun", newVal); // This will log whenever the total amount changes
+  /* console.log("productCreditTotalAmoun", newVal); */ // This will log whenever the total amount changes
 });
 
 const handleSubmit = () => {
@@ -459,7 +459,7 @@ const handleSubmit = () => {
   };
 
   salesReportsStore.updateEmployeeCreditReports(employeeCreditReport);
-  console.log("employeeCreditReport:", employeeCreditReport);
+  /* console.log("employeeCreditReport:", employeeCreditReport); */
 
   Notify.create({
     type: "positive",

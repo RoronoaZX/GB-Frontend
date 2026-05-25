@@ -137,7 +137,7 @@ const drawer = ref(false);
 const activeMenuItem = ref("0");
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("employee", userData.value);
+/* console.log("employee", userData.value); */
 const quasar = useQuasar();
 const loading = ref(false);
 const router = useRouter();
@@ -189,15 +189,18 @@ const formatFullname = (row) => {
 //   }
 // });
 
-const signOut = () => {
+const signOut = async () => {
   loading.value = true;
-  setTimeout(() => {
-    LocalStorage.removeItem("token");
-    LocalStorage.removeItem("role");
-    LocalStorage.removeItem("activeMenuItem");
-    loading.value = false;
-    router.push("/");
-  }, 1000);
+  try {
+    await api.post("/api/logout");
+  } catch (err) {
+    console.warn("Logout API failed:", err);
+  }
+  LocalStorage.removeItem("token");
+  LocalStorage.removeItem("role");
+  LocalStorage.removeItem("activeMenuItem");
+  loading.value = false;
+  router.push("/");
 };
 
 const menuItems = [

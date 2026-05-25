@@ -180,17 +180,17 @@ const openDialog = () => {
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("userData in RawMaterialsTable:", userData.value);
+/* console.log("userData in RawMaterialsTable:", userData.value); */
 const branchId = userData.value?.device?.reference_id || "";
-console.log("branchId in PremixPage:", branchId);
+/* console.log("branchId in PremixPage:", branchId); */
 const warehouseId = userData.value?.device?.reference?.warehouse_id || "";
-console.log("warehouseId in PremixPage:", warehouseId);
+/* console.log("warehouseId in PremixPage:", warehouseId); */
 const employeeId = userData.value?.data?.employee_id || "";
-console.log("warehouseId in PremixPage:", warehouseId);
+/* console.log("warehouseId in PremixPage:", warehouseId); */
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.premixes);
 const premixDatasFetch = computed(() => premixStore.branchEmployeePremix);
-console.log("premixdatas", premixDatas.value);
+/* console.log("premixdatas", premixDatas.value); */
 const requestPremixStore = useRequestPremixStore();
 
 const premixList = ref([]);
@@ -201,7 +201,7 @@ const search = async () => {
 };
 
 const autofillPremix = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addBranchPremixRecipe.branch_premix_id = data.id;
   addBranchPremixRecipe.name = capitalizeFirstLetter(data.name);
   addBranchPremixRecipe.category = data.category;
@@ -222,7 +222,7 @@ const addPremixToList = () => {
     quantity: addBranchPremixRecipe.quantity,
     status: addBranchPremixRecipe.status,
   });
-  console.log("premix", premix);
+  /* console.log("premix", premix); */
 
   clearForm();
 };
@@ -250,7 +250,7 @@ const addBranchPremixRecipe = reactive({
 
 const save = async () => {
   try {
-    console.log("Data sent for premix request:", premixList.value);
+    /* console.log("Data sent for premix request:", premixList.value); */
 
     // Save the premix request
     await premixStore.saveRequestPremix(premixList.value, branchId, employeeId);

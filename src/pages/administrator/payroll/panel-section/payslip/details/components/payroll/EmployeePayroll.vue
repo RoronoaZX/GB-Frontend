@@ -200,18 +200,18 @@ const fetchEmployeeDetails = async () => {
     );
     // Assuming `employees.value` now contains the single employee object directly
     employeesData.value = employees.value;
-    console.log("Employee Designation Data Loaded:", employeesData.value);
+    /* console.log("Employee Designation Data Loaded:", employeesData.value); */
 
     // --- Critical Debugging Step: Verify the 'designation' property ---
     if (employeesData.value && employeesData.value.designation) {
-      console.log(
+      /* console.log(
         "Employee's regular designation time_in:",
         employeesData.value.designation.time_in
-      );
-      console.log(
+      ); */
+      /* console.log(
         "Employee's regular designation time_out:",
         employeesData.value.designation.time_out
-      );
+      ); */
     } else {
       console.error(
         "Employee designation or its time_in/time_out is missing from the fetched employee data!"
@@ -232,7 +232,7 @@ const fetchPayrollPerCutOff = async () => {
   isLoading.value = true;
   try {
     await dtrStore.fetchDTRPayrollPerCutOff(employee_id);
-    console.log("payrollData (DTR cut-off data):", payrollData.value);
+    /* console.log("payrollData (DTR cut-off data):", payrollData.value); */
   } catch (error) {
     console.error("Error fetching payroll data:", error);
     throw error;

@@ -64,7 +64,7 @@
 import { computed } from "vue";
 
 const props = defineProps(["dtrHolidays"]);
-console.log("dtrHolidays", props.dtrHolidays);
+/* console.log("dtrHolidays", props.dtrHolidays); */
 
 const getHolidayTypeColor = (type) => {
   if (type === "Regular Holiday") {

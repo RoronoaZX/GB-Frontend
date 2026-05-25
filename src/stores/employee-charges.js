@@ -14,12 +14,12 @@ export const useEmployeeChargesStore = defineStore("employee-charges", () => {
 
   const fetchEmployeeCharges = async (data) => {
     try {
-      console.log("Fetching charges for: ", data);
+      /* console.log("Fetching charges for: ", data); */
       const response = await api.get(
         `/api/employee-charges/${data.fromDate}/${data.toDate}/${data.employeeID}`
       );
       employeeCharges.value = response.data || [];
-      console.log("Charges loaded: ", employeeCharges.value);
+      /* console.log("Charges loaded: ", employeeCharges.value); */
     } catch (error) {
       console.error("Error fetching employee charges: ", error);
       employeeCharges.value = [];
@@ -35,7 +35,7 @@ export const useEmployeeChargesStore = defineStore("employee-charges", () => {
         }
       );
 
-      console.log("Update response: ", response);
+      /* console.log("Update response: ", response); */
 
       // Only update the local store if the API call was successful
       if (response.status === 200) {

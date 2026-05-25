@@ -147,7 +147,7 @@ const employees = computed(() => employeesStore.employees);
 
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 
 const employeeWithInShiftList = computed(
   () => salesReportsStore.employeeInShift
@@ -168,7 +168,7 @@ const props = defineProps({
   },
 });
 
-console.log("props", props);
+/* console.log("props", props); */
 
 const $q = useQuasar();
 
@@ -192,7 +192,7 @@ const search = async () => {
       searchLoading.value = false;
       showUserCard.value = true;
 
-      console.log("employeess", employees);
+      /* console.log("employeess", employees); */
     } catch (error) {
       console.error("Search failed: ", error);
 
@@ -233,7 +233,7 @@ const clearAutoFilledEmployee = () => {
 };
 
 const addTOShiftList = () => {
-  console.log("Employee ID:", employeeWithInShift.employee_id);
+  /* console.log("Employee ID:", employeeWithInShift.employee_id); */
 
   if (!employeeWithInShift.employee_id) {
     $q.notify({

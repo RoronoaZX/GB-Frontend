@@ -272,8 +272,8 @@ const updateSupplierHistoriesDateTime = async (row, newTime) => {
       finalDateTime
     );
 
-    console.log("Updated datetime payload:", finalDateTime);
-    console.log("response", response);
+    /* console.log("Updated datetime payload:", finalDateTime); */
+    /* console.log("response", response); */
 
     // 🟢 Update the current table row immediately
     if (response?.created_at) {
@@ -355,7 +355,7 @@ const fetchSupplierHistory = async (page = 1, rowsPerPage = 5, search = "") => {
       rowsPerPage,
       search
     );
-    console.log("supplierHistories", response);
+    /* console.log("supplierHistories", response); */
 
     const { data, current_page, per_page, total } = response;
     supplierHistoriesData.value = data;
@@ -363,7 +363,7 @@ const fetchSupplierHistory = async (page = 1, rowsPerPage = 5, search = "") => {
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;
   } catch (error) {
-    console.log("Error fetching supplier history:", error);
+    /* console.log("Error fetching supplier history:", error); */
     Notify.create({
       message: "Error fetching supplier history",
       color: "negative",
@@ -384,7 +384,7 @@ const onPageRequest = (props) => {
 };
 
 const openSupplierIngredients = (row) => {
-  console.log("Viewing ingredients for row:", row);
+  /* console.log("Viewing ingredients for row:", row); */
 
   $q.dialog({
     component: ViewIngredientItems,

@@ -209,17 +209,17 @@ const props = defineProps({
   reportDate: String,
 });
 
-console.log("propsss..", props);
+/* console.log("propsss..", props); */
 
 const emit = defineEmits(["softdrinks-added"]);
 
-console.log("props.sales_Reports", props.sales_Reports);
-console.log("props.user", props.user);
+/* console.log("props.sales_Reports", props.sales_Reports); */
+/* console.log("props.user", props.user); */
 
 const userStore = useUsersStore();
 
 const userData = computed(() => userStore.userData);
-console.log("usersssData", userData.value);
+/* console.log("usersssData", userData.value); */
 
 const userId = computed(
   () =>
@@ -239,7 +239,7 @@ const branchProduct = computed(() => branchProductsStore.branchProducts);
 
 const sales_report_id = props.sales_report_id;
 
-console.log("branchProduct", branchProduct);
+/* console.log("branchProduct", branchProduct); */
 
 const addSoftdrinksReport = reactive({
   sales_report_id: sales_report_id,
@@ -311,9 +311,9 @@ const openDialog = () => {
 
 const category = ref("Softdrinks"); // Add a ref for the category
 const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
+  /* console.log("branch_id.value:", branch_id); */
+  /* console.log("searchQuery.value:", searchQuery.value); */
+  /* console.log("category.value:", category.value); */
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -324,7 +324,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addSoftdrinksReport.product_id = data.product.id;
   addSoftdrinksReport.product_name = capitalizeFirstLetter(data.product.name);
   addSoftdrinksReport.category = data.category;
@@ -380,7 +380,7 @@ const handleSubmit = async () => {
       sales: 0,
     });
   } catch (error) {
-    console.log("Add Softdrinks Error:", error);
+    /* console.log("Add Softdrinks Error:", error); */
   }
 };
 </script>

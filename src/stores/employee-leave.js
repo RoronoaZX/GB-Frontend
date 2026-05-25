@@ -39,7 +39,7 @@ export const useEmployeeLeaveStore = defineStore("employee-leave", () => {
     error.value = null;
 
     try {
-      console.log("createLeaveRequest", data);
+      /* console.log("createLeaveRequest", data); */
       const response = await api.post("/api/employee-leaves", data);
 
       // Add the enw request to the list
@@ -150,7 +150,7 @@ export const useEmployeeLeaveStore = defineStore("employee-leave", () => {
     error.value = null;
 
     try {
-      console.log("getLeaveRequestsThisYear", branchId);
+      /* console.log("getLeaveRequestsThisYear", branchId); */
       const response = await api.get(`/api/employee-leaves/current-year`, {
         params: { branch_id: branchId },
       });
@@ -178,14 +178,14 @@ export const useEmployeeLeaveStore = defineStore("employee-leave", () => {
 
   const employeeOnLeave = async (data) => {
     // This seems like a different endpoint, keeping as is
-    console.log("employeeOnLeave", data);
+    /* console.log("employeeOnLeave", data); */
     const response = await api.post("/employee-leaves", data);
     return response.data;
   };
 
   const leaveRequests = async (data) => {
     // updating to use fetchLeaveRequests
-    console.log("leave Request", data);
+    /* console.log("leave Request", data); */
     return await fetchLeaveRequests(data);
   };
 

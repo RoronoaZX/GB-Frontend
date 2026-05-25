@@ -119,7 +119,7 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const props = defineProps(["selectaReports"]);
 
-console.log("selectaReports Data:", props.selectaReports);
+/* console.log("selectaReports Data:", props.selectaReports); */
 
 const confirmedSelectaReports = computed(() => {
   if (!Array.isArray(props.selectaReports)) return [];

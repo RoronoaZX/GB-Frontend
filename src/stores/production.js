@@ -57,15 +57,15 @@ export const useProductionStore = defineStore("productions", () => {
   const chargesAmount = ref(0);
 
   const setAmounts = (over, charges) => {
-    console.log("setAmountsssss", { over, charges });
+    /* console.log("setAmountsssss", { over, charges }); */
 
     overAmount.value = over;
     chargesAmount.value = charges;
 
-    console.log("Updated amounts:", {
+    /* console.log("Updated amounts:", {
       overAmount: overAmount.value,
       chargesAmount: chargesAmount.value,
-    });
+    }); */
   };
 
   const sendRequest = async (
@@ -77,14 +77,14 @@ export const useProductionStore = defineStore("productions", () => {
   ) => {
     Loading.show();
 
-    console.log("Sssending payload:", data);
+    /* console.log("Sssending payload:", data); */
 
     try {
       const payload = {
         ...data,
       };
 
-      console.log("ssSending payloadsss:", payload);
+      /* console.log("ssSending payloadsss:", payload); */
 
       const response = await api[method](url, payload);
 
@@ -95,7 +95,7 @@ export const useProductionStore = defineStore("productions", () => {
 
       return response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
 
       Notify.create({
         message: errorMsg,
@@ -125,19 +125,19 @@ export const useProductionStore = defineStore("productions", () => {
           params: { page: page, per_page: rowsPerPage, search },
         }
       );
-      console.log("production for paginationsssss", response.data);
+      /* console.log("production for paginationsssss", response.data); */
       productions.value = response.data;
 
       // productionRows.value = response.data.data;
       // return response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updateBakerReport = async (id, data) => {
-    console.log("baker reports data in store", data);
-    console.log("baker reports id data in store", id);
+    /* console.log("baker reports data in store", data); */
+    /* console.log("baker reports id data in store", id); */
     Loading.show();
     try {
       // Make sure the URL matches your Laravel route's endpoint
@@ -145,7 +145,7 @@ export const useProductionStore = defineStore("productions", () => {
         `api/update/branch-baker-report/${id}`,
         data
       );
-      console.log(response.data); // Log the response if needed
+      /* console.log(response.data); */ // Log the response if needed
     } catch (error) {
       console.error("Error updating baker report:", error);
     } finally {
@@ -168,7 +168,7 @@ export const useProductionStore = defineStore("productions", () => {
       `Failed to add ${type} production`
     );
 
-    console.log("responsssse", response);
+    /* console.log("responsssse", response); */
 
     const raw = response?.data ?? response;
     if (!raw) return response;
@@ -258,33 +258,33 @@ export const useProductionStore = defineStore("productions", () => {
     shiftSalesReport[reportKey].push(productRow);
     shiftGroup[reportKey].unshift(productRow);
 
-    console.log("✅ Production inserted correctly", {
+    /* console.log("✅ Production inserted correctly", {
       date,
       shift: shiftLabel,
       reportKey,
       productRow,
-    });
+    }); */
 
-    console.log("Updated productions:", productions.value);
+    /* console.log("Updated productions:", productions.value); */
 
     return response;
   }; // Correct logic  but for bread only
 
   const addOtherProductProduction = async (data) => {
-    console.log("Softdrinks Production Data:", data);
+    /* console.log("Softdrinks Production Data:", data); */
     Loading.show();
     try {
       const response = await api.post(
         "/api/branch-add-other-production-report",
         data
       );
-      console.log(response.data);
+      /* console.log(response.data); */
       Notify.create({
         message: "Softdrinks Production Report Added Successfully",
         color: "positive",
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
       Notify.create({
         message: "Error adding Bread Production Report",
         color: "negative",
@@ -322,7 +322,7 @@ export const useProductionStore = defineStore("productions", () => {
       charges_amount: charges !== null ? charges : chargesAmount.value,
     };
 
-    console.log("Payload datasssssssss:", payload);
+    /* console.log("Payload datasssssssss:", payload); */
 
     return sendRequest(
       "put",

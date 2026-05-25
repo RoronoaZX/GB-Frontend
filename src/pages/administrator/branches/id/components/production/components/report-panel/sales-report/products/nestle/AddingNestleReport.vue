@@ -206,17 +206,17 @@ const props = defineProps({
   reportDate: String,
 });
 
-console.log("Propsss..", props);
+/* console.log("Propsss..", props); */
 
 const emit = defineEmits(["nestle-added"]);
 
-console.log("props.sales_Reports", props.sales_Reports);
-console.log("props.user", props.user);
+/* console.log("props.sales_Reports", props.sales_Reports); */
+/* console.log("props.user", props.user); */
 
 const userStore = useUsersStore();
 
 const userData = computed(() => userStore.userData);
-console.log("usersssData", userData.value);
+/* console.log("usersssData", userData.value); */
 
 const userId = computed(
   () =>
@@ -233,7 +233,7 @@ const branchProductsStore = useBranchProductsStore();
 const dialog = ref(false);
 const searchQuery = ref("");
 const branchProduct = computed(() => branchProductsStore.branchProducts);
-console.log("branchProduct", branchProduct);
+/* console.log("branchProduct", branchProduct); */
 
 const sales_report_id = props.sales_report_id;
 
@@ -300,9 +300,9 @@ const openDialog = () => {
 const category = ref("Nestle");
 
 const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
+  /* console.log("branch_id.value:", branch_id); */
+  /* console.log("searchQuery.value:", searchQuery.value); */
+  /* console.log("category.value:", category.value); */
 
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
@@ -314,7 +314,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addNestleReport.product_id = data.product.id;
   addNestleReport.product_name = capitalizeFirstLetter(data.product.name);
   addNestleReport.category = data.category;
@@ -369,7 +369,7 @@ const handleSubmit = async () => {
       sales: 0,
     });
   } catch (error) {
-    console.log("Add nestle error: ", error);
+    /* console.log("Add nestle error: ", error); */
   }
 };
 </script>

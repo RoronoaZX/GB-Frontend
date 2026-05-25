@@ -120,7 +120,7 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const warehouseEmployeeId = userData.value.data.employee_id;
 const premixStore = usePremixStore();
 const props = defineProps({
@@ -130,7 +130,7 @@ const props = defineProps({
   },
 });
 
-console.log("report", props.report);
+/* console.log("report", props.report); */
 
 // const branchPremixId = props.report.branch_premix_id;
 
@@ -159,7 +159,7 @@ const confirmReport = async () => {
       notes: "Confirmed Premix",
     };
     const confirmedReport = await premixStore.confirmPremix(payload);
-    console.log("Report confirmedss:", confirmedReport);
+    /* console.log("Report confirmedss:", confirmedReport); */
     Notify.create({
       type: "positive",
       message: "Report confirmed successfully",

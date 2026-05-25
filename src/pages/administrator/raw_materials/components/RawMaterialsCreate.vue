@@ -192,7 +192,7 @@ const create = async () => {
     const response = await rawMaterialStore.createRawMaterials(
       addRawMaterialsForm
     );
-    console.log(response);
+    /* console.log(response); */
 
     createRawMaterialsDialog.value = false;
     resetCreateRawMaterials();

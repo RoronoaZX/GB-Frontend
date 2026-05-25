@@ -214,7 +214,7 @@ import { useStockDelivery } from "src/stores/stock-delivery";
 
 const stocksDeliveryStore = useStockDelivery();
 const deliveryStocks = computed(() => stocksDeliveryStore.deliveryStocks);
-console.log("Delivery Stocks (computed):", deliveryStocks.value);
+/* console.log("Delivery Stocks (computed):", deliveryStocks.value); */
 const deliveryList = ref([]);
 const loading = ref(false); // loading flag
 
@@ -223,7 +223,7 @@ const deliveryDialog = ref(false);
 const selectedDelivery = ref(null);
 const openDialog = (delivery) => {
   // Logic to open the dialog
-  console.log("Open Delivery Dialog");
+  /* console.log("Open Delivery Dialog"); */
   selectedDelivery.value = delivery || null;
   deliveryDialog.value = true;
 };
@@ -232,7 +232,7 @@ const fetchDeliveryStocks = async () => {
   try {
     loading.value = true;
     await stocksDeliveryStore.fetchDeliveryStocks();
-    console.log("Delivery Stocks:", deliveryStocks.value);
+    /* console.log("Delivery Stocks:", deliveryStocks.value); */
     deliveryList.value = deliveryStocks.value;
   } catch (error) {
     console.error("Error fetching delivery stocks:", error);
@@ -244,7 +244,7 @@ onMounted(fetchDeliveryStocks);
 
 // 🔎 Watch for updates
 watch(deliveryStocks, (newVal) => {
-  console.log("Delivery Stocks updated:", newVal);
+  /* console.log("Delivery Stocks updated:", newVal); */
 });
 
 const formatQuantity = (val) => {

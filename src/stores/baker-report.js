@@ -58,19 +58,19 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", () => {
     per_page = 5,
     search = ""
   ) => {
-    console.log("userId", userId);
-    console.log("page", page);
-    console.log("per_page", per_page);
-    console.log("search", search);
+    /* console.log("userId", userId); */
+    /* console.log("page", page); */
+    /* console.log("per_page", per_page); */
+    /* console.log("search", search); */
     try {
       const response = await api.get(`/api/branch/${userId}/bakerReport`, {
         params: { page, per_page: per_page, search: search },
       });
 
       bakerReport.value.data = response.data;
-      console.log("response.data report response", response.data);
+      /* console.log("response.data report response", response.data); */
       bakerReport.value.pagination = response.data.pagination;
-      console.log("bakerReport.value.pagination", bakerReport.value.pagination);
+      /* console.log("bakerReport.value.pagination", bakerReport.value.pagination); */
 
       return response.data;
     } catch (error) {
@@ -98,7 +98,7 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", () => {
         message: "Report successfully sent",
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
@@ -115,7 +115,7 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", () => {
 
       reports.value = [];
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
@@ -129,16 +129,16 @@ export const useBakerReportsStore = defineStore("bakerReportsStore", () => {
         total_employees: totalEmployeesInShift.value,
       });
 
-      console.log("Reports to be saved reports:", reports.value);
-      console.log(
+      /* console.log("Reports to be saved reports:", reports.value); */
+      /* console.log(
         "Reports to be saved employeeInShift:",
         employeeInShift.value
-      );
-      console.log("Reports to be saved overallKilo:", overallKilo.value);
-      console.log(
+      ); */
+      /* console.log("Reports to be saved overallKilo:", overallKilo.value); */
+      /* console.log(
         "Reports to be saved totalEmployeesInShift:",
         totalEmployeesInShift.value
-      );
+      ); */
 
       Notify.create({
         type: "positive",

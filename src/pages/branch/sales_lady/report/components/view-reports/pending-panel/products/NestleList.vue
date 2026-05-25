@@ -106,13 +106,13 @@ const props = defineProps({
   sales_report_id: Number,
 });
 
-console.log("Porpsosp", props);
+/* console.log("Porpsosp", props); */
 
 const emit = defineEmits(["action-complete"]);
 
 const $q = useQuasar();
 
-console.log("nestessse", props.nestle);
+/* console.log("nestessse", props.nestle); */
 
 const handleConfirm = async (nestle) => {
   const payload = {
@@ -125,7 +125,7 @@ const handleConfirm = async (nestle) => {
     remaining: nestle.remaining,
   };
 
-  console.log("payload to confirm", payload);
+  /* console.log("payload to confirm", payload); */
 
   try {
     Loading.show({
@@ -144,7 +144,7 @@ const handleConfirm = async (nestle) => {
     // Emit event to parent that action is complete
     emit("action-complete");
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     $q.notify({
       type: "negative",
       message: "Failed to  confirm product. Please try again.",

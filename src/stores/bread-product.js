@@ -8,8 +8,8 @@ export const useBreadProductStore = defineStore("bread", () => {
   const pendingBreads = ref([]);
 
   const fetchBranchBread = async (branchesId, category) => {
-    console.log("branch IDsss", branchesId);
-    console.log("categoryss", category);
+    /* console.log("branch IDsss", branchesId); */
+    /* console.log("categoryss", category); */
 
     try {
       const response = await api.get(`/api/fetch-bread-products`, {
@@ -18,15 +18,15 @@ export const useBreadProductStore = defineStore("bread", () => {
           category: category,
         },
       });
-      console.log("bread responsesss", response.data);
+      /* console.log("bread responsesss", response.data); */
       breads.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const fetchPendingBreadsReport = async (branchId, page, perPage) => {
-    console.log("branch IDsss", branchId);
+    /* console.log("branch IDsss", branchId); */
     try {
       const response = await api.get(`/api/fetch-pending-send-branch-bread`, {
         params: {
@@ -35,18 +35,18 @@ export const useBreadProductStore = defineStore("bread", () => {
           per_page: perPage,
         },
       });
-      console.log("bread responsesss", response.data);
+      /* console.log("bread responsesss", response.data); */
       pendingBreads.value = response.data;
       // return response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const fetchSendBreadToBranch = async (branchId, page, perPage) => {
-    console.log("branchid", branchId);
-    console.log("page", page);
-    console.log("rowsPerPage", perPage);
+    /* console.log("branchid", branchId); */
+    /* console.log("page", page); */
+    /* console.log("rowsPerPage", perPage); */
     try {
       const response = await api.get(
         `/api/fetch-send-bread-to-branch/${branchId}`,
@@ -60,27 +60,27 @@ export const useBreadProductStore = defineStore("bread", () => {
       breads.value = response.data;
       // return response.data;
     } catch (error) {
-      console.log("Error fetching send product to branch", error);
+      /* console.log("Error fetching send product to branch", error); */
     }
   };
 
   const sendBreadToBranch = async (data) => {
-    console.log("data in the store", data);
+    /* console.log("data in the store", data); */
     try {
       const response = await api.post("/api/sending-bread-to-branch", data);
       breads.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const recievedBread = async (data) => {
-    console.log("data in the store in the bread", data);
+    /* console.log("data in the store in the bread", data); */
     try {
       const response = await api.post("/api/received-branch-bread", data);
       bread.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 

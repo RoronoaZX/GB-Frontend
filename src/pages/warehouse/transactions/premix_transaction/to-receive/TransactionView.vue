@@ -126,7 +126,7 @@ const openDialog = () => {
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 
 const props = defineProps({
   report: {
@@ -137,9 +137,9 @@ const props = defineProps({
 
 const ingrdientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
-console.log("ingrdientsData", ingrdientsData);
+/* console.log("ingrdientsData", ingrdientsData); */
 
-console.log("report to proceed", props.report);
+/* console.log("report to proceed", props.report); */
 </script>
 
 <style lang="scss" scoped>

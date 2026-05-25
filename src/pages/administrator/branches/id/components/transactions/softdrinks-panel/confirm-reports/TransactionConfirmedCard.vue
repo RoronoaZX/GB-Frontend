@@ -112,21 +112,21 @@ const fetchConfirmedSoftdrinksStocks = async (
       page,
       rowsPerPage
     );
-    console.log(
+    /* console.log(
       "softdrinksProductsConfirmed.value",
       softdrinksProductsConfirmed.value
-    );
+    ); */
     const { data, current_page, per_page, total } =
       softdrinksProductsConfirmed.value;
 
     softdrinksData.value = data;
-    console.log("softdrinksData.value", softdrinksData.value);
+    /* console.log("softdrinksData.value", softdrinksData.value); */
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
+    /* console.log("pagination.value.page", pagination.value.page); */
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    /* console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage); */
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
+    /* console.log("pagination.value.rowsNumber", pagination.value.rowsNumber); */
   } catch (error) {
     console.error("Error fetching confirmed stocks", error);
   } finally {
@@ -142,8 +142,8 @@ onMounted(async () => {
 
 const onPageChange = (page) => {
   pagination.value.page = page;
-  console.log("pagination.value.page", pagination.value.page);
-  console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+  /* console.log("pagination.value.page", pagination.value.page); */
+  /* console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage); */
 
   fetchConfirmedSoftdrinksStocks(branchId, page, pagination.value.rowsPerPage);
 };

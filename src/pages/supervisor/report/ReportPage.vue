@@ -46,7 +46,7 @@ const supervisorStore = useSupervisorStore();
 const branches = ref([]);
 const employeeData = computed(() => supervisorStore.user);
 const employee_id = employeeData?.value?.data?.employee_id;
-console.log("employee_id", employee_id);
+/* console.log("employee_id", employee_id); */
 
 onMounted(async () => {
   await reloadBranchData(employee_id);
@@ -56,9 +56,9 @@ const reloadBranchData = async (employee_id) => {
   try {
     await supervisorStore.fetchSupervisorUnderBranch(employee_id);
     branches.value = supervisorStore.supervisorBranch;
-    console.log("branches", branches.value);
+    /* console.log("branches", branches.value); */
   } catch (error) {
-    console.log("error fetching recipe: ", error);
+    /* console.log("error fetching recipe: ", error); */
   }
 };
 </script>

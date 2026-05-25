@@ -258,7 +258,7 @@ const reloadTableData = async (branchId) => {
     }
     // console.log("Branch product", branchProductRows.value);
   } catch (error) {
-    console.log("Error fetching branch product:", error);
+    /* console.log("Error fetching branch product:", error); */
     showNoDataMessage.value = true;
   } finally {
     loading.value = false;
@@ -273,7 +273,7 @@ watch(filter, async (newFilter) => {
 });
 
 async function updatedPrice(data, val) {
-  console.log("data branch product", data);
+  /* console.log("data branch product", data); */
   const report_id = data.id;
   const name = data?.product?.name || "undefined";
   const originalData = `₱ ${data.price.toString()}`; // Convert to string
@@ -335,7 +335,7 @@ async function updatedPrice(data, val) {
 }
 
 async function updateNewProduction(data, val) {
-  console.log("data branch product", data);
+  /* console.log("data branch product", data); */
   const report_id = data.id;
   const name = data?.product?.name || "undefined";
   const originalData = ` ${data.new_production.toString()} pcs`; // Convert to string
@@ -388,7 +388,7 @@ async function updateNewProduction(data, val) {
 }
 
 async function updatedBeginnings(data, val) {
-  console.log("data branch product", data);
+  /* console.log("data branch product", data); */
   const report_id = data.id;
   const name = data?.product?.name || "undefined";
   const originalData = ` ${data.beginnings.toString()} pcs`; // Convert to string

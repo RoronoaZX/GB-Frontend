@@ -55,7 +55,7 @@ const warehouseRawMaterials = useWarehouseRawMaterialsStore();
 const props = defineProps(["delete"]);
 
 const onDelete = async () => {
-  console.log("clickkkd");
+  /* console.log("clickkkd"); */
   try {
     await warehouseRawMaterials.deleteWarehouseRawMaterials(
       props.delete.row.id

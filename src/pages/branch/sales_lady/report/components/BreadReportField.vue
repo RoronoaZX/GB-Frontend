@@ -205,7 +205,7 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 const salesReportsStore = useSalesReportsStore();
 const breadReports = computed(() => salesReportsStore.breadReports);
 
-console.log("Bread Reportssss:", breadReports.value);
+/* console.log("Bread Reportssss:", breadReports.value); */
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

@@ -135,7 +135,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         (product) => product.category === "Nestle"
       );
 
-      console.log("nestleProducts", this.nestleProducts);
+      /* console.log("nestleProducts", this.nestleProducts); */
     },
 
     filterSoftdrinksproducts() {
@@ -171,7 +171,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
       } else {
         this.selectaReports.push(report);
       }
-      console.log("selectaReports", this.selectaReports);
+      /* console.log("selectaReports", this.selectaReports); */
     },
 
     updateNestleReport(report) {
@@ -184,7 +184,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.nestleReports.push(report);
       }
 
-      console.log("nestleReports", this.nestleReports);
+      /* console.log("nestleReports", this.nestleReports); */
     },
 
     updateSoftdrinksReport(report) {
@@ -243,7 +243,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     updateWithReceiptExpensesReport(report) {
-      console.log("report to with receipt data expense in store", report);
+      /* console.log("report to with receipt data expense in store", report); */
       this.withReceiptExpensesReports.push(report);
       this.updateExpensesTotalAmount();
     },
@@ -275,7 +275,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.otherProductsTotalAmount +
         this.cakeTotalAmount -
         this.creditExpensesTotal;
-      console.log("Total Sales Amount:", totalSalesAmount);
+      /* console.log("Total Sales Amount:", totalSalesAmount); */
 
       const adjustedTotalSales =
         totalSalesAmount +
@@ -291,8 +291,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.charges = 0;
         this.overTotal = rawTotalDenomination - adjustedTotalSales;
       }
-      console.log("Chargessss:", this.charges);
-      console.log("Charges total:", this.overTotal);
+      /* console.log("Chargessss:", this.charges); */
+      /* console.log("Charges total:", this.overTotal); */
     },
 
     updateProductsTotalAmount() {
@@ -309,8 +309,8 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     async searchBranchProducts(productSearch, branchId) {
-      console.log("productSearch", productSearch);
-      console.log("branchId", branchId);
+      /* console.log("productSearch", productSearch); */
+      /* console.log("branchId", branchId); */
 
       try {
         const response = await api.post("/api/search-products", {
@@ -318,17 +318,17 @@ export const useSalesReportsStore = defineStore("salesReports", {
           branch_id: branchId,
         });
         this.products = response.data;
-        console.log("search Products", response.data);
+        /* console.log("search Products", response.data); */
       } catch (error) {
         console.error("Error fetching products", error);
       }
     },
 
     async fetchBranchProducts(branchId) {
-      console.log("Branch ID", branchId);
+      /* console.log("Branch ID", branchId); */
       const response = await api.get(`/api/branches/${branchId}/products`);
       this.branchProducts = response.data;
-      console.log("branchProducts", response.data);
+      /* console.log("branchProducts", response.data); */
       this.filterBreadproducts();
       this.filterSelectaproducts();
       this.filterSoftdrinksproducts();
@@ -337,16 +337,16 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     async fetchBranchPendingSalesReport(userId, branchId) {
-      console.log("Branch IDsssss", branchId);
-      console.log("User IDsssss", userId);
+      /* console.log("Branch IDsssss", branchId); */
+      /* console.log("User IDsssss", userId); */
       try {
         const response = await api.get(
           `/api/branches/${branchId}/${userId}/pending-branch-sales-report`
         );
         this.branchPendingSalesReport = response.data;
-        console.log("branchPendingSalesReport", response.data);
+        /* console.log("branchPendingSalesReport", response.data); */
       } catch (error) {
-        console.log("Error fetching pending sales report", error);
+        /* console.log("Error fetching pending sales report", error); */
       }
     },
 
@@ -358,15 +358,15 @@ export const useSalesReportsStore = defineStore("salesReports", {
             params: { page: page, per_page: rowsPerPage },
           }
         );
-        console.log("sales reportssss", response.data);
+        /* console.log("sales reportssss", response.data); */
         this.salesReport = response.data;
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     },
 
     async confirmProductsReport(payload) {
-      console.log("Payloadssss data:", payload);
+      /* console.log("Payloadssss data:", payload); */
 
       try {
         const response = await api.post(
@@ -374,7 +374,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
           payload
         );
 
-        console.log("ressssssss", response.data);
+        /* console.log("ressssssss", response.data); */
 
         this.removePendingProductItem({
           sales_report_id: response.data.sales_report_id,
@@ -389,16 +389,16 @@ export const useSalesReportsStore = defineStore("salesReports", {
           response.data.status
         );
 
-        console.log("salesReportsssss", this.salesReport);
+        /* console.log("salesReportsssss", this.salesReport); */
 
         Notify.create({
           message: response.data.message || "Product Confirmed Successfully",
           color: "positive",
         });
 
-        console.log("response.data", response.data);
+        /* console.log("response.data", response.data); */
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
         Notify.create({
           message: error.response.data.message,
           color: "negative",
@@ -407,7 +407,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     async declineProductsReport(payload) {
-      console.log("Payload datasssss:", payload);
+      /* console.log("Payload datasssss:", payload); */
 
       try {
         const response = await api.post(
@@ -415,7 +415,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
           payload
         );
 
-        console.log("asdfafsdf", response.data);
+        /* console.log("asdfafsdf", response.data); */
 
         this.removePendingProductItem({
           sales_report_id: response.data.sales_report_id,
@@ -435,9 +435,9 @@ export const useSalesReportsStore = defineStore("salesReports", {
           color: "positive",
         });
 
-        console.log("response.data", response.data);
+        /* console.log("response.data", response.data); */
       } catch (error) {
-        console.log(error);
+        /* console.log(error); */
       }
     },
 
@@ -526,7 +526,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
 
           if (product) {
             product.status = newStatus;
-            console.log("Updated product status:", product);
+            /* console.log("Updated product status:", product); */
             return;
           }
         }
@@ -540,10 +540,10 @@ export const useSalesReportsStore = defineStore("salesReports", {
     },
 
     async adminSubmitReports(data) {
-      console.log("data.data", data);
-      console.log("data.user_id", data.user_id);
-      console.log("data.branch_id", data.branch_id);
-      console.log("data.created_at", data.created_at);
+      /* console.log("data.data", data); */
+      /* console.log("data.user_id", data.user_id); */
+      /* console.log("data.branch_id", data.branch_id); */
+      /* console.log("data.created_at", data.created_at); */
 
       // Calculate creditTotalAmount outside the payload
       const creditTotalAmount = this.creditTotalAmount;
@@ -570,7 +570,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         credit_total: this.creditTotalAmount, // Use the calculated value here
       };
 
-      console.log("Payload data:", payload);
+      /* console.log("Payload data:", payload); */
 
       try {
         const salesReportData = await api.post(
@@ -601,7 +601,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.charges = 0;
         this.overTotal = 0;
 
-        console.log("Sales Reports Data", salesReportData);
+        /* console.log("Sales Reports Data", salesReportData); */
       } catch (error) {
         console.error("Error submitting data:", error);
         Notify.create({
@@ -636,11 +636,11 @@ export const useSalesReportsStore = defineStore("salesReports", {
         credit_total: this.creditTotalAmount, // Use the calculated value here
       };
 
-      console.log("Paylosssssad data:", payload);
+      /* console.log("Paylosssssad data:", payload); */
 
       try {
         const salesReportData = await api.post("/api/sales-report", payload);
-        console.log("Data submitted successfully");
+        /* console.log("Data submitted successfully"); */
         Notify.create({
           type: "positive",
           message: "Report submitted successfully",
@@ -665,7 +665,7 @@ export const useSalesReportsStore = defineStore("salesReports", {
         this.charges = 0;
         this.overTotal = 0;
 
-        console.log("Sales Reports Data", salesReportData);
+        /* console.log("Sales Reports Data", salesReportData); */
       } catch (error) {
         console.error("Error submitting data:", error);
         Notify.create({

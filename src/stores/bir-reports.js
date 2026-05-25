@@ -21,7 +21,7 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
           params: { startDate, endDate },
         }
       );
-      console.log("birReports", response.data);
+      /* console.log("birReports", response.data); */
       NonVatReports.value = response.data;
     } catch (error) {
       console.error("Error fetching BIR reports:", error);
@@ -29,15 +29,15 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const fetchVatBirReports = async (branchId, startDate, endDate) => {
-    console.log(`fetchBirReports`, branchId);
-    console.log(`fetchBirReports startDate`, startDate);
-    console.log(`fetchBirReports endDate`, endDate);
+    /* console.log(`fetchBirReports`, branchId); */
+    /* console.log(`fetchBirReports startDate`, startDate); */
+    /* console.log(`fetchBirReports endDate`, endDate); */
 
     try {
       const response = await api.get(`/api/fetch-vat-bir-reports/${branchId}`, {
         params: { startDate, endDate },
       });
-      console.log("birReports", response.data);
+      /* console.log("birReports", response.data); */
       VatReports.value = response.data;
     } catch (error) {
       console.error("Error fetching BIR reports:", error);
@@ -45,15 +45,15 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const fetchExpensesReport = async (branchId, startDate, endDate) => {
-    console.log(`fetchBirReports`, branchId);
-    console.log(`fetchBirReports startDate`, startDate);
-    console.log(`fetchBirReports endDate`, endDate);
+    /* console.log(`fetchBirReports`, branchId); */
+    /* console.log(`fetchBirReports startDate`, startDate); */
+    /* console.log(`fetchBirReports endDate`, endDate); */
 
     try {
       const response = await api.get(`/api/fetch-expenses-report/${branchId}`, {
         params: { startDate, endDate },
       });
-      console.log("birReports", response.data);
+      /* console.log("birReports", response.data); */
       expensesReport.value = response.data;
     } catch (error) {
       console.error("Error fetching BIR reports:", error);
@@ -61,12 +61,12 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const fetchBranchData = async (branchId) => {
-    console.log(`fetchBranchData`, branchId);
+    /* console.log(`fetchBranchData`, branchId); */
     try {
       const response = await api.get(
         `/api/fetch-branch-data-for-bir-report/${branchId}`
       );
-      console.log("branchData", response.data);
+      /* console.log("branchData", response.data); */
       return response.data;
     } catch (error) {
       console.error("Error fetching branch data:", error);
@@ -85,7 +85,7 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
           receipt_no: val,
         }
       );
-      console.log("updateReceiptNo response", response.data);
+      /* console.log("updateReceiptNo response", response.data); */
       Notify.create({
         type: "positive",
         message: "Receipt No. updated successfully",
@@ -105,8 +105,8 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const updateDescription = async (data, val) => {
-    console.log("updateDescription", data);
-    console.log("updateDescription", val);
+    /* console.log("updateDescription", data); */
+    /* console.log("updateDescription", val); */
 
     try {
       Loading.show({
@@ -119,7 +119,7 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
           description: val,
         }
       );
-      console.log("updateDescription response", response.data);
+      /* console.log("updateDescription response", response.data); */
       Notify.create({
         type: "positive",
         message: "Description updated successfully",
@@ -139,8 +139,8 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const updateAddress = async (data, val) => {
-    console.log("updateAddress", data);
-    console.log("updateAddress", val);
+    /* console.log("updateAddress", data); */
+    /* console.log("updateAddress", val); */
 
     try {
       Loading.show({
@@ -153,7 +153,7 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
           address: val,
         }
       );
-      console.log("updateAddress response", response.data);
+      /* console.log("updateAddress response", response.data); */
       Notify.create({
         type: "positive",
         message: "Address updated successfully",
@@ -173,8 +173,8 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const updateTinNo = async (data, val) => {
-    console.log("updateTinNo", data);
-    console.log("updateTinNo", val);
+    /* console.log("updateTinNo", data); */
+    /* console.log("updateTinNo", val); */
 
     try {
       Loading.show({
@@ -187,7 +187,7 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
           tin_no: val,
         }
       );
-      console.log("updateTinNo response", response.data);
+      /* console.log("updateTinNo response", response.data); */
       Notify.create({
         type: "positive",
         message: "TIN No. updated successfully",
@@ -207,8 +207,8 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const updateAmount = async (data, val) => {
-    console.log("updateAmount", data);
-    console.log("updateAmount", val);
+    /* console.log("updateAmount", data); */
+    /* console.log("updateAmount", val); */
 
     try {
       Loading.show({
@@ -221,7 +221,7 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
           amount: val,
         }
       );
-      console.log("updateAmount response", response.data);
+      /* console.log("updateAmount response", response.data); */
       Notify.create({
         type: "positive",
         message: "Amount updated successfully",
@@ -241,8 +241,8 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
   };
 
   const updateDate = async (data, val) => {
-    console.log("updateDate", data);
-    console.log("updateDate", val);
+    /* console.log("updateDate", data); */
+    /* console.log("updateDate", val); */
 
     try {
       Loading.show({
@@ -255,7 +255,7 @@ export const useBirReportsStore = defineStore("bir-reports", () => {
           created_at: val,
         }
       );
-      console.log("updateDate response", response.data);
+      /* console.log("updateDate response", response.data); */
       Notify.create({
         type: "positive",
         message: "Date updated successfully",

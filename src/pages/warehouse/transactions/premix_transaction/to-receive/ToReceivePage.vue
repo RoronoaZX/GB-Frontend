@@ -89,10 +89,10 @@ const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
 const warehouseId = userData.value.device.reference_id;
-console.log("warehouseId", warehouseId);
+/* console.log("warehouseId", warehouseId); */
 const premixStore = usePremixStore();
 const toReceivePremixData = computed(() => premixStore.toReceivePremixData);
-console.log("toReceivePremixData", toReceivePremixData.value);
+/* console.log("toReceivePremixData", toReceivePremixData.value); */
 const status = ref("process");
 const loading = ref(true);
 const showNoDataMessage = ref(false);

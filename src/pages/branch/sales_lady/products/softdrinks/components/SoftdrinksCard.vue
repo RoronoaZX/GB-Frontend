@@ -163,10 +163,10 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-console.log("userData", userData);
+/* console.log("userData", userData); */
 const branchId =
   userData?.device?.reference_id || userData.device?.reference?.id || "0";
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 const selectedItem = ref(null);
 const dialog = ref(false);
 
@@ -179,7 +179,7 @@ const filter = defineProps({
 const clickme = (item) => {
   selectedItem.value = item;
 
-  console.log("selectedItemss", selectedItem.value);
+  /* console.log("selectedItemss", selectedItem.value); */
   dialog.value = true;
 };
 
@@ -306,7 +306,7 @@ const saveReport = () => {
     sales: softdrinksSalesAmount.value,
     new_production: 0,
   };
-  console.log("report", report);
+  /* console.log("report", report); */
   salesReportsStore.updateSoftdrinksReport(report);
   Notify.create({
     message: "Product added successfully",

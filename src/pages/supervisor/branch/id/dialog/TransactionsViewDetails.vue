@@ -181,7 +181,7 @@ const props = defineProps({
   category: { type: String, required: true },
 });
 
-console.log("productDetails", props.productDetails);
+/* console.log("productDetails", props.productDetails); */
 
 const {
   formatDate,

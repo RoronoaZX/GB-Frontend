@@ -139,7 +139,7 @@ import ReportList from "./components/ReportList.vue";
 
 const userStore = useUsersStore();
 const users = computed(() => userStore.users);
-console.log("userdatasssss  ", users.value);
+/* console.log("userdatasssss  ", users.value); */
 const bakerReportStore = useBakerReportsStore();
 const dialog = ref(false);
 const maximizedToggle = ref(true);
@@ -160,7 +160,7 @@ const searchUsers = async () => {
   if (searchQuery.value) {
     employeeSearchLoading.value = true; // Set loading to true
     // const branchId = branchId;
-    console.log("searchQuery.value", searchQuery.value);
+    /* console.log("searchQuery.value", searchQuery.value); */
     // console.log("branchId", branchId);
     await userStore.searchUser(searchQuery.value);
     // console.log("response user",);
@@ -196,7 +196,7 @@ const formattedUserName = (user) => {
 };
 
 const autoFillUser = (user) => {
-  console.log("Baker Reports", user);
+  /* console.log("Baker Reports", user); */
   searchQuery.value = `${user.firstname} ${
     user.middlename ? user.middlename.charAt(0) + "." : ""
   } ${user.lastname}`;
@@ -243,11 +243,11 @@ const saveReports = async () => {
       created_at: createdAt,
       user_id: userId.value,
     }));
-    console.log("reportsWithTimestamp", reportsWithTimestamp);
+    /* console.log("reportsWithTimestamp", reportsWithTimestamp); */
     // Send the modified reports to the Pinia action
     await bakerReportStore.adminBakerCreateReports(reportsWithTimestamp);
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }

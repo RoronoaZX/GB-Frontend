@@ -87,7 +87,7 @@ const loading = ref(true);
 
 // Fetch reports on component mount
 onMounted(async () => {
-  console.log("props.userID in onMounted:", branchId);
+  /* console.log("props.userID in onMounted:", branchId); */
   if (branchId) {
     await fetchReports(branchId);
   }
@@ -139,7 +139,7 @@ const filteredRows = computed(() => {
   );
 });
 
-console.log("baekr reports", filteredRows.value);
+/* console.log("baekr reports", filteredRows.value); */
 const formatDate = (dateString) => {
   return quasarDate.formatDate(dateString, "MMMM D, YYYY");
 };
@@ -180,7 +180,7 @@ const formatFullname = (row) => {
 
 const viewReport = (report) => {
   // Navigate to the detailed view of the report or handle as needed
-  console.log("Viewing report:", report);
+  /* console.log("Viewing report:", report); */
 };
 
 const getBadgeStatusColor = (status) => {

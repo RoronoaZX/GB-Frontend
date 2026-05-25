@@ -89,13 +89,13 @@ const { getPremixBadgeStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("userData in RawMaterialsTable:", userData.value);
+/* console.log("userData in RawMaterialsTable:", userData.value); */
 const branchId = userData.value?.device?.reference_id || "";
-console.log("branchId in PremixPage:", branchId);
+/* console.log("branchId in PremixPage:", branchId); */
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.branchEmployeePremix);
 const employeeId = userData.value?.data?.employee_id || "";
-console.log("employeeId in PremixPagess:", employeeId);
+/* console.log("employeeId in PremixPagess:", employeeId); */
 
 const filter = ref("");
 const loadingSearchIcon = ref(true);
@@ -116,7 +116,7 @@ onMounted(async () => {
   if ((branchId, employeeId)) {
     await fetchRequestBranchEmployeePremix(branchId, employeeId);
   }
-  console.log("premixdatas", premixDatas.value);
+  /* console.log("premixdatas", premixDatas.value); */
 });
 
 const fetchRequestBranchEmployeePremix = async () => {
@@ -134,7 +134,7 @@ const fetchRequestBranchEmployeePremix = async () => {
       descending
     );
     rows.value = premix.data;
-    console.log("rows.value", rows.value);
+    /* console.log("rows.value", rows.value); */
     maxPages.value = premix.last_page;
     pagination.value.rowsPerPage = premix.per_page || 10;
     showNoDataMessage.value = rows.value.length === 0;

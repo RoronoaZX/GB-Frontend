@@ -122,12 +122,12 @@ import TransactionView from "./TransactionView.vue";
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const stocksDeliveryStore = useStockDelivery();
 const stockDelivery = computed(() => stocksDeliveryStore.declinedStocks);
 
 const warehouseId = computed(() => userData.value?.device?.reference_id);
-console.log("warehouseId", warehouseId.value);
+/* console.log("warehouseId", warehouseId.value); */
 const status = ref("declined");
 const to_designation = ref("Warehouse");
 const loading = ref(true);
@@ -190,9 +190,9 @@ const fetchDeclinedStocks = async () => {
     if (!stockDelivery.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("stockDeliveryDeclinedsss", stockDelivery.value);
+    /* console.log("stockDeliveryDeclinedsss", stockDelivery.value); */
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }

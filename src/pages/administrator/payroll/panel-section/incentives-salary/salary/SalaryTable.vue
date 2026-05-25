@@ -81,9 +81,9 @@ const fetchEmploymentType = async () => {
   tableLoading.value = true;
   try {
     await employmentTypeStore.fetchEmploymentType();
-    console.log("Employment Type List:", employementType.value);
+    /* console.log("Employment Type List:", employementType.value); */
   } catch (error) {
-    console.log("Error fetching employment types:", error);
+    /* console.log("Error fetching employment types:", error); */
   } finally {
     tableLoading.value = false;
   }
@@ -101,7 +101,7 @@ const formatforEdit = (val) => {
 };
 
 const updateSalary = async (data, val) => {
-  console.log("updateSalary", data, val);
+  /* console.log("updateSalary", data, val); */
   tableLoading.value = true;
 
   try {
@@ -114,7 +114,7 @@ const updateSalary = async (data, val) => {
       timeout: 2000,
     });
   } catch (error) {
-    console.log("Error updating amount:", error);
+    /* console.log("Error updating amount:", error); */
 
     Notify.create({
       message: "Failed to update amount",

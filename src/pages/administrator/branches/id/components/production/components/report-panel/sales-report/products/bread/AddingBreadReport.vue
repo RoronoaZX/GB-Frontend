@@ -213,7 +213,7 @@ const emit = defineEmits(["bread-added"]);
 const userStore = useUsersStore();
 
 const userData = computed(() => userStore.userData);
-console.log("usersssData", userData.value);
+/* console.log("usersssData", userData.value); */
 
 const userId = computed(
   () =>

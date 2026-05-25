@@ -7,11 +7,11 @@ export const useDeliveryReceiptStore = defineStore("receipt-store", () => {
   const deliveryReceipts = ref([]);
 
   const saveNonVATinAdmin = async (data) => {
-    console.log("saveNonVATinAdminsssss", data);
+    /* console.log("saveNonVATinAdminsssss", data); */
 
     try {
       const response = await api.post("/api/saving-bir-report-admin", data);
-      console.log("response", response);
+      /* console.log("response", response); */
       return response.data;
     } catch (error) {
       console.error("Error saving non-VAT in admin:", error);
@@ -19,11 +19,11 @@ export const useDeliveryReceiptStore = defineStore("receipt-store", () => {
   };
 
   const saveVATinAdmin = async (data) => {
-    console.log("saveVATinAdmin", data);
+    /* console.log("saveVATinAdmin", data); */
 
     try {
       const response = await api.post("/api/saving-bir-report-admin", data);
-      console.log("response", response);
+      /* console.log("response", response); */
       return response.data;
     } catch (error) {
       console.error("Error saving VAT in admin:", error);
@@ -31,11 +31,11 @@ export const useDeliveryReceiptStore = defineStore("receipt-store", () => {
   };
 
   const saveDeliveryReceipt = async (data) => {
-    console.log("saveDeliveryReceipt", data);
+    /* console.log("saveDeliveryReceipt", data); */
 
     try {
       const response = await api.post("/api/delivery-receipt", data);
-      console.log("response", response);
+      /* console.log("response", response); */
       return response.data;
     } catch (error) {
       console.error("Error saving delivery receipt:", error);

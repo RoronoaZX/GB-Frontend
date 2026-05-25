@@ -436,7 +436,7 @@ const save = async () => {
       quantity: ingredient.quantity,
     })),
   };
-  console.log("branchRecipe", newData);
+  /* console.log("branchRecipe", newData); */
   await branchRecipeStore.saveBranchRecipe(newData);
   branchRecipeRows.value = await branchRecipeStore.fetchBranchRecipes(branchId);
   clearRecipeData();

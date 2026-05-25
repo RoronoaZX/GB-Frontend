@@ -182,7 +182,7 @@ const openUniformDialog = (items, labelText) => {
 };
 
 async function updateNumberOfPayments(data, val) {
-  console.log("updateNumberOfPayments", data, val);
+  /* console.log("updateNumberOfPayments", data, val); */
   try {
     const response = await api.put(
       "/api/update-uniform-number-of-payments/" + data.id,
@@ -219,7 +219,7 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
       rowsPerPage,
       search
     );
-    console.log("uniform", uniformRows.value);
+    /* console.log("uniform", uniformRows.value); */
 
     const { data, current_page, per_page, total } = uniforms.value;
     pagination.value.page = current_page;
@@ -227,9 +227,9 @@ const reloadTableData = async (page = 1, rowsPerPage = 7, search = "") => {
     pagination.value.rowsNumber = total;
 
     uniformRows.value = data;
-    console.log("uniformss", uniformRows.value);
+    /* console.log("uniformss", uniformRows.value); */
   } catch (error) {
-    console.log("error fetching madepakeer", error);
+    /* console.log("error fetching madepakeer", error); */
   } finally {
     tableLoading.value = false;
   }

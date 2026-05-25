@@ -194,12 +194,12 @@ const save = async () => {
   try {
     const { product_name, ...data } = addNewBranchProductForm;
     await branchProducts.createBranchProducts(data);
-    console.log("data to send", data);
+    /* console.log("data to send", data); */
 
     clearForm();
     dialog.value = false;
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   }
 };
 </script>

@@ -427,7 +427,7 @@ const props = defineProps([
   "reportDate",
 ]);
 
-console.log("Other Products Reports:", props.reports);
+/* console.log("Other Products Reports:", props.reports); */
 
 const emit = defineEmits(["summary-updated", "ok"]);
 

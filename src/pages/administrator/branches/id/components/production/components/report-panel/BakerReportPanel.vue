@@ -184,7 +184,7 @@ pdfMake.vfs = pdfFonts.default;
 
 const props = defineProps(["bakersReport", "sales_report_id"]);
 const reportsData = props.bakersReport;
-console.log("Bakers Report", props.bakersReport);
+/* console.log("Bakers Report", props.bakersReport); */
 const maximizedToggle = ref(true);
 const printDialog = ref(false);
 const showing = ref(false);
@@ -227,7 +227,7 @@ const handleBakerReportEditDialog = (bakerReports, salesReportID) => {
 const overallKiloTotal = computed(() => {
   if (!reportsData || reportsData.length === 0) return "0 kgs";
 
-  console.log("dafsdfasdfsad", reportsData);
+  /* console.log("dafsdfasdfsad", reportsData); */
 
   const total = reportsData
     .filter((row) => row.status === "confirmed") // ✅ only confirmed
@@ -340,7 +340,7 @@ const BakerReportsColumns = [
 ];
 
 const generateDocDefinition = (bakerReport) => {
-  console.log("bakerReport in print", bakerReport);
+  /* console.log("bakerReport in print", bakerReport); */
   const recipeName = `${
     capitalizeFirstLetter(bakerReport?.branch_recipe?.recipe?.name) ??
     "Unkown Recipe"

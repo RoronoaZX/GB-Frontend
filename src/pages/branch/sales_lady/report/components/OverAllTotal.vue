@@ -165,7 +165,7 @@ const productsTotalAmount = computed(
   () => salesReportsStore.productsTotalAmount
 );
 
-console.log("productsTotalAmount", productsTotalAmount.value);
+/* console.log("productsTotalAmount", productsTotalAmount.value); */
 
 const breadTotal = computed(() => salesReportsStore.breadTotalAmount);
 const selectaTotal = computed(() => salesReportsStore.selectaTotalAmount);

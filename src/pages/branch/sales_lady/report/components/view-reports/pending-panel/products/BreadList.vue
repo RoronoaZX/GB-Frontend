@@ -100,7 +100,7 @@ const loadingStates = ref({});
 const loading = ref(false);
 
 const userData = computed(() => salesReportStore.user);
-console.log("user dasstasss", userData.value);
+/* console.log("user dasstasss", userData.value); */
 
 const employee_id =
   userData.value?.data?.employee?.id || userData.value?.data?.employee_id || "";
@@ -119,7 +119,7 @@ const emit = defineEmits(["action-complete"]);
 
 const $q = useQuasar();
 
-console.log("breadssssss", props);
+/* console.log("breadssssss", props); */
 
 const handleConfirm = async (bread) => {
   const payload = {
@@ -132,7 +132,7 @@ const handleConfirm = async (bread) => {
     remaining: bread.remaining,
   };
 
-  console.log("payload to confirm", payload);
+  /* console.log("payload to confirm", payload); */
 
   try {
     Loading.show({
@@ -151,7 +151,7 @@ const handleConfirm = async (bread) => {
     // Emit mevent to parent that action is complete
     emit("action-complete");
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
     $q.notify({
       type: "negative",
       message: "Failed to confirm product. Please try again.",

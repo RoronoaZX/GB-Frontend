@@ -51,9 +51,9 @@ const filter = ref("");
 const loadingSearchIcon = ref(false);
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 const userData = computed(() => warehouseRawMaterialsStore.user);
-console.log("userData", userData.value);
+/* console.log("userData", userData.value); */
 const warehouseId = userData.value?.device?.reference_id || "";
-console.log("warehouseId", warehouseId);
+/* console.log("warehouseId", warehouseId); */
 const branchUnderWarehouseRows = computed(
   () => warehouseRawMaterialsStore.branch
 );
@@ -74,9 +74,9 @@ const reloadTableData = async (warehouseId) => {
   const response = await warehouseRawMaterialsStore.fetchBranchUnderWarehouse(
     warehouseId
   );
-  console.log("response", response);
+  /* console.log("response", response); */
   branchUnderWarehouseRows.value = response;
-  console.log("branchUnderWarehouseRows", branchUnderWarehouseRows.value);
+  /* console.log("branchUnderWarehouseRows", branchUnderWarehouseRows.value); */
   if (!branchUnderWarehouseRows.value) {
     showNoDataMessage.value = true;
   }

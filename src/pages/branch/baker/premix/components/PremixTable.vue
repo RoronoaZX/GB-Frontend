@@ -72,13 +72,13 @@ watch(
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("userData in RawMaterialsTable:", userData.value);
+/* console.log("userData in RawMaterialsTable:", userData.value); */
 const branchId = userData.value?.device?.reference_id || "";
-console.log("branchId in PremixPage:", branchId);
+/* console.log("branchId in PremixPage:", branchId); */
 const premixStore = usePremixStore();
 const premixDatas = computed(() => premixStore.branchEmployeePremix);
 const employeeId = userData.value?.data?.employee_id || "";
-console.log("employeeId in PremixPagess:", employeeId);
+/* console.log("employeeId in PremixPagess:", employeeId); */
 
 const $q = useQuasar();
 
@@ -142,8 +142,8 @@ const fetchRequestBranchEmployeePremix = async (page = 1) => {
     if ((!selectedPremix.value && premixList.value, length > 0)) {
       selectedPremix.value = premixList.value[0];
     }
-    console.log("premixList", premixList.value);
-    console.log("pagination", pagination.value);
+    /* console.log("premixList", premixList.value); */
+    /* console.log("pagination", pagination.value); */
   } catch (error) {
     console.error("Error fetching premix report:", error);
   } finally {

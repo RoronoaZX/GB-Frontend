@@ -43,7 +43,6 @@ onMounted(fetchWarehouseData);
 
 const fetchEmploymentTypeData = async () => {
   await employmentStore.fetchEmploymentType();
-  console.log("employmentTypeList.value", employmentTypeList.value);
 };
 
 onMounted(fetchEmploymentTypeData);
@@ -87,10 +86,6 @@ export const updateEmployeeFullname = async (data, val) => {
 };
 
 export const updateEmploymentType = async (employmenTypeOgj, val, reloadFn) => {
-  console.log("✅ employmenTypeOgj() calledsss!");
-  console.log("🧩 New employmenTypeOgj ID:", val);
-  console.log("📦 Original employmenTypeOgj object:", employmenTypeOgj);
-
   tableLoading.value = true;
 
   try {
@@ -99,14 +94,13 @@ export const updateEmploymentType = async (employmenTypeOgj, val, reloadFn) => {
       employment_type_id: val,
     };
 
-    console.log("update employmentType", employmentType);
     await employeeStore.updateEmployeeEmploymentType(employmentType);
 
     if (typeof reloadFn === "function") {
       reloadFn();
     }
   } catch (error) {
-    console.log(error);
+    console.error("Error updating employment type:", error);
   } finally {
     tableLoading.value = false;
   }
@@ -251,10 +245,6 @@ export const updateEmployeeDesignation = async (
   val,
   reloadFn
 ) => {
-  console.log("✅ updateEmployeeDesignation() calledsss!");
-  console.log("🧩 New designation ID:", val);
-  console.log("📦 Original designation object:", designationObj);
-
   tableLoading.value = true;
   try {
     const employeeDesignation = {
@@ -263,15 +253,14 @@ export const updateEmployeeDesignation = async (
       designation_type: designationObj.designation_type,
     };
 
-    console.log("Employee Designation:", employeeDesignation);
     await employeeStore.updateEmployeeDesignation(employeeDesignation);
 
-    // ✅ Call reload function after successful update
+    // Call reload function after successful update
     if (typeof reloadFn === "function") {
       reloadFn();
     }
   } catch (error) {
-    console.log("designation error:", error);
+    console.error("Error updating designation:", error);
   } finally {
     tableLoading.value = false;
   }
@@ -279,8 +268,6 @@ export const updateEmployeeDesignation = async (
 
 export const updateEmployeeBranch = async (data, val) => {
   tableLoading.value = true;
-  console.log("updateEmployeeBranch data", data);
-  console.log("updateEmployeeBranch val", val);
   try {
     const employeeBranch = {
       id: data.branch_employee.id,
@@ -329,9 +316,6 @@ export const updateEmployeeBranch = async (data, val) => {
 // };
 
 export const updateEmployeeSex = async (data, val) => {
-  console.log("updateEmployeeTimesssIn composables", data);
-  console.log("updateEmployeeTimeIn composables", val);
-
   tableLoading.value = true;
   try {
     const employeeSex = {
@@ -359,8 +343,6 @@ export const updateEmployeeSex = async (data, val) => {
 };
 
 export const updateEmployeeTimeIn = async (data, val) => {
-  console.log("updateEmployeeTimesssIn composables", data);
-  console.log("updateEmployeeTimeIn composables", val);
   tableLoading.value = true;
   try {
     const employeeTimeIn = {
@@ -377,7 +359,6 @@ export const updateEmployeeTimeIn = async (data, val) => {
 };
 
 export const updateEmployeeTimeOut = async (data, val) => {
-  console.log("updateEmployeeTimeOut composables", data, val);
   tableLoading.value = true;
   try {
     const employeeTimeOut = {
@@ -406,9 +387,6 @@ export const updateEmployeeTimeOut = async (data, val) => {
 };
 
 export const updateEmployeeStatus = async (data, val) => {
-  console.log("updateEmployeeStatus:", data);
-  console.log("updateEmployeeStatus:", val);
-
   tableLoading.value = true;
   try {
     const employeeStatus = {

@@ -76,7 +76,7 @@ const openDialog = () => {
 const loading = ref(false);
 const maximizedToggle = ref(true);
 const props = defineProps(["reportsData"]);
-console.log("reportsDatasssss", props.reportsData);
+/* console.log("reportsDatasssss", props.reportsData); */
 
 const formatFullname = (row) => {
   const capitalize = (str) =>
@@ -98,9 +98,9 @@ const saveReports = async () => {
   const branch_id = props.reportsData[0]?.branch_id || "";
   const created_at = formatDate(props.reportsData[0]?.created_at) || "";
   const user_id = props.reportsData[0]?.user_id || "";
-  console.log("branch_id", branch_id);
-  console.log("created_at", created_at);
-  console.log("user_id", user_id);
+  /* console.log("branch_id", branch_id); */
+  /* console.log("created_at", created_at); */
+  /* console.log("user_id", user_id); */
 
   try {
     loading.value = true;
@@ -110,7 +110,7 @@ const saveReports = async () => {
       branch_id: branch_id,
       user_id: user_id,
     }));
-    console.log("addingRecipeReportssss", addingRecipeReport);
+    /* console.log("addingRecipeReportssss", addingRecipeReport); */
     await bakerReportStore.adminAddRecipebakerReport(addingRecipeReport);
   } catch (error) {
     console.error("Error saving reports:", error);

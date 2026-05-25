@@ -148,9 +148,9 @@ const employeeWithInShiftList = computed(
 );
 const useIncentiveStore = useIncentivesBasesStore();
 const incentivesBase = computed(() => useIncentiveStore.incentivesBases);
-console.log("incentivesBase", incentivesBase.value);
+/* console.log("incentivesBase", incentivesBase.value); */
 const userData = computed(() => bakerReportsStore.user);
-console.log("userData in EmployeeWithInShiftsComponent:", userData.value);
+/* console.log("userData in EmployeeWithInShiftsComponent:", userData.value); */
 
 const searchKeyword = ref("");
 const searchLoading = ref(false);
@@ -162,7 +162,7 @@ const $q = useQuasar();
 
 const fetchIncentiveBases = async () => {
   await useIncentiveStore.fetchIncentivesBases();
-  console.log("incentivesBase", incentivesBase.value);
+  /* console.log("incentivesBase", incentivesBase.value); */
 };
 onMounted(fetchIncentiveBases);
 
@@ -184,7 +184,7 @@ const search = async () => {
       await employeesStore.searchEmployee(searchKeyword.value);
       searchLoading.value = false;
       showUserCard.value = true;
-      console.log("employeess", employees);
+      /* console.log("employeess", employees); */
     } catch (error) {
       console.error("Search failed:", error);
       $q.notify({
@@ -226,9 +226,9 @@ const clearAutoFilledEmployee = () => {
 };
 
 const addToShiftList = () => {
-  console.log("Employee ID:", employeeWithInShift.employee_id);
-  console.log("Designation:", employeeWithInShift.designation);
-  console.log("Shift Status:", employeeWithInShift.shift_status);
+  /* console.log("Employee ID:", employeeWithInShift.employee_id); */
+  /* console.log("Designation:", employeeWithInShift.designation); */
+  /* console.log("Shift Status:", employeeWithInShift.shift_status); */
 
   if (
     !employeeWithInShift.employee_id ||

@@ -116,7 +116,7 @@ const fetchConfirmedOtherProductsStocks = async (
       page,
       rowsPerPage
     );
-    console.log("otherProductConfirmed.value", otherProductConfirmed.value);
+    /* console.log("otherProductConfirmed.value", otherProductConfirmed.value); */
     const { data, current_page, per_page, total } = otherProductConfirmed.value;
     otherProductsData.value = data;
     pagination.value.page = current_page;

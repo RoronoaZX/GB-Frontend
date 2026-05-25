@@ -444,7 +444,7 @@ const positionOptions = [
 ];
 
 const logOptions = (row) => {
-  console.log("designation_type:", row.designation?.designation_type);
+  /* console.log("designation_type:", row.designation?.designation_type); */
   const opts = getOptions(row);
   return opts;
 };
@@ -457,7 +457,7 @@ const pagination = ref({
 
 const filter = ref("");
 const loading = ref(false);
-console.log("employees fetch madepaker", employeeRows.value);
+/* console.log("employees fetch madepaker", employeeRows.value); */
 
 onMounted(async () => {
   await reloadTableData();
@@ -469,7 +469,7 @@ const fetchEmploymentTypeData = async () => {
     label: val.category,
     value: val.id,
   }));
-  console.log("Employment Type Options:", employmentTypeOptions.value);
+  /* console.log("Employment Type Options:", employmentTypeOptions.value); */
 };
 
 onMounted(fetchEmploymentTypeData);
@@ -481,12 +481,12 @@ const employmentTypeId = ref(null);
 // Set the initial employment type ID before editing
 const setEmploymentTypeId = (row) => {
   employmentTypeId.value = row.employment_type?.id || null;
-  console.log("Initial employmentTypeId:", employmentTypeId.value);
+  /* console.log("Initial employmentTypeId:", employmentTypeId.value); */
 };
 
-console.log("====================================");
-console.log("employmentTypeIdsss", employmentTypeId.value);
-console.log("====================================");
+/* console.log("===================================="); */
+/* console.log("employmentTypeIdsss", employmentTypeId.value); */
+/* console.log("===================================="); */
 
 const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
   try {
@@ -496,26 +496,26 @@ const reloadTableData = async (page = 0, rowsPerPage = 5, search = "") => {
       rowsPerPage,
       search
     );
-    console.log("fetchEmployeeWithEmploymentType", employeeRows.value);
+    /* console.log("fetchEmployeeWithEmploymentType", employeeRows.value); */
 
     const { data, current_page, per_page, total } = employeeRows.value;
     employeesRowsData.value = data;
-    console.log("employeesRowsData.value", employeesRowsData.value);
+    /* console.log("employeesRowsData.value", employeesRowsData.value); */
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
+    /* console.log("pagination.value.page", pagination.value.page); */
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    /* console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage); */
     pagination.value.rowsNumber = total;
-    console.log("pagination.value.rowsNumber", pagination.value.rowsNumber);
+    /* console.log("pagination.value.rowsNumber", pagination.value.rowsNumber); */
   } catch (error) {
-    console.log("employee madepaker", error);
+    /* console.log("employee madepaker", error); */
   } finally {
     tableLoading.value = false;
   }
 };
 
 const onPageRequest = (props) => {
-  console.log("porps", props);
+  /* console.log("porps", props); */
   reloadTableData(
     props.pagination.page,
     props.pagination.rowsPerPage,

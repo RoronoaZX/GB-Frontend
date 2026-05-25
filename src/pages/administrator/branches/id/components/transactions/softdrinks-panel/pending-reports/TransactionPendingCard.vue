@@ -112,10 +112,10 @@ const fetchPendingSoftdrinksStocks = async (
       page,
       rowsPerPage
     );
-    console.log(
+    /* console.log(
       "softdrinksProductsPending.valu",
       softdrinksProductsPending.value
-    );
+    ); */
     const { data, current_page, per_page, total } =
       softdrinksProductsPending.value;
 

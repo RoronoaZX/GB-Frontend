@@ -32,7 +32,7 @@ import { useQuasar } from "quasar";
 import CreditsReportDialog from "./CreditsReportDialog.vue";
 
 const props = defineProps(["sales_Reports"]);
-console.log("sales_Reports to send in creditsss", props.sales_Reports);
+/* console.log("sales_Reports to send in creditsss", props.sales_Reports); */
 
 const $q = useQuasar();
 

@@ -9,11 +9,11 @@ export const useEmploymentTypeStore = defineStore("employmentType", () => {
     const response = await api.get("/api/employment-types");
     employmentType.value = response.data;
 
-    console.log("Employementresponse", response.data);
+    /* console.log("Employementresponse", response.data); */
   };
 
   const updateSalary = async (data, val) => {
-    console.log("updateAmount store", data, val);
+    /* console.log("updateAmount store", data, val); */
     try {
       const response = await api.put(
         "/api/update-employment-type/salary/" + data.id,
@@ -23,7 +23,7 @@ export const useEmploymentTypeStore = defineStore("employmentType", () => {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 

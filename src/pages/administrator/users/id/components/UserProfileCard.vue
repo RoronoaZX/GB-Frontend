@@ -106,14 +106,14 @@ const router = useRouter();
 const userStore = useUsersStore();
 const user = computed(() => userStore.user);
 
-console.log("Page user ID", route.params.user_id);
+/* console.log("Page user ID", route.params.user_id); */
 
 const getUserData = async () => {
   try {
     Loading.show(); // Show loading indicator
     const userId = route.params.user_id;
     const userRes = await userStore.fetchUserById(userId);
-    console.log("Fetched User Data:", user.value);
+    /* console.log("Fetched User Data:", user.value); */
   } catch (error) {
     console.error("Error fetching user data:", error);
   } finally {

@@ -212,7 +212,7 @@ import { useSalesReportsStore } from "src/stores/sales-report";
 const salesReportsStore = useSalesReportsStore();
 const softdrinksReports = computed(() => salesReportsStore.softdrinksReports);
 
-console.log("Softdrinks Reportssss:", softdrinksReports.value);
+/* console.log("Softdrinks Reportssss:", softdrinksReports.value); */
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

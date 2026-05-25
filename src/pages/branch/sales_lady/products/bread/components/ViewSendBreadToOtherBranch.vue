@@ -74,8 +74,8 @@ const closeDialog = () => {
   dialog.value = false;
 };
 const props = defineProps(["report", "branchId"]);
-console.log("branchId", props.branchId);
-console.log("report", props.report);
+/* console.log("branchId", props.branchId); */
+/* console.log("report", props.report); */
 
 const received = async () => {
   const status = "received";
@@ -89,7 +89,7 @@ const received = async () => {
     spinner: QSpinnerIos,
   });
 
-  console.log("report_id", report_id);
+  /* console.log("report_id", report_id); */
 
   const sentBreadData = {
     status,
@@ -98,7 +98,7 @@ const received = async () => {
     product_id,
     bread_added,
   };
-  console.log("sentBreadData", sentBreadData);
+  /* console.log("sentBreadData", sentBreadData); */
   await breadProductStore.recievedBread(sentBreadData);
 
   // await breadProductStore.fetchSendBreadToBranch(branchId);

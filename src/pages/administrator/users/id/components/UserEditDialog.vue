@@ -180,9 +180,9 @@ const dialog = ref(false);
 
 const emit = defineEmits(["user", "hide", "ok", "cancel"]);
 const props = defineProps(["userData"]);
-console.log("userDialogdata", props.userData);
+/* console.log("userDialogdata", props.userData); */
 const localUserData = ref({ ...props.userData });
-console.log("localUserData", localUserData);
+/* console.log("localUserData", localUserData); */
 
 const genderOptions = ["Male", "Female"];
 const statusOptions = ["Current", "Former"];
@@ -263,7 +263,7 @@ watch(
   (newVal) => {
     if (newVal) {
       localUserData.value = { ...newVal };
-      console.log("update data", localUserData.value);
+      /* console.log("update data", localUserData.value); */
       editUserForm.fullname = localUserData.value.name;
       editUserForm.user_address = localUserData.value.address;
       editUserForm.user_birthdate = formatDateFromDB(
@@ -298,7 +298,7 @@ const handleSaveEdit = async () => {
         localUserData.value.branch_employee.branch.id,
       time_shift: editUserForm.user_time_shift,
     };
-    console.log("Saving user data:", editedUserData);
+    /* console.log("Saving user data:", editedUserData); */
 
     // Simulate an API call to save the data
     await userStore.updateUser(props.userData.id, editedUserData);

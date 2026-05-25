@@ -129,9 +129,9 @@ const reloadTableData = async () => {
   loading.value = true;
   try {
     const response = await branchesStore.fetchBranches();
-    console.log("branches data", response);
+    /* console.log("branches data", response); */
     showNoDataMessage.value = branchesRows.value.length === 0;
-    console.log("branchesRow", branchesRows.value);
+    /* console.log("branchesRow", branchesRows.value); */
   } catch (error) {
     showNoDataMessage.value = true;
   } finally {
@@ -196,7 +196,7 @@ const branchesColumns = [
 ];
 
 const goToBranch = async (branch) => {
-  console.log("brach", branch);
+  /* console.log("brach", branch); */
   Loading.show();
   try {
     await router.push({

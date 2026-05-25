@@ -82,11 +82,11 @@ const breads = computed(() => breadProductStore.breads);
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
 
-console.log("userDatasssssss", userData);
+/* console.log("userDatasssssss", userData); */
 
 const branchId =
   userData?.device?.reference_id || userData?.device?.reference?.id || "";
-console.log("brancsssh id", branchId);
+/* console.log("brancsssh id", branchId); */
 const dialog = ref(false);
 const rows = ref([]);
 const loading = ref(true);
@@ -108,7 +108,7 @@ const pagination = ref({
 });
 
 const fetchSendBreadToBranch = async (branchId, page = 0, rowsPerPage = 5) => {
-  console.log("rowsPerPage in function", rowsPerPage);
+  /* console.log("rowsPerPage in function", rowsPerPage); */
   try {
     loading.value = true;
     const stocks = await breadProductStore.fetchSendBreadToBranch(
@@ -117,26 +117,26 @@ const fetchSendBreadToBranch = async (branchId, page = 0, rowsPerPage = 5) => {
       rowsPerPage
     );
 
-    console.log("breads.val", breads.value);
+    /* console.log("breads.val", breads.value); */
 
     const { data, current_page, per_page, total } = breads.value;
 
     rows.value = data;
-    console.log("rows.value", rows.value);
+    /* console.log("rows.value", rows.value); */
     pagination.value.page = current_page;
-    console.log("pagination.value.page", pagination.value.page);
+    /* console.log("pagination.value.page", pagination.value.page); */
     pagination.value.rowsPerPage = per_page;
-    console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage);
+    /* console.log("pagination.value.rowsPerPage", pagination.value.rowsPerPage); */
     pagination.value.rowsNumber = total;
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     loading.value = false;
   }
 };
 
 const onPageRequest = (props) => {
-  console.log("preopssss", props);
+  /* console.log("preopssss", props); */
   fetchSendBreadToBranch(
     branchId,
     props.pagination.page,

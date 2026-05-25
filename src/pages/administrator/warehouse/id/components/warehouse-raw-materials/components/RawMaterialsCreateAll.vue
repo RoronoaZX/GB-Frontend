@@ -107,7 +107,7 @@ const openDialog = async () => {
 const route = useRoute();
 const rawMaterialsStore = useRawMaterialsStore();
 const rawMaterialsData = computed(() => rawMaterialsStore.rawMaterials);
-console.log("rawMaterialsData", rawMaterialsData.value);
+/* console.log("rawMaterialsData", rawMaterialsData.value); */
 const warehouseRawMaterials = useWarehouseRawMaterialsStore();
 
 // Fetch all raw materials from the store
@@ -148,7 +148,7 @@ const createAllRawMaterials = async () => {
     await warehouseRawMaterials.createMultipleWarehouseRawMaterials(
       materialsToSave
     );
-    console.log("materialsToSave", materialsToSave);
+    /* console.log("materialsToSave", materialsToSave); */
 
     Notify.create({
       type: "positive",

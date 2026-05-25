@@ -125,7 +125,7 @@ const route = useRoute();
 const branch_id = route.params.branch_id;
 
 const props = defineProps(["user"]);
-console.log("user propd", props.user);
+/* console.log("user propd", props.user); */
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
@@ -157,7 +157,7 @@ const handleSubmit = () => {
     amount: amountAsNumber,
     category: radioBtnVATIndicator.value,
   };
-  console.log("expenses from admin", expensesReport);
+  /* console.log("expenses from admin", expensesReport); */
   salesReportsStore.updateWithOutReceiptExpensesReport(expensesReport);
   Notify.create({
     type: "positive",

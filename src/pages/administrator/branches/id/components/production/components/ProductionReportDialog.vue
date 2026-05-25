@@ -94,16 +94,16 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["reports", "reportLabel", "rowIndex", "reportDate"]);
-console.log("production report sss", props.reports);
-console.log("rowIndex", props.rowIndex);
-console.log("reportDatessss", props.reportDate);
+/* console.log("production report sss", props.reports); */
+/* console.log("rowIndex", props.rowIndex); */
+/* console.log("reportDatessss", props.reportDate); */
 
 const bakerReports = props.reports.baker_reports;
-console.log("bakerReportsssss", bakerReports);
+/* console.log("bakerReportsssss", bakerReports); */
 const salesReports = props.reports.sales_reports;
 // const reportLabel = props.reports.reportLabel;
 const sales_report_id = props.reports.sales_reports_id;
-console.log("sales_reporssst_id", sales_report_id);
+/* console.log("sales_reporssst_id", sales_report_id); */
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
 

@@ -26,36 +26,36 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
           search,
         },
       });
-      console.log("ca fetch data", response.data);
+      /* console.log("ca fetch data", response.data); */
       cashAdvances.value = response.data;
     } catch (error) {
-      console.log("====================================");
-      console.log(error);
-      console.log("====================================");
+      /* console.log("===================================="); */
+      /* console.log(error); */
+      /* console.log("===================================="); */
     }
   };
 
   const fetchCashAdvanceForDeduction = async (id) => {
-    console.log("fetchCashAdvanceForDeduction", id);
+    /* console.log("fetchCashAdvanceForDeduction", id); */
 
     try {
       const response = await api.get(
         "/api/fetch-cash-advance-for-deduction/" + id
       );
-      console.log("response cash advancessss", response.data);
+      /* console.log("response cash advancessss", response.data); */
       cashAdvances.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const searchCashAdvance = async (keyword) => {
     try {
-      console.log("Searching for employee with keyword:", keyword);
+      /* console.log("Searching for employee with keyword:", keyword); */
       const response = await api.post(
         `/api/search-cash-advance?keyword=${keyword}`
       );
-      console.log("CA response:", response);
+      /* console.log("CA response:", response); */
       cashAdvances.value = response.data;
     } catch (error) {
       console.error("Error searching CA:", error);
@@ -63,10 +63,10 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
   };
 
   const createCashAdvance = async (data) => {
-    console.log("create cash advance", data);
+    /* console.log("create cash advance", data); */
     try {
       const response = await api.post("/api/cash-advance", data);
-      console.log("response cash advance", response.data);
+      /* console.log("response cash advance", response.data); */
 
       Notify.create({
         type: "positive",
@@ -75,7 +75,7 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
 
       return response.data;
     } catch (error) {
-      console.log("CA error", error);
+      /* console.log("CA error", error); */
 
       Notify.create({
         type: "negative",
@@ -86,7 +86,7 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
   };
 
   const updateAmount = async (data, val) => {
-    console.log("updateAmount cash advance", data, val);
+    /* console.log("updateAmount cash advance", data, val); */
     try {
       const response = await api.put(
         "/api/update-employee-cash-advance/" + data.id,
@@ -97,12 +97,12 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
 
       return response;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const updateReason = async (data, val) => {
-    console.log("update reasons cash advance", data, val);
+    /* console.log("update reasons cash advance", data, val); */
     try {
       const response = await api.put(
         "/api/update-employee-cash-advance-reason/" + data.id,
@@ -112,7 +112,7 @@ export const useCashAdvanceStore = defineStore("cash-advance", () => {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 

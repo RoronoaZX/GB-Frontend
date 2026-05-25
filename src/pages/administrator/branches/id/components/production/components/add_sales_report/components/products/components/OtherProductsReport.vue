@@ -203,9 +203,9 @@ const openDialog = () => {
 const category = ref("Others");
 
 const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
+  /* console.log("branch_id.value:", branch_id); */
+  /* console.log("searchQuery.value:", searchQuery.value); */
+  /* console.log("category.value:", category.value); */
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -216,7 +216,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addOtherProductReport.product_id = data.product.id;
   addOtherProductReport.product_name = capitalizeFirstLetter(data.product.name);
   addOtherProductReport.category = data.category;
@@ -316,7 +316,7 @@ const handleSubmit = async () => {
     sales: addOtherProductReport.sales,
     new_production: addOtherProductReport.added_stocks,
   };
-  console.log("payload", payload);
+  /* console.log("payload", payload); */
   salesReportsStore.updateOtherProductsReport(payload);
   Notify.create({
     message: "Product added successfully",

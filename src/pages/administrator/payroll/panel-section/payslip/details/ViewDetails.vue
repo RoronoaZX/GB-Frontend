@@ -112,7 +112,7 @@ const route = useRoute();
 const goBackLoading = ref(false);
 
 const employee_id = route.params.employee_id;
-console.log("Employee ID:", employee_id);
+/* console.log("Employee ID:", employee_id); */
 
 onMounted(() => {
   fetchEmployeeDetails();
@@ -126,10 +126,10 @@ const fetchEmployeeDetails = async () => {
         employee_id
       );
 
-    console.log("Fetched Employees Sample:", employeesSample.value);
+    /* console.log("Fetched Employees Sample:", employeesSample.value); */
 
     employeesData.value = employeesSample.value;
-    console.log("Employees Data:", employeesData.value);
+    /* console.log("Employees Data:", employeesData.value); */
   } catch (error) {
     console.error("Error fetching employee details:", error);
   } finally {
@@ -147,7 +147,7 @@ const goBack = () => {
 
 // This function now handles the 'edit' event from any card
 const handleEdit = (section) => {
-  console.log(`Edit button clicked for the "${section}" section!`);
+  /* console.log(`Edit button clicked for the "${section}" section!`); */
   // Here you would typically open a modal or navigate to an edit page
   // For example: router.push({ name: 'EmployeeEdit', params: { section: section } });
 };

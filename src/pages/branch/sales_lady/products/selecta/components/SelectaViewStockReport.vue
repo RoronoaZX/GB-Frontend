@@ -60,7 +60,7 @@ const openDialog = () => {
 
 const props = defineProps(["report"]);
 
-console.log("report", props.report);
+/* console.log("report", props.report); */
 </script>
 
 <style lang="scss" scoped>

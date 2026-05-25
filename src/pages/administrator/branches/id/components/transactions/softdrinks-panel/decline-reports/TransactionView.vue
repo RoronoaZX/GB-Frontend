@@ -78,7 +78,7 @@ const props = defineProps({
 });
 
 const filteredRows = computed(() => {
-  console.log("Filtered rows:", props.report || []);
+  /* console.log("Filtered rows:", props.report || []); */
   return props.report.softdrinks_added_stocks;
 });
 
@@ -87,7 +87,7 @@ const transactionsColumns = [
     name: "product_name",
     label: "Product Name",
     field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
+      /* console.log("Row data:", row); */ // Debug each row's data
       return capitalizeFirstLetter(row.product.name || "N/A"); // Adjust this according to your data
     },
     align: "left",
@@ -97,7 +97,7 @@ const transactionsColumns = [
     label: "Price",
     align: "center",
     field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
+      /* console.log("Row data:", row); */ // Debug each row's data
       return formatPrice(row.price || "N/A"); // Adjust this according to your data
     },
   },

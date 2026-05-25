@@ -77,12 +77,12 @@ const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
   typographyFormat();
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const premixStore = usePremixStore();
 const premix = computed(() => premixStore.pendingPremixData);
 
 const warehouseId = userData.value.device.reference_id;
-console.log("warehouseId", warehouseId);
+/* console.log("warehouseId", warehouseId); */
 const status = ref("pending");
 const loading = ref(true);
 const showNoDataMessage = ref(false);

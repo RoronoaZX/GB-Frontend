@@ -242,7 +242,7 @@ const headerClass = computed(() => {
   return map[props.category?.toLowerCase()] || "bg-gradient";
 });
 
-console.log("Category Props", props.category);
+/* console.log("Category Props", props.category); */
 
 const { capitalizeFirstLetter } = typographyFormat();
 
@@ -251,7 +251,7 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const salesReportsStore = useSalesReportsStore();
 const branchProducts = computed(() => salesReportsStore.branchProducts);
 
-console.log("branchProducsssts", branchProducts.value);
+/* console.log("branchProducsssts", branchProducts.value); */
 
 const branchStore = useBranchesStore();
 const branches = computed(() => branchStore.branch);
@@ -259,11 +259,11 @@ const branches = computed(() => branchStore.branch);
 const branchProductsStore = useBranchProductsStore();
 
 const userData = salesReportsStore.user;
-console.log("user data", userData);
+/* console.log("user data", userData); */
 
 const branchId =
   userData?.device?.reference_id || userData.device?.reference?.id || "";
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 
 const employee_id = userData?.employee?.employee_id || "";
 
@@ -321,7 +321,7 @@ const isDropDownBranchVisible = computed(() => {
 });
 
 const autoFillBranch = (branch) => {
-  console.log("branchssssss", branch);
+  /* console.log("branchssssss", branch); */
 
   searchQuery.value = capitalizeFirstLetter(branch.name);
   sendingProductsToBranchData.branch_id = branch.id;
@@ -415,9 +415,9 @@ const sendingProductsToBranchData = reactive({
 });
 
 const addProductToList = () => {
-  console.log("Selected Product:", selectedProduct.value);
-  console.log("Branch ID:", sendingProductsToBranchData.branch_id);
-  console.log("Quantity:", sendingProductsToBranchData.quantity);
+  /* console.log("Selected Product:", selectedProduct.value); */
+  /* console.log("Branch ID:", sendingProductsToBranchData.branch_id); */
+  /* console.log("Quantity:", sendingProductsToBranchData.quantity); */
 
   addProductToListLoading.value = true;
 
@@ -464,7 +464,7 @@ const addProductToList = () => {
     price: product.price,
   });
 
-  console.log("sendingProductsList.value", sendingProductsList.value);
+  /* console.log("sendingProductsList.value", sendingProductsList.value); */
   // Clear input for next product
   selectedProduct.value = null;
   sendingProductsToBranchData.quantity = "";
@@ -512,12 +512,12 @@ const sendProducts = async () => {
       price: item.price,
     })),
   };
-  console.log("Sending products to branch:", dataToSend);
+  /* console.log("Sending products to branch:", dataToSend); */
 
   try {
     const response = await branchProductsStore.sendProductsToBranch(dataToSend);
 
-    console.log("Responsesss:", response);
+    /* console.log("Responsesss:", response); */
     if (!response.success) {
       $q.notify({
         type: "negative",

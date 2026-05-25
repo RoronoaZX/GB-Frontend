@@ -123,12 +123,12 @@ import TransactionView from "./TransactionView.vue";
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const stocksDeliveryStore = useStockDelivery();
 const stockDelivery = computed(() => stocksDeliveryStore.confirmStocks);
 
 const warehouseId = computed(() => userData.value?.device?.reference_id);
-console.log("warehouseId", warehouseId.value);
+/* console.log("warehouseId", warehouseId.value); */
 const status = ref("confirmed");
 const to_designation = ref("Warehouse");
 const loading = ref(true);
@@ -191,9 +191,9 @@ const fetchConfirmStocksDelivery = async () => {
     if (!stockDelivery.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("stockDeliverysss", stockDelivery.value);
+    /* console.log("stockDeliverysss", stockDelivery.value); */
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }

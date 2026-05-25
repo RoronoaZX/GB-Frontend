@@ -232,10 +232,10 @@ const props = defineProps({
   dtrDeductionsData: Object,
 });
 
-console.log("propssss.dtrDeductionsData", props.dtrDeductionsData);
+/* if (import.meta.env.DEV) console.log('propssss.dtrDeductionsData', props.dtrDeductionsData); */
 
 const holidays = props.dtrRecord.holidays || [];
-console.log("holidays", holidays);
+/* if (import.meta.env.DEV) console.log('holidays', holidays); */
 
 const payrollCycles = [
   // From day, To day, Release day, Release month offset (relative to end date)
@@ -393,11 +393,10 @@ const uniformBalance = computed(() => {
   }, 0);
 });
 
-// Example run
-console.log(
-  "Payroll Release:",
+/* if (import.meta.env.DEV) console.log(
+  'Payroll Release:',
   getPayrollReleaseDate(props.dtrRecord.from, props.dtrRecord.end)
-);
+); */
 
 const netIncome = computed(() => {
   const totalEarnings = parseFloat(

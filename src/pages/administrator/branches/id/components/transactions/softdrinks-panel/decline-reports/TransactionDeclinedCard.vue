@@ -115,10 +115,10 @@ const fetchDeclinedSoftdrinksStocks = async (
       page,
       rowsPerPage
     );
-    console.log(
+    /* console.log(
       "softdrinksProductsDeclinedss",
       softdrinksProductsDecline.value
-    );
+    ); */
 
     const { data, current_page, per_page, total } =
       softdrinksProductsDecline.value;

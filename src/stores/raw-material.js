@@ -13,12 +13,12 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
       params: { keyword: searchQuery },
     });
     rawMaterials.value = response.data;
-    console.log("Search rawe materials", response.data);
+    /* console.log("Search rawe materials", response.data); */
   };
 
   const fetchBranchWarehouseRawMaterials = async (designation, id) => {
-    console.log("designation", designation);
-    console.log("id", id);
+    /* console.log("designation", designation); */
+    /* console.log("id", id); */
 
     try {
       const response = await api.get(
@@ -30,10 +30,10 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
         }
       );
 
-      console.log("Raw Materialsss", response.data);
+      /* console.log("Raw Materialsss", response.data); */
       rawMaterials.value = response.data.data;
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
     }
   };
 
@@ -42,18 +42,18 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
     const response = await api.get("/api/raw-materials");
     rawMaterials.value = response.data;
 
-    console.log("Raw Materialssss", rawMaterials.value);
+    /* console.log("Raw Materialssss", rawMaterials.value); */
     // Loading.hide();
   };
 
   const createRawMaterials = async (data) => {
     // Loading.show();
-    console.log("Data", data);
+    /* console.log("Data", data); */
 
     try {
       Loading.show();
       const response = await api.post("/api/raw-materials", data);
-      console.log("RawMaterials", response.data.rawMaterials);
+      /* console.log("RawMaterials", response.data.rawMaterials); */
       rawMaterials.value.unshift(response.data.rawMaterials);
       Notify.create({
         type: "positive",
@@ -61,7 +61,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
         timeout: 1000,
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
 
       if (
         error.response.data.message === "The code has already been taken." ||
@@ -106,7 +106,7 @@ export const useRawMaterialsStore = defineStore("rawMaterials", () => {
         // position: "top",
       });
     } catch (error) {
-      console.log("error", error);
+      /* console.log("error", error); */
       if (
         error.response.data.message ===
         "The name has already been taken. (and 1 more error)"

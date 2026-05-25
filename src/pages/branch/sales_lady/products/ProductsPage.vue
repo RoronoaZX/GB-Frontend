@@ -82,26 +82,26 @@ const branchId =
 const fetchProducts = async () => {
   await salesReportsStore.fetchBranchProducts(branchId);
 
-  console.log(
+  /* console.log(
     "sales report productsdsdsd breadProducts",
     salesReportsStore.breadProducts
-  );
-  console.log(
+  ); */
+  /* console.log(
     "sales report productsdsdsd selectaProducts",
     salesReportsStore.selectaProducts
-  );
-  console.log(
+  ); */
+  /* console.log(
     "sales report productsdsdsd nestleProducts",
     salesReportsStore.nestleProducts
-  );
-  console.log(
+  ); */
+  /* console.log(
     "sales report productsdsdsd othersProducts",
     salesReportsStore.othersProducts
-  );
-  console.log(
+  ); */
+  /* console.log(
     "sales report productsdsdsd softdrinksProducts",
     salesReportsStore.softdrinksProducts
-  );
+  ); */
 };
 
 onMounted(async () => {

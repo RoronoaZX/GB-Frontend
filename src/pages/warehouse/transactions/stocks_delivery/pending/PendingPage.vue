@@ -82,12 +82,12 @@ const { capitalizeFirstLetter, formatFullname } = typographyFormat();
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const stocksDeliveryStore = useStockDelivery();
 const stockDelivery = computed(() => stocksDeliveryStore.pendingStocks);
 
 const warehouseId = computed(() => userData.value?.device?.reference_id);
-console.log("warehouseId", warehouseId.value);
+/* console.log("warehouseId", warehouseId.value); */
 const status = ref("pending");
 const to_designation = ref("Warehouse");
 const loading = ref(true);
@@ -110,9 +110,9 @@ const fetchPendingStocksDelivery = async () => {
     if (!stockDelivery.value.length) {
       showNoDataMessage.value = true;
     }
-    console.log("stockDelivery", stockDelivery.value);
+    /* console.log("stockDelivery", stockDelivery.value); */
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }
@@ -142,7 +142,7 @@ const handleDialog = (data, index) => {
     },
   }).onOk((res) => {
     // ✅ if child returns { action: 'declined' }
-    console.log("response from child:", res);
+    /* console.log("response from child:", res); */
     if (res?.action === "declined" || res?.action === "confirmed") {
       const list = stocksDeliveryStore.pendingStocks?.data;
       if (Array.isArray(list)) {

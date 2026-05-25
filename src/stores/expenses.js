@@ -10,14 +10,14 @@ export const useExpensesStore = defineStore("expenses", () => {
   const addingExpense = async (data) => {
     try {
       const response = await api.post("/api/employee-adding-expense", data);
-      console.log(response.data);
+      /* console.log(response.data); */
       Notify.create({
         type: "positive",
         message: "Employee expenses successfully created",
         setTimeout: 1000,
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
       Notify.create({
         type: "negative",
         message: "Error creating employee expenses",

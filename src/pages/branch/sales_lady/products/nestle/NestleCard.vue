@@ -172,11 +172,11 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 const salesReportsStore = useSalesReportsStore();
 
 const userData = salesReportsStore.user;
-console.log("userData", userData);
+/* console.log("userData", userData); */
 
 const branchId =
   userData?.device?.reference_id || userData?.device?.reference?.id || "0";
-console.log("branchIdddddddd", branchId);
+/* console.log("branchIdddddddd", branchId); */
 
 const selectedItem = ref(null);
 
@@ -191,7 +191,7 @@ const filter = defineProps({
 const clickme = (item) => {
   selectedItem.value = item;
 
-  console.log("selectedItem", selectedItem.value);
+  /* console.log("selectedItem", selectedItem.value); */
   dialog.value = true;
 };
 
@@ -235,7 +235,7 @@ const validateFields = () => {
 
 const nestleSalesAmount = computed(() => {
   if (selectedItem.value) {
-    console.log("selectedItem.value", selectedItem.value);
+    /* console.log("selectedItem.value", selectedItem.value); */
 
     return nestleProductReport.nestleSold * selectedItem.value.price;
   }
@@ -273,7 +273,7 @@ watch(
 );
 
 const nestleProducts = computed(() => salesReportsStore.nestleProducts);
-console.log("nestleProducts", nestleProducts.value);
+/* console.log("nestleProducts", nestleProducts.value); */
 
 watch(nestleProducts, (newVal) => {
   // console.log("selectaProducts updated:", newVal);
@@ -329,7 +329,7 @@ const saveReport = () => {
     new_production: 0,
   };
 
-  console.log("reportss", report);
+  /* console.log("reportss", report); */
   salesReportsStore.updateNestleReport(report);
 
   Notify.create({

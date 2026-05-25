@@ -298,7 +298,7 @@ const props = defineProps([
 ]);
 const emit = defineEmits(["summary-updated"]);
 
-console.log("prssssops", props);
+/* console.log("prssssops", props); */
 
 // --- State ---
 const dialog = ref(false);

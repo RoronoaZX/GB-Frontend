@@ -206,13 +206,13 @@ const userId = computed(
     ""
 );
 
-console.log("userId", userId.value);
+/* console.log("userId", userId.value); */
 
 const filter = defineProps({
   filter: String,
 });
 
-console.log("filter", filter);
+/* console.log("filter", filter); */
 
 const emit = defineEmits(["add-raw-material", "view-details", "adjust-stock"]);
 
@@ -223,7 +223,7 @@ const branchRawMaterials = computed(
   () => branchRawMaterialsStore.branchRawMaterials
 );
 
-console.log("branchRawMaterials", branchRawMaterials.value);
+/* console.log("branchRawMaterials", branchRawMaterials.value); */
 
 const filteredRawMaterials = computed(
   () =>
@@ -232,7 +232,7 @@ const filteredRawMaterials = computed(
     ) || []
 );
 
-console.log("filteredRawMaterials", filteredRawMaterials.value);
+/* console.log("filteredRawMaterials", filteredRawMaterials.value); */
 
 const statFields = [
   {
@@ -247,8 +247,8 @@ const statFields = [
 ];
 
 const updatedStocks = async (data, val) => {
-  console.log("data", data);
-  console.log("vssssal", val);
+  /* console.log("data", data); */
+  /* console.log("vssssal", val); */
 
   const payload = {
     report_id: data.id,
@@ -271,13 +271,13 @@ const updatedStocks = async (data, val) => {
         payload
       );
 
-    console.log("responsesss", response);
+    /* console.log("responsesss", response); */
 
     // ✅ Extract from backend response
     const { status, message } = response.data;
 
-    console.log("statuss", status);
-    console.log("messagess", message);
+    /* console.log("statuss", status); */
+    /* console.log("messagess", message); */
 
     const typeMap = {
       success: "positive",
@@ -299,7 +299,7 @@ const updatedStocks = async (data, val) => {
       icon: iconMap[status] || "info",
     });
   } catch (error) {
-    console.log("fkaskjlfhaslkdjf", error);
+    /* console.log("fkaskjlfhaslkdjf", error); */
 
     $q.notify({
       type: "negative",

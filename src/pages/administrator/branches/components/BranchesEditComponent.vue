@@ -178,7 +178,7 @@ const search = async () => {
 
 const autoFillEmployee = (employee) => {
   // Log the selected employee data
-  console.log("Selected Employee:", employee);
+  /* console.log("Selected Employee:", employee); */
 
   editBranchesForm.employee_id = employee.id;
   editBranchesForm.employee_name = `${employee.firstname} ${
@@ -190,7 +190,7 @@ const autoFillEmployee = (employee) => {
 
   showDropdown.value = false;
   // Log the filled designation data
-  console.log("Filled editBranchesForm Data:", editBranchesForm);
+  /* console.log("Filled editBranchesForm Data:", editBranchesForm); */
   // setTimeout(() => {
   //   searchKeyword.value = null;
   // }, 0);
@@ -198,7 +198,7 @@ const autoFillEmployee = (employee) => {
 
 const openEditForm = () => {
   const editRow = props.edit.row;
-  console.log("Edit Row Data:", editRow);
+  /* console.log("Edit Row Data:", editRow); */
   showDropdown.value = false;
   editBranchesForm.name = editRow.name;
   editBranchesForm.location = editRow.location;
@@ -217,7 +217,7 @@ const openEditForm = () => {
   editBranchesForm.phone = editRow.phone;
   editBranchesForm.status = editRow.status;
   dialog.value = true;
-  console.log("Edit Data:", editBranchesForm);
+  /* console.log("Edit Data:", editBranchesForm); */
 };
 
 const editBranchesForm = reactive({
@@ -233,7 +233,7 @@ const editBranchesForm = reactive({
 
 const saveEditedBranches = async () => {
   // console.log("editRow.id", editRow.id);
-  console.log("editBranchesForm", editBranchesForm);
+  /* console.log("editBranchesForm", editBranchesForm); */
   try {
     await branchesStore.updateBranches(props.edit.row.id, editBranchesForm);
 

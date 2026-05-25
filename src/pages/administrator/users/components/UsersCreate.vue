@@ -116,7 +116,7 @@ const setUser = (data) => {
 };
 
 const setUserInfo = (data) => {
-  console.log("setsuer data", data);
+  /* console.log("setsuer data", data); */
   Object.assign(userInfo, data);
   isDisabled.value = !(
     (
@@ -178,7 +178,7 @@ const saveUser = async () => {
       password: user.password,
       role: userInfo.user_position,
     };
-    console.log("userdata to send:", userData);
+    /* console.log("userdata to send:", userData); */
 
     await userStore.registerUser(userData);
     dialog.value = false;

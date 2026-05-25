@@ -258,7 +258,7 @@ const $q = useQuasar(); // Quasar instance for notifications
 
 // const helpers = useAttendanceHelpers(); // Commented out
 const props = defineProps(["dtrRecord", "employeeId"]);
-console.log("dtrRecordss", props.dtrRecord);
+/* console.log("dtrRecordss", props.dtrRecord); */
 
 const pagination = ref({
   rowsPerPage: 0,
@@ -269,7 +269,7 @@ const employees = computed(() => employeeStore.employees);
 const employeesData = ref(null); // This will hold the specific employee's details
 const route = useRoute();
 const employee_id = route.params.employee_id || "";
-console.log("empoyee_id", employee_id);
+/* console.log("empoyee_id", employee_id); */
 const dtrRows = props.dtrRecord.records || [];
 
 const maximizedToggle = ref(true);
@@ -326,7 +326,7 @@ const fetchEmployeeDetails = async () => {
       employee_id
     );
     employeesData.value = employees.value; // Assign the fetched employee details
-    console.log("Employee Designation Data Loaded:", employeesData.value);
+    /* console.log("Employee Designation Data Loaded:", employeesData.value); */
 
     if (
       !(
@@ -680,13 +680,13 @@ const overallTotalWorkingHoursWithOT = computed(() => {
   const OTWHMinutes = convertHoursMinutesToMinutes(
     overallTotalWorkingHours.value
   );
-  console.log("OTWHMinutes", OTWHMinutes);
+  /* console.log("OTWHMinutes", OTWHMinutes); */
   const OTOMinutes = convertHoursMinutesToMinutes(overallTotalOvertime.value);
-  console.log("OTOMinutes", OTOMinutes);
+  /* console.log("OTOMinutes", OTOMinutes); */
 
   const totalHours = OTWHMinutes + OTOMinutes;
 
-  console.log("totalHours", totalHours);
+  /* console.log("totalHours", totalHours); */
 
   return formatMinutesToHoursMinutes(totalHours);
 });
@@ -719,11 +719,11 @@ const formatCurrency = (value) => {
 };
 
 const regularPay = computed(() => {
-  console.log(
+  /* console.log(
     "employeesData?.value?.employment_type?.salary :",
     employeesData?.value?.employment_type?.salary
-  );
-  console.log("props?.dtrRecord?.records :", props?.dtrRecord?.records?.length);
+  ); */
+  /* console.log("props?.dtrRecord?.records :", props?.dtrRecord?.records?.length); */
   const ratePerDay = parseFloat(
     employeesData?.value?.employment_type?.salary || "0"
   );
@@ -899,7 +899,7 @@ const dtrColumns = [
         row.overtime_end
       ) {
         // Changed to overtime_start and overtime_end
-        console.log("________row.ot_status ", row.ot_status);
+        /* console.log("________row.ot_status ", row.ot_status); */
         const otIn = new Date(row.overtime_start); // Changed to overtime_start
         const otOut = new Date(row.overtime_end); // Changed to overtime_end
 

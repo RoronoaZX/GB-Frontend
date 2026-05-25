@@ -170,14 +170,14 @@ const props = defineProps({
   created_at: String,
 });
 
-console.log("Expenses Dialog created_at", props.created_at);
+/* console.log("Expenses Dialog created_at", props.created_at); */
 
 const expensesReports = props.reports;
-console.log("Expenses total", props.total);
+/* console.log("Expenses total", props.total); */
 
 const updateName = async (data, val) => {
-  console.log("update data of the updateName", data);
-  console.log("update val of the updateName", val);
+  /* console.log("update data of the updateName", data); */
+  /* console.log("update val of the updateName", val); */
 
   try {
     const response = await api.put(
@@ -186,14 +186,14 @@ const updateName = async (data, val) => {
         name: val,
       }
     );
-    console.log("Updated expenses amount response:", response.data);
+    /* console.log("Updated expenses amount response:", response.data); */
   } catch (error) {
     console.error(error);
   }
 };
 const updateDescription = async (data, val) => {
-  console.log("update data of the description", data);
-  console.log("update val of the description", val);
+  /* console.log("update data of the description", data); */
+  /* console.log("update val of the description", val); */
 
   try {
     const response = await api.put(
@@ -202,15 +202,15 @@ const updateDescription = async (data, val) => {
         description: val,
       }
     );
-    console.log("Updated expenses amount response:", response.data);
+    /* console.log("Updated expenses amount response:", response.data); */
   } catch (error) {
     console.error(error);
   }
 };
 
 const updateAmount = async (data, val) => {
-  console.log("update data of the amount", data);
-  console.log("update val of the amount", val);
+  /* console.log("update data of the amount", data); */
+  /* console.log("update val of the amount", val); */
 
   try {
     const response = await api.put(
@@ -219,7 +219,7 @@ const updateAmount = async (data, val) => {
         amount: parseFloat(val),
       }
     );
-    console.log("Updated expenses amount response:", response.data);
+    /* console.log("Updated expenses amount response:", response.data); */
   } catch (error) {
     console.error(error);
   }
@@ -230,7 +230,7 @@ const expensesReportColumn = [
     name: "name",
     label: "Expenses Name",
     field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
+      /* console.log("Row data:", row); */ // Debug each row's data
       return row.name || "N/A"; // Adjust this according to your data
     },
     align: "center",
@@ -250,12 +250,12 @@ const expensesReportColumn = [
 ];
 
 // Log to verify the structure of props.reports
-console.log("Reports data structure:", props.reports);
+/* console.log("Reports data structure:", props.reports); */
 
 // Replace this with your actual filtered rows logic
 const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`
-  console.log("Filtered rows:", props.reports || []);
+  /* console.log("Filtered rows:", props.reports || []); */
   return props.reports || [];
 });
 
@@ -267,7 +267,7 @@ const overallTotal = computed(() => {
   return total;
 });
 
-console.log("Expenses:", filteredRows.value);
+/* console.log("Expenses:", filteredRows.value); */
 </script>
 
 <style lang="scss" scoped>

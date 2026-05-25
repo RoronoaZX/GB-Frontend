@@ -192,7 +192,7 @@ import { Notify } from "quasar";
 
 const emit = defineEmits(["edited"]);
 const props = defineProps(["edit"]);
-console.log("edit", props.edit);
+/* console.log("edit", props.edit); */
 const uniformStore = useUniformStore();
 
 // Dialog and Loading state
@@ -342,7 +342,7 @@ const saveUniformChanges = async () => {
     payments_per_payroll: parseFloat(paymentPerPayroll.value),
     remaining_payments: finalRemainingPayments,
   };
-  console.log("Updated uniform data:", updated);
+  /* console.log("Updated uniform data:", updated); */
 
   try {
     loading.value = true;

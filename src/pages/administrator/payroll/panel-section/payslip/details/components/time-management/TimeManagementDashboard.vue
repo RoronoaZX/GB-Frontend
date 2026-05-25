@@ -88,7 +88,7 @@ import DailyAttendanceLog from "./DailyAttendanceLog.vue";
 const route = useRoute();
 
 const employeeId = route.params.employee_id;
-console.log("Time Management Employee ID :", employeeId);
+/* console.log("Time Management Employee ID :", employeeId); */
 
 // State
 const dtrStore = useDTRStore();

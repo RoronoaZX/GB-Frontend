@@ -65,7 +65,7 @@ import { date, useDialogPluginComponent } from "quasar";
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps(["incentiveDatas"]);
-console.log("incentiveDatasssss", props.incentiveDatas);
+/* console.log("incentiveDatasssss", props.incentiveDatas); */
 
 const formatDateString = (dateStr) => {
   if (!dateStr) return "";

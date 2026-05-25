@@ -138,7 +138,7 @@ const openDialog = () => {
 
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
-console.log("userdata", userData.value);
+/* console.log("userdata", userData.value); */
 const warehouseEmployeeId = userData.value.data.employee_id;
 const premixStore = usePremixStore();
 
@@ -149,13 +149,13 @@ const props = defineProps({
   },
 });
 
-console.log("props report", props.report);
+/* console.log("props report", props.report); */
 
 const ingrdientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
-console.log("ingrdientsData", ingrdientsData);
+/* console.log("ingrdientsData", ingrdientsData); */
 
-console.log("report to proceed", props.report);
+/* console.log("report to proceed", props.report); */
 
 const toReceivePremix = async () => {
   try {
@@ -170,7 +170,7 @@ const toReceivePremix = async () => {
       notes: "To Receive Premix",
     };
     const toReceiveReport = await premixStore.toReceivePremix(payload);
-    console.log("Report Process:", toReceiveReport);
+    /* console.log("Report Process:", toReceiveReport); */
     Notify.create({
       type: "positive",
       message: "Premix to receive to process successfully",

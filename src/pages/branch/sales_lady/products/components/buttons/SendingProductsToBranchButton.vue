@@ -452,7 +452,7 @@ const getCategoryIconColor = (category) => {
   }
 };
 
-console.log("Category Props", props.category);
+/* console.log("Category Props", props.category); */
 
 const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
@@ -461,7 +461,7 @@ const { dialogRef, onDialogHide } = useDialogPluginComponent();
 const salesReportsStore = useSalesReportsStore();
 const branchProducts = computed(() => salesReportsStore.branchProducts);
 
-console.log("branchProducsssts", branchProducts.value);
+/* console.log("branchProducsssts", branchProducts.value); */
 
 const branchStore = useBranchesStore();
 const branches = computed(() => branchStore.branch);
@@ -469,13 +469,13 @@ const branches = computed(() => branchStore.branch);
 const branchProductsStore = useBranchProductsStore();
 
 const userData = computed(() => salesReportsStore.user);
-console.log("user data", userData.value);
+/* console.log("user data", userData.value); */
 
 const branchId =
   userData.value?.device?.reference_id ||
   userData.value.device?.reference?.id ||
   "";
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 
 const employee_id = userData.value?.employee?.employee_id || "";
 
@@ -521,7 +521,7 @@ const isDropDownBranchVisible = computed(() => {
 });
 
 const autoFillBranch = (branch) => {
-  console.log("branchssssss", branch);
+  /* console.log("branchssssss", branch); */
 
   searchQuery.value = capitalizeFirstLetter(branch.name);
   sendingProductsToBranchData.branch_id = branch.id;
@@ -550,7 +550,7 @@ const otherProducts = computed(() =>
 );
 
 const mapToOptions = (products) => {
-  console.log("productsssssss", products);
+  /* console.log("productsssssss", products); */
   const map = new Map();
 
   products.forEach((item) => {
@@ -623,10 +623,10 @@ const sendingProductsToBranchData = reactive({
 });
 
 const addProductToList = () => {
-  console.log("Selected Product:", selectedProduct.value);
-  console.log("Action:", action.value);
-  console.log("Branch ID:", sendingProductsToBranchData.branch_id);
-  console.log("Quantity:", sendingProductsToBranchData.quantity);
+  /* console.log("Selected Product:", selectedProduct.value); */
+  /* console.log("Action:", action.value); */
+  /* console.log("Branch ID:", sendingProductsToBranchData.branch_id); */
+  /* console.log("Quantity:", sendingProductsToBranchData.quantity); */
 
   // Check if the product is already in the list
   const exists = sendingProductsList.value.find(
@@ -663,7 +663,7 @@ const addProductToList = () => {
     price: product.price,
   });
 
-  console.log("sendingProductsList.value", sendingProductsList.value);
+  /* console.log("sendingProductsList.value", sendingProductsList.value); */
 
   // Clear input for next product
   selectedProduct.value = null;
@@ -713,7 +713,7 @@ const sendProducts = async () => {
     })),
   };
 
-  console.log("Sending products to branch:", dataToSend);
+  /* console.log("Sending products to branch:", dataToSend); */
 
   try {
     const response = await branchProductsStore.sendProductsToBranch(dataToSend);

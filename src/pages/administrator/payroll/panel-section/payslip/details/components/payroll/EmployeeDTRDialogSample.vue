@@ -86,14 +86,14 @@ const $q = useQuasar(); // Quasar instance for notifications
 
 // const helpers = useAttendanceHelpers(); // Commented out
 const props = defineProps(["dtrRecord", "employeeId"]);
-console.log("dtrRecordss", props.dtrRecord);
+/* console.log("dtrRecordss", props.dtrRecord); */
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const employeesData = ref(null); // This will hold the specific employee's details
 const route = useRoute();
 const employee_id = route.params.employee_id || "";
-console.log("empoyee_id", employee_id);
+/* console.log("empoyee_id", employee_id); */
 const dtrRows = props.dtrRecord.records || [];
 const dtrHolidays = props.dtrRecord.holidays || [];
 
@@ -105,7 +105,7 @@ const dtrSummaryData = ref(null); // Inittialize to null
 
 // --- Method to handle event from DTRTable --- //
 const handleDTRSummaryCalculated = (summary) => {
-  console.log("Parent received calculated DTR summary:", summary);
+  /* console.log("Parent received calculated DTR summary:", summary); */
   dtrSummaryData.value = summary; // Update the reactive state
 };
 
@@ -117,7 +117,7 @@ const fetchEmployeeDetails = async () => {
       employee_id
     );
     employeesData.value = employees.value; // Assign the fetched employee details
-    console.log("Employee Designation Data Loaded:", employeesData.value);
+    /* console.log("Employee Designation Data Loaded:", employeesData.value); */
 
     if (
       !(

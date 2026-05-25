@@ -86,7 +86,7 @@ const { getStatusColor } = badgeColor();
 
 const bakerReportStore = useBakerReportsStore();
 const userData = computed(() => bakerReportStore.user);
-console.log("userData in RawMaterialsTable:", userData.value);
+/* console.log("userData in RawMaterialsTable:", userData.value); */
 
 const branchId = computed(() => userData.value?.device?.reference_id);
 const stocksDeliveryStore = useStockDelivery();
@@ -151,10 +151,10 @@ const fetchDeliveryStocks = async (page = 1) => {
       selectedDelivery.value = deliveryList.value[0];
     }
 
-    console.log("deliveryListsss", deliveryList.value);
-    console.log("pagination", pagination.value);
+    /* console.log("deliveryListsss", deliveryList.value); */
+    /* console.log("pagination", pagination.value); */
   } catch (error) {
-    console.log("Error fetching delivery stocks in component:", error);
+    /* console.log("Error fetching delivery stocks in component:", error); */
   } finally {
     $q.loading.hide();
   }

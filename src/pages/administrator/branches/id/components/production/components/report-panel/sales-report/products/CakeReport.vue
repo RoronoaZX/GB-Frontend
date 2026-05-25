@@ -45,10 +45,10 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 
 const props = defineProps(["reports"]);
 
-console.log("Report cake:", props.reports);
+/* console.log("Report cake:", props.reports); */
 const filteredRows = computed(() => {
   // Assuming `breads` is an array in `reports`
-  console.log("Filtered cake rows:", props.reports || []);
+  /* console.log("Filtered cake rows:", props.reports || []); */
   return props.reports || [];
 });
 
@@ -77,10 +77,10 @@ const formatPrice = (price) => {
 const overallTotal = computed(() => {
   const total = filteredRows.value.reduce((total, row) => {
     const salesAmount = parseFloat(row.cake_report.price) || 0;
-    console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`);
+    /* console.log(`Adding salesAmount: ${salesAmount} to total: ${total}`); */
     return total + salesAmount;
   }, 0);
-  console.log("Overall Total Sales computed as:", total);
+  /* console.log("Overall Total Sales computed as:", total); */
   return total;
 });
 
@@ -89,7 +89,7 @@ const cakeReportColumns = [
     name: "name",
     label: "Cake Name",
     field: (row) => {
-      console.log("Row data:", row); // Debug each row's data
+      /* console.log("Row data:", row); */ // Debug each row's data
       return row.cake_report.name || "N/A"; // Adjust this according to your data
     },
   },

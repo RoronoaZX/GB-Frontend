@@ -225,7 +225,7 @@ const editedValue = ref(null);
 const tableLoading = ref(false);
 
 const updateNumberEmployee = async (data, val) => {
-  console.log("updateNumberEmployee", data, val);
+  /* console.log("updateNumberEmployee", data, val); */
   try {
     tableLoading.value = true;
     await incentivesStore.updateNumberEmployee(data, val);
@@ -237,7 +237,7 @@ const updateNumberEmployee = async (data, val) => {
 };
 
 const updateTargetKilo = async (data, val) => {
-  console.log("updateTargetKilo", data, val);
+  /* console.log("updateTargetKilo", data, val); */
   try {
     tableLoading.value = true;
     await incentivesStore.updateTargetKilo(data, val);
@@ -249,7 +249,7 @@ const updateTargetKilo = async (data, val) => {
 };
 
 const updateBakerMultiplier = async (data, val) => {
-  console.log("updateBakerMultiplier", data, val);
+  /* console.log("updateBakerMultiplier", data, val); */
   try {
     tableLoading.value = true;
     await incentivesStore.updateBakerMultiplier(data, val);
@@ -261,7 +261,7 @@ const updateBakerMultiplier = async (data, val) => {
 };
 
 const udpateLamesadorMultiplier = async (data, val) => {
-  console.log("udpateLamesadorMultiplier", data, val);
+  /* console.log("udpateLamesadorMultiplier", data, val); */
   try {
     tableLoading.value = true;
     await incentivesStore.updateLamesadorMultiplier(data, val);
@@ -273,7 +273,7 @@ const udpateLamesadorMultiplier = async (data, val) => {
 };
 
 const updateHorneroIncentives = async (data, val) => {
-  console.log("updateHorneroIncentives", data, val);
+  /* console.log("updateHorneroIncentives", data, val); */
   try {
     tableLoading.value = true;
     await incentivesStore.updateHorneroIncentives(data, val);

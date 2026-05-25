@@ -119,7 +119,7 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const props = defineProps(["breadReports"]);
 
-console.log("breadReports Data:", props.breadReports);
+/* console.log("breadReports Data:", props.breadReports); */
 
 const confirmedBreadReports = computed(() => {
   if (!Array.isArray(props.breadReports)) return [];
@@ -136,11 +136,11 @@ const breadTotal = (breads) => {
 const breadDeduction = (breads) => {
   return breads?.bread_out + breads?.remaining;
 };
-console.log(breadDeduction);
+/* console.log(breadDeduction); */
 
 const breadSoldTotal = (breads) => {
   const total = breadTotal(breads) - breadDeduction(breads);
-  console.log("Total Sold:", total);
+  /* console.log("Total Sold:", total); */
   return total;
 };
 
@@ -171,7 +171,7 @@ const overallTotal = computed(() => {
   return formatPrice(total);
 });
 
-console.log("Overall Total Sales:", overallTotal.value);
+/* console.log("Overall Total Sales:", overallTotal.value); */
 
 const breadReportColumns = [
   {

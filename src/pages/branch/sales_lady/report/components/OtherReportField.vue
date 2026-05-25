@@ -147,7 +147,7 @@ const otherProductsReports = computed(
   () => salesReportsStore.otherProductsReports
 );
 
-console.log("Other Reportssss:", otherProductsReports.value);
+/* console.log("Other Reportssss:", otherProductsReports.value); */
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

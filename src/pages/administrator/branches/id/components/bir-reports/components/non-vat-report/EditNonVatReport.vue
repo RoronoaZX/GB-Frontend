@@ -23,7 +23,7 @@
 import { ref } from "vue";
 
 const props = defineProps(["edit"]);
-console.log("EditNonVatReport", props.edit);
+/* console.log("EditNonVatReport", props.edit); */
 
 const dialog = ref(false);
 const openDialog = () => {

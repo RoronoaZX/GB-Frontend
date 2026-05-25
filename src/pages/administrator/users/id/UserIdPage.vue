@@ -81,15 +81,15 @@ const router = useRouter();
 // });
 
 function saveProfile() {
-  console.log("Profile saved:", user);
+  /* console.log("Profile saved:", user); */
 }
 
 function blockAccount(accountType) {
-  console.log(`Block ${accountType} account`);
+  /* console.log(`Block ${accountType} account`); */
 }
 
 function unlockAccount(accountType) {
-  console.log(`Unlock ${accountType} account`);
+  /* console.log(`Unlock ${accountType} account`); */
 }
 </script>
 

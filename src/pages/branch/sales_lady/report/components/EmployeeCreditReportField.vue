@@ -151,7 +151,7 @@ const employeeCreditReport = computed(
   () => salesReportsStore.employeeCreditReports
 );
 
-console.log("employeeCreditReportsss", employeeCreditReport);
+/* console.log("employeeCreditReportsss", employeeCreditReport); */
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("en-US", {

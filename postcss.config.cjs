@@ -3,6 +3,8 @@
 
 module.exports = {
   plugins: [
+    require('postcss-nesting'),
+
     // https://github.com/postcss/autoprefixer
     require('autoprefixer')({
       overrideBrowserslist: [
@@ -25,3 +27,4 @@ module.exports = {
     // require('postcss-rtlcss')
   ]
 }
+

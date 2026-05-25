@@ -143,7 +143,7 @@ const props = defineProps({
     required: true,
   },
 });
-console.log("reportsss", props.report);
+/* console.log("reportsss", props.report); */
 const dialog = ref(false);
 const openDialog = () => {
   dialog.value = true;
@@ -151,7 +151,7 @@ const openDialog = () => {
 
 const ingredientsData =
   props.report?.branch_premix?.branch_recipe?.ingredient_groups || "Undefined";
-console.log("ingrdientsData", ingredientsData);
+/* console.log("ingrdientsData", ingredientsData); */
 </script>
 
 <style lang="scss" scoped>

@@ -43,7 +43,7 @@
 import { computed } from "vue";
 
 const props = defineProps(["denominationReports"]);
-console.log("denominationReports", props.denominationReports);
+/* console.log("denominationReports", props.denominationReports); */
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("en-US", {

@@ -97,11 +97,11 @@ export const useHolidaysStore = defineStore("holidays", () => {
   };
 
   const deleteHoliday = async (id) => {
-    console.log("holiday delete id", id);
+    /* console.log("holiday delete id", id); */
     try {
       await api.delete(`/api/holiday/${id}`);
     } catch (error) {
-      console.log("Delete Holiday Error: ", error);
+      /* console.log("Delete Holiday Error: ", error); */
     }
   };
 

@@ -250,9 +250,9 @@ const handleSubmit = () => {
   salesReportsStore.updateDenominationTotal(rawTotalDenomination);
   salesReportsStore.calculateCharges(rawTotalDenomination); // Calculate charges
 
-  console.log("Denomination Data:", denominationData);
-  console.log("Raw Total Denomination:", rawTotalDenomination);
-  console.log("Formatted Total Denomination:", totalDenominationFormat.value);
+  /* console.log("Denomination Data:", denominationData); */
+  /* console.log("Raw Total Denomination:", rawTotalDenomination); */
+  /* console.log("Formatted Total Denomination:", totalDenominationFormat.value); */
 
   closeBtn();
 };

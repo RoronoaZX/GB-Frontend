@@ -157,9 +157,9 @@ const props = defineProps([
   "reportId",
 ]);
 const reportsData = props.salesReport;
-console.log("reportsDatasssss", reportsData);
-console.log("reportsDatasssss", props.salesReport);
-console.log("reportDatessssss", props.reportDate);
+/* console.log("reportsDatasssss", reportsData); */
+/* console.log("reportsDatasssss", props.salesReport); */
+/* console.log("reportDatessssss", props.reportDate); */
 
 const maximizedToggle = ref(true);
 const printDialog = ref(false);
@@ -169,7 +169,7 @@ const chargesAmountToBeSendToAPI = ref(0);
 const overAmountToBeSendToAPI = ref(0);
 
 const calculateChargesAndOverFromProcessed = (report) => {
-  console.log("calculateChargesAndOverFromProcessed", report);
+  /* console.log("calculateChargesAndOverFromProcessed", report); */
 
   if (!report) return { chargesAmount: 0, overAmount: 0, employeeCharges: [] };
 
@@ -253,10 +253,10 @@ const calculateChargesAndOverFromProcessed = (report) => {
   // 7️⃣ Final Charges = Cash Shortage + Inventory Discrepancies
   const finalChargesAmount = shortageAmount + negativeSalesChargesTotal;
 
-  console.log("Total Product Sales (Positive):", totalProductSales);
-  console.log("Negative Sales Discrepancies:", negativeSalesChargesTotal);
-  console.log("Cash Shortage:", shortageAmount);
-  console.log("Final Charges to API:", finalChargesAmount);
+  /* console.log("Total Product Sales (Positive):", totalProductSales); */
+  /* console.log("Negative Sales Discrepancies:", negativeSalesChargesTotal); */
+  /* console.log("Cash Shortage:", shortageAmount); */
+  /* console.log("Final Charges to API:", finalChargesAmount); */
 
   return {
     overAmount,
@@ -311,7 +311,7 @@ const negativeProducts = computed(() => {
   processCategory(report.softdrinks_reports, "Soft Drinks");
   processCategory(report.other_products_reports, "Other Products");
 
-  console.log("Negative Products:", negatives);
+  /* console.log("Negative Products:", negatives); */
 
   return negatives;
 });

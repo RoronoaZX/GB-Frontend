@@ -13,16 +13,16 @@ export const useSupervisorStore = defineStore("supervisors", () => {
   };
 
   const fetchSupervisorUnderBranch = async (employee_id) => {
-    console.log("fetchSupervisorBranch", employee_id);
+    /* console.log("fetchSupervisorBranch", employee_id); */
     try {
       const response = await api.get(
         `/api/fetchSupervisorUnderBranch/${employee_id}`
       );
       supervisorBranch.value = response.data;
 
-      console.log("supervisor branch", response.data);
+      /* console.log("supervisor branch", response.data); */
     } catch (error) {
-      console.log("supervisor branch error", error);
+      /* console.log("supervisor branch error", error); */
     }
   };
 

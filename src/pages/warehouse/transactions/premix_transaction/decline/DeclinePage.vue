@@ -126,11 +126,11 @@ const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
 const warehouseId = userData.value.device.reference_id;
-console.log("warehouseId", warehouseId);
+/* console.log("warehouseId", warehouseId); */
 
 const premixStore = usePremixStore();
 const declinedPremixData = computed(() => premixStore.declinePremixData);
-console.log("declinedPremixData", declinedPremixData.value);
+/* console.log("declinedPremixData", declinedPremixData.value); */
 const status = ref("declined");
 const loading = ref(true);
 const showNoDataMessage = ref(false);
@@ -150,7 +150,7 @@ const pagination = computed(() => {
   );
 });
 
-console.log("pagination", pagination.value);
+/* console.log("pagination", pagination.value); */
 
 const fetchDeclinedPremix = async (page = 1) => {
   try {
@@ -167,7 +167,7 @@ const fetchDeclinedPremix = async (page = 1) => {
       showNoDataMessage.value = true;
     }
 
-    console.log("declinedPremixData", declinedPremixData.value);
+    /* console.log("declinedPremixData", declinedPremixData.value); */
   } catch (error) {
     showNoDataMessage.value = true;
   } finally {

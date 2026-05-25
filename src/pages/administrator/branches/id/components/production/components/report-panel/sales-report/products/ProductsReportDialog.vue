@@ -14,5 +14,5 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 
 const props = defineProps(["reports"]);
 
-console.log("products report", props);
+/* console.log("products report", props); */
 </script>

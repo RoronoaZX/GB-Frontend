@@ -146,8 +146,8 @@ const reloadTableData = async (page = 1) => {
     if ((!selectedBakerReport.value && bakersReportList.value, length > 0)) {
       selectedBakerReport.value = bakersReportList.value[0];
     }
-    console.log("bakersReportList", bakersReportList.value);
-    console.log("pagination", pagination.value);
+    /* console.log("bakersReportList", bakersReportList.value); */
+    /* console.log("pagination", pagination.value); */
   } catch (error) {
     console.error("Error fetching baker report:", error);
   } finally {

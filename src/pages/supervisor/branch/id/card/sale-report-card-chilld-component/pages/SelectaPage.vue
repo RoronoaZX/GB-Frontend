@@ -390,7 +390,7 @@ const props = defineProps([
   "reportDate",
 ]);
 
-console.log("Selecta Reports:", props.reports);
+/* console.log("Selecta Reports:", props.reports); */
 
 const emit = defineEmits(["summary-updated", "ok"]);
 

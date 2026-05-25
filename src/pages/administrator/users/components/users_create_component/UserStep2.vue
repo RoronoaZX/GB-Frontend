@@ -279,7 +279,7 @@ const userPersonalInfoForm = reactive({
   user_time_shift: "",
 });
 
-console.log("userPersonalInfoForm:", userPersonalInfoForm);
+/* console.log("userPersonalInfoForm:", userPersonalInfoForm); */
 onMounted(() => {
   Object.assign(userPersonalInfoForm, userData);
 });

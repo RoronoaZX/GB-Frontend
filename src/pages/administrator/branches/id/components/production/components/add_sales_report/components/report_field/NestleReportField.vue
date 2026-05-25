@@ -135,7 +135,7 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 const salesReportsStore = useSalesReportsStore();
 const nestleReports = computed(() => salesReportsStore.nestleReports);
 
-console.log("nestlessssReports", nestleReports.value);
+/* console.log("nestlessssReports", nestleReports.value); */
 
 const removeNestle = (index) => {
   salesReportsStore.removeNestle(index);

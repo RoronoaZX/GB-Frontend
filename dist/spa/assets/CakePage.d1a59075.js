@@ -1,0 +1,1 @@
+import{o as r,a2 as t,I as o,Z as n,Y as s,aI as c}from"./index.a5690b16.js";const p={__name:"CakePage",setup(l){const a=localStorage.getItem("branch_id");return(u,e)=>(r(),t("div",null,[e[0]||(e[0]=o("h6",null,"Cake Products",-1)),n(" "+s(c(a)),1)]))}};export{p as default};

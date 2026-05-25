@@ -181,7 +181,7 @@ const route = useRoute();
 const branch_id = route.params.branch_id;
 const users = computed(() => userStore.users);
 
-console.log("userdatasssss  ", users.value);
+/* console.log("userdatasssss  ", users.value); */
 const dialog = ref(false);
 const maximizedToggle = ref(true);
 const reportTime = ref(false);
@@ -201,7 +201,7 @@ const openDialog = () => {
 const searchUsers = async () => {
   if (searchQuery.value) {
     employeeSearchLoading.value = true;
-    console.log("searchQuery.value", searchQuery.value);
+    /* console.log("searchQuery.value", searchQuery.value); */
 
     await userStore.searchUser(searchQuery.value);
 
@@ -233,7 +233,7 @@ const formattedUserName = (user) => {
 };
 
 const autoFillUser = (user) => {
-  console.log("Sales Reports", user);
+  /* console.log("Sales Reports", user); */
   searchQuery.value = `${user.firstname} ${
     user.middlename ? user.middlename.charAt(0) + "." : ""
   } ${user.lastname}`;

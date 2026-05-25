@@ -169,10 +169,10 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-console.log("userdataa", userData);
+/* console.log("userdataa", userData); */
 const branchId =
   userData.device?.reference_id || userData.device?.reference?.id || "0";
-console.log("branchIdsss", branchId);
+/* console.log("branchIdsss", branchId); */
 const selectedItem = ref(null);
 const dialog = ref(false);
 const loading = ref(false);
@@ -225,7 +225,7 @@ const validateFields = () => {
 
 const calculateBreadSold = () => {
   if (selectedItem.value) {
-    console.log("selectedItem", selectedItem.value);
+    /* console.log("selectedItem", selectedItem.value); */
     const totalQuantity = parseInt(selectedItem.value.total_quantity) || 0;
     const remainings = parseInt(breadProductsReport.remainnings) || 0;
     const breadOut = parseInt(breadProductsReport.breadOut) || 0;
@@ -310,7 +310,7 @@ const saveReport = () => {
     new_production: selectedItem.value.new_production,
     branch_new_production: 0,
   };
-  console.log("report", report);
+  /* console.log("report", report); */
 
   salesReportsStore.updateBreadReport(report);
   Notify.create({

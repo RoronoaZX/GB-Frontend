@@ -25,7 +25,7 @@ import { useRoute } from "vue-router";
 const props = defineProps(["dtrFrom", "dtrTo"]);
 const route = useRoute();
 const employeeId = computed(() => route.params.employee_id || "");
-console.log("employee incentives IDssqq", employeeId.value);
+/* console.log("employee incentives IDssqq", employeeId.value); */
 const incentivesBasesStore = useIncentivesBasesStore();
 const incentivesBases = computed(() => incentivesBasesStore.incentivesBases);
 const employeeIncentivesStore = useEmployeeIncentivesStore();
@@ -35,7 +35,7 @@ const employeeIncentives = computed(
 
 const fetchIncentivesBases = async () => {
   await incentivesBasesStore.fetchIncentivesBases();
-  console.log("incentivesssss", incentivesBases.value);
+  /* console.log("incentivesssss", incentivesBases.value); */
 };
 onMounted(fetchIncentivesBases);
 

@@ -70,9 +70,9 @@ onMounted(async () => {
 const fethcwarehouseData = async () => {
   try {
     warehouses.value = await warehouseStore.fetchWarehouseWithEmployee();
-    console.log("warehouses", warehouses.value);
+    /* console.log("warehouses", warehouses.value); */
   } catch (error) {
-    console.log("error fetching recipe: ", error);
+    /* console.log("error fetching recipe: ", error); */
   }
 };
 </script>

@@ -93,7 +93,7 @@ const recipe = reactive({
 });
 
 const saveRecipe = async () => {
-  console.log("Recipe", recipe);
+  /* console.log("Recipe", recipe); */
   try {
     loading.value = true;
     await recipeStore.createRecipe(recipe);

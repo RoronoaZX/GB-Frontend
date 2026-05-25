@@ -118,7 +118,7 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const props = defineProps(["otherProductsReport"]);
 
-console.log("otherProductsReport Data:", props.otherProductsReport);
+/* console.log("otherProductsReport Data:", props.otherProductsReport); */
 
 const confirmedOtherProductsReports = computed(() => {
   if (!Array.isArray(props.otherProductsReport)) return [];

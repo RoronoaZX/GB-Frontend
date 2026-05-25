@@ -215,8 +215,8 @@ const categoryConfigs = {
   },
 };
 
-console.log("props item", props.item);
-console.log("props delivery", props.delivery);
+/* console.log("props item", props.item); */
+/* console.log("props delivery", props.delivery); */
 
 const selectedCategoryConfig = computed(() => {
   return categoryConfigs[stocksCategory.value] || null;
@@ -279,7 +279,7 @@ const save = async () => {
     delivery_id: props.delivery.id,
   };
 
-  console.log("🟡 Raw edited data (before cleanup):", rawData);
+  /* console.log("🟡 Raw edited data (before cleanup):", rawData); */
 
   // ✅ 2️⃣ Then clean/format before saving to backend
   const cleanedData = {
@@ -301,12 +301,12 @@ const save = async () => {
 
   $q.loading.show();
   try {
-    console.log("🟢 Cleaned data (ready to save):", cleanedData);
+    /* console.log("🟢 Cleaned data (ready to save):", cleanedData); */
     const response = await stocksDeliveryStore.updateDeliveryStocks(
       cleanedData
     );
 
-    console.log("Resonse data in componnet:", response);
+    /* console.log("Resonse data in componnet:", response); */
 
     // if your backend sends a success flag/message, check it
     if (
@@ -332,7 +332,7 @@ const save = async () => {
       });
     }
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   } finally {
     $q.loading.hide();
   }

@@ -212,9 +212,9 @@ const openDialog = () => {
 
 const category = ref("Bread"); // Add a ref for the category
 const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
+  /* console.log("branch_id.value:", branch_id); */
+  /* console.log("searchQuery.value:", searchQuery.value); */
+  /* console.log("category.value:", category.value); */
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -225,7 +225,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addbreadProduction.product_id = data.product.id;
   addbreadProduction.product_name = capitalizeFirstLetter(data.product.name);
   addbreadProduction.category = data.category;
@@ -342,7 +342,7 @@ const handleSubmit = async () => {
       new_production: addbreadProduction.new_production,
       branch_new_production: 0,
     };
-    console.log("payload", payload);
+    /* console.log("payload", payload); */
     // await productionStore.addBreadProduction(payload);
 
     salesReportsStore.updateBreadReport(payload);
@@ -354,7 +354,7 @@ const handleSubmit = async () => {
     });
     clearData();
   } catch (error) {
-    console.log(error);
+    /* console.log(error); */
   } finally {
     loading.value = false;
   }

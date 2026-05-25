@@ -120,7 +120,7 @@ const userDataSearch = computed(() => userDataStore.users);
 const salesReportsStore = useSalesReportsStore();
 const deliveryReceiptStore = useDeliveryReceiptStore();
 const userData = salesReportsStore.user;
-console.log("userdatasss", userData);
+/* console.log("userdatasss", userData); */
 // const userId = userData?.data?.id || "";
 // console.log("userId", userId);
 // const branchId = userData?.device?.reference_id || "";
@@ -166,13 +166,13 @@ const handleSubmit = async () => {
 
   const amountAsNumber = parseFloat(vatData.amount.replace(",", "."));
 
-  console.log("Form submitted with values:", {
+  /* console.log("Form submitted with values:", {
     ...vatData,
     user_id: userData?.data.id,
     branch_id: userData?.device?.reference_id,
     radioBtnVATIndicator: radioBtnVATIndicator.value,
     amount: amountAsNumber,
-  });
+  }); */
 
   try {
     Loading.show({

@@ -165,11 +165,11 @@ const route = useRoute();
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 const userData = computed(() => warehouseRawMaterialsStore.user);
 // const warehouseId = route.params.warehouse_id;
-console.log("userData", userData.value);
+/* console.log("userData", userData.value); */
 const warehouseId = userData.value?.device?.reference_id || "";
-console.log("warehouseId", warehouseId);
+/* console.log("warehouseId", warehouseId); */
 const employeeId = userData.value?.data?.employee?.id || "";
-console.log("employeeId", employeeId);
+/* console.log("employeeId", employeeId); */
 const addIngredientsDialog = ref(false);
 const warehouseRawMaterialsRows = computed(
   () => warehouseRawMaterialsStore.warehouseRawMaterials
@@ -208,7 +208,7 @@ const fetchWarehouseRawMaterials = async () => {
     const warehouseRawMaterials =
       await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouse_id);
 
-    console.log("warehouseRawMaterials", warehouseRawMaterials);
+    /* console.log("warehouseRawMaterials", warehouseRawMaterials); */
     rawMaterialsOptions.value =
       warehouseRawMaterialsStore.warehouseRawMaterials.map((val) => ({
         label: val.raw_materials.name,
@@ -247,7 +247,7 @@ const filterRawMaterials = (val, update) => {
 };
 
 const addRawMaterials = () => {
-  console.log("clickckck");
+  /* console.log("clickckck"); */
   const data = rawMaterialsGroups.value;
 
   function findObjectById(arr, id) {
@@ -333,7 +333,7 @@ const save = async () => {
         unit: item.unit.value, // Always save as grams
       })),
     };
-    console.log("new data", newData);
+    /* console.log("new data", newData); */
     await warehouseRawMaterialsStore.warehouseAddSupply(newData);
     warehouseRawMaterialsRows.value =
       await warehouseRawMaterialsStore.fetchWarehouseRawMaterials(warehouseId);

@@ -39,14 +39,14 @@ const emit = defineEmits([
 ]);
 const route = useRoute();
 const employeeId = route.params.employee_id || "";
-console.log("employee incentives ID", employeeId);
+/* console.log("employee incentives ID", employeeId); */
 const incentivesBasesStore = useIncentivesBasesStore();
 const incentivesBases = computed(() => incentivesBasesStore.incentivesBases);
 const employeeIncentivesStore = useEmployeeIncentivesStore();
 const employeeIncentives = computed(
   () => employeeIncentivesStore.employeeIncentives
 );
-console.log("employeeIncentivessss on the [arent  ]", employeeIncentives.value);
+/* console.log("employeeIncentivessss on the [arent  ]", employeeIncentives.value); */
 const parentTotalIncentive = ref(0);
 
 const $q = useQuasar();
@@ -69,7 +69,7 @@ const updateTotalIncentive = (value) => {
 
 const fetchIncentivesBases = async () => {
   await incentivesBasesStore.fetchIncentivesBases();
-  console.log("incentivesssss", incentivesBases.value);
+  /* console.log("incentivesssss", incentivesBases.value); */
 };
 onMounted(fetchIncentivesBases);
 
@@ -79,7 +79,7 @@ const fetchEmployeeIncentives = async () => {
     props.dtrTo,
     employeeId
   );
-  console.log("employeeIncentivessss", employeeIncentives.value);
+  /* console.log("employeeIncentivessss", employeeIncentives.value); */
 };
 onMounted(fetchEmployeeIncentives);
 
@@ -101,7 +101,7 @@ const mergedEmployeeIncentives = computed(() => {
     };
   });
 });
-console.log("mergedEmployeeIncentivessss", mergedEmployeeIncentives.value);
+/* console.log("mergedEmployeeIncentivessss", mergedEmployeeIncentives.value); */
 
 const incentiveDatasWithValue = computed(() => {
   return mergedEmployeeIncentives.value.map((item) => {
@@ -151,10 +151,10 @@ watch(
   [employeeIncentives, incentivesBases],
   ([incentivesBases, bases]) => {
     if (incentivesBases.length > 0 && bases.length > 0) {
-      console.log(
+      /* console.log(
         "mergedEmployeeIncentivessss",
         mergedEmployeeIncentives.value
-      );
+      ); */
     }
   },
   {

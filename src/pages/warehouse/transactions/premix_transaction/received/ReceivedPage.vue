@@ -47,10 +47,10 @@ const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
 const warehouseStore = useWarehousesStore();
 const userData = computed(() => warehouseStore.user);
 const warehouseId = userData.value.device.reference_id;
-console.log("warehouseId", warehouseId);
+/* console.log("warehouseId", warehouseId); */
 const premixStore = usePremixStore();
 const receivePremixData = computed(() => premixStore.receivePremixData);
-console.log("receivePremixData", receivePremixData.value);
+/* console.log("receivePremixData", receivePremixData.value); */
 
 const premixData = ref([]);
 
@@ -67,7 +67,7 @@ onMounted(async () => {
   if (warehouseId) {
     await fetchReceivePremix(warehouseId);
   }
-  console.log("receivePremixData", receivePremixData.value);
+  /* console.log("receivePremixData", receivePremixData.value); */
 });
 
 const fetchReceivePremix = async (warehouseId, page = 0, rowsPerPage = 5) => {
@@ -79,12 +79,12 @@ const fetchReceivePremix = async (warehouseId, page = 0, rowsPerPage = 5) => {
       page,
       rowsPerPage
     );
-    console.log("receivePremixDatssa", receivePremixData.value);
+    /* console.log("receivePremixDatssa", receivePremixData.value); */
 
     const { data, current_page, per_page, total } = receivePremixData.value;
 
     premixData.value = data;
-    console.log("premixData.value", premixData.value);
+    /* console.log("premixData.value", premixData.value); */
     pagination.value.page = current_page;
     pagination.value.rowsPerPage = per_page;
     pagination.value.rowsNumber = total;

@@ -112,20 +112,20 @@ const props = defineProps([
   "reportDate",
 ]);
 
-console.log("production report sss", props.props);
+/* console.log("production report sss", props.props); */
 
-console.log("production report sss", props.reports);
-console.log("reportLabel", props.reportsLabel);
-console.log("rowIndex", props.rowIndex);
-console.log("reportDatessss", props.reportDate);
+/* console.log("production report sss", props.reports); */
+/* console.log("reportLabel", props.reportsLabel); */
+/* console.log("rowIndex", props.rowIndex); */
+/* console.log("reportDatessss", props.reportDate); */
 
 const bakerReports = props.reports.baker_reports;
-console.log("bakerReportsss", bakerReports);
+/* console.log("bakerReportsss", bakerReports); */
 
 const salesReports = props.reports.sales_reports;
 
 const sales_report_id = props.reports.sales_reports_id;
-console.log("sales_reports_id", sales_report_id);
+/* console.log("sales_reports_id", sales_report_id); */
 
 const tab = ref("bakerReport");
 const maximizedToggle = ref(true);

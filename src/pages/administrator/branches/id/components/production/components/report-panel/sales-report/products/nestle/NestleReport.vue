@@ -291,7 +291,7 @@ const props = defineProps([
   "reportDate",
 ]);
 
-console.log("Propssssss..", props);
+/* console.log("Propssssss..", props); */
 
 const emit = defineEmits(["summary-updated"]);
 
@@ -512,7 +512,7 @@ const handleGlobalUpdate = async (row, field, newVal) => {
     sales_report_id: props.sales_report_id,
   };
 
-  console.log("meta", meta);
+  /* console.log("meta", meta); */
 
   try {
     await productionStore.updateSalesField(

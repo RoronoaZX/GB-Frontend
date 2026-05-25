@@ -128,12 +128,12 @@ import { useDeliveryReceiptStore } from "src/stores/delivery-report";
 const deliveryReceiptStore = useDeliveryReceiptStore();
 const userDataStore = useUsersStore();
 const userData = userDataStore.userData;
-console.log("use in add non vat reportsss", userData);
+/* console.log("use in add non vat reportsss", userData); */
 const userId = userData?.data?.id || "0";
-console.log("userId in add non vat reportsss", userId);
+/* console.log("userId in add non vat reportsss", userId); */
 const route = useRoute();
 const branchId = route.params.branch_id;
-console.log("branchId in add non vat reportsss", branchId);
+/* console.log("branchId in add non vat reportsss", branchId); */
 const dialog = ref(false);
 const loading = ref(false);
 const openDialog = () => {
@@ -184,7 +184,7 @@ const clear = () => {
 };
 
 const handleSubmit = async () => {
-  console.log("vatData", vatData.value);
+  /* console.log("vatData", vatData.value); */
   const createdAt = getCreatedAt();
   if (
     !vatData.value.reportDate ||
@@ -208,7 +208,7 @@ const handleSubmit = async () => {
       ...vatData.value,
       created_at: createdAt,
     };
-    console.log("dataTObeSave", dataTObeSave);
+    /* console.log("dataTObeSave", dataTObeSave); */
     await deliveryReceiptStore.saveVATinAdmin(dataTObeSave);
     Notify.create({
       message: "Data saved successfully",

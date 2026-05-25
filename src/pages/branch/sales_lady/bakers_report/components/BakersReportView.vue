@@ -165,7 +165,7 @@ const confirmReport = async () => {
   try {
     Loading.show();
     const confirmedReport = await bakerReports.confirmReport(props.report.id);
-    console.log("Report confirmed:", confirmedReport);
+    /* console.log("Report confirmed:", confirmedReport); */
     $q.notify({ type: "positive", message: "Report confirmed successfully" });
     bakersReportDialog.value = false;
   } catch (error) {

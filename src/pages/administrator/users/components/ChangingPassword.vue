@@ -214,7 +214,7 @@ const savePassword = async () => {
 
     const res = await userStore.updatePassword(payload);
 
-    console.log("response from database about password change:", res);
+    /* console.log("response from database about password change:", res); */
 
     if (res?.success) {
       Notify.create({

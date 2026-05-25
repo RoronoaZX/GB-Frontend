@@ -55,7 +55,7 @@ const closeDialog = () => {
 };
 
 const confirmDelete = async () => {
-  console.log("delete....");
+  /* console.log("delete...."); */
   const id = holiday.value.id;
   Loading.show();
 
@@ -71,7 +71,7 @@ const confirmDelete = async () => {
       timeout: 2000,
     });
   } catch (error) {
-    console.log("delete holiday error: ", error);
+    /* console.log("delete holiday error: ", error); */
   } finally {
     Loading.hide();
   }

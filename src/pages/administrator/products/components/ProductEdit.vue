@@ -97,7 +97,7 @@ const saveEditedProduct = async () => {
     await productStore.updateProducts(props.edit.row.id, editProductForm);
     dialog.value = false;
   } catch (error) {
-    console.log("Failed to update ingredients:", error);
+    /* console.log("Failed to update ingredients:", error); */
   }
 };
 </script>

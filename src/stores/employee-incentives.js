@@ -13,7 +13,7 @@ export const useEmployeeIncentivesStore = defineStore(
         const response = await api.get(
           `/api/fetch-employee-incentives-per-cut-off/${from}/${to}/${employee_id}`
         );
-        console.log("✅ Response:", response.data);
+        /* console.log("✅ Response:", response.data); */
         employeeIncentives.value = response.data;
       } catch (error) {
         console.error("❌ API error:", error);

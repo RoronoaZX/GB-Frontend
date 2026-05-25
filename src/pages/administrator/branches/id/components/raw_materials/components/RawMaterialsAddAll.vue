@@ -107,7 +107,7 @@ const fetchAllBranchRawMaterials = async () => {
   Loading.show();
   await rawMaterialsStore.fetchRawMaterials();
   const rawMaterialsList = rawMaterialsStore.rawMaterials;
-  console.log("rawMaterials branch", rawMaterialsData.value);
+  /* console.log("rawMaterials branch", rawMaterialsData.value); */
 
   if (!rawMaterialsList.length) {
     Notify.create({
@@ -125,14 +125,14 @@ const dismiss = () => {
 };
 
 const createAllBranchRawMaterials = async () => {
-  console.log();
+  /* console.log(); */
   try {
     const rawMaterialsToSave = rawMaterialsData.value.map((material) => ({
       ingredients_id: material.id,
       total_quantity: 0,
       branch_id: route.params.branch_id,
     }));
-    console.log("rawMaterialsToSave", rawMaterialsToSave);
+    /* console.log("rawMaterialsToSave", rawMaterialsToSave); */
     await branchRawMaterialsStore.createMultipleBranchRawMaterials(
       rawMaterialsToSave
     );

@@ -154,7 +154,7 @@ const salesChargesPerCutOff = computed(
   () => salesChargesPerCutOffStore.salesChargesPerCutOffs
 );
 
-console.log("salesChargesPerCutOff", salesChargesPerCutOff.value);
+/* console.log("salesChargesPerCutOff", salesChargesPerCutOff.value); */
 
 const creditsStore = useCreditsStore();
 const credits = computed(() => creditsStore.credits);
@@ -171,13 +171,13 @@ const employeeCharges = computed(() => employeeChargesStore.employeeCharges);
 const $q = useQuasar();
 
 const fethSalesChargesPerCutOff = async () => {
-  console.log("user idsss", employeeID);
+  /* console.log("user idsss", employeeID); */
   await salesChargesPerCutOffStore.fetchSalesChargesPerCutOff(
     props.dtrFrom,
     props.dtrTo,
     employeeID
   );
-  console.log("salesChargesPerCutOff", salesChargesPerCutOff.value);
+  /* console.log("salesChargesPerCutOff", salesChargesPerCutOff.value); */
 };
 
 onMounted(() => {
@@ -355,13 +355,13 @@ const fetchCreditsPerCutOff = async () => {
     props.dtrTo,
     employeeID
   );
-  console.log("Creditssss", credits.value);
+  /* console.log("Creditssss", credits.value); */
 };
 onMounted(fetchCreditsPerCutOff);
 
 const fetchUniformsDeduction = async () => {
   await uniformStore.fetchUniformForDeduction(employeeID);
-  console.log("Uniforms Deduction", uniformsData.value);
+  /* console.log("Uniforms Deduction", uniformsData.value); */
 };
 onMounted(fetchUniformsDeduction);
 
@@ -377,7 +377,7 @@ const fetchEmployeeCharges = async () => {
     toDate: props.dtrTo,
   };
   await employeeChargesStore.fetchEmployeeCharges(dataToBeSent);
-  console.log("Chargessssss", employeeCharges.value);
+  /* console.log("Chargessssss", employeeCharges.value); */
 };
 onMounted(fetchEmployeeCharges);
 

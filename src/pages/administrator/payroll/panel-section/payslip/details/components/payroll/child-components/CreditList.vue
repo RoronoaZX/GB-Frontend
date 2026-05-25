@@ -103,7 +103,7 @@ import { computed, watch } from "vue";
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps(["creditList", "dtrFrom", "dtrTo"]);
-console.log("creditList", props.creditList);
+/* console.log("creditList", props.creditList); */
 
 const emit = defineEmits(["update:total"]);
 

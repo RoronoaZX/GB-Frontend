@@ -135,7 +135,7 @@ const declineReport = async () => {
       props.report.id,
       remark.value
     );
-    console.log("Report declined:", declinedReport);
+    /* console.log("Report declined:", declinedReport); */
     Notify.create({
       type: "negative",
       message: "Report declined successfully",
@@ -154,7 +154,7 @@ const confirmReport = async () => {
     const confirmedReport = await otherProductStore.confirmReport(
       props.report.id
     );
-    console.log("Report confirmed:", confirmedReport);
+    /* console.log("Report confirmed:", confirmedReport); */
     Notify.create({
       type: "positive",
       message: "Report confirmed successfully",

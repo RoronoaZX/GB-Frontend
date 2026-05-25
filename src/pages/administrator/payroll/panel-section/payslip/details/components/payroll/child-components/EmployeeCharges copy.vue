@@ -96,7 +96,7 @@ import { computed } from "vue";
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
 const props = defineProps(["chargesAmountList"]);
-console.log("chargesAmountList", props.chargesAmountList);
+/* console.log("chargesAmountList", props.chargesAmountList); */
 
 const emit = defineEmits(["update:total"]);
 

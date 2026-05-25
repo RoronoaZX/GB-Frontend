@@ -186,9 +186,9 @@ const login = async () => {
       // uuid: machineId.value,
     });
 
-    console.log("user123:", response.data);
     localStorage.setItem("activeMenuItem", "dashboard");
     localStorage.setItem("token", response.data.token);
+    localStorage.setItem("token_created_at", Date.now().toString());
     localStorage.setItem("role", response.data.role);
     localStorage.setItem("uuid", response.data.device.uuid);
     localStorage.setItem("reference_id", response.data.device.reference_id);

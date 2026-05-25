@@ -15,25 +15,25 @@ export const useWarehousesStore = defineStore("warehouses", () => {
 
   const search = async (keyword) => {
     try {
-      console.log("Searching for warehouse with keyword:", keyword);
+      /* console.log("Searching for warehouse with keyword:", keyword); */
       const response = await api.post(`/api/search-warehouse`, {
         keyword,
       });
-      console.log("warehouse reposnse", response.data);
+      /* console.log("warehouse reposnse", response.data); */
       warehouse.value = response.data;
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
     }
   };
 
   const fetchWarehouseByBranchID = async (warehouseId) => {
-    console.log("warehouseId", warehouseId);
+    /* console.log("warehouseId", warehouseId); */
     try {
       const response = await api.get(
         `/api/warehouse/${warehouseId}/warehouseBranchReports`
       );
       warehouseBranchReports.value = response.data;
-      console.log("reponsess waREHOUSE ", response.data);
+      /* console.log("reponsess waREHOUSE ", response.data); */
     } catch (error) {}
   };
 
@@ -46,7 +46,7 @@ export const useWarehousesStore = defineStore("warehouses", () => {
     try {
       const response = await api.get("/api/warehouses");
       warehouses.value = response.data;
-      console.log("response", response.data);
+      /* console.log("response", response.data); */
     } catch (error) {
       Notify.create({
         type: "negative",
@@ -65,10 +65,10 @@ export const useWarehousesStore = defineStore("warehouses", () => {
 
   const createWarehouses = async (data) => {
     // Loading.show();
-    console.log("Data parameters being sent:", data);
+    /* console.log("Data parameters being sent:", data); */
     try {
       const response = await api.post("/api/warehouses", data);
-      console.log("Response from backend:", response);
+      /* console.log("Response from backend:", response); */
       fetchWarehouses();
       Notify.create({
         type: "positive",
@@ -98,12 +98,12 @@ export const useWarehousesStore = defineStore("warehouses", () => {
   };
 
   const updateWarehouses = async (id, data) => {
-    console.log("datass", data);
+    /* console.log("datass", data); */
     try {
       Loading.show();
       const response = await api.put(`/api/warehouses/${id}`, data);
 
-      console.log("edit warehouse", response.data);
+      /* console.log("edit warehouse", response.data); */
       const updatedWarehouse = response.data;
 
       const index = warehouses.value.findIndex((item) => item.id === id);
@@ -120,9 +120,9 @@ export const useWarehousesStore = defineStore("warehouses", () => {
         // position: "top",
       });
     } catch (error) {
-      console.log(error);
+      /* console.log(error); */
 
-      console.log("resposnses.error", error.response);
+      /* console.log("resposnses.error", error.response); */
 
       if (error.response.data.message === "The name has already been taken.") {
         Notify.create({

@@ -198,9 +198,9 @@ const openDialog = () => {
 
 const category = ref("Selecta"); // Add a ref for the category
 const search = async () => {
-  console.log("branch_id.value:", branch_id);
-  console.log("searchQuery.value:", searchQuery.value);
-  console.log("category.value:", category.value);
+  /* console.log("branch_id.value:", branch_id); */
+  /* console.log("searchQuery.value:", searchQuery.value); */
+  /* console.log("category.value:", category.value); */
   if (searchQuery.value || category.value) {
     await branchProductsStore.searchBranchProducts({
       query: searchQuery.value,
@@ -211,7 +211,7 @@ const search = async () => {
 };
 
 const autoFillProduct = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   addSelectaReport.product_id = data.product.id;
   addSelectaReport.product_name = capitalizeFirstLetter(data.product.name);
   addSelectaReport.category = data.category;
@@ -310,7 +310,7 @@ const handleSubmit = async () => {
     sales: addSelectaReport.sales,
     new_production: addSelectaReport.added_stocks,
   };
-  console.log("Selecta", payload);
+  /* console.log("Selecta", payload); */
   salesReportsStore.updateSelectaReport(payload);
   Notify.create({
     message: "Product added successfully",

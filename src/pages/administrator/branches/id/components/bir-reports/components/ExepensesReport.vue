@@ -90,9 +90,9 @@ const birReportsStore = useBirReportsStore();
 const birReports = computed(() => birReportsStore.expensesReport);
 const route = useRoute();
 const branchId = route.params.branch_id;
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 const branchData = ref([]);
-console.log("branchData", branchData.value);
+/* console.log("branchData", branchData.value); */
 const startDate = ref("");
 const endDate = ref("");
 const pagination = ref({
@@ -106,7 +106,7 @@ const fetchBranchData = async (branchId) => {
   try {
     const response = await birReportsStore.fetchBranchData(branchId);
     branchData.value = response;
-    console.log("branchData", branchData.value);
+    /* console.log("branchData", branchData.value); */
   } catch (error) {
     console.error("Error fetching branch data:", error);
   }
@@ -146,8 +146,8 @@ const getBirReportMonthly = (formattedDate) => {
   const lastDay = new Date(year, parseInt(month), 0).getDate(); // `0` gets the last day of the previous month
   const endDate = `${year}-${month}-${lastDay.toString().padStart(2, "0")}`;
 
-  console.log("Start of Month:", startDate);
-  console.log("End of Month:", endDate);
+  /* console.log("Start of Month:", startDate); */
+  /* console.log("End of Month:", endDate); */
 
   return { startDate, endDate };
 };
@@ -168,12 +168,12 @@ const formatDateToCustomString = (dateString) => {
 };
 
 const formattedStart = formatDateToCustomString(startDate.value);
-console.log("formattedStart", formattedStart);
+/* console.log("formattedStart", formattedStart); */
 
 const fetchExpensesReport = async (branchId) => {
-  console.log("branchId", branchId);
-  console.log("startDate", startDate.value);
-  console.log("endDate", endDate.value);
+  /* console.log("branchId", branchId); */
+  /* console.log("startDate", startDate.value); */
+  /* console.log("endDate", endDate.value); */
 
   try {
     // if (branchId)

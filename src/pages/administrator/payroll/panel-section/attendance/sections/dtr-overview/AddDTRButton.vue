@@ -319,7 +319,7 @@ const employeeDTR = reactive({
 });
 
 const autoFillEmployee = (employee) => {
-  console.log("autoFillEmployee", employee);
+  /* console.log("autoFillEmployee", employee); */
 
   employeeDTR.employee_id = employee.id;
   employeeDTR.employee_name = formatFullname(employee);
@@ -349,7 +349,7 @@ const getBranchWithWarehouses = async () => {
   try {
     const response = await dtrStore.getBranchWithWarehouses();
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   }
 };
 onMounted(getBranchWithWarehouses);
@@ -375,7 +375,7 @@ const closeDialog = () => {
 };
 
 const save = async () => {
-  console.log("dtr save", employeeDTR);
+  /* console.log("dtr save", employeeDTR); */
 
   try {
     const payload = {
@@ -389,13 +389,13 @@ const save = async () => {
       overtime_start: formatDateTime(employeeDTR.overtime_start),
       overtime_end: formatDateTime(employeeDTR.overtime_end),
     };
-    console.log("payload", payload);
+    /* console.log("payload", payload); */
 
     await dtrStore.saveEmployeeDtr(payload);
     emit("created");
     closeDialog();
   } catch (error) {
-    console.log("error", error);
+    /* console.log("error", error); */
   }
 };
 </script>

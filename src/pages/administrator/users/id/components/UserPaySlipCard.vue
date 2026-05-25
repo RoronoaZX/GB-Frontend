@@ -237,7 +237,7 @@ const formattedRegular = new Intl.NumberFormat("en-PH", {
   minimumFractionDigits: 2,
 }).format(regularPay);
 
-console.log(formattedRegular);
+/* console.log(formattedRegular); */
 </script>
 
 <style lang="scss" scoped>

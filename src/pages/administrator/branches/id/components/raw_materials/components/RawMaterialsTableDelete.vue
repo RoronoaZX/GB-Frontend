@@ -55,7 +55,7 @@ const branchRawMaterials = useBranchRawMaterialsStore();
 const props = defineProps(["delete"]);
 
 const onDelete = async () => {
-  console.log("clickkkd");
+  /* console.log("clickkkd"); */
   try {
     await branchRawMaterials.deleteBranchRawMaterials(props.delete.row.id);
     Notify.create({

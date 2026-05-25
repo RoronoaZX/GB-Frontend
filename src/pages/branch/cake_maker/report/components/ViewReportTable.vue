@@ -124,7 +124,7 @@ const props = defineProps({
   },
 });
 
-console.log("Cake maker reportss", props.report);
+/* console.log("Cake maker reportss", props.report); */
 
 const openDialog = () => {
   dialog.value = true;

@@ -641,7 +641,7 @@ const formatFileSize = (bytes) => {
 };
 
 const submitForm = async () => {
-  console.log("submit form");
+  /* console.log("submit form"); */
 
   if (!formData.value.leave_type) {
     Notify.create({

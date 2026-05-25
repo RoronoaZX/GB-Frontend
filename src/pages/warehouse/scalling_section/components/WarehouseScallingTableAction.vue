@@ -168,11 +168,11 @@ import RawMaterialsCard from "./RawMaterialsCard.vue";
 
 const warehouseRawMaterialsStore = useWarehouseRawMaterialsStore();
 const userData = computed(() => warehouseRawMaterialsStore.user);
-console.log("userData", userData.value);
+/* console.log("userData", userData.value); */
 const employee_id = userData.value?.data?.employee_id || "";
-console.log("employee_id", employee_id);
+/* console.log("employee_id", employee_id); */
 const warehouse_id = userData.value?.employee?.warehouse_id || "";
-console.log("warehouse_id", warehouse_id);
+/* console.log("warehouse_id", warehouse_id); */
 const branchRecipe = computed(() => warehouseRawMaterialsStore.branchRecipe);
 const ingredientsGroup = ref([]);
 const recipeName = ref("");
@@ -183,11 +183,11 @@ const props = defineProps({
 });
 const branch_id = props.branch.id;
 const maximizedToggle = ref(true);
-console.log("branchsss", props.branch);
+/* console.log("branchsss", props.branch); */
 
 const search = async () => {
-  console.log("searchQuery.value", searchQuery.value);
-  console.log("branch_id", branch_id);
+  /* console.log("searchQuery.value", searchQuery.value); */
+  /* console.log("branch_id", branch_id); */
   warehouseRawMaterialsStore.searchBranchRecipe(searchQuery.value, branch_id);
 };
 
@@ -199,7 +199,7 @@ const open_branch_scalling_dialog = () => {
 const searchQuery = ref("");
 
 const autoFillRawMaterials = (data) => {
-  console.log("data", data);
+  /* console.log("data", data); */
   searchQuery.value = "";
   recipe_id.value = data.recipe_id;
   recipeName.value = data.name;
@@ -248,7 +248,7 @@ const addScaleIngredientsToStore = async () => {
     status: "pending",
   };
   await warehouseRawMaterialsStore.setReport(scaledIngredients);
-  console.log("scaledIngredients", scaledIngredients);
+  /* console.log("scaledIngredients", scaledIngredients); */
   addScaleForm.kilo = "";
   recipe_id.value = "";
   recipeName.value = "";

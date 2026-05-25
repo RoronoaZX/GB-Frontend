@@ -164,10 +164,10 @@ const { capitalizeFirstLetter, formatPrice } = typographyFormat();
 
 const salesReportsStore = useSalesReportsStore();
 const userData = salesReportsStore.user;
-console.log("userData", userData);
+/* console.log("userData", userData); */
 const branchId =
   userData?.device?.reference_id || userData?.device?.reference?.id || "0";
-console.log("branchId", branchId);
+/* console.log("branchId", branchId); */
 const selectedItem = ref(null);
 
 const dialog = ref(false);
@@ -181,7 +181,7 @@ const filter = defineProps({
 const clickme = (item) => {
   selectedItem.value = item;
 
-  console.log("selectedItem", selectedItem.value);
+  /* console.log("selectedItem", selectedItem.value); */
   dialog.value = true;
 };
 
@@ -225,7 +225,7 @@ const validateFields = () => {
 
 const selectaSalesAmount = computed(() => {
   if (selectedItem.value) {
-    console.log("selectedItem", selectedItem.value);
+    /* console.log("selectedItem", selectedItem.value); */
     return selectaProductReport.selectaSold * selectedItem.value.price;
   }
   return 0;
@@ -310,7 +310,7 @@ const saveReport = () => {
     sales: selectaSalesAmount.value,
     new_production: 0,
   };
-  console.log("report", report);
+  /* console.log("report", report); */
   salesReportsStore.updateSelectaReport(report);
   Notify.create({
     message: "Product added successfully",
