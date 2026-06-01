@@ -137,7 +137,6 @@ const reloadTableData = async () => {
   try {
     loading.value = true;
     await materialStore.fetchRawMaterials();
-    console.time("rawMaterialsRow", rawMaterialsRow.value);
     if (!rawMaterialsRow.value.length) {
       showNoDataMessage.value = true;
     }

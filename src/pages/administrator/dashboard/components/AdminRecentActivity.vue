@@ -5,7 +5,7 @@
         <div class="text-h6 text-weight-bolder text-grey-8">Recent Activity Log</div>
         <div class="text-caption text-grey-5">Latest registered employees and system actions.</div>
       </div>
-      <q-btn flat color="primary" label="View All" icon-right="arrow_forward" size="sm" />
+      <q-btn flat color="primary" label="View All" icon-right="arrow_forward" size="sm" to="/admin/history_log" />
     </q-card-section>
 
     <q-list separator class="q-pb-md">

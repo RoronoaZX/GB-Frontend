@@ -92,6 +92,44 @@
               </div>
             </div>
           </div>
+
+          <!-- Delivery Progress Stepper -->
+          <div class="q-mb-lg" v-if="productDetails?.action?.toLowerCase() === 'send' || productDetails?.action?.toLowerCase() === 'add'">
+            <div class="text-subtitle2 text-grey-6 q-mb-xs text-uppercase letter-spacing-1">Delivery Progress</div>
+            <q-stepper
+              v-model="stepperValue"
+              ref="stepper"
+              :color="getStepperColor(category)"
+              inactive-color="grey-4"
+              :done-color="productDetails?.status === 'declined' ? 'negative' : getStepperColor(category)"
+              animated
+              flat
+              bordered
+              :vertical="$q.screen.xs || $q.platform.is.mobile"
+              class="rounded-borders bg-grey-1"
+            >
+              <q-step
+                :name="1"
+                :title="productDetails?.action === 'add' ? 'Requested' : 'Ordered'"
+                icon="receipt_long"
+                :done="stepperValue > 1"
+              />
+              <q-step
+                :name="2"
+                :title="productDetails?.action === 'add' ? 'Under Review' : 'In Transit'"
+                icon="local_shipping"
+                :done="stepperValue > 2"
+              />
+              <q-step
+                :name="3"
+                :title="productDetails?.status === 'declined' ? 'Declined' : (productDetails?.action === 'add' ? 'Approved & Added' : 'Received')"
+                :icon="productDetails?.status === 'declined' ? 'cancel' : 'check_circle'"
+                :done="stepperValue >= 3"
+                :error="productDetails?.status === 'declined'"
+              />
+            </q-stepper>
+          </div>
+
           <div class="section-label q-mb-sm">Transaction Details</div>
           <div class="info-grid">
             <div class="info-item">
@@ -180,6 +218,25 @@ const props = defineProps({
   productDetails: { type: Object, required: true },
   category: { type: String, required: true },
 });
+
+const stepperValue = computed(() => {
+  const status = props.productDetails?.status?.toLowerCase() || 'pending';
+  if (status === 'confirmed' || status === 'declined') {
+    return 3;
+  }
+  return 2;
+});
+
+const getStepperColor = (cat) => {
+  const colors = {
+    bread: "brown-7",
+    selecta: "pink-6",
+    nestle: "light-blue-7",
+    softdrinks: "purple-6",
+    other: "blue-grey-7",
+  };
+  return colors[cat?.toLowerCase()] || "primary";
+};
 
 /* console.log("productDetails", props.productDetails); */
 

@@ -105,26 +105,20 @@ const supervisorStore = useSupervisorStore();
 
 const userData = supervisorStore.user;
 
-console.log("userDatasss", userData);
-
 const employeeId =
   userData?.data?.employee_id || userData?.data?.employee?.id || "";
 
 const branchList = computed(() => supervisorStore.supervisorBranch);
 
-console.log("branchList", branchList.value);
-
 const router = useRouter();
 
 const fetchBranch = async () => {
   await supervisorStore.fetchSupervisorUnderBranch(employeeId);
-  console.log("branchList", branchList.value);
 };
 
 onMounted(fetchBranch);
 
 const goToBranch = async (branch) => {
-  console.log("branch", branch);
   Loading.show({
     spinner: QSpinnerGears,
     message: "Please wait...",

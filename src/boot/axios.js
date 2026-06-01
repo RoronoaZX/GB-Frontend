@@ -11,8 +11,8 @@ const baseURL =
   process.env.NODE_ENV === "production"
     ? API_HOSTS.production
     : Platform.is.capacitor
-    ? API_HOSTS.capacitor
-    : API_HOSTS.development;
+      ? API_HOSTS.capacitor
+      : API_HOSTS.development;
 
 const api = axios.create({ baseURL });
 

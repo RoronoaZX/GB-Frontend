@@ -359,6 +359,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
   });
 
   const profitMargins = ref([]);
+  const wasteMetrics = ref(null);
+  const wasteLoading = ref(false);
 
   const rawSales = ref([]);
 
@@ -393,6 +395,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     timeRange.value = range;
     processTimeRangeData();
     processInventoryTimeRangeData();
+    fetchWasteMetrics();
   };
 
   const setBranch = (branchId) => {
@@ -707,6 +710,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
       fetchPredictiveStocking();
       fetchRecipeCostMetrics();
       fetchProfitMargins(selectedBranch.value);
+      fetchWasteMetrics();
 
     } catch (err) {
       console.error("Dashboard error:", err);
@@ -774,6 +778,40 @@ export const useDashboardStore = defineStore("dashboard", () => {
     }
   };
 
+  const fetchWasteMetrics = async () => {
+    wasteLoading.value = true;
+    try {
+      let suffix = "";
+      if (selectedBranch.value !== "global") {
+        if (String(selectedBranch.value).startsWith("warehouse-")) {
+          wasteMetrics.value = {
+            summary: { total_lost_revenue: 0, total_units_lost: 0 },
+            trend: { labels: [], data: [] },
+            top_wasted_products: [],
+            reason_breakdown: []
+          };
+          return;
+        } else {
+          suffix = `?branch_id=${selectedBranch.value}`;
+        }
+      }
+
+      let daysVal = 30;
+      if (timeRange.value === "7D") daysVal = 7;
+      else if (timeRange.value === "1M") daysVal = 30;
+      else if (timeRange.value === "3M") daysVal = 90;
+      else if (timeRange.value === "1Y") daysVal = 365;
+
+      const prefix = suffix ? "&" : "?";
+      const res = await api.get(`/api/dashboard/waste-metrics${suffix}${prefix}days=${daysVal}`);
+      wasteMetrics.value = res.data || null;
+    } catch (err) {
+      console.error("Failed to fetch waste metrics:", err);
+    } finally {
+      wasteLoading.value = false;
+    }
+  };
+
   // =========================
   // RETURN
   // =========================
@@ -789,6 +827,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
     predictiveStocking,
     recipeCostMetrics,
     profitMargins,
+    wasteMetrics,
+    wasteLoading,
     rmTransactions,
     rmTransactionsPagination,
     timeRange,
@@ -804,5 +844,6 @@ export const useDashboardStore = defineStore("dashboard", () => {
     fetchPredictiveStocking,
     fetchRecipeCostMetrics,
     fetchProfitMargins,
+    fetchWasteMetrics,
   };
 });

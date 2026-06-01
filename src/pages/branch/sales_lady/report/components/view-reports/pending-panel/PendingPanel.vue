@@ -244,16 +244,12 @@ const { formatDate, formatTime } = typographyFormat();
 const salesReportsStore = useSalesReportsStore();
 const userId = computed(() => salesReportsStore.user.data.id);
 
-console.log("sales report in user ID panel", userId.value);
-
 const isLoading = ref(false);
 
 const props = defineProps({
   data: Array,
   loading: Boolean,
 });
-
-console.log("sales report in propssss", props.data);
 </script>
 
 <style scoped lang="scss">

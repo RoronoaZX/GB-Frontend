@@ -147,12 +147,26 @@
         :distributionData="dashboardStore.stats.branchSalesDistribution"
       />
 
+      <!-- Real-Time Waste Tracker (FEAT-06) -->
+      <AdminWasteTrackerWidget
+        :metrics="dashboardStore.wasteMetrics"
+        :loading="dashboardStore.wasteLoading"
+        class="q-mt-md"
+      />
+
       <!-- Recipe Cost Analysis -->
       <AdminRecipeCostWidget 
         v-if="dashboardStore.recipeCostMetrics"
         :metrics="dashboardStore.recipeCostMetrics" 
         @refresh="dashboardStore.fetchRecipeCostMetrics"
         class="q-mt-md" 
+      />
+
+      <!-- Profitability Leaderboard Widget -->
+      <AdminProfitabilityLeaderboardWidget
+        v-if="dashboardStore.profitMargins"
+        :profitMargins="dashboardStore.profitMargins"
+        class="q-mt-md"
       />
 
       <!-- Profit Margin Analysis -->
@@ -230,8 +244,10 @@ import { onMounted, computed, ref } from "vue";
 import { useDashboardStore } from "src/stores/dashboard";
 import AdminDashboardCards from "./components/AdminDashboardCards.vue";
 import AdminChartWidgets from "./components/AdminChartWidgets.vue";
+import AdminWasteTrackerWidget from "./components/AdminWasteTrackerWidget.vue";
 import AdminRecipeCostWidget from "./components/AdminRecipeCostWidget.vue";
 import AdminProfitMarginWidget from "./components/AdminProfitMarginWidget.vue";
+import AdminProfitabilityLeaderboardWidget from "./components/AdminProfitabilityLeaderboardWidget.vue";
 import AdminPredictiveStockCard from "src/components/PredictiveStockCard.vue";
 import AdminInventoryWidget from "./components/AdminInventoryWidget.vue";
 import AdminRecentActivity from "./components/AdminRecentActivity.vue";
