@@ -133,6 +133,13 @@ const ingredientColumns = [
 
 const calculateTotalCost = (ingredient) => {
   const quantity = parseFloat(ingredient.quantity) || 0;
+  const category = (ingredient.category || "").toLowerCase();
+
+  if (category === "gram") {
+    const pricePerGram = parseFloat(ingredient.price_per_gram) || 0;
+    return quantity * pricePerGram;
+  }
+
   const pricePerUnit = parseFloat(ingredient.price_per_unit) || 0;
   return quantity * pricePerUnit;
 };

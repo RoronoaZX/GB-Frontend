@@ -613,7 +613,7 @@ const addToList = () => {
     kilo: Number(stocks.value.kilo) || 0,
     gram: Number(stocks.value.gram) || 0,
     pcs: Number(stocks.value.pcs) || 0,
-    price_per_unit: Number(stocks.value.price) || 0,
+    price_per_unit: stocksCategory.value === "gram" ? Number(stocks.value.pricePerGram) : (Number(stocks.value.price) || 0),
     price_per_gram: Number(stocks.value.pricePerGram) || 0,
   });
 

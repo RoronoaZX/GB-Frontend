@@ -123,7 +123,7 @@ const stocksCategoryOptions = [
   { label: "Can", value: "can" },
   { label: "Bottle", value: "bottle" },
   { label: "Box", value: "box" },
-  { label: "Margarine Tub", value: "baro" },
+  { label: "Margarine Tub", value: "tub" },
   { label: "Gallon", value: "gallon" },
   { label: "Kilo", value: "kilo" },
   { label: "Gram", value: "gram" },
@@ -204,6 +204,15 @@ const categoryConfigs = {
       { model: "pricePerGram", label: "Price per Gram", readonly: true },
     ],
   },
+  tub: {
+    fields: [
+      { model: "quantity", label: "Tub Quantity", type: "number" },
+      { model: "kilo", label: "Kilo per Tub", type: "number" },
+      { model: "gram", label: "Grams", readonly: true },
+      { model: "price", label: "Price per Tub", type: "number" },
+      { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
   baro: {
     fields: [
       { model: "quantity", label: "Tub Quantity", type: "number" },
@@ -211,6 +220,27 @@ const categoryConfigs = {
       { model: "gram", label: "Grams", readonly: true },
       { model: "price", label: "Price per Tub", type: "number" },
       { model: "pricePerGram", label: "Price per Gram", readonly: true },
+    ],
+  },
+  kilo: {
+    fields: [
+      { model: "quantity", label: "Kilo Quantity", type: "number" },
+      { model: "gram", label: "Grams per Kilo", type: "number" },
+      { model: "price", label: "Price per Kilo", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per Gram", type: "number", readonly: true, prefix: "₱" },
+    ],
+  },
+  gram: {
+    fields: [
+      { model: "quantity", label: "Quantity Grams", type: "number" },
+      { model: "price", label: "Price", type: "number", prefix: "₱" },
+      { model: "pricePerGram", label: "Price per Gram", type: "number", readonly: true, prefix: "₱" },
+    ],
+  },
+  pcs: {
+    fields: [
+      { model: "quantity", label: "Quantity Pcs", type: "number" },
+      { model: "price", label: "Price per pcs", type: "number", prefix: "₱" },
     ],
   },
 };
@@ -241,29 +271,62 @@ const stocks = reactive({
   kilo: formatNumber(props.item.kilo || 0),
   gram: formatNumber(props.item.gram || 0),
   pcs: formatNumber(props.item.pcs || 0),
-  price: trimTrailingZeros(props.item.price_per_unit || 0),
+  price: (() => {
+    const category = (props.item.category || "").toLowerCase();
+    const pricePerUnit = parseFloat(props.item.price_per_unit || 0);
+    const pricePerGram = parseFloat(props.item.price_per_gram || 0);
+    const qty = parseFloat(props.item.quantity || 0);
+    
+    if (category === "gram") {
+      if (Math.abs(pricePerUnit - pricePerGram) < 0.0001) {
+        return trimTrailingZeros(qty * pricePerUnit);
+      } else {
+        return trimTrailingZeros(pricePerUnit);
+      }
+    }
+    return trimTrailingZeros(pricePerUnit);
+  })(),
   pricePerGram: trimTrailingZeros(props.item.price_per_gram || 0),
 });
 
 watch(
   stocks,
   (val) => {
-    // Always sync grams with kilo
-    if (val.kilo && val.quantity && !isNaN(val.kilo) && !isNaN(val.quantity)) {
-      val.gram = val.kilo * 1000;
-    } else if (val.kilo && !isNaN(val.kilo)) {
-      val.gram = val.kilo * 1000;
-    }
-
-    // Compute price per gram if we have price & gram
-    if (val.price > 0 && val.gram > 0) {
-      val.pricePerGram = val.price / val.gram;
+    if (stocksCategory.value === "gram") {
+      val.gram = 1; // Grams per gram unit is always 1
+      if (val.price > 0 && val.quantity > 0) {
+        val.pricePerGram = val.price / val.quantity;
+      } else {
+        val.pricePerGram = 0;
+      }
     } else {
-      val.pricePerGram = 0;
+      // Always sync grams with kilo
+      if (val.kilo && val.quantity && !isNaN(val.kilo) && !isNaN(val.quantity)) {
+        val.gram = val.kilo * 1000;
+      } else if (val.kilo && !isNaN(val.kilo)) {
+        val.gram = val.kilo * 1000;
+      }
+
+      // Compute price per gram if we have price & gram
+      if (val.price > 0 && val.gram > 0) {
+        val.pricePerGram = val.price / val.gram;
+      } else {
+        val.pricePerGram = 0;
+      }
     }
   },
   { deep: true }
 );
+
+watch(stocksCategory, (newCategory) => {
+  if (newCategory === "gram") {
+    stocks.gram = 1;
+  } else if (newCategory === "kilo") {
+    stocks.gram = 1000;
+  } else if (newCategory === "pcs") {
+    stocks.gram = 1;
+  }
+});
 
 const save = async () => {
   // ✅ 1️⃣ Get raw edited data first (unformatted)
@@ -287,9 +350,9 @@ const save = async () => {
     quantity: parseFloat(stocks.quantity || 0),
     kilo: parseFloat(stocks.kilo || 0),
     gram: parseFloat(stocks.gram || 0),
-    total_grams: parseFloat(stocks.gram || 0),
+    total_grams: stocksCategory.value === "gram" ? parseFloat(stocks.quantity || 0) : parseFloat(stocks.gram || 0),
     pcs: parseFloat(stocks.pcs || 0),
-    price_per_unit: parseFloat(stocks.price || 0),
+    price_per_unit: stocksCategory.value === "gram" ? parseFloat(stocks.pricePerGram || 0) : parseFloat(stocks.price || 0),
     price_per_gram: parseFloat(stocks.pricePerGram || 0),
     category: stocksCategory.value,
     raw_material_id: props.item.raw_material.id,
