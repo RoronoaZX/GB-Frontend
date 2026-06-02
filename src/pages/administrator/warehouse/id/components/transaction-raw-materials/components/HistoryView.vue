@@ -75,23 +75,36 @@ function pluralize(unit, quantity) {
   return quantity === 1 ? normalizedUnit : normalizedUnit + "s";
 }
 
-function formatQuantity(quantity, unit) {
-  if (!unit || quantity === undefined) return "Undefined";
+function formatQuantity(row) {
+  const quantity = Number(row?.quantity) || 0;
+  const unit = row?.raw_materials?.unit || "Undefined";
+  const deliveryUnit = row?.raw_materials?.delivery_unit;
+  const unitWeight = Number(row?.raw_materials?.unit_weight) || 0;
+  const unitPcs = Number(row?.raw_materials?.unit_pcs) || 0;
 
-  unit = unit.toLowerCase(); // normalize casing
+  const formatNumber = (value) => {
+    const num = Number(value);
+    return Number.isInteger(num) ? num : num.toFixed(2);
+  };
 
-  if (unit === "grams" && quantity >= 1000) {
-    quantity = quantity / 1000;
-    unit = "kilo";
+  // 1. Use custom delivery unit if available
+  if (deliveryUnit) {
+    if (unitWeight > 0) {
+      const units = quantity / unitWeight;
+      return `${formatNumber(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
+    } else if (unitPcs > 0) {
+      const units = quantity / unitPcs;
+      return `${formatNumber(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
+    }
   }
 
-  if (unit === "kilo" && quantity >= 25) {
-    quantity = quantity / 25;
-    unit = "sack";
+  // 2. Fallback to standard conversion logic (Kilos/Grams/Pcs)
+  if (quantity >= 1000 && unit === "Grams") {
+    const quantityKilo = quantity / 1000;
+    return `${formatNumber(quantityKilo)} kilos`;
   }
 
-  const pluralUnit = pluralize(unit, quantity);
-  return `${quantity} ${pluralUnit}`;
+  return `${formatNumber(quantity)} ${unit}`;
 }
 
 const warehouseAddedStocksColumns = [
@@ -111,11 +124,7 @@ const warehouseAddedStocksColumns = [
     name: "quantityWithUnit",
     label: "Quantity",
     align: "left",
-    field: (row) => {
-      const quantity = row?.quantity ?? 0;
-      const unit = row?.raw_materials?.unit ?? "Undefined";
-      return formatQuantity(quantity, unit);
-    },
+    field: (row) => formatQuantity(row),
   },
 ];
 </script>

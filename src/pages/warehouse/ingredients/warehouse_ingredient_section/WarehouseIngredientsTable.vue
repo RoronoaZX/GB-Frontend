@@ -157,30 +157,32 @@ const getRawMaterialBadgeColor = (row) => {
 const formatTotalQuantity = (row) => {
   const totalQuantity = Number(row?.total_quantity) || 0; // Ensure it's a valid number
   const unit = row?.raw_materials?.unit || "units"; // Default unit
-
-  /* console.log("totalQuantity:", totalQuantity); */
-  /* console.log("unit:", unit); */
+  const deliveryUnit = row?.raw_materials?.delivery_unit;
+  const unitWeight = Number(row?.raw_materials?.unit_weight) || 0;
+  const unitPcs = Number(row?.raw_materials?.unit_pcs) || 0;
 
   const formatNumber = (value) => {
     const num = Number(value); // Ensure conversion
     return Number.isInteger(num) ? num : num.toFixed(2);
   };
 
-  // Convert to kilos if total quantity exceeds 1000
-  if (totalQuantity > 1000) {
-    const totalQuantityKilo = totalQuantity / 1000;
-
-    // If kilos are 25 or above, change unit to sacks
-    if (totalQuantityKilo >= 25) {
-      const sacks = totalQuantityKilo / 25;
-      return `${formatNumber(sacks)} sacks`;
+  // 1. Use custom delivery unit if available
+  if (deliveryUnit) {
+    if (unitWeight > 0) {
+      const units = totalQuantity / unitWeight;
+      return `${formatNumber(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
+    } else if (unitPcs > 0) {
+      const units = totalQuantity / unitPcs;
+      return `${formatNumber(units)} ${deliveryUnit}${units > 1 ? 's' : ''}`;
     }
+  }
 
-    // Return in kilos otherwise
+  // 2. Fallback to standard conversion logic (Kilos/Grams/Pcs)
+  if (totalQuantity >= 1000 && unit === "Grams") {
+    const totalQuantityKilo = totalQuantity / 1000;
     return `${formatNumber(totalQuantityKilo)} kilos`;
   }
 
-  // Return with unit
   return `${formatNumber(totalQuantity)} ${unit}`;
 };
 
