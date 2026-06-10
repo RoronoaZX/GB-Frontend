@@ -59,8 +59,11 @@
                 <q-item-section>
                   <q-item-label> Quantity </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section>
                   <q-item-label> Total Amount </q-item-label>
+                </q-item-section>
+                <q-item-section side class="text-right" style="min-width: 100px;">
+                  <q-item-label> Total Cost </q-item-label>
                 </q-item-section>
               </q-item>
               <q-item v-for="(item, index) in report.items" :key="index">
@@ -79,15 +82,27 @@
                     {{ formatQuantity(item.quantity || "No Quantity") }}
                   </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section>
                   <q-item-label>
                     <q-badge color="teal" label-color="white">
                       {{ formatTotalAmount(item) }}
                     </q-badge>
                   </q-item-label>
                 </q-item-section>
+                <q-item-section side class="text-right text-weight-bold text-primary" style="min-width: 100px;">
+                  <q-item-label>
+                    {{ formatPrice(calculateItemTotalCost(item)) }}
+                  </q-item-label>
+                </q-item-section>
               </q-item>
             </q-list>
+
+            <div class="row justify-end items-center q-mt-md q-gutter-sm q-pr-md">
+              <div class="text-subtitle2 text-grey-7">Overall Delivery Total Cost:</div>
+              <div class="text-subtitle1 text-weight-bolder text-primary">
+                {{ formatPrice(overallTotalCost) }}
+              </div>
+            </div>
           </template>
           <div v-else class="text-caption text-grey-6 q-mt-md">
             No items in this delivery
@@ -126,7 +141,7 @@ import { useBakerReportsStore } from "src/stores/baker-report";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import { badgeColor } from "src/composables/badge-color/badge-color";
 
-const { capitalizeFirstLetter, formatTimestamp, formatFullname } =
+const { capitalizeFirstLetter, formatTimestamp, formatFullname, formatPrice } =
   typographyFormat();
 const { getHeaderClass } = badgeColor();
 
@@ -189,6 +204,24 @@ const formatTotalAmount = (row) => {
     return `0`;
   }
 };
+
+const calculateItemTotalCost = (item) => {
+  const qty = parseFloat(item.quantity) || 0;
+  const category = (item.category || "").toLowerCase();
+
+  if (category === "gram") {
+    const pricePerGram = parseFloat(item.price_per_gram) || 0;
+    return qty * pricePerGram;
+  }
+
+  const pricePerUnit = parseFloat(item.price_per_unit) || 0;
+  return qty * pricePerUnit;
+};
+
+const overallTotalCost = computed(() => {
+  if (!props.report || !props.report.items) return 0;
+  return props.report.items.reduce((sum, item) => sum + calculateItemTotalCost(item), 0);
+});
 
 const openConfirmDialog = () => {
   $q.dialog({

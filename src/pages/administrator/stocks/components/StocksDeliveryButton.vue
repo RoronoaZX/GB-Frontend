@@ -210,12 +210,20 @@
               </template>
 
               <template v-slot:body-cell-price_per_unit="props">
-                <q-td :props="props"> ₱{{ props.value }} </q-td>
+                <q-td :props="props">
+                  {{ formatPrice(props.value) }}
+                </q-td>
               </template>
 
               <template v-slot:body-cell-price_per_gram="props">
                 <q-td :props="props" class="text-caption text-grey-7">
-                  ₱{{ props.value.toFixed(4) }}
+                  {{ formatPricePerGram(props.value) }}
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-total_cost="props">
+                <q-td :props="props" class="text-weight-bold text-primary">
+                  {{ formatPrice(props.value) }}
                 </q-td>
               </template>
 
@@ -242,6 +250,13 @@
                 </div>
               </template>
             </q-table>
+
+            <div v-if="rawMaterialsGroups.length > 0" class="row justify-end items-center q-mt-md q-gutter-sm q-pr-sm">
+              <div class="text-subtitle2 text-grey-7">Overall Delivery Total Cost:</div>
+              <div class="text-subtitle1 text-weight-bolder text-primary">
+                {{ formatPrice(overallTotalCost) }}
+              </div>
+            </div>
           </div>
         </q-card-section>
         <q-card-section>
@@ -341,6 +356,9 @@ import { useRawMaterialsStore } from "src/stores/raw-material";
 import { useStockDelivery } from "src/stores/stock-delivery";
 import { useQuasar } from "quasar";
 import { useUsersStore } from "src/stores/user";
+import { typographyFormat } from "src/composables/typography/typography-format";
+
+const { formatPrice, formatPricePerGram } = typographyFormat();
 
 const userStore = useUsersStore();
 const userData = computed(() => userStore.userData);
@@ -1028,6 +1046,23 @@ const formatTotalAmount = (row) => {
   }
 };
 
+const calculateItemTotalCost = (item) => {
+  const qty = parseFloat(item.quantity) || 0;
+  const category = (item.category || "").toLowerCase();
+
+  if (category === "gram") {
+    const pricePerGram = parseFloat(item.price_per_gram) || 0;
+    return qty * pricePerGram;
+  }
+
+  const pricePerUnit = parseFloat(item.price_per_unit) || 0;
+  return qty * pricePerUnit;
+};
+
+const overallTotalCost = computed(() => {
+  return rawMaterialsGroups.value.reduce((sum, item) => sum + calculateItemTotalCost(item), 0);
+});
+
 const stagingColumns = [
   {
     name: "name",
@@ -1064,6 +1099,12 @@ const stagingColumns = [
     label: "Price/Gram",
     align: "right",
     field: "price_per_gram",
+  },
+  {
+    name: "total_cost",
+    label: "Total Cost",
+    align: "right",
+    field: (row) => calculateItemTotalCost(row),
   },
   {
     name: "action",

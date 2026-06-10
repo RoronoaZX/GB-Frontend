@@ -78,14 +78,22 @@ export function typographyFormat() {
 
   const formatPricePerGram = (val) => {
     if (val == null) return "No Price";
-    // return `₱${parseFloat(val).toFixed(2)}`
-    return `₱${Number(val).toFixed(4)}`; // always show 2 decimals
+    const num = Number(val);
+    if (isNaN(num)) return "₱ 0.0000";
+    return `₱ ${num.toLocaleString("en-US", {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
+    })}`;
   };
 
   const formatPrice = (val) => {
     if (val == null) return "No Price";
-    // return `₱${parseFloat(val).toFixed(2)}`
-    return `₱ ${Number(val).toFixed(2)}`; // always show 2 decimals
+    const num = Number(val);
+    if (isNaN(num)) return "₱ 0.00";
+    return `₱ ${num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
   const formatRecipeTarget = (target) => {

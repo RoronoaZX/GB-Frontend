@@ -381,7 +381,7 @@ export const usePremixStore = defineStore("premix", () => {
       const response = await api.post(`/api/receive-premix`, data);
       /* console.log("response to recieve", response.data); */
       // return response.data;
-      if (response.message === "Branch raw materials updated successfully") {
+      if (response.data && response.data.message === "Branch raw materials updated successfully") {
         const id = response.data.receivePremixes.request_premixes_id;
         const status = response.data.receivePremixes.status;
         // Find the index of the report in the pendingSelectaReports array
@@ -390,7 +390,7 @@ export const usePremixStore = defineStore("premix", () => {
         );
         // If the report is found, change the status to received
         if (index !== -1) {
-          branchPremix.value[index].status === status;
+          branchPremix.value[index].status = status;
         }
       }
       // branchPremix.value = response.data;

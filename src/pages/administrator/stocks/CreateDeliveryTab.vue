@@ -309,6 +309,12 @@
                   </q-td>
                 </template>
 
+                <template v-slot:body-cell-total_cost="props">
+                  <q-td :props="props" class="text-weight-bold text-primary">
+                    {{ formatPrice(props.value) }}
+                  </q-td>
+                </template>
+
                 <template v-slot:body-cell-action="props">
                   <q-td :props="props">
                     <q-btn
@@ -333,6 +339,13 @@
                   </q-td>
                 </template>
               </q-table>
+
+              <div v-if="selectedDelivery.items && selectedDelivery.items.length" class="row justify-end items-center q-mt-md q-gutter-sm">
+                <div class="text-subtitle2 text-grey-7">Overall Delivery Total Cost:</div>
+                <div class="text-subtitle1 text-weight-bolder text-primary">
+                  {{ formatPrice(overallTotalCost) }}
+                </div>
+              </div>
 
               <div v-else class="text-caption text-grey-6 q-mt-md">
                 No items in this delivery
@@ -637,6 +650,12 @@ const itemColumns = [
     field: "price_per_gram",
   },
   {
+    name: "total_cost",
+    label: "Total Cost",
+    align: "right",
+    field: (row) => calculateItemTotalCost(row),
+  },
+  {
     name: "action",
     label: "Action",
     align: "center",
@@ -718,6 +737,24 @@ const deliveryTotals = computed(() => {
   }
 
   return parts.join(" | ");
+});
+
+const calculateItemTotalCost = (item) => {
+  const qty = parseFloat(item.quantity) || 0;
+  const category = (item.category || "").toLowerCase();
+
+  if (category === "gram") {
+    const pricePerGram = parseFloat(item.price_per_gram) || 0;
+    return qty * pricePerGram;
+  }
+
+  const pricePerUnit = parseFloat(item.price_per_unit) || 0;
+  return qty * pricePerUnit;
+};
+
+const overallTotalCost = computed(() => {
+  if (!selectedDelivery.value || !selectedDelivery.value.items) return 0;
+  return selectedDelivery.value.items.reduce((sum, item) => sum + calculateItemTotalCost(item), 0);
 });
 </script>
 
