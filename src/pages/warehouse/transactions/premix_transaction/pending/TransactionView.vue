@@ -33,6 +33,16 @@
             {{ capitalizeFirstLetter(report.status) || "No Status" }}
           </q-badge>
         </div>
+        <div v-if="report.is_scaler_created" class="q-mt-sm">
+          <q-badge color="accent" text-color="white" class="q-mr-xs">Scaler Created</q-badge>
+          <span class="text-caption text-grey-8" v-if="report.creator">
+            By: {{ formatFullname(report.creator) }}
+          </span>
+        </div>
+        <div v-if="report.is_scaler_created && report.notes" class="q-mt-xs">
+          <span class="text-weight-bold text-caption text-grey-8">Reason/Note:</span>
+          <span class="text-caption text-grey-7 q-ml-xs">{{ report.notes }}</span>
+        </div>
       </q-card-section>
       <q-card-section>
         <div class="text-h6" align="center">Premix</div>

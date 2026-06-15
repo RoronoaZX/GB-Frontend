@@ -132,14 +132,14 @@ const fetchRequestBranchEmployeePremix = async (page = 1) => {
 
     // if there a selected premix and its no longer in the current page, deselect it
     if (
-      selectedPremix.value.length &&
+      selectedPremix.value &&
       !premixList.value.some((d) => d.id === selectedPremix.value.id)
     ) {
       selectedPremix.value = null;
     }
 
-    // Automatically select the first premix if none is selected and list is not emptyb
-    if ((!selectedPremix.value && premixList.value, length > 0)) {
+    // Automatically select the first premix if none is selected and list is not empty
+    if (!selectedPremix.value && premixList.value.length > 0) {
       selectedPremix.value = premixList.value[0];
     }
     /* console.log("premixList", premixList.value); */

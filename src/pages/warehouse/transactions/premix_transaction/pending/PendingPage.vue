@@ -2,7 +2,22 @@
   <div class="spinner-wrapper" v-if="loading">
     <q-spinner-dots size="50px" color="primary" />
   </div>
-  <div class="q-mt-xl" v-else>
+  <div class="q-mt-md" v-else>
+    <!-- Action Header / Create Button -->
+    <div class="row justify-between items-center q-px-md q-mb-md">
+      <div class="text-subtitle1 text-weight-bold text-primary-dark">
+        Pending Premix Requests
+      </div>
+      <q-btn
+        color="primary"
+        icon="add_circle"
+        label="Create Premix Request"
+        unelevated
+        class="text-weight-bold q-px-md create-request-btn"
+        @click="openScalerCreateRequestDialog"
+      />
+    </div>
+
     <div
       v-if="premix.length === 0"
       class="column items-center justify-center text-center q-pa-lg no-data-message"
@@ -12,7 +27,7 @@
         {{ "No Premixes available." }}
       </div>
       <div class="text-body1 text-grey-6 q-mt-sm">
-        {{ "Check again later." }}
+        {{ "Check again later or create a manual request above." }}
       </div>
     </div>
     <q-scroll-area v-else style="height: 450px; max-width: 1500px">
@@ -34,7 +49,17 @@
                 </div>
               </div>
               <div class="col-4 column items-end q-gutter-y-xs">
-                <div>
+                <div class="row q-gutter-x-xs items-center justify-end">
+                  <q-badge
+                    v-if="pending.is_scaler_created"
+                    color="accent"
+                    class="text-weight-bold q-px-sm q-py-xs scaler-created-badge"
+                  >
+                    Scaler Created
+                    <q-tooltip class="bg-dark text-white text-body2">
+                      Notes: {{ pending.notes || 'No description provided' }}
+                    </q-tooltip>
+                  </q-badge>
                   <q-badge
                     color="warning"
                     class="text-weight-bold q-px-md q-py-sm pending-badge"
@@ -72,6 +97,7 @@ import { date as quasarDate, useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import { typographyFormat } from "src/composables/typography/typography-format";
 import TransactionView from "./TransactionView.vue";
+import ScalerCreateRequestDialog from "../ScalerCreateRequestDialog.vue";
 
 const { capitalizeFirstLetter, formatFullname, formatTimestamp } =
   typographyFormat();
@@ -114,6 +140,12 @@ const handleDialog = (data) => {
     componentProps: {
       report: data,
     },
+  });
+};
+
+const openScalerCreateRequestDialog = () => {
+  $q.dialog({
+    component: ScalerCreateRequestDialog,
   });
 };
 </script>
@@ -259,5 +291,25 @@ $text-muted: #90a4ae;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
   }
+}
+
+.create-request-btn {
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(var(--q-primary-rgb), 0.15);
+  transition: all 0.2s ease-in-out;
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(var(--q-primary-rgb), 0.25);
+  }
+}
+
+.scaler-created-badge {
+  border-radius: 12px;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  background-color: var(--q-accent) !important;
+  color: white;
 }
 </style>
