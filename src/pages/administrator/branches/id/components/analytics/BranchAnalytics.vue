@@ -1,8 +1,24 @@
 <template>
   <div class="q-gutter-md animate-fade">
+    <!-- Dataless Alert Banner -->
+    <q-banner
+      v-if="isDataless"
+      class="bg-warning text-dark q-mb-md rounded-borders shadow-1"
+      style="border-radius: 12px;"
+    >
+      <template v-slot:avatar>
+        <q-icon name="warning" color="amber-9" size="md" />
+      </template>
+      <div class="text-weight-bold text-subtitle2">No Activity Recorded in Selected Timeframe</div>
+      <div class="text-caption">
+        This branch has not recorded any sales or production data in the selected period ({{ timeRangeLabel }}). 
+        Try switching the time range to <strong>3M</strong> or <strong>1Y</strong> to view historical metrics.
+      </div>
+    </q-banner>
+
     <!-- Key Performance Indicators -->
     <div class="row q-col-gutter-lg">
-      <div v-for="card in kpiCards" :key="card.title" class="col-12 col-sm-6 col-md-3">
+      <div v-for="card in kpiCards" :key="card.title" class="col-12 col-sm-6 col-md">
         <q-card class="kpi-card elegant-card" flat>
           <q-card-section class="q-pa-lg">
             <div class="row items-center no-wrap">
@@ -31,21 +47,43 @@
       <!-- Sales Trend -->
       <div class="col-12 col-md-8">
         <q-card class="chart-card elegant-card" flat bordered>
-          <q-card-section class="row items-center justify-between">
+          <q-card-section class="row items-center justify-between q-col-gutter-sm">
             <div>
               <div class="text-h6 text-weight-bolder text-grey-8">Sales Performance</div>
-              <div class="text-caption text-grey-5">Net revenue trend over the selected period.</div>
+              <div class="text-caption text-grey-5">Financial trend lines over the selected period.</div>
             </div>
-            <q-btn-group outline rounded dense>
+            <div class="row items-center q-gutter-md">
+              <div class="row items-center q-gutter-sm text-caption text-grey-7">
+                <q-checkbox v-model="showGrossSales" label="Gross" color="blue" dense />
+                <q-checkbox v-model="showNetRevenue" label="Net" color="teal" dense />
+                <q-checkbox v-model="showExpenses" label="Expenses" color="red" dense />
+                <q-checkbox v-model="showCredits" label="Credits" color="purple" dense />
+                <q-checkbox v-model="showCharges" label="Shortages" color="orange" dense />
+                <q-checkbox v-model="showOverages" label="Overages" color="indigo" dense />
+                <q-checkbox v-model="showWaste" label="Wastage" color="brown" dense />
+              </div>
+              <q-btn-group outline rounded dense>
+                <q-btn
+                  v-for="range in ['7D', '1M', '3M', '1Y']"
+                  :key="range"
+                  :color="dashboardStore.timeRange === range ? 'primary' : 'grey-7'"
+                  :flat="dashboardStore.timeRange !== range"
+                  :label="range"
+                  @click="dashboardStore.setTimeRange(range)"
+                />
+              </q-btn-group>
               <q-btn
-                v-for="range in ['7D', '1M', '3M', '1Y']"
-                :key="range"
-                :color="dashboardStore.timeRange === range ? 'primary' : 'grey-7'"
-                :flat="dashboardStore.timeRange !== range"
-                :label="range"
-                @click="dashboardStore.setTimeRange(range)"
-              />
-            </q-btn-group>
+                flat
+                round
+                dense
+                color="primary"
+                icon="file_download"
+                @click="exportChartData"
+                class="q-ml-xs"
+              >
+                <q-tooltip>Export Data (CSV)</q-tooltip>
+              </q-btn>
+            </div>
           </q-card-section>
           <q-card-section>
             <div class="chart-container">
@@ -71,10 +109,25 @@
       </div>
     </div>
 
+    <!-- Profitability Leaderboard Widget -->
+    <AdminProfitabilityLeaderboardWidget
+      v-if="dashboardStore.profitMargins && dashboardStore.profitMargins.length > 0"
+      :profitMargins="dashboardStore.profitMargins"
+      class="q-mt-lg"
+    />
+
+    <!-- Profit Margin Analysis -->
+    <AdminProfitMarginWidget
+      v-if="dashboardStore.profitMargins && dashboardStore.profitMargins.length > 0"
+      :profitMargins="dashboardStore.profitMargins"
+      class="q-mt-lg"
+    />
+
     <!-- Branch Health & Recent Activity -->
-    <div class="row q-col-gutter-lg q-mt-md">
-      <div class="col-12">
-        <q-card class="elegant-card" flat bordered>
+    <div class="row q-col-gutter-lg q-mt-lg">
+      <!-- Left: Activity Feed -->
+      <div class="col-12 col-md-6">
+        <q-card class="elegant-card full-height" flat bordered>
           <q-card-section class="row items-center justify-between">
             <div class="text-h6 text-weight-bolder text-grey-8">Branch Activity Feed</div>
             <q-btn flat color="primary" label="View All History" icon-right="chevron_right" @click="openHistoryDialog" />
@@ -103,6 +156,57 @@
           </q-card-section>
         </q-card>
       </div>
+
+      <!-- Right: Cost Adjustments Feed -->
+      <div class="col-12 col-md-6">
+        <q-card class="elegant-card full-height" flat bordered>
+          <q-card-section class="row items-center justify-between">
+            <div class="text-h6 text-weight-bolder text-grey-8">Raw Material Cost Adjustments</div>
+          </q-card-section>
+          <q-separator />
+          <q-card-section class="q-pa-none">
+            <q-table
+              flat
+              dense
+              :rows="dashboardStore.recipeCostMetrics.recentChanges"
+              :columns="costColumns"
+              row-key="id"
+              hide-pagination
+              :rows-per-page-options="[0]"
+              class="audit-table"
+            >
+              <template v-slot:body-cell-recipe="props">
+                <q-td :props="props">
+                  <div class="text-weight-bold text-dark text-capitalize">
+                    {{ props.row.recipe_name }}
+                  </div>
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-change="p">
+                <q-td :props="p">
+                  <div class="row items-center no-wrap">
+                    <span class="text-caption text-grey-7 q-mr-xs">{{ formatField(p.row.changed_field, p.row.unit) }}:</span>
+                    <span class="text-strike text-grey-6 q-mr-xs">{{ p.row.old_value }}</span>
+                    <q-icon name="arrow_forward" size="12px" color="primary" class="q-mr-xs" />
+                    <span class="text-weight-bold text-positive">{{ p.row.new_value }}</span>
+                  </div>
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-date="p">
+                <q-td :props="p" class="text-grey-7 text-caption">
+                  {{ formatTimestamp(p.row.date) }}
+                </q-td>
+              </template>
+            </q-table>
+            <div v-if="dashboardStore.recipeCostMetrics.recentChanges.length === 0" class="text-center q-pa-xl text-grey-5">
+              <q-icon name="history_toggle_off" size="3em" />
+              <div class="q-mt-sm">No recent cost changes recorded</div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
 
     <!-- Activity History Dialog -->
@@ -118,6 +222,8 @@ import { Chart, registerables } from "chart.js";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import BranchHistoryDialog from "./components/BranchHistoryDialog.vue";
+import AdminProfitMarginWidget from "src/pages/administrator/dashboard/components/AdminProfitMarginWidget.vue";
+import AdminProfitabilityLeaderboardWidget from "src/pages/administrator/dashboard/components/AdminProfitabilityLeaderboardWidget.vue";
 
 dayjs.extend(relativeTime);
 Chart.register(...registerables);
@@ -125,6 +231,21 @@ Chart.register(...registerables);
 const route = useRoute();
 const dashboardStore = useDashboardStore();
 const branchId = computed(() => route.params.branch_id);
+
+const showGrossSales = ref(true);
+const showNetRevenue = ref(true);
+const showExpenses = ref(false);
+const showCredits = ref(false);
+const showCharges = ref(false);
+const showOverages = ref(false);
+const showWaste = ref(false);
+
+watch(
+  [showGrossSales, showNetRevenue, showExpenses, showCredits, showCharges, showOverages, showWaste],
+  () => {
+    renderSalesChart();
+  }
+);
 
 const salesChartCanvas = ref(null);
 const inventoryChartCanvas = ref(null);
@@ -153,6 +274,13 @@ const kpiCards = computed(() => [
     colorClass: "bg-emerald-1 text-emerald",
   },
   {
+    title: "Avg Production Cost",
+    value: dashboardStore.recipeCostMetrics.averageCost || 0,
+    prefix: "₱",
+    icon: "monetization_on",
+    colorClass: "bg-amber-1 text-amber-9",
+  },
+  {
     title: "Active Staff",
     value: dashboardStore.stats.totalEmployees || 0,
     prefix: "",
@@ -168,6 +296,25 @@ const kpiCards = computed(() => [
   },
 ]);
 
+const costColumns = [
+  { name: "recipe", label: "Raw Material", align: "left", field: "recipe_name", classes: "text-weight-medium" },
+  { name: "change", label: "Adjustment", align: "left" },
+  { name: "user", label: "Modified By", align: "left", field: "changed_by" },
+  { name: "date", label: "Date", align: "right" },
+];
+
+const formatField = (field, unit) => {
+  if (field === 'price_per_gram') {
+    return unit?.toLowerCase().includes('pc') ? 'Price/Pc' : 'Price/G';
+  }
+  return 'Qty';
+};
+
+const formatTimestamp = (date) => {
+  if (!date) return "";
+  return dayjs(date).format("MMM DD, YYYY h:mm A");
+};
+
 const getFontSize = (value, prefix) => {
   const str = (prefix || '') + value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   const len = str.length;
@@ -180,39 +327,189 @@ const getFontSize = (value, prefix) => {
 
 const branchActivities = computed(() => dashboardStore.stats.recentActivity);
 
+const isDataless = computed(() => {
+  const totalNetRevenue = dashboardStore.stats.totalSalesData.reduce((a, b) => a + b, 0);
+  const totalGrossSales = dashboardStore.stats.totalGrossSalesData.reduce((a, b) => a + b, 0);
+  return totalNetRevenue === 0 && totalGrossSales === 0;
+});
+
+const timeRangeLabel = computed(() => {
+  const map = {
+    '7D': 'last 7 days',
+    '1M': 'last 30 days',
+    '3M': 'last 90 days',
+    '1Y': 'last 365 days'
+  };
+  return map[dashboardStore.timeRange] || 'selected timeframe';
+});
+
 const renderSalesChart = () => {
   if (!salesChartCanvas.value) return;
   if (salesChartInstance) salesChartInstance.destroy();
 
   const ctx = salesChartCanvas.value.getContext("2d");
-  const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-  gradient.addColorStop(0, "rgba(59, 130, 246, 0.4)");
-  gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+  const datasets = [];
+
+  if (showGrossSales.value) {
+    const grossGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    grossGradient.addColorStop(0, "rgba(59, 130, 246, 0.2)");
+    grossGradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+
+    datasets.push({
+      label: "Gross Sales",
+      data: dashboardStore.stats.totalGrossSalesData,
+      borderColor: "#3b82f6",
+      backgroundColor: grossGradient,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    });
+  }
+
+  if (showNetRevenue.value) {
+    const netGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    netGradient.addColorStop(0, "rgba(20, 184, 166, 0.2)");
+    netGradient.addColorStop(1, "rgba(20, 184, 166, 0)");
+
+    datasets.push({
+      label: "Net Revenue",
+      data: dashboardStore.stats.totalSalesData,
+      borderColor: "#14b8a6",
+      backgroundColor: netGradient,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    });
+  }
+
+  if (showExpenses.value) {
+    const expensesGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    expensesGradient.addColorStop(0, "rgba(239, 68, 68, 0.2)");
+    expensesGradient.addColorStop(1, "rgba(239, 68, 68, 0)");
+
+    datasets.push({
+      label: "Expenses",
+      data: dashboardStore.stats.totalExpensesData,
+      borderColor: "#ef4444",
+      backgroundColor: expensesGradient,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    });
+  }
+
+  if (showCredits.value) {
+    const creditsGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    creditsGradient.addColorStop(0, "rgba(156, 39, 176, 0.2)");
+    creditsGradient.addColorStop(1, "rgba(156, 39, 176, 0)");
+
+    datasets.push({
+      label: "Credits",
+      data: dashboardStore.stats.totalCreditsData,
+      borderColor: "#9c27b0",
+      backgroundColor: creditsGradient,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    });
+  }
+
+  if (showCharges.value) {
+    const chargesGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    chargesGradient.addColorStop(0, "rgba(255, 152, 0, 0.2)");
+    chargesGradient.addColorStop(1, "rgba(255, 152, 0, 0)");
+
+    datasets.push({
+      label: "Shortages",
+      data: dashboardStore.stats.totalChargesData,
+      borderColor: "#ff9800",
+      backgroundColor: chargesGradient,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    });
+  }
+
+  if (showOverages.value) {
+    const overagesGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    overagesGradient.addColorStop(0, "rgba(63, 81, 181, 0.2)");
+    overagesGradient.addColorStop(1, "rgba(63, 81, 181, 0)");
+
+    datasets.push({
+      label: "Overages",
+      data: dashboardStore.stats.totalOveragesData,
+      borderColor: "#3f51b5",
+      backgroundColor: overagesGradient,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    });
+  }
+
+  if (showWaste.value) {
+    const wasteGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    wasteGradient.addColorStop(0, "rgba(121, 85, 72, 0.2)");
+    wasteGradient.addColorStop(1, "rgba(121, 85, 72, 0)");
+
+    datasets.push({
+      label: "Wastage",
+      data: dashboardStore.stats.totalWasteData,
+      borderColor: "#795548",
+      backgroundColor: wasteGradient,
+      fill: true,
+      tension: 0.4,
+      borderWidth: 3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: "#fff",
+      pointBorderWidth: 2,
+    });
+  }
 
   salesChartInstance = new Chart(ctx, {
     type: "line",
     data: {
       labels: dashboardStore.chartLabels,
-      datasets: [
-        {
-          label: "Sales",
-          data: dashboardStore.stats.totalSalesData,
-          borderColor: "#3b82f6",
-          backgroundColor: gradient,
-          fill: true,
-          tension: 0.4,
-          borderWidth: 3,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          pointBackgroundColor: "#fff",
-          pointBorderWidth: 2,
-        },
-      ],
+      datasets,
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: {
+          display: datasets.length > 0,
+          position: "top",
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+            padding: 10,
+          }
+        }
+      },
       scales: {
         y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.05)" } },
         x: { grid: { display: false } },
@@ -266,8 +563,46 @@ const getActivityColor = (action) => {
 
 const formatDate = (date) => dayjs(date).fromNow();
 
+const exportChartData = () => {
+  const headers = ["Timeline Interval", "Gross Sales", "Net Revenue", "Expenses", "Credits", "Shortages", "Overages", "Wastage"];
+  const rows = dashboardStore.chartLabels.map((label, index) => [
+    label,
+    dashboardStore.stats.totalGrossSalesData[index] || 0,
+    dashboardStore.stats.totalSalesData[index] || 0,
+    dashboardStore.stats.totalExpensesData[index] || 0,
+    dashboardStore.stats.totalCreditsData[index] || 0,
+    dashboardStore.stats.totalChargesData[index] || 0,
+    dashboardStore.stats.totalOveragesData[index] || 0,
+    dashboardStore.stats.totalWasteData[index] || 0,
+  ]);
+
+  const csvContent = [
+    headers.join(","),
+    ...rows.map((e) => e.map((val) => (typeof val === "string" ? `"${val}"` : val)).join(",")),
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+
+  const branchName = dashboardStore.stats.branchesList.find(b => b.id == branchId.value)?.name || `Branch_${branchId.value}`;
+  const rangeText = dashboardStore.timeRange;
+  link.setAttribute("download", `GB_Bakeshop_Sales_Data_${branchName.replace(/\s+/g, "_")}_${rangeText}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 onMounted(async () => {
   await dashboardStore.setBranch(branchId.value);
+  // Verify if current view contains no data
+  const hasData = dashboardStore.stats.totalSalesData.some(v => v > 0);
+  if (!hasData) {
+    console.log("No recent data found. Auto-expanding timeframe to 3M...");
+    dashboardStore.setTimeRange('3M');
+  }
   renderSalesChart();
   renderInventoryChart();
 });
@@ -310,7 +645,16 @@ onUnmounted(() => {
     &.bg-emerald-1 { background: #ecfdf5; color: #10b981; }
     &.bg-purple-1 { background: #f5f3ff; color: #8b5cf6; }
     &.bg-rose-1 { background: #fff1f2; color: #f43f5e; }
+    &.bg-amber-1 { background: #fffbeb; color: #b45309; }
   }
+}
+
+.audit-table :deep(thead tr th) {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #64748b;
+  background-color: #f8fafc;
 }
 
 .chart-container {

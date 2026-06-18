@@ -345,6 +345,10 @@ export const useDashboardStore = defineStore("dashboard", () => {
     totalSalesData: [],
     totalGrossSalesData: [],
     totalExpensesData: [],
+    totalCreditsData: [],
+    totalChargesData: [],
+    totalOveragesData: [],
+    totalWasteData: [],
     branchSalesDistribution: [],
     recentActivity: [],
     totalSuppliers: 0,
@@ -396,6 +400,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     processTimeRangeData();
     processInventoryTimeRangeData();
     fetchWasteMetrics();
+    fetchProfitMargins(selectedBranch.value);
   };
 
   const setBranch = (branchId) => {
@@ -407,15 +412,44 @@ export const useDashboardStore = defineStore("dashboard", () => {
   // SALES PROCESSING
   // =========================
   const processTimeRangeData = () => {
-    if (rawSales.value.length === 0) {
-      stats.value.totalSalesData = [0, 0, 0, 0, 0, 0, 0];
-      stats.value.totalGrossSalesData = [0, 0, 0, 0, 0, 0, 0];
-      stats.value.totalExpensesData = [0, 0, 0, 0, 0, 0, 0];
-      chartLabels.value = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      return;
-    }
-
+    const now = new Date();
     const salesMap = {};
+    const slicedKeys = [];
+
+    // Pre-populate salesMap with keys for the selected timeframe to handle empty periods correctly
+    if (timeRange.value === "7D") {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = d.toISOString().split("T")[0];
+        salesMap[key] = { net: 0, gross: 0, expenses: 0, credits: 0, charges: 0, overages: 0 };
+        slicedKeys.push(key);
+      }
+    } else if (timeRange.value === "1M") {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = d.toISOString().split("T")[0];
+        salesMap[key] = { net: 0, gross: 0, expenses: 0, credits: 0, charges: 0, overages: 0 };
+        slicedKeys.push(key);
+      }
+    } else if (timeRange.value === "3M") {
+      for (let i = 2; i >= 0; i--) {
+        const d = new Date(now);
+        d.setMonth(now.getMonth() - i);
+        const key = d.toISOString().substring(0, 7);
+        salesMap[key] = { net: 0, gross: 0, expenses: 0, credits: 0, charges: 0, overages: 0 };
+        slicedKeys.push(key);
+      }
+    } else if (timeRange.value === "1Y") {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now);
+        d.setMonth(now.getMonth() - i);
+        const key = d.toISOString().substring(0, 7);
+        salesMap[key] = { net: 0, gross: 0, expenses: 0, credits: 0, charges: 0, overages: 0 };
+        slicedKeys.push(key);
+      }
+    }
 
     rawSales.value.forEach((s) => {
       const gross = Number(
@@ -426,6 +460,15 @@ export const useDashboardStore = defineStore("dashboard", () => {
       );
       const expenses = Number(
         String(s.expenses_total || 0).replace(/[^0-9.-]+/g, "")
+      );
+      const credits = Number(
+        String(s.credit_total || 0).replace(/[^0-9.-]+/g, "")
+      );
+      const charges = Number(
+        String(s.charges_amount || 0).replace(/[^0-9.-]+/g, "")
+      );
+      const overages = Number(
+        String(s.over_total || 0).replace(/[^0-9.-]+/g, "")
       );
       const net = gross - expenses;
 
@@ -438,34 +481,55 @@ export const useDashboardStore = defineStore("dashboard", () => {
         key = dateObj.toISOString().substring(0, 7);
       }
 
-      if (!salesMap[key]) {
-        salesMap[key] = { net: 0, gross: 0, expenses: 0 };
+      if (salesMap[key] !== undefined) {
+        salesMap[key].net += net;
+        salesMap[key].gross += gross;
+        salesMap[key].expenses += expenses;
+        salesMap[key].credits += credits;
+        salesMap[key].charges += charges;
+        salesMap[key].overages += overages;
       }
-      salesMap[key].net += net;
-      salesMap[key].gross += gross;
-      salesMap[key].expenses += expenses;
     });
 
-    const sortedKeys = Object.keys(salesMap).sort();
-    let slicedKeys = [];
+    const wasteMap = {};
+    if (wasteMetrics.value && wasteMetrics.value.trend && wasteMetrics.value.trend.data) {
+      const wasteData = wasteMetrics.value.trend.data;
+      const days = wasteData.length;
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = d.toISOString().split("T")[0];
+        wasteMap[key] = wasteData[days - 1 - i] || 0;
+      }
+    }
+
+    const getWasteForPeriod = (periodKey) => {
+      if (timeRange.value === "7D" || timeRange.value === "1M") {
+        return wasteMap[periodKey] || 0;
+      } else {
+        let sum = 0;
+        Object.keys(wasteMap).forEach((dayKey) => {
+          if (dayKey.startsWith(periodKey)) {
+            sum += wasteMap[dayKey];
+          }
+        });
+        return sum;
+      }
+    };
 
     if (timeRange.value === "7D") {
-      slicedKeys = sortedKeys.slice(-7);
       chartLabels.value = slicedKeys.map((d) =>
         new Date(d).toLocaleDateString("en-US", { weekday: "short" })
       );
     } else if (timeRange.value === "1M") {
-      slicedKeys = sortedKeys.slice(-30);
       chartLabels.value = slicedKeys.map((d) =>
         new Date(d).getDate().toString()
       );
     } else if (timeRange.value === "3M") {
-      slicedKeys = sortedKeys.slice(-3);
       chartLabels.value = slicedKeys.map((d) =>
         new Date(d + "-01").toLocaleDateString("en-US", { month: "short" })
       );
     } else if (timeRange.value === "1Y") {
-      slicedKeys = sortedKeys.slice(-12);
       chartLabels.value = slicedKeys.map((d) =>
         new Date(d + "-01").toLocaleDateString("en-US", { month: "short" })
       );
@@ -474,6 +538,10 @@ export const useDashboardStore = defineStore("dashboard", () => {
     stats.value.totalSalesData = slicedKeys.map((k) => salesMap[k]?.net || 0);
     stats.value.totalGrossSalesData = slicedKeys.map((k) => salesMap[k]?.gross || 0);
     stats.value.totalExpensesData = slicedKeys.map((k) => salesMap[k]?.expenses || 0);
+    stats.value.totalCreditsData = slicedKeys.map((k) => salesMap[k]?.credits || 0);
+    stats.value.totalChargesData = slicedKeys.map((k) => salesMap[k]?.charges || 0);
+    stats.value.totalOveragesData = slicedKeys.map((k) => salesMap[k]?.overages || 0);
+    stats.value.totalWasteData = slicedKeys.map((k) => getWasteForPeriod(k));
 
     // Update branch distribution whenever time range data is processed
     updateBranchDistribution();
@@ -544,8 +612,48 @@ export const useDashboardStore = defineStore("dashboard", () => {
   // INVENTORY PROCESSING
   // =========================
   const processInventoryTimeRangeData = () => {
+    const now = new Date();
     const inMap = {};
     const outMap = {};
+    const slicedKeys = [];
+
+    if (timeRange.value === "7D") {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = d.toISOString().split("T")[0];
+        inMap[key] = 0;
+        outMap[key] = 0;
+        slicedKeys.push(key);
+      }
+    } else if (timeRange.value === "1M") {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = d.toISOString().split("T")[0];
+        inMap[key] = 0;
+        outMap[key] = 0;
+        slicedKeys.push(key);
+      }
+    } else if (timeRange.value === "3M") {
+      for (let i = 2; i >= 0; i--) {
+        const d = new Date(now);
+        d.setMonth(now.getMonth() - i);
+        const key = d.toISOString().substring(0, 7);
+        inMap[key] = 0;
+        outMap[key] = 0;
+        slicedKeys.push(key);
+      }
+    } else if (timeRange.value === "1Y") {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now);
+        d.setMonth(now.getMonth() - i);
+        const key = d.toISOString().substring(0, 7);
+        inMap[key] = 0;
+        outMap[key] = 0;
+        slicedKeys.push(key);
+      }
+    }
 
     const processArray = (arr, mapRef) => {
       arr.forEach((item) => {
@@ -558,23 +666,26 @@ export const useDashboardStore = defineStore("dashboard", () => {
           key = dateObj.toISOString().substring(0, 7);
         }
 
-        mapRef[key] = (mapRef[key] || 0) + Number(item.total_qty || 0);
+        if (mapRef[key] !== undefined) {
+          mapRef[key] += Number(item.total_qty || 0);
+        }
       });
     };
 
     processArray(rawInventoryIn.value, inMap);
     processArray(rawInventoryOut.value, outMap);
 
-    const allKeys = [
-      ...new Set([...Object.keys(inMap), ...Object.keys(outMap)]),
-    ].sort();
-
-    let slicedKeys = [];
-
     if (timeRange.value === "7D") {
-      slicedKeys = allKeys.slice(-7);
       inventoryLabels.value = slicedKeys.map((d) =>
         new Date(d).toLocaleDateString("en-US", { weekday: "short" })
+      );
+    } else if (timeRange.value === "1M") {
+      inventoryLabels.value = slicedKeys.map((d) =>
+        new Date(d).getDate().toString()
+      );
+    } else {
+      inventoryLabels.value = slicedKeys.map((d) =>
+        new Date(d + "-01").toLocaleDateString("en-US", { month: "short" })
       );
     }
 
@@ -708,7 +819,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
       processTimeRangeData();
       processInventoryTimeRangeData();
       fetchPredictiveStocking();
-      fetchRecipeCostMetrics();
+      fetchRecipeCostMetrics(selectedBranch.value);
       fetchProfitMargins(selectedBranch.value);
       fetchWasteMetrics();
 
@@ -745,9 +856,14 @@ export const useDashboardStore = defineStore("dashboard", () => {
     }
   };
 
-  const fetchRecipeCostMetrics = async () => {
+  const fetchRecipeCostMetrics = async (branchIdParam = null) => {
     try {
-      const res = await api.get("/api/dashboard/recipe-cost-metrics");
+      const bId = branchIdParam || selectedBranch.value;
+      let suffix = "";
+      if (bId !== "global" && !String(bId).startsWith("warehouse-")) {
+        suffix = `?branch_id=${bId}`;
+      }
+      const res = await api.get(`/api/dashboard/recipe-cost-metrics${suffix}`);
       recipeCostMetrics.value = {
         averageCost: res.data?.averageCost || 0,
         topRecipes: res.data?.topRecipes || [],
@@ -771,7 +887,15 @@ export const useDashboardStore = defineStore("dashboard", () => {
           suffix = `?branch_id=${bId}`;
         }
       }
-      const res = await api.get(`/api/dashboard/profit-margins${suffix}`);
+
+      let daysVal = 30;
+      if (timeRange.value === "7D") daysVal = 7;
+      else if (timeRange.value === "1M") daysVal = 30;
+      else if (timeRange.value === "3M") daysVal = 90;
+      else if (timeRange.value === "1Y") daysVal = 365;
+
+      const prefix = suffix ? "&" : "?";
+      const res = await api.get(`/api/dashboard/profit-margins${suffix}${prefix}days=${daysVal}`);
       profitMargins.value = res.data?.data || [];
     } catch (err) {
       console.error("Failed to fetch profit margins:", err);
@@ -805,6 +929,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
       const prefix = suffix ? "&" : "?";
       const res = await api.get(`/api/dashboard/waste-metrics${suffix}${prefix}days=${daysVal}`);
       wasteMetrics.value = res.data || null;
+      processTimeRangeData();
     } catch (err) {
       console.error("Failed to fetch waste metrics:", err);
     } finally {

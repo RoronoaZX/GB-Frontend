@@ -4,28 +4,60 @@
     <div class="col-12 col-md-8">
       <q-card class="chart-card" flat bordered>
         <q-card-section>
-          <div class="row items-center justify-between">
+          <div class="row items-center justify-between q-col-gutter-sm">
             <div>
               <div class="text-h6 text-weight-bolder text-grey-8">
                 {{ timeRangeDescription }} Sales Analytics
               </div>
               <div class="text-caption text-grey-5">
-                Visualizing net revenue trends over the selected period.
+                Visualizing financial trend lines over the selected period.
               </div>
             </div>
-            <div class="row q-gutter-xs">
-              <q-btn-toggle
-                v-model="chartType"
+            <div class="row items-center q-gutter-md">
+              <div class="row items-center q-gutter-sm text-caption text-grey-7">
+                <q-checkbox v-model="showGrossSales" label="Gross" color="blue" dense />
+                <q-checkbox v-model="showNetRevenue" label="Net" color="teal" dense />
+                <q-checkbox v-model="showExpenses" label="Expenses" color="red" dense />
+                <q-checkbox v-model="showCredits" label="Credits" color="purple" dense />
+                <q-checkbox v-model="showCharges" label="Shortages" color="orange" dense />
+                <q-checkbox v-model="showOverages" label="Overages" color="indigo" dense />
+                <q-checkbox v-model="showWaste" label="Wastage" color="brown" dense />
+              </div>
+              <q-btn-group outline rounded dense>
+                <q-btn
+                  v-for="range in ['7D', '1M', '3M', '1Y']"
+                  :key="range"
+                  :color="dashboardStore.timeRange === range ? 'primary' : 'grey-7'"
+                  :flat="dashboardStore.timeRange !== range"
+                  :label="range"
+                  @click="dashboardStore.setTimeRange(range)"
+                />
+              </q-btn-group>
+              <q-btn
                 flat
+                round
                 dense
-                toggle-color="primary"
-                color="grey-6"
-                :options="[
-                  { label: 'Linear', value: 'line', icon: 'show_chart' },
-                  { label: 'Bar', value: 'bar', icon: 'bar_chart' },
-                  { label: 'Pie', value: 'pie', icon: 'pie_chart' },
-                ]"
-              />
+                color="primary"
+                icon="file_download"
+                @click="exportChartData"
+                class="q-ml-xs"
+              >
+                <q-tooltip>Export Data (CSV)</q-tooltip>
+              </q-btn>
+              <div class="row q-gutter-xs">
+                <q-btn-toggle
+                  v-model="chartType"
+                  flat
+                  dense
+                  toggle-color="primary"
+                  color="grey-6"
+                  :options="[
+                    { label: 'Linear', value: 'line', icon: 'show_chart' },
+                    { label: 'Bar', value: 'bar', icon: 'bar_chart' },
+                    { label: 'Pie', value: 'pie', icon: 'pie_chart' },
+                  ]"
+                />
+              </div>
             </div>
           </div>
         </q-card-section>
@@ -61,8 +93,11 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
 import { Chart, registerables } from "chart.js";
+import { useDashboardStore } from "src/stores/dashboard";
 
 Chart.register(...registerables);
+
+const dashboardStore = useDashboardStore();
 
 const props = defineProps({
   trendData: {
@@ -74,6 +109,22 @@ const props = defineProps({
     default: () => [],
   },
   expensesData: {
+    type: Array,
+    default: () => [],
+  },
+  creditsData: {
+    type: Array,
+    default: () => [],
+  },
+  chargesData: {
+    type: Array,
+    default: () => [],
+  },
+  overagesData: {
+    type: Array,
+    default: () => [],
+  },
+  wasteData: {
     type: Array,
     default: () => [],
   },
@@ -99,48 +150,194 @@ let donutChartInstance = null;
 
 const chartType = ref("line");
 
+const showGrossSales = ref(true);
+const showNetRevenue = ref(true);
+const showExpenses = ref(false);
+const showCredits = ref(false);
+const showCharges = ref(false);
+const showOverages = ref(false);
+const showWaste = ref(false);
+
 const renderCharts = () => {
   // 1. Sales Trend Chart
   if (trendChartCanvas.value) {
     if (trendChartInstance) trendChartInstance.destroy();
 
     const ctx = trendChartCanvas.value.getContext("2d");
-    const activeData = props.trendData;
-    const primaryColor = "#3b82f6"; // Blue for Net Sales
+    const datasets = [];
 
-    // Add smooth gradient under the line
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, `${primaryColor}80`); // 50% opacity
-    gradient.addColorStop(1, `${primaryColor}00`); // 0% opacity
-
-    // Chart.js uses 'pie' or 'doughnut'
+    // Chart.js type mapping
     const type = chartType.value === "pie" ? "pie" : chartType.value;
+
+    if (chartType.value !== "pie") {
+      if (showGrossSales.value) {
+        const grossGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        grossGradient.addColorStop(0, "rgba(59, 130, 246, 0.2)");
+        grossGradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+
+        datasets.push({
+          label: "Gross Sales",
+          data: props.grossSalesData.length ? props.grossSalesData : props.trendLabels.map(() => 0),
+          borderColor: "#3b82f6",
+          backgroundColor: chartType.value === 'line' ? grossGradient : "#3b82f6",
+          borderWidth: 3,
+          fill: chartType.value === "line",
+          tension: 0.4,
+          borderRadius: chartType.value === 'bar' ? 8 : 0,
+          pointBackgroundColor: "#ffffff",
+          pointBorderColor: "#3b82f6",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        });
+      }
+
+      if (showNetRevenue.value) {
+        const netGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        netGradient.addColorStop(0, "rgba(20, 184, 166, 0.2)");
+        netGradient.addColorStop(1, "rgba(20, 184, 166, 0)");
+
+        datasets.push({
+          label: "Net Revenue",
+          data: props.trendData.length ? props.trendData : props.trendLabels.map(() => 0),
+          borderColor: "#14b8a6",
+          backgroundColor: chartType.value === 'line' ? netGradient : "#14b8a6",
+          borderWidth: 3,
+          fill: chartType.value === "line",
+          tension: 0.4,
+          borderRadius: chartType.value === 'bar' ? 8 : 0,
+          pointBackgroundColor: "#ffffff",
+          pointBorderColor: "#14b8a6",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        });
+      }
+
+      if (showExpenses.value) {
+        const expensesGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        expensesGradient.addColorStop(0, "rgba(239, 68, 68, 0.2)");
+        expensesGradient.addColorStop(1, "rgba(239, 68, 68, 0)");
+
+        datasets.push({
+          label: "Expenses",
+          data: props.expensesData.length ? props.expensesData : props.trendLabels.map(() => 0),
+          borderColor: "#ef4444",
+          backgroundColor: chartType.value === 'line' ? expensesGradient : "#ef4444",
+          borderWidth: 3,
+          fill: chartType.value === "line",
+          tension: 0.4,
+          borderRadius: chartType.value === 'bar' ? 8 : 0,
+          pointBackgroundColor: "#ffffff",
+          pointBorderColor: "#ef4444",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        });
+      }
+
+      if (showCredits.value) {
+        const creditsGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        creditsGradient.addColorStop(0, "rgba(156, 39, 176, 0.2)");
+        creditsGradient.addColorStop(1, "rgba(156, 39, 176, 0)");
+
+        datasets.push({
+          label: "Credits",
+          data: props.creditsData.length ? props.creditsData : props.trendLabels.map(() => 0),
+          borderColor: "#9c27b0",
+          backgroundColor: chartType.value === 'line' ? creditsGradient : "#9c27b0",
+          borderWidth: 3,
+          fill: chartType.value === "line",
+          tension: 0.4,
+          borderRadius: chartType.value === 'bar' ? 8 : 0,
+          pointBackgroundColor: "#ffffff",
+          pointBorderColor: "#9c27b0",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        });
+      }
+
+      if (showCharges.value) {
+        const chargesGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        chargesGradient.addColorStop(0, "rgba(255, 152, 0, 0.2)");
+        chargesGradient.addColorStop(1, "rgba(255, 152, 0, 0)");
+
+        datasets.push({
+          label: "Shortages",
+          data: props.chargesData.length ? props.chargesData : props.trendLabels.map(() => 0),
+          borderColor: "#ff9800",
+          backgroundColor: chartType.value === 'line' ? chargesGradient : "#ff9800",
+          borderWidth: 3,
+          fill: chartType.value === "line",
+          tension: 0.4,
+          borderRadius: chartType.value === 'bar' ? 8 : 0,
+          pointBackgroundColor: "#ffffff",
+          pointBorderColor: "#ff9800",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        });
+      }
+
+      if (showOverages.value) {
+        const overagesGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        overagesGradient.addColorStop(0, "rgba(63, 81, 181, 0.2)");
+        overagesGradient.addColorStop(1, "rgba(63, 81, 181, 0)");
+
+        datasets.push({
+          label: "Overages",
+          data: props.overagesData.length ? props.overagesData : props.trendLabels.map(() => 0),
+          borderColor: "#3f51b5",
+          backgroundColor: chartType.value === 'line' ? overagesGradient : "#3f51b5",
+          borderWidth: 3,
+          fill: chartType.value === "line",
+          tension: 0.4,
+          borderRadius: chartType.value === 'bar' ? 8 : 0,
+          pointBackgroundColor: "#ffffff",
+          pointBorderColor: "#3f51b5",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        });
+      }
+
+      if (showWaste.value) {
+        const wasteGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        wasteGradient.addColorStop(0, "rgba(121, 85, 72, 0.2)");
+        wasteGradient.addColorStop(1, "rgba(121, 85, 72, 0)");
+
+        datasets.push({
+          label: "Wastage",
+          data: props.wasteData.length ? props.wasteData : props.trendLabels.map(() => 0),
+          borderColor: "#795548",
+          backgroundColor: chartType.value === 'line' ? wasteGradient : "#795548",
+          borderWidth: 3,
+          fill: chartType.value === "line",
+          tension: 0.4,
+          borderRadius: chartType.value === 'bar' ? 8 : 0,
+          pointBackgroundColor: "#ffffff",
+          pointBorderColor: "#795548",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        });
+      }
+    } else {
+      // Pie View
+      datasets.push({
+        label: `Net Profit (₱)`,
+        data: props.trendData.length ? props.trendData : [0, 0, 0, 0, 0, 0, 0],
+        backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444", "#06b6d4", "#f43f5e"],
+        borderWidth: 1,
+      });
+    }
 
     trendChartInstance = new Chart(ctx, {
       type: type,
       data: {
         labels: props.trendLabels,
-        datasets: [
-          {
-            label: `Net Profit (₱)`,
-            data: activeData.length ? activeData : [0, 0, 0, 0, 0, 0, 0],
-            borderColor: primaryColor,
-            backgroundColor: chartType.value === "line" 
-              ? gradient 
-              : (chartType.value === 'pie' 
-                  ? ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444", "#06b6d4", "#f43f5e"] 
-                  : primaryColor),
-            borderWidth: chartType.value === 'pie' ? 1 : 3,
-            fill: chartType.value === "line",
-            tension: 0.4, // smooth curves
-            borderRadius: chartType.value === 'bar' ? 8 : 0,
-            pointBackgroundColor: "#ffffff",
-            pointBorderColor: primaryColor,
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-          },
-        ],
+        datasets,
       },
       options: {
         responsive: true,
@@ -231,6 +428,37 @@ const renderCharts = () => {
   }
 };
 
+const exportChartData = () => {
+  const headers = ["Timeline Interval", "Gross Sales", "Net Revenue", "Expenses", "Credits", "Shortages", "Overages", "Wastage"];
+  const rows = props.trendLabels.map((label, index) => [
+    label,
+    props.grossSalesData[index] || 0,
+    props.trendData[index] || 0,
+    props.expensesData[index] || 0,
+    props.creditsData[index] || 0,
+    props.chargesData[index] || 0,
+    props.overagesData[index] || 0,
+    props.wasteData[index] || 0,
+  ]);
+
+  const csvContent = [
+    headers.join(","),
+    ...rows.map((e) => e.map((val) => (typeof val === "string" ? `"${val}"` : val)).join(",")),
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+
+  const rangeText = props.timeRangeDescription.replace(/\s+/g, "_");
+  link.setAttribute("download", `GB_Bakeshop_Sales_Data_${rangeText}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 onMounted(() => {
   renderCharts();
 });
@@ -240,15 +468,31 @@ watch(
     () => props.trendData,
     () => props.grossSalesData,
     () => props.expensesData,
+    () => props.creditsData,
+    () => props.chargesData,
+    () => props.overagesData,
+    () => props.wasteData,
     () => props.trendLabels,
     () => props.distributionData,
     chartType,
+    showGrossSales,
+    showNetRevenue,
+    showExpenses,
+    showCredits,
+    showCharges,
+    showOverages,
+    showWaste,
   ],
   () => {
     renderCharts();
   },
   { deep: true }
 );
+
+defineExpose({
+  trendChartCanvas,
+  donutChartCanvas,
+});
 </script>
 
 <style lang="scss" scoped>

@@ -87,10 +87,12 @@
               </q-item>
             </q-list>
 
-            <div v-else class="empty-leaderboard flex flex-center column q-pa-xl text-grey-5">
-              <q-icon name="sentiment_dissatisfied" size="3em" class="q-mb-sm" />
-              <div class="text-weight-bold">No products match this category</div>
-              <div class="text-caption">Try clearing the category filter</div>
+            <div v-else class="empty-leaderboard flex flex-center column q-pa-xl text-grey-5 animate-pulse-warning">
+              <q-icon name="analytics" size="4em" class="q-mb-md" style="color: #cbd5e1" />
+              <div class="text-weight-bold text-dark text-subtitle1">No Product Sales Mapped</div>
+              <div class="text-caption text-center q-mt-xs" style="max-width: 280px">
+                Adjust the date filters at the top of the page to load historical sales margins for this branch.
+              </div>
             </div>
           </q-card-section>
         </q-card>
@@ -153,10 +155,12 @@
               </q-item>
             </q-list>
 
-            <div v-else class="empty-leaderboard flex flex-center column q-pa-xl text-grey-5">
-              <q-icon name="sentiment_dissatisfied" size="3em" class="q-mb-sm" />
-              <div class="text-weight-bold">No products match this category</div>
-              <div class="text-caption">Try clearing the category filter</div>
+            <div v-else class="empty-leaderboard flex flex-center column q-pa-xl text-grey-5 animate-pulse-warning">
+              <q-icon name="analytics" size="4em" class="q-mb-md" style="color: #cbd5e1" />
+              <div class="text-weight-bold text-dark text-subtitle1">No Product Sales Mapped</div>
+              <div class="text-caption text-center q-mt-xs" style="max-width: 280px">
+                Adjust the date filters at the top of the page to load historical sales margins for this branch.
+              </div>
             </div>
           </q-card-section>
         </q-card>

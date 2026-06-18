@@ -107,41 +107,16 @@
       <!-- Top Cards -->
       <AdminDashboardCards :stats="dashboardStore.stats" />
 
-      <!-- Time Range Selection Controls -->
-      <div class="row justify-end q-mt-md q-mb-sm">
-        <q-btn-group outline rounded>
-          <q-btn
-            :color="dashboardStore.timeRange === '7D' ? 'primary' : 'grey-7'"
-            :flat="dashboardStore.timeRange !== '7D'"
-            label="7D"
-            @click="dashboardStore.setTimeRange('7D')"
-          />
-          <q-btn
-            :color="dashboardStore.timeRange === '1M' ? 'primary' : 'grey-7'"
-            :flat="dashboardStore.timeRange !== '1M'"
-            label="1M"
-            @click="dashboardStore.setTimeRange('1M')"
-          />
-          <q-btn
-            :color="dashboardStore.timeRange === '3M' ? 'primary' : 'grey-7'"
-            :flat="dashboardStore.timeRange !== '3M'"
-            label="3M"
-            @click="dashboardStore.setTimeRange('3M')"
-          />
-          <q-btn
-            :color="dashboardStore.timeRange === '1Y' ? 'primary' : 'grey-7'"
-            :flat="dashboardStore.timeRange !== '1Y'"
-            label="1Y"
-            @click="dashboardStore.setTimeRange('1Y')"
-          />
-        </q-btn-group>
-      </div>
-
       <!-- Analytics Charts -->
       <AdminChartWidgets
+        ref="chartWidgetsRef"
         :trendData="dashboardStore.stats.totalSalesData"
         :grossSalesData="dashboardStore.stats.totalGrossSalesData"
         :expensesData="dashboardStore.stats.totalExpensesData"
+        :creditsData="dashboardStore.stats.totalCreditsData"
+        :chargesData="dashboardStore.stats.totalChargesData"
+        :overagesData="dashboardStore.stats.totalOveragesData"
+        :wasteData="dashboardStore.stats.totalWasteData"
         :trendLabels="dashboardStore.chartLabels"
         :timeRangeDescription="timeRangeText"
         :distributionData="dashboardStore.stats.branchSalesDistribution"
@@ -213,8 +188,17 @@
               <q-btn
                 dense
                 flat
+                icon="download"
+                class="q-mr-sm"
+                @click="triggerDownload"
+              >
+                <q-tooltip>Download PDF</q-tooltip>
+              </q-btn>
+              <q-btn
+                dense
+                flat
                 icon="print"
-                class="q-mr-md"
+                class="q-mr-sm"
                 @click="triggerPhysicalPrint"
               >
                 <q-tooltip>Print Document</q-tooltip>
@@ -260,6 +244,7 @@ pdfMake.vfs = pdfFonts.default;
 const dashboardStore = useDashboardStore();
 const printDialog = ref(false);
 const pdfUrl = ref("");
+const chartWidgetsRef = ref(null);
 
 const timeRangeText = computed(() => {
   const map = {
@@ -275,7 +260,23 @@ const timeRangeText = computed(() => {
 let currentDocDefinition = null;
 
 const openPrintDialog = () => {
-  currentDocDefinition = generateDashboardDocDefinition();
+  // Capture chart canvases as base64 PNG images
+  let trendChartImage = null;
+  let donutChartImage = null;
+
+  if (chartWidgetsRef.value) {
+    const trendCanvas = chartWidgetsRef.value.trendChartCanvas;
+    const donutCanvas = chartWidgetsRef.value.donutChartCanvas;
+
+    if (trendCanvas) {
+      trendChartImage = trendCanvas.toDataURL("image/png");
+    }
+    if (donutCanvas) {
+      donutChartImage = donutCanvas.toDataURL("image/png");
+    }
+  }
+
+  currentDocDefinition = generateDashboardDocDefinition({ trendChartImage, donutChartImage });
   pdfMake.createPdf(currentDocDefinition).getDataUrl((dataUrl) => {
     pdfUrl.value = dataUrl;
     printDialog.value = true;
@@ -288,7 +289,17 @@ const triggerPhysicalPrint = () => {
   }
 };
 
-const generateDashboardDocDefinition = () => {
+const triggerDownload = () => {
+  if (currentDocDefinition) {
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const branchLabel = dashboardStore.selectedBranch === 'global' ? 'All_Branches' : dashboardStore.selectedBranch;
+    const filename = `GB_Bakeshop_Analytics_${branchLabel}_${dateStr}.pdf`;
+    pdfMake.createPdf(currentDocDefinition).download(filename);
+  }
+};
+
+const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {}) => {
   const branchName =
     dashboardStore.selectedBranch !== "global"
       ? dashboardStore.stats.branchesList.find(
@@ -296,178 +307,392 @@ const generateDashboardDocDefinition = () => {
         )?.name || "Specific Branch"
       : "Network Global";
 
-  const totalRevenue = (dashboardStore.stats.totalSalesData || []).reduce(
-    (a, b) => a + b,
-    0
-  );
+  let totalGross = 0;
+  let totalNet = 0;
+  let totalExpenses = 0;
+  let totalCredits = 0;
+  let totalCharges = 0;
+  let totalOverages = 0;
+  let totalWaste = 0;
 
-  // Map Sales Data into a printable table
   const salesTableBody = [
     [
-      { text: "Timeline Interval", style: "tableHeader" },
-      { text: "Net Revenue (₱)", style: "tableHeader", alignment: "right" },
-    ],
+      { text: "Interval", style: "tableHeader", alignment: "left" },
+      { text: "Gross (₱)", style: "tableHeader", alignment: "right" },
+      { text: "Net (₱)", style: "tableHeader", alignment: "right" },
+      { text: "Expenses (₱)", style: "tableHeader", alignment: "right" },
+      { text: "Credits (₱)", style: "tableHeader", alignment: "right" },
+      { text: "Shortage (₱)", style: "tableHeader", alignment: "right" },
+      { text: "Overage (₱)", style: "tableHeader", alignment: "right" },
+      { text: "Wastage (₱)", style: "tableHeader", alignment: "right" }
+    ]
   ];
 
   dashboardStore.chartLabels.forEach((label, index) => {
+    const gross = dashboardStore.stats.totalGrossSalesData[index] || 0;
+    const net = dashboardStore.stats.totalSalesData[index] || 0;
+    const exp = dashboardStore.stats.totalExpensesData[index] || 0;
+    const cred = dashboardStore.stats.totalCreditsData[index] || 0;
+    const chg = dashboardStore.stats.totalChargesData[index] || 0;
+    const ovr = dashboardStore.stats.totalOveragesData[index] || 0;
+    const wst = dashboardStore.stats.totalWasteData[index] || 0;
+
+    totalGross += gross;
+    totalNet += net;
+    totalExpenses += exp;
+    totalCredits += cred;
+    totalCharges += chg;
+    totalOverages += ovr;
+    totalWaste += wst;
+
     salesTableBody.push([
-      label,
-      {
-        text: `₱${(
-          dashboardStore.stats.totalSalesData[index] || 0
-        ).toLocaleString()}`,
-        alignment: "right",
-      },
+      { text: label, style: "tableCell", alignment: "left" },
+      { text: `₱${gross.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableCellAmount" },
+      { text: `₱${net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableCellAmount" },
+      { text: `₱${exp.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableCellAmount" },
+      { text: `₱${cred.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableCellAmount" },
+      { text: `₱${chg.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableCellAmount" },
+      { text: `₱${ovr.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableCellAmount" },
+      { text: `₱${wst.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableCellAmount" }
     ]);
   });
 
-  // Calculate totals to inject at bottom
   salesTableBody.push([
-    { text: "Total Selected Revenue", style: "tableHeader" },
-    {
-      text: `₱${totalRevenue.toLocaleString()}`,
-      style: "tableHeader",
-      alignment: "right",
-    },
+    { text: "TOTALS", style: "tableTotalHeader", alignment: "left" },
+    { text: `₱${totalGross.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" },
+    { text: `₱${totalNet.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" },
+    { text: `₱${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" },
+    { text: `₱${totalCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" },
+    { text: `₱${totalCharges.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" },
+    { text: `₱${totalOverages.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" },
+    { text: `₱${totalWaste.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" }
   ]);
 
   return {
+    pageSize: "A4",
+    pageOrientation: "landscape",
+    pageMargins: [40, 40, 40, 40],
     content: [
-      { text: "GB Bakeshop Analytics", style: "superHeader" },
-      {
-        text: `Executive Dashboard Report | Location: ${branchName}`,
-        style: "subtext",
-        margin: [0, 0, 0, 20],
-      },
-
-      { text: "Top-Level System Metrics", style: "header", marginTop: 10 },
       {
         table: {
-          widths: ["*", "*", "*", "*"],
+          widths: ["*"],
           body: [
             [
-              { text: "Active Locations", bold: true },
-              { text: "Active Warehouses", bold: true },
-              { text: "Registered Staff", bold: true },
-              { text: "Low Stock Warnings", bold: true, color: "red" },
-            ],
-            [
               {
-                text: dashboardStore.stats.totalBranches.toString(),
-                fontSize: 14,
-              },
-              {
-                text: (dashboardStore.stats.totalWarehouses || 0).toString(),
-                fontSize: 14,
-              },
-              {
-                text: dashboardStore.stats.totalEmployees.toString(),
-                fontSize: 14,
-              },
-              {
-                text: dashboardStore.stats.lowStockItems.toString(),
-                fontSize: 14,
-                color: "red",
-              },
-            ],
-            [
-              { text: "Active Recipes", bold: true },
-              { text: "Active Suppliers", bold: true },
-              { text: "Baker Reports", bold: true },
-              { text: "", bold: true },
-            ],
-            [
-              {
-                text: dashboardStore.stats.totalRecipes.toString(),
-                fontSize: 14,
-              },
-              {
-                text: (dashboardStore.stats.totalSuppliers || 0).toString(),
-                fontSize: 14,
-              },
-              {
-                text: (dashboardStore.stats.totalBakerReports || 0).toString(),
-                fontSize: 14,
-              },
-              {
-                text: "",
-                fontSize: 14,
-              },
-            ],
-          ],
+                fillColor: "#0f172a",
+                stack: [
+                  { text: "GB BAKESHOP BUSINESS INTELLIGENCE REPORT", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
+                  { text: `EXECUTIVE SUMMARY | LOCATION: ${branchName.toUpperCase()} | TIME FRAME: ${timeRangeText.value.toUpperCase()}`, color: "#38bdf8", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                ],
+                border: [false, false, false, false]
+              }
+            ]
+          ]
         },
-        layout: "lightHorizontalLines",
-        margin: [0, 10, 0, 20],
+        margin: [0, -10, 0, 20]
       },
 
+      { text: "Key Operations Summary", style: "sectionHeader" },
       {
-        text: `Financial Performance (${timeRangeText.value})`,
-        style: "header",
-        marginTop: 20,
+        columns: [
+          {
+            table: {
+              widths: ["*"],
+              body: [
+                [
+                  {
+                    fillColor: "#f8fafc",
+                    borderColor: "#cbd5e1",
+                    stack: [
+                      { text: "ACTIVE LOCATIONS", fontSize: 7, color: "#64748b", bold: true },
+                      { text: dashboardStore.stats.totalBranches.toString(), fontSize: 14, bold: true, color: "#0f172a", margin: [0, 2, 0, 0] }
+                    ]
+                  }
+                ]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          {
+            table: {
+              widths: ["*"],
+              body: [
+                [
+                  {
+                    fillColor: "#f8fafc",
+                    borderColor: "#cbd5e1",
+                    stack: [
+                      { text: "ACTIVE WAREHOUSES", fontSize: 7, color: "#64748b", bold: true },
+                      { text: (dashboardStore.stats.totalWarehouses || 0).toString(), fontSize: 14, bold: true, color: "#0f172a", margin: [0, 2, 0, 0] }
+                    ]
+                  }
+                ]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          {
+            table: {
+              widths: ["*"],
+              body: [
+                [
+                  {
+                    fillColor: "#f8fafc",
+                    borderColor: "#cbd5e1",
+                    stack: [
+                      { text: "REGISTERED STAFF", fontSize: 7, color: "#64748b", bold: true },
+                      { text: dashboardStore.stats.totalEmployees.toString(), fontSize: 14, bold: true, color: "#0f172a", margin: [0, 2, 0, 0] }
+                    ]
+                  }
+                ]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          {
+            table: {
+              widths: ["*"],
+              body: [
+                [
+                  {
+                    fillColor: "#fef2f2",
+                    borderColor: "#fee2e2",
+                    stack: [
+                      { text: "LOW STOCK WARNINGS", fontSize: 7, color: "#ef4444", bold: true },
+                      { text: dashboardStore.stats.lowStockItems.toString(), fontSize: 14, bold: true, color: "#b91c1c", margin: [0, 2, 0, 0] }
+                    ]
+                  }
+                ]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          }
+        ],
+        columnGap: 10,
+        margin: [0, 0, 0, 10]
       },
       {
-        text: "Aggregated revenue scaled over the selected time bracket.",
-        style: "subtext",
-        margin: [0, 0, 0, 10],
+        columns: [
+          {
+            table: {
+              widths: ["*"],
+              body: [
+                [
+                  {
+                    fillColor: "#f8fafc",
+                    borderColor: "#cbd5e1",
+                    stack: [
+                      { text: "ACTIVE RECIPES", fontSize: 7, color: "#64748b", bold: true },
+                      { text: dashboardStore.stats.totalRecipes.toString(), fontSize: 14, bold: true, color: "#0f172a", margin: [0, 2, 0, 0] }
+                    ]
+                  }
+                ]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          {
+            table: {
+              widths: ["*"],
+              body: [
+                [
+                  {
+                    fillColor: "#f8fafc",
+                    borderColor: "#cbd5e1",
+                    stack: [
+                      { text: "ACTIVE SUPPLIERS", fontSize: 7, color: "#64748b", bold: true },
+                      { text: (dashboardStore.stats.totalSuppliers || 0).toString(), fontSize: 14, bold: true, color: "#0f172a", margin: [0, 2, 0, 0] }
+                    ]
+                  }
+                ]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          {
+            table: {
+              widths: ["*"],
+              body: [
+                [
+                  {
+                    fillColor: "#f8fafc",
+                    borderColor: "#cbd5e1",
+                    stack: [
+                      { text: "BAKER REPORTS", fontSize: 7, color: "#64748b", bold: true },
+                      { text: (dashboardStore.stats.totalBakerReports || 0).toString(), fontSize: 14, bold: true, color: "#0f172a", margin: [0, 2, 0, 0] }
+                    ]
+                  }
+                ]
+              ]
+            },
+            layout: "lightHorizontalLines"
+          },
+          {
+            text: "",
+            width: "*"
+          }
+        ],
+        columnGap: 10,
+        margin: [0, 0, 0, 20]
       },
+
+      { text: "Financial Performance Breakdown", style: "sectionHeader" },
       {
         table: {
           headerRows: 1,
-          widths: ["*", "*"],
-          body: salesTableBody,
+          widths: [55, "*", "*", "*", "*", "*", "*", "*"],
+          body: salesTableBody
         },
         layout: {
           fillColor: function (rowIndex) {
-            return rowIndex === 0 ? "#f3f4f6" : null;
+            if (rowIndex === 0) return "#1e293b";
+            if (rowIndex === salesTableBody.length - 1) return "#f1f5f9";
+            return rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff";
           },
+          hLineWidth: function (i, node) {
+            return i === 0 || i === 1 || i === node.table.body.length - 1 || i === node.table.body.length ? 1.5 : 0.5;
+          },
+          vLineWidth: () => 0,
+          hLineColor: function (i, node) {
+            return i === 0 || i === 1 || i === node.table.body.length - 1 || i === node.table.body.length ? "#cbd5e1" : "#e2e8f0";
+          }
         },
-        margin: [0, 0, 0, 30],
+        margin: [0, 0, 0, 10]
       },
 
+      // ── Page 2: Visual Chart Analytics ──
+      { text: "", pageBreak: "after" },
+
       {
-        text: "Report automatically generated via Administrator Console",
-        style: "footer",
-        alignment: "center",
-        margin: [0, 40, 0, 0],
+        table: {
+          widths: ["*"],
+          body: [
+            [
+              {
+                fillColor: "#0f172a",
+                stack: [
+                  { text: "VISUAL ANALYTICS — CHART OVERVIEW", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
+                  { text: `SALES PERFORMANCE TRENDS & REVENUE DISTRIBUTION | ${timeRangeText.value.toUpperCase()}`, color: "#38bdf8", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                ],
+                border: [false, false, false, false]
+              }
+            ]
+          ]
+        },
+        margin: [0, -10, 0, 20]
       },
+
+      ...(trendChartImage ? [
+        { text: "Sales Performance Trend", style: "sectionHeader" },
+        { text: "Multi-line overlay showing Gross Sales, Net Revenue, Expenses, Credits, Shortages, Overages, and Wastage over the selected period.", fontSize: 7.5, color: "#64748b", italics: true, margin: [0, 0, 0, 4] },
+        {
+          image: trendChartImage,
+          fit: [700, 220],
+          alignment: "center",
+          margin: [0, 0, 0, 8]
+        }
+      ] : [
+        { text: "Sales Performance Trend", style: "sectionHeader" },
+        { text: "Chart image could not be captured. Please ensure the chart is rendered on screen before exporting.", fontSize: 9, color: "#94a3b8", italics: true, margin: [0, 0, 0, 8] }
+      ]),
+
+      ...(donutChartImage ? [
+        {
+          columns: [
+            {
+              width: "45%",
+              stack: [
+                { text: "Revenue Distribution by Branch", style: "sectionHeader" },
+                { text: "Proportional revenue share across the top-performing branch locations.", fontSize: 7.5, color: "#64748b", italics: true, margin: [0, 0, 0, 4] },
+                {
+                  image: donutChartImage,
+                  fit: [200, 200],
+                  alignment: "center",
+                  margin: [0, 0, 0, 0]
+                }
+              ]
+            },
+            {
+              width: "55%",
+              stack: [
+                { text: "Chart Notes", bold: true, fontSize: 10, color: "#1e293b", margin: [20, 0, 0, 6] },
+                { text: "• The donut chart reflects the proportional revenue contribution of each branch for the selected timeframe.", fontSize: 8, color: "#475569", margin: [20, 0, 0, 4] },
+                { text: "• Hover data and checkbox-filtered metrics are reflected in the trend chart above.", fontSize: 8, color: "#475569", margin: [20, 0, 0, 4] },
+                { text: "• This report was generated from confirmed transaction data only.", fontSize: 8, color: "#475569", margin: [20, 0, 0, 4] },
+                { text: `• Timeframe: ${timeRangeText.value}`, fontSize: 8, color: "#475569", margin: [20, 0, 0, 4] },
+                { text: `• Generated: ${new Date().toLocaleString()}`, fontSize: 8, color: "#475569", margin: [20, 0, 0, 0] }
+              ]
+            }
+          ],
+          margin: [0, 0, 0, 10]
+        }
+      ] : [])
     ],
+    footer: function(currentPage, pageCount) {
+      return {
+        columns: [
+          { text: "Report automatically generated via Administrator Console | Confirmed Data Only", style: "footerText", alignment: "left", margin: [40, 0, 0, 0] },
+          { text: `Page ${currentPage.toString()} of ${pageCount.toString()}`, style: "footerText", alignment: "right", margin: [0, 0, 40, 0] }
+        ]
+      };
+    },
     styles: {
-      superHeader: {
-        fontSize: 22,
-        bold: true,
-        color: "#1f2937",
-      },
-      header: {
-        fontSize: 16,
-        bold: true,
-        color: "#4b5563",
-        marginBottom: 5,
-      },
-      subtext: {
+      sectionHeader: {
         fontSize: 10,
-        color: "#6b7280",
-        italics: true,
+        bold: true,
+        color: "#0f172a",
+        margin: [0, 0, 0, 5]
       },
       tableHeader: {
         bold: true,
-        fontSize: 12,
-        color: "#374151",
+        fontSize: 7.5,
+        color: "#ffffff",
+        margin: [0, 2, 0, 2]
       },
-      footer: {
-        fontSize: 9,
-        color: "#9ca3af",
-        italics: true,
+      tableTotalHeader: {
+        bold: true,
+        fontSize: 7.5,
+        color: "#0f172a",
+        margin: [0, 2, 0, 2]
       },
+      tableCell: {
+        fontSize: 7.5,
+        color: "#334155",
+        margin: [0, 1.5, 0, 1.5]
+      },
+      tableCellAmount: {
+        fontSize: 7.5,
+        color: "#334155",
+        alignment: "right",
+        margin: [0, 1.5, 0, 1.5]
+      },
+      tableTotalCell: {
+        bold: true,
+        fontSize: 7.5,
+        color: "#0f172a",
+        margin: [0, 2, 0, 2]
+      },
+      footerText: {
+        fontSize: 7,
+        color: "#64748b",
+        italics: true
+      }
     },
     defaultStyle: {
-      font: "Roboto",
-    },
+      font: "Roboto"
+    }
   };
 };
 
-onMounted(() => {
+onMounted(async () => {
   // Fetch high-level analytics in parallel over network
-  dashboardStore.fetchDashboardMetrics();
+  await dashboardStore.fetchDashboardMetrics();
+  // Verify if current view contains no data
+  const hasData = dashboardStore.stats.totalSalesData.some(v => v > 0);
+  if (!hasData) {
+    console.log("No recent data found. Auto-expanding timeframe to 3M...");
+    dashboardStore.setTimeRange("3M");
+  }
 });
 </script>
 
