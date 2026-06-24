@@ -115,7 +115,7 @@
       <div class="row q-col-gutter-lg q-pl-md">
         <div v-for="card in kpiCards" :key="card.title" class="col-12 col-sm-6 col-md">
           <q-card class="kpi-card elegant-card" flat>
-            <q-card-section class="q-pa-lg">
+            <q-card-section class="q-pa-md">
               <div class="row items-center no-wrap">
                 <div :class="['card-icon-wrapper', card.colorClass]">
                   <q-icon :name="card.icon" size="32px" />
@@ -126,7 +126,7 @@
                     {{ card.title }}
                   </div>
                   <div 
-                    class="text-weight-bolder text-dark q-mt-xs ds-number"
+                    class="text-weight-bolder text-dark q-mt-xs ds-number ellipsis no-wrap"
                     :style="{ fontSize: getFontSize(card.value, card.prefix) }"
                   >
                     {{ card.prefix }}{{ card.value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }}
@@ -489,11 +489,12 @@ const formatTimestamp = (date) => {
 const getFontSize = (value, prefix) => {
   const str = (prefix || '') + value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   const len = str.length;
-  if (len > 18) return "0.9rem";
-  if (len > 15) return "1.1rem";
-  if (len > 12) return "1.3rem";
-  if (len > 10) return "1.6rem";
-  return "2.125rem"; // Default text-h4
+  if (len > 15) return "0.95rem";
+  if (len > 12) return "1.1rem";
+  if (len > 10) return "1.25rem";
+  if (len > 8) return "1.4rem";
+  if (len > 6) return "1.55rem";
+  return "1.75rem";
 };
 
 const branchActivities = computed(() => dashboardStore.stats.recentActivity);
