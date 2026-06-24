@@ -21,7 +21,7 @@
           map-options
           bg-color="white"
           label="Filter Category"
-          class="category-select shadow-1"
+          class="category-select"
           style="min-width: 180px;"
         >
           <template v-slot:prepend>

@@ -315,6 +315,11 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
   let totalOverages = 0;
   let totalWaste = 0;
 
+  const formatMoney = (val) => {
+    if (val === undefined || val === null) return "₱0.00";
+    return `₱${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   const salesTableBody = [
     [
       { text: "Interval", style: "tableHeader", alignment: "left" },
@@ -368,11 +373,19 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
     { text: `₱${totalWaste.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, style: "tableTotalCell", alignment: "right" }
   ]);
 
+  // Pre-process Top/Bottom profitability categories
+  const sortedMargins = [...(dashboardStore.profitMargins || [])].filter(
+    (item) => item.production > 0 || item.total_sales_amount > 0
+  );
+  const topFive = [...sortedMargins].sort((a, b) => b.margin - a.margin).slice(0, 5);
+  const bottomFive = [...sortedMargins].sort((a, b) => a.margin - b.margin).slice(0, 5);
+
   return {
     pageSize: "A4",
     pageOrientation: "landscape",
     pageMargins: [40, 40, 40, 40],
     content: [
+      // ── Page 1: Executive Summary & Financial Table ──
       {
         table: {
           widths: ["*"],
@@ -626,7 +639,382 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
           ],
           margin: [0, 0, 0, 10]
         }
-      ] : [])
+      ] : []),
+
+      // ── Page 3: Real-Time Waste & Spoilage Tracker ──
+      { text: "", pageBreak: "after" },
+      {
+        table: {
+          widths: ["*"],
+          body: [
+            [
+              {
+                fillColor: "#ef4444",
+                stack: [
+                  { text: "REAL-TIME WASTE & SPOILAGE TRACKER", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
+                  { text: `FINANCIAL SPOILAGE ANALYSIS | LOCATION: ${branchName.toUpperCase()} | TIME FRAME: ${timeRangeText.value.toUpperCase()}`, color: "#fee2e2", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                ],
+                border: [false, false, false, false]
+              }
+            ]
+          ]
+        },
+        margin: [0, -10, 0, 20]
+      },
+      { text: "Spoilage Overview & Top Defect Rates", style: "sectionHeader" },
+      {
+        columns: [
+          {
+            width: "30%",
+            stack: [
+              {
+                table: {
+                  widths: ["*"],
+                  body: [
+                    [
+                      {
+                        fillColor: "#fef2f2",
+                        borderColor: "#fee2e2",
+                        stack: [
+                          { text: "TOTAL LOST REVENUE", fontSize: 7, color: "#ef4444", bold: true },
+                          { text: formatMoney(dashboardStore.wasteMetrics?.summary?.total_lost_revenue), fontSize: 18, bold: true, color: "#b91c1c", margin: [0, 2, 0, 0] }
+                        ]
+                      }
+                    ],
+                    [
+                      {
+                        fillColor: "#f8fafc",
+                        borderColor: "#e2e8f0",
+                        stack: [
+                          { text: "TOTAL UNITS LOST", fontSize: 7, color: "#64748b", bold: true },
+                          { text: `${dashboardStore.wasteMetrics?.summary?.total_units_lost || 0} PCS`, fontSize: 18, bold: true, color: "#0f172a", margin: [0, 2, 0, 0] }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                layout: "lightHorizontalLines"
+              }
+            ]
+          },
+          {
+            width: "70%",
+            stack: [
+              { text: "Top Wasted Products (Quantified Loss)", style: "sectionHeader", margin: [20, 0, 0, 5] },
+              {
+                table: {
+                  headerRows: 1,
+                  widths: ["10%", "*", "25%", "25%"],
+                  body: [
+                    [
+                      { text: "Rank", style: "tableHeader", alignment: "center", fillColor: "#b91c1c" },
+                      { text: "Product Name", style: "tableHeader", alignment: "left", fillColor: "#b91c1c" },
+                      { text: "Units Lost", style: "tableHeader", alignment: "right", fillColor: "#b91c1c" },
+                      { text: "Lost Value", style: "tableHeader", alignment: "right", fillColor: "#b91c1c" }
+                    ],
+                    ...(dashboardStore.wasteMetrics?.top_wasted_products && dashboardStore.wasteMetrics.top_wasted_products.length > 0
+                      ? dashboardStore.wasteMetrics.top_wasted_products.map((item, index) => [
+                          { text: (index + 1).toString(), style: "tableCell", alignment: "center" },
+                          { text: item.name, style: "tableCell", alignment: "left" },
+                          { text: `${item.units} pcs`, style: "tableCell", alignment: "right" },
+                          { text: formatMoney(item.lost_revenue), style: "tableCellAmount" }
+                        ])
+                      : [[{ text: "No waste records mapped.", colSpan: 4, style: "tableCell", alignment: "center" }, {}, {}, {}]]
+                    )
+                  ]
+                },
+                layout: {
+                  fillColor: (rowIndex) => rowIndex === 0 ? "#b91c1c" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+                  hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+                  vLineWidth: () => 0,
+                  hLineColor: () => "#e2e8f0"
+                },
+                margin: [20, 0, 0, 0]
+              }
+            ]
+          }
+        ],
+        columnGap: 10,
+        margin: [0, 0, 0, 20]
+      },
+      { text: "Reason Breakdown Analysis", style: "sectionHeader" },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["*", "30%", "30%"],
+          body: [
+            [
+              { text: "Reason / Category", style: "tableHeader", alignment: "left", fillColor: "#475569" },
+              { text: "Frequency", style: "tableHeader", alignment: "right", fillColor: "#475569" },
+              { text: "Total Lost Value", style: "tableHeader", alignment: "right", fillColor: "#475569" }
+            ],
+            ...(dashboardStore.wasteMetrics?.reason_breakdown && dashboardStore.wasteMetrics.reason_breakdown.length > 0
+              ? dashboardStore.wasteMetrics.reason_breakdown.map((r) => [
+                  { text: r.reason, style: "tableCell", alignment: "left" },
+                  { text: (r.count || "-").toString(), style: "tableCell", alignment: "right" },
+                  { text: formatMoney(r.lost_revenue), style: "tableCellAmount" }
+                ])
+              : [[{ text: "No breakdowns available.", colSpan: 3, style: "tableCell", alignment: "center" }, {}, {}]]
+            )
+          ]
+        },
+        layout: {
+          fillColor: (rowIndex) => rowIndex === 0 ? "#475569" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+          hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+          vLineWidth: () => 0,
+          hLineColor: () => "#e2e8f0"
+        },
+        margin: [0, 5, 0, 0]
+      },
+
+      // ── Page 4: Production Cost & Profitability Leaderboard ──
+      { text: "", pageBreak: "after" },
+      {
+        table: {
+          widths: ["*"],
+          body: [
+            [
+              {
+                fillColor: "#0284c7",
+                stack: [
+                  { text: "PRODUCTION COST & PROFITABILITY LEADERBOARD", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
+                  { text: `RECIPE EXPENSES & PRODUCT PROFIT MARGIN RANKINGS | LOCATION: ${branchName.toUpperCase()}`, color: "#e0f2fe", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                ],
+                border: [false, false, false, false]
+              }
+            ]
+          ]
+        },
+        margin: [0, -10, 0, 20]
+      },
+      {
+        columns: [
+          {
+            width: "35%",
+            stack: [
+              { text: "Recipe Runs Expense Summary", style: "sectionHeader" },
+              {
+                table: {
+                  widths: ["*"],
+                  body: [
+                    [
+                      {
+                        fillColor: "#f0f9ff",
+                        borderColor: "#bae6fd",
+                        stack: [
+                          { text: "AVERAGE PRODUCTION COST", fontSize: 7, color: "#0284c7", bold: true },
+                          { text: formatMoney(dashboardStore.recipeCostMetrics?.averageCost || 0), fontSize: 18, bold: true, color: "#0369a1", margin: [0, 2, 0, 0] }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                layout: "lightHorizontalLines",
+                margin: [0, 0, 0, 15]
+              },
+              { text: "Highest Cost Recipes", style: "sectionHeader", margin: [0, 0, 0, 5] },
+              {
+                table: {
+                  headerRows: 1,
+                  widths: ["*", "40%"],
+                  body: [
+                    [
+                      { text: "Recipe Name", style: "tableHeader", alignment: "left", fillColor: "#0369a1" },
+                      { text: "Avg Cost", style: "tableHeader", alignment: "right", fillColor: "#0369a1" }
+                    ],
+                    ...(dashboardStore.recipeCostMetrics?.topRecipes && dashboardStore.recipeCostMetrics.topRecipes.length > 0
+                      ? dashboardStore.recipeCostMetrics.topRecipes.slice(0, 5).map((r) => [
+                          { text: r.recipe_name, style: "tableCell", alignment: "left" },
+                          { text: formatMoney(r.avg_cost), style: "tableCellAmount" }
+                        ])
+                      : [[{ text: "No recipe costs mapped.", colSpan: 2, style: "tableCell", alignment: "center" }, {}]]
+                    )
+                  ]
+                },
+                layout: {
+                  fillColor: (rowIndex) => rowIndex === 0 ? "#0369a1" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+                  hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+                  vLineWidth: () => 0,
+                  hLineColor: () => "#e2e8f0"
+                }
+              }
+            ]
+          },
+          {
+            width: "65%",
+            stack: [
+              { text: "Product Profitability Leaders (Top/Bottom)", style: "sectionHeader", margin: [20, 0, 0, 5] },
+              {
+                columns: [
+                  {
+                    width: "48%",
+                    stack: [
+                      { text: "Top 5 Most Profitable", fontSize: 8.5, bold: true, color: "#16a34a", margin: [0, 0, 0, 4] },
+                      {
+                        table: {
+                          headerRows: 1,
+                          widths: ["15%", "*", "30%"],
+                          body: [
+                            [
+                              { text: "Rank", style: "tableHeader", alignment: "center", fillColor: "#16a34a" },
+                              { text: "Product", style: "tableHeader", alignment: "left", fillColor: "#16a34a" },
+                              { text: "Margin", style: "tableHeader", alignment: "right", fillColor: "#16a34a" }
+                            ],
+                            ...(topFive.length > 0
+                              ? topFive.map((item, index) => [
+                                  { text: (index + 1).toString(), style: "tableCell", alignment: "center" },
+                                  { text: item.name, style: "tableCell", alignment: "left" },
+                                  { text: `${Math.round(item.margin)}%`, style: "tableCellAmount", color: "#16a34a", bold: true }
+                                ])
+                              : [[{ text: "No data.", colSpan: 3, style: "tableCell", alignment: "center" }, {}, {}]]
+                            )
+                          ]
+                        },
+                        layout: {
+                          fillColor: (rowIndex) => rowIndex === 0 ? "#16a34a" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+                          hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+                          vLineWidth: () => 0,
+                          hLineColor: () => "#e2e8f0"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    width: "48%",
+                    stack: [
+                      { text: "Bottom 5 Least Profitable", fontSize: 8.5, bold: true, color: "#dc2626", margin: [0, 0, 0, 4] },
+                      {
+                        table: {
+                          headerRows: 1,
+                          widths: ["15%", "*", "30%"],
+                          body: [
+                            [
+                              { text: "Rank", style: "tableHeader", alignment: "center", fillColor: "#dc2626" },
+                              { text: "Product", style: "tableHeader", alignment: "left", fillColor: "#dc2626" },
+                              { text: "Margin", style: "tableHeader", alignment: "right", fillColor: "#dc2626" }
+                            ],
+                            ...(bottomFive.length > 0
+                              ? bottomFive.map((item, index) => [
+                                  { text: (index + 1).toString(), style: "tableCell", alignment: "center" },
+                                  { text: item.name, style: "tableCell", alignment: "left" },
+                                  { text: `${Math.round(item.margin)}%`, style: "tableCellAmount", color: "#dc2626", bold: true }
+                                ])
+                              : [[{ text: "No data.", colSpan: 3, style: "tableCell", alignment: "center" }, {}, {}]]
+                            )
+                          ]
+                        },
+                        layout: {
+                          fillColor: (rowIndex) => rowIndex === 0 ? "#dc2626" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+                          hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+                          vLineWidth: () => 0,
+                          hLineColor: () => "#e2e8f0"
+                        }
+                      }
+                    ],
+                    margin: [10, 0, 0, 0]
+                  }
+                ],
+                margin: [20, 0, 0, 0]
+              }
+            ]
+          }
+        ],
+        columnGap: 10,
+        margin: [0, 0, 0, 10]
+      },
+
+      // ── Page 5: Smart Predictions & Profit Margin Matrix ──
+      { text: "", pageBreak: "after" },
+      {
+        table: {
+          widths: ["*"],
+          body: [
+            [
+              {
+                fillColor: "#4f46e5",
+                stack: [
+                  { text: "INTELLIGENT PREDICTIONS & PROFIT MARGIN MATRIX", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
+                  { text: `INVENTORY RUNOUT FORECASTS & DETAILED UNIT MARGINS | LOCATION: ${branchName.toUpperCase()}`, color: "#e0e7ff", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                ],
+                border: [false, false, false, false]
+              }
+            ]
+          ]
+        },
+        margin: [0, -10, 0, 20]
+      },
+      { text: "Smart Inventory Runout Predictions", style: "sectionHeader" },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["*", "20%", "30%", "20%"],
+          body: [
+            [
+              { text: "Raw Material / Item Name", style: "tableHeader", alignment: "left", fillColor: "#4f46e5" },
+              { text: "Current Stock", style: "tableHeader", alignment: "center", fillColor: "#4f46e5" },
+              { text: "Days Remaining", style: "tableHeader", alignment: "center", fillColor: "#4f46e5" },
+              { text: "Status Level", style: "tableHeader", alignment: "center", fillColor: "#4f46e5" }
+            ],
+            ...(dashboardStore.predictiveStocking && dashboardStore.predictiveStocking.length > 0
+              ? dashboardStore.predictiveStocking.map((p) => [
+                  { text: p.name, style: "tableCell", alignment: "left" },
+                  { text: `${p.current_stock} ${p.unit || ''}`, style: "tableCell", alignment: "center" },
+                  { text: `${p.days_remaining} days`, style: "tableCell", alignment: "center" },
+                  { text: p.status.toUpperCase(), style: "tableCell", alignment: "center", bold: true, color: p.status === "critical" ? "#ef4444" : "#f59e0b" }
+                ])
+              : [[{ text: "No stock alerts or runout predictions mapped.", colSpan: 4, style: "tableCell", alignment: "center" }, {}, {}, {}]]
+            )
+          ]
+        },
+        layout: {
+          fillColor: (rowIndex) => rowIndex === 0 ? "#4f46e5" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+          hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+          vLineWidth: () => 0,
+          hLineColor: () => "#e2e8f0"
+        },
+        margin: [0, 5, 0, 15]
+      },
+      { text: "Detailed Profit Margin Analysis Matrix", style: "sectionHeader" },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["*", "10%", "10%", "12%", "12%", "15%", "11%", "10%", "10%"],
+          body: [
+            [
+              { text: "Product Name", style: "tableHeader", alignment: "left", fillColor: "#1e293b" },
+              { text: "Category", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
+              { text: "Qty Produced", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
+              { text: "Unit Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Selling Price", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Total Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Total Sales", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Margin", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Rating", style: "tableHeader", alignment: "center", fillColor: "#1e293b" }
+            ],
+            ...(dashboardStore.profitMargins && dashboardStore.profitMargins.length > 0
+              ? dashboardStore.profitMargins.map((m) => [
+                  { text: m.name, style: "tableCell", alignment: "left" },
+                  { text: m.category, style: "tableCell", alignment: "center" },
+                  { text: m.production.toString(), style: "tableCell", alignment: "center" },
+                  { text: formatMoney(m.unit_cost), style: "tableCellAmount" },
+                  { text: formatMoney(m.price), style: "tableCellAmount" },
+                  { text: formatMoney(m.cost), style: "tableCellAmount" },
+                  { text: formatMoney(m.total_sales_amount), style: "tableCellAmount" },
+                  { text: `${Math.round(m.margin)}%`, style: "tableCellAmount", bold: true, color: m.margin >= 40 ? "#16a34a" : (m.margin >= 20 ? "#ea580c" : "#dc2626") },
+                  { text: m.status.toUpperCase(), style: "tableCell", alignment: "center", bold: true, color: m.margin >= 40 ? "#16a34a" : (m.margin >= 20 ? "#ea580c" : "#dc2626") }
+                ])
+              : [[{ text: "No profit margin calculations available.", colSpan: 9, style: "tableCell", alignment: "center" }, {}, {}, {}, {}, {}, {}, {}, {}]]
+            )
+          ]
+        },
+        layout: {
+          fillColor: (rowIndex) => rowIndex === 0 ? "#1e293b" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+          hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+          vLineWidth: () => 0,
+          hLineColor: () => "#e2e8f0"
+        },
+        margin: [0, 5, 0, 0]
+      }
     ],
     footer: function(currentPage, pageCount) {
       return {
@@ -690,7 +1078,6 @@ onMounted(async () => {
   // Verify if current view contains no data
   const hasData = dashboardStore.stats.totalSalesData.some(v => v > 0);
   if (!hasData) {
-    console.log("No recent data found. Auto-expanding timeframe to 3M...");
     dashboardStore.setTimeRange("3M");
   }
 });
