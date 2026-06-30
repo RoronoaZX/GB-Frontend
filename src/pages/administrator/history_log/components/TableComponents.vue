@@ -1,7 +1,56 @@
 <template>
   <div>
+    <div class="row items-center justify-between q-mb-md q-px-sm">
+      <div class="text-h6 text-weight-bolder text-grey-8">{{ title }}</div>
+      <q-input
+        outlined
+        dense
+        debounce="300"
+        v-model="filter"
+        placeholder="Search Logs..."
+        class="search-input"
+        bg-color="white"
+        style="width: 100%; max-width: 300px; border-radius: 8px"
+      >
+        <template v-slot:append>
+          <q-icon name="search" color="grey-6" />
+        </template>
+      </q-input>
+    </div>
+
+    <!-- Skeletal Loading Table -->
+    <div v-if="loading" class="q-pa-sm">
+      <q-markup-table flat class="premium-table">
+        <thead>
+          <tr>
+            <th class="text-left" style="width: 220px"><q-skeleton type="text" width="60%" /></th>
+            <th class="text-left" style="width: 150px"><q-skeleton type="text" width="50%" /></th>
+            <th class="text-left"><q-skeleton type="text" width="30%" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in 5" :key="n">
+            <td>
+              <div class="row items-center no-wrap">
+                <q-icon name="schedule" color="grey-3" size="xs" class="q-mr-xs" />
+                <q-skeleton type="text" width="80%" />
+              </div>
+            </td>
+            <td><q-skeleton type="rect" width="90px" height="24px" style="border-radius: 4px;" /></td>
+            <td>
+              <div class="row items-center no-wrap">
+                <q-skeleton type="circle" size="24px" class="q-mr-sm" />
+                <q-skeleton type="text" width="70%" />
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </q-markup-table>
+    </div>
+
     <!-- Modern Elegant Table -->
     <q-table
+      v-else
       class="elegant-table q-mt-md"
       flat bordered
       :rows="historyLogsData"
@@ -9,26 +58,9 @@
       row-key="id"
       v-model:pagination="pagination"
       :filter="filter"
-      :loading="loading"
       @request="onRequest"
-      :title="title"
+      hide-top
     >
-      <!-- Top Right Search Slot -->
-      <template v-slot:top-right>
-        <q-input
-          borderless
-          dense
-          debounce="300"
-          v-model="filter"
-          placeholder="Search Logs..."
-          class="search-input"
-        >
-          <template v-slot:append>
-            <q-icon name="search" color="grey-6" />
-          </template>
-        </q-input>
-      </template>
-
       <!-- Details Column Layout -->
       <template v-slot:body-cell-details="props">
         <q-td :props="props">
@@ -60,20 +92,14 @@
                 ({{ props.row?.name }})
               </span>
             </div>
-            
-            <!-- Update Specifics sub-row (if exists) -->
-            <div v-if="props.row?.updated_field" class="row items-center q-mt-xs text-caption text-grey-7 bg-grey-1 q-pa-xs rounded-borders" style="display: inline-flex;">
-              <q-icon name="history_edu" size="14px" class="q-mr-xs text-grey-5" />
-              Modified <span class="text-weight-bold text-dark q-mx-xs">{{ props.row.updated_field }}</span>
-              from <span class="text-strike text-negative q-mx-xs">{{ props.row.original_data || 'empty' }}</span>
-              <q-icon name="east" size="10px" class="q-mx-xs text-grey-4" />
-              <span class="text-weight-bold text-positive q-ml-xs">{{ props.row.updated_data || 'empty' }}</span>
+            <div class="q-mt-xs text-caption text-grey-6">
+              {{ props.row?.details }}
             </div>
           </div>
         </q-td>
       </template>
 
-      <!-- Action Chip Column Layout -->
+      <!-- Action Type Badges -->
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <q-chip
@@ -96,11 +122,6 @@
             {{ formatTimestamp(props.row?.created_at) }}
           </div>
         </q-td>
-      </template>
-
-      <!-- Loading State Skeleton -->
-      <template v-slot:loading>
-        <q-inner-loading showing color="primary" />
       </template>
       
       <!-- No Data State -->

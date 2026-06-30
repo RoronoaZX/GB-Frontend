@@ -133,7 +133,6 @@ export default boot(async ({ router }) => {
         useWarehouseRawMaterialsStore().setUser(user.data);
         useDTRStore().setUser(user.data);
 
-        // Role-based routing
         if (to.path === "/") {
           if (role === "Super Admin") {
             next("/admin/dashboard");
@@ -152,6 +151,8 @@ export default boot(async ({ router }) => {
           } else {
             next();
           }
+        } else if (to.path === "/admin/dashboard" && role !== "Super Admin") {
+          next("/admin/raw_materials");
         } else {
           next();
         }

@@ -15,8 +15,35 @@
       </template>
     </q-input>
   </div>
-  <div class="spinner-wrapper" v-if="loading">
-    <q-spinner-dots size="50px" color="primary" />
+  <!-- Skeletal Loading Table -->
+  <div v-if="loading" class="q-pa-sm">
+    <q-markup-table flat class="premium-table">
+      <thead>
+        <tr>
+          <th class="text-center" style="width: 20%"><q-skeleton type="text" width="60%" class="q-mx-auto" /></th>
+          <th class="text-center" style="width: 15%"><q-skeleton type="text" width="50%" class="q-mx-auto" /></th>
+          <th class="text-center" style="width: 15%"><q-skeleton type="text" width="50%" class="q-mx-auto" /></th>
+          <th class="text-center" style="width: 25%"><q-skeleton type="text" width="70%" class="q-mx-auto" /></th>
+          <th class="text-center" style="width: 15%"><q-skeleton type="text" width="60%" class="q-mx-auto" /></th>
+          <th class="text-center" style="width: 10%"><q-skeleton type="text" width="50%" class="q-mx-auto" /></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="n in 5" :key="n">
+          <td class="text-center"><q-skeleton type="text" width="80%" class="q-mx-auto" /></td>
+          <td class="text-center"><q-skeleton type="text" width="70%" class="q-mx-auto" /></td>
+          <td class="text-center"><q-skeleton type="text" width="60%" class="q-mx-auto" /></td>
+          <td class="text-center"><q-skeleton type="text" width="85%" class="q-mx-auto" /></td>
+          <td class="text-center"><q-skeleton type="text" width="75%" class="q-mx-auto" /></td>
+          <td>
+            <div class="row justify-center q-gutter-x-md">
+              <q-skeleton type="rect" width="32px" height="32px" style="border-radius: 4px;" />
+              <q-skeleton type="rect" width="32px" height="32px" style="border-radius: 4px;" />
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </q-markup-table>
   </div>
   <div v-else>
     <div v-if="filteredRows.length === 0" class="data-error">

@@ -18,7 +18,29 @@
     </div>
   </div>
 
+  <div v-if="loading" class="q-pa-sm">
+    <q-markup-table flat bordered>
+      <thead>
+        <tr>
+          <th class="text-left" style="width: 25%"><q-skeleton type="text" width="60%" /></th>
+          <th class="text-left" style="width: 45%"><q-skeleton type="text" width="50%" /></th>
+          <th class="text-center" style="width: 15%"><q-skeleton type="text" width="40%" class="q-mx-auto" /></th>
+          <th class="text-center" style="width: 15%"><q-skeleton type="text" width="40%" class="q-mx-auto" /></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="n in 5" :key="n">
+          <td><q-skeleton type="text" width="70%" /></td>
+          <td><q-skeleton type="text" width="80%" /></td>
+          <td class="text-center"><q-skeleton type="rect" width="60px" height="24px" class="q-mx-auto" style="border-radius: 4px;" /></td>
+          <td class="text-center"><q-skeleton type="rect" width="80px" height="32px" class="q-mx-auto" style="border-radius: 16px;" /></td>
+        </tr>
+      </tbody>
+    </q-markup-table>
+  </div>
+
   <q-table
+    v-else
     flat
     bordered
     row-key="id"
@@ -133,12 +155,6 @@
           {{ props.row.supplier_ingredients.length === 1 ? 'ITEM' : 'ITEMS' }}
         </q-btn>
       </q-td>
-    </template>
-
-    <template #loading>
-      <q-inner-loading showing>
-        <q-spinner-ios size="50px" color="grey-10" />
-      </q-inner-loading>
     </template>
   </q-table>
 </template>

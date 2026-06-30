@@ -1,5 +1,25 @@
 <template>
-  <q-table :rows="incentives" :columns="incentivesBasesColumns">
+  <!-- Skeletal Loading Table -->
+  <div v-if="tableLoading" class="q-pa-sm">
+    <q-markup-table flat class="user-card">
+      <thead>
+        <tr class="gradient-header text-white">
+          <th v-for="col in incentivesBasesColumns" :key="col.name" class="text-center">
+            <q-skeleton type="text" width="60%" class="q-mx-auto" />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="n in 3" :key="n">
+          <td v-for="col in incentivesBasesColumns" :key="col.name" class="text-center">
+            <q-skeleton type="text" width="50%" class="q-mx-auto" />
+          </td>
+        </tr>
+      </tbody>
+    </q-markup-table>
+  </div>
+
+  <q-table v-else :rows="incentives" :columns="incentivesBasesColumns">
     <template v-slot:header="props">
       <q-tr :props="props" class="gradient-header text-white text-weight-bold">
         <q-th
@@ -285,7 +305,14 @@ const updateHorneroIncentives = async (data, val) => {
 };
 
 const fetchIncentivesData = async () => {
-  await incentivesStore.fetchIncentivesBases();
+  tableLoading.value = true;
+  try {
+    await incentivesStore.fetchIncentivesBases();
+  } catch (error) {
+    console.error("Error fetching incentives bases:", error);
+  } finally {
+    tableLoading.value = false;
+  }
 };
 onMounted(fetchIncentivesData);
 

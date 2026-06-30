@@ -19,8 +19,24 @@
     </q-card-section>
 
     <q-card-section>
-      <div class="spinner-wrapper" v-if="loading">
-        <q-spinner-dots size="50px" color="primary" />
+      <!-- Skeletal Loading Table -->
+      <div v-if="loading" class="q-pa-sm">
+        <q-markup-table flat class="recipe-table">
+          <thead>
+            <tr>
+              <th v-for="col in recipeCostColumn" :key="col.name" class="text-center">
+                <q-skeleton type="text" width="60%" class="q-mx-auto" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="n in 5" :key="n">
+              <td v-for="col in recipeCostColumn" :key="col.name" class="text-center">
+                <q-skeleton type="text" width="50%" class="q-mx-auto" />
+              </td>
+            </tr>
+          </tbody>
+        </q-markup-table>
       </div>
 
       <div v-else>

@@ -97,9 +97,131 @@
       {{ dashboardStore.error }}
     </q-banner>
 
-    <!-- Loading Skeleton Overlay (Optional, but let's keep it simple with a spinner) -->
-    <div v-if="dashboardStore.loading" class="flex flex-center q-pa-xl">
-      <q-spinner-dots color="primary" size="3em" />
+    <!-- Premium Skeletal Loading View -->
+    <div v-if="dashboardStore.loading" class="q-gutter-md animate-fade">
+      <!-- KPI Cards Skeletons -->
+      <div class="row q-col-gutter-lg">
+        <!-- 3 big cards -->
+        <div class="col-12 col-sm-6 col-lg-4" v-for="n in 3" :key="'big-kpi-' + n">
+          <q-card class="q-pa-lg" flat bordered style="border-radius: 24px; min-height: 106px;">
+            <div class="row items-center no-wrap">
+              <q-skeleton type="QAvatar" size="64px" class="rounded-borders" style="border-radius: 20px;" />
+              <div class="q-ml-md" style="flex: 1">
+                <q-skeleton type="text" width="60%" height="12px" />
+                <q-skeleton type="text" width="80%" height="28px" class="q-mt-sm" />
+              </div>
+            </div>
+          </q-card>
+        </div>
+        <!-- 4 small cards -->
+        <div class="col-12 col-sm-6 col-lg-3" v-for="n in 4" :key="'small-kpi-' + n">
+          <q-card class="q-pa-lg" flat bordered style="border-radius: 24px; min-height: 106px;">
+            <div class="row items-center no-wrap">
+              <q-skeleton type="QAvatar" size="64px" class="rounded-borders" style="border-radius: 20px;" />
+              <div class="q-ml-md" style="flex: 1">
+                <q-skeleton type="text" width="50%" height="12px" />
+                <q-skeleton type="text" width="70%" height="24px" class="q-mt-sm" />
+              </div>
+            </div>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Charts Skeletons -->
+      <div class="row q-col-gutter-lg q-mt-md">
+        <!-- Sales Trend skeleton -->
+        <div class="col-12 col-md-8">
+          <q-card flat bordered style="border-radius: 24px;">
+            <q-card-section>
+              <q-skeleton type="text" width="40%" height="20px" />
+              <q-skeleton type="text" width="60%" height="12px" class="q-mt-sm" />
+            </q-card-section>
+            <q-card-section>
+              <q-skeleton type="rect" height="300px" style="border-radius: 12px;" />
+            </q-card-section>
+          </q-card>
+        </div>
+        <!-- Donut Distribution skeleton -->
+        <div class="col-12 col-md-4">
+          <q-card flat bordered style="border-radius: 24px;">
+            <q-card-section>
+              <q-skeleton type="text" width="60%" height="20px" />
+              <q-skeleton type="text" width="80%" height="12px" class="q-mt-sm" />
+            </q-card-section>
+            <q-card-section class="flex flex-center" style="height: 320px;">
+              <q-skeleton type="circle" size="220px" />
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Lower widgets skeleton -->
+      <div class="row q-col-gutter-lg q-mt-md">
+        <!-- Waste Tracker Skeleton -->
+        <div class="col-12">
+          <q-card flat bordered style="border-radius: 24px;">
+            <q-card-section>
+              <q-skeleton type="text" width="20%" height="24px" />
+              <q-skeleton type="text" width="40%" height="12px" class="q-mt-sm" />
+              <div class="row q-col-gutter-md q-mt-md">
+                <div class="col-12 col-md-3" v-for="w in 4" :key="'waste-' + w">
+                  <q-card flat class="bg-grey-1 q-pa-md" style="border-radius: 16px;">
+                    <q-skeleton type="text" width="60%" />
+                    <q-skeleton type="text" width="80%" height="24px" class="q-mt-sm" />
+                  </q-card>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Recipe Cost & Profit Leaderboard Row Skeleton -->
+        <div class="col-12 col-md-6 q-mt-md">
+          <q-card flat bordered style="border-radius: 24px; min-height: 280px;">
+            <q-card-section>
+              <q-skeleton type="text" width="40%" height="24px" />
+              <q-skeleton type="text" width="60%" height="12px" class="q-mt-sm" />
+              <q-list class="q-mt-md">
+                <q-item v-for="n in 3" :key="'recipe-' + n" class="q-px-none">
+                  <q-item-section avatar><q-skeleton type="QAvatar" size="40px" style="border-radius: 8px;" /></q-item-section>
+                  <q-item-section>
+                    <q-skeleton type="text" width="70%" />
+                    <q-skeleton type="text" width="40%" class="q-mt-xs" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-6 q-mt-md">
+          <q-card flat bordered style="border-radius: 24px; min-height: 280px;">
+            <q-card-section>
+              <q-skeleton type="text" width="40%" height="24px" />
+              <q-skeleton type="text" width="60%" height="12px" class="q-mt-sm" />
+              <q-list class="q-mt-md">
+                <q-item v-for="n in 3" :key="'leaderboard-' + n" class="q-px-none">
+                  <q-item-section avatar><q-skeleton type="QAvatar" size="40px" style="border-radius: 8px;" /></q-item-section>
+                  <q-item-section>
+                    <q-skeleton type="text" width="70%" />
+                    <q-skeleton type="text" width="40%" class="q-mt-xs" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Predictive Stock & Inventory Skeleton -->
+        <div class="col-12 q-mt-md">
+          <q-card flat bordered style="border-radius: 24px;">
+            <q-card-section>
+              <q-skeleton type="text" width="30%" height="24px" />
+              <q-skeleton type="rect" height="150px" class="q-mt-md" style="border-radius: 12px;" />
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
     </div>
 
     <!-- Main Content -->

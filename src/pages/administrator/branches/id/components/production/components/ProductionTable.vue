@@ -22,9 +22,26 @@
       <AddSalesReport />
     </div>
   </div>
-  <div class="spinner-wrapper" v-if="loading">
-    <q-spinner-dots size="50px" color="primary" />
+  <!-- Skeletal Loading Table -->
+  <div v-if="loading" class="q-pa-sm">
+    <q-markup-table flat class="table-container">
+      <thead>
+        <tr>
+          <th v-for="col in productsColumn" :key="col.name" class="text-center">
+            <q-skeleton type="text" width="60%" class="q-mx-auto" />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="n in 3" :key="n">
+          <td v-for="col in productsColumn" :key="col.name" class="text-center">
+            <q-skeleton type="text" width="50%" class="q-mx-auto" />
+          </td>
+        </tr>
+      </tbody>
+    </q-markup-table>
   </div>
+
   <div v-else>
     <div v-if="productionRows.length === 0" class="data-error">
       <q-icon name="warning" color="warning" size="4em" />

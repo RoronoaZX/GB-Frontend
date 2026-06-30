@@ -444,7 +444,7 @@ const startEditingDate = () => {
 // Save edited date + time
 const saveEditedDateTime = async () => {
   try {
-    loading.value = true;
+    stocksDeliveryStore.loading = true;
 
     if (!selectedDelivery.value?.id) return;
 
@@ -492,7 +492,7 @@ const saveEditedDateTime = async () => {
       message: errorMessage,
     });
   } finally {
-    loading.value = false;
+    stocksDeliveryStore.loading = false;
     isEditingDate.value = false;
   }
 };
@@ -513,7 +513,6 @@ const onSearch = () => {
 
 // Functio to fetch deliveries ewith current pagination and search parameters
 const fetchDeliveryStocks = async (page = 1) => {
-  $q.loading.show();
   try {
     await stocksDeliveryStore.fetchDeliveryStocks(
       page,
@@ -545,8 +544,6 @@ const fetchDeliveryStocks = async (page = 1) => {
       type: "negative",
       message: "Failed to load deliveries. Please try again.",
     });
-  } finally {
-    $q.loading.hide(); // Hide loading indicator
   }
 };
 

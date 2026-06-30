@@ -19,13 +19,33 @@
     />
   </div>
   <div>
+    <!-- Skeletal Loading Table -->
+    <div v-if="loading" class="q-pa-sm">
+      <q-markup-table flat class="user-card">
+        <thead>
+          <tr>
+            <th v-for="col in dtrColumns" :key="col.name" class="text-center">
+              <q-skeleton type="text" width="60%" class="q-mx-auto" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in 5" :key="n">
+            <td v-for="col in dtrColumns" :key="col.name" class="text-center">
+              <q-skeleton type="text" width="60%" class="q-mx-auto" />
+            </td>
+          </tr>
+        </tbody>
+      </q-markup-table>
+    </div>
+
     <q-table
+      v-else
       :rows="dtrRows"
       :columns="dtrColumns"
       row-key="time_in"
       v-model:pagination="pagination"
       :rows-per-page-options="[3, 5, 10, 0]"
-      :loading="loading"
       :filter="filter"
       @request="handleRequest"
     >
@@ -1141,11 +1161,7 @@
         </q-td>
       </template>
 
-      <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-ios size="50px" color="grey-10" />
-        </q-inner-loading>
-      </template>
+
     </q-table>
   </div>
 </template>

@@ -1,5 +1,37 @@
 <template>
-  <q-card class="q-pa-md q-mb-md q-mt-sm text-center user-card">
+  <q-card v-if="loading" class="q-pa-md q-mb-md q-mt-sm text-center user-card">
+    <q-card-section horizontal>
+      <!-- Total Employee Skeleton -->
+      <div class="col q-pa-md">
+        <q-skeleton type="text" width="60%" class="q-mx-auto" height="24px" />
+        <q-skeleton type="text" width="80%" class="q-mx-auto q-mt-sm" height="12px" />
+        <q-skeleton type="rect" width="50%" class="q-mx-auto q-my-md" height="48px" />
+        <q-skeleton type="text" width="40%" class="q-mx-auto" height="12px" />
+      </div>
+
+      <q-separator vertical />
+
+      <!-- Salary Per Month Skeleton -->
+      <div class="col q-pa-md">
+        <q-skeleton type="text" width="60%" class="q-mx-auto" height="24px" />
+        <q-skeleton type="text" width="80%" class="q-mx-auto q-mt-sm" height="12px" />
+        <q-skeleton type="rect" width="50%" class="q-mx-auto q-my-md" height="48px" />
+        <q-skeleton type="text" width="40%" class="q-mx-auto" height="12px" />
+      </div>
+
+      <q-separator vertical />
+
+      <!-- Provident Fund Skeleton -->
+      <div class="col q-pa-md">
+        <q-skeleton type="text" width="60%" class="q-mx-auto" height="24px" />
+        <q-skeleton type="text" width="80%" class="q-mx-auto q-mt-sm" height="12px" />
+        <q-skeleton type="rect" width="50%" class="q-mx-auto q-my-md" height="48px" />
+        <q-skeleton type="text" width="40%" class="q-mx-auto" height="12px" />
+      </div>
+    </q-card-section>
+  </q-card>
+
+  <q-card v-else class="q-pa-md q-mb-md q-mt-sm text-center user-card">
     <q-card-section horizontal>
       <!-- Total Employee Section -->
       <div class="col q-pa-md">
@@ -36,20 +68,24 @@
 
 <script setup>
 import { useEmployeeStore } from "src/stores/employee";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
+const loading = ref(true);
 
 onMounted(async () => {
   await fetchEmployeeData();
 });
 
 const fetchEmployeeData = async () => {
+  loading.value = true;
   try {
     employees.value = await employeeStore.fetchAllEmployee();
   } catch (error) {
     /* console.log("error fetching employee: ", error); */
+  } finally {
+    loading.value = false;
   }
 };
 </script>

@@ -88,11 +88,11 @@ import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
 
- const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); // super admin
+// const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); // super admin
 // const uuid = ref(
 //  "f2edb9c41f6b7d1b147016a56f9d30b71ee02de8eb7375c737ec910a2be5dc29"
 // ); //laptop / warehouse
-// const uuid = ref("b76baeef9c2aef9a"); // Endrina Branch ID 6
+const uuid = ref("b76baeef9c2aef9a"); // Endrina Branch ID 6
 // const uuid = ref("5835654244de8c03"); // Endrina Branch ID 6
 // const uuid = ref("e31eaea24d126881"); // Warehouse Endrina
 
@@ -188,7 +188,6 @@ const login = async () => {
       // uuid: machineId.value,
     });
 
-    localStorage.setItem("activeMenuItem", "dashboard");
     localStorage.setItem("token", response.data.token);
     localStorage.setItem("token_created_at", Date.now().toString());
     localStorage.setItem("role", response.data.role);
@@ -204,19 +203,21 @@ const login = async () => {
     localStorage.setItem(storageKey, device.reference_id);
 
     const role = response.data.role;
-    const storedActiveMenuItem = localStorage.getItem("activeMenuItem");
     if (role === "Admin" || role === "Super Admin") {
-      let path;
+      // Determine default menu item based on role authority
+      const defaultActiveMenu = role === "Super Admin" ? "dashboard" : "raw_materials";
+      let storedActiveMenuItem = localStorage.getItem("activeMenuItem");
 
-      // If a stored value is found in localStorage, set the activeMenuItem
-      if (storedActiveMenuItem) {
-        path = `/admin/${storedActiveMenuItem}`;
-        activeMenuItem.value = storedActiveMenuItem;
-      } else {
-        path = "/";
-        localStorage.setItem("activeMenuItem", "dashboard");
-        activeMenuItem.value = "dashboard";
+      // Ensure standard Admins are not assigned the dashboard active menu item
+      if (role !== "Super Admin" && storedActiveMenuItem === "dashboard") {
+        storedActiveMenuItem = "raw_materials";
       }
+
+      const finalActiveMenu = storedActiveMenuItem || defaultActiveMenu;
+      localStorage.setItem("activeMenuItem", finalActiveMenu);
+      activeMenuItem.value = finalActiveMenu;
+
+      const path = `/admin/${finalActiveMenu}`;
 
       // Navigate to the stored path or new path
       await router.push(path);

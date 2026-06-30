@@ -1,136 +1,196 @@
 <template>
-  <div class="row q-col-gutter-lg q-mb-lg">
-    <!-- Total Raw Materials -->
-    <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.1s">
-      <q-card class="stat-card shadow-soft" flat bordered>
-        <q-card-section class="row items-center no-wrap">
-          <div class="icon-box bg-teal-1 text-teal glass-effect">
-            <q-icon name="inventory" size="24px" />
-          </div>
-          <div class="q-ml-md">
-            <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Master Items</div>
-            <div class="text-h5 text-weight-bolder text-dark">{{ dashboardStore.stats.totalRecipes || 0 }}</div>
-          </div>
-        </q-card-section>
-      </q-card>
+  <!-- Skeletal Loading State -->
+  <div v-if="dashboardStore.loading" class="q-gutter-md animate-fade">
+    <!-- Stat Cards Skeletons -->
+    <div class="row q-col-gutter-lg q-mb-lg">
+      <div class="col-12 col-sm-6 col-lg-3" v-for="n in 4" :key="'stat-card-skeleton-' + n">
+        <q-card class="stat-card shadow-soft" flat bordered style="border-radius: 16px;">
+          <q-card-section class="row items-center no-wrap">
+            <q-skeleton type="QAvatar" size="48px" style="border-radius: 12px;" />
+            <div class="q-ml-md" style="flex: 1">
+              <q-skeleton type="text" width="60%" height="12px" />
+              <q-skeleton type="text" width="40%" height="24px" class="q-mt-sm" />
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
 
-    <!-- Low Stock Items -->
-    <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.2s">
-      <q-card class="stat-card shadow-soft" flat bordered>
-        <q-card-section class="row items-center no-wrap">
-          <div class="icon-box bg-red-1 text-red glass-effect">
-            <q-icon name="warning" size="24px" />
-          </div>
-          <div class="q-ml-md">
-            <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Low Stock Alerts</div>
-            <div class="text-h5 text-weight-bolder text-red">{{ dashboardStore.stats.lowStockItems || 0 }}</div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
+    <!-- Transaction Analysis Skeleton -->
+    <div class="row q-col-gutter-lg q-mb-xl">
+      <!-- Chart skeleton -->
+      <div class="col-12 col-md-8">
+        <q-card class="chart-card shadow-soft" flat bordered style="border-radius: 20px;">
+          <q-card-section>
+            <q-skeleton type="text" width="40%" height="20px" />
+            <q-skeleton type="text" width="60%" height="12px" class="q-mt-sm" />
+          </q-card-section>
+          <q-card-section style="height: 340px" class="q-pt-none flex flex-center">
+            <q-skeleton type="rect" class="full-width" style="border-radius: 12px; height: 320px; width: 100%;" />
+          </q-card-section>
+        </q-card>
+      </div>
 
-    <!-- Recent Deliveries (IN) -->
-    <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.3s">
-      <q-card class="stat-card shadow-soft" flat bordered>
-        <q-card-section class="row items-center no-wrap">
-          <div class="icon-box bg-blue-1 text-blue glass-effect">
-            <q-icon name="local_shipping" size="24px" />
-          </div>
-          <div class="q-ml-md">
-            <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Network Deliveries</div>
-            <div class="text-h5 text-weight-bolder text-dark">{{ totalDeliveries }}</div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
-
-    <!-- Active Categories -->
-    <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.4s">
-      <q-card class="stat-card shadow-soft" flat bordered>
-        <q-card-section class="row items-center no-wrap">
-          <div class="icon-box bg-purple-1 text-purple glass-effect">
-            <q-icon name="category" size="24px" />
-          </div>
-          <div class="q-ml-md">
-            <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Categories</div>
-            <div class="text-h5 text-weight-bolder text-dark">4 Active</div>
-          </div>
-        </q-card-section>
-      </q-card>
+      <!-- Top Transactions skeleton -->
+      <div class="col-12 col-md-4">
+        <q-card class="chart-card shadow-soft full-height-card" flat bordered style="border-radius: 20px;">
+          <q-card-section>
+            <q-skeleton type="text" width="60%" height="20px" />
+            <q-skeleton type="text" width="80%" height="12px" class="q-mt-sm" />
+          </q-card-section>
+          <q-card-section class="q-pa-none">
+            <q-list separator>
+              <q-item v-for="n in 3" :key="n" class="q-py-md">
+                <q-item-section avatar>
+                  <q-skeleton type="circle" size="40px" />
+                </q-item-section>
+                <q-item-section>
+                  <q-skeleton type="text" width="60%" />
+                  <q-skeleton type="text" width="80%" class="q-mt-xs" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
   </div>
 
-  <!-- Transaction Analysis -->
-  <div class="row q-col-gutter-lg q-mb-xl">
-    <div class="col-12 col-md-8 animate-fade-in-up" style="animation-delay: 0.5s">
-      <q-card class="chart-card shadow-soft" flat bordered>
-        <q-card-section class="row items-center justify-between">
-          <div>
-            <div class="text-h6 text-weight-bold text-slate-800">Stock Movement Analytics</div>
-            <div class="text-caption text-grey-6">Aggregated flow of materials across the entire network</div>
-          </div>
-          <q-btn-dropdown outline color="grey-7" :label="dashboardStore.timeRange" size="sm" class="rounded-pill">
-            <q-list>
-              <q-item clickable v-close-popup @click="dashboardStore.setTimeRange('7D')">
-                <q-item-section>Last 7 Days</q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="dashboardStore.setTimeRange('1M')">
-                <q-item-section>Last 30 Days</q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-        </q-card-section>
-        <q-card-section style="height: 340px" class="q-pt-none">
-           <canvas ref="rmMovementChart"></canvas>
-        </q-card-section>
-      </q-card>
+  <!-- Actual Dashboard Content -->
+  <div v-else>
+    <div class="row q-col-gutter-lg q-mb-lg">
+      <!-- Total Raw Materials -->
+      <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.1s">
+        <q-card class="stat-card shadow-soft" flat bordered>
+          <q-card-section class="row items-center no-wrap">
+            <div class="icon-box bg-teal-1 text-teal glass-effect">
+              <q-icon name="inventory" size="24px" />
+            </div>
+            <div class="q-ml-md">
+              <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Master Items</div>
+              <div class="text-h5 text-weight-bolder text-dark">{{ dashboardStore.stats.totalRecipes || 0 }}</div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Low Stock Items -->
+      <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.2s">
+        <q-card class="stat-card shadow-soft" flat bordered>
+          <q-card-section class="row items-center no-wrap">
+            <div class="icon-box bg-red-1 text-red glass-effect">
+              <q-icon name="warning" size="24px" />
+            </div>
+            <div class="q-ml-md">
+              <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Low Stock Alerts</div>
+              <div class="text-h5 text-weight-bolder text-red">{{ dashboardStore.stats.lowStockItems || 0 }}</div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Recent Deliveries (IN) -->
+      <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.3s">
+        <q-card class="stat-card shadow-soft" flat bordered>
+          <q-card-section class="row items-center no-wrap">
+            <div class="icon-box bg-blue-1 text-blue glass-effect">
+              <q-icon name="local_shipping" size="24px" />
+            </div>
+            <div class="q-ml-md">
+              <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Network Deliveries</div>
+              <div class="text-h5 text-weight-bolder text-dark">{{ totalDeliveries }}</div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Active Categories -->
+      <div class="col-12 col-sm-6 col-lg-3 animate-fade-in-up" style="animation-delay: 0.4s">
+        <q-card class="stat-card shadow-soft" flat bordered>
+          <q-card-section class="row items-center no-wrap">
+            <div class="icon-box bg-purple-1 text-purple glass-effect">
+              <q-icon name="category" size="24px" />
+            </div>
+            <div class="q-ml-md">
+              <div class="text-caption text-grey-5 text-uppercase text-weight-bold tracking-wider">Categories</div>
+              <div class="text-h5 text-weight-bolder text-dark">4 Active</div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
 
-    <div class="col-12 col-md-4 animate-fade-in-up" style="animation-delay: 0.6s">
-      <q-card class="chart-card shadow-soft full-height-card" flat bordered>
-        <q-card-section>
-          <div class="text-h6 text-weight-bold text-slate-800">Top Transactions</div>
-          <div class="text-caption text-grey-6">Latest material movements</div>
-        </q-card-section>
-        <q-card-section class="q-pa-none scrollable-list">
-          <q-list separator>
-            <q-item v-for="act in rmActivities" :key="act.id" class="q-py-md activity-item">
-              <q-item-section avatar>
-                <q-avatar size="40px" :color="act.type === 'IN' ? 'green-1' : 'red-1'" :text-color="act.type === 'IN' ? 'green-7' : 'red-7'" :icon="act.type === 'IN' ? 'add_shopping_cart' : 'local_fire_department'" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-weight-bold text-slate-700 text-capitalize">{{ act.name }}</q-item-label>
-                <q-item-label caption lines="1">{{ act.details }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                 <q-chip dense flat color="grey-2" text-color="grey-7" class="text-weight-bold" :label="formatTimeAgo(act.time)" />
-              </q-item-section>
-            </q-item>
-            <q-item v-if="rmActivities.length === 0" class="text-center text-grey-5 q-pa-xl">
-               <div class="column items-center">
-                 <q-icon name="history" size="48px" color="grey-3" />
-                 <div class="q-mt-sm">No recent movements</div>
-               </div>
-            </q-item>
-          </q-list>
-        </q-card-section>
-        <q-separator />
-        <q-card-section class="row items-center justify-center q-py-sm">
-          <q-pagination
-            v-model="dashboardStore.rmTransactionsPagination.current_page"
-            :max="dashboardStore.rmTransactionsPagination.last_page"
-            :max-pages="3"
-            boundary-numbers
-            direction-links
-            flat
-            color="grey-7"
-            active-color="teal"
-            size="sm"
-            @update:model-value="onPageChange"
-          />
-        </q-card-section>
-      </q-card>
+    <!-- Transaction Analysis -->
+    <div class="row q-col-gutter-lg q-mb-xl">
+      <div class="col-12 col-md-8 animate-fade-in-up" style="animation-delay: 0.5s">
+        <q-card class="chart-card shadow-soft" flat bordered>
+          <q-card-section class="row items-center justify-between">
+            <div>
+              <div class="text-h6 text-weight-bold text-slate-800">Stock Movement Analytics</div>
+              <div class="text-caption text-grey-6">Aggregated flow of materials across the entire network</div>
+            </div>
+            <q-btn-dropdown outline color="grey-7" :label="dashboardStore.timeRange" size="sm" class="rounded-pill">
+              <q-list>
+                <q-item clickable v-close-popup @click="dashboardStore.setTimeRange('7D')">
+                  <q-item-section>Last 7 Days</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="dashboardStore.setTimeRange('1M')">
+                  <q-item-section>Last 30 Days</q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </q-card-section>
+          <q-card-section style="height: 340px" class="q-pt-none">
+             <canvas ref="rmMovementChart"></canvas>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-4 animate-fade-in-up" style="animation-delay: 0.6s">
+        <q-card class="chart-card shadow-soft full-height-card" flat bordered>
+          <q-card-section>
+            <div class="text-h6 text-weight-bold text-slate-800">Top Transactions</div>
+            <div class="text-caption text-grey-6">Latest material movements</div>
+          </q-card-section>
+          <q-card-section class="q-pa-none scrollable-list">
+            <q-list separator>
+              <q-item v-for="act in rmActivities" :key="act.id" class="q-py-md activity-item">
+                <q-item-section avatar>
+                  <q-avatar size="40px" :color="act.type === 'IN' ? 'green-1' : 'red-1'" :text-color="act.type === 'IN' ? 'green-7' : 'red-7'" :icon="act.type === 'IN' ? 'add_shopping_cart' : 'local_fire_department'" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-bold text-slate-700 text-capitalize">{{ act.name }}</q-item-label>
+                  <q-item-label caption lines="1">{{ act.details }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                   <q-chip dense flat color="grey-2" text-color="grey-7" class="text-weight-bold" :label="formatTimeAgo(act.time)" />
+                </q-item-section>
+              </q-item>
+              <q-item v-if="rmActivities.length === 0" class="text-center text-grey-5 q-pa-xl">
+                 <div class="column items-center">
+                   <q-icon name="history" size="48px" color="grey-3" />
+                   <div class="q-mt-sm">No recent movements</div>
+                 </div>
+              </q-item>
+            </q-list>
+          </q-card-section>
+          <q-separator />
+          <q-card-section class="row items-center justify-center q-py-sm">
+            <q-pagination
+              v-model="dashboardStore.rmTransactionsPagination.current_page"
+              :max="dashboardStore.rmTransactionsPagination.last_page"
+              :max-pages="3"
+              boundary-numbers
+              direction-links
+              flat
+              color="grey-7"
+              active-color="teal"
+              size="sm"
+              @update:model-value="onPageChange"
+            />
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
   </div>
 </template>

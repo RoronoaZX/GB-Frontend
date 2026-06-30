@@ -15,7 +15,27 @@
     </q-input>
   </div>
 
-  <div v-if="!loading">
+  <!-- Skeletal Loading Table -->
+  <div v-if="loading" class="q-pa-sm">
+    <q-markup-table flat class="my-sticky-modern-table shadow-1 rounded-borders">
+      <thead>
+        <tr>
+          <th v-for="col in productColumns" :key="col.name" class="text-center">
+            <q-skeleton type="text" width="60%" class="q-mx-auto" />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="n in 5" :key="n">
+          <td v-for="col in productColumns" :key="col.name" class="text-center">
+            <q-skeleton type="text" width="50%" class="q-mx-auto" />
+          </td>
+        </tr>
+      </tbody>
+    </q-markup-table>
+  </div>
+
+  <div v-else>
     <q-table
       :rows="rows"
       :columns="productColumns"
@@ -24,7 +44,6 @@
       square
       bordered
       v-model:pagination="pagination"
-      :loading="loading"
       :rows-per-page-options="[5, 10, 0]"
       :filter="filter"
       @request="handleRequest"
@@ -79,11 +98,7 @@
         </q-td>
       </template>
 
-      <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-ios size="50px" color="grey-10" />
-        </q-inner-loading>
-      </template>
+
 
       <template v-slot:no-data="{ icon, message }">
         <div class="full-width row flex-center text-accent q-gutter-sm q-py-xl">
@@ -95,8 +110,6 @@
       </template>
     </q-table>
   </div>
-
-  <q-inner-loading v-else showing />
 </template>
 
 <script setup>

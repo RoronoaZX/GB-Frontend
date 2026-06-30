@@ -339,9 +339,19 @@
           </div>
         </q-card-section>
         <q-separator class="q-my-md" />
-        <q-card-actions align="right">
-          <q-btn outline v-close-popup>Cancel</q-btn>
-          <q-btn @click="save">Proceed</q-btn>
+        <q-card-actions align="right" class="q-px-lg q-pb-lg">
+          <q-btn flat color="grey-7" label="Cancel" v-close-popup class="q-mr-xs" />
+          <q-btn
+            unelevated
+            color="teal"
+            text-color="white"
+            label="Deliver Stocks"
+            icon="local_shipping"
+            :loading="submitting"
+            :disable="!isFormValid"
+            @click="save"
+            style="border-radius: 8px;"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -616,6 +626,7 @@ const unitOptions = [
 
 const loading = ref(false);
 const searchLoading = ref(false);
+const submitting = ref(false);
 
 const addToList = () => {
   if (!selectedRawMaterials.name || !stocksCategory.value) {
@@ -988,7 +999,7 @@ const save = async () => {
 
   /* console.log("Payloadssss : ", payload); */
 
-  $q.loading.show();
+  submitting.value = true;
   try {
     /* console.log("Payload : ", payload); */
 
@@ -1003,14 +1014,22 @@ const save = async () => {
       // ✅ close dialog only when backend confirms success
       emit("reFetchDelivery");
       closeDialog();
+      $q.notify({
+        type: "positive",
+        message: "Delivery request submitted successfully!",
+      });
     } else {
       console.error("❌ Failed to save delivery: ", response.message);
       return; // exit if not successful
     }
   } catch (error) {
     console.error("❌ Failed to save delivery:", error);
+    $q.notify({
+      type: "negative",
+      message: "Failed to submit delivery request.",
+    });
   } finally {
-    $q.loading.hide();
+    submitting.value = false;
   }
 };
 

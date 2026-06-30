@@ -1,6 +1,47 @@
 <template>
   <div style="width: 100%">
+    <!-- Skeletal Loading Table -->
+    <div v-if="tableLoading" class="q-pa-sm">
+      <q-markup-table flat class="user-card">
+        <thead>
+          <tr>
+            <th class="text-left" style="width: 25%"><q-skeleton type="text" width="60%" /></th>
+            <th class="text-left" style="width: 15%"><q-skeleton type="text" width="50%" /></th>
+            <th class="text-left" style="width: 15%"><q-skeleton type="text" width="50%" /></th>
+            <th class="text-left" style="width: 15%"><q-skeleton type="text" width="50%" /></th>
+            <th class="text-center" style="width: 10%"><q-skeleton type="text" width="40%" class="q-mx-auto" /></th>
+            <th class="text-center" style="width: 10%"><q-skeleton type="text" width="40%" class="q-mx-auto" /></th>
+            <th class="text-center" style="width: 10%"><q-skeleton type="text" width="50%" class="q-mx-auto" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in 5" :key="n">
+            <td>
+              <div class="row items-center no-wrap">
+                <q-skeleton type="circle" size="36px" class="q-mr-md" />
+                <div style="flex: 1">
+                  <q-skeleton type="text" width="80%" />
+                </div>
+              </div>
+            </td>
+            <td><q-skeleton type="text" width="70%" /></td>
+            <td><q-skeleton type="text" width="60%" /></td>
+            <td><q-skeleton type="text" width="60%" /></td>
+            <td class="text-center"><q-skeleton type="text" width="45%" class="q-mx-auto" /></td>
+            <td class="text-center"><q-skeleton type="rect" width="50px" height="20px" class="q-mx-auto" style="border-radius: 4px;" /></td>
+            <td>
+              <div class="row justify-center q-gutter-x-md">
+                <q-skeleton type="rect" width="32px" height="32px" style="border-radius: 4px;" />
+                <q-skeleton type="rect" width="32px" height="32px" style="border-radius: 4px;" />
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </q-markup-table>
+    </div>
+
     <q-table
+      v-else
       class="user-card"
       title="Employees"
       :rows="employeesRowsData"
@@ -8,7 +49,6 @@
       row-key="fullname"
       v-model:pagination="pagination"
       :rows-per-page-options="[5, 7, 10, 0]"
-      :loading="tableLoading"
       :filter="filter"
       @request="onPageRequest"
     >
@@ -370,11 +410,7 @@
           </div>
         </q-td>
       </template>
-      <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-ios size="50px" color="grey-10" />
-        </q-inner-loading>
-      </template>
+
     </q-table>
   </div>
   <q-dialog v-model="dialog" persistent>

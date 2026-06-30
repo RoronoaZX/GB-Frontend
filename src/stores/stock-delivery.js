@@ -41,10 +41,11 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     },
   });
 
-  const loading = false;
-  const error = null;
+  const loading = ref(false);
+  const error = ref(null);
 
   const fetchDeliveryStocks = async (page = 1, per_page = 5, search = "") => {
+    loading.value = true;
     try {
       const response = await api.get("/api/raw-materials-delivery", {
         params: {
@@ -57,8 +58,11 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       deliveryStocks.pagination = response.data.pagination;
       /* console.log("response", response.data); */
       /* console.log("  deliveryStocks.data", deliveryStocks.data); */
-    } catch (error) {
-      /* console.log("error", error); */
+    } catch (err) {
+      /* console.log("error", err); */
+      error.value = err;
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -69,7 +73,7 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
     search = ""
   ) => {
     /* console.log("branchId in store: ", branchId); */
-
+    loading.value = true;
     try {
       const response = await api.get(
         `/api/raw-materials-delivery-branch/${branchId}`,
@@ -85,8 +89,11 @@ export const useStockDelivery = defineStore("stock-delivery", () => {
       deliveryStocks.pagination = response.data.pagination;
       /* console.log("responsesss", response.data); */
       /* console.log("  deliveryStocks.data", deliveryStocks.data); */
-    } catch (error) {
-      /* console.log(error); */
+    } catch (err) {
+      /* console.log(err); */
+      error.value = err;
+    } finally {
+      loading.value = false;
     }
   };
 

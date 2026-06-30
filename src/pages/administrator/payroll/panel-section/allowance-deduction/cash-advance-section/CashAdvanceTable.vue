@@ -6,13 +6,33 @@
       </div>
       <SearchCashAdvance v-model="filter" @update:model-value="filter" />
     </div>
+    <!-- Skeletal Loading Table -->
+    <div v-if="loading" class="q-pa-sm">
+      <q-markup-table flat class="user-card">
+        <thead>
+          <tr class="gradient-header text-white">
+            <th v-for="col in cashAdvanceColumns" :key="col.name" class="text-center">
+              <q-skeleton type="text" width="60%" class="q-mx-auto" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in 5" :key="n">
+            <td v-for="col in cashAdvanceColumns" :key="col.name" class="text-center">
+              <q-skeleton type="text" width="50%" class="q-mx-auto" />
+            </td>
+          </tr>
+        </tbody>
+      </q-markup-table>
+    </div>
+
     <q-table
+      v-else
       :rows="cashAdvanceRows"
       :columns="cashAdvanceColumns"
       row-key="name"
       v-model:pagination="pagination"
       :rows-per-page-options="[5, 7, 10, 0]"
-      :loading="loading"
       :filter="filter"
       @request="handleRequest"
     >
@@ -96,11 +116,7 @@
           </q-popup-edit>
         </q-td>
       </template>
-      <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-ios size="50px" color="grey-10" />
-        </q-inner-loading>
-      </template>
+
     </q-table>
   </q-page>
 </template>

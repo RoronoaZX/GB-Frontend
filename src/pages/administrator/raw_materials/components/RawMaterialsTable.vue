@@ -28,8 +28,46 @@
       </div>
     </div>
 
-    <div class="spinner-wrapper" v-if="loading">
-      <q-spinner-tail size="50px" color="primary" />
+    <!-- Skeletal Loading Table -->
+    <div v-if="loading" class="q-pa-sm">
+      <q-markup-table flat class="premium-table">
+        <thead>
+          <tr>
+            <th class="text-left" style="width: 25%"><q-skeleton type="text" width="60%" /></th>
+            <th class="text-left" style="width: 10%"><q-skeleton type="text" width="40%" /></th>
+            <th class="text-left" style="width: 15%"><q-skeleton type="text" width="50%" /></th>
+            <th class="text-left" style="width: 15%"><q-skeleton type="text" width="40%" /></th>
+            <th class="text-left" style="width: 15%"><q-skeleton type="text" width="40%" /></th>
+            <th class="text-left" style="width: 10%"><q-skeleton type="text" width="30%" /></th>
+            <th class="text-center" style="width: 10%"><q-skeleton type="text" width="50%" class="q-mx-auto" /></th>
+            <th class="text-center" style="width: 10%"><q-skeleton type="text" width="50%" class="q-mx-auto" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in 5" :key="n">
+            <td>
+              <div class="row items-center no-wrap">
+                <q-skeleton type="circle" size="36px" class="q-mr-md" />
+                <div style="flex: 1">
+                  <q-skeleton type="text" width="80%" />
+                </div>
+              </div>
+            </td>
+            <td><q-skeleton type="text" width="60%" /></td>
+            <td><q-skeleton type="text" width="70%" /></td>
+            <td><q-skeleton type="text" width="50%" /></td>
+            <td><q-skeleton type="text" width="50%" /></td>
+            <td><q-skeleton type="text" width="40%" /></td>
+            <td class="text-center"><q-skeleton type="text" width="30%" class="q-mx-auto" /></td>
+            <td>
+              <div class="row justify-center q-gutter-x-md">
+                <q-skeleton type="rect" width="32px" height="32px" style="border-radius: 4px;" />
+                <q-skeleton type="rect" width="32px" height="32px" style="border-radius: 4px;" />
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </q-markup-table>
     </div>
     
     <div v-else>

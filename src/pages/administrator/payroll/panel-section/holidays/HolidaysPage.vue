@@ -28,13 +28,17 @@
       </div>
       <div class="col-12 col-md-6">
         <q-scroll-area style="height: 320px" class="q-pa-sm">
-          <div
-            v-if="isLoading"
-            class="flex flex-center column q-pa-md"
-            style="min-height: 250px"
-          >
-            <q-spinner color="primary" size="3em" :thickness="10" />
-            <div class="text-h6 text-grey-7 q-mt-md">Loading Holidays...</div>
+          <!-- Skeletal Loading State -->
+          <div v-if="isLoading" class="q-gutter-sm">
+            <q-card v-for="n in 3" :key="n" flat class="q-pa-md" style="border-radius: 8px; border-left: 5px solid #e2e8f0; background-color: #ffffff;">
+              <div class="row items-center justify-between no-wrap">
+                <div style="flex: 1">
+                  <q-skeleton type="text" width="60%" height="20px" />
+                  <q-skeleton type="text" width="45%" height="12px" class="q-mt-sm" />
+                </div>
+                <q-skeleton type="rect" width="32px" height="32px" style="border-radius: 50%;" />
+              </div>
+            </q-card>
           </div>
           <q-list v-else>
             <div

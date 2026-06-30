@@ -8,14 +8,34 @@
       </div>
       <SearchBenefit v-model="filter" @update:model-value="filter" />
     </div>
+    <!-- Skeletal Loading Table -->
+    <div v-if="tableLoading" class="q-pa-sm">
+      <q-markup-table flat class="user-card">
+        <thead>
+          <tr class="gradient-header text-white">
+            <th v-for="col in employeeBenefitColumns" :key="col.name" class="text-center">
+              <q-skeleton type="text" width="60%" class="q-mx-auto" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="n in 5" :key="n">
+            <td v-for="col in employeeBenefitColumns" :key="col.name" class="text-center">
+              <q-skeleton type="text" width="50%" class="q-mx-auto" />
+            </td>
+          </tr>
+        </tbody>
+      </q-markup-table>
+    </div>
+
     <q-table
+      v-else
       :rows="employeeBenefitRows"
       :columns="employeeBenefitColumns"
       row-key="name"
       v-model:pagination="pagination"
       :rows-per-page-options="[5, 7, 10, 0]"
       @request="handleRequest"
-      :loading="tableLoading"
       :filter="filter"
     >
       <template v-slot:header="props">
@@ -283,11 +303,7 @@
           </q-popup-edit>
         </q-td>
       </template>
-      <template #loading>
-        <q-inner-loading showing>
-          <q-spinner-ios size="50px" color="grey-10" />
-        </q-inner-loading>
-      </template>
+
     </q-table>
   </q-page>
 </template>

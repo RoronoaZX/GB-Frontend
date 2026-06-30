@@ -24,7 +24,7 @@
             outside-arrows
             mobile-arrows
           >
-            <q-tab name="overview" label="Overview" />
+            <q-tab v-if="role === 'Super Admin'" name="overview" label="Overview" />
             <q-tab name="products" label="Products" />
             <q-tab name="rawMaterials" label="Raw Materials" />
             <q-tab name="recipe" label="Recipe" />
@@ -38,7 +38,7 @@
 
         <q-card class="q-mt-sm">
           <q-tab-panels v-model="tab" animated>
-            <q-tab-panel name="overview">
+            <q-tab-panel v-if="role === 'Super Admin'" name="overview">
               <BranchAnalytics />
             </q-tab-panel>
 
@@ -121,7 +121,8 @@ onMounted(() => {
   getBranch();
 });
 
-const tab = ref("overview");
+const role = ref(localStorage.getItem("role"));
+const tab = ref(role.value === "Super Admin" ? "overview" : "products");
 
 const navigateBack = () => {
   Loading.show();

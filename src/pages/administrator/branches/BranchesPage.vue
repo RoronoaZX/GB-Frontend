@@ -1,6 +1,6 @@
 <template>
   <q-page class="elegant-container" flat>
-    <BranchesSummary />
+    <BranchesSummary v-if="role === 'Super Admin'" />
 
     <q-card-section class="row justify-between">
       <div class="text-h6 text-dark">
@@ -30,9 +30,12 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import BranchesCreate from "./components/BranchesCreateComponent.vue";
 import BranchesTable from "./components/BranchesTableComponent.vue";
 import BranchesSummary from "./components/BranchesSummary.vue";
+
+const role = ref(localStorage.getItem("role"));
 </script>
 <style scoped>
 .elegant-container {
