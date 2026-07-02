@@ -814,6 +814,101 @@ const generateBranchDocDefinition = ({ salesTrendImage, stockMovementImage } = {
   const topFive = [...sortedMargins].sort((a, b) => b.margin - a.margin).slice(0, 5);
   const bottomFive = [...sortedMargins].sort((a, b) => a.margin - b.margin).slice(0, 5);
 
+  // Group profit margins by category
+  const categoriesMap = {};
+  (dashboardStore.profitMargins || []).forEach((m) => {
+    const cat = m.category || "Uncategorized";
+    if (!categoriesMap[cat]) {
+      categoriesMap[cat] = [];
+    }
+    categoriesMap[cat].push(m);
+  });
+
+  const categorySegments = [];
+  const categories = Object.keys(categoriesMap).sort();
+
+  if (categories.length === 0) {
+    categorySegments.push(
+      { text: "Detailed Profit Margin Analysis Matrix", style: "sectionHeader" },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["*", "10%", "10%", "12%", "12%", "15%", "11%", "10%", "10%"],
+          body: [
+            [
+              { text: "Product Name", style: "tableHeader", alignment: "left", fillColor: "#1e293b" },
+              { text: "Category", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
+              { text: "Qty Produced", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
+              { text: "Unit Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Selling Price", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Total Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Total Sales", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Margin", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+              { text: "Rating", style: "tableHeader", alignment: "center", fillColor: "#1e293b" }
+            ],
+            [{ text: "No profit margin calculations available.", colSpan: 9, style: "tableCell", alignment: "center" }, {}, {}, {}, {}, {}, {}, {}, {}]
+          ]
+        },
+        layout: {
+          fillColor: (rowIndex) => rowIndex === 0 ? "#1e293b" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+          hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+          vLineWidth: () => 0,
+          hLineColor: () => "#e2e8f0"
+        },
+        margin: [0, 5, 0, 0]
+      }
+    );
+  } else {
+    categories.forEach((cat) => {
+      const items = categoriesMap[cat];
+      categorySegments.push(
+        { 
+          text: `Detailed Profit Margin Analysis Matrix - ${cat.toUpperCase()}`, 
+          style: "sectionHeader", 
+          pageBreak: "before",
+          margin: [0, 0, 0, 5]
+        },
+        {
+          table: {
+            headerRows: 1,
+            widths: ["*", "10%", "10%", "12%", "12%", "15%", "11%", "10%", "10%"],
+            body: [
+              [
+                { text: "Product Name", style: "tableHeader", alignment: "left", fillColor: "#1e293b" },
+                { text: "Category", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
+                { text: "Qty Produced", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
+                { text: "Unit Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+                { text: "Selling Price", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+                { text: "Total Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+                { text: "Total Sales", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+                { text: "Margin", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
+                { text: "Rating", style: "tableHeader", alignment: "center", fillColor: "#1e293b" }
+              ],
+              ...items.map((m) => [
+                { text: m.name, style: "tableCell", alignment: "left" },
+                { text: m.category, style: "tableCell", alignment: "center" },
+                { text: m.production.toString(), style: "tableCell", alignment: "center" },
+                { text: formatMoney(m.unit_cost), style: "tableCellAmount" },
+                { text: formatMoney(m.price), style: "tableCellAmount" },
+                { text: formatMoney(m.cost), style: "tableCellAmount" },
+                { text: formatMoney(m.total_sales_amount), style: "tableCellAmount" },
+                { text: `${Math.round(m.margin)}%`, style: "tableCellAmount", bold: true, color: m.margin >= 40 ? "#16a34a" : (m.margin >= 20 ? "#ea580c" : "#dc2626") },
+                { text: m.status.toUpperCase(), style: "tableCell", alignment: "center", bold: true, color: m.margin >= 40 ? "#16a34a" : (m.margin >= 20 ? "#ea580c" : "#dc2626") }
+              ])
+            ]
+          },
+          layout: {
+            fillColor: (rowIndex) => rowIndex === 0 ? "#1e293b" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
+            hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+            vLineWidth: () => 0,
+            hLineColor: () => "#e2e8f0"
+          },
+          margin: [0, 5, 0, 15]
+        }
+      );
+    });
+  }
+
   const salesTableBody = [
     [
       { text: "Interval", style: "tableHeader", alignment: "left" },
@@ -1300,47 +1395,7 @@ const generateBranchDocDefinition = ({ salesTrendImage, stockMovementImage } = {
         },
         margin: [0, 5, 0, 15]
       },
-      { text: "Detailed Profit Margin Analysis Matrix", style: "sectionHeader" },
-      {
-        table: {
-          headerRows: 1,
-          widths: ["*", "10%", "10%", "12%", "12%", "15%", "11%", "10%", "10%"],
-          body: [
-            [
-              { text: "Product Name", style: "tableHeader", alignment: "left", fillColor: "#1e293b" },
-              { text: "Category", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
-              { text: "Qty Produced", style: "tableHeader", alignment: "center", fillColor: "#1e293b" },
-              { text: "Unit Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
-              { text: "Selling Price", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
-              { text: "Total Cost", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
-              { text: "Total Sales", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
-              { text: "Margin", style: "tableHeader", alignment: "right", fillColor: "#1e293b" },
-              { text: "Rating", style: "tableHeader", alignment: "center", fillColor: "#1e293b" }
-            ],
-            ...(dashboardStore.profitMargins && dashboardStore.profitMargins.length > 0
-              ? dashboardStore.profitMargins.map((m) => [
-                  { text: m.name, style: "tableCell", alignment: "left" },
-                  { text: m.category, style: "tableCell", alignment: "center" },
-                  { text: m.production.toString(), style: "tableCell", alignment: "center" },
-                  { text: formatMoney(m.unit_cost), style: "tableCellAmount" },
-                  { text: formatMoney(m.price), style: "tableCellAmount" },
-                  { text: formatMoney(m.cost), style: "tableCellAmount" },
-                  { text: formatMoney(m.total_sales_amount), style: "tableCellAmount" },
-                  { text: `${Math.round(m.margin)}%`, style: "tableCellAmount", bold: true, color: m.margin >= 40 ? "#16a34a" : (m.margin >= 20 ? "#ea580c" : "#dc2626") },
-                  { text: m.status.toUpperCase(), style: "tableCell", alignment: "center", bold: true, color: m.margin >= 40 ? "#16a34a" : (m.margin >= 20 ? "#ea580c" : "#dc2626") }
-                ])
-              : [[{ text: "No profit margin calculations available.", colSpan: 9, style: "tableCell", alignment: "center" }, {}, {}, {}, {}, {}, {}, {}, {}]]
-            )
-          ]
-        },
-        layout: {
-          fillColor: (rowIndex) => rowIndex === 0 ? "#1e293b" : (rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff"),
-          hLineWidth: (i, node) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
-          vLineWidth: () => 0,
-          hLineColor: () => "#e2e8f0"
-        },
-        margin: [0, 5, 0, 0]
-      }
+      ...categorySegments
     ],
     footer: function(currentPage, pageCount) {
       return {
