@@ -108,7 +108,7 @@
         </div>
       </q-route-tab>
     </q-tabs>
-    <div style="background-color: #f7f8fc">
+    <div class="payroll-router-wrapper">
       <router-view />
     </div>
   </q-page>
@@ -127,6 +127,9 @@ const tab = ref("dashboard");
   background: #f7f8fc;
   padding: 2rem;
   border-radius: 8px;
+}
+.payroll-router-wrapper {
+  background-color: #f7f8fc;
 }
 .my-virtual-scroll {
   white-space: nowrap; /* Ensure horizontal scroll is maintained */

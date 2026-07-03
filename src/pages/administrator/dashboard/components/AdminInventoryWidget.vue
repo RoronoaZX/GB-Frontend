@@ -117,8 +117,11 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { Chart, registerables } from "chart.js";
+import { useQuasar } from "quasar";
 
 Chart.register(...registerables);
+
+const $q = useQuasar();
 
 const props = defineProps({
   inventoryLabels: { type: Array, required: true },
@@ -300,16 +303,21 @@ const renderChart = () => {
           y: {
             display: !isPie,
             beginAtZero: true,
-            grid: { color: "#f1f5f9", drawBorder: false },
+            grid: { 
+              color: $q.dark.isActive ? "rgba(255, 255, 255, 0.08)" : "#f1f5f9", 
+              drawBorder: false 
+            },
             ticks: {
-              color: "#64748b",
+              color: $q.dark.isActive ? "#cbd5e1" : "#64748b",
               callback: (value) => `${(value / 1000).toLocaleString()}kg`,
             },
           },
           x: {
             display: !isPie,
             grid: { display: false, drawBorder: false },
-            ticks: { color: "#64748b" },
+            ticks: { 
+              color: $q.dark.isActive ? "#cbd5e1" : "#64748b" 
+            },
           },
         },
       },
@@ -322,7 +330,7 @@ onMounted(() => {
 });
 
 watch(
-  [() => props.inventoryLabels, chartType],
+  [() => props.inventoryLabels, chartType, () => $q.dark.isActive],
   () => {
     renderChart();
   },

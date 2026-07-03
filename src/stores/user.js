@@ -7,6 +7,8 @@ export const useUsersStore = defineStore("users", () => {
   const users = ref([]);
   const user = ref([]);
   const userData = ref({});
+  const roles = ref([]);
+  const permissions = ref({});
 
   const setUser = (newUser) => {
     userData.value = newUser;
@@ -217,10 +219,103 @@ export const useUsersStore = defineStore("users", () => {
     }
   };
 
+  const toggleUserStatus = async (userId) => {
+    try {
+      Loading.show();
+      const response = await api.put(`/api/users/${userId}/toggle-status`);
+      
+      const index = users.value.findIndex((u) => u.id === userId);
+      if (index !== -1) {
+        users.value[index].is_active = response.data.is_active;
+      }
+      
+      if (user.value && user.value.id === userId) {
+        user.value.is_active = response.data.is_active;
+      }
+
+      Notify.create({
+        type: "positive",
+        message: response.data.message || "User status updated successfully",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error toggling user status:", error);
+      const errMsg = error.response?.data?.message || "Failed to toggle user status";
+      Notify.create({
+        type: "negative",
+        message: errMsg,
+      });
+      throw error;
+    } finally {
+      Loading.hide();
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const response = await api.get("/api/roles");
+      roles.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+      Notify.create({
+        type: "negative",
+        message: "Failed to fetch roles",
+      });
+    }
+  };
+
+  const fetchPermissions = async () => {
+    try {
+      const response = await api.get("/api/permissions");
+      permissions.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching permissions:", error);
+      Notify.create({
+        type: "negative",
+        message: "Failed to fetch permissions",
+      });
+    }
+  };
+
+  const updateRolePermissions = async (roleId, permissionIds) => {
+    try {
+      Loading.show();
+      const response = await api.put(`/api/roles/${roleId}/permissions`, {
+        permissions: permissionIds,
+      });
+
+      // Update in local roles array
+      const index = roles.value.findIndex((r) => r.id === roleId);
+      if (index !== -1) {
+        roles.value[index] = response.data.role;
+      }
+
+      Notify.create({
+        type: "positive",
+        message: response.data.message || "Permissions updated successfully",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating role permissions:", error);
+      const errMsg = error.response?.data?.message || "Failed to update role permissions";
+      Notify.create({
+        type: "negative",
+        message: errMsg,
+      });
+      throw error;
+    } finally {
+      Loading.hide();
+    }
+  };
+
   return {
     user,
     users,
     userData,
+    roles,
+    permissions,
     setUser,
     fetchUsers,
     verifyUserPassword,
@@ -231,5 +326,9 @@ export const useUsersStore = defineStore("users", () => {
     updateUser,
     updateEmail,
     updatePassword,
+    toggleUserStatus,
+    fetchRoles,
+    fetchPermissions,
+    updateRolePermissions,
   };
 });

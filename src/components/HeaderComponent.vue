@@ -1,8 +1,8 @@
 <template>
-  <q-header elevated class="bg-white">
+  <q-header elevated :class="isDark ? 'bg-dark text-white' : 'bg-white text-black'">
     <q-toolbar class="row">
       <div class="col-4">
-        <div class="row">
+        <div class="row items-center">
           <q-btn
             color="red-6"
             flat
@@ -20,12 +20,24 @@
         </div>
       </div>
       <div class="col-4 d-flex justify-center" align="center">
-        <div class="text-black mx-2 text-h6">
+        <div class="text-h6 font-weight-bold" :class="isDark ? 'text-white' : 'text-black'">
           <div>{{ getActiveMenuItemLabel }}</div>
         </div>
       </div>
 
-      <div class="col-4" align="right">
+      <div class="col-4 flex items-center justify-end q-gutter-sm" align="right">
+        <!-- Theme Toggle Button -->
+        <q-btn
+          flat
+          round
+          dense
+          :icon="isDark ? 'light_mode' : 'dark_mode'"
+          :color="isDark ? 'amber-5' : 'grey-8'"
+          @click="toggleDarkMode"
+          class="theme-toggle-btn"
+        >
+          <q-tooltip>{{ isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode' }}</q-tooltip>
+        </q-btn>
         <ProfileAvatarComponent />
       </div>
     </q-toolbar>
@@ -62,9 +74,18 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useQuasar } from "quasar";
 import ProfileAvatarComponent from "./ProfileAvatarComponent.vue";
 
 const route = useRoute();
+const $q = useQuasar();
+
+const isDark = computed(() => $q.dark.isActive);
+
+const toggleDarkMode = () => {
+  $q.dark.toggle();
+  localStorage.setItem("darkMode", $q.dark.isActive);
+};
 
 // Role & drawer state
 const role = ref(localStorage.getItem("role"));
@@ -191,7 +212,8 @@ watch(
 );
 
 onMounted(() => {
-  // Initial sync already handled by immediate watch
+  const savedDarkMode = localStorage.getItem("darkMode") === "true";
+  $q.dark.set(savedDarkMode);
 });
 
 

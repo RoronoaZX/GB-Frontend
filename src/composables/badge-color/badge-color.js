@@ -1,4 +1,8 @@
+import { useQuasar } from "quasar";
+
 export function badgeColor() {
+  const $q = useQuasar();
+
   const getStatusColor = (status) => {
     switch ((status || "").toLowerCase()) {
       case "pending":
@@ -149,33 +153,34 @@ export function badgeColor() {
   };
 
   const getUserBadgePositionColor = (role) => {
+    const isDark = $q.dark.isActive;
     switch (role) {
       case "Super Admin":
-        return "blue-10"; // Royal Blue
+        return isDark ? "indigo-3" : "blue-10"; // Light indigo vs Royal Blue
       case "Admin":
-        return "purple-10"; // Dark Purple
+        return isDark ? "purple-3" : "purple-10"; // Light Purple vs Dark Purple
       case "Supervisor":
-        return "teal-7"; // Teal
+        return isDark ? "teal-4" : "teal-7"; // Light Teal vs Dark Teal
       case "Scaler":
-        return "green-8"; // Dark Green
+        return isDark ? "green-4" : "green-8"; // Light Green vs Dark Green
       case "Lamesador":
-        return "orange-5"; // Orange
+        return isDark ? "orange-4" : "orange-5"; // Light Orange vs Orange
       case "Hornero":
-        return "red-6"; // Red
+        return isDark ? "red-4" : "red-6"; // Light Red vs Red
       case "Baker":
-        return "brown"; // Warm Brown (closest match in Quasar)
+        return isDark ? "amber-3" : "brown"; // Light Amber vs Warm Brown
       case "Cake Maker":
-        return "brown-4"; // Warm Brown (closest match in Quasar)
+        return isDark ? "amber-4" : "brown-4"; // Light Amber vs Warm Brown
       case "Cashier":
-        return "green-5"; // Light Green
+        return isDark ? "green-3" : "green-5"; // Light Green vs Green
       case "Sales Clerk":
-        return "blue-5"; // Light Blue
+        return isDark ? "blue-3" : "blue-5"; // Light Blue vs Blue
       case "Utility":
-        return "grey-7"; // Gray
+        return isDark ? "grey-4" : "grey-7"; // Gray
       case "Not Yet Assigned":
-        return "grey-4"; // Light Gray
+        return isDark ? "grey-5" : "grey-4"; // Light Gray
       default:
-        return "grey-4"; // Default Light Gray
+        return isDark ? "grey-5" : "grey-4"; // Default
     }
   };
 

@@ -17,7 +17,7 @@
           <q-tabs
             v-model="tab"
             dense
-            class="bg-grey-2 text-grey-7 tabs-as-cards"
+            :class="[$q.dark.isActive ? 'bg-dark text-grey-4 tabs-as-cards tabs-as-cards--dark' : 'bg-grey-2 text-grey-7 tabs-as-cards']"
             active-color="red-6"
             indicator-color="transparent"
             align="left"
@@ -94,7 +94,9 @@ import { typographyFormat } from "src/composables/typography/typography-format";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { api } from "src/boot/axios";
-import { Loading } from "quasar";
+import { Loading, useQuasar } from "quasar";
+
+const $q = useQuasar();
 
 const route = useRoute();
 const branchName = ref("");
@@ -132,7 +134,7 @@ const navigateBack = () => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .q-tabs--not-scrollable .q-tabs__content,
 body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
   overflow: visible;
@@ -141,6 +143,7 @@ body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
   display: flex;
   justify-content: space-between;
   padding: 8px 16px;
+  border-radius: 12px;
 }
 
 .tabs-as-cards .q-tab {
@@ -164,6 +167,32 @@ body.mobile .q-tabs--scrollable.q-tabs--mobile-without-arrows .q-tabs__content {
   color: #333;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+// Dark Mode tab overrides
+.tabs-as-cards--dark.tabs-as-cards {
+  background-color: #0f172a !important;
+}
+
+.tabs-as-cards--dark .q-tab {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border: 1px solid #334155;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  
+  &:hover {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    transform: translateY(-2px);
+  }
+}
+
+.tabs-as-cards--dark .q-tab--active {
+  background-color: #1e3a5f !important;
+  color: #ef4444 !important;
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
 .tab-content {
   border: 1px solid #ddd;
   border-radius: 8px;

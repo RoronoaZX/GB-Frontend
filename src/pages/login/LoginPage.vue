@@ -244,6 +244,20 @@ const login = async () => {
   } catch (error) {
     console.error("Error during login:", error);
 
+    if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+      const title = error.response.status === 403 ? "Access Denied" : "Login Failed";
+      const errMsg = error.response.data?.message || "Incorrect email or password";
+      quasar.dialog({
+        title: title,
+        message: errMsg,
+        ok: {
+          color: "primary",
+          label: "Close"
+        }
+      });
+      return;
+    }
+
     const errorMsg = error.message || "Unknown error";
     const status = error.response?.status ? ` (Status: ${error.response.status})` : "";
     const responseData = error.response?.data

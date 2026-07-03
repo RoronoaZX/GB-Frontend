@@ -94,10 +94,12 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { Chart, registerables } from "chart.js";
 import { useDashboardStore } from "src/stores/dashboard";
+import { useQuasar } from "quasar";
 
 Chart.register(...registerables);
 
 const dashboardStore = useDashboardStore();
+const $q = useQuasar();
 
 const props = defineProps({
   trendData: {
@@ -361,14 +363,21 @@ const renderCharts = () => {
           y: {
             display: chartType.value !== 'pie',
             beginAtZero: true,
-            grid: { borderDash: [5, 5], color: "#e2e8f0" },
+            grid: { 
+              borderDash: [5, 5], 
+              color: $q.dark.isActive ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0" 
+            },
             ticks: {
+              color: $q.dark.isActive ? "#cbd5e1" : "#64748b",
               callback: (value) => `₱${value.toLocaleString()}`,
             },
           },
           x: {
             display: chartType.value !== 'pie',
             grid: { display: false },
+            ticks: {
+              color: $q.dark.isActive ? "#cbd5e1" : "#64748b",
+            }
           },
         },
       },
@@ -482,6 +491,7 @@ watch(
     showCharges,
     showOverages,
     showWaste,
+    () => $q.dark.isActive,
   ],
   () => {
     renderCharts();

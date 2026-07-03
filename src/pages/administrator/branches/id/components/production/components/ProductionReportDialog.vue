@@ -9,10 +9,10 @@
     transition-show="slide-up"
     transition-hide="slide-down"
   >
-    <q-card style="background-color: #f7f8fc">
+    <q-card :class="$q.dark.isActive ? 'dialog-card--dark' : 'dialog-card--light'">
       <q-card-section
         class="row items-center text-white"
-        style="background-color: #595a5a"
+        :style="$q.dark.isActive ? 'background-color: #0f172a; border-bottom: 1px solid #1e293b;' : 'background-color: #595a5a'"
       >
         <div class="text-h6">
           {{
@@ -56,7 +56,7 @@
             animated
             transition-prev="scale"
             transition-next="scale"
-            style="background-color: #f7f8fc"
+            :class="$q.dark.isActive ? 'panels--dark' : 'panels--light'"
           >
             <q-tab-panel name="bakerReport">
               <BakerReportPanel
@@ -82,9 +82,11 @@
 
 <script setup>
 import { ref } from "vue";
-import { useDialogPluginComponent } from "quasar";
+import { useDialogPluginComponent, useQuasar } from "quasar";
 import BakerReportPanel from "./report-panel/BakerReportPanel.vue";
 import SalesReportPanel from "./report-panel/SalesReportPanel.vue";
+
+const $q = useQuasar();
 
 import { typographyFormat } from "src/composables/typography/typography-format";
 
@@ -130,5 +132,27 @@ const handleButtonClick = () => {
 .user-card:hover {
   transform: translateY(-5px);
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+// Light Mode dialog card
+.dialog-card--light {
+  background-color: #f7f8fc;
+}
+
+// Dark Mode dialog card
+.dialog-card--dark {
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
+}
+
+// Light Mode tab panels
+.panels--light {
+  background-color: #f7f8fc;
+}
+
+// Dark Mode tab panels
+.panels--dark {
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
 }
 </style>

@@ -16,8 +16,8 @@
 
         <q-btn
           unelevated
-          color="grey-3"
-          text-color="black"
+          :color="$q.dark.isActive ? 'grey-9' : 'grey-3'"
+          :text-color="$q.dark.isActive ? 'grey-3' : 'black'"
           label="Payment Period"
           icon="calendar_today"
           icon-right="expand_more"
@@ -25,8 +25,8 @@
         />
         <q-btn
           unelevated
-          color="grey-3"
-          text-color="black"
+          :color="$q.dark.isActive ? 'grey-9' : 'grey-3'"
+          :text-color="$q.dark.isActive ? 'grey-3' : 'black'"
           label="Payroll Status"
           icon="analytics"
           icon-right="expand_more"
@@ -34,8 +34,8 @@
         />
         <q-btn
           unelevated
-          color="grey-3"
-          text-color="black"
+          :color="$q.dark.isActive ? 'grey-9' : 'grey-3'"
+          :text-color="$q.dark.isActive ? 'grey-3' : 'black'"
           label="Advance Filter"
           icon="filter_list"
           icon-right="expand_more"

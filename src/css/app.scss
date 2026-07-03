@@ -105,3 +105,517 @@ body {
   border: 1px dashed grey;
   border-radius: 10px;
 }
+
+// Global Layout Container styles
+.layout-page-container {
+  background-color: #f7f8fc;
+  transition: background-color 0.3s ease;
+}
+
+// Global Scrollbar Styling (Light Mode)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+  border: 2px solid #f1f5f9;
+  
+  &:hover {
+    background: #94a3b8;
+  }
+}
+
+// Global Dark Mode Theme Overrides
+body.body--dark {
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
+
+  .layout-page-container {
+    background-color: #0b0f19 !important;
+  }
+
+  // Dark Mode Scrollbar overrides
+  ::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border: 2px solid #1e293b;
+    
+    &:hover {
+      background: #475569;
+    }
+  }
+
+  // Global page container overrides
+  .elegant-container {
+    background-color: #0b0f19 !important;
+    border-color: #1e293b !important;
+    color: #f8fafc !important;
+  }
+
+  // Quasar native card overrides and custom cards
+  .q-card, .chart-card, .elegant-card, .waste-tracker-card, .lush-card, .user-card, .custom-table {
+    background: #0f172a !important;
+    border-color: #1e293b !important;
+    color: #f8fafc !important;
+  }
+
+  // Custom Dashboard Spoilage KPI box
+  .kpi-box {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+  }
+
+  // Override hardcoded bg-white and bg-grey background utility classes in Dark Mode
+  .bg-white {
+    background-color: #0f172a !important; /* slate 900 */
+    color: #f8fafc !important;
+  }
+  
+  .bg-grey-1 {
+    background-color: #1e293b !important; /* slate 800 */
+  }
+
+  .bg-grey-2 {
+    background-color: #0b0f19 !important; /* slate 950 page bg */
+  }
+
+  // Stocks page custom tabs
+  .user-tab {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  // Quasar input field outlines in Dark mode
+  .q-field--outlined {
+    .q-field__control {
+      &:before {
+        border-color: #334155 !important;
+      }
+    }
+  }
+
+  // Quasar popup dialog overrides
+  .q-dialog {
+    .q-card {
+      background: #0f172a;
+      border-color: #1e293b;
+      color: #f8fafc;
+    }
+
+    // Tab panels inside dialog inherit dark background
+    .q-tab-panels {
+      background: #0b0f19 !important;
+      color: #f8fafc !important;
+    }
+
+    .q-tab-panel {
+      background: #0b0f19 !important;
+      color: #f8fafc !important;
+    }
+
+    // Dialog section header separator
+    .q-card__section {
+      color: #f8fafc;
+    }
+  }
+
+  // Quasar list items
+  .q-list {
+    border-color: #1e293b !important;
+  }
+  
+  .q-item {
+    color: #cbd5e1;
+    
+    &.q-item--active {
+      color: #3b82f6;
+    }
+  }
+
+  // Quasar table styling overrides
+  .q-table__container {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+  }
+
+  .q-table, .q-table tbody, .q-table td {
+    color: #cbd5e1 !important;
+    border-color: #1e293b !important;
+  }
+
+  .q-table th, thead tr th {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #1e293b !important;
+  }
+
+  .q-table__title {
+    color: #f8fafc !important;
+  }
+
+  .q-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+  }
+
+  // Sticky table headers in Dark mode
+  .sticky-header, .sticky-header2, .sticky-header3 {
+    .q-table__top,
+    .q-table__bottom,
+    thead tr:first-child th {
+      background-color: #1e293b !important;
+      color: #f8fafc !important;
+      border-bottom-color: #334155 !important;
+    }
+    
+    tbody tr td {
+      border-color: #1e293b !important;
+    }
+  }
+
+  // Modernized dashboard stat icon boxes
+  .icon-box {
+    &.bg-teal-1 { background-color: rgba(13, 148, 136, 0.15) !important; }
+    &.bg-red-1 { background-color: rgba(239, 68, 68, 0.15) !important; }
+    &.bg-blue-1 { background-color: rgba(59, 130, 246, 0.15) !important; }
+    &.bg-purple-1 { background-color: rgba(168, 85, 247, 0.15) !important; }
+  }
+
+  .text-teal { color: #2dd4bf !important; }
+  .text-red { color: #f87171 !important; }
+  .text-blue { color: #60a5fa !important; }
+  .text-purple { color: #c084fc !important; }
+
+  // Chips & Badges in Dark Mode
+  .q-chip {
+    &:not([class*="bg-"]):not([class*="text-"]):not([class*="badge-"]):not(.role-badge) {
+      background: #1e293b !important;
+      color: #cbd5e1 !important;
+      border-color: #334155 !important;
+    }
+    
+    &.bg-grey-2 {
+      background-color: #1e293b !important;
+      color: #cbd5e1 !important;
+    }
+
+    // Active Status Chip
+    &.bg-green-6 {
+      background-color: rgba(76, 175, 80, 0.2) !important;
+      color: #81c784 !important;
+      border: 1px solid rgba(76, 175, 80, 0.3) !important;
+      .q-icon {
+        color: #81c784 !important;
+      }
+    }
+
+    // Inactive Status Chip
+    &.bg-grey-4 {
+      background-color: rgba(158, 158, 158, 0.2) !important;
+      color: #b0bec5 !important;
+      border: 1px solid rgba(158, 158, 158, 0.3) !important;
+      .q-icon {
+        color: #b0bec5 !important;
+      }
+    }
+
+    // Invited Status Chip
+    &.bg-grey-10 {
+      background-color: rgba(224, 224, 224, 0.1) !important;
+      color: #90a4ae !important;
+      border: 1px solid rgba(224, 224, 224, 0.15) !important;
+      .q-icon {
+        color: #90a4ae !important;
+      }
+    }
+  }
+
+  // Common typography class overrides
+  .text-grey-9 {
+    color: #f8fafc !important;
+  }
+  .text-grey-8 {
+    color: #e2e8f0 !important;
+  }
+  .text-grey-7 {
+    color: #cbd5e1 !important;
+  }
+  .text-grey-6 {
+    color: #94a3b8 !important;
+  }
+  .text-grey-5 {
+    color: #64748b !important;
+  }
+  .text-black, .text-dark {
+    color: #f8fafc !important;
+  }
+  .text-negative {
+    color: #f87171 !important;
+  }
+
+  // Override Tailwind/custom Slate classes
+  .text-slate-900, .text-slate-800, .text-slate-700, .text-slate-600 {
+    color: #f8fafc !important;
+  }
+  .text-slate-500, .text-slate-400 {
+    color: #cbd5e1 !important;
+  }
+
+  // Stocks page active selected list items overrides in Dark Mode
+  .selected-delivery-item {
+    background-color: rgba(25, 118, 210, 0.25) !important;
+    border-left: 5px solid #1976d2 !important;
+  }
+
+  .branch-selected-item {
+    background-color: rgba(216, 27, 96, 0.25) !important;
+    border-left: 5px solid #d81b60 !important;
+  }
+
+  .default-selected-item {
+    background-color: rgba(117, 117, 117, 0.25) !important;
+    border-left: 5px solid #757575 !important;
+  }
+
+  // Global Table bottom pagination bar overrides in Dark Mode
+  .q-table__bottom, 
+  .q-table__bottom *, 
+  .q-table__bottom-item {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-top-color: #334155 !important;
+  }
+
+  // History Log custom table & search input overrides in Dark Mode
+  .elegant-table, .premium-table {
+    background: #0f172a !important;
+    border-color: #1e293b !important;
+  }
+
+  .search-input {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+    
+    .q-field__control {
+      &:before {
+        border-color: #334155 !important;
+      }
+    }
+  }
+
+  // Payroll router container backdrop override in Dark Mode
+  .payroll-router-wrapper {
+    background-color: #0b0f19 !important;
+  }
+
+  // Sticky left columns override for all tables in Dark Mode
+  .q-table th[style*="left: 0"],
+  .q-table td[style*="left: 0"],
+  th[style*="left: 0"],
+  td[style*="left: 0"] {
+    background-color: #0f172a !important;
+    background: #0f172a !important;
+    color: #f8fafc !important;
+  }
+
+  // Holidays page container and card overrides in Dark Mode
+  .holidays-page-container {
+    background-color: #0b0f19 !important;
+  }
+
+  .holiday--regular-card, .holiday--special-card {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+  }
+
+  // Calendar Card background override in Dark Mode
+  .calendar-card {
+    background-color: #0f172a !important;
+    
+    .q-date__header,
+    .q-date__navigation,
+    .q-date__view {
+      background-color: #0f172a !important;
+    }
+  }
+
+  // Report Detail dialog footer and table header overrides in Dark Mode
+  .footer-summary {
+    background-color: #0f172a !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+    color: #f8fafc !important;
+    
+    .text-grey-7, .text-grey-5 {
+      color: #cbd5e1 !important;
+    }
+  }
+
+  .sticky-header-table {
+    thead tr:first-child th,
+    :deep(thead tr:first-child th),
+    :deep(thread tr:first-child th) {
+      background-color: #1e293b !important;
+      color: #f8fafc !important;
+      border-bottom-color: #334155 !important;
+    }
+    
+    tbody tr td,
+    :deep(tbody tr td) {
+      border-color: #1e293b !important;
+    }
+  }
+
+  // Override specific dark/light helper classes inside the tables/chips
+  .text-blue-grey-9 {
+    color: #cbd5e1 !important;
+  }
+  
+  .bg-blue-grey-1 {
+    background-color: #1e293b !important;
+  }
+
+  // Employee Contact details / pills overrides in Dark Mode
+  .contact-pill,
+  .contact-box {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    background: rgba(59, 130, 246, 0.15) !important;
+    color: #93c5fd !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+  }
+
+  .contact-pill:hover {
+    background-color: rgba(59, 130, 246, 0.3) !important;
+    color: #f8fafc !important;
+  }
+
+  // Employee Holiday Pay card overrides in Dark Mode
+  .employee-holiday-pay-card {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+    color: #f8fafc !important;
+  }
+  
+  .holiday-pay-list {
+    .header-row {
+      background-color: #1e293b !important;
+      color: #cbd5e1 !important;
+    }
+    
+    .data-row {
+      background-color: #1e293b !important;
+      color: #f8fafc !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+      
+      .text-grey-8 {
+        color: #cbd5e1 !important;
+      }
+    }
+    
+    .total-row {
+      background-color: #0f172a !important;
+      border-top: 1px solid #1e293b !important;
+      color: #f8fafc !important;
+      
+      .text-grey-8 {
+        color: #cbd5e1 !important;
+      }
+    }
+  }
+
+  // Daily Time Records (DTR) Table total row overrides in Dark Mode
+  .modern-dtr-total-row {
+    background-color: #1e3a5f !important; // Premium dark blue/indigo accent for totals row
+    border-top-color: #3b82f6 !important;
+    
+    td {
+      color: #f8fafc !important;
+      border-right-color: #2563eb !important;
+      
+      &.total-label {
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  .holiday-regular-row {
+    background-color: rgba(46, 125, 50, 0.2) !important;
+    .modern-dtr-table-cell {
+      color: #4caf50 !important;
+    }
+  }
+
+  .holiday-special-row {
+    background-color: rgba(239, 108, 0, 0.2) !important;
+    .modern-dtr-table-cell {
+      color: #ffb74d !important;
+    }
+  }
+
+  // User Cards Role Badges dark mode overrides
+  .badge-super-admin {
+    background-color: rgba(168, 85, 247, 0.15) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    color: #c084fc !important;
+  }
+
+  .badge-admin {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    color: #93c5fd !important;
+  }
+
+  .badge-supervisor {
+    background-color: rgba(249, 115, 22, 0.15) !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+    color: #ffb74d !important;
+  }
+
+  .badge-baker {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    color: #34d399 !important;
+  }
+
+  .badge-scaler {
+    background-color: rgba(148, 163, 184, 0.15) !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+    color: #cbd5e1 !important;
+  }
+
+  .badge-sales {
+    background-color: rgba(236, 72, 153, 0.15) !important;
+    border-color: rgba(236, 72, 153, 0.3) !important;
+    color: #f472b6 !important;
+  }
+
+  .badge-default {
+    background-color: rgba(75, 85, 99, 0.15) !important;
+    border-color: rgba(75, 85, 99, 0.3) !important;
+    color: #9ca3af !important;
+  }
+}
+
+// Global active sidebar menu link color fixes
+.my-menu-link {
+  color: #ffffff !important;
+  background-color: #ef4444 !important;
+  
+  .q-item__section, .q-icon, .q-item__label {
+    color: #ffffff !important;
+  }
+}
+
+

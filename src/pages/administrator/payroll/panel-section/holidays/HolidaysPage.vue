@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md" style="background-color: #f7f9fc">
+  <q-page class="q-pa-md holidays-page-container" flat>
     <div class="q-mb-md">
       <HolidayButton
         :year="currentYear"
@@ -14,15 +14,29 @@
             <q-date
               v-model="selectedDate"
               v-model:year-month="currentYearMonth"
-              :events="events"
-              :event-color="getEventColor"
-              event-style="filled"
               minimal
               flat
               class="full-width"
-              text-color="dark"
+              :dark="$q.dark.isActive"
+              :text-color="$q.dark.isActive ? 'white' : 'dark'"
               @navigation="onCalendarNav"
-            />
+            >
+              <template #day="{ scope }">
+                <div
+                  class="q-date__day flex flex-center"
+                  :class="
+                    getDayStyle(
+                      `${scope.year}-${String(scope.month).padStart(
+                        2,
+                        '0'
+                      )}-${String(scope.day).padStart(2, '0')}`
+                    )
+                  "
+                >
+                  {{ scope.day }}
+                </div>
+              </template>
+            </q-date>
           </q-card-section>
         </q-card>
       </div>
@@ -513,11 +527,21 @@ const getMonthName = (monthNumber) => {
 .holiday--regular-card {
   border-left: 5px solid #c62828; /* Red left border */
   background-color: #f7f9fc;
+  
+  .type-section {
+    color: #c62828;
+    font-weight: bold;
+  }
 }
 
 .holiday--special-card {
   border-left: 5px solid #f9a825; /* Amber left border */
   background-color: #f7f9fc;
+  
+  .type-section {
+    color: #ef6c00;
+    font-weight: bold;
+  }
 }
 
 .holiday-card {
@@ -545,5 +569,44 @@ const getMonthName = (monthNumber) => {
   white-space: normal;
   line-height: 1.2; // Adjusted line height
   font-weight: bold;
+}
+
+// Scoped dark mode overrides for the calendar days and list cards
+body.body--dark {
+  .holiday--regular-day {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  }
+  
+  .holiday--special-day {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  }
+
+  .holiday--regular-card {
+    border-left-color: #ef4444 !important;
+    .type-section {
+      color: #f87171 !important;
+    }
+    .date-name {
+      color: #cbd5e1 !important;
+    }
+  }
+
+  .holiday--special-card {
+    border-left-color: #f59e0b !important;
+    .type-section {
+      color: #fbbf24 !important;
+    }
+    .date-name {
+      color: #cbd5e1 !important;
+    }
+  }
+
+  .holiday-separator {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+  }
 }
 </style>

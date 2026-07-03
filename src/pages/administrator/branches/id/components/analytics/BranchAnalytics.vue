@@ -381,6 +381,7 @@ import { ref, onMounted, computed, watch, onUnmounted } from "vue";
 import { useDashboardStore } from "src/stores/dashboard";
 import { useRoute } from "vue-router";
 import { Chart, registerables } from "chart.js";
+import { useQuasar } from "quasar";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import BranchHistoryDialog from "./components/BranchHistoryDialog.vue";
@@ -399,6 +400,7 @@ let currentDocDefinition = null;
 dayjs.extend(relativeTime);
 Chart.register(...registerables);
 
+const $q = useQuasar();
 const route = useRoute();
 const dashboardStore = useDashboardStore();
 const branchId = computed(() => route.params.branch_id);
@@ -683,8 +685,21 @@ const renderSalesChart = () => {
         }
       },
       scales: {
-        y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.05)" } },
-        x: { grid: { display: false } },
+        y: { 
+          beginAtZero: true, 
+          grid: { 
+            color: $q.dark.isActive ? "rgba(255, 255, 255, 0.08)" : "rgba(0,0,0,0.05)" 
+          },
+          ticks: {
+            color: $q.dark.isActive ? "#cbd5e1" : "#64748b"
+          }
+        },
+        x: { 
+          grid: { display: false },
+          ticks: {
+            color: $q.dark.isActive ? "#cbd5e1" : "#64748b"
+          }
+        },
       },
     },
   });
@@ -1429,7 +1444,7 @@ onMounted(async () => {
   renderInventoryChart();
 });
 
-watch([() => dashboardStore.stats.totalSalesData, () => dashboardStore.chartLabels], () => {
+watch([() => dashboardStore.stats.totalSalesData, () => dashboardStore.chartLabels, () => $q.dark.isActive], () => {
   renderSalesChart();
   renderInventoryChart();
 }, { deep: true });

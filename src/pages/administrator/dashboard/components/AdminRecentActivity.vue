@@ -1,8 +1,8 @@
 <template>
-  <q-card class="activity-card q-mt-lg" flat bordered>
+  <q-card :class="['activity-card', 'q-mt-lg', $q.dark.isActive ? 'activity-card--dark' : '']" flat bordered>
     <q-card-section class="row items-center justify-between">
       <div>
-        <div class="text-h6 text-weight-bolder text-grey-8">Recent Activity Log</div>
+        <div :class="['text-h6 text-weight-bolder', $q.dark.isActive ? 'text-grey-3' : 'text-grey-8']">Recent Activity Log</div>
         <div class="text-caption text-grey-5">Latest registered employees and system actions.</div>
       </div>
       <q-btn flat color="primary" label="View All" icon-right="arrow_forward" size="sm" to="/admin/history_log" />
@@ -30,7 +30,7 @@
         </q-item-section>
 
         <q-item-section>
-          <q-item-label class="text-weight-bold text-dark text-capitalize"
+          <q-item-label :class="['text-weight-bold text-capitalize', $q.dark.isActive ? 'text-grey-3' : 'text-dark']"
             >{{ act.action }}
             <span class="text-grey-6 text-weight-medium" v-if="act.field"
               >({{ act.field }})</span
@@ -40,9 +40,7 @@
         </q-item-section>
 
         <q-item-section side top>
-          <q-item-label caption class="time-label">{{
-            formatTimeAgo(act.time)
-          }}</q-item-label>
+          <q-item-label caption class="time-label">{{ formatTimeAgo(act.time) }}</q-item-label>
         </q-item-section>
       </q-item>
     </q-list>
@@ -50,6 +48,10 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
+
+const $q = useQuasar();
+
 defineProps({
   activities: {
     type: Array,
@@ -98,13 +100,33 @@ const formatTimeAgo = (dateStr) => {
   box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
 }
 
+// Dark mode card override
+.activity-card--dark {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
 .activity-item {
   transition: background 0.2s ease;
   border-radius: 12px;
   margin: 4px 8px;
   
   &:hover {
-    background: #f8fafc;
+    background: #f1f5f9; // light mode hover
+  }
+}
+
+// Dark mode hover for activity rows
+.activity-card--dark .activity-item {
+  &:hover {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+
+    // Ensure all text inside the hovered row stays visible
+    .q-item__label,
+    .q-item__label--caption {
+      color: #f8fafc !important;
+    }
   }
 }
 

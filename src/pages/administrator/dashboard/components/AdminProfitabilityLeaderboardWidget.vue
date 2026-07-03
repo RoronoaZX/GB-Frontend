@@ -3,7 +3,7 @@
     <!-- Premium Header with Category Filter -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-grey-9 row items-center">
+        <div :class="['text-h6 text-weight-bold row items-center', $q.dark.isActive ? 'text-grey-3' : 'text-grey-9']">
           <q-icon name="insights" color="primary" class="q-mr-sm" size="sm" />
           Product Profitability Leaderboard
         </div>
@@ -19,7 +19,7 @@
           outlined
           emit-value
           map-options
-          bg-color="white"
+          :bg-color="$q.dark.isActive ? 'dark' : 'white'"
           label="Filter Category"
           class="category-select"
           style="min-width: 180px;"
@@ -35,7 +35,7 @@
     <div class="row q-col-gutter-md">
       <!-- Top 5 Most Profitable -->
       <div class="col-12 col-md-6">
-        <q-card flat bordered class="leaderboard-card top-leaders-card">
+        <q-card flat bordered :class="['leaderboard-card top-leaders-card', $q.dark.isActive ? 'leaderboard-card--dark' : '']">
           <q-card-section class="row items-center q-pb-md header-border-positive">
             <q-avatar color="positive-transparent" text-color="positive" size="md" class="q-mr-md">
               <q-icon name="emoji_events" size="sm" />
@@ -60,7 +60,7 @@
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label class="text-weight-bold text-dark text-capitalize">
+                  <q-item-label :class="['text-weight-bold text-capitalize', $q.dark.isActive ? 'text-grey-3' : 'text-dark']">
                     {{ item.name }}
                   </q-item-label>
                   <q-item-label caption class="row items-center text-grey-6">
@@ -89,7 +89,7 @@
 
             <div v-else class="empty-leaderboard flex flex-center column q-pa-xl text-grey-5 animate-pulse-warning">
               <q-icon name="analytics" size="4em" class="q-mb-md" style="color: #cbd5e1" />
-              <div class="text-weight-bold text-dark text-subtitle1">No Product Sales Mapped</div>
+              <div :class="['text-weight-bold text-subtitle1', $q.dark.isActive ? 'text-grey-3' : 'text-dark']">No Product Sales Mapped</div>
               <div class="text-caption text-center q-mt-xs" style="max-width: 280px">
                 Adjust the date filters at the top of the page to load historical sales margins for this branch.
               </div>
@@ -100,7 +100,7 @@
 
       <!-- Bottom 5 Least Profitable -->
       <div class="col-12 col-md-6">
-        <q-card flat bordered class="leaderboard-card bottom-underperformers-card">
+        <q-card flat bordered :class="['leaderboard-card bottom-underperformers-card', $q.dark.isActive ? 'leaderboard-card--dark' : '']">
           <q-card-section class="row items-center q-pb-md header-border-negative">
             <q-avatar color="negative-transparent" text-color="negative" size="md" class="q-mr-md">
               <q-icon name="trending_down" size="sm" />
@@ -125,7 +125,7 @@
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label class="text-weight-bold text-dark text-capitalize">
+                  <q-item-label :class="['text-weight-bold text-capitalize', $q.dark.isActive ? 'text-grey-3' : 'text-dark']">
                     {{ item.name }}
                   </q-item-label>
                   <q-item-label caption class="row items-center text-grey-6">
@@ -157,7 +157,7 @@
 
             <div v-else class="empty-leaderboard flex flex-center column q-pa-xl text-grey-5 animate-pulse-warning">
               <q-icon name="analytics" size="4em" class="q-mb-md" style="color: #cbd5e1" />
-              <div class="text-weight-bold text-dark text-subtitle1">No Product Sales Mapped</div>
+              <div :class="['text-weight-bold text-subtitle1', $q.dark.isActive ? 'text-grey-3' : 'text-dark']">No Product Sales Mapped</div>
               <div class="text-caption text-center q-mt-xs" style="max-width: 280px">
                 Adjust the date filters at the top of the page to load historical sales margins for this branch.
               </div>
@@ -171,6 +171,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { useQuasar } from "quasar";
 
 const props = defineProps({
   profitMargins: {
@@ -179,6 +180,8 @@ const props = defineProps({
     default: () => []
   }
 });
+
+const $q = useQuasar();
 
 const selectedCategory = ref("All");
 const categoryOptions = ["All", "Bread", "Selecta", "Nestle", "Softdrinks", "Others"];
@@ -236,6 +239,78 @@ const getCategoryColor = (category) => {
   &:hover {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     transform: translateY(-2px);
+  }
+}
+
+// Dark Mode Card
+.leaderboard-card--dark {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+  
+  &:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .header-border-positive {
+    border-bottom: 2px solid rgba(34, 197, 94, 0.15);
+  }
+
+  .header-border-negative {
+    border-bottom: 2px solid rgba(239, 68, 68, 0.15);
+  }
+
+  .rank-badge {
+    background-color: #1e293b;
+    color: #cbd5e1;
+  }
+  
+  .rank-top {
+    &.rank-1 {
+      background-color: rgba(217, 119, 6, 0.25);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    &.rank-2 {
+      background-color: rgba(71, 85, 105, 0.25);
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+    &.rank-3 {
+      background-color: rgba(234, 88, 12, 0.25);
+      color: #f97316;
+      border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+  }
+
+  .rank-bottom {
+    &.rank-1 {
+      background-color: rgba(220, 38, 38, 0.25);
+      color: #f87171;
+      border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+    &.rank-2 {
+      background-color: rgba(234, 88, 12, 0.25);
+      color: #f97316;
+      border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+    &.rank-3 {
+      background-color: rgba(217, 119, 6, 0.25);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+  }
+
+  .item-hover-positive:hover {
+    background-color: rgba(34, 197, 94, 0.12) !important;
+  }
+
+  .item-hover-negative:hover {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+  }
+
+  .leaderboard-list :deep(.q-item) {
+    border-color: #1e293b !important;
   }
 }
 
@@ -337,6 +412,23 @@ const getCategoryColor = (category) => {
     }
     &:hover {
       border-color: #cbd5e1;
+    }
+  }
+}
+
+// Category select dark mode support
+body.body--dark {
+  .category-select {
+    :deep(.q-field__control) {
+      background: #0f172a !important;
+      border-color: #334155 !important;
+      color: #f8fafc !important;
+      &:hover {
+        border-color: #475569 !important;
+      }
+    }
+    :deep(.q-field__label), :deep(.q-field__native), :deep(.q-select__dropdown-icon) {
+      color: #cbd5e1 !important;
     }
   }
 }

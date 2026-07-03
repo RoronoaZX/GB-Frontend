@@ -3,7 +3,7 @@
     <div>
       <HeaderComponent />
     </div>
-    <q-page-container style="background: #f7f8fc">
+    <q-page-container class="layout-page-container">
       <router-view />
     </q-page-container>
     <div>

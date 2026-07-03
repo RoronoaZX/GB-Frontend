@@ -116,8 +116,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { Chart, registerables } from "chart.js";
+import { useQuasar } from "quasar";
 
 Chart.register(...registerables);
+
+const $q = useQuasar();
 
 const props = defineProps({
   metrics: {
@@ -197,15 +200,22 @@ const renderChart = () => {
       scales: {
         y: {
           beginAtZero: true,
-          grid: { borderDash: [5, 5], color: "#e2e8f0" },
+          grid: { 
+            borderDash: [5, 5], 
+            color: $q.dark.isActive ? "rgba(255, 255, 255, 0.08)" : "#e2e8f0" 
+          },
           ticks: {
+            color: $q.dark.isActive ? "#cbd5e1" : "#64748b",
             callback: (val) => `₱${Number(val).toLocaleString()}`,
             font: { size: 10 }
           }
         },
         x: {
           grid: { display: false },
-          ticks: { font: { size: 10 } }
+          ticks: { 
+            color: $q.dark.isActive ? "#cbd5e1" : "#64748b",
+            font: { size: 10 } 
+          }
         }
       }
     }
@@ -219,7 +229,7 @@ onMounted(() => {
 });
 
 watch(
-  [() => props.metrics, () => props.loading],
+  [() => props.metrics, () => props.loading, () => $q.dark.isActive],
   () => {
     if (hasData.value) {
       // Small timeout to guarantee DOM update and canvas reference binding
