@@ -422,6 +422,8 @@ const triggerDownload = () => {
 };
 
 const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {}) => {
+  const reportDate = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+
   const branchName =
     dashboardStore.selectedBranch !== "global"
       ? dashboardStore.stats.branchesList.find(
@@ -612,7 +614,7 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
                 fillColor: "#0f172a",
                 stack: [
                   { text: "GB BAKESHOP BUSINESS INTELLIGENCE REPORT", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
-                  { text: `EXECUTIVE SUMMARY | LOCATION: ${branchName.toUpperCase()} | TIME FRAME: ${timeRangeText.value.toUpperCase()}`, color: "#38bdf8", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                  { text: `EXECUTIVE SUMMARY | LOCATION: ${branchName.toUpperCase()} | TIME FRAME: ${timeRangeText.value.toUpperCase()} | DATE: ${reportDate.toUpperCase()}`, color: "#38bdf8", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
                 ],
                 border: [false, false, false, false]
               }
@@ -802,7 +804,7 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
                 fillColor: "#0f172a",
                 stack: [
                   { text: "VISUAL ANALYTICS — CHART OVERVIEW", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
-                  { text: `SALES PERFORMANCE TRENDS & REVENUE DISTRIBUTION | ${timeRangeText.value.toUpperCase()}`, color: "#38bdf8", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                  { text: `SALES PERFORMANCE TRENDS & REVENUE DISTRIBUTION | ${timeRangeText.value.toUpperCase()} | DATE: ${reportDate.toUpperCase()}`, color: "#38bdf8", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
                 ],
                 border: [false, false, false, false]
               }
@@ -869,7 +871,7 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
                 fillColor: "#ef4444",
                 stack: [
                   { text: "REAL-TIME WASTE & SPOILAGE TRACKER", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
-                  { text: `FINANCIAL SPOILAGE ANALYSIS | LOCATION: ${branchName.toUpperCase()} | TIME FRAME: ${timeRangeText.value.toUpperCase()}`, color: "#fee2e2", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                  { text: `FINANCIAL SPOILAGE ANALYSIS | LOCATION: ${branchName.toUpperCase()} | TIME FRAME: ${timeRangeText.value.toUpperCase()} | DATE: ${reportDate.toUpperCase()}`, color: "#fee2e2", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
                 ],
                 border: [false, false, false, false]
               }
@@ -995,7 +997,7 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
                 fillColor: "#0284c7",
                 stack: [
                   { text: "PRODUCTION COST & PROFITABILITY LEADERBOARD", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
-                  { text: `RECIPE EXPENSES & PRODUCT PROFIT MARGIN RANKINGS | LOCATION: ${branchName.toUpperCase()}`, color: "#e0f2fe", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                  { text: `RECIPE EXPENSES & PRODUCT PROFIT MARGIN RANKINGS | LOCATION: ${branchName.toUpperCase()} | DATE: ${reportDate.toUpperCase()}`, color: "#e0f2fe", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
                 ],
                 border: [false, false, false, false]
               }
@@ -1151,7 +1153,7 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
                 fillColor: "#4f46e5",
                 stack: [
                   { text: "INTELLIGENT PREDICTIONS & PROFIT MARGIN MATRIX", color: "#ffffff", fontSize: 15, bold: true, alignment: "center", margin: [0, 8, 0, 2] },
-                  { text: `INVENTORY RUNOUT FORECASTS & DETAILED UNIT MARGINS | LOCATION: ${branchName.toUpperCase()}`, color: "#e0e7ff", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
+                  { text: `INVENTORY RUNOUT FORECASTS & DETAILED UNIT MARGINS | LOCATION: ${branchName.toUpperCase()} | DATE: ${reportDate.toUpperCase()}`, color: "#e0e7ff", fontSize: 8, bold: true, alignment: "center", margin: [0, 0, 0, 8] }
                 ],
                 border: [false, false, false, false]
               }

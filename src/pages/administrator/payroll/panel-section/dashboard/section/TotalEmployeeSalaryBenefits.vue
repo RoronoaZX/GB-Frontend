@@ -1,69 +1,87 @@
 <template>
-  <q-card v-if="loading" class="q-pa-md q-mb-md q-mt-sm text-center user-card">
-    <q-card-section horizontal>
-      <!-- Total Employee Skeleton -->
-      <div class="col q-pa-md">
-        <q-skeleton type="text" width="60%" class="q-mx-auto" height="24px" />
-        <q-skeleton type="text" width="80%" class="q-mx-auto q-mt-sm" height="12px" />
-        <q-skeleton type="rect" width="50%" class="q-mx-auto q-my-md" height="48px" />
-        <q-skeleton type="text" width="40%" class="q-mx-auto" height="12px" />
-      </div>
-
-      <q-separator vertical />
-
-      <!-- Salary Per Month Skeleton -->
-      <div class="col q-pa-md">
-        <q-skeleton type="text" width="60%" class="q-mx-auto" height="24px" />
-        <q-skeleton type="text" width="80%" class="q-mx-auto q-mt-sm" height="12px" />
-        <q-skeleton type="rect" width="50%" class="q-mx-auto q-my-md" height="48px" />
-        <q-skeleton type="text" width="40%" class="q-mx-auto" height="12px" />
-      </div>
-
-      <q-separator vertical />
-
-      <!-- Provident Fund Skeleton -->
-      <div class="col q-pa-md">
-        <q-skeleton type="text" width="60%" class="q-mx-auto" height="24px" />
-        <q-skeleton type="text" width="80%" class="q-mx-auto q-mt-sm" height="12px" />
-        <q-skeleton type="rect" width="50%" class="q-mx-auto q-my-md" height="48px" />
-        <q-skeleton type="text" width="40%" class="q-mx-auto" height="12px" />
-      </div>
-    </q-card-section>
-  </q-card>
-
-  <q-card v-else class="q-pa-md q-mb-md q-mt-sm text-center user-card">
-    <q-card-section horizontal>
-      <!-- Total Employee Section -->
-      <div class="col q-pa-md">
-        <div class="text-h6">Total Employee</div>
-        <div class="text-caption text-grey-6">Total Number Of Employees</div>
-        <div class="text-h3 text-primary q-my-sm">{{ employees.length }}</div>
-        <div class="text-caption text-grey-7">Employees</div>
-      </div>
-
-      <q-separator vertical />
-
-      <!-- Salary Per Month Section -->
-      <div class="col q-pa-md">
-        <div class="text-h6">Salary Per Month</div>
-        <div class="text-caption text-grey-6">
-          Current Total Salary Per Month
+  <!-- Skeleton View -->
+  <div v-if="loading" class="row q-col-gutter-lg q-mb-md q-mt-sm">
+    <div class="col-12 col-md-4" v-for="i in 3" :key="i">
+      <q-card class="elegant-card q-pa-lg" flat bordered>
+        <div class="row items-center no-wrap">
+          <q-skeleton type="QAvatar" size="64px" class="rounded-borders" style="border-radius: 20px;" />
+          <div class="q-ml-md" style="flex: 1">
+            <q-skeleton type="text" width="60%" height="12px" />
+            <q-skeleton type="text" width="40%" height="28px" class="q-mt-sm" />
+          </div>
         </div>
-        <div class="text-h3 text-positive q-my-sm">₱ 52,962</div>
-        <div class="text-caption text-grey-7">PHP</div>
-      </div>
+      </q-card>
+    </div>
+  </div>
 
-      <q-separator vertical />
+  <!-- Real Data View -->
+  <div v-else class="row q-col-gutter-lg q-mb-md q-mt-sm">
+    <!-- Total Employee -->
+    <div class="col-12 col-md-4">
+      <q-card class="elegant-card" flat bordered>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-blue">
+              <q-icon name="group" size="32px" />
+            </div>
+            <div class="card-info q-ml-md" style="min-width: 0">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                Total Employees
+              </div>
+              <div class="text-weight-bolder text-dark q-mt-xs ds-number">
+                {{ employees.length }}
+              </div>
+              <div class="text-caption text-grey-6 q-mt-xs">Active Staff Count</div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
 
-      <!-- Provident Fund Section -->
-      <div class="col q-pa-md">
-        <div class="text-h6">Benefits Fund</div>
-        <div class="text-caption text-grey-6">For all Employees Per Month</div>
-        <div class="text-h3 text-warning q-my-sm">₱ 200,123</div>
-        <div class="text-caption text-grey-7">PHP</div>
-      </div>
-    </q-card-section>
-  </q-card>
+    <!-- Salary Per Month -->
+    <div class="col-12 col-md-4">
+      <q-card class="elegant-card" flat bordered>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-emerald">
+              <q-icon name="payments" size="32px" />
+            </div>
+            <div class="card-info q-ml-md" style="min-width: 0">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                Salary Per Month
+              </div>
+              <div class="text-weight-bolder text-dark q-mt-xs ds-number">
+                ₱52,962
+              </div>
+              <div class="text-caption text-grey-6 q-mt-xs">Current Monthly Payroll</div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Benefits Fund -->
+    <div class="col-12 col-md-4">
+      <q-card class="elegant-card" flat bordered>
+        <q-card-section class="q-pa-lg">
+          <div class="row items-center no-wrap">
+            <div class="card-icon-wrapper text-warning">
+              <q-icon name="volunteer_activism" size="32px" />
+            </div>
+            <div class="card-info q-ml-md" style="min-width: 0">
+              <div class="text-caption text-uppercase text-weight-bold text-grey-5 tracking-wide">
+                Benefits Fund
+              </div>
+              <div class="text-weight-bolder text-dark q-mt-xs ds-number">
+                ₱200,123
+              </div>
+              <div class="text-caption text-grey-6 q-mt-xs">Active Employee Funds</div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -91,78 +109,57 @@ const fetchEmployeeData = async () => {
 </script>
 
 <style lang="scss" scoped>
-.elegant-container {
-  background: #f7f8fc;
-  padding: 2rem;
-  border-radius: 8px;
-}
-.my-virtual-scroll {
-  white-space: nowrap; /* Ensure horizontal scroll is maintained */
+.elegant-card {
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+    border-color: rgba(226, 232, 240, 1);
+
+    .card-icon-wrapper {
+      transform: scale(1.1) rotate(5deg);
+    }
+  }
 }
 
-.user-card {
-  height: 100%;
-  border-radius: 15px;
-  background: #fff;
-  color: #333;
-  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Typography styles */
+.tracking-wide {
+  letter-spacing: 1px;
 }
-.user-tab {
-  height: 100%;
-  border-radius: none;
-  background: #fff;
-  color: #333;
-  box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.ds-number {
+  font-size: 2.125rem;
+  line-height: 1;
+  letter-spacing: -0.5px;
 }
 
-.user-button {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.user-button:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-/* Custom styling for grid */
-.q-table .q-pa-md {
-  background-color: #f5f5f5;
-  font-weight: bold;
-  font-size: 1.2rem;
-  text-align: center;
-}
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, min(70px, 1fr), max(150px, 1fr));
-  gap: 20px;
-}
-.my-card {
-  margin: 8px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-  display: inline-block;
-  vertical-align: top; /* Align cards at the top */
-  width: auto;
-  min-width: 150px; /* Optional: Set a minimum width if needed */
-  margin-right: 10px; /* Optional: Add space between cards */
-}
-
-.my-virtual-scroll {
+/* Icon Wrappers */
+.card-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
   display: flex;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 16px;
-}
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s ease;
+  flex-shrink: 0;
 
-.my-virtual-scroll .q-card {
-  display: inline-block;
-  white-space: normal;
-}
-
-.my-center-text {
-  text-align: center;
+  &.text-blue {
+    background: #eff6ff;
+    color: #3b82f6;
+  }
+  &.text-emerald {
+    background: #ecfdf5;
+    color: #10b981;
+  }
+  &.text-warning {
+    background: #fffbeb;
+    color: #f59e0b;
+  }
 }
 </style>

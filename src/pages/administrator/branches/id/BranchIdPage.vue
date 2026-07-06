@@ -128,7 +128,8 @@ const tab = ref(role.value === "Super Admin" ? "overview" : "products");
 
 const navigateBack = () => {
   Loading.show();
-  router.push("/admin/branches").finally(() => {
+  const target = route.query.from === "payroll" ? "/admin/payroll" : "/admin/branches";
+  router.push(target).finally(() => {
     Loading.hide();
   });
 };

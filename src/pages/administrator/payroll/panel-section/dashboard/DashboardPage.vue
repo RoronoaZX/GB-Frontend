@@ -1,10 +1,10 @@
 <template>
   <TotalEmployeeSalaryBenefits />
-  <div class="row justify-between">
-    <div class="col-6 q-pr-sm">
+  <div class="row q-col-gutter-lg q-mt-xs">
+    <div class="col-12 col-md-6">
       <BranchEmployeeCard />
     </div>
-    <div class="col-6 q-pl-sm">
+    <div class="col-12 col-md-6">
       <WarehouseEmployeCard />
     </div>
   </div>

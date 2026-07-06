@@ -7,7 +7,7 @@
         dense
         icon="arrow_back"
         color="primary"
-        to="/admin/warehouse"
+        @click="navigateBack"
         class="q-mr-md"
       />
       <div>
@@ -91,7 +91,7 @@
 import { computed, onMounted, ref } from "vue";
 import WarehouseRawMaterialsPage from "./components/warehouse-raw-materials/WarehouseRawMaterialsPage.vue";
 import BranchCard from "./components/branch-raw-materials/BranchCard.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { api } from "src/boot/axios";
 import TransactionWarehouse from "./components/transaction-raw-materials/TransactionsWarehouse.vue";
@@ -100,10 +100,16 @@ import { typographyFormat } from "src/composables/typography/typography-format";
 const { capitalizeFirstLetter } = typographyFormat();
 
 const route = useRoute();
+const router = useRouter();
 const warehouseStore = useWarehousesStore();
 const warehouseName = ref("");
 const warehouse = computed(() => warehouseStore.warehouse);
 const warehouseId = computed(() => route.params.warehouse_id || "Unknown");
+
+const navigateBack = () => {
+  const target = route.query.from === "payroll" ? "/admin/payroll" : "/admin/warehouse";
+  router.push(target);
+};
 
 const tab = ref("warehouseRawMaterials");
 

@@ -97,22 +97,57 @@
     </q-card-section>
   </q-card>
 
-  <!-- :backdrop-filter="backdropFilter" -->
   <q-dialog
     v-model="printDialog"
     :maximized="maximizedToggle"
     transition-show="slide-up"
     transition-hide="slide-down"
   >
-    <div class="q-ma-sm">
-      <div class="q-ma-sm" align="center">
-        <q-btn icon="close" flat dense round v-close-popup class="text-white">
-          <q-tooltip>Close</q-tooltip>
-        </q-btn>
-      </div>
-      <div>
-        <iframe :src="pdfUrl" width="100%" height="700px" />
-      </div>
+    <div class="q-pa-md" style="width: 100%">
+      <q-card class="bg-dark column full-height">
+        <q-card-section
+          class="row justify-between items-center bg-primary text-white q-py-sm"
+        >
+          <div class="row items-center">
+            <q-icon name="picture_as_pdf" size="sm" class="q-mr-sm" />
+            <div class="text-h6">
+              {{ currentReport?.branch?.name || 'Branch' }} Sales Report PDF
+            </div>
+          </div>
+          <div>
+            <q-btn
+              dense
+              flat
+              icon="download"
+              class="q-mr-sm"
+              @click="triggerDownload"
+            >
+              <q-tooltip>Download PDF</q-tooltip>
+            </q-btn>
+            <q-btn
+              dense
+              flat
+              icon="print"
+              class="q-mr-sm"
+              @click="triggerPhysicalPrint"
+            >
+              <q-tooltip>Print Document</q-tooltip>
+            </q-btn>
+            <q-btn dense flat icon="close" v-close-popup>
+              <q-tooltip>Close</q-tooltip>
+            </q-btn>
+          </div>
+        </q-card-section>
+
+        <q-card-section class="col q-pa-none">
+          <iframe
+            :src="pdfUrl"
+            width="100%"
+            height="100%"
+            style="border: none"
+          />
+        </q-card-section>
+      </q-card>
     </div>
   </q-dialog>
 </template>
@@ -164,6 +199,25 @@ const reportsData = props.salesReport;
 const maximizedToggle = ref(true);
 const printDialog = ref(false);
 const pdfUrl = ref("");
+const currentReport = ref(null);
+const currentDocDefinition = ref(null);
+
+const triggerDownload = () => {
+  if (currentDocDefinition.value) {
+    const branchName = currentReport.value?.branch?.name || "Branch";
+    const dateStr = currentReport.value?.created_at 
+      ? date.formatDate(currentReport.value.created_at, "YYYY-MM-DD")
+      : date.formatDate(new Date(), "YYYY-MM-DD");
+    const filename = `Sales_Report_${branchName.replace(/\s+/g, "_")}_${dateStr}.pdf`;
+    pdfMake.createPdf(currentDocDefinition.value).download(filename);
+  }
+};
+
+const triggerPhysicalPrint = () => {
+  if (currentDocDefinition.value) {
+    pdfMake.createPdf(currentDocDefinition.value).print();
+  }
+};
 
 const chargesAmountToBeSendToAPI = ref(0);
 const overAmountToBeSendToAPI = ref(0);
@@ -846,7 +900,9 @@ const generateDocDefinition = (report) => {
 };
 
 const openPrintDialog = (report) => {
+  currentReport.value = report;
   const docDefinition = generateDocDefinition(report);
+  currentDocDefinition.value = docDefinition;
   pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
     pdfUrl.value = dataUrl;
     printDialog.value = true;
