@@ -1,1 +1,0 @@
-import{a as r}from"./index.2a3651e4.js";import{C as e,r as t}from"./chart.8ac4b795.js";e.register(...t);var o=()=>{const a=localStorage.getItem("darkMode")==="true";r.set(a),e&&e.defaults&&(e.defaults.color=a?"#cbd5e1":"#64748b",e.defaults.scale&&e.defaults.scale.grid&&(e.defaults.scale.grid.color=a?"rgba(255, 255, 255, 0.08)":"#e2e8f0"))};export{o as default};
