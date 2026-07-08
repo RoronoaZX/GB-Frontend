@@ -19,7 +19,7 @@
     </q-markup-table>
   </div>
 
-  <q-table v-else :rows="incentives" :columns="incentivesBasesColumns">
+  <q-table v-else class="premium-table" :rows="incentives" :columns="incentivesBasesColumns">
     <template v-slot:header="props">
       <q-tr :props="props" class="gradient-header text-white text-weight-bold">
         <q-th
@@ -34,38 +34,43 @@
     </template>
 
     <template v-slot:body-cell-number_of_employees="props">
-      <q-td :props="props">
-        <span>
-          {{
-            props.row.number_of_employees
-              ? props.row.number_of_employees
-              : " - - "
-          }}
-          <q-tooltip class="bg-blue-grey-8">Edit Number of Employees</q-tooltip>
-        </span>
+      <q-td :props="props" class="cursor-pointer text-center">
+        <div class="edit-trigger">
+          <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+          <span class="numeric-font text-weight-bold text-slate-8">
+            {{ props.row.number_of_employees ? props.row.number_of_employees : " - - " }}
+          </span>
+        </div>
         <q-popup-edit
-          @update:model-value="(val) => updateNumberEmployee(props.row, val)"
           v-model="props.row.number_of_employees"
           v-slot="scope"
+          content-class="popup-card"
         >
-          <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-            <div class="text-h6 text-primary text-center q-mb-sm">
+          <div class="q-pa-md" style="min-width: 280px;">
+            <div class="popup-title q-mb-sm">
               Edit Number of Employees
-            </div>
-            <div class="text-subtitle2 q-mb-md">
-              Name: {{ props.row.number_of_employees }}
             </div>
             <q-input
               v-model="scope.value"
               :model-value="scope.value"
               @value:model-value="scope.value = $event"
               type="text"
-              counter
+              outlined
+              dense
+              autofocus
+              class="popup-input"
               @keyup.enter="scope.set"
             />
-            <div class="row justify-end q-mt-md">
-              <q-btn flat label="Close" color="primary" @click="scope.cancel" />
-              <q-btn flat label="Save" color="primary" @click="scope.set" />
+            <div class="row justify-end q-mt-md q-gutter-x-sm">
+              <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+              <q-btn
+                unelevated
+                label="Save"
+                color="teal"
+                no-caps
+                class="q-px-md rounded-btn"
+                @click="() => { openEditConfirm(props.row, scope.value, 'number_of_employees'); scope.cancel(); }"
+              />
             </div>
           </div>
         </q-popup-edit>
@@ -73,34 +78,44 @@
     </template>
 
     <template v-slot:body-cell-target="props">
-      <q-td :props="props" class="cursor-pointer">
-        <span>
-          {{ props.row.target ? props.row.target : " - - -" }}
-          <q-tooltip class="bg-blue-grey-8"> Edit Target Kilo </q-tooltip>
-        </span>
+      <q-td :props="props" class="cursor-pointer text-center">
+        <div class="edit-trigger">
+          <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+          <span class="numeric-font text-weight-bold text-slate-8">
+            {{ props.row.target ? props.row.target : " - - -" }}
+          </span>
+        </div>
         <q-popup-edit
-          @update:model-value="(val) => updateTargetKilo(props.row, val)"
           v-model="props.row.target"
           v-slot="scope"
+          content-class="popup-card"
         >
-          <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-            <div class="text-h6 text-primary text-center q-mb-sm">
+          <div class="q-pa-md" style="min-width: 280px;">
+            <div class="popup-title q-mb-sm">
               Edit Target Kilo
             </div>
-            <!-- <div class="text-subtitle2 q-mb-md">
-              Name: {{ props.row.target }}
-            </div> -->
             <q-input
               v-model="scope.value"
               :model-value="scope.value"
               @value:model-value="scope.value = $event"
               type="text"
-              counter
+              outlined
+              dense
+              autofocus
+              suffix="kg"
+              class="popup-input"
               @keyup.enter="scope.set"
             />
-            <div class="row justify-end q-mt-md">
-              <q-btn flat label="Close" color="primary" @click="scope.cancel" />
-              <q-btn flat label="Save" color="primary" @click="scope.set" />
+            <div class="row justify-end q-mt-md q-gutter-x-sm">
+              <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+              <q-btn
+                unelevated
+                label="Save"
+                color="teal"
+                no-caps
+                class="q-px-md rounded-btn"
+                @click="() => { openEditConfirm(props.row, scope.value, 'target'); scope.cancel(); }"
+              />
             </div>
           </div>
         </q-popup-edit>
@@ -108,22 +123,20 @@
     </template>
 
     <template v-slot:body-cell-baker_multiplier="props">
-      <q-td :props="props" class="cursor-pointer">
-        <span>
-          {{
-            formatMultiplier(
-              props.row.baker_multiplier ? props.row.baker_multiplier : " - - -"
-            )
-          }}
-          <q-tooltip class="bg-blue-grey-8"> Edit Baker Multiplier </q-tooltip>
-        </span>
+      <q-td :props="props" class="cursor-pointer text-center">
+        <div class="edit-trigger">
+          <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+          <span class="numeric-font text-weight-bold text-teal-8">
+            {{ formatMultiplier(props.row.baker_multiplier) }}
+          </span>
+        </div>
         <q-popup-edit
-          @update:model-value="(val) => updateBakerMultiplier(props.row, val)"
           v-model="props.row.baker_multiplier"
           v-slot="scope"
+          content-class="popup-card"
         >
-          <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-            <div class="text-h6 text-primary text-center q-mb-sm">
+          <div class="q-pa-md" style="min-width: 280px;">
+            <div class="popup-title q-mb-sm">
               Edit Baker Multiplier
             </div>
             <q-input
@@ -131,13 +144,23 @@
               :model-value="formatNumber(scope.value)"
               @value:model-value="scope.value = $event"
               type="text"
-              counter
+              outlined
+              dense
+              autofocus
               prefix="x"
+              class="popup-input"
               @keyup.enter="scope.set"
             />
-            <div class="row justify-end q-mt-md">
-              <q-btn flat label="Close" color="primary" @click="scope.cancel" />
-              <q-btn flat label="Save" color="primary" @click="scope.set" />
+            <div class="row justify-end q-mt-md q-gutter-x-sm">
+              <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+              <q-btn
+                unelevated
+                label="Save"
+                color="teal"
+                no-caps
+                class="q-px-md rounded-btn"
+                @click="() => { openEditConfirm(props.row, scope.value, 'baker_multiplier'); scope.cancel(); }"
+              />
             </div>
           </div>
         </q-popup-edit>
@@ -145,104 +168,156 @@
     </template>
 
     <template v-slot:body-cell-lamesador_multiplier="props">
-      <q-td :props="props" class="cursor-pointer">
-        <span>
-          {{ formatMultiplier(props.row.lamesador_multiplier) }}
-          <q-tooltip class="bg-blue-grey-8">
-            Edit Lamesador Multiplier
-          </q-tooltip>
-        </span>
+      <q-td :props="props" class="cursor-pointer text-center">
+        <div class="edit-trigger">
+          <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+          <span class="numeric-font text-weight-bold text-teal-8">
+            {{ formatMultiplier(props.row.lamesador_multiplier) }}
+          </span>
+        </div>
         <q-popup-edit
-          @update:model-value="
-            (val) => udpateLamesadorMultiplier(props.row, val)
-          "
           v-model="props.row.lamesador_multiplier"
           v-slot="scope"
+          content-class="popup-card"
         >
-          <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-            <div class="text-h6 text-primary text-center q-mb-sm">
+          <div class="q-pa-md" style="min-width: 280px;">
+            <div class="popup-title q-mb-sm">
               Edit Lamesador Multiplier
             </div>
-
             <q-input
               v-model="scope.value"
               :model-value="formatNumber(scope.value)"
               @value:model-value="scope.value = $event"
               type="text"
-              counter
+              outlined
+              dense
+              autofocus
               prefix="x"
+              class="popup-input"
               @keyup.enter="scope.set"
-            >
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
-              </div>
-            </q-input>
+            />
+            <div class="row justify-end q-mt-md q-gutter-x-sm">
+              <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+              <q-btn
+                unelevated
+                label="Save"
+                color="teal"
+                no-caps
+                class="q-px-md rounded-btn"
+                @click="() => { openEditConfirm(props.row, scope.value, 'lamesador_multiplier'); scope.cancel(); }"
+              />
+            </div>
           </div>
         </q-popup-edit>
       </q-td>
     </template>
 
     <template v-slot:body-cell-hornero_incentives="props">
-      <q-td :props="props" class="cursor-pointer">
-        <span>
-          {{ formatMultiplier(props.row.hornero_incentives) }}
-          <q-tooltip class="bg-blue-grey-8">
-            Edit Hornero Incentives
-          </q-tooltip>
-        </span>
+      <q-td :props="props" class="cursor-pointer text-center">
+        <div class="edit-trigger">
+          <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+          <span class="numeric-font text-weight-bold text-amber-9">
+            {{ formatCurrency(props.row.hornero_incentives) }}
+          </span>
+        </div>
         <q-popup-edit
-          @update:model-value="(val) => updateHorneroIncentives(props.row, val)"
           v-model="props.row.hornero_incentives"
           v-slot="scope"
+          content-class="popup-card"
         >
-          <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-            <div class="text-h6 text-primary text-center q-mb-sm">
+          <div class="q-pa-md" style="min-width: 280px;">
+            <div class="popup-title q-mb-sm">
               Edit Hornero Incentives
             </div>
-
             <q-input
               v-model="scope.value"
               :model-value="formatNumber(scope.value)"
               @value:model-value="scope.value = $event"
               type="text"
-              counter
-              prefix="x"
+              outlined
+              dense
+              autofocus
+              prefix="₱"
+              class="popup-input"
               @keyup.enter="scope.set"
-            >
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
-              </div>
-            </q-input>
+            />
+            <div class="row justify-end q-mt-md q-gutter-x-sm">
+              <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+              <q-btn
+                unelevated
+                label="Save"
+                color="teal"
+                no-caps
+                class="q-px-md rounded-btn"
+                @click="() => { openEditConfirm(props.row, scope.value, 'hornero_incentives'); scope.cancel(); }"
+              />
+            </div>
           </div>
         </q-popup-edit>
       </q-td>
     </template>
   </q-table>
+
+  <!-- Edit Password Confirmation Dialog -->
+  <q-dialog v-model="editPasswordDialog" persistent>
+    <q-card class="confirm-card q-pa-md" style="width: 380px; max-width: 90vw; border-radius: 12px;">
+      <q-card-section class="row items-center q-pb-none">
+        <q-avatar icon="edit_note" color="teal" text-color="white" size="36px" class="q-mr-sm" />
+        <div class="text-h6 text-weight-bold text-teal-9">Confirm Edit</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section class="q-pt-md">
+        <div class="text-body2 text-grey-8 q-mb-md">
+          Please enter your password to save the incentive changes.
+        </div>
+        <q-input
+          v-model="editPasswordInput"
+          type="password"
+          label="Enter Password"
+          outlined
+          dense
+          autofocus
+          @keyup.enter="handleEditConfirm"
+        />
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-pt-none">
+        <q-btn flat label="Cancel" color="grey-7" no-caps v-close-popup />
+        <q-btn
+          unelevated
+          label="Confirm Edit"
+          color="teal"
+          no-caps
+          class="q-px-md rounded-btn"
+          :loading="editConfirmLoading"
+          @click="handleEditConfirm"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { useIncentivesBasesStore } from "src/stores/incentive-bases";
+import { useUsersStore } from "src/stores/user";
 import { computed, onMounted, ref } from "vue";
 import { Notify, useQuasar } from "quasar";
 
 const incentivesStore = useIncentivesBasesStore();
+const userStore = useUsersStore();
 const incentives = computed(() => incentivesStore.incentivesBases);
 const $q = useQuasar();
 const editedValue = ref(null);
 
 const tableLoading = ref(false);
+
+// Edit Password Confirmation State
+const editPasswordDialog = ref(false);
+const editPasswordInput = ref("");
+const pendingEditRecord = ref(null); // stores { row, val, field }
+const editConfirmLoading = ref(false);
 
 const updateNumberEmployee = async (data, val) => {
   /* console.log("updateNumberEmployee", data, val); */
@@ -303,6 +378,78 @@ const updateHorneroIncentives = async (data, val) => {
     tableLoading.value = false;
   }
 };
+
+// ─── Edit Confirmation ────────────────────────────────────────────────────────
+const openEditConfirm = (row, val, field) => {
+  pendingEditRecord.value = { row, val, field };
+  editPasswordInput.value = "";
+  editPasswordDialog.value = true;
+};
+
+const dispatchEdit = async (row, val, field) => {
+  switch (field) {
+    case "number_of_employees": await incentivesStore.updateNumberEmployee(row, val);     break;
+    case "target":              await incentivesStore.updateTargetKilo(row, val);          break;
+    case "baker_multiplier":    await incentivesStore.updateBakerMultiplier(row, val);     break;
+    case "lamesador_multiplier":await incentivesStore.updateLamesadorMultiplier(row, val); break;
+    case "hornero_incentives":  await incentivesStore.updateHorneroIncentives(row, val);   break;
+  }
+  await fetchIncentivesData();
+};
+
+const handleEditConfirm = async () => {
+  if (!editPasswordInput.value) {
+    Notify.create({
+      message: "Password is required",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+    return;
+  }
+
+  editConfirmLoading.value = true;
+  try {
+    const userId = userStore.userData?.data?.id;
+    if (!userId) {
+      Notify.create({
+        message: "User session not found. Please log in again.",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+      return;
+    }
+
+    const isValid = await userStore.verifyUserPassword(userId, editPasswordInput.value);
+    if (!isValid) {
+      Notify.create({
+        message: "Incorrect password. Edit was not saved.",
+        color: "negative",
+        position: "top",
+        timeout: 2500,
+      });
+      return;
+    }
+
+    const { row, val, field } = pendingEditRecord.value;
+    await dispatchEdit(row, val, field);
+
+    Notify.create({
+      message: "Record updated successfully",
+      color: "positive",
+      position: "top",
+      timeout: 2000,
+    });
+    editPasswordDialog.value = false;
+  } catch (error) {
+    const msg = error.response?.data?.message || "Failed to update record";
+    Notify.create({ message: msg, color: "negative", position: "top", timeout: 3000 });
+  } finally {
+    editConfirmLoading.value = false;
+  }
+};
+// ─────────────────────────────────────────────────────────────────────────────
 
 const fetchIncentivesData = async () => {
   tableLoading.value = true;
@@ -409,16 +556,82 @@ const incentivesBasesColumns = [
 
 <style lang="scss" scoped>
 .gradient-header {
-  // background: #926400;
-  background: linear-gradient(135deg, #926400, #d4af37);
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important;
+  color: #ffffff !important;
 }
 
-.q-btn {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.premium-table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  
+  :deep(.q-table__card) {
+    box-shadow: none;
+  }
+
+  :deep(thead tr) {
+    height: 48px;
+  }
+
+  :deep(tbody tr) {
+    transition: background-color 0.2s ease;
+    &:hover {
+      background-color: rgba(241, 245, 249, 0.5) !important;
+    }
+  }
 }
 
-.q-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.numeric-font {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+.edit-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(13, 148, 136, 0.08);
+    .edit-icon {
+      color: #0d9488;
+      transform: scale(1.15);
+    }
+  }
+
+  .edit-icon {
+    transition: all 0.2s ease;
+  }
+}
+
+:deep(.popup-card) {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: #ffffff !important;
+}
+
+.popup-title {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.popup-input {
+  :deep(.q-field__control) {
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+  }
+  :deep(.q-field__control:focus-within) {
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  }
+}
+
+.rounded-btn {
+  border-radius: 8px;
 }
 </style>

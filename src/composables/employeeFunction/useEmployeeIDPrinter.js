@@ -44,32 +44,17 @@ export function useEmployeeIDPrinter(IDLogo, GB_LOGO) {
 
   const generateDocDefinition = (employee, base64Image, base64Logo) => {
     return {
-      pageSize: { width: 323, height: 204 },
+      pageSize: { width: 260, height: 150 },
       pageMargins: [0, 0, 0, 0],
       background: [
         {
           image: base64Logo,
           width: 140,
           opacity: 0.1,
-          absolutePosition: { x: 70, y: 15 },
+          absolutePosition: { x: 60, y: 5 },
         },
       ],
       content: [
-        {
-          canvas: [
-            {
-              type: "rect",
-              x: 0,
-              y: 0,
-              w: 260,
-              h: 150,
-              lineWidth: 1,
-              lineColor: "black",
-              dash: { length: 4 },
-            },
-          ],
-          absolutePosition: { x: 0, y: 0 },
-        },
         {
           alignment: "justify",
           columns: [

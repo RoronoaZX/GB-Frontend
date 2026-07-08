@@ -55,42 +55,42 @@
       </template>
 
       <template v-slot:body-cell-sss_number="props">
-        <q-td :props="props" class="cursor-pointer">
-          <span>
-            {{ props.row.sss_number ? props.row.sss_number : " - - -" }}
-            <q-tooltip class="bg-blue-grey-8">Edit SSS Number</q-tooltip>
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span class="numeric-font">
+              {{ props.row.sss_number ? props.row.sss_number : " - - - " }}
+            </span>
+          </div>
+          <q-tooltip class="bg-blue-grey-8">Edit SSS Number</q-tooltip>
           <q-popup-edit
             @update:model-value="(val) => updateSSSNumber(props.row, val)"
             v-model="props.row.sss_number"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-              <div class="text-h6 text-primary text-center q-mb-sm">
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
                 Edit SSS Number
               </div>
-              <div class="text-subtitle2 q-mb-md">
-                Name: {{ formatFullname(props.row.employee) }}
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
               </div>
-
               <q-input
-                v-mode="scope.value"
+                v-model="scope.value"
                 :model-value="scope.value"
                 @update:model-value="scope.value = $event"
                 type="text"
                 mask="##-#######-###"
+                outlined
+                dense
                 autofocus
-                counter
+                class="popup-input"
                 @keyup.enter="scope.set"
               />
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
               </div>
             </div>
           </q-popup-edit>
@@ -98,40 +98,42 @@
       </template>
 
       <template v-slot:body-cell-sss="props">
-        <q-td :props="props">
-          <span>
-            {{ props.row.sss ? formatCurrency(props.row.sss) : " - - " }}
-            <q-tooltip class="bg-blue-grey-8">Edit SSS</q-tooltip>
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span class="numeric-font text-teal-9 text-weight-bold">
+              {{ props.row.sss ? formatCurrency(props.row.sss) : " - - - " }}
+            </span>
+          </div>
+          <q-tooltip class="bg-blue-grey-8">Edit SSS Contribution</q-tooltip>
           <q-popup-edit
             @update:model-value="(val) => updateSSS(props.row, val)"
             v-model="props.row.sss"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-              <div class="text-h6 text-primary text-center q-mb-sm">
-                Edit SSS
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
+                Edit SSS Contribution
               </div>
-              <div class="text-subtitle2 q-mb-md">
-                Name: {{ formatFullname(props.row.employee) }}
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
               </div>
               <q-input
                 v-model="scope.value"
                 :model-value="formatForEdit(scope.value)"
                 @update:model-value="scope.value = $event"
                 type="text"
+                outlined
+                dense
                 autofocus
-                counter
+                prefix="₱"
+                class="popup-input"
                 @keyup.enter="scope.set"
               />
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
               </div>
             </div>
           </q-popup-edit>
@@ -139,22 +141,26 @@
       </template>
 
       <template v-slot:body-cell-hdmf_number="props">
-        <q-td :props="props" class="cursor-pointer">
-          <span>
-            {{ props.row.hdmf_number ? props.row.hdmf_number : " - - -" }}
-            <q-tooltip class="bg-blue-grey-8">Edit HDMF Number</q-tooltip>
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span class="numeric-font">
+              {{ props.row.hdmf_number ? props.row.hdmf_number : " - - - " }}
+            </span>
+          </div>
+          <q-tooltip class="bg-blue-grey-8">Edit Pag-IBIG Number</q-tooltip>
           <q-popup-edit
             @update:model-value="(val) => updateHDMFNumber(props.row, val)"
             v-model="props.row.hdmf_number"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-              <div class="text-h6 text-primary text-center q-mb-sm">
-                Edit HDMF Number
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
+                Edit Pag-IBIG Number
               </div>
-              <div class="text-subtitle2 q-mb-md">
-                Name: {{ formatFullname(props.row.employee) }}
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
               </div>
               <q-input
                 v-model="scope.value"
@@ -162,18 +168,15 @@
                 @update:model-value="scope.value = $event"
                 type="text"
                 mask="####-####-####"
+                outlined
+                dense
                 autofocus
-                counter
+                class="popup-input"
                 @keyup.enter="scope.set"
               />
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
               </div>
             </div>
           </q-popup-edit>
@@ -181,40 +184,42 @@
       </template>
 
       <template v-slot:body-cell-hdmf="props">
-        <q-td :props="props" class="cursor-pointer">
-          <span>
-            {{ props.row.hdmf ? formatCurrency(props.row.hdmf) : " - - -" }}
-            <q-tooltip class="bg-blue-grey-8">Edit HDMF</q-tooltip>
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span class="numeric-font text-teal-9 text-weight-bold">
+              {{ props.row.hdmf ? formatCurrency(props.row.hdmf) : " - - - " }}
+            </span>
+          </div>
+          <q-tooltip class="bg-blue-grey-8">Edit Pag-IBIG Contribution</q-tooltip>
           <q-popup-edit
             @update:model-value="(val) => updateHDMF(props.row, val)"
             v-model="props.row.hdmf"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-              <div class="text-h6 text-primary text-center q-mb-xs">
-                Edit HDMF
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
+                Edit Pag-IBIG Fund
               </div>
-              <div class="text-subtitle2 q-mb-sm">
-                Name: {{ formatFullname(props.row.employee) }}
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
               </div>
               <q-input
                 v-model="scope.value"
                 :model-value="formatForEdit(scope.value)"
                 @update:model-value="scope.value = $event"
                 type="text"
+                outlined
+                dense
                 autofocus
-                counter
+                prefix="₱"
+                class="popup-input"
                 @keyup.enter="scope.set"
               />
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
               </div>
             </div>
           </q-popup-edit>
@@ -222,41 +227,42 @@
       </template>
 
       <template v-slot:body-cell-phic_number="props">
-        <q-td :props="props" class="cursor-pointer">
-          <span>
-            {{ props.row.phic_number ? props.row.phic_number : " - - -" }}
-            <q-tooltip class="bg-blue-grey-8">Edit PHIC Number</q-tooltip>
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span class="numeric-font">
+              {{ props.row.phic_number ? props.row.phic_number : " - - - " }}
+            </span>
+          </div>
+          <q-tooltip class="bg-blue-grey-8">Edit PhilHealth Number</q-tooltip>
           <q-popup-edit
             @update:model-value="(val) => updatePHICNumber(props.row, val)"
             v-model="props.row.phic_number"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-              <div class="text-h6 text-primary text-center q-md-sm">
-                Edit HDMF Number
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
+                Edit PhilHealth Number
               </div>
-              <div class="text-subtitle2 q-mb-md">
-                Name: {{ formatFullname(props.row.employee) }}
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
               </div>
               <q-input
                 v-model="scope.value"
                 :model-value="scope.value"
-                @value:model-value="scope.value = $event"
+                @update:model-value="scope.value = $event"
                 type="text"
                 mask="##-#########-##"
+                outlined
+                dense
                 autofocus
-                counter
+                class="popup-input"
                 @keyup.enter="scope.set"
               />
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
               </div>
             </div>
           </q-popup-edit>
@@ -264,40 +270,42 @@
       </template>
 
       <template v-slot:body-cell-phic="props">
-        <q-td :props="props" class="cursor-pointer">
-          <span>
-            {{ props.row.phic ? formatCurrency(props.row.phic) : " - - - " }}
-            <q-tooltip class="bg-blue-grey-8">Edit PHIC</q-tooltip>
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span class="numeric-font text-teal-9 text-weight-bold">
+              {{ props.row.phic ? formatCurrency(props.row.phic) : " - - - " }}
+            </span>
+          </div>
+          <q-tooltip class="bg-blue-grey-8">Edit PhilHealth Contribution</q-tooltip>
           <q-popup-edit
             @update:model-value="(val) => updatePHIC(props.row, val)"
             v-model="props.row.phic"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
-              <div class="text-h6 text-primary text-center q-mb-xs">
-                Edit PHIC
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
+                Edit PhilHealth Contribution
               </div>
-              <div class="text-subtitle2 q-mb-sm">
-                Name: {{ formatFullname(props.row.employee) }}
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
               </div>
               <q-input
                 v-model="scope.value"
                 :model-value="formatForEdit(scope.value)"
                 @update:model-value="scope.value = $event"
                 type="text"
+                outlined
+                dense
                 autofocus
-                counter
+                prefix="₱"
+                class="popup-input"
                 @keyup.enter="scope.set"
               />
-              <div class="row justify-end q-mt-md">
-                <q-btn
-                  flat
-                  label="Close"
-                  color="primary"
-                  @click="scope.cancel"
-                />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
               </div>
             </div>
           </q-popup-edit>
@@ -655,5 +663,58 @@ const employeeBenefitColumns = [
   color: white;
   z-index: 10;
   opacity: 0.85;
+}
+
+.numeric-font {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+.edit-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(13, 148, 136, 0.08);
+    .edit-icon {
+      color: #0d9488;
+      transform: scale(1.15);
+    }
+  }
+
+  .edit-icon {
+    transition: all 0.2s ease;
+  }
+}
+
+:deep(.popup-card) {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: #ffffff !important;
+}
+
+.popup-title {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.popup-input {
+  :deep(.q-field__control) {
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+  }
+  :deep(.q-field__control:focus-within) {
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  }
+}
+
+.rounded-btn {
+  border-radius: 8px;
 }
 </style>

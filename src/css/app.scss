@@ -157,10 +157,25 @@ body.body--dark {
   }
 
   // Global page container overrides
-  .elegant-container {
+  .elegant-container, .elegant-page-bg, .payroll-router-wrapper {
     background-color: #0b0f19 !important;
+    background: #0b0f19 !important;
     border-color: #1e293b !important;
     color: #f8fafc !important;
+  }
+
+  .capsule-tabs {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+
+    .q-tab {
+      color: #94a3b8 !important;
+      
+      &:hover {
+        color: #ffffff !important;
+      }
+    }
   }
 
   // Quasar native card overrides and custom cards
@@ -269,6 +284,111 @@ body.body--dark {
     background: rgba(255, 255, 255, 0.02) !important;
   }
 
+  // Fix sticky first column white block + full dark mode for Employees table
+  .premium-table {
+    background: #0f172a !important;
+    border-color: #1e293b !important;
+    color: #cbd5e1 !important;
+
+    // Table card container
+    .q-table__card {
+      background: #0f172a !important;
+      box-shadow: none !important;
+    }
+
+    // Top bar (search area)
+    .q-table__top {
+      background: #0f172a !important;
+      border-bottom: 1px solid #1e293b !important;
+    }
+
+    // Bottom pagination bar
+    .q-table__bottom {
+      background: #0f172a !important;
+      border-top: 1px solid #1e293b !important;
+      border-color: #1e293b !important;
+      color: #94a3b8 !important;
+    }
+
+    // Table title
+    .q-table__title {
+      color: #f8fafc !important;
+    }
+
+    // Header cells
+    thead tr th {
+      background: #1e293b !important;
+      color: #94a3b8 !important;
+      border-color: #334155 !important;
+    }
+
+    thead tr th:first-child {
+      background: #1e293b !important;
+      color: #f8fafc !important;
+    }
+
+    // Body cells
+    tbody tr td {
+      color: #cbd5e1 !important;
+      border-color: #1e293b !important;
+    }
+
+    // Sticky first column — the white-block culprit
+    tbody tr td:first-child {
+      background: #0f172a !important;
+    }
+
+    tbody tr:hover td:first-child {
+      background: #131c2e !important;
+    }
+
+    // Hover rows
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.03) !important;
+    }
+
+    // Pagination controls text
+    .q-table__bottom-item {
+      color: #94a3b8 !important;
+    }
+  }
+
+  // ---- Search input inside employees table (pill-shaped) ----
+  .search-input {
+    .q-field__control {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+    }
+    .q-field__control::before {
+      border-color: #334155 !important;
+    }
+    .q-field__control::after {
+      border-color: #0d9488 !important;
+    }
+    .q-field__native,
+    .q-field__input,
+    input {
+      color: #f1f5f9 !important;
+      caret-color: #0d9488 !important;
+    }
+    .q-placeholder,
+    input::placeholder {
+      color: #64748b !important;
+    }
+    .q-field__control:hover {
+      border-color: #475569 !important;
+    }
+    .q-field__control:focus-within {
+      background-color: #0f172a !important;
+      border-color: #0d9488 !important;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2) !important;
+    }
+    .q-icon {
+      color: #64748b !important;
+    }
+  }
+
+
   // Sticky table headers in Dark mode
   .sticky-header, .sticky-header2, .sticky-header3 {
     .q-table__top,
@@ -365,7 +485,8 @@ body.body--dark {
   }
 
   // Override Tailwind/custom Slate classes
-  .text-slate-900, .text-slate-800, .text-slate-700, .text-slate-600 {
+  .text-slate-900, .text-slate-800, .text-slate-700, .text-slate-600,
+  .text-slate-8, .text-slate-7, .text-slate-6 {
     color: #f8fafc !important;
   }
   .text-slate-500, .text-slate-400 {
@@ -390,7 +511,6 @@ body.body--dark {
 
   // Global Table bottom pagination bar overrides in Dark Mode
   .q-table__bottom, 
-  .q-table__bottom *, 
   .q-table__bottom-item {
     background-color: #1e293b !important;
     color: #cbd5e1 !important;
@@ -404,11 +524,12 @@ body.body--dark {
   }
 
   .search-input {
-    background: #1e293b !important;
+    background: transparent !important;
     border-color: #334155 !important;
     color: #f8fafc !important;
     
     .q-field__control {
+      background-color: #1e293b !important;
       &:before {
         border-color: #334155 !important;
       }
@@ -605,6 +726,93 @@ body.body--dark {
     background-color: rgba(75, 85, 99, 0.15) !important;
     border-color: rgba(75, 85, 99, 0.3) !important;
     color: #9ca3af !important;
+  }
+
+  // Dashboard Widget Metric List Items in Dark Mode
+  .metric-list-item {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    
+    // Override local text classes inside list item
+    .text-grey-8 {
+      color: #cbd5e1 !important;
+    }
+    .text-grey-5 {
+      color: #94a3b8 !important;
+    }
+    
+    // Nested custom classes overrides inside metric item
+    .emerald-1 { background: rgba(16, 185, 129, 0.15) !important; }
+    .emerald-9 { color: #34d399 !important; }
+    .rose-1 { background: rgba(244, 63, 94, 0.15) !important; }
+    .rose-9 { color: #fb7185 !important; }
+    .orange-1 { background: rgba(249, 115, 22, 0.15) !important; }
+    .orange-9 { color: #ffb74d !important; }
+
+    &:hover {
+      background: #334155 !important;
+      border-color: #475569 !important;
+    }
+  }
+
+  // Custom scrollbar overrides for vertical containers in dark mode
+  .vertical-scroll-container {
+    &::-webkit-scrollbar-track {
+      background: #1e293b !important;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #334155 !important;
+      &:hover {
+        background: #475569 !important;
+      }
+    }
+  }
+
+  // Light background overrides in Dark Mode
+  .bg-teal-1 { background-color: rgba(13, 148, 136, 0.15) !important; }
+  .bg-indigo-1 { background-color: rgba(99, 102, 241, 0.15) !important; }
+  .bg-blue-1 { background-color: rgba(59, 130, 246, 0.15) !important; }
+  .bg-red-1 { background-color: rgba(239, 68, 68, 0.15) !important; }
+  .bg-amber-1 { background-color: rgba(245, 158, 11, 0.15) !important; }
+  .bg-orange-1 { background-color: rgba(249, 115, 22, 0.15) !important; }
+  .bg-emerald-1 { background-color: rgba(16, 185, 129, 0.15) !important; }
+  .bg-rose-1 { background-color: rgba(244, 63, 94, 0.15) !important; }
+  
+  // Text color overrides for light themes in Dark Mode
+  .text-teal-9 { color: #2dd4bf !important; }
+  .text-indigo-9 { color: #818cf8 !important; }
+  .text-blue-8 { color: #60a5fa !important; }
+  .text-red-9 { color: #f87171 !important; }
+  .text-amber-9 { color: #fbbf24 !important; }
+  .text-orange-9 { color: #ffb74d !important; }
+  .text-emerald-9 { color: #34d399 !important; }
+  .text-rose-9 { color: #fb7185 !important; }
+
+  // Allowance & Deductions Subtabs overrides in Dark Mode
+  .modern-subtabs {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3) !important;
+
+    .q-tab {
+      color: #94a3b8 !important;
+
+      &:hover {
+        color: #f1f5f9 !important;
+        background: #334155 !important;
+      }
+    }
+
+    .q-tab--active {
+      color: #2dd4bf !important;
+      background: rgba(13, 148, 136, 0.15) !important;
+      box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.2) !important;
+    }
+
+    .q-tab__label,
+    .q-tab__icon {
+      color: inherit !important;
+    }
   }
 }
 

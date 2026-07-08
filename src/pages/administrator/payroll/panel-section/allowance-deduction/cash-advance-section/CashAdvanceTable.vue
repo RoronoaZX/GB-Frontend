@@ -52,70 +52,116 @@
         </q-tr>
       </template>
       <template v-slot:body-cell-amount="props">
-        <q-td :props="props" class="cursor-pointer">
-          <span>
-            {{
-              props.row.amount ? formatCurrency(props.row.amount) : " - - - "
-            }}
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span class="numeric-font text-teal-9 text-weight-bold">
+              {{ props.row.amount ? formatCurrency(props.row.amount) : " - - - " }}
+            </span>
+          </div>
           <q-tooltip class="bg-blue-grey-8">Edit Amount</q-tooltip>
           <q-popup-edit
             @update:model-value="(val) => updateAmount(props.row, val)"
             v-model="props.row.amount"
-            buttons
-            label-set="Save"
-            label-cancel="Close"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="text-h6 text-primary text-center q-mb-xs">
-              Edit Amount
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
+                Edit Cash Advance Amount
+              </div>
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
+              </div>
+              <q-input
+                v-model="scope.value"
+                :model-value="formatForEdit(scope.value)"
+                @update:model-value="scope.value = $event"
+                type="text"
+                outlined
+                dense
+                autofocus
+                prefix="₱"
+                class="popup-input"
+                @keyup.enter="scope.set"
+              />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
+              </div>
             </div>
-            <div class="text-subtitle2 q-mb-sm">
-              Name: {{ formatFullname(props.row.employee) }}
-            </div>
-            <q-input
-              v-model="scope.value"
-              :model-value="formatForEdit(scope.value)"
-              @update:model-value="scope.value = $event"
-              type="text"
-              autofocus
-              counter
-              @keyup.enter="scope.set"
-            >
-            </q-input>
           </q-popup-edit>
         </q-td>
       </template>
       <template v-slot:body-cell-reason="props">
-        <q-td :props="props" class="cursor-pointer">
-          <span>
-            {{ props.row.reason || " - - - " }}
-          </span>
+        <q-td :props="props" class="cursor-pointer text-center">
+          <div class="edit-trigger">
+            <q-icon name="edit" size="14px" color="grey-6" class="edit-icon q-mr-xs" />
+            <span>
+              {{ props.row.reason || " - - - " }}
+            </span>
+          </div>
           <q-tooltip class="bg-blue-grey-8">Edit Reason</q-tooltip>
           <q-popup-edit
             v-model="props.row.reason"
             @update:model-value="(val) => updateReason(props.row, val)"
-            buttons
-            label-set="Save"
-            label-cancel="Close"
             v-slot="scope"
+            content-class="popup-card"
           >
-            <div class="text-h6 text-primary text-center q-mb-xs">
-              Edit Reason
+            <div class="q-pa-md" style="min-width: 280px">
+              <div class="popup-title q-mb-sm">
+                Edit Reason
+              </div>
+              <div class="text-caption text-grey-7 q-mb-md">
+                Name: <span class="text-weight-bold text-dark">{{ formatFullname(props.row.employee) }}</span>
+              </div>
+              <q-input
+                v-model="scope.value"
+                type="text"
+                outlined
+                dense
+                autofocus
+                class="popup-input"
+                @keyup.enter="scope.set"
+              />
+              <div class="row justify-end q-mt-md q-gutter-x-sm">
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
+              </div>
             </div>
-            <div class="text-subtitle2 q-mb-sm">
-              Name: {{ formatFullname(props.row.employee) }}
-            </div>
-            <q-input
-              v-model="scope.value"
-              type="text"
-              autofocus
-              counter
-              @keyup.enter="scope.set"
-            />
           </q-popup-edit>
         </q-td>
       </template>
+
+      <template v-slot:body-cell-remaining_payments="props">
+        <q-td :props="props">
+          <div v-if="parseFloat(props.row.remaining_payments) <= 0" class="text-center">
+            <span
+              class="text-green-8 text-bold q-px-sm q-py-xs rounded-borders"
+              style="background-color: #e0ffe0; border: 1px solid #a0f0a0"
+            >
+              Paid
+            </span>
+          </div>
+          <div v-else class="q-py-xs">
+            <div class="row justify-between text-caption text-grey-8 q-mb-2xs">
+              <span>Paid: {{ formatCurrency(props.row.amount - props.row.remaining_payments) }}</span>
+              <span>Bal: {{ formatCurrency(props.row.remaining_payments) }}</span>
+            </div>
+            <q-linear-progress
+              :value="(props.row.amount - props.row.remaining_payments) / props.row.amount"
+              color="teal-8"
+              track-color="grey-3"
+              class="repayment-progress-bar"
+              style="height: 6px; border-radius: 4px;"
+            />
+            <div class="text-right text-caption text-grey-6 q-mt-2xs">
+              {{ Math.round(((props.row.amount - props.row.remaining_payments) / props.row.amount) * 100) }}% complete
+            </div>
+          </div>
+        </q-td>
+      </template>
+
 
     </q-table>
   </q-page>
@@ -322,5 +368,58 @@ const cashAdvanceColumns = [
 <style lang="scss" scoped>
 .gradient-header {
   background: #155e75;
+}
+
+.numeric-font {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+.edit-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(13, 148, 136, 0.08);
+    .edit-icon {
+      color: #0d9488;
+      transform: scale(1.15);
+    }
+  }
+
+  .edit-icon {
+    transition: all 0.2s ease;
+  }
+}
+
+:deep(.popup-card) {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: #ffffff !important;
+}
+
+.popup-title {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.popup-input {
+  :deep(.q-field__control) {
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+  }
+  :deep(.q-field__control:focus-within) {
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  }
+}
+
+.rounded-btn {
+  border-radius: 8px;
 }
 </style>

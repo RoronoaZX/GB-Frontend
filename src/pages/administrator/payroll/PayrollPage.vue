@@ -13,7 +13,7 @@
       indicator-color="teal"
     >
       <!-- Dashboard Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-dashboard' }" exact>
+      <q-route-tab :to="{ name: 'admin-payroll-dashboard' }" name="dashboard" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="insert_chart"
@@ -26,7 +26,7 @@
       </q-route-tab>
 
       <!-- Incentives Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-incentives-salary' }" exact>
+      <q-route-tab :to="{ name: 'admin-payroll-incentives-salary' }" name="incentives">
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="attach_money"
@@ -39,7 +39,7 @@
       </q-route-tab>
 
       <!-- Employees Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-employees' }" exact>
+      <q-route-tab :to="{ name: 'admin-payroll-employees' }" name="employees" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="group"
@@ -51,7 +51,7 @@
         </div>
       </q-route-tab>
       <!-- Employees Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-holidays' }" exact>
+      <q-route-tab :to="{ name: 'admin-payroll-holidays' }" name="holidays" exact>
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
             name="event"
@@ -66,8 +66,8 @@
 
       <!-- Salary Tab -->
       <q-route-tab
-        :to="{ name: 'admin-payroll-attendance-dtr-overview' }"
-        exact
+        :to="{ name: 'admin-payroll-attendance' }"
+        name="attendance"
       >
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
@@ -82,8 +82,8 @@
 
       <!-- Allowances & Deductions Tab -->
       <q-route-tab
-        :to="{ name: 'admin-payroll-allowances-deductions-allowances' }"
-        exact
+        :to="{ name: 'admin-payroll-allowances-deductions' }"
+        name="allowances"
       >
         <div class="q-pa-md q-gutter-sm flex flex-column items-center">
           <q-icon
@@ -96,7 +96,7 @@
       </q-route-tab>
 
       <!-- Administration Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-payslip' }" exact>
+      <q-route-tab :to="{ name: 'admin-payroll-payslip' }" name="payslip" exact>
         <div class="q-pa-sm q-gutter-sm flex flex-column items-center">
           <q-icon
             name="payment"
@@ -115,11 +115,26 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const brancheStatusDialog = ref();
-
 const tab = ref("dashboard");
+
+function updateTabFromRoute() {
+  const path = route.path;
+  if (path.includes("dashboard")) tab.value = "dashboard";
+  else if (path.includes("incentives-salary")) tab.value = "incentives";
+  else if (path.includes("employees")) tab.value = "employees";
+  else if (path.includes("holidays")) tab.value = "holidays";
+  else if (path.includes("attendance")) tab.value = "attendance";
+  else if (path.includes("allowances")) tab.value = "allowances";
+  else if (path.includes("payslip")) tab.value = "payslip";
+}
+
+watch(() => route.path, updateTabFromRoute);
+onMounted(updateTabFromRoute);
 </script>
 
 <style lang="scss" scoped>

@@ -20,23 +20,9 @@
               :dark="$q.dark.isActive"
               :text-color="$q.dark.isActive ? 'white' : 'dark'"
               @navigation="onCalendarNav"
-            >
-              <template #day="{ scope }">
-                <div
-                  class="q-date__day flex flex-center"
-                  :class="
-                    getDayStyle(
-                      `${scope.year}-${String(scope.month).padStart(
-                        2,
-                        '0'
-                      )}-${String(scope.day).padStart(2, '0')}`
-                    )
-                  "
-                >
-                  {{ scope.day }}
-                </div>
-              </template>
-            </q-date>
+              :events="events"
+              :event-color="getEventColor"
+            />
           </q-card-section>
         </q-card>
       </div>
@@ -236,7 +222,8 @@ const fetchHolidays = async (year, month) => {
       };
     });
     holidaysData.value = holidays;
-    events.value = holidaysData.value.map((h) => h.date);
+    // Quasar events prop always uses YYYY/MM/DD format internally
+    events.value = holidaysData.value.map((h) => h.date.replaceAll("-", "/"));
   } catch (error) {
     console.error("Error fetching holidays:", error);
   } finally {
@@ -293,27 +280,21 @@ const getHolidayClass = (type) => {
 //     : "";
 // };
 
+
 const getEventColor = (dateStr) => {
-  const holiday = holidaysData.value.find((h) => h.date === dateStr);
+  // dateStr from q-date is always YYYY/MM/DD
+  if (!holidaysData.value) return "primary";
+  const normalized = dateStr.replaceAll("/", "-");
+  const holiday = holidaysData.value.find((h) => h && h.date === normalized);
   if (!holiday) return "primary";
-
-  if (holiday.type === "Regular Holiday") return "deep-purple-4";
-  if (holiday.type === "Special (Non-Working) Holiday") return "amber-5";
-
-  return "primary";
+  return holiday.type === "Regular Holiday" ? "red" : "orange";
 };
 
-// Returns the class for the calendar day itself (Crucial for coloring the whole cell)
-const getDayStyle = (dateStr) => {
-  const holiday = holidaysData.value.find((h) => h.date === dateStr);
-  if (!holiday) return "";
-
-  // Return classes that correspond to your CSS rules
-  return holiday.type === "Regular Holiday"
-    ? "holiday--regular-day"
-    : holiday.type === "Special (Non-Working) Holiday"
-    ? "holiday--special-day"
-    : "";
+const getDayHolidayType = (scope) => {
+  if (!holidaysData.value || !scope) return null;
+  const dateStr = `${scope.year}-${String(scope.month).padStart(2, '0')}-${String(scope.day).padStart(2, '0')}`;
+  const holiday = holidaysData.value.find((h) => h && h.date === dateStr);
+  return holiday ? holiday.type : null;
 };
 
 // Helper function to get month name for the "No Holidays" message
@@ -364,9 +345,13 @@ const getMonthName = (monthNumber) => {
     font-weight: bold;
   }
 
-  // Hide the default event dot if you're using full background highlights
+  // Style the event indicators as round dots under numbers
   .q-date__event {
-    display: none !important;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    bottom: 1px !important;
+    display: inline-block !important;
   }
 }
 
@@ -429,17 +414,28 @@ const getMonthName = (monthNumber) => {
 
   // Apply specific background colors to Regular Holiday dates
   &.holiday--regular-day {
-    background-color: #e9dff9 !important; /* EXACT light purple as the card */
-    color: #4a148c !important; /* Darker purple text for contrast */
-    font-weight: 600 !important; // Make text slightly bolder
+    position: relative;
   }
 
   // Apply specific background colors to Special Holiday dates
   &.holiday--special-day {
-    background-color: #ffe0b2 !important; /* EXACT light orange as the card */
-    color: #bf360c !important; /* Darker orange text for contrast */
-    font-weight: 600 !important; // Make text slightly bolder
+    position: relative;
   }
+}
+
+.calendar-holiday-dot {
+  width: 8px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.regular-dot {
+  background-color: #e11d48 !important; /* Red */
+}
+
+.special-dot {
+  background-color: #d97706 !important; /* Amber/Orange */
 }
 
 /* --- Interaction Overrides for Holiday Days --- */

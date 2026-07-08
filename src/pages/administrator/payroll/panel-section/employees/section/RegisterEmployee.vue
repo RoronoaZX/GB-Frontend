@@ -1,12 +1,10 @@
 <template>
-  <q-card class="q-pa-md user-card" @click="openAddEmployeeDialog">
-    <div class="q-mb-md text-center">
-      <q-icon name="person_add" size="70px" color="yellow-7" />
+  <q-card class="q-pa-md premium-add-card flex flex-center column text-center cursor-pointer" @click="openAddEmployeeDialog">
+    <div class="q-mb-sm icon-container">
+      <q-icon name="person_add" size="44px" class="add-icon" />
     </div>
-
-    <div class="text-center">
-      <div class="text-h6">Add Employee</div>
-    </div>
+    <div class="text-subtitle2 text-weight-bold text-slate-8">Add Employee</div>
+    <div class="text-caption text-grey-5">Register new staff</div>
   </q-card>
 
   <q-dialog
@@ -15,63 +13,72 @@
     position="right"
     backdrop-filter="blur(4px) saturate(150%)"
   >
-    <q-card style="width: 500px; max-width: 120vw">
+    <q-card class="premium-dialog-card column full-height" style="width: 460px; max-width: 95vw">
       <q-card-section
-        class="row items-center q-px-md q-py-sm bg-gradient text-white"
+        class="row items-center q-px-lg q-py-md header-section text-white"
       >
-        <div class="text-h5 q-mr-md">👨‍💼👩‍💼 Add New Employee</div>
+        <div class="text-h6 text-weight-bold text-slate-8">👨‍💼 Add New Employee</div>
         <q-space />
-        <q-btn icon="arrow_forward_ios" flat dense round v-close-popup />
+        <q-btn icon="close" flat dense round v-close-popup color="grey-6" />
       </q-card-section>
-      <q-card-section>
-        <div class="q-gutter-y-sm">
-          <div class="q-gutter-y-sm q-mx-auto">
-            <q-input
-              class="text-capitalize"
-              v-model="employeeInfo.firstname"
-              outlined
-              dense
-              label="First Name"
-              :rules="[(val) => (val && val.length > 0) || 'Required']"
-            />
-            <q-input
-              class="text-capitalize"
-              v-model="employeeInfo.middlename"
-              outlined
-              dense
-              label="Middle Name"
-              :rules="[(val) => (val && val.length > 0) || 'Required']"
-            />
-            <q-input
-              class="text-capitalize"
-              v-model="employeeInfo.lastname"
-              outlined
-              dense
-              label="Last Name"
-              :rules="[(val) => (val && val.length > 0) || 'Required']"
-            />
-            <q-input
-              class="text-capitalize"
-              v-model="employeeInfo.address"
-              outlined
-              dense
-              label="Address"
-              :rules="[(val) => (val && val.length > 0) || 'Required']"
-            />
+      
+      <q-card-section class="col scroll q-py-lg">
+        <div class="column q-gutter-y-md">
+          <div class="text-caption text-weight-bold text-teal-8 text-uppercase tracking-wider">
+            Personal Information
           </div>
-          <div class="row q-gutter-x-sm item-start">
-            <div>
+          <q-input
+            class="text-capitalize premium-input"
+            v-model="employeeInfo.firstname"
+            outlined
+            dense
+            label="First Name"
+            :rules="[(val) => (val && val.length > 0) || 'Required']"
+          />
+          <q-input
+            class="text-capitalize premium-input"
+            v-model="employeeInfo.middlename"
+            outlined
+            dense
+            label="Middle Name"
+            :rules="[(val) => (val && val.length > 0) || 'Required']"
+          />
+          <q-input
+            class="text-capitalize premium-input"
+            v-model="employeeInfo.lastname"
+            outlined
+            dense
+            label="Last Name"
+            :rules="[(val) => (val && val.length > 0) || 'Required']"
+          />
+          <q-input
+            class="text-capitalize premium-input"
+            v-model="employeeInfo.address"
+            outlined
+            dense
+            label="Address"
+            :rules="[(val) => (val && val.length > 0) || 'Required']"
+          />
+
+          <q-separator class="q-my-sm" />
+          
+          <div class="text-caption text-weight-bold text-teal-8 text-uppercase tracking-wider">
+            Employment Details
+          </div>
+
+          <div class="row q-col-gutter-sm">
+            <div class="col-6">
               <q-input
                 v-model="employeeInfo.birthdate"
                 outlined
                 dense
                 label="Birthdate"
                 type="date"
-                style="width: 230px"
+                class="premium-input"
                 :rules="[(val) => (val && val.length > 0) || 'Required']"
               />
             </div>
-            <div>
+            <div class="col-6">
               <q-input
                 v-model="employeeInfo.phone"
                 outlined
@@ -79,65 +86,67 @@
                 label="Phone Number"
                 mask="+(63) ### - ### - ####"
                 placeholder="(+63) ### - ### - ####"
+                class="premium-input"
                 :rules="[(val) => (val && val.length > 0) || 'Required']"
-                style="width: 230px; max-width: 500px; min-width: 100px"
               />
             </div>
           </div>
-          <div class="row q-gutter-x-sm">
-            <div>
+
+          <div class="row q-col-gutter-sm">
+            <div class="col-4">
               <q-select
                 v-model="employeeInfo.sex"
                 dense
                 outlined
                 label="Sex"
                 :options="genderOptions"
+                class="premium-input"
                 :rules="[(val) => (val && val.length > 0) || 'Required']"
-                style="width: 120px"
                 behavior="menu"
                 hide-dropdown-icon
               />
             </div>
-            <div>
+            <div class="col-4">
               <q-select
                 v-model="employeeInfo.position"
                 outlined
                 dense
                 hide-dropdown-icon
                 label="Position"
+                class="premium-input"
                 :options="positionOptions"
                 :rules="[(val) => (val && val.length > 0) || 'Required']"
                 behavior="menu"
-                style="width: 175px; max-width: 500px; min-width: 100px"
               />
             </div>
-            <div>
+            <div class="col-4">
               <q-select
                 v-model="employeeInfo.employment_type"
                 outlined
                 dense
                 hide-dropdown-icon
-                label="Employment Type"
+                label="Employment"
+                class="premium-input"
                 :options="employmentTypeOptions"
                 behavior="menu"
-                style="width: 155px; max-width: 500px; min-width: 100px"
               />
             </div>
           </div>
         </div>
       </q-card-section>
-      <q-card-actions class="row q-px-lg q-py-sm q-pt-none" align="left">
-        <q-btn class="glossy" color="grey-9" label="Dismiss" v-close-popup />
+      
+      <q-card-actions class="row q-px-lg q-py-md action-section justify-end q-gutter-x-sm">
+        <q-btn flat color="grey-7" label="Cancel" v-close-popup no-caps class="rounded-btn q-px-md" />
         <q-btn
-          class="glossy"
           color="teal"
-          label="Add"
+          label="Add Employee"
           icon="add"
+          unelevated
+          no-caps
+          class="rounded-btn q-px-lg save-btn"
           @click="save"
           :loading="loading"
-        >
-        </q-btn>
-        <!-- @click="addNewBranch" -->
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -258,86 +267,84 @@ const clearForm = () => {
 </script>
 
 <style lang="scss" scoped>
-.user-card {
-  height: 50%;
-  border-radius: 15px;
-  background: #fff;
-  color: #333;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.user-button {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.user-button:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-.my-card {
+.premium-add-card {
+  border-radius: 16px;
   background: #ffffff;
-  animation: fadeIn 0.3s ease;
-}
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-.btn-add {
-  background: linear-gradient(45deg, #000000, #000000);
-  color: #fff;
-  font-weight: bold;
-}
-
-.bg-gradient {
-  background: linear-gradient(135deg, #ff31c5, #471b3b);
-}
-
-.separator-gradient {
-  background: linear-gradient(90deg, #00bfa5, #00796b);
-}
-
-.q-btn {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.q-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-cancel {
-  background: linear-gradient(45deg, #ef5350, #e53935);
-  color: #fff;
-  font-weight: bold;
-}
-
-.btn-create {
-  background: linear-gradient(45deg, #66bb6a, #43a047);
-  color: #fff;
-  font-weight: bold;
-}
-
-.q-animate-bounce {
-  animation: bounceIn 0.6s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  .icon-container {
+    background: rgba(13, 148, 136, 0.08);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .add-icon {
+    color: #0d9488;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.15);
+    border-color: rgba(13, 148, 136, 0.25);
+
+    .icon-container {
+      background: rgba(13, 148, 136, 0.15);
+    }
+    .add-icon {
+      transform: scale(1.1);
+    }
   }
 }
 
-@keyframes bounceIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+.premium-dialog-card {
+  border-radius: 16px 0 0 16px !important;
+  box-shadow: -10px 0 30px rgba(15, 23, 42, 0.08) !important;
+  background-color: #ffffff;
+}
+
+.header-section {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  
+  .text-h6 {
+    color: #0f172a;
+    font-size: 1.15rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+}
+
+.premium-input {
+  :deep(.q-field__control) {
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  :deep(.q-field__control:focus-within) {
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  }
+}
+
+.action-section {
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.rounded-btn {
+  border-radius: 8px;
+}
+
+.save-btn {
+  font-weight: 600;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
+  box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 6px 15px rgba(13, 148, 136, 0.3);
   }
 }
 </style>

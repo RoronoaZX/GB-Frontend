@@ -27,9 +27,15 @@ export const useEmploymentTypeStore = defineStore("employmentType", () => {
     }
   };
 
+  const deleteSalaryType = async (id) => {
+    const response = await api.delete(`/api/employment-types/${id}`);
+    return response;
+  };
+
   return {
     employmentType,
     fetchEmploymentType,
     updateSalary,
+    deleteSalaryType,
   };
 });

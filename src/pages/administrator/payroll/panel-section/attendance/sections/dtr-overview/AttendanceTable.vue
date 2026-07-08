@@ -1,4 +1,36 @@
 <template>
+  <!-- KPI Summary Cards -->
+  <div class="row q-gutter-md q-mb-md kpi-row">
+    <div class="kpi-card kpi-hours col">
+      <div class="kpi-icon-wrap"><q-icon name="schedule" size="1.6rem" /></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ kpiStats.totalHours }}h {{ kpiStats.totalMinutes }}m</div>
+        <div class="kpi-label">Total Hours Rendered</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-late col">
+      <div class="kpi-icon-wrap"><q-icon name="running_with_errors" size="1.6rem" /></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ kpiStats.lateCount }}</div>
+        <div class="kpi-label">Late Arrivals</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-undertime col">
+      <div class="kpi-icon-wrap"><q-icon name="timelapse" size="1.6rem" /></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ kpiStats.undertimeCount }}</div>
+        <div class="kpi-label">Undertime Incidents</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-pending col">
+      <div class="kpi-icon-wrap"><q-icon name="pending_actions" size="1.6rem" /></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ kpiStats.pendingOT }}</div>
+        <div class="kpi-label">Pending OT Logs</div>
+      </div>
+    </div>
+  </div>
+
   <div class="row justify-between q-my-md" align="right">
     <div class="row q-gutter-md">
       <div>
@@ -48,6 +80,7 @@
       :rows-per-page-options="[3, 5, 10, 0]"
       :filter="filter"
       @request="handleRequest"
+      :row-class="(row) => helpers.isLateArrival(row.time_in, row.schedule_in) ? 'dtr-late-row' : ''"
     >
       <template v-slot:body-cell-position="props">
         <q-td :props="props">
@@ -313,10 +346,25 @@
 
       <template v-slot:body-cell-time_in="props">
         <q-td :props="props">
-          <q-badge v-if="props.row.time_in" outline color="positive">
-            {{ helpers.formatTime(props.row.time_in) }}
-            <q-tooltip class="bg-blue-grey-8"> Edit Time IN </q-tooltip>
-          </q-badge>
+          <div class="row items-center q-gutter-x-xs" v-if="props.row.time_in">
+            <q-badge outline color="positive" class="time-badge">
+              <q-icon name="login" size="xs" class="q-mr-2xs" />
+              IN &nbsp;{{ helpers.formatTime(props.row.time_in) }}
+              <q-tooltip class="bg-blue-grey-8">Edit Time IN</q-tooltip>
+            </q-badge>
+            <!-- Late Arrival indicator -->
+            <q-chip
+              v-if="helpers.isLateArrival(props.row.time_in, props.row.schedule_in)"
+              dense
+              color="amber-2"
+              text-color="amber-9"
+              icon="running_with_errors"
+              size="xs"
+              class="late-chip"
+            >
+              {{ helpers.getLatenessMinutes(props.row.time_in, props.row.schedule_in) }}m late
+            </q-chip>
+          </div>
           <span v-else> - - - </span>
 
           <q-popup-edit
@@ -356,10 +404,23 @@
 
       <template v-slot:body-cell-time_out="props">
         <q-td :props="props">
-          <q-badge v-if="props.row.time_out" outline color="purple-12">
-            {{ helpers.formatTime(props.row.time_out) }}
-            <q-tooltip class="bg-blue-grey-8"> Edit Time OUT </q-tooltip>
+          <q-badge v-if="props.row.time_out" outline color="purple-12" class="time-badge">
+            <q-icon name="logout" size="xs" class="q-mr-2xs" />
+            OUT &nbsp;{{ helpers.formatTime(props.row.time_out) }}
+            <q-tooltip class="bg-blue-grey-8">Edit Time OUT</q-tooltip>
           </q-badge>
+          <!-- Incomplete DTR pill -->
+          <q-chip
+            v-else-if="helpers.isIncompleteDTR(props.row)"
+            dense
+            color="red-1"
+            text-color="red-12"
+            icon="warning"
+            size="sm"
+            class="incomplete-dtr-chip"
+          >
+            INCOMPLETE
+          </q-chip>
           <span v-else> - - - </span>
 
           <q-popup-edit
@@ -805,13 +866,13 @@
             :label="helpers.capitalize(props.row.ot_status)"
           />
 
-          <!-- PENDING -->
+          <!-- PENDING — unified approve | decline pill -->
           <div
             v-else-if="props.row.ot_status === 'pending'"
-            class="q-gutter-x-sm"
+            class="ot-action-pill"
           >
-            <DeclineOTButton :decline="props.row" />
-            <ApproveOTButton :approve="props.row" />
+            <DeclineOTButton :decline="props.row" class="ot-decline-wrap" />
+            <ApproveOTButton :approve="props.row" class="ot-approve-wrap" />
           </div>
 
           <!-- NO STATUS OR OTHER VALUES -->
@@ -2260,6 +2321,36 @@ watch(filter, async (newVal) => {
     newVal
   );
 });
+// KPI computed stats from current page rows
+const kpiStats = computed(() => {
+  const rows = dtrRows.value || [];
+  let totalMs = 0;
+  let lateCount = 0;
+  let undertimeCount = 0;
+  let pendingOT = 0;
+
+  rows.forEach((row) => {
+    if (row.time_in && row.time_out) {
+      const diffMs = new Date(row.time_out) - new Date(row.time_in);
+      if (diffMs > 0) {
+        totalMs += diffMs;
+        const hours = diffMs / (1000 * 3600);
+        if (hours < 8) undertimeCount++;
+      }
+    }
+    if (helpers.isLateArrival(row.time_in, row.schedule_in)) lateCount++;
+    if (row.ot_status === 'pending') pendingOT++;
+  });
+
+  const totalMinutesAll = Math.floor(totalMs / 60000);
+  return {
+    totalHours: Math.floor(totalMinutesAll / 60),
+    totalMinutes: totalMinutesAll % 60,
+    lateCount,
+    undertimeCount,
+    pendingOT,
+  };
+});
 </script>
 
 <style lang="scss" scoped>
@@ -2290,18 +2381,18 @@ watch(filter, async (newVal) => {
 }
 .spinner-wrapper,
 .data-error {
-  min-height: 40vh; /* Minimum height of 50% viewport height */
+  min-height: 40vh;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .table-container {
-  max-height: 400px; /* Adjust as needed */
+  max-height: 400px;
   overflow: hidden;
 }
 
 .q-table-container {
-  overflow: hidden !important; /* Target the container generated by q-table */
+  overflow: hidden !important;
 }
 
 .gradient-btn {
@@ -2312,18 +2403,16 @@ watch(filter, async (newVal) => {
 
 .editable-cell {
   cursor: pointer;
-  /* Optional: add a subtle underline to invite clicks */
-  // border-bottom: 1px dashed #777;
   padding-bottom: 2px;
 }
 
 .gradient-icon {
-  font-size: 24px; /* Adjust size as needed */
+  font-size: 24px;
   background: linear-gradient(to right, #a0522d, #ff8833);
-  -webkit-background-clip: text; /* For compatibility */
+  -webkit-background-clip: text;
   background-clip: text;
-  color: transparent; /* Make text fill transparent */
-  display: inline-block; /* Ensure proper display */
+  color: transparent;
+  display: inline-block;
 }
 
 .gradient-btn:hover {
@@ -2341,5 +2430,150 @@ watch(filter, async (newVal) => {
   overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+}
+
+/* ── KPI Summary Row ─────────────────────────── */
+.kpi-row {
+  flex-wrap: nowrap;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  min-width: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .kpi-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .kpi-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .kpi-label {
+    font-size: 0.73rem;
+    opacity: 0.72;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+}
+
+.kpi-hours {
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  color: #0c4a6e;
+  .kpi-icon-wrap { background: #0ea5e9; color: white; }
+}
+
+.kpi-late {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #78350f;
+  .kpi-icon-wrap { background: #f59e0b; color: white; }
+}
+
+.kpi-undertime {
+  background: linear-gradient(135deg, #ffe4e6, #fecdd3);
+  color: #881337;
+  .kpi-icon-wrap { background: #f43f5e; color: white; }
+}
+
+.kpi-pending {
+  background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+  color: #4a044e;
+  .kpi-icon-wrap { background: #a855f7; color: white; }
+}
+
+/* ── Late row highlight ──────────────────────── */
+:deep(.dtr-late-row) td {
+  border-left: 4px solid #d97706 !important;
+  background-color: #fffbeb !important;
+}
+
+/* ── Time badges ─────────────────────────────── */
+.time-badge {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+/* ── Late chip ───────────────────────────────── */
+.late-chip {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ── Incomplete DTR pill ─────────────────────── */
+.incomplete-dtr-chip {
+  background-color: #ffe4e6 !important;
+  color: #e11d48 !important;
+  border-radius: 4px !important;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+/* ── OT Action Pill ──────────────────────────── */
+.ot-action-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1.5px solid #d1d5db;
+  gap: 0;
+
+  .ot-decline-wrap :deep(.q-btn) {
+    border-radius: 0 !important;
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    border-right: 1px solid #fca5a5;
+    padding: 4px 12px !important;
+    font-size: 0.74rem;
+    font-weight: 600;
+    box-shadow: none !important;
+    transform: none !important;
+    min-height: unset;
+    &:hover {
+      background: #fecaca !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  .ot-approve-wrap :deep(.q-btn) {
+    border-radius: 0 !important;
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    padding: 4px 12px !important;
+    font-size: 0.74rem;
+    font-weight: 600;
+    box-shadow: none !important;
+    transform: none !important;
+    min-height: unset;
+    &:hover {
+      background: #bbf7d0 !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
 }
 </style>

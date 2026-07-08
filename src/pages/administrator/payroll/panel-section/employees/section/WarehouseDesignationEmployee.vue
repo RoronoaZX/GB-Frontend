@@ -377,4 +377,17 @@ const save = async () => {
     transform: translateY(0);
   }
 }
+
+:global(.body--dark) {
+  .user-card {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+  .my-card {
+    background: #0f172a !important;
+    color: #cbd5e1 !important;
+  }
+}
 </style>

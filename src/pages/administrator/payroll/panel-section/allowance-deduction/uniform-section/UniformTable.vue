@@ -54,18 +54,33 @@
 
       <template v-slot:body-cell-remaining_payments="props">
         <q-td :props="props">
-          <span
-            v-if="props.row.remaining_payments === '0.00'"
-            class="text-green-8 text-bold q-px-sm q-py-xs rounded-borders"
-            style="background-color: #e0ffe0; border: 1px solid #a0f0a0"
-          >
-            Paid
-          </span>
-          <span v-else>
-            {{ formatCurrency(props.row.remaining_payments) }}
-          </span>
+          <div v-if="props.row.remaining_payments === '0.00' || parseFloat(props.row.remaining_payments) <= 0" class="text-center">
+            <span
+              class="text-green-8 text-bold q-px-sm q-py-xs rounded-borders"
+              style="background-color: #e0ffe0; border: 1px solid #a0f0a0"
+            >
+              Paid
+            </span>
+          </div>
+          <div v-else class="q-py-xs">
+            <div class="row justify-between text-caption text-grey-8 q-mb-2xs">
+              <span>Paid: {{ formatCurrency(parseFloat(props.row.total_amount) - parseFloat(props.row.remaining_payments)) }}</span>
+              <span>Bal: {{ formatCurrency(parseFloat(props.row.remaining_payments)) }}</span>
+            </div>
+            <q-linear-progress
+              :value="(parseFloat(props.row.total_amount) - parseFloat(props.row.remaining_payments)) / parseFloat(props.row.total_amount)"
+              color="teal-8"
+              track-color="grey-3"
+              class="repayment-progress-bar"
+              style="height: 6px; border-radius: 4px;"
+            />
+            <div class="text-right text-caption text-grey-6 q-mt-2xs">
+              {{ Math.round(((parseFloat(props.row.total_amount) - parseFloat(props.row.remaining_payments)) / parseFloat(props.row.total_amount)) * 100) }}% complete
+            </div>
+          </div>
         </q-td>
       </template>
+
 
       <template v-slot:body-cell-t_shirt="props">
         <q-td :props="props">

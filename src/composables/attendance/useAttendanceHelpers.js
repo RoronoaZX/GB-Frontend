@@ -136,6 +136,62 @@ export function useAttendanceHelpers() {
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
+  /**
+   * Returns true if the employee clocked in more than 1 minute after their scheduled time.
+   * Compares time_in (full datetime string) against scheduleIn (e.g. "08:00 AM").
+   */
+  const isLateArrival = (timeIn, scheduleIn) => {
+    if (!timeIn || !scheduleIn) return false;
+    const clockIn = new Date(timeIn);
+    if (isNaN(clockIn.getTime())) return false;
+
+    // Parse schedule string like "08:00 AM"
+    const match = scheduleIn.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!match) return false;
+
+    let h = parseInt(match[1], 10);
+    const m = parseInt(match[2], 10);
+    const meridiem = match[3].toUpperCase();
+    if (meridiem === "PM" && h !== 12) h += 12;
+    if (meridiem === "AM" && h === 12) h = 0;
+
+    const scheduled = new Date(clockIn);
+    scheduled.setHours(h, m, 0, 0);
+
+    return clockIn - scheduled > 60 * 1000; // more than 1 min late
+  };
+
+  /**
+   * Returns the number of minutes late (positive = late, 0 if on time or early).
+   */
+  const getLatenessMinutes = (timeIn, scheduleIn) => {
+    if (!timeIn || !scheduleIn) return 0;
+    const clockIn = new Date(timeIn);
+    if (isNaN(clockIn.getTime())) return 0;
+
+    const match = scheduleIn.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!match) return 0;
+
+    let h = parseInt(match[1], 10);
+    const m = parseInt(match[2], 10);
+    const meridiem = match[3].toUpperCase();
+    if (meridiem === "PM" && h !== 12) h += 12;
+    if (meridiem === "AM" && h === 12) h = 0;
+
+    const scheduled = new Date(clockIn);
+    scheduled.setHours(h, m, 0, 0);
+
+    const diffMs = clockIn - scheduled;
+    return diffMs > 0 ? Math.floor(diffMs / 60000) : 0;
+  };
+
+  /**
+   * Returns true if a DTR record has a time_in but is missing time_out (incomplete log).
+   */
+  const isIncompleteDTR = (row) => {
+    return !!row.time_in && !row.time_out;
+  };
+
   return {
     capitalize,
     formatFullname,
@@ -151,5 +207,8 @@ export function useAttendanceHelpers() {
     getWorkHoursIcon,
     getBadgePositionColor,
     truncateText,
+    isLateArrival,
+    getLatenessMinutes,
+    isIncompleteDTR,
   };
 }

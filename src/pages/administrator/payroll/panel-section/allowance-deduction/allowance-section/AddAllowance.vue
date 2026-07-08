@@ -30,8 +30,9 @@
           />
         </q-card-section>
 
-        <!-- Search -->
+        <!-- Search Section -->
         <q-card-section class="q-px-lg q-pt-md">
+          <div class="form-section-header">1. Select Employee</div>
           <div style="position: relative">
             <SearchAllowance
               v-model="searchKeyword"
@@ -66,7 +67,7 @@
             </div>
           </div>
 
-          <div class="row q-col-gutter-md q-mt-lg">
+          <div class="row q-col-gutter-md q-mt-md">
             <div class="col-12 col-sm-6">
               <div class="text-subtitle2 text-grey-7 q-mb-xs">
                 Employee Name:
@@ -84,8 +85,30 @@
           </div>
         </q-card-section>
 
-        <!-- Allowance Amount -->
-        <q-card-section class="q-px-lg q-pt-md">
+        <!-- Allowance Amount & Category Config -->
+        <q-card-section class="q-px-lg q-pt-none">
+          <div class="form-section-header">2. Configure Allowance</div>
+          
+          <!-- Category selector badges -->
+          <div class="q-mb-md">
+            <div class="text-subtitle2 text-grey-7 q-mb-sm">Select Category Preset:</div>
+            <div class="row q-col-gutter-sm">
+              <div v-for="cat in categories" :key="cat.name" class="col-6 col-sm-3">
+                <q-card
+                  flat
+                  bordered
+                  class="category-select-card text-center cursor-pointer q-pa-sm"
+                  :class="{ 'selected-category': selectedCategory === cat.name }"
+                  @click="selectCategory(cat)"
+                >
+                  <q-icon :name="cat.icon" size="sm" :color="selectedCategory === cat.name ? 'teal-8' : 'grey-7'" />
+                  <div class="text-caption text-weight-bold q-mt-xs" :class="selectedCategory === cat.name ? 'text-teal-9' : 'text-grey-8'">{{ cat.name }}</div>
+                  <div class="text-caption text-grey-6">₱{{ cat.defaultAmount }}</div>
+                </q-card>
+              </div>
+            </div>
+          </div>
+
           <q-input
             v-model="employeeAllowance.amount"
             outlined
@@ -111,6 +134,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
   </div>
 </template>
 
@@ -128,6 +152,19 @@ const searchKeyword = ref("");
 const dialog = ref(false);
 const loading = ref(false);
 const searchLoading = ref(false);
+
+const selectedCategory = ref("");
+const categories = [
+  { name: "Meal", icon: "restaurant_menu", defaultAmount: 100 },
+  { name: "Travel", icon: "commute", defaultAmount: 200 },
+  { name: "Uniform", icon: "checkroom", defaultAmount: 150 },
+  { name: "Internet", icon: "wifi", defaultAmount: 250 },
+];
+
+const selectCategory = (cat) => {
+  selectedCategory.value = cat.name;
+  employeeAllowance.amount = cat.defaultAmount;
+};
 
 const openDialog = () => {
   dialog.value = true;
@@ -162,6 +199,7 @@ const clearEmployeeAllowanceForm = () => {
   employeeAllowance.employee_name = "";
   employeeAllowance.employee_position = "";
   employeeAllowance.amount = "";
+  selectedCategory.value = "";
 };
 
 const save = async () => {
@@ -197,7 +235,6 @@ const save = async () => {
 
 .gradient-btn {
   background: linear-gradient(135deg, #0194ae, #0e7490);
-  // box-shadow: 0 2px 8px rgba(19, 141, 163, 0.711);
   transition: all 0.3s ease;
 }
 
@@ -217,5 +254,38 @@ const save = async () => {
   overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+}
+
+/* Form Section Header */
+.form-section-header {
+  border-bottom: 2px dashed #cbd5e1;
+  padding-bottom: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 16px;
+}
+
+/* Category card selectors */
+.category-select-card {
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  min-height: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+  }
+}
+
+.selected-category {
+  background-color: #f0fdf4 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 1px #10b981;
 }
 </style>

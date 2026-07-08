@@ -155,17 +155,14 @@ const routes = [
           {
             path: "attendance",
             name: "admin-payroll-attendance",
+            redirect: {
+              name: "admin-payroll-attendance-dtr-overview",
+            },
             component: () =>
               import(
                 "pages/administrator/payroll/panel-section/attendance/AttendancePage.vue"
               ),
             children: [
-              {
-                path: "",
-                redirect: {
-                  name: "admin-payroll-attendance-dtr-overview",
-                },
-              },
               {
                 path: "dtr-overview",
                 name: "admin-payroll-attendance-dtr-overview",
@@ -188,17 +185,14 @@ const routes = [
           {
             path: "allowances_deductions",
             name: "admin-payroll-allowances-deductions",
+            redirect: {
+              name: "admin-payroll-allowances-deductions-allowances",
+            },
             component: () =>
               import(
                 "pages/administrator/payroll/panel-section/allowance-deduction/AllowanceDeductionPage.vue"
               ),
             children: [
-              {
-                path: "",
-                redirect: {
-                  name: "admin-payroll-allowances-deductions-allowances",
-                },
-              },
               {
                 path: "allowances_deductions_allowances",
                 name: "admin-payroll-allowances-deductions-allowances",
