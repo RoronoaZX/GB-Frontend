@@ -755,6 +755,20 @@ body.body--dark {
     }
   }
 
+  // Pagination footer inside dashboard widgets
+  .pagination-footer {
+    border-top-color: #334155 !important;
+  }
+
+  .page-btn-active {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #60a5fa !important;
+  }
+
+  .page-btn {
+    color: #94a3b8 !important;
+  }
+
   // Custom scrollbar overrides for vertical containers in dark mode
   .vertical-scroll-container {
     &::-webkit-scrollbar-track {

@@ -11,13 +11,24 @@
             Review recent staff leave applications
           </div>
         </div>
+        <!-- Total count badge -->
+        <q-badge
+          v-if="!loading && leaveRequests.length > 0"
+          rounded
+          color="blue-1"
+          text-color="blue-9"
+          class="text-weight-bold q-px-sm q-py-xs"
+        >
+          {{ leaveRequests.length }} total
+        </q-badge>
       </div>
     </q-card-section>
 
-    <!-- Scrollable Leave List -->
-    <q-card-section class="col q-pt-sm q-pb-md">
+    <!-- Leave List -->
+    <q-card-section class="col q-pt-sm q-pb-xs list-section">
+      <!-- Loading skeleton -->
       <div v-if="loading" class="q-gutter-sm">
-        <q-card v-for="n in 3" :key="n" flat class="q-pa-md bg-grey-1" style="border-radius: 12px;">
+        <q-card v-for="n in 4" :key="n" flat class="q-pa-md bg-grey-1" style="border-radius: 12px;">
           <div class="row items-center no-wrap">
             <q-skeleton type="QAvatar" size="32px" class="q-mr-md" />
             <div style="flex: 1">
@@ -27,15 +38,19 @@
           </div>
         </q-card>
       </div>
-      <div v-else-if="leaveRequests.length === 0" class="flex flex-center column" style="height: 250px;">
+
+      <!-- Empty state -->
+      <div v-else-if="leaveRequests.length === 0" class="flex flex-center column empty-state">
         <q-icon name="assignment_turned_in" size="64px" color="grey-4" />
         <div class="text-subtitle1 text-weight-bold text-grey-6 q-mt-md">No leave requests found</div>
         <div class="text-caption text-grey-5">All staff are active on duty</div>
       </div>
-      <div v-else class="vertical-scroll-container">
-        <div 
-          v-for="(leave, index) in leaveRequests.slice(0, 8)" 
-          :key="index" 
+
+      <!-- Paginated list -->
+      <div v-else>
+        <div
+          v-for="(leave, index) in paginatedLeaves"
+          :key="index"
           class="metric-list-item row items-center justify-between q-pa-sm q-mb-sm"
         >
           <div class="row items-center col-grow">
@@ -54,10 +69,10 @@
             </div>
           </div>
           <div class="row items-center q-pr-sm">
-            <q-badge 
-              rounded 
-              :color="getStatusColor(leave.status)" 
-              :text-color="getStatusTextColor(leave.status)" 
+            <q-badge
+              rounded
+              :color="getStatusColor(leave.status)"
+              :text-color="getStatusTextColor(leave.status)"
               class="text-weight-bold q-px-md q-py-xs"
             >
               {{ capitalize(leave.status) }}
@@ -66,16 +81,73 @@
         </div>
       </div>
     </q-card-section>
+
+    <!-- Pagination Footer -->
+    <q-card-section v-if="!loading && leaveRequests.length > 0" class="q-pt-none q-pb-sm pagination-footer">
+      <div class="row items-center justify-between">
+        <span class="text-caption text-grey-5">
+          {{ pageStart }}–{{ pageEnd }} of {{ leaveRequests.length }}
+        </span>
+        <div class="row items-center q-gutter-xs">
+          <q-btn
+            flat
+            round
+            dense
+            icon="chevron_left"
+            size="sm"
+            :disable="currentPage === 1"
+            :color="currentPage === 1 ? 'grey-4' : 'blue-7'"
+            @click="currentPage--"
+          />
+          <div class="row q-gutter-xs">
+            <q-btn
+              v-for="p in totalPages"
+              :key="p"
+              flat
+              round
+              dense
+              size="xs"
+              :label="String(p)"
+              :class="p === currentPage ? 'page-btn-active' : 'page-btn'"
+              @click="currentPage = p"
+            />
+          </div>
+          <q-btn
+            flat
+            round
+            dense
+            icon="chevron_right"
+            size="sm"
+            :disable="currentPage === totalPages"
+            :color="currentPage === totalPages ? 'grey-4' : 'blue-7'"
+            @click="currentPage++"
+          />
+        </div>
+      </div>
+    </q-card-section>
   </q-card>
 </template>
 
 <script setup>
 import { useEmployeeLeaveStore } from "src/stores/employee-leave";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const leaveStore = useEmployeeLeaveStore();
 const loading = ref(true);
 const leaveRequests = ref([]);
+
+const currentPage = ref(1);
+const itemsPerPage = 4;
+
+const totalPages = computed(() => Math.max(1, Math.ceil(leaveRequests.value.length / itemsPerPage)));
+
+const paginatedLeaves = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  return leaveRequests.value.slice(start, start + itemsPerPage);
+});
+
+const pageStart = computed(() => (currentPage.value - 1) * itemsPerPage + 1);
+const pageEnd = computed(() => Math.min(currentPage.value * itemsPerPage, leaveRequests.value.length));
 
 onMounted(async () => {
   await fetchLeaves();
@@ -144,27 +216,33 @@ const getStatusTextColor = (status) => {
   flex-direction: column;
 }
 
-.vertical-scroll-container {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 4px;
-  height: 290px;
-  
-  /* Styling custom scrollbar */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-    &:hover {
-      background: #94a3b8;
-    }
-  }
+.list-section {
+  flex: 1;
+  overflow: hidden;
+}
+
+.empty-state {
+  height: 260px;
+}
+
+.pagination-footer {
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.page-btn {
+  min-width: 24px;
+  min-height: 24px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.page-btn-active {
+  min-width: 24px;
+  min-height: 24px;
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .metric-list-item {
