@@ -31,6 +31,7 @@
         label="Send Email"
         class="q-ml-md"
         no-caps
+        @click="openSendEmailDialog"
       />
     </div>
     <q-separator horizontal spaced />
@@ -93,13 +94,16 @@
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useEmployeeStore } from "src/stores/employee";
+import { useQuasar } from "quasar";
 import {
   formatFullname,
   capitalizeAddress,
 } from "src/composables/employeeFunction/useEmployeeFunctions";
 
 import EmployeePayroll from "./components/payroll/EmployeePayroll.vue";
+import SendPayrollEmailDialog from "./components/payroll/SendPayrollEmailDialog.vue";
 
+const $q = useQuasar();
 const employeeStore = useEmployeeStore();
 const employeesSample = computed(() => employeeStore.employees);
 const employeesData = ref([]);
@@ -135,6 +139,26 @@ const fetchEmployeeDetails = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const openSendEmailDialog = () => {
+  if (!employeesData.value || !employeesData.value.id) {
+    $q.notify({
+      type: "warning",
+      message: "Please wait until employee details are loaded."
+    });
+    return;
+  }
+  $q.dialog({
+    component: SendPayrollEmailDialog,
+    componentProps: {
+      employee: employeesData.value,
+    },
+  }).onOk((data) => {
+    if (data && data.saved) {
+      employeesData.value.personal_email = data.email;
+    }
+  });
 };
 
 const goBack = () => {
