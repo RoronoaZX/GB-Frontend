@@ -62,12 +62,12 @@ module.exports = configure(function (/* ctx */) {
       // distDir
 
       extendViteConf(viteConf) {
-        if (process.env.NODE_ENV === "production") {
-          viteConf.esbuild = {
-            ...viteConf.esbuild,
-            drop: ["console", "debugger"],
-          };
-        }
+        // if (process.env.NODE_ENV === "production") {
+        //   viteConf.esbuild = {
+        //     ...viteConf.esbuild,
+        //     drop: ["console", "debugger"],
+        //   };
+        // }
       },
       // viteVuePluginOptions: {},
 
