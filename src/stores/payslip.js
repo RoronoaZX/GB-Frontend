@@ -37,11 +37,11 @@ export const usePayslipStore = defineStore("payslips", () => {
   // };
 
   const createPayslip = async (data, { showSuccess = false } = {}) => {
-    console.log("data payslip data", data);
+    // console.log("data payslip data", data);
 
     try {
       const response = await api.post("/api/payslip", data);
-      console.log("payslip response", response.data)
+      // console.log("payslip response", response.data)
       if (
         showSuccess &&
         response.data?.message === "Payslip saved successfully"
@@ -55,7 +55,7 @@ export const usePayslipStore = defineStore("payslips", () => {
 
       return response.data;
     } catch (error) {
-      console.log("payslipsss error", error);
+      // console.log("payslipsss error", error);
 
       if (error.response?.data?.message === "Payslip already exists") {
         Notify.create({
