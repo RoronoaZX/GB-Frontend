@@ -557,9 +557,12 @@ const totalEmployeeAllowances = computed(() => {
 // });
 
 const totalIncome = computed(() => {
-  const workingHours = parseHourMinute(
-    props.summaryData?.totalWorkingHoursFormatted
+  const salary = parseFloat(
+    employeesData.value?.employment_type?.salary || 0
   );
+  const category = employeesData.value?.employment_type?.category;
+  const totalNumberOfDays = props?.dtrRows?.length || 0;
+
   const overtimeHours = parseHourMinute(
     props.summaryData?.totalOvertimeFormatted
   );
@@ -568,24 +571,23 @@ const totalIncome = computed(() => {
   );
   const nightDiffCost = parseCurrency(totalNightDifferentialCost.value);
   const employeeAllowances = parseCurrency(totalEmployeeAllowances.value);
-  const category = employeesData.value?.employment_type?.category;
 
-  let hourlyIncome = 0;
+  let expectedBaseIncome = 0;
 
   if (category === "Part-time") {
-    // Part-time: salary is per hour, no schedule considered
-    const perHourRate = parseFloat(
-      employeesData.value?.employment_type?.salary || 0
+    const workingHours = parseHourMinute(
+      props.summaryData?.totalWorkingHoursFormatted
     );
-    hourlyIncome = workingHours * perHourRate;
+    expectedBaseIncome = workingHours * salary;
   } else {
-    // Regular logic: working hours + overtime × hourlyRate
-    const totalHours = workingHours + overtimeHours;
-    hourlyIncome = totalHours * hourlyRate.value;
+    expectedBaseIncome = totalNumberOfDays * salary;
   }
 
+  const overtimePay = overtimeHours * hourlyRate.value;
+
   const finalIncome =
-    hourlyIncome +
+    expectedBaseIncome +
+    overtimePay +
     holidayCost +
     nightDiffCost +
     employeeAllowances +
@@ -593,21 +595,6 @@ const totalIncome = computed(() => {
 
   return formatCurrency(finalIncome);
 });
-
-// const regularPay = computed(() => {
-//   const salary = parseFloat(
-//     employeesData.value?.employment_type?.salary || "0"
-//   );
-//   const totalNumberOfDays = props?.dtrRows?.length || 0;
-//   const ratePerDay = parseFloat(salary || "0");
-
-//   if (isNaN(ratePerDay) || ratePerDay <= 0 || totalNumberOfDays === 0) {
-//     return "₱ 0.00";
-//   }
-
-//   const calculatedExpectedSalary = ratePerDay * totalNumberOfDays;
-//   return formatCurrency(calculatedExpectedSalary);
-// });
 
 const regularPay = computed(() => {
   const salary = parseFloat(
@@ -633,61 +620,6 @@ const regularPay = computed(() => {
 });
 
 // Use watchEffect to automatically track dependencies and emit the updated data.
-// watchEffect(() => {
-//   // We only emit if summaryData is available to avoid sending incomplete calculations.
-//   if (props.summaryData && employeesData.value) {
-//     const summaryPayload = {
-//       schedule: employeeSchedule.value,
-//       ratePerDay: formatCurrency(employeesData.value?.employment_type?.salary),
-//       totalDays: props.dtrRows.length,
-//       expectedSalary: regularPay.value,
-//       incentiveDatasFromChild: incentiveDatasFromChild.value,
-
-//       // Detailed breakdown
-//       workingHours: {
-//         formatted: totalWorkingHours.value,
-//         cost: totalWorkingHoursCost.value,
-//         costRaw: parseCurrency(totalWorkingHoursCost.value),
-//       },
-//       overtime: {
-//         formatted: totalOvertimeHours.value,
-//         cost: totalOvertimeCost.value,
-//         costRaw: parseCurrency(totalOvertimeCost.value),
-//       },
-//       nightDifferential: {
-//         formatted: totalNightDifferential.value,
-//         cost: totalNightDifferentialCost.value,
-//         costRaw: parseCurrency(totalNightDifferentialCost.value),
-//       },
-//       undertime: {
-//         formatted: totalUndertime.value,
-//         cost: totalUndertimeCost.value,
-//         costRaw: parseCurrency(totalUndertimeCost.value),
-//       },
-//       holidayPay: {
-//         cost: totalAdditionalHolidayPay.value,
-//         costRaw: parseCurrency(totalAdditionalHolidayPay.value),
-//       },
-//       allowances: {
-//         cost: totalEmployeeAllowances.value,
-//         costRaw: parseCurrency(totalEmployeeAllowances.value),
-//       },
-//       incentives: {
-//         cost: formatCurrency(parentTotalIncentive.value),
-//         costRaw: parentTotalIncentive.value,
-//       },
-//       // Grand Total
-//       totalIncome: {
-//         formatted: totalIncome.value,
-//         raw: parseCurrency(totalIncome.value),
-//       },
-//     };
-
-//     // Emit the event with the payload
-//     emit("dtr-earnings-summary-calculated", summaryPayload);
-//   }
-// });
-
 watchEffect(() => {
   if (props.summaryData && employeesData.value) {
     const category = employeesData.value?.employment_type?.category;
@@ -704,12 +636,17 @@ watchEffect(() => {
         ? workingHoursRaw * salary
         : workingHoursRaw * hourlyRate.value;
 
+    const expectedSalaryRaw =
+      category === "Part-time"
+        ? workingHoursRaw * salary
+        : salary * props.dtrRows.length;
+
     // Overtime
     const overtimeRaw = parseHourMinute(
       props.summaryData?.totalOvertimeFormatted
     );
     const overtimeCost =
-      category === "Part=time"
+      category === "Part-time"
         ? overtimeRaw * salary
         : overtimeRaw * hourlyRate.value * 1.0;
 
@@ -731,7 +668,7 @@ watchEffect(() => {
         ? undertimeRaw * salary
         : undertimeRaw * hourlyRate.value;
 
-    // Holiday Py + Allowances
+    // Holiday Pay + Allowances
     const holidayCost = parseFloat(
       props.summaryData?.totalAdditionalHolidayPays || 0
     );
@@ -740,15 +677,14 @@ watchEffect(() => {
     // Incentives
     const incentives = parentTotalIncentive.value;
 
-    // Final Income
+    // Final Income (uses expected base salary)
     const finalIncome =
-      workingHoursCost +
+      expectedSalaryRaw +
       overtimeCost +
       nightDiffCost +
       holidayCost +
       allowances +
-      incentives -
-      undertimeCost;
+      incentives;
 
     const summaryPayload = {
       schedule: employeeSchedule.value,
@@ -762,8 +698,9 @@ watchEffect(() => {
 
       workingHours: {
         formatted: formatHoursAndMinutes(workingHoursRaw),
-        cost: formatCurrency(workingHoursCost),
-        costRaw: workingHoursCost,
+        // Regular pay displays expected salary gross of undertime in the overall dialog
+        cost: formatCurrency(expectedSalaryRaw),
+        costRaw: expectedSalaryRaw,
       },
       overtime: {
         formatted: formatHoursAndMinutes(overtimeRaw),

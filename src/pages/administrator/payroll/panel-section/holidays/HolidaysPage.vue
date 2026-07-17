@@ -128,6 +128,23 @@
                   >
                     {{ holiday.name }}
                   </q-item-label>
+                  <q-item-label caption class="text-grey-6 q-mt-xs">
+                    <span v-if="holiday.scope === 'custom'">
+                      <span v-if="holiday.branches && holiday.branches.length > 0">
+                        <q-icon name="store" size="14px" class="q-mr-xs" />
+                        Branches: {{ holiday.branches.map(b => b.name).join(', ') }}
+                        <br v-if="holiday.warehouses && holiday.warehouses.length > 0" />
+                      </span>
+                      <span v-if="holiday.warehouses && holiday.warehouses.length > 0">
+                        <q-icon name="warehouse" size="14px" class="q-mr-xs" />
+                        Warehouses: {{ holiday.warehouses.map(w => w.name).join(', ') }}
+                      </span>
+                    </span>
+                    <span v-else>
+                      <q-icon name="public" size="14px" class="q-mr-xs" />
+                      Nationwide
+                    </span>
+                  </q-item-label>
                 </q-item-section>
               </q-item>
             </q-card>

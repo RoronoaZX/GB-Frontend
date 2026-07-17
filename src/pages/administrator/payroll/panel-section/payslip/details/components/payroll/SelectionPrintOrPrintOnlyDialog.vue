@@ -333,6 +333,12 @@ const generateDocDefinition = (payslipData, logoBase64) => {
                       ),
                     ],
                     [
+                      "Undertime / Lates",
+                      formatCurrency(
+                        payslipData.payslip_earnings.undertime_pay || 0
+                      ),
+                    ],
+                    [
                       "SSS",
                       formatCurrency(
                         payslipData.payslip_deductions

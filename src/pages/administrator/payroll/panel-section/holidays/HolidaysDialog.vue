@@ -75,6 +75,48 @@
               bg-color="grey-2"
             />
 
+            <q-select
+              outlined
+              v-model="holidayForm.scope"
+              :options="scopeOptions"
+              label="Holiday Scope *"
+              behavior="menu"
+              :rules="[(val) => !!val || 'Holiday scope is required']"
+              bg-color="grey-2"
+              emit-value
+              map-options
+            />
+
+            <q-select
+              v-if="holidayForm.scope === 'custom'"
+              outlined
+              v-model="holidayForm.branch_ids"
+              :options="branchOptions"
+              label="Select Branch(es)"
+              behavior="menu"
+              bg-color="grey-2"
+              emit-value
+              map-options
+              multiple
+              use-chips
+              :rules="[() => (holidayForm.branch_ids?.length > 0 || holidayForm.warehouse_ids?.length > 0) || 'Please select at least one branch or warehouse']"
+            />
+
+            <q-select
+              v-if="holidayForm.scope === 'custom'"
+              outlined
+              v-model="holidayForm.warehouse_ids"
+              :options="warehouseOptions"
+              label="Select Warehouse(s)"
+              behavior="menu"
+              bg-color="grey-2"
+              emit-value
+              map-options
+              multiple
+              use-chips
+              :rules="[() => (holidayForm.branch_ids?.length > 0 || holidayForm.warehouse_ids?.length > 0) || 'Please select at least one branch or warehouse']"
+            />
+
             <div class="row q-gutter-md justify-center q-pt-sm">
               <q-btn
                 label="Reset"
@@ -99,8 +141,10 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, onMounted, computed } from "vue";
 import { useHolidaysStore } from "src/stores/holidays";
+import { useBranchesStore } from "src/stores/branch";
+import { useWarehousesStore } from "src/stores/warehouse";
 import { Loading } from "quasar";
 
 const props = defineProps({
@@ -122,20 +166,44 @@ const props = defineProps({
   },
 });
 
-/* console.log(
-  "props holiday to edit: ",
-  props.holidayToEdit,
-  props.currentYear,
-  props.currentMonth
-); */
-
 const emit = defineEmits(["refreshHolidays"]);
 
 const dialog = ref(false);
 const holidaysStore = useHolidaysStore();
+const branchesStore = useBranchesStore();
+const warehousesStore = useWarehousesStore();
+
 const holidayOriginalData = props.holidayToEdit;
-const year = props.currentYear;
-const month = props.currentMonth;
+
+const branchOptions = computed(() => {
+  return branchesStore.branches.map((b) => ({
+    label: b.name,
+    value: b.id,
+  }));
+});
+
+const warehouseOptions = computed(() => {
+  return warehousesStore.warehouses.map((w) => ({
+    label: w.name,
+    value: w.id,
+  }));
+});
+
+const scopeOptions = [
+  { label: "Nationwide / All", value: "all" },
+  { label: "Specific Locations", value: "custom" },
+];
+
+onMounted(async () => {
+  try {
+    await Promise.all([
+      branchesStore.fetchBranches(),
+      warehousesStore.fetchWarehouses(),
+    ]);
+  } catch (error) {
+    console.error("Failed to load branches or warehouses:", error);
+  }
+});
 
 // Define openDialog and closeDialog if they are called before watch.
 const openDialog = () => {
@@ -148,6 +216,9 @@ const initialHolidayForm = {
   name: "",
   date: "", // YYYY/MM/DD format
   type: null,
+  scope: "all",
+  branch_ids: [],
+  warehouse_ids: [],
 };
 
 const holidayForm = reactive({ ...initialHolidayForm });
@@ -156,7 +227,15 @@ const holidayTypes = ["Regular Holiday", "Special (Non-Working) Holiday"];
 
 // Define resetForm BEFORE the watch block that uses it
 const resetForm = () => {
-  Object.assign(holidayForm, initialHolidayForm);
+  Object.assign(holidayForm, {
+    id: null,
+    name: "",
+    date: "",
+    type: null,
+    scope: "all",
+    branch_ids: [],
+    warehouse_ids: [],
+  });
 };
 
 // Now, the watch block can safely call resetForm because it's already defined
@@ -164,10 +243,17 @@ watch(
   () => props.holidayToEdit,
   (newVal) => {
     if (props.editMode && newVal) {
-      // Add check for non-empty object
-      Object.assign(holidayForm, newVal);
+      Object.assign(holidayForm, {
+        id: newVal.id,
+        name: newVal.name,
+        date: newVal.date ? newVal.date.replaceAll("-", "/") : "",
+        type: newVal.type,
+        scope: newVal.scope || "all",
+        branch_ids: newVal.branches ? newVal.branches.map((b) => b.id) : [],
+        warehouse_ids: newVal.warehouses ? newVal.warehouses.map((w) => w.id) : [],
+      });
     } else {
-      resetForm(); // <-- resetForm is now guaranteed to be initialized
+      resetForm();
     }
   },
   { immediate: true }
@@ -176,15 +262,26 @@ watch(
 const saveHoliday = async () => {
   Loading.show();
 
+  const payload = {
+    ...holidayForm,
+    date: holidayForm.date ? holidayForm.date.replaceAll("/", "-") : "",
+  };
+
+  // Sanitize conditional values based on scope
+  if (payload.scope === "all") {
+    payload.branch_ids = [];
+    payload.warehouse_ids = [];
+  }
+
   try {
     if (props.editMode) {
       await holidaysStore.updateHoliday(
         holidayForm.id,
-        holidayForm,
+        payload,
         holidayOriginalData
       );
     } else {
-      await holidaysStore.createHoliday(holidayForm);
+      await holidaysStore.createHoliday(payload);
     }
     emit("refreshHolidays");
     resetForm();

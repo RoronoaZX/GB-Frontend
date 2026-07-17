@@ -123,9 +123,12 @@ export function useDtrCalculations(props) {
       const scheduledIn = actualIn
         ? parseTimeToDate(row.schedule_in, actualIn)
         : null;
-      const scheduledOut = actualOut
-        ? parseTimeToDate(row.schedule_out, actualOut)
+      let scheduledOut = scheduledIn
+        ? parseTimeToDate(row.schedule_out, scheduledIn)
         : null;
+      if (scheduledOut && scheduledIn && scheduledOut < scheduledIn) {
+        scheduledOut = new Date(scheduledOut.getTime() + 24 * 60 * 60 * 1000);
+      }
 
       const isValid =
         actualIn &&
@@ -145,6 +148,27 @@ export function useDtrCalculations(props) {
       }
 
       // --- Calculations ---
+      const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
+      const effectiveOut = actualOut < scheduledOut ? actualOut : scheduledOut;
+
+      const getOverlapMinutes = (startStr, endStr) => {
+        if (!startStr || !endStr || !effectiveIn || !effectiveOut) return 0;
+        const start = new Date(startStr);
+        const end = new Date(endStr);
+        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return 0;
+        const overlapStart = Math.max(start.getTime(), effectiveIn.getTime());
+        const overlapEnd = Math.min(end.getTime(), effectiveOut.getTime());
+        if (overlapEnd > overlapStart) {
+          return Math.floor((overlapEnd - overlapStart) / 60000);
+        }
+        return 0;
+      };
+
+      const lunchOverlap = getOverlapMinutes(row.lunch_break_start, row.lunch_break_end);
+      const otherBreakOverlap = getOverlapMinutes(row.break_start, row.break_end);
+      const recordedBreakOverlapMinutes = lunchOverlap + otherBreakOverlap;
+
+      // Actual total break taken by the employee (for display purposes, i.e. breakMinutes)
       const breakMinutes = ((r) => {
         let total = 0;
         const periods = [
@@ -161,19 +185,19 @@ export function useDtrCalculations(props) {
         return Math.floor(total / 60000);
       })(row);
 
-      const breakDeduction =
-        breakMinutes < STANDARD_BREAK_MINUTES
+      const grossMinutes = effectiveOut > effectiveIn ? Math.floor((effectiveOut - effectiveIn) / 60000) : 0;
+      let breakDeduction = 0;
+      if (grossMinutes >= 240) {
+        breakDeduction = recordedBreakOverlapMinutes < STANDARD_BREAK_MINUTES
           ? STANDARD_BREAK_MINUTES
-          : breakMinutes;
-
-      const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
-      const effectiveOut = actualOut < scheduledOut ? actualOut : scheduledOut;
+          : recordedBreakOverlapMinutes;
+      } else {
+        breakDeduction = recordedBreakOverlapMinutes;
+      }
 
       let workingMinutes = 0;
       if (effectiveOut > effectiveIn) {
-        const grossMs = effectiveOut.getTime() - effectiveIn.getTime();
-        const netMs = grossMs - breakDeduction * 60000;
-        workingMinutes = Math.max(0, Math.floor(netMs / 60000));
+        workingMinutes = Math.max(0, grossMinutes - breakDeduction);
       }
 
       const expectedMinutes =

@@ -41,16 +41,18 @@ export function calculateTotals(dtrRows, designation) {
       const inTime = new Date(time_in);
       const outTime = new Date(time_out);
       const scheduledIn = parseTimeToDate(designation.time_in, inTime);
-      const scheduledOut = parseTimeToDate(designation.time_out, outTime);
+      let scheduledOut = scheduledIn ? parseTimeToDate(designation.time_out, scheduledIn) : null;
+      if (scheduledOut && scheduledIn && scheduledOut < scheduledIn) {
+        scheduledOut = new Date(scheduledOut.getTime() + 24 * 60 * 60 * 1000);
+      }
 
       const effectiveIn = inTime > scheduledIn ? inTime : scheduledIn;
       const effectiveOut = outTime < scheduledOut ? outTime : scheduledOut;
 
       const expectedMinutes = (scheduledOut - scheduledIn - 3600000) / 60000;
-      const actualMinutes =
-        effectiveOut > effectiveIn
-          ? (effectiveOut - effectiveIn - 3600000) / 60000
-          : 0;
+      const grossMinutes = effectiveOut > effectiveIn ? (effectiveOut - effectiveIn) / 60000 : 0;
+      const breakDeduction = grossMinutes >= 240 ? 60 : 0;
+      const actualMinutes = Math.max(0, grossMinutes - breakDeduction);
 
       totalWorking += Math.max(actualMinutes, 0);
       const undertime = expectedMinutes - actualMinutes;

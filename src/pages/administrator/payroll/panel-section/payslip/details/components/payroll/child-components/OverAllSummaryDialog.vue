@@ -154,7 +154,7 @@
               <div class="summary-total negative">
                 <span class="text-uppercase">Total Deductions:</span>
                 <span>{{
-                  formatCurrencyProps(dtrDeductionsData.totalDeductions)
+                  formatCurrencyProps(overallTotalDeductions)
                 }}</span>
               </div>
             </div>
@@ -265,110 +265,82 @@ const getPayrollReleaseDate = (from, end) => {
   return null; // No matching cycle
 };
 
-const earnings = [
+const earnings = computed(() => [
   {
     label: "Regular Pay",
-    formatted: props.dtrEarningsData.workingHours.cost || 0.0,
-    // cost: props.dtrEarningsData.regularPay.cost,
+    formatted: props.dtrEarningsData.workingHours.cost || "₱ 0.00",
   },
   {
     label: "Overtime Pay",
-    formatted: props.dtrEarningsData.overtime.cost || 0.0,
-    // cost: props.dtrEarningsData.overtimePay.cost,
+    formatted: props.dtrEarningsData.overtime.cost || "₱ 0.00",
   },
   {
     label: "Holiday Pay",
-    formatted: props.dtrEarningsData.holidayPay.cost || 0.0,
-    // cost: props.dtrEarningsData.holidayPay.cost,
+    formatted: props.dtrEarningsData.holidayPay.cost || "₱ 0.00",
   },
-  // {
-  //   label: "COLA",
-  //   // formatted: props.dtrEarningsData.holidayPay.formatted,
-  //   // cost: props.dtrEarningsData.holidayPay.cost,
-  // },
   {
     label: "Night Differential",
-    formatted: props.dtrEarningsData.nightDifferential.cost || 0.0,
-    // cost: props.dtrEarningsData.holidayPay.cost,
+    formatted: props.dtrEarningsData.nightDifferential.cost || "₱ 0.00",
   },
   {
     label: "Total Allowance",
-    formatted: props.dtrEarningsData.allowances.cost || 0.0,
-    // cost: props.dtrEarningsData.holidayPay.cost,
+    formatted: props.dtrEarningsData.allowances.cost || "₱ 0.00",
   },
   {
     label: "Quota Incentive",
-    formatted: props.dtrEarningsData.incentives.cost || 0.0,
-    // cost: props.dtrEarningsData.holidayPay.cost,
+    formatted: props.dtrEarningsData.incentives.cost || "₱ 0.00",
   },
-  // {
-  //   label: "Other Incentives / Adjustments",
-  //   // formatted: props.dtrEarningsData.holidayPay.formatted,
-  //   // cost: props.dtrEarningsData.holidayPay.cost,
-  // },
+]);
 
-  // "Regular Pay",
-  // "Overtime Pay",
-  // "Holiday Pay",
-  // "COLA",
-  // "Night Differential",
-  // "Daily Allowance",
-  // "Overtime",
-  // "Quota Incentive",
-  // "Other Incentives / Adjustments",
-];
+const deductions = computed(() => {
+  const list = [
+    {
+      label: "Credits",
+      formatted: props.dtrDeductionsData?.creditTotal || 0.0,
+    },
+    {
+      label: "Uniform",
+      formatted: props.dtrDeductionsData?.uniformTotal || 0.0,
+    },
+    {
+      label: "Penalty",
+      formatted: props.dtrDeductionsData?.penaltyTotal || 0.0,
+    },
+    {
+      label: "Cash Advance",
+      formatted: props.dtrDeductionsData?.cashAdvanceTotal || 0.0,
+    },
+    {
+      label: "Shorts / Charges",
+      formatted: props.dtrDeductionsData?.employeeChargesTotal || 0.0,
+    },
+  ];
 
-const deductions = [
-  {
-    label: "Credits",
-    formatted: props.dtrDeductionsData?.creditTotal || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  {
-    label: "Uniform",
-    formatted: props.dtrDeductionsData?.uniformTotal || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  {
-    label: "Penalty",
-    formatted: props.dtrDeductionsData?.penaltyTotal || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  {
-    label: "Cash Advance",
-    formatted: props.dtrDeductionsData?.cashAdvanceTotal || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  {
-    label: "Shorts / Charges",
-    formatted: props.dtrDeductionsData?.employeeChargesTotal || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  {
-    label: "SSS",
-    formatted: props.dtrDeductionsData.details?.employeeBenefits?.sss || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  {
-    label: "Pag-IBIG Housing Fund",
-    formatted: props.dtrDeductionsData.details?.employeeBenefits?.hdmf || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  {
-    label: "PhilHealth Insurance",
-    formatted: props.dtrDeductionsData.details?.employeeBenefits?.phic || 0.0,
-    // cost: props.dtrDeductionsData.credits.cost,
-  },
-  // "Credits",
-  // "Uniform",
-  // "Penalty",
-  // "Cash Advance",
-  // "Late/s",
-  // "Shorts",
-  // "SSS",
-  // "Pag-IBIG Housing Fund",
-  // "PhilHealth Insurance",
-];
+  const undertimeCost = parseFloat(props.dtrEarningsData?.undertime?.costRaw || 0);
+  if (undertimeCost > 0) {
+    list.push({
+      label: `Undertime / Lates (${props.dtrEarningsData.undertime.formatted || "0h 0m"})`,
+      formatted: undertimeCost,
+    });
+  }
+
+  list.push(
+    {
+      label: "SSS",
+      formatted: props.dtrDeductionsData.details?.employeeBenefits?.sss || 0.0,
+    },
+    {
+      label: "Pag-IBIG Housing Fund",
+      formatted: props.dtrDeductionsData.details?.employeeBenefits?.hdmf || 0.0,
+    },
+    {
+      label: "PhilHealth Insurance",
+      formatted: props.dtrDeductionsData.details?.employeeBenefits?.phic || 0.0,
+    }
+  );
+
+  return list;
+});
 
 const uniformBalance = computed(() => {
   const uniforms = Array.isArray(props.dtrDeductionsData?.details?.uniforms)
@@ -398,14 +370,17 @@ const uniformBalance = computed(() => {
   getPayrollReleaseDate(props.dtrRecord.from, props.dtrRecord.end)
 ); */
 
+const overallTotalDeductions = computed(() => {
+  const baseDeductions = parseFloat(props.dtrDeductionsData?.totalDeductions || 0.0);
+  const undertimeCost = parseFloat(props.dtrEarningsData?.undertime?.costRaw || 0.0);
+  return baseDeductions + undertimeCost;
+});
+
 const netIncome = computed(() => {
   const totalEarnings = parseFloat(
     props.dtrEarningsData?.totalIncome?.raw || 0.0
   );
-  const totalDeductions = parseFloat(
-    props.dtrDeductionsData?.totalDeductions || 0.0
-  );
-  return totalEarnings - totalDeductions;
+  return totalEarnings - overallTotalDeductions.value;
 });
 
 const totalCredits = computed(() => {
@@ -459,54 +434,7 @@ const cashAdvanceBalance = computed(() => {
   return balance;
 });
 
-const payslipEarnings = reactive({
-  allowances_pay: props.dtrEarningsData.allowances.costRaw,
-  holidays_pay: props.dtrEarningsData.holidayPay.costRaw,
-  incentives_pay: props.dtrEarningsData.incentives.costRaw,
-  night_diff_pay: props.dtrEarningsData.nightDifferential.costRaw,
-  overtime_pay: props.dtrEarningsData.overtime.costRaw,
-  undertime_pay: props.dtrEarningsData.undertime.costRaw,
-  undertime_hours: props.dtrEarningsData.undertime.formatted,
-  working_hours_pay: props.dtrEarningsData.workingHours.costRaw,
-  payslip_incentives: props.dtrEarningsData.incentiveDatasFromChild,
-});
-
-const payslipDeductions = reactive({
-  benefits_total: props.dtrDeductionsData.benefitsTotal,
-  cash_advance_total: props.dtrDeductionsData.cashAdvanceTotal,
-  credit_total: props.dtrDeductionsData.creditTotal,
-  employee_charge_total: props.dtrDeductionsData.employeeChargesTotal,
-  total_deductions: props.dtrDeductionsData.totalDeductions,
-  uniform_total: props.dtrDeductionsData.uniformTotal,
-  // details: props.dtrDeductionsData.details,
-  payslip_deduction_ca: props.dtrDeductionsData.details.cashAdvances,
-  payslip_deduction_charges: props.dtrDeductionsData.details.employeeCharges,
-  payslip_deduction_credits: props.dtrDeductionsData.details.credits,
-  payslip_deduction_benefits: props.dtrDeductionsData.details.employeeBenefits,
-  payslip_deduction_uniforms: props.dtrDeductionsData.details.uniforms,
-});
-
-const payslipDtr = reactive({
-  from: props.dtrRecord.from,
-  end: props.dtrRecord.end,
-  release_date: getPayrollReleaseDate(
-    props.dtrRecord.from,
-    props.dtrRecord.end
-  ),
-  holidays: props.dtrRecord.holidays,
-  payslip_dtr_record: props.dtrRecord.records,
-});
-
-const payslipHolidaySummary = reactive({
-  dtr_summary: props.dtrSummaryData.calculateAdditionalHolidayPays,
-});
-
-// const proceed = async () => {
-//   console.log("payslipFullData", payslipDataToBeSend);
-//   await payslipStore.createPayslip(payslipDataToBeSend);
-// };
-
-const payslipDataToBeSend = reactive({
+const payslipDataToBeSend = computed(() => ({
   employeeData: props.employeesData,
   employee_id: props.employeesData.id,
   from: props.dtrRecord.from,
@@ -521,35 +449,60 @@ const payslipDataToBeSend = reactive({
   credit_balance: creditBalance.value,
   cash_advance_balance: cashAdvanceBalance.value,
   total_earnings: props.dtrEarningsData.totalIncome.raw,
-  total_deductions: props.dtrDeductionsData.totalDeductions,
+  total_deductions: overallTotalDeductions.value,
   net_income: netIncome.value,
 
   // nested Earnings objects
   payslip_earnings: {
-    ...payslipEarnings,
+    allowances_pay: props.dtrEarningsData.allowances.costRaw,
+    holidays_pay: props.dtrEarningsData.holidayPay.costRaw,
+    incentives_pay: props.dtrEarningsData.incentives.costRaw,
+    night_diff_pay: props.dtrEarningsData.nightDifferential.costRaw,
+    overtime_pay: props.dtrEarningsData.overtime.costRaw,
+    undertime_pay: props.dtrEarningsData.undertime.costRaw,
+    undertime_hours: props.dtrEarningsData.undertime.formatted,
+    working_hours_pay: props.dtrEarningsData.workingHours.costRaw,
+    payslip_incentives: props.dtrEarningsData.incentiveDatasFromChild,
   },
 
   // nested DTR objects
   payslip_dtr: {
-    ...payslipDtr,
+    from: props.dtrRecord.from,
+    end: props.dtrRecord.end,
+    release_date: getPayrollReleaseDate(
+      props.dtrRecord.from,
+      props.dtrRecord.end
+    ),
+    holidays: props.dtrRecord.holidays,
+    payslip_dtr_record: props.dtrRecord.records,
   },
 
   // nested Holiday Summary objects
   payslip_holiday_summary: {
-    ...payslipHolidaySummary,
+    dtr_summary: props.dtrSummaryData.calculateAdditionalHolidayPays,
   },
 
   // nested Deductions Summary objects
   payslip_deductions: {
-    ...payslipDeductions,
+    benefits_total: props.dtrDeductionsData.benefitsTotal,
+    cash_advance_total: props.dtrDeductionsData.cashAdvanceTotal,
+    credit_total: props.dtrDeductionsData.creditTotal,
+    employee_charge_total: props.dtrDeductionsData.employeeChargesTotal,
+    total_deductions: overallTotalDeductions.value,
+    uniform_total: props.dtrDeductionsData.uniformTotal,
+    payslip_deduction_ca: props.dtrDeductionsData.details.cashAdvances,
+    payslip_deduction_charges: props.dtrDeductionsData.details.employeeCharges,
+    payslip_deduction_credits: props.dtrDeductionsData.details.credits,
+    payslip_deduction_benefits: props.dtrDeductionsData.details.employeeBenefits,
+    payslip_deduction_uniforms: props.dtrDeductionsData.details.uniforms,
   },
-});
+}));
 
 const proceed = () => {
   $q.dialog({
     component: SelectionPrintOrPrintOnlyDialog,
     componentProps: {
-      payslipDataToBeSend,
+      payslipDataToBeSend: payslipDataToBeSend.value,
     },
   });
 };

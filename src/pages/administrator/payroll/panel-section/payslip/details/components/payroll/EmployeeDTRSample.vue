@@ -420,7 +420,10 @@ const overallTotalWorkingHours = computed(() => {
     const designationTimeOutStr = employeesData.value.designation.time_out;
 
     const scheduledIn = parseTimeToDate(designationTimeInStr, actualIn);
-    const scheduledOut = parseTimeToDate(designationTimeOutStr, actualOut);
+    let scheduledOut = scheduledIn ? parseTimeToDate(designationTimeOutStr, scheduledIn) : null;
+    if (scheduledOut && scheduledIn && scheduledOut < scheduledIn) {
+      scheduledOut = new Date(scheduledOut.getTime() + 24 * 60 * 60 * 1000);
+    }
 
     if (!scheduledIn || !scheduledOut) {
       return;
@@ -433,7 +436,8 @@ const overallTotalWorkingHours = computed(() => {
       return;
     }
     const totalMs = effectiveOut.getTime() - effectiveIn.getTime();
-    const adjustedMs = totalMs - 1000 * 60 * 60;
+    const breakDeduction = totalMs >= 4 * 60 * 60 * 1000 ? 1000 * 60 * 60 : 0;
+    const adjustedMs = totalMs - breakDeduction;
 
     if (adjustedMs < 0) return;
 
@@ -462,7 +466,10 @@ const overallTotalUndertime = computed(() => {
     const designationTimeOutStr = employeesData.value.designation.time_out;
 
     const scheduledIn = parseTimeToDate(designationTimeInStr, actualIn);
-    const scheduledOut = parseTimeToDate(designationTimeOutStr, actualOut);
+    let scheduledOut = scheduledIn ? parseTimeToDate(designationTimeOutStr, scheduledIn) : null;
+    if (scheduledOut && scheduledIn && scheduledOut < scheduledIn) {
+      scheduledOut = new Date(scheduledOut.getTime() + 24 * 60 * 60 * 1000);
+    }
 
     if (!scheduledIn || !scheduledOut) {
       return;
@@ -481,8 +488,9 @@ const overallTotalUndertime = computed(() => {
     let actualCountedMinutes = 0;
     if (effectiveOut > effectiveIn) {
       const actualMs = effectiveOut.getTime() - effectiveIn.getTime();
+      const breakDeduction = actualMs >= 4 * 60 * 60 * 1000 ? 1000 * 60 * 60 : 0;
       actualCountedMinutes = Math.floor(
-        (actualMs - 1000 * 60 * 60) / (1000 * 60)
+        (actualMs - breakDeduction) / (1000 * 60)
       );
     }
 
@@ -791,7 +799,10 @@ const dtrColumns = [
 
       // Parse designation times relative to the DTR date
       const scheduledIn = parseTimeToDate(designationTimeInStr, actualIn);
-      const scheduledOut = parseTimeToDate(designationTimeOutStr, actualOut);
+      let scheduledOut = scheduledIn ? parseTimeToDate(designationTimeOutStr, scheduledIn) : null;
+      if (scheduledOut && scheduledIn && scheduledOut < scheduledIn) {
+        scheduledOut = new Date(scheduledOut.getTime() + 24 * 60 * 60 * 1000);
+      }
 
       if (!scheduledIn || !scheduledOut) {
         return "Schedule Error"; // Should not happen if designation data is validated
@@ -809,9 +820,10 @@ const dtrColumns = [
         return formatHM(0, 0);
       }
 
-      // Calculate total span in milliseconds, then subtract 1 hour lunch break
+      // Calculate total span in milliseconds, then subtract 1 hour lunch break only if >= 4 hours
       const totalMs = effectiveOut.getTime() - effectiveIn.getTime();
-      const adjustedMs = totalMs - 1000 * 60 * 60; // minus 1 hour for lunch
+      const breakDeduction = totalMs >= 4 * 60 * 60 * 1000 ? 1000 * 60 * 60 : 0;
+      const adjustedMs = totalMs - breakDeduction; // minus 1 hour for lunch if applicable
 
       // Ensure adjustedMs is not negative
       if (adjustedMs < 0) return formatHM(0, 0);
@@ -852,7 +864,10 @@ const dtrColumns = [
 
       // Parse designation times relative to the DTR date
       const scheduledIn = parseTimeToDate(designationTimeInStr, actualIn);
-      const scheduledOut = parseTimeToDate(designationTimeOutStr, actualOut);
+      let scheduledOut = scheduledIn ? parseTimeToDate(designationTimeOutStr, scheduledIn) : null;
+      if (scheduledOut && scheduledIn && scheduledOut < scheduledIn) {
+        scheduledOut = new Date(scheduledOut.getTime() + 24 * 60 * 60 * 1000);
+      }
 
       if (!scheduledIn || !scheduledOut) {
         return "Schedule Error";
@@ -871,9 +886,10 @@ const dtrColumns = [
       let actualCountedMinutes = 0;
       if (effectiveOut > effectiveIn) {
         const actualMs = effectiveOut.getTime() - effectiveIn.getTime();
+        const breakDeduction = actualMs >= 4 * 60 * 60 * 1000 ? 1000 * 60 * 60 : 0;
         actualCountedMinutes = Math.floor(
-          (actualMs - 1000 * 60 * 60) / (1000 * 60)
-        ); // minus 1 hour
+          (actualMs - breakDeduction) / (1000 * 60)
+        ); // minus 1 hour if applicable
       }
 
       const undertimeMins = expectedWorkingMinutes - actualCountedMinutes;

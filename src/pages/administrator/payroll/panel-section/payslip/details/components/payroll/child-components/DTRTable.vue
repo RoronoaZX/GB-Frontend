@@ -536,7 +536,10 @@ const calculateRowTimes = (row) => {
   }
 
   const scheduledIn = parseTimeToDate(row.schedule_in, actualIn);
-  const scheduledOut = parseTimeToDate(row.schedule_out, actualOut);
+  let scheduledOut = scheduledIn ? parseTimeToDate(row.schedule_out, scheduledIn) : null;
+  if (scheduledOut && scheduledIn && scheduledOut < scheduledIn) {
+    scheduledOut = new Date(scheduledOut.getTime() + 24 * 60 * 60 * 1000);
+  }
 
   if (!scheduledIn || !scheduledOut) {
     return {
@@ -547,16 +550,37 @@ const calculateRowTimes = (row) => {
     }; // Include ND here
   }
 
-  const recordedBreakMinutes = calculateTotalBreakMinutesPure(row);
-  const breakDeduction = recordedBreakMinutes < 60 ? 60 : recordedBreakMinutes;
   // --- Working Hours Calculation ---
-  // This logic is for core working hours, excluding any overtime and considering breaks.
   const effectiveIn = actualIn > scheduledIn ? actualIn : scheduledIn;
   const effectiveOut = actualOut < scheduledOut ? actualOut : scheduledOut;
 
+  const getOverlapMinutes = (startStr, endStr) => {
+    if (!startStr || !endStr || !effectiveIn || !effectiveOut) return 0;
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return 0;
+    const overlapStart = Math.max(start.getTime(), effectiveIn.getTime());
+    const overlapEnd = Math.min(end.getTime(), effectiveOut.getTime());
+    if (overlapEnd > overlapStart) {
+      return Math.floor((overlapEnd - overlapStart) / 60000);
+    }
+    return 0;
+  };
+
+  const lunchOverlap = getOverlapMinutes(row.lunch_break_start, row.lunch_break_end);
+  const otherBreakOverlap = getOverlapMinutes(row.break_start, row.break_end);
+  const recordedBreakOverlapMinutes = lunchOverlap + otherBreakOverlap;
+
+  const grossMinutes = effectiveOut > effectiveIn ? Math.floor((effectiveOut - effectiveIn) / 60000) : 0;
+  let breakDeduction = 0;
+  if (grossMinutes >= 240) {
+    breakDeduction = recordedBreakOverlapMinutes < 60 ? 60 : recordedBreakOverlapMinutes;
+  } else {
+    breakDeduction = recordedBreakOverlapMinutes;
+  }
+
   if (effectiveOut > effectiveIn) {
-    const totalMs = effectiveOut.getTime() - effectiveIn.getTime();
-    const adjustedMs = totalMs - breakDeduction * 60 * 1000;
+    const adjustedMs = (grossMinutes - breakDeduction) * 60 * 1000;
     if (adjustedMs > 0) {
       totalWorkingMinutes = Math.floor(adjustedMs / (1000 * 60));
     }
