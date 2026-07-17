@@ -233,6 +233,7 @@
             :dtr-to="dtrTo"
             @update:totalIncentive="parentTotalIncentive = $event"
             @incentives-data-calculated="incentiveDatasFromChild = $event"
+            @incentives-loaded="isIncentivesReady = true"
           />
         </div>
 
@@ -291,6 +292,7 @@ const employee_id = route.params.employee_id || "";
 const employeesData = ref(null);
 const parentTotalIncentive = ref(0);
 const incentiveDatasFromChild = ref([]);
+const isIncentivesReady = ref(false);  // guard: wait for API before emitting summary
 
 watch(parentTotalIncentive, (newValue) => {
   /* console.log("Parent total incentive updated:", newValue); */
@@ -621,7 +623,8 @@ const regularPay = computed(() => {
 
 // Use watchEffect to automatically track dependencies and emit the updated data.
 watchEffect(() => {
-  if (props.summaryData && employeesData.value) {
+  // Wait for both DTR summary and incentives API to be ready before emitting
+  if (props.summaryData && employeesData.value && isIncentivesReady.value) {
     const category = employeesData.value?.employment_type?.category;
     const salary = parseFloat(
       employeesData.value?.employment_type?.salary || 0

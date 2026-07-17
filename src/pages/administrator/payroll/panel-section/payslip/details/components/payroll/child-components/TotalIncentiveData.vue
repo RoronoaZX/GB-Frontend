@@ -36,6 +36,7 @@ const props = defineProps(["dtrFrom", "dtrTo"]);
 const emit = defineEmits([
   "update:totalIncentive",
   "incentives-data-calculated",
+  "incentives-loaded",
 ]);
 const route = useRoute();
 const employeeId = route.params.employee_id || "";
@@ -80,6 +81,8 @@ const fetchEmployeeIncentives = async () => {
     employeeId
   );
   /* console.log("employeeIncentivessss", employeeIncentives.value); */
+  // Notify parent that incentive data (even if empty) has finished loading
+  emit("incentives-loaded");
 };
 onMounted(fetchEmployeeIncentives);
 
