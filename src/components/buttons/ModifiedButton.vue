@@ -2,6 +2,7 @@
   <button
     class="send-button"
     :class="{ 'is-sent': isSent }"
+    :disabled="disable"
     @click="sendMessage"
   >
     <div class="outline"></div>
@@ -107,6 +108,13 @@
 <script setup>
 import { ref } from "vue";
 
+const props = defineProps({
+  disable: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const isSent = ref(false);
 const emit = defineEmits(["click"]);
 
@@ -153,6 +161,12 @@ const sendMessage = () => {
   font-weight: 600;
   // Ensure the button itself is visible on top of its pseudo-elements
   z-index: 1;
+}
+
+.send-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .send-button:hover {

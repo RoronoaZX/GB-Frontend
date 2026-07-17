@@ -112,6 +112,14 @@ const dtrSummaryData = ref(null); // Inittialize to null
 const dtrEarningsData = ref(null);
 const dtrDeductionsData = ref(null);
 
+const isDTRSummaryReady = computed(() => {
+  return !!(
+    dtrSummaryData.value &&
+    dtrEarningsData.value &&
+    dtrDeductionsData.value
+  );
+});
+
 // --- Method to handle event from DTRTable --- //
 
 const handleDTREarningsSummaryCalculated = (summary) => {
