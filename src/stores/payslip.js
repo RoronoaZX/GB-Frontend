@@ -119,9 +119,53 @@ export const usePayslipStore = defineStore("payslips", () => {
   //   }
   // };
 
+  const cutoffSummary = ref([]);
+  const cutoffPeriods = ref([]);
+
+  const fetchCutoffSummary = async (from, to) => {
+    try {
+      const response = await api.get("/api/payslip/cutoff-summary", {
+        params: { from, to },
+      });
+      cutoffSummary.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching cut-off summary:", error);
+      Notify.create({
+        type: "negative",
+        message: "Failed to fetch cut-off summary.",
+        timeout: 3000,
+      });
+      throw error;
+    }
+  };
+
+  const fetchCutoffPeriods = async () => {
+    try {
+      const response = await api.get("/api/payslip/cutoff-periods");
+      cutoffPeriods.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching cut-off periods:", error);
+      Notify.create({
+        type: "negative",
+        message: "Failed to fetch cut-off periods.",
+        timeout: 3000,
+      });
+      throw error;
+    }
+  };
+
+  const selectedEstablishment = ref("global");
+
   return {
     payslip,
     payslips,
+    cutoffSummary,
+    cutoffPeriods,
+    selectedEstablishment,
     createPayslip,
+    fetchCutoffSummary,
+    fetchCutoffPeriods,
   };
 });

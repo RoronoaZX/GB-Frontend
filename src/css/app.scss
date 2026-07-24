@@ -840,4 +840,43 @@ body.body--dark {
   }
 }
 
+/* GLOBAL PRINT STYLESHEET OVERRIDES */
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+
+  /* Hide navigation drawers, top headers, footers, tabs, and action bars */
+  .q-drawer,
+  .q-drawer-container,
+  .q-header,
+  .q-footer,
+  .q-tabs,
+  .user-tab,
+  .q-page-scroller,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Reset Quasar layout wrappers to avoid page shifts, margins, or background clipping */
+  html, body,
+  .q-layout,
+  .q-page-container,
+  .q-page,
+  .payroll-router-wrapper,
+  .elegant-container,
+  .layout-page-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    min-height: auto !important;
+    height: auto !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+}
+
 

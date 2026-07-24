@@ -231,10 +231,31 @@ const routes = [
           {
             path: "payslip",
             name: "admin-payroll-payslip",
+            redirect: {
+              name: "admin-payroll-payslip-cards",
+            },
             component: () =>
               import(
                 "pages/administrator/payroll/panel-section/payslip/PayslipPage.vue"
               ),
+            children: [
+              {
+                path: "cards",
+                name: "admin-payroll-payslip-cards",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/payslip/PayslipCardsView.vue"
+                  ),
+              },
+              {
+                path: "cutoff-summary",
+                name: "admin-payroll-payslip-cutoff-summary",
+                component: () =>
+                  import(
+                    "pages/administrator/payroll/panel-section/payslip/payslip-summary/CutoffSummaryTable.vue"
+                  ),
+              },
+            ],
           },
         ],
       },

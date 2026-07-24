@@ -571,6 +571,58 @@ export const useDTRStore = defineStore("dtrs", () => {
     }
   };
 
+  const updateDTRSchedule = async (data) => {
+    try {
+      const response = await api.put(`/api/updateDTRSchedule`, data);
+
+      Notify.create({
+        message: "DTR Schedule updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("updateDTRSchedule error:", error);
+
+      Notify.create({
+        message: "Failed to update DTR Schedule",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+
+      throw error;
+    }
+  };
+
+  const updateDTREmployeeAllowance = async (data) => {
+    try {
+      const response = await api.put(`/api/updateDTREmployeeAllowance`, data);
+
+      Notify.create({
+        message: "DTR Allowance updated successfully",
+        color: "positive",
+        position: "top",
+        timeout: 2000,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("updateDTREmployeeAllowance error:", error);
+
+      Notify.create({
+        message: "Failed to update DTR Allowance",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+
+      throw error;
+    }
+  };
+
   return {
     dtr,
     dtrs,
@@ -607,5 +659,7 @@ export const useDTRStore = defineStore("dtrs", () => {
     updateDTROvertimeDeclinedReasons,
     updateDTROTStatus,
     updateDTROTApprovedBy,
+    updateDTRSchedule,
+    updateDTREmployeeAllowance,
   };
 });

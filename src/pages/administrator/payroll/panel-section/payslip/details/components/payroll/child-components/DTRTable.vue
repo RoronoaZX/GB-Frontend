@@ -118,12 +118,107 @@
             }}</span>
           </template>
           <template v-else-if="col.name === 'time_in'">
-            <span
-              class="text-body2"
-              :class="getHolidayTimeInClass(rowProps.row.time_in)"
-            >
-              {{ col.field(rowProps.row) }}
-            </span>
+            <div class="row items-center justify-center q-gutter-x-xs no-wrap">
+              <span
+                class="text-body2"
+                :class="getHolidayTimeInClass(rowProps.row.time_in)"
+              >
+                {{ col.field(rowProps.row) }}
+              </span>
+              <q-btn
+                flat
+                dense
+                round
+                size="xs"
+                icon="edit"
+                color="teal"
+                @click.stop="openEditDialog(rowProps.row, 'time_in')"
+              >
+                <q-tooltip>Edit Time In</q-tooltip>
+              </q-btn>
+            </div>
+          </template>
+          <template v-else-if="col.name === 'time_out'">
+            <div class="row items-center justify-center q-gutter-x-xs no-wrap">
+              <span class="text-body2 text-grey-8">
+                {{ col.field(rowProps.row) }}
+              </span>
+              <q-btn
+                flat
+                dense
+                round
+                size="xs"
+                icon="edit"
+                color="teal"
+                @click.stop="openEditDialog(rowProps.row, 'time_out')"
+              >
+                <q-tooltip>Edit Time Out</q-tooltip>
+              </q-btn>
+            </div>
+          </template>
+          <template v-else-if="col.name === 'schedule'">
+            <div class="row items-center justify-center q-gutter-x-xs no-wrap">
+              <span class="text-body2 text-grey-8">
+                {{ col.field(rowProps.row) }}
+              </span>
+              <q-btn
+                flat
+                dense
+                round
+                size="xs"
+                icon="edit"
+                color="indigo"
+                @click.stop="openEditDialog(rowProps.row, 'schedule')"
+              >
+                <q-tooltip>Edit Schedule</q-tooltip>
+              </q-btn>
+            </div>
+          </template>
+          <template v-else-if="col.name === 'allowance'">
+            <div class="row items-center justify-center q-gutter-x-xs no-wrap">
+              <span class="text-body2 text-grey-8">
+                {{ col.field(rowProps.row) }}
+              </span>
+              <q-btn
+                flat
+                dense
+                round
+                size="xs"
+                icon="edit"
+                color="orange"
+                @click.stop="openEditDialog(rowProps.row, 'allowance')"
+              >
+                <q-tooltip>Edit Allowance</q-tooltip>
+              </q-btn>
+            </div>
+          </template>
+          <template v-else-if="col.name === 'over_time'">
+            <div class="row items-center justify-center q-gutter-x-xs no-wrap">
+              <div class="text-center">
+                <div
+                  v-if="rowProps.row.overtime_start && rowProps.row.overtime_end"
+                  class="text-caption text-weight-bold text-orange-9"
+                  style="font-size: 11px; line-height: 1.1;"
+                >
+                  {{ date.formatDate(rowProps.row.overtime_start, 'h:mm A') }} -
+                  {{ date.formatDate(rowProps.row.overtime_end, 'h:mm A') }}
+                </div>
+                <span class="text-body2 text-grey-8">
+                  {{ col.field(rowProps.row) }}
+                </span>
+              </div>
+              <q-btn
+                flat
+                dense
+                round
+                size="xs"
+                icon="edit"
+                color="orange"
+                @click.stop="openEditDialog(rowProps.row, 'overtime')"
+              >
+                <q-tooltip>Edit Overtime In/Out</q-tooltip>
+              </q-btn>
+            </div>
           </template>
           <template v-else>
             <span class="text-body2 text-grey-8">
@@ -172,11 +267,319 @@
       </q-tr>
     </template>
   </q-table>
+
+  <!-- EDIT DTR DIALOG -->
+  <q-dialog v-model="editDialog" persistent>
+    <q-card style="min-width: 350px; border-radius: 12px">
+      <q-card-section class="row items-center justify-between bg-teal text-white">
+        <div class="text-h6 text-weight-bold">
+          Edit {{ editTypeLabel }}
+        </div>
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section class="q-pt-md">
+        <template v-if="editType === 'time_in' || editType === 'time_out'">
+          <div class="q-gutter-y-md">
+            <q-input
+              outlined
+              dense
+              v-model="editDate"
+              type="date"
+              label="Select Date"
+            >
+              <template v-slot:prepend>
+                <q-icon name="event" color="teal" />
+              </template>
+            </q-input>
+
+            <q-input
+              outlined
+              dense
+              v-model="editTime"
+              type="time"
+              label="Select Time"
+            >
+              <template v-slot:prepend>
+                <q-icon name="access_time" color="teal" />
+              </template>
+            </q-input>
+          </div>
+        </template>
+
+        <template v-else-if="editType === 'schedule'">
+          <div class="q-gutter-y-md">
+            <q-input
+              outlined
+              dense
+              v-model="editScheduleIn"
+              label="Schedule In (e.g. 5:00 AM)"
+              placeholder="5:00 AM"
+            >
+              <template v-slot:prepend>
+                <q-icon name="schedule" color="indigo" />
+              </template>
+            </q-input>
+
+            <q-input
+              outlined
+              dense
+              v-model="editScheduleOut"
+              label="Schedule Out (e.g. 8:00 PM)"
+              placeholder="8:00 PM"
+            >
+              <template v-slot:prepend>
+                <q-icon name="schedule" color="indigo" />
+              </template>
+            </q-input>
+          </div>
+        </template>
+
+        <template v-else-if="editType === 'allowance'">
+          <div class="q-gutter-y-md">
+            <q-input
+              outlined
+              dense
+              v-model.number="editAllowance"
+              type="number"
+              prefix="₱"
+              label="Allowance Amount"
+              placeholder="0.00"
+            >
+              <template v-slot:prepend>
+                <q-icon name="payments" color="orange" />
+              </template>
+            </q-input>
+          </div>
+        </template>
+
+        <template v-else-if="editType === 'overtime'">
+          <div class="q-gutter-y-md">
+            <div>
+              <div class="text-subtitle2 text-weight-bold text-orange-9 q-mb-xs">
+                Overtime In (Start)
+              </div>
+              <div class="row q-col-gutter-sm">
+                <div class="col-7">
+                  <q-input
+                    outlined
+                    dense
+                    v-model="editOtInDate"
+                    type="date"
+                    label="OT In Date"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="event" color="orange" />
+                    </template>
+                  </q-input>
+                </div>
+                <div class="col-5">
+                  <q-input
+                    outlined
+                    dense
+                    v-model="editOtInTime"
+                    type="time"
+                    label="OT In Time"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="access_time" color="orange" />
+                    </template>
+                  </q-input>
+                </div>
+              </div>
+            </div>
+
+            <q-separator />
+
+            <div>
+              <div class="text-subtitle2 text-weight-bold text-orange-9 q-mb-xs">
+                Overtime Out (End)
+              </div>
+              <div class="row q-col-gutter-sm">
+                <div class="col-7">
+                  <q-input
+                    outlined
+                    dense
+                    v-model="editOtOutDate"
+                    type="date"
+                    label="OT Out Date"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="event" color="orange" />
+                    </template>
+                  </q-input>
+                </div>
+                <div class="col-5">
+                  <q-input
+                    outlined
+                    dense
+                    v-model="editOtOutTime"
+                    type="time"
+                    label="OT Out Time"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="access_time" color="orange" />
+                    </template>
+                  </q-input>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-pa-md bg-grey-1">
+        <q-btn flat label="Cancel" color="grey-8" v-close-popup />
+        <q-btn
+          unelevated
+          label="Save Changes"
+          color="teal"
+          :loading="saving"
+          @click="saveEdit"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, watch, computed, onMounted } from "vue";
 import { date } from "quasar";
+import { useDTRStore } from "src/stores/dtr";
+
+const dtrStore = useDTRStore();
+
+const editDialog = ref(false);
+const editType = ref("");
+const selectedRow = ref(null);
+const editDate = ref("");
+const editTime = ref("");
+const editScheduleIn = ref("");
+const editScheduleOut = ref("");
+const editAllowance = ref(0);
+const editOtInDate = ref("");
+const editOtInTime = ref("");
+const editOtOutDate = ref("");
+const editOtOutTime = ref("");
+const saving = ref(false);
+
+const editTypeLabel = computed(() => {
+  if (editType.value === "time_in") return "Time In";
+  if (editType.value === "time_out") return "Time Out";
+  if (editType.value === "schedule") return "Schedule";
+  if (editType.value === "allowance") return "Allowance";
+  if (editType.value === "overtime") return "Overtime In & Out";
+  return "";
+});
+
+const openEditDialog = (row, type) => {
+  selectedRow.value = row;
+  editType.value = type;
+
+  if (type === "time_in" || type === "time_out") {
+    const rawVal = row[type];
+    const d = rawVal ? new Date(rawVal) : new Date();
+    editDate.value = date.formatDate(d, "YYYY-MM-DD");
+    editTime.value = date.formatDate(d, "HH:mm");
+  } else if (type === "schedule") {
+    editScheduleIn.value = row.schedule_in || "5:00 AM";
+    editScheduleOut.value = row.schedule_out || "8:00 PM";
+  } else if (type === "allowance") {
+    editAllowance.value = parseFloat(row.employee_allowance || 0);
+  } else if (type === "overtime") {
+    const otInObj = row.overtime_start
+      ? new Date(row.overtime_start)
+      : (row.time_in ? new Date(row.time_in) : new Date());
+
+    const otOutObj = row.overtime_end
+      ? new Date(row.overtime_end)
+      : otInObj;
+
+    editOtInDate.value = date.formatDate(otInObj, "YYYY-MM-DD");
+    editOtInTime.value = date.formatDate(otInObj, "HH:mm");
+    editOtOutDate.value = date.formatDate(otOutObj, "YYYY-MM-DD");
+    editOtOutTime.value = date.formatDate(otOutObj, "HH:mm");
+  }
+
+  editDialog.value = true;
+};
+
+const saveEdit = async () => {
+  if (!selectedRow.value) return;
+  saving.value = true;
+  const targetId = selectedRow.value.dtr_id || selectedRow.value.id;
+
+  try {
+    if (editType.value === "time_in" || editType.value === "time_out") {
+      const combinedStr = `${editDate.value}T${editTime.value}:00`;
+      const parsedDate = new Date(combinedStr);
+      const formattedForApi = date.formatDate(parsedDate, "MMM. DD, YYYY, h:mm A");
+
+      if (editType.value === "time_in") {
+        await dtrStore.updateDTRTimeIN({ id: targetId, time_in: formattedForApi });
+        selectedRow.value.time_in = parsedDate.toISOString();
+      } else {
+        await dtrStore.updateDTRTimeOUT({ id: targetId, time_out: formattedForApi });
+        selectedRow.value.time_out = parsedDate.toISOString();
+      }
+    } else if (editType.value === "schedule") {
+      const formatTimeStr = (tStr) => {
+        if (!tStr) return "";
+        if (tStr.includes("AM") || tStr.includes("PM")) return tStr;
+        const dummyDate = new Date(`2000-01-01T${tStr}`);
+        return isNaN(dummyDate.getTime()) ? tStr : date.formatDate(dummyDate, "h:mm A");
+      };
+
+      const schedIn = formatTimeStr(editScheduleIn.value);
+      const schedOut = formatTimeStr(editScheduleOut.value);
+
+      await dtrStore.updateDTRSchedule({
+        id: targetId,
+        schedule_in: schedIn,
+        schedule_out: schedOut,
+      });
+
+      selectedRow.value.schedule_in = schedIn;
+      selectedRow.value.schedule_out = schedOut;
+    } else if (editType.value === "allowance") {
+      await dtrStore.updateDTREmployeeAllowance({
+        id: targetId,
+        employee_allowance: editAllowance.value,
+      });
+
+      selectedRow.value.employee_allowance = editAllowance.value;
+    } else if (editType.value === "overtime") {
+      const otInCombined = `${editOtInDate.value}T${editOtInTime.value}:00`;
+      const otOutCombined = `${editOtOutDate.value}T${editOtOutTime.value}:00`;
+
+      const parsedOtIn = new Date(otInCombined);
+      const parsedOtOut = new Date(otOutCombined);
+
+      const formattedOtInForApi = date.formatDate(parsedOtIn, "MMM. DD, YYYY, h:mm A");
+      const formattedOtOutForApi = date.formatDate(parsedOtOut, "MMM. DD, YYYY, h:mm A");
+
+      await dtrStore.updatedDTROvertimeStart({
+        id: targetId,
+        overtime_start: formattedOtInForApi,
+      });
+
+      await dtrStore.updatedDTROvertimeEnd({
+        id: targetId,
+        overtime_end: formattedOtOutForApi,
+      });
+
+      selectedRow.value.overtime_start = parsedOtIn.toISOString();
+      selectedRow.value.overtime_end = parsedOtOut.toISOString();
+      selectedRow.value.ot_status = "approved";
+    }
+
+    editDialog.value = false;
+  } catch (error) {
+    console.error("Save DTR edit failed:", error);
+  } finally {
+    saving.value = false;
+  }
+};
 
 const props = defineProps(["dtrRows", "employeeData", "dtrHolidays"]);
 /* console.log("dtrHolidaysssss", props.dtrHolidays); */
@@ -623,8 +1026,8 @@ const calculateRowTimes = (row) => {
     nightDifferentialMinutes += Math.max(0, rawNDMinutes - ndBreakMinutes);
   }
 
-  // Calculate ND for approved Overtime period:
-  if (row.ot_status === "approved" && row.overtime_start && row.overtime_end) {
+  // Calculate ND for Overtime period:
+  if (row.ot_status !== "declined" && row.overtime_start && row.overtime_end) {
     const otIn = new Date(row.overtime_start);
     const otOut = new Date(row.overtime_end);
 

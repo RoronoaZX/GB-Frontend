@@ -96,7 +96,7 @@
       </q-route-tab>
 
       <!-- Administration Tab -->
-      <q-route-tab :to="{ name: 'admin-payroll-payslip' }" name="payslip" exact>
+      <q-route-tab :to="{ name: 'admin-payroll-payslip' }" name="payslip">
         <div class="q-pa-sm q-gutter-sm flex flex-column items-center">
           <q-icon
             name="payment"

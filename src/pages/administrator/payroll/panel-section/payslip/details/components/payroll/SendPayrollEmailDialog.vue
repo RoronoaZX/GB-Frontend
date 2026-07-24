@@ -115,14 +115,20 @@ import { api } from "src/boot/axios";
 
 const props = defineProps({
   employee: Object,
+  initialPayslipId: [Number, String],
 });
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 const $q = useQuasar();
 
-const email = ref(props.employee?.personal_email || "");
+const email = ref(
+  props.employee?.personal_email ||
+  props.employee?.email ||
+  props.employee?.user_designation?.email ||
+  ""
+);
 const saveEmail = ref(true);
-const selectedPayslip = ref(null);
+const selectedPayslip = ref(props.initialPayslipId ? Number(props.initialPayslipId) : null);
 const payslipOptions = ref([]);
 
 const loadingPayslips = ref(true);
@@ -155,7 +161,9 @@ const fetchEmployeePayslips = async () => {
       value: payslip.id
     }));
 
-    if (payslipOptions.value.length > 0) {
+    if (props.initialPayslipId && payslipOptions.value.some(opt => opt.value == props.initialPayslipId)) {
+      selectedPayslip.value = Number(props.initialPayslipId);
+    } else if (payslipOptions.value.length > 0) {
       selectedPayslip.value = payslipOptions.value[0].value; // Default to latest payslip
     }
   } catch (error) {
