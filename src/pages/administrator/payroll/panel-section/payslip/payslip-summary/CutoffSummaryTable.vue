@@ -175,7 +175,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in filteredSummary" :key="row.id" class="summary-row">
+            <tr v-for="row in paginatedSummary" :key="row.id" class="summary-row">
               <td class="text-left font-weight-bold text-slate-8">
                 {{ formatFullname(row.employee) }}
               </td>
@@ -256,6 +256,52 @@
             </tr>
           </tfoot>
         </table>
+
+        <!-- Pagination Footer Controls Bar -->
+        <div
+          v-if="filteredSummary.length > 0"
+          class="row items-center justify-between q-pa-md bg-grey-1 border-t"
+        >
+          <div class="text-caption text-grey-8 flex items-center q-gutter-x-xs">
+            <span>Showing</span>
+            <span class="text-weight-bold text-teal-9">{{ showingFrom }}</span>
+            <span>to</span>
+            <span class="text-weight-bold text-teal-9">{{ showingTo }}</span>
+            <span>of</span>
+            <span class="text-weight-bold text-teal-9">{{ filteredSummary.length }}</span>
+            <span>employees</span>
+          </div>
+
+          <div class="flex items-center q-gutter-md">
+            <q-pagination
+              v-model="currentPage"
+              :max="totalPages"
+              :max-pages="6"
+              boundary-numbers
+              direction-links
+              flat
+              color="grey-7"
+              active-color="teal-8"
+              active-text-color="white"
+              size="sm"
+            />
+
+            <div class="flex items-center q-gutter-x-xs">
+              <span class="text-caption text-grey-8 text-weight-medium">Rows per page:</span>
+              <q-select
+                outlined
+                dense
+                options-dense
+                v-model="paginationRowsPerPage"
+                :options="rowsPerPageOptions"
+                emit-value
+                map-options
+                style="width: 85px"
+                class="bg-white rounded-borders"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </q-card>
 
@@ -518,7 +564,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { usePayslipStore } from "src/stores/payslip";
 import { useBranchesStore } from "src/stores/branch";
 import { useWarehousesStore } from "src/stores/warehouse";
@@ -542,6 +588,17 @@ const periodOptions = ref([]);
 const selectedPeriod = ref(null);
 const filterQuery = ref("");
 const summaryData = ref([]);
+
+// Pagination State
+const currentPage = ref(1);
+const paginationRowsPerPage = ref(15);
+const rowsPerPageOptions = [
+  { label: "15", value: 15 },
+  { label: "25", value: 25 },
+  { label: "50", value: 50 },
+  { label: "100", value: 100 },
+  { label: "All", value: 0 },
+];
 
 // PDF State
 const pdfDialog = ref(false);
@@ -910,6 +967,39 @@ const filteredSummary = computed(() => {
   return filtered;
 });
 
+// Computed Total Pages
+const totalPages = computed(() => {
+  if (paginationRowsPerPage.value === 0) return 1;
+  return Math.ceil(filteredSummary.value.length / paginationRowsPerPage.value) || 1;
+});
+
+// Computed Paginated Data Slice
+const paginatedSummary = computed(() => {
+  const list = filteredSummary.value || [];
+  if (paginationRowsPerPage.value === 0) return list;
+  const start = (currentPage.value - 1) * paginationRowsPerPage.value;
+  return list.slice(start, start + paginationRowsPerPage.value);
+});
+
+// Computed Range Display Text
+const showingFrom = computed(() => {
+  if (filteredSummary.value.length === 0) return 0;
+  if (paginationRowsPerPage.value === 0) return 1;
+  return (currentPage.value - 1) * paginationRowsPerPage.value + 1;
+});
+
+const showingTo = computed(() => {
+  if (filteredSummary.value.length === 0) return 0;
+  if (paginationRowsPerPage.value === 0) return filteredSummary.value.length;
+  const end = currentPage.value * paginationRowsPerPage.value;
+  return Math.min(end, filteredSummary.value.length);
+});
+
+// Reset page to 1 whenever search query, period, establishment or page size changes
+watch([filterQuery, selectedPeriod, () => payslipStore.selectedEstablishment, paginationRowsPerPage], () => {
+  currentPage.value = 1;
+});
+
 // Computed Grand Totals
 const grandTotals = computed(() => {
   const totals = {
@@ -1132,7 +1222,11 @@ const generatePdfDocDefinition = () => {
           hLineWidth: (i, node) => (i === 0 || i === 1 || i === node.table.body.length - 1 || i === node.table.body.length) ? 1.2 : 0.5,
           vLineWidth: () => 0.5,
           vLineColor: () => "#cbd5e1",
-          hLineColor: (i, node) => (i === 0 || i === 1 || i === node.table.body.length - 1 || i === node.table.body.length) ? "#475569" : "#e2e8f0"
+          hLineColor: (i, node) => (i === 0 || i === 1 || i === node.table.body.length - 1 || i === node.table.body.length) ? "#475569" : "#e2e8f0",
+          paddingLeft: () => 4,
+          paddingRight: () => 4,
+          paddingTop: () => 3,
+          paddingBottom: () => 3
         },
         margin: [0, 0, 0, 15]
       },
@@ -1167,11 +1261,11 @@ const generatePdfDocDefinition = () => {
       }
     ],
     styles: {
-      tableHeader: { fontSize: 6.5, bold: true, color: "#ffffff", fillColor: "#1e293b", margin: [0, 2, 0, 2] },
-      tableCell: { fontSize: 6.5, margin: [0, 2, 0, 2] },
-      tableCellAmount: { fontSize: 6.5, alignment: "right", margin: [0, 2, 0, 2] },
-      tableTotalHeader: { fontSize: 7, bold: true, color: "#0f172a", margin: [0, 3, 0, 3] },
-      tableTotalCell: { fontSize: 7, bold: true, color: "#0f172a", margin: [0, 3, 0, 3] }
+      tableHeader: { fontSize: 6.5, bold: true, color: "#ffffff", fillColor: "#1e293b", margin: [4, 3, 4, 3] },
+      tableCell: { fontSize: 6.5, margin: [4, 2.5, 4, 2.5] },
+      tableCellAmount: { fontSize: 6.5, alignment: "right", margin: [4, 2.5, 4, 2.5] },
+      tableTotalHeader: { fontSize: 7, bold: true, color: "#0f172a", margin: [4, 3.5, 4, 3.5] },
+      tableTotalCell: { fontSize: 7, bold: true, color: "#0f172a", margin: [4, 3.5, 4, 3.5] }
     }
   };
 };

@@ -666,7 +666,7 @@ const calculateNightDifferentialMinutes = (inTime, outTime) => {
   const startShift = new Date(inTime);
   const endShift = new Date(outTime);
 
-  let currentDay = date.startOfDate(startShift);
+  let currentDay = date.subtractFromDate(date.startOfDate(startShift), { days: 1 });
 
   while (currentDay < endShift) {
     // Define the ND window for the *current calendar day*
@@ -997,7 +997,7 @@ const calculateRowTimes = (row) => {
     const ndEnd = new Date(regularWorkEnd);
 
     let rawNDMinutes = calculateNightDifferentialMinutes(ndStart, ndEnd);
-    // Subtract any break time that overlaps with the ND period
+    // Subtract any break time that overlaps with the ND period (10 PM to 6 AM)
     const ndBreakMinutes = (() => {
       let total = 0;
 
@@ -1011,13 +1011,8 @@ const calculateRowTimes = (row) => {
           const bStart = new Date(period.start);
           const bEnd = new Date(period.end);
 
-          if (bStart < bEnd) {
-            const overlapStart = Math.max(bStart.getTime(), ndStart.getTime());
-            const overlapEnd = Math.min(bEnd.getTime(), ndEnd.getTime());
-
-            if (overlapEnd > overlapStart) {
-              total += Math.floor((overlapEnd - overlapStart) / (1000 * 60));
-            }
+          if (!isNaN(bStart.getTime()) && !isNaN(bEnd.getTime()) && bEnd > bStart) {
+            total += calculateNightDifferentialMinutes(bStart, bEnd);
           }
         }
       }

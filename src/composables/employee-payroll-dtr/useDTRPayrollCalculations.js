@@ -88,6 +88,42 @@ const parseTimeToDate = (timeString, baseDate) => {
   return newDate;
 };
 
+/**
+ * Calculates night differential minutes for a given time window (10 PM to 6 AM).
+ */
+const calculateNightDifferentialMinutes = (inTime, outTime) => {
+  if (!inTime || !outTime || inTime >= outTime) return 0;
+
+  let totalNightDiffMinutes = 0;
+  const startShift = new Date(inTime);
+  const endShift = new Date(outTime);
+
+  let currentDay = date.subtractFromDate(date.startOfDate(startShift), { days: 1 });
+
+  while (currentDay < endShift) {
+    let ndStart = new Date(currentDay);
+    ndStart.setHours(NIGHT_DIFF_START_HOUR, 0, 0, 0);
+
+    let ndEnd = new Date(currentDay);
+    ndEnd.setHours(NIGHT_DIFF_END_HOUR, 0, 0, 0);
+
+    if (ndEnd <= ndStart) {
+      ndEnd = date.addToDate(ndEnd, { days: 1 });
+    }
+
+    const intersectionStart = Math.max(startShift.getTime(), ndStart.getTime());
+    const intersectionEnd = Math.min(endShift.getTime(), ndEnd.getTime());
+
+    if (intersectionEnd > intersectionStart) {
+      totalNightDiffMinutes += Math.floor((intersectionEnd - intersectionStart) / (1000 * 60));
+    }
+
+    currentDay = date.addToDate(currentDay, { days: 1 });
+  }
+
+  return totalNightDiffMinutes;
+};
+
 // --- Main Composable Function ---
 
 export function useDtrCalculations(props) {
@@ -218,6 +254,35 @@ export function useDtrCalculations(props) {
         }
       }
 
+      // Night Differential Calculation
+      const regularWorkStart = Math.max(actualIn.getTime(), scheduledIn.getTime());
+      const regularWorkEnd = Math.min(actualOut.getTime(), scheduledOut.getTime());
+      let nightDiffMinutes = 0;
+      if (regularWorkEnd > regularWorkStart) {
+        const rawNDMinutes = calculateNightDifferentialMinutes(
+          new Date(regularWorkStart),
+          new Date(regularWorkEnd)
+        );
+        const ndBreakMinutes = (() => {
+          let total = 0;
+          const breakPeriods = [
+            { start: row.lunch_break_start, end: row.lunch_break_end },
+            { start: row.break_start, end: row.break_end },
+          ];
+          for (const period of breakPeriods) {
+            if (period.start && period.end) {
+              const bStart = new Date(period.start);
+              const bEnd = new Date(period.end);
+              if (!isNaN(bStart.getTime()) && !isNaN(bEnd.getTime()) && bEnd > bStart) {
+                total += calculateNightDifferentialMinutes(bStart, bEnd);
+              }
+            }
+          }
+          return total;
+        })();
+        nightDiffMinutes = Math.max(0, rawNDMinutes - ndBreakMinutes);
+      }
+
       const holidayType =
         holidaysMap.value.get(date.formatDate(actualIn, "YYYY-MM-DD")) || null;
 
@@ -228,13 +293,14 @@ export function useDtrCalculations(props) {
         workingMinutes,
         undertimeMinutes,
         overtimeMinutes,
-        nightDiffMinutes: 0, // Placeholder for night diff logic if needed
+        nightDiffMinutes,
         breakMinutes,
         holidayType,
         // Pre-formatted strings for easy display
         workingHoursFormatted: formatMinutesToHours(workingMinutes),
         undertimeFormatted: formatMinutesToHours(undertimeMinutes),
         overtimeFormatted: formatMinutesToHours(overtimeMinutes),
+        nightDiffFormatted: formatMinutesToHours(nightDiffMinutes),
         breakFormatted: formatMinutesToHours(breakMinutes),
         allowanceFormatted: formatCurrency(row.employee_allowance),
         scheduleFormatted: `${row.schedule_in} - ${row.schedule_out}`,
@@ -300,6 +366,7 @@ export function useDtrCalculations(props) {
       working: 0,
       undertime: 0,
       overtime: 0,
+      nightDiff: 0,
       break: 0,
       present: 0,
       late: 0,
@@ -312,6 +379,7 @@ export function useDtrCalculations(props) {
       totals.working += row.workingMinutes;
       totals.undertime += row.undertimeMinutes;
       totals.overtime += row.overtimeMinutes;
+      totals.nightDiff += row.nightDiffMinutes;
       totals.break += row.breakMinutes;
       totals.allowance += parseFloat(row.employee_allowance || 0);
 
@@ -329,6 +397,7 @@ export function useDtrCalculations(props) {
       totalWorking: totals.working,
       totalUndertime: totals.undertime,
       totalOvertime: totals.overtime,
+      totalNightDifferential: totals.nightDiff,
       totalBreak: totals.break,
       totalPresentDays: totals.present,
       totalLateDays: totals.late,
@@ -348,8 +417,7 @@ export function useDtrCalculations(props) {
     totalUndertime: formatMinutesToHours(grandTotals.value.totalUndertime),
     totalOvertime: formatMinutesToHours(grandTotals.value.totalOvertime),
     totalBreak: formatMinutesToHours(grandTotals.value.totalBreak),
-    // Night differential can be added here if implemented
-    totalNightDifferential: "—",
+    totalNightDifferential: formatMinutesToHours(grandTotals.value.totalNightDifferential),
   }));
 
   // Return all the reactive properties that the component will need.
