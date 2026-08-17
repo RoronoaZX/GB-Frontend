@@ -128,9 +128,8 @@ const props = defineProps({
   },
 });
 
-/* console.log("props", props.category); */
-
 const filter = ref("");
+const route = useRoute();
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
@@ -142,10 +141,10 @@ const { formatDate, formatTime, formatFullname, capitalizeFirstLetter } =
 const salesReportsStore = useSalesReportsStore();
 const userData = computed(() => salesReportsStore.user);
 
-/* console.log("userData", userData.value); */
-
 const branchId = computed(
   () =>
+    route.params.branch_id ||
+    route.params.id ||
     userData.value?.device?.reference_id ||
     userData.value?.device?.reference?.id ||
     ""
@@ -155,7 +154,7 @@ const $q = useQuasar();
 
 const pagination = ref({
   page: 1,
-  rowsPerPage: 0,
+  rowsPerPage: 10,
   rowsNumber: 0,
 });
 
@@ -167,44 +166,49 @@ const branchProductsStore = useBranchProductsStore();
 const branchProducts = computed(() => branchProductsStore.branchSendAddedProd);
 
 const rows = ref([]);
-
 const loading = ref(false);
 
-const fetchASBranchProd = async (page = 0, rowsPerPage = 5, search = "") => {
+const fetchASBranchProd = async (page = 1, rowsPerPage = 10, search = "") => {
   if (!branchId.value) return;
   loading.value = true;
   try {
-    const response = await branchProductsStore.fetchSendAddedBranchProducts(
+    const p = Math.max(1, parseInt(page) || 1);
+    const rpp = Math.max(1, parseInt(rowsPerPage) || 10);
+
+    await branchProductsStore.fetchSendAddedBranchProducts(
       props.category,
       branchId.value,
-      page,
-      rowsPerPage,
+      p,
+      rpp,
       search
     );
 
-    const { data, current_page, per_page, total } = branchProducts.value;
+    const { data, current_page, per_page, total } = branchProducts.value || {};
 
-    /* console.log("branchProducts.value", branchProducts.value); */
-
-    /* console.log("data", data); */
-
-    rows.value = data;
-
-    /* console.log("rows.value", rows.value); */
+    rows.value = data || [];
     pagination.value = {
-      page: current_page,
-      rowsPerPage: per_page,
-      rowsNumber: total,
+      page: current_page || 1,
+      rowsPerPage: per_page || 10,
+      rowsNumber: total || 0,
     };
   } catch (err) {
     console.error("Failed to load branch products:", err);
-    // → you can show $q.notify here
   } finally {
     loading.value = false;
   }
 };
 
-onMounted(fetchASBranchProd);
+onMounted(() => {
+  fetchASBranchProd(1, 10, filter.value);
+});
+
+watch(
+  () => [props.category, branchId.value],
+  () => {
+    pagination.value.page = 1;
+    fetchASBranchProd(1, pagination.value.rowsPerPage || 10, filter.value);
+  }
+);
 
 const handleRequest = (props) => {
   fetchASBranchProd(
@@ -217,8 +221,8 @@ const handleRequest = (props) => {
 watch(filter, async (newVal) => {
   pagination.value.page = 1;
   await fetchASBranchProd(
-    pagination.value.page,
-    pagination.value.rowsPerPage,
+    1,
+    pagination.value.rowsPerPage || 10,
     newVal
   );
 });
