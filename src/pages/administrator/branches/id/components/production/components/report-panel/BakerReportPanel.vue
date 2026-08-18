@@ -189,6 +189,17 @@
         </q-card>
       </div>
     </q-dialog>
+
+    <!-- PDF Download Password Confirmation Dialog -->
+    <PasswordAuthDialog
+      v-model="passwordConfirmDialog"
+      :label="passwordConfirmTarget?.label"
+      :description="passwordConfirmTarget?.description"
+      v-model:password="passwordConfirmInput"
+      v-model:showPassword="passwordConfirmShow"
+      :loading="passwordConfirmLoading"
+      @confirm="handlePasswordConfirmSubmit"
+    />
   </div>
 </template>
 
@@ -197,6 +208,8 @@ import { ref, computed } from "vue";
 import { date, useQuasar } from "quasar";
 import BreadView from "./baker-report/BreadView.vue";
 import IngredientsView from "./baker-report/IngredientsView.vue";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import EditBakersReport from "./baker-report/EditBakersReport.vue";
@@ -227,6 +240,16 @@ const pagination = ref({
   rowsPerPage: 0,
 });
 
+const {
+  passwordConfirmDialog,
+  passwordConfirmInput,
+  passwordConfirmShow,
+  passwordConfirmLoading,
+  passwordConfirmTarget,
+  promptPasswordConfirm,
+  handlePasswordConfirmSubmit,
+} = usePasswordConfirm();
+
 const pdfUrl = ref("");
 const currentReport = ref(null);
 const currentDocDefinition = ref(null);
@@ -241,13 +264,31 @@ const triggerDownload = () => {
       ? date.formatDate(currentReport.value.created_at, "YYYY-MM-DD")
       : date.formatDate(new Date(), "YYYY-MM-DD");
     const filename = `Baker_Report_${bakerName.replace(/\s+/g, "_")}_${recipeName.replace(/\s+/g, "_")}_${dateStr}.pdf`;
-    pdfMake.createPdf(currentDocDefinition.value).download(filename);
+
+    promptPasswordConfirm({
+      label: `Baker Production Report PDF (${bakerName} - ${recipeName})`,
+      description: "Please enter your admin password to authorize downloading the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition.value).download(filename);
+      },
+    });
   }
 };
 
 const triggerPhysicalPrint = () => {
   if (currentDocDefinition.value) {
-    pdfMake.createPdf(currentDocDefinition.value).print();
+    const bakerName = currentReport.value?.user?.employee 
+      ? formatFullname(currentReport.value.user.employee) 
+      : (currentReport.value?.user?.name || "Baker");
+    const recipeName = currentReport.value?.recipe?.name || "Recipe";
+
+    promptPasswordConfirm({
+      label: `Baker Production Report (Print - ${bakerName} - ${recipeName})`,
+      description: "Please enter your admin password to authorize printing the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition.value).print();
+      },
+    });
   }
 };
 const $q = useQuasar();
@@ -625,6 +666,62 @@ const generateDocDefinition = (bakerReport) => {
           summaryTable,
         ],
       },
+      {
+        margin: [0, 25, 0, 0],
+        unbreakable: true,
+        table: {
+          widths: ["32%", "34%", "34%"],
+          body: [
+            [
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 8, 6, 8],
+                stack: [
+                  { text: "PREPARED BY (BAKER):", fontSize: 7, bold: true, color: "#475569" },
+                  { text: (bakerReport?.user?.employee ? formatFullname(bakerReport.user.employee) : (bakerReport?.user?.name || "Baker")).toUpperCase(), fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 10, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+                  { text: `Position: ${bakerReport?.user?.employee?.position || bakerReport?.user?.employee?.designation || 'Master Baker'}`, fontSize: 6.5, color: "#334155" },
+                  { text: `Date: ${formatDate(bakerReport.created_at)}`, fontSize: 6.5, color: "#64748b" }
+                ]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 8, 6, 8],
+                stack: [
+                  { text: "CHECKED & VERIFIED BY:", fontSize: 7, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 10, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+                  { text: "Position: Branch Supervisor", fontSize: 6.5, color: "#334155" },
+                  { text: "Date: ________________________", fontSize: 6.5, color: "#64748b" }
+                ]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 8, 6, 8],
+                stack: [
+                  { text: "APPROVED BY (ADMIN / OWNER):", fontSize: 7, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 10, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+                  { text: "Position: General Manager / Admin", fontSize: 6.5, color: "#334155" },
+                  { text: "Date: ________________________", fontSize: 6.5, color: "#64748b" }
+                ]
+              }
+            ]
+          ]
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => "#cbd5e1",
+          vLineColor: () => "#cbd5e1"
+        }
+      }
     ],
     styles: {
       header: { fontSize: 16, bold: true },

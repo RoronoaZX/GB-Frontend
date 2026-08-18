@@ -130,13 +130,25 @@
             </div>
           </q-card-section>
         </q-card>
-      </div>
     </div>
+
+    <!-- PDF Download Password Confirmation Dialog -->
+    <PasswordAuthDialog
+      v-model="passwordConfirmDialog"
+      :label="passwordConfirmTarget?.label"
+      :description="passwordConfirmTarget?.description"
+      v-model:password="passwordConfirmInput"
+      v-model:showPassword="passwordConfirmShow"
+      :loading="passwordConfirmLoading"
+      @confirm="handlePasswordConfirmSubmit"
+    />
   </div>
 </template>
 
 <script setup>
 import { typographyFormat } from "src/composables/typography/typography-format";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
 import BulkRecipeCostEdit from "./BulkRecipeCostEdit.vue";
 import { ref, computed } from "vue";
 
@@ -162,6 +174,15 @@ const flattenedCosts = computed(() => {
 });
 
 const { formatPrice, formatTimestamp } = typographyFormat();
+const {
+  passwordConfirmDialog,
+  passwordConfirmInput,
+  passwordConfirmShow,
+  passwordConfirmLoading,
+  passwordConfirmTarget,
+  promptPasswordConfirm,
+  handlePasswordConfirmSubmit,
+} = usePasswordConfirm();
 
 const exportCSV = () => {
   const rows = props.metrics.recentChanges;
@@ -193,38 +214,44 @@ const exportPDF = () => {
   const rows = props.metrics.recentChanges;
   if (!rows || rows.length === 0) return;
 
-  const docDefinition = {
-    content: [
-      { text: "Recipe Cost Adjustment History", style: "header" },
-      { text: `Generated on: ${new Date().toLocaleString()}`, margin: [0, 0, 0, 20] },
-      {
-        table: {
-          headerRows: 1,
-          widths: ["*", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            ["Recipe", "Field", "Old", "New", "By", "Date"],
-            ...rows.map(r => [
-              r.recipe_name,
-              formatField(r.changed_field, r.unit),
-              r.old_value,
-              r.new_value,
-              r.changed_by,
-              formatTimestamp(r.date)
-            ])
-          ]
+  promptPasswordConfirm({
+    label: "Recipe Cost History PDF",
+    description: "Please enter your admin password to authorize downloading the confidential",
+    onConfirm: () => {
+      const docDefinition = {
+        content: [
+          { text: "Recipe Cost Adjustment History", style: "header" },
+          { text: `Generated on: ${new Date().toLocaleString()}`, margin: [0, 0, 0, 20] },
+          {
+            table: {
+              headerRows: 1,
+              widths: ["*", "auto", "auto", "auto", "auto", "auto"],
+              body: [
+                ["Recipe", "Field", "Old", "New", "By", "Date"],
+                ...rows.map(r => [
+                  r.recipe_name,
+                  formatField(r.changed_field, r.unit),
+                  r.old_value,
+                  r.new_value,
+                  r.changed_by,
+                  formatTimestamp(r.date)
+                ])
+              ]
+            }
+          }
+        ],
+        styles: {
+          header: { fontSize: 18, bold: true, marginBottom: 10 }
         }
-      }
-    ],
-    styles: {
-      header: { fontSize: 18, bold: true, marginBottom: 10 }
-    }
-  };
-  
-  import("pdfmake/build/pdfmake").then((pdfMake) => {
-    import("pdfmake/build/vfs_fonts").then((pdfFonts) => {
-      pdfMake.default.vfs = pdfFonts.default.vfs;
-      pdfMake.default.createPdf(docDefinition).download(`recipe_cost_history_${new Date().getTime()}.pdf`);
-    });
+      };
+      
+      import("pdfmake/build/pdfmake").then((pdfMake) => {
+        import("pdfmake/build/vfs_fonts").then((pdfFonts) => {
+          pdfMake.default.vfs = pdfFonts.default.vfs;
+          pdfMake.default.createPdf(docDefinition).download(`recipe_cost_history_${new Date().getTime()}.pdf`);
+        });
+      });
+    },
   });
 };
 

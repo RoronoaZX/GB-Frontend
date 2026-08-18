@@ -342,12 +342,26 @@
         </q-card>
       </div>
     </q-dialog>
+
+    <!-- PDF Download Password Confirmation Dialog -->
+    <PasswordAuthDialog
+      v-model="passwordConfirmDialog"
+      :label="passwordConfirmTarget?.label"
+      :description="passwordConfirmTarget?.description"
+      v-model:password="passwordConfirmInput"
+      v-model:showPassword="passwordConfirmShow"
+      :loading="passwordConfirmLoading"
+      @confirm="handlePasswordConfirmSubmit"
+    />
   </q-page>
 </template>
 
 <script setup>
 import { onMounted, computed, ref } from "vue";
 import { useDashboardStore } from "src/stores/dashboard";
+import { useUsersStore } from "src/stores/user";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
 import AdminDashboardCards from "./components/AdminDashboardCards.vue";
 import AdminChartWidgets from "./components/AdminChartWidgets.vue";
 import AdminWasteTrackerWidget from "./components/AdminWasteTrackerWidget.vue";
@@ -364,9 +378,56 @@ import * as pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.default;
 
 const dashboardStore = useDashboardStore();
+const usersStore = useUsersStore();
+const {
+  passwordConfirmDialog,
+  passwordConfirmInput,
+  passwordConfirmShow,
+  passwordConfirmLoading,
+  passwordConfirmTarget,
+  promptPasswordConfirm,
+  handlePasswordConfirmSubmit,
+} = usePasswordConfirm();
+
 const printDialog = ref(false);
 const pdfUrl = ref("");
 const chartWidgetsRef = ref(null);
+
+const getPreparedSignatory = () => {
+  const emp = usersStore.userData?.data?.employee;
+  const user = usersStore.userData?.data || usersStore.userData;
+
+  let fullName = "ADMINISTRATOR";
+  if (emp) {
+    const capitalize = (str) =>
+      str
+        ? str
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(" ")
+        : "";
+    const fn = emp.firstname ? capitalize(emp.firstname) : "";
+    const mi = emp.middlename ? `${capitalize(emp.middlename).charAt(0)}.` : "";
+    const ln = emp.lastname ? capitalize(emp.lastname) : "";
+    fullName = `${fn} ${mi} ${ln}`.trim().toUpperCase() || "ADMINISTRATOR";
+  } else if (user?.name) {
+    fullName = user.name.toUpperCase();
+  }
+
+  let position = emp?.position || emp?.designation || user?.role || localStorage.getItem("role") || "System Administrator";
+
+  return {
+    name: fullName,
+    position: position,
+    generatedAt: new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  };
+};
 
 const timeRangeText = computed(() => {
   const map = {
@@ -378,17 +439,16 @@ const timeRangeText = computed(() => {
   return map[dashboardStore.timeRange] || "Weekly";
 });
 
-// Formal PDF Generation Logic
-let currentDocDefinition = null;
-
 const openPrintDialog = () => {
-  // Capture chart canvases as base64 PNG images
   let trendChartImage = null;
   let donutChartImage = null;
 
-  if (chartWidgetsRef.value) {
-    const trendCanvas = chartWidgetsRef.value.trendChartCanvas;
-    const donutCanvas = chartWidgetsRef.value.donutChartCanvas;
+  const trendEl = document.querySelector("#salesTrendChart canvas");
+  const donutEl = document.querySelector("#salesDistributionChart canvas");
+
+  if (trendEl && donutEl) {
+    const trendCanvas = trendEl;
+    const donutCanvas = donutEl;
 
     if (trendCanvas) {
       trendChartImage = trendCanvas.toDataURL("image/png");
@@ -407,21 +467,35 @@ const openPrintDialog = () => {
 
 const triggerPhysicalPrint = () => {
   if (currentDocDefinition) {
-    pdfMake.createPdf(currentDocDefinition).print();
+    promptPasswordConfirm({
+      label: "System Analytics Report (Print)",
+      description: "Please enter your admin password to authorize printing the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition).print();
+      },
+    });
   }
 };
 
 const triggerDownload = () => {
   if (currentDocDefinition) {
-    const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10);
-    const branchLabel = dashboardStore.selectedBranch === 'global' ? 'All_Branches' : dashboardStore.selectedBranch;
-    const filename = `GB_Bakeshop_Analytics_${branchLabel}_${dateStr}.pdf`;
-    pdfMake.createPdf(currentDocDefinition).download(filename);
+    promptPasswordConfirm({
+      label: "System Analytics Report PDF",
+      description: "Please enter your admin password to authorize downloading the confidential",
+      onConfirm: () => {
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const branchLabel = dashboardStore.selectedBranch === 'global' ? 'All_Branches' : dashboardStore.selectedBranch;
+        const filename = `GB_Bakeshop_Analytics_${branchLabel}_${dateStr}.pdf`;
+        pdfMake.createPdf(currentDocDefinition).download(filename);
+      },
+    });
   }
 };
 
 const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {}) => {
+  const preparedSignatory = getPreparedSignatory();
+
   const reportDate = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
   const branchName =
@@ -1193,7 +1267,78 @@ const generateDashboardDocDefinition = ({ trendChartImage, donutChartImage } = {
         },
         margin: [0, 5, 0, 15]
       },
-      ...categorySegments
+      ...categorySegments,
+
+      // ── Document Sign-off & Accountability Section ──
+      {
+        margin: [0, 25, 0, 0],
+        unbreakable: true,
+        table: {
+          widths: ["48%", "4%", "48%"],
+          body: [
+            [
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [12, 10, 12, 10],
+                stack: [
+                  { text: "PREPARED & GENERATED BY:", fontSize: 7.5, bold: true, color: "#475569" },
+                  { text: preparedSignatory.name, fontSize: 9.5, bold: true, color: "#0f172a", margin: [0, 16, 0, 1], alignment: "center" },
+                  { text: "________________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 8] },
+                  {
+                    columns: [
+                      { text: "Position / Role:", width: 70, fontSize: 7.5, color: "#64748b" },
+                      { text: preparedSignatory.position, width: "*", fontSize: 7.5, color: "#0f172a", bold: true }
+                    ],
+                    margin: [0, 0, 0, 2]
+                  },
+                  {
+                    columns: [
+                      { text: "Date Generated:", width: 70, fontSize: 7, color: "#64748b" },
+                      { text: preparedSignatory.generatedAt, width: "*", fontSize: 7, color: "#334155" }
+                    ]
+                  }
+                ]
+              },
+              {
+                text: "",
+                border: [false, false, false, false]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [12, 10, 12, 10],
+                stack: [
+                  { text: "CHECKED / REVIEWED BY:", fontSize: 7.5, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 9.5, bold: true, color: "#0f172a", margin: [0, 16, 0, 1], alignment: "center" },
+                  { text: "________________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 8] },
+                  {
+                    columns: [
+                      { text: "Position / Role:", width: 70, fontSize: 7.5, color: "#64748b" },
+                      { text: "______________________________", width: "*", fontSize: 7.5, color: "#94a3b8" }
+                    ],
+                    margin: [0, 0, 0, 2]
+                  },
+                  {
+                    columns: [
+                      { text: "Date Inspected:", width: 70, fontSize: 7, color: "#64748b" },
+                      { text: "________________________", width: "*", fontSize: 7, color: "#94a3b8" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => "#cbd5e1",
+          vLineColor: () => "#cbd5e1"
+        }
+      }
     ],
     footer: function(currentPage, pageCount) {
       return {

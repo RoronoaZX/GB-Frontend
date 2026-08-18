@@ -150,6 +150,17 @@
       </q-card>
     </div>
   </q-dialog>
+
+  <!-- PDF Download Password Confirmation Dialog -->
+  <PasswordAuthDialog
+    v-model="passwordConfirmDialog"
+    :label="passwordConfirmTarget?.label"
+    :description="passwordConfirmTarget?.description"
+    v-model:password="passwordConfirmInput"
+    v-model:showPassword="passwordConfirmShow"
+    :loading="passwordConfirmLoading"
+    @confirm="handlePasswordConfirmSubmit"
+  />
 </template>
 
 <script setup>
@@ -160,6 +171,8 @@ import ProductsReport from "./sales-report/ProductsReport.vue";
 import DenominationReport from "./sales-report/DenominationReport.vue";
 import ExpensesReport from "./sales-report/expenses/ExpensesReport.vue";
 import CreditsReport from "./sales-report/credit/CreditsReport.vue";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { useProductionStore } from "src/stores/production";
@@ -177,6 +190,16 @@ const {
 const productionStore = useProductionStore();
 
 pdfMake.vfs = pdfFonts.default;
+
+const {
+  passwordConfirmDialog,
+  passwordConfirmInput,
+  passwordConfirmShow,
+  passwordConfirmLoading,
+  passwordConfirmTarget,
+  promptPasswordConfirm,
+  handlePasswordConfirmSubmit,
+} = usePasswordConfirm();
 
 const printPdf = (report) => {
   const docDefinition = generateDocDefinition(report);
@@ -209,13 +232,31 @@ const triggerDownload = () => {
       ? date.formatDate(currentReport.value.created_at, "YYYY-MM-DD")
       : date.formatDate(new Date(), "YYYY-MM-DD");
     const filename = `Sales_Report_${branchName.replace(/\s+/g, "_")}_${dateStr}.pdf`;
-    pdfMake.createPdf(currentDocDefinition.value).download(filename);
+
+    promptPasswordConfirm({
+      label: `Sales Report PDF (${branchName} - ${dateStr})`,
+      description: "Please enter your admin password to authorize downloading the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition.value).download(filename);
+      },
+    });
   }
 };
 
 const triggerPhysicalPrint = () => {
   if (currentDocDefinition.value) {
-    pdfMake.createPdf(currentDocDefinition.value).print();
+    const branchName = currentReport.value?.branch?.name || "Branch";
+    const dateStr = currentReport.value?.created_at 
+      ? date.formatDate(currentReport.value.created_at, "YYYY-MM-DD")
+      : date.formatDate(new Date(), "YYYY-MM-DD");
+
+    promptPasswordConfirm({
+      label: `Sales Report (Print - ${branchName} - ${dateStr})`,
+      description: "Please enter your admin password to authorize printing the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition.value).print();
+      },
+    });
   }
 };
 
@@ -887,6 +928,62 @@ const generateDocDefinition = (report) => {
         margin: [0, 20, 0, 5],
       },
       summaryTable,
+      {
+        margin: [0, 25, 0, 0],
+        unbreakable: true,
+        table: {
+          widths: ["32%", "34%", "34%"],
+          body: [
+            [
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 8, 6, 8],
+                stack: [
+                  { text: "PREPARED BY (CASHIER):", fontSize: 7, bold: true, color: "#475569" },
+                  { text: (report?.user?.employee ? formatFullname(report.user.employee) : (report?.user?.name || "Sales Lady / Cashier")).toUpperCase(), fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 10, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+                  { text: `Position: ${report?.user?.employee?.position || report?.user?.employee?.designation || 'Sales Lady / Cashier'}`, fontSize: 6.5, color: "#334155" },
+                  { text: `Date: ${formatDate(report.created_at)}`, fontSize: 6.5, color: "#64748b" }
+                ]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 8, 6, 8],
+                stack: [
+                  { text: "CHECKED & AUDITED BY:", fontSize: 7, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 10, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+                  { text: "Position: Branch Supervisor", fontSize: 6.5, color: "#334155" },
+                  { text: "Date: ________________________", fontSize: 6.5, color: "#64748b" }
+                ]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 8, 6, 8],
+                stack: [
+                  { text: "APPROVED BY (ADMIN / OWNER):", fontSize: 7, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 10, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+                  { text: "Position: General Manager / Admin", fontSize: 6.5, color: "#334155" },
+                  { text: "Date: ________________________", fontSize: 6.5, color: "#64748b" }
+                ]
+              }
+            ]
+          ]
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => "#cbd5e1",
+          vLineColor: () => "#cbd5e1"
+        }
+      }
     ],
     styles: {
       header: { fontSize: 14, bold: true },

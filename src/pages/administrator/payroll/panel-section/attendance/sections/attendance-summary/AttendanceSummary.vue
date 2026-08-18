@@ -137,11 +137,35 @@
   >
     <q-card style="width: 820px; max-width: 80vw">
       <q-card-section class="gradient-btn">
-        <div class="row justify-between text-h6 text-white">
-          <div>🗓️ Daily Time Record</div>
-          <div>
-            <q-btn rounded flat dense icon="arrow_forward_ios" v-close-popup>
-            </q-btn>
+        <div class="row justify-between items-center text-white">
+          <div class="row items-center q-gutter-sm">
+            <q-icon name="schedule" size="22px" />
+            <div class="text-subtitle1 text-weight-bold">Daily Time Record (DTR) Preview</div>
+          </div>
+          <div class="row items-center q-gutter-sm">
+            <q-btn
+              color="white"
+              text-color="dark"
+              dense
+              unelevated
+              size="sm"
+              icon="print"
+              label="Print"
+              class="q-px-sm"
+              @click="triggerPhysicalPrint"
+            />
+            <q-btn
+              color="white"
+              text-color="dark"
+              dense
+              unelevated
+              size="sm"
+              icon="download"
+              label="Download PDF"
+              class="q-px-sm"
+              @click="triggerDownload"
+            />
+            <q-btn rounded flat dense icon="close" v-close-popup />
           </div>
         </div>
       </q-card-section>
@@ -150,6 +174,17 @@
       </div>
     </q-card>
   </q-dialog>
+
+  <!-- PDF Download Password Confirmation Dialog -->
+  <PasswordAuthDialog
+    v-model="passwordConfirmDialog"
+    :label="passwordConfirmTarget?.label"
+    :description="passwordConfirmTarget?.description"
+    v-model:password="passwordConfirmInput"
+    v-model:showPassword="passwordConfirmShow"
+    :loading="passwordConfirmLoading"
+    @confirm="handlePasswordConfirmSubmit"
+  />
 </template>
 
 <script setup>
@@ -157,15 +192,65 @@ import { computed, ref, onMounted } from "vue";
 import EmployeeAttendanceDialog from "./EmployeeAttendanceDialog.vue";
 import { useEmployeeStore } from "stores/employee";
 import { useDTRStore } from "stores/dtr";
+import { useUsersStore } from "stores/user";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
 import { date } from "quasar";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
-// import * as pdfFonts from "pdfmake/build/vfs_fontes";
+
 pdfMake.vfs = pdfFonts.default;
 
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 const dtrStore = useDTRStore();
+const usersStore = useUsersStore();
+
+const {
+  passwordConfirmDialog,
+  passwordConfirmInput,
+  passwordConfirmShow,
+  passwordConfirmLoading,
+  passwordConfirmTarget,
+  promptPasswordConfirm,
+  handlePasswordConfirmSubmit,
+} = usePasswordConfirm();
+
+const getPreparedSignatory = () => {
+  const emp = usersStore.userData?.data?.employee;
+  const user = usersStore.userData?.data || usersStore.userData;
+
+  let fullName = "HR / PAYROLL OFFICER";
+  if (emp) {
+    const capitalize = (str) =>
+      str
+        ? str
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(" ")
+        : "";
+    const fn = emp.firstname ? capitalize(emp.firstname) : "";
+    const mi = emp.middlename ? `${capitalize(emp.middlename).charAt(0)}.` : "";
+    const ln = emp.lastname ? capitalize(emp.lastname) : "";
+    fullName = `${fn} ${mi} ${ln}`.trim().toUpperCase() || "HR / PAYROLL OFFICER";
+  } else if (user?.name) {
+    fullName = user.name.toUpperCase();
+  }
+
+  let position = emp?.position || emp?.designation || user?.role || localStorage.getItem("role") || "Payroll Officer";
+
+  return {
+    name: fullName,
+    position: position,
+    generatedAt: new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  };
+};
 
 // console.log("Table dtr data", dtr.value);
 const imageUrl = ref("https://cdn.quasar.dev/img/boy-avatar.png"); // Default image URL
@@ -180,6 +265,33 @@ const employeeAge = ref("");
 const STANDARD_WORK_HOURS = 8;
 const dialog = ref(false);
 const pdfUrl = ref("");
+let currentDocDefinition = null;
+
+const triggerPhysicalPrint = () => {
+  if (currentDocDefinition) {
+    promptPasswordConfirm({
+      label: `Daily Time Record (Print - ${employeeName.value || 'Employee'})`,
+      description: "Please enter your admin password to authorize printing the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition).print();
+      },
+    });
+  }
+};
+
+const triggerDownload = () => {
+  if (currentDocDefinition) {
+    promptPasswordConfirm({
+      label: `Daily Time Record PDF (${employeeName.value || 'Employee'})`,
+      description: "Please enter your admin password to authorize downloading the confidential",
+      onConfirm: () => {
+        const empSlug = (employeeName.value || "Employee").replace(/[^a-zA-Z0-9]/g, "_");
+        const filename = `GB_DTR_${empSlug}_${startDate.value}_to_${endDate.value}.pdf`;
+        pdfMake.createPdf(currentDocDefinition).download(filename);
+      },
+    });
+  }
+};
 
 // const generateDocDefinition = ()
 
@@ -462,133 +574,293 @@ const onCurrent = () => {
 initializeDateRange();
 
 const openDialog = (dtrRow) => {
-  const docDefinition = generateDocDefinition(dtrRow);
-  pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
+  currentDocDefinition = generateDocDefinition(dtrRow);
+  pdfMake.createPdf(currentDocDefinition).getDataUrl((dataUrl) => {
     pdfUrl.value = dataUrl;
     dialog.value = true;
   });
 };
 
 const generateDocDefinition = () => {
+  const preparedSignatory = getPreparedSignatory();
+
+  let totalWorkMinutes = 0;
+  let totalOtMinutes = 0;
+  let totalUnderMinutes = 0;
+  let totalDaysLogged = 0;
+
+  const tableBody = [
+    [
+      { text: "DAY", style: "tableHeader", alignment: "center" },
+      { text: "TIME IN (ARRIVAL)", style: "tableHeader", alignment: "center" },
+      { text: "TIME OUT (DEPARTURE)", style: "tableHeader", alignment: "center" },
+      { text: "HOURS WORKED", style: "tableHeader", alignment: "center" },
+      { text: "UNDERTIME", style: "tableHeader", alignment: "center" },
+      { text: "OVERTIME", style: "tableHeader", alignment: "center" },
+    ]
+  ];
+
+  dtrRow.value.forEach((entry) => {
+    if (entry.time_in && entry.time_in !== " - - - ") {
+      totalDaysLogged++;
+    }
+    if (entry.total_working_hours && entry.total_working_hours !== " - - - ") {
+      const parts = entry.total_working_hours.split(" h : ");
+      if (parts.length === 2) {
+        totalWorkMinutes += parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      }
+    }
+    if (entry.overtime && entry.overtime !== " - - - ") {
+      const parts = entry.overtime.split(" h : ");
+      if (parts.length === 2) {
+        totalOtMinutes += parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      }
+    }
+    if (entry.undertime && entry.undertime !== " - - - ") {
+      const parts = entry.undertime.split(" h : ");
+      if (parts.length === 2) {
+        totalUnderMinutes += parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      }
+    }
+
+    tableBody.push([
+      { text: entry.entry.toString(), style: "tableCell", alignment: "center" },
+      { text: entry.time_in || " - - - ", style: "tableCell", alignment: "center" },
+      { text: entry.time_out || " - - - ", style: "tableCell", alignment: "center" },
+      { text: entry.total_working_hours || " - - - ", style: "tableCell", alignment: "center", bold: true },
+      { text: entry.undertime || " - - - ", style: "tableCell", alignment: "center", color: entry.undertime && entry.undertime !== " - - - " ? "#dc2626" : "#475569" },
+      { text: entry.overtime || " - - - ", style: "tableCell", alignment: "center", color: entry.overtime && entry.overtime !== " - - - " ? "#0d9488" : "#475569", bold: entry.overtime && entry.overtime !== " - - - " }
+    ]);
+  });
+
+  const formatMinutesToHm = (totalMinutes) => {
+    const h = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+    const m = String(totalMinutes % 60).padStart(2, "0");
+    return `${h}h : ${m}m`;
+  };
+
+  // Grand totals row
+  tableBody.push([
+    { text: `TOTAL SUMMARY (${totalDaysLogged} DAYS LOGGED)`, colSpan: 3, style: "tableTotalHeader", alignment: "left" },
+    {},
+    {},
+    { text: formatMinutesToHm(totalWorkMinutes), style: "tableTotalCell", alignment: "center" },
+    { text: formatMinutesToHm(totalUnderMinutes), style: "tableTotalCell", alignment: "center", color: "#dc2626" },
+    { text: formatMinutesToHm(totalOtMinutes), style: "tableTotalCell", alignment: "center", color: "#0d9488" }
+  ]);
+
   return {
-    pageMargins: [40, 40, -10, 40],
+    pageSize: "A4",
+    pageOrientation: "portrait",
+    pageMargins: [35, 30, 35, 30],
     content: [
-      { text: "Daily Time Record", style: "header" },
+      // ── Header Banner ──
       {
-        text: [
-          { text: "From: ", bold: false, fontSize: 8 },
-          {
-            text: ` ${formatDateToCustomString(startDate.value)}`,
-            bold: true,
-            decoration: "underline",
-            fontSize: 10,
-          },
-        ],
-        margin: [0, 0, 0, 3],
-      },
-      {
-        text: [
-          { text: "To: ", bold: false, fontSize: 8 },
-          {
-            text: `     ${formatDateToCustomString(endDate.value)}`,
-            bold: true,
-            decoration: "underline",
-            fontSize: 10,
-          },
-        ],
-        margin: [0, 0, 0, 10],
-      },
-      {
-        columns: [
-          {
-            text: [
-              { text: "Employee Name:", bold: false, fontSize: 8 },
+        table: {
+          widths: ["*"],
+          body: [
+            [
               {
-                text: `  ${employeeName.value}`,
-                bold: true,
-                decoration: "underline",
-                fontSize: 10,
-              },
-            ],
-          },
-          {
-            text: [
-              { text: "Position:", bold: false, fontSize: 8 },
-              {
-                text: `  ${employeePosition.value}`,
-                bold: true,
-                decoration: "underline",
-                fontSize: 10,
-              },
-            ],
-          },
-          {
-            text: [
-              { text: "Age:", bold: false, fontSize: 8 },
-              {
-                text: `  ${employeeAge.value}`,
-                bold: true,
-                decoration: "underline",
-                fontSize: 10,
-              },
-            ],
-          },
-        ],
-        margin: [0, 0, 0, 10],
+                fillColor: "#0f172a",
+                stack: [
+                  { text: "GB BAKESHOP • DAILY TIME RECORD", color: "#ffffff", fontSize: 13, bold: true, alignment: "center", margin: [0, 6, 0, 2] },
+                  { text: "EMPLOYEE ATTENDANCE & SHIFT VERIFICATION LOG", color: "#38bdf8", fontSize: 7.5, bold: true, alignment: "center", margin: [0, 0, 0, 6] }
+                ],
+                border: [false, false, false, false]
+              }
+            ]
+          ]
+        },
+        margin: [0, 0, 0, 10]
       },
 
+      // ── Employee & Period Info Box ──
+      {
+        table: {
+          widths: ["55%", "45%"],
+          body: [
+            [
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [8, 6, 8, 6],
+                stack: [
+                  {
+                    columns: [
+                      { text: "EMPLOYEE NAME:", width: 85, fontSize: 7.5, color: "#64748b", bold: true },
+                      { text: (employeeName.value || "N/A").toUpperCase(), width: "*", fontSize: 8.5, bold: true, color: "#0f172a" }
+                    ],
+                    margin: [0, 0, 0, 3]
+                  },
+                  {
+                    columns: [
+                      { text: "POSITION / ROLE:", width: 85, fontSize: 7.5, color: "#64748b", bold: true },
+                      { text: (employeePosition.value || "N/A").toUpperCase(), width: "*", fontSize: 8, bold: true, color: "#334155" }
+                    ]
+                  }
+                ]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [8, 6, 8, 6],
+                stack: [
+                  {
+                    columns: [
+                      { text: "CUT-OFF PERIOD:", width: 80, fontSize: 7.5, color: "#64748b", bold: true },
+                      { text: `${formatDateToCustomString(startDate.value)} to ${formatDateToCustomString(endDate.value)}`, width: "*", fontSize: 8, bold: true, color: "#0f172a" }
+                    ],
+                    margin: [0, 0, 0, 3]
+                  },
+                  {
+                    columns: [
+                      { text: "REGULAR SHIFT:", width: 80, fontSize: 7.5, color: "#64748b", bold: true },
+                      { text: "8.0 Hours / Day Standard", width: "*", fontSize: 7.5, color: "#334155" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => "#cbd5e1",
+          vLineColor: () => "#cbd5e1"
+        },
+        margin: [0, 0, 0, 10]
+      },
+
+      // ── Main Log Table ──
       {
         table: {
           headerRows: 1,
-          widths: ["auto", "auto", "auto", "auto", "auto", "auto"],
-          body: [
-            [
-              { text: "Number of Days", bold: true },
-              { text: "Time In", bold: true, alignment: "center" },
-              { text: "Time Out", bold: true, alignment: "center" },
-              { text: "Total Working Hours", bold: true },
-              { text: "Undertime", bold: true },
-              { text: "Overtime", bold: true },
-            ],
-            ...dtrRow.value.map((entry) => [
-              { text: entry.entry, alignment: "center" },
-              { text: entry.time_in || " - - - ", alignment: "center" },
-              { text: entry.time_out || " - - - ", alignment: "center" },
-              {
-                text: entry.total_working_hours || " - - - ",
-                alignment: "center",
-              },
-              { text: entry.undertime || " - - - ", alignment: "center" },
-              { text: entry.overtime || " - - - ", alignment: "center" },
-            ]),
-          ],
+          widths: ["8%", "25%", "25%", "14%", "14%", "14%"],
+          body: tableBody
         },
         layout: {
-          hLineWidth: function (i, node) {
-            return i === 0 || i === node.table.body.length ? 1 : 0.5;
+          fillColor: (rowIndex) => {
+            if (rowIndex === 0) return "#1e293b";
+            if (rowIndex === tableBody.length - 1) return "#f1f5f9";
+            return rowIndex % 2 === 0 ? "#f8fafc" : "#ffffff";
           },
-          vLineWidth: function (i, node) {
-            return 0.5;
-          },
-          hLineColor: function (i, node) {
-            return i === 0 || i === node.table.body.length ? "black" : "#ccc";
-          },
-          vLineColor: function (i, node) {
-            return "#ccc";
-          },
+          hLineWidth: (i, node) => (i === 0 || i === 1 || i === node.table.body.length - 1 || i === node.table.body.length) ? 1.2 : 0.5,
+          vLineWidth: () => 0.5,
+          vLineColor: () => "#cbd5e1",
+          hLineColor: (i, node) => (i === 0 || i === 1 || i === node.table.body.length - 1 || i === node.table.body.length) ? "#475569" : "#e2e8f0",
+          paddingLeft: () => 4,
+          paddingRight: () => 4,
+          paddingTop: () => 2.5,
+          paddingBottom: () => 2.5
         },
+        margin: [0, 0, 0, 10]
       },
+
+      // ── Employee Official Certification Clause ──
+      {
+        unbreakable: true,
+        stack: [
+          {
+            text: "I certify on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from workstation.",
+            fontSize: 6.5,
+            color: "#475569",
+            italics: true,
+            alignment: "center",
+            margin: [20, 4, 20, 6]
+          },
+          {
+            columns: [
+              { width: "*", text: "" },
+              {
+                width: 240,
+                stack: [
+                  { text: (employeeName.value || "EMPLOYEE").toUpperCase(), fontSize: 8.5, bold: true, color: "#0f172a", alignment: "center", margin: [0, 4, 0, 1] },
+                  { text: "________________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Employee Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center" }
+                ]
+              },
+              { width: "*", text: "" }
+            ],
+            margin: [0, 0, 0, 12]
+          }
+        ]
+      },
+
+      // ── 3-Tier Signatory Section ──
+      {
+        unbreakable: true,
+        table: {
+          widths: ["33%", "34%", "33%"],
+          body: [
+            [
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 6, 6, 6],
+                stack: [
+                  { text: "PREPARED BY:", fontSize: 7, bold: true, color: "#475569" },
+                  { text: preparedSignatory.name, fontSize: 8, bold: true, color: "#0f172a", margin: [0, 8, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 3] },
+                  { text: `Position: ${preparedSignatory.position}`, fontSize: 6.5, color: "#334155", bold: true },
+                  { text: `Date: ${preparedSignatory.generatedAt}`, fontSize: 6, color: "#64748b" }
+                ]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 6, 6, 6],
+                stack: [
+                  { text: "VERIFIED & CHECKED BY:", fontSize: 7, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 8, bold: true, color: "#0f172a", margin: [0, 8, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 3] },
+                  { text: "Position: ____________________", fontSize: 6.5, color: "#334155" },
+                  { text: "Date: ________________________", fontSize: 6, color: "#64748b" }
+                ]
+              },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [6, 6, 6, 6],
+                stack: [
+                  { text: "APPROVED BY:", fontSize: 7, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 8, bold: true, color: "#0f172a", margin: [0, 8, 0, 1], alignment: "center" },
+                  { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 3] },
+                  { text: "Position: General Manager / Admin", fontSize: 6.5, color: "#334155" },
+                  { text: "Date: ________________________", fontSize: 6, color: "#64748b" }
+                ]
+              }
+            ]
+          ]
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => "#cbd5e1",
+          vLineColor: () => "#cbd5e1"
+        },
+        margin: [0, 5, 0, 0]
+      }
     ],
-    styles: {
-      header: {
-        fontSize: 14,
-        bold: true,
-        alignment: "center",
-        margin: [0, 5, 0, 10],
-      },
-      tableHeader: { bold: true, fontSize: 13, color: "black" },
+    footer: function(currentPage, pageCount) {
+      return {
+        columns: [
+          { text: "GB Bakeshop Management System • Official Daily Time Record (CS Form 48)", style: "footerText", alignment: "left", margin: [35, 0, 0, 0] },
+          { text: `Page ${currentPage.toString()} of ${pageCount.toString()}`, style: "footerText", alignment: "right", margin: [0, 0, 35, 0] }
+        ]
+      };
     },
-    defaultStyle: { fontSize: 9 },
+    styles: {
+      tableHeader: { fontSize: 6.5, bold: true, color: "#ffffff", fillColor: "#1e293b", margin: [3, 2, 3, 2] },
+      tableCell: { fontSize: 6.5, margin: [3, 2, 3, 2] },
+      tableTotalHeader: { fontSize: 7, bold: true, color: "#0f172a", margin: [3, 3, 3, 3] },
+      tableTotalCell: { fontSize: 7, bold: true, color: "#0f172a", margin: [3, 3, 3, 3] },
+      footerText: { fontSize: 6.5, color: "#64748b", italics: true }
+    },
+    defaultStyle: { font: "Roboto", fontSize: 8 }
   };
 };
 

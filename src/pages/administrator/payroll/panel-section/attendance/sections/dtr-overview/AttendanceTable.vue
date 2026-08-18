@@ -106,8 +106,7 @@
             <q-tooltip class="bg-blue-grey-8">Edit Where IN</q-tooltip>
           </span>
           <q-popup-edit
-            v-model="props.row.device_in_reference_name"
-            @update:model-value="(val) => updateDTRWhereIN(props.row, val)"
+            :model-value="props.row.device_in_reference_name"
             v-slot="scope"
           >
             <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
@@ -122,7 +121,7 @@
               <q-select
                 v-model="scope.value"
                 :options="branchWithWarehousesOptions"
-                autofucos
+                autofocus
                 option-label="label"
                 option-value="value"
                 emit-value
@@ -133,7 +132,7 @@
                 behavior="menu"
                 :model-value="scope.value"
                 @update:model-value="scope.value = $event"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'where_in', 'Where IN', scope.cancel)"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -142,7 +141,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'where_in', 'Where IN', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -157,8 +161,7 @@
           </span>
 
           <q-popup-edit
-            v-model="props.row.device_out_reference_name"
-            @update:model-value="(val) => updateDTRWhereOUT(props.row, val)"
+            :model-value="props.row.device_out_reference_name"
             v-slot="scope"
           >
             <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
@@ -173,7 +176,7 @@
               <q-select
                 v-model="scope.value"
                 :options="branchWithWarehousesOptions"
-                autofucos
+                autofocus
                 option-label="label"
                 option-value="value"
                 emit-value
@@ -184,7 +187,7 @@
                 behavior="menu"
                 :model-value="scope.value"
                 @update:model-value="scope.value = $event"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'where_out', 'Where OUT', scope.cancel)"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -193,7 +196,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'where_out', 'Where OUT', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -212,8 +220,7 @@
           </q-chip>
 
           <q-popup-edit
-            v-model="props.row.shiftStatus"
-            @update:model-value="(val) => updateDTRShiftStatus(props.row, val)"
+            :model-value="props.row.shift_status"
             v-slot="scope"
           >
             <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
@@ -241,7 +248,7 @@
                 counter
                 behavior="menu"
                 :model-value="scope.value"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'shift_status', 'Shift Status', scope.cancel)"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -250,7 +257,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'shift_status', 'Shift Status', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -266,12 +278,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.time_in"
+            :model-value="props.row.time_in"
             v-slot="scope"
             persistent
-            @update:model-value="
-              (newValue) => updateDTRTimeINDateOnly(props.row, newValue, 'date')
-            "
           >
             <div style="min-width: 300px; max-width: 400px">
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -293,7 +302,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'date_in', 'Date IN', scope.cancel, 'date')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -309,14 +323,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.time_out"
+            :model-value="props.row.time_out"
             v-slot="scope"
-            buttons
             persistent
-            @update:model-value="
-              (newValue) =>
-                updateDTRTimeOUTDateOnly(props.row, newValue, 'date')
-            "
           >
             <div style="min-width: 300px; max-width: 400px">
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -337,7 +346,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'date_out', 'Date OUT', scope.cancel, 'date')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -368,12 +382,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.time_in"
+            :model-value="props.row.time_in"
             v-slot="scope"
             persistent
-            @save="
-              (newValue) => updateDTRTimeINOnly(props.row, newValue, 'time')
-            "
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -387,6 +398,7 @@
                 type="time"
                 filled
                 hint="(e.g. 01:00 AM)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'time_in', 'Time IN', scope.cancel, 'time')"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -395,7 +407,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'time_in', 'Time IN', scope.cancel, 'time')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -424,12 +441,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.time_out"
+            :model-value="props.row.time_out"
             v-slot="scope"
             persistent
-            @save="
-              (newValue) => updateDTRTimeOutOnly(props.row, newValue, 'time')
-            "
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -442,6 +456,7 @@
                 type="time"
                 filled
                 hint="(e.g 01:00 AM)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'time_out', 'Time OUT', scope.cancel, 'time')"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -450,7 +465,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'time_out', 'Time OUT', scope.cancel, 'time')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -466,13 +486,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.lunch_break_start"
+            :model-value="props.row.lunch_break_start"
             v-slot="scope"
             persistent
-            @save="
-              (newValue) =>
-                updateDTRLunchBreakStart(props.row, newValue, 'time')
-            "
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -485,6 +501,7 @@
                 type="time"
                 filled
                 hint="(e.g 01:00 AM)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'lunch_break_start', 'Lunch Break Start', scope.cancel, 'time')"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -493,8 +510,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'lunch_break_start', 'Lunch Break Start', scope.cancel, 'time')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -510,12 +531,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.lunch_break_end"
+            :model-value="props.row.lunch_break_end"
             v-slot="scope"
             persistent
-            @save="
-              (newValue) => updateDTRLunchBreakEnd(props.row, newValue, 'time')
-            "
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -529,6 +547,7 @@
                 type="time"
                 filled
                 hint="(e.g 01:00 AM)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'lunch_break_end', 'Lunch Break End', scope.cancel, 'time')"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -537,7 +556,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'lunch_break_end', 'Lunch Break End', scope.cancel, 'time')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -552,12 +576,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.break_start"
+            :model-value="props.row.break_start"
             v-slot="scope"
             persistent
-            @save="
-              (newValue) => updateDTRBreakStart(props.row, newValue, 'time')
-            "
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -569,6 +590,7 @@
                 type="time"
                 filled
                 hint="(e.g 01:00 AM)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'break_start', 'Break Start', scope.cancel, 'time')"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -577,7 +599,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'break_start', 'Break Start', scope.cancel, 'time')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -593,10 +620,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.break_end"
+            :model-value="props.row.break_end"
             v-slot="scope"
             persistent
-            @save="(newValue) => updateDTRBreakEnd(props.row, newValue, 'time')"
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -610,6 +636,7 @@
                 type="time"
                 filled
                 hint="(e.g 01:00 AM)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'break_end', 'Break End', scope.cancel, 'time')"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -618,7 +645,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'break_end', 'Break End', scope.cancel, 'time')"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -763,10 +795,9 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.overtime_start"
+            :model-value="props.row.overtime_start"
             v-slot="scope"
             persistent
-            @save="(newVal) => updateDTROvertimeStart(props.row, newVal)"
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -790,7 +821,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'overtime_start', 'Overtime Start', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -808,10 +844,9 @@
 
           <!-- Popup editor -->
           <q-popup-edit
-            v-model="props.row.overtime_end"
+            :model-value="props.row.overtime_end"
             v-slot="scope"
             persistent
-            @save="(newVal) => updateDTROvertimeEnd(props.row, newVal)"
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -835,7 +870,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'overtime_end', 'Overtime End', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -881,8 +921,7 @@
           <!-- EDIT ICON (only visible if not pending) -->
           <q-popup-edit
             v-if="props.row.ot_status !== 'pending'"
-            v-model="props.row.ot_status"
-            @update:model-value="(val) => updateDTROTStatus(props.row, val)"
+            :model-value="props.row.ot_status"
           >
             <template v-slot="scope">
               <!-- Trigger button -->
@@ -922,7 +961,7 @@
                   dense
                   counter
                   behavior="menu"
-                  @keyup.enter="scope.set"
+                  @keyup.enter="openEditConfirm(props.row, scope.value, 'ot_status', 'OT Status', scope.cancel)"
                 />
 
                 <div class="row justify-end q-mt-md">
@@ -932,7 +971,12 @@
                     color="primary"
                     @click="scope.cancel"
                   />
-                  <q-btn flat label="Save" color="primary" @click="scope.set" />
+                  <q-btn
+                    flat
+                    label="Save"
+                    color="primary"
+                    @click="openEditConfirm(props.row, scope.value, 'ot_status', 'OT Status', scope.cancel)"
+                  />
                 </div>
               </div>
             </template>
@@ -955,10 +999,7 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.overtime_reason"
-            @update:model-value="
-              (val) => updateDTROvertimeReasons(props.row, val)
-            "
+            :model-value="props.row.overtime_reason"
             v-slot="scope"
           >
             <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
@@ -973,7 +1014,7 @@
                 v-model="scope.value"
                 filled
                 :model-value="scope.value"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'overtime_reason', 'Overtime Reason', scope.cancel)"
                 hint="Enter Overtime Reason"
               />
               <div class="row justify-end q-mt-md">
@@ -983,7 +1024,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'overtime_reason', 'Overtime Reason', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -1005,10 +1051,7 @@
           <span v-else> - - - </span>
 
           <q-popup-edit
-            v-model="props.row.declined_reason"
-            @update:model-value="
-              (val) => updateDTRDeclineReasons(props.row, val)
-            "
+            :model-value="props.row.declined_reason"
             v-slot="scope"
           >
             <div class="q-pa-md" style="min-width: 300px; max-width: 400px">
@@ -1023,7 +1066,7 @@
                 v-model="scope.value"
                 filled
                 :model-value="scope.value"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'declined_reason', 'Overtime Decline Reason', scope.cancel)"
                 hint="Enter Overtime Decline Reason"
               />
               <div class="row justify-end q-mt-md">
@@ -1033,7 +1076,12 @@
                   color="primary"
                   @click="scope.cancel"
                 />
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'declined_reason', 'Overtime Decline Reason', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -1048,10 +1096,9 @@
           <span v-else>- - -</span>
 
           <q-popup-edit
-            v-model="props.row.approvedBy"
+            :model-value="props.row.approvedBy"
             v-slot="scope"
             persistent
-            @save="(val) => updateDTROTApprovedBy(props.row, val)"
           >
             <div>
               <div class="text-h6 text-primary text-center q-mb-sm">
@@ -1107,7 +1154,12 @@
                   @click="scope.cancel"
                 />
 
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'approved_by', 'OT Approved By', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -1124,10 +1176,7 @@
           </div>
 
           <q-popup-edit
-            @update:model-value="
-              (val) => updateEmployeeScheduleIn(props.row, val)
-            "
-            v-model="props.row.schedule_in"
+            :model-value="props.row.schedule_in"
             v-slot="scope"
           >
             <div>
@@ -1147,7 +1196,7 @@
                 mask="##:## AA"
                 :rules="[validateTimeFormat]"
                 hint="Format: 01:00 AM/PM"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'schedule_in', 'Schedule In', scope.cancel)"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -1157,7 +1206,12 @@
                   @click="scope.cancel"
                 />
 
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'schedule_in', 'Schedule In', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -1174,10 +1228,7 @@
           </div>
 
           <q-popup-edit
-            @update:model-value="
-              (val) => updateEmployeeScheduleOut(props.row, val)
-            "
-            v-model="props.row.schedule_out"
+            :model-value="props.row.schedule_out"
             v-slot="scope"
           >
             <div>
@@ -1197,7 +1248,7 @@
                 mask="##:## AA"
                 :rules="[validateTimeFormat]"
                 hint="Format: 01:00 AM/PM"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'schedule_out', 'Schedule Out', scope.cancel)"
               />
               <div class="row justify-end q-mt-md">
                 <q-btn
@@ -1207,7 +1258,12 @@
                   @click="scope.cancel"
                 />
 
-                <q-btn flat label="Save" color="primary" @click="scope.set" />
+                <q-btn
+                  flat
+                  label="Save"
+                  color="primary"
+                  @click="openEditConfirm(props.row, scope.value, 'schedule_out', 'Schedule Out', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -1225,12 +1281,64 @@
 
     </q-table>
   </div>
+
+  <!-- Edit Password Confirmation Dialog -->
+  <q-dialog v-model="editPasswordDialog" persistent>
+    <q-card class="confirm-card q-pa-md" style="width: 400px; max-width: 90vw; border-radius: 12px;">
+      <q-card-section class="row items-center q-pb-none">
+        <q-avatar icon="lock" color="primary" text-color="white" size="36px" class="q-mr-sm" />
+        <div class="text-h6 text-weight-bold text-primary">Admin Authentication</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section class="q-pt-md">
+        <div class="text-body2 text-grey-8 q-mb-sm">
+          Please enter your admin password to save changes to
+          <strong class="text-primary">{{ pendingEdit?.label }}</strong> for
+          <strong class="text-dark">{{ pendingEdit?.employeeName }}</strong>.
+        </div>
+        <q-input
+          v-model="editPasswordInput"
+          :type="showPassword ? 'text' : 'password'"
+          label="Enter Admin Password"
+          outlined
+          dense
+          autofocus
+          class="q-mt-sm"
+          @keyup.enter="handleEditConfirm"
+        >
+          <template v-slot:append>
+            <q-icon
+              :name="showPassword ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </q-input>
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-pt-none">
+        <q-btn flat label="Cancel" color="grey-7" no-caps v-close-popup />
+        <q-btn
+          unelevated
+          label="Confirm & Save"
+          color="primary"
+          no-caps
+          class="q-px-md rounded-btn"
+          :loading="editConfirmLoading"
+          @click="handleEditConfirm"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
-import { date } from "quasar";
+import { date, Notify } from "quasar";
 import { useDTRStore } from "stores/dtr";
+import { useUsersStore } from "stores/user";
 import OvertimeButton from "./OvertimeButton.vue";
 import AddDTRButton from "./AddDTRButton.vue";
 import EditDTR from "./EditDTR.vue";
@@ -1242,6 +1350,7 @@ import { useAttendanceHelpers } from "src/composables/attendance/useAttendanceHe
 // Initialize attendance helpers
 const helpers = useAttendanceHelpers();
 
+const userStore = useUsersStore();
 const employeeStore = useEmployeeStore();
 const employees = computed(() => employeeStore.employees);
 
@@ -1262,6 +1371,127 @@ const branchWithWarehousesList = computed(() => dtrStore.branchWithWarehouses);
 const selectedEmployee = ref(null);
 
 const dtrRows = ref([]);
+
+// ── Password-Gated Edit Confirmation Logic ──
+const editPasswordDialog = ref(false);
+const editPasswordInput = ref("");
+const showPassword = ref(false);
+const editConfirmLoading = ref(false);
+const pendingEdit = ref(null);
+
+const openEditConfirm = (row, val, field, label, cancelFn, extraType) => {
+  if (typeof cancelFn === "function") {
+    cancelFn();
+  }
+  editPasswordInput.value = "";
+  showPassword.value = false;
+  pendingEdit.value = {
+    row,
+    val,
+    field,
+    label,
+    extraType,
+    employeeName: helpers.formatFullname(row.employee),
+  };
+  editPasswordDialog.value = true;
+};
+
+const handleEditConfirm = async () => {
+  if (!editPasswordInput.value) {
+    Notify.create({
+      message: "Password is required",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+    return;
+  }
+
+  editConfirmLoading.value = true;
+  try {
+    const userId = userStore.userData?.data?.id || userStore.userData?.id;
+    if (!userId) {
+      Notify.create({
+        message: "User session not found. Please log in again.",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+      return;
+    }
+
+    const isValid = await userStore.verifyUserPassword(userId, editPasswordInput.value);
+    if (!isValid) {
+      Notify.create({
+        message: "Incorrect password. Changes were not saved.",
+        color: "negative",
+        position: "top",
+        timeout: 2500,
+      });
+      return;
+    }
+
+    const { row, val, field, extraType } = pendingEdit.value;
+
+    if (field === "where_in") {
+      await updateDTRWhereIN(row, val);
+    } else if (field === "where_out") {
+      await updateDTRWhereOUT(row, val);
+    } else if (field === "shift_status") {
+      await updateDTRShiftStatus(row, val);
+    } else if (field === "date_in") {
+      await updateDTRTimeINDateOnly(row, val, extraType || "date");
+    } else if (field === "date_out") {
+      await updateDTRTimeOUTDateOnly(row, val, extraType || "date");
+    } else if (field === "time_in") {
+      await updateDTRTimeINOnly(row, val, extraType || "time");
+    } else if (field === "time_out") {
+      await updateDTRTimeOutOnly(row, val, extraType || "time");
+    } else if (field === "lunch_break_start") {
+      await updateDTRLunchBreakStart(row, val, extraType || "time");
+    } else if (field === "lunch_break_end") {
+      await updateDTRLunchBreakEnd(row, val, extraType || "time");
+    } else if (field === "break_start") {
+      await updateDTRBreakStart(row, val, extraType || "time");
+    } else if (field === "break_end") {
+      await updateDTRBreakEnd(row, val, extraType || "time");
+    } else if (field === "overtime_start") {
+      await updateDTROvertimeStart(row, val);
+    } else if (field === "overtime_end") {
+      await updateDTROvertimeEnd(row, val);
+    } else if (field === "ot_status") {
+      await updateDTROTStatus(row, val);
+    } else if (field === "overtime_reason") {
+      await updateDTROvertimeReasons(row, val);
+    } else if (field === "declined_reason") {
+      await updateDTRDeclineReasons(row, val);
+    } else if (field === "approved_by") {
+      await updateDTROTApprovedBy(row, val);
+    } else if (field === "schedule_in") {
+      await updateEmployeeScheduleIn(row, val);
+    } else if (field === "schedule_out") {
+      await updateEmployeeScheduleOut(row, val);
+    }
+
+    await reloadTableData(
+      pagination.value.page,
+      pagination.value.rowsPerPage,
+      filter.value
+    );
+
+    editPasswordDialog.value = false;
+  } catch (error) {
+    console.error("Error executing DTR edit:", error);
+    Notify.create({
+      message: "Failed to update attendance record",
+      color: "negative",
+      position: "top",
+      timeout: 2500,
+    });
+  } finally {
+    editConfirmLoading.value = false;
+  }
+};
 
 const search = async () => {
   const keyword = searchKeyword.value?.trim();

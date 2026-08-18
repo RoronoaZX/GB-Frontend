@@ -344,6 +344,17 @@
         </div>
       </q-card>
     </q-dialog>
+
+    <!-- PDF Download Password Confirmation Dialog -->
+    <PasswordAuthDialog
+      v-model="passwordConfirmDialog"
+      :label="passwordConfirmTarget?.label"
+      :description="passwordConfirmTarget?.description"
+      v-model:password="passwordConfirmInput"
+      v-model:showPassword="passwordConfirmShow"
+      :loading="passwordConfirmLoading"
+      @confirm="handlePasswordConfirmSubmit"
+    />
   </q-dialog>
 </template>
 
@@ -351,6 +362,8 @@
 import { ref, watch, computed } from "vue";
 import { api } from "src/boot/axios";
 import { date, Notify } from "quasar";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
@@ -370,6 +383,16 @@ const dialogVisible = computed({
   get: () => props.modelValue,
   set: (val) => emit("update:modelValue", val),
 });
+
+const {
+  passwordConfirmDialog,
+  passwordConfirmInput,
+  passwordConfirmShow,
+  passwordConfirmLoading,
+  passwordConfirmTarget,
+  promptPasswordConfirm,
+  handlePasswordConfirmSubmit,
+} = usePasswordConfirm();
 
 const loading = ref(false);
 const printDialog = ref(false);
@@ -854,7 +877,14 @@ const openPrintDialog = () => {
 
 const triggerPhysicalPrint = () => {
   if (currentDocDefinition) {
-    pdfMake.createPdf(currentDocDefinition).print();
+    const productLabel = (productInfo.value.name || "Product").replace(/\s+/g, "_");
+    promptPasswordConfirm({
+      label: `Product Movement Ledger (Print - ${productLabel})`,
+      description: "Please enter your admin password to authorize printing the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition).print();
+      },
+    });
   }
 };
 
@@ -862,8 +892,14 @@ const triggerDownload = () => {
   if (currentDocDefinition) {
     const branchLabel = (branchInfo.value.branch_name || "Branch").replace(/\s+/g, "_");
     const productLabel = (productInfo.value.name || "Product").replace(/\s+/g, "_");
-    const filename = `GB_Movement_Ledger_${branchLabel}_${productLabel}_${fromDate.value}_to_${toDate.value}.pdf`;
-    pdfMake.createPdf(currentDocDefinition).download(filename);
+    promptPasswordConfirm({
+      label: `Product Movement Ledger PDF (${productLabel})`,
+      description: "Please enter your admin password to authorize downloading the confidential",
+      onConfirm: () => {
+        const filename = `GB_Movement_Ledger_${branchLabel}_${productLabel}_${fromDate.value}_to_${toDate.value}.pdf`;
+        pdfMake.createPdf(currentDocDefinition).download(filename);
+      },
+    });
   }
 };
 

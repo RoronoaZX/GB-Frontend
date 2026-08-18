@@ -560,6 +560,17 @@
         </q-card>
       </div>
     </q-dialog>
+
+    <!-- PDF Download Password Confirmation Dialog -->
+    <PasswordAuthDialog
+      v-model="passwordConfirmDialog"
+      :label="passwordConfirmTarget?.label"
+      :description="passwordConfirmTarget?.description"
+      v-model:password="passwordConfirmInput"
+      v-model:showPassword="passwordConfirmShow"
+      :loading="passwordConfirmLoading"
+      @confirm="handlePasswordConfirmSubmit"
+    />
   </div>
 </template>
 
@@ -568,18 +579,65 @@ import { ref, computed, onMounted, watch } from "vue";
 import { usePayslipStore } from "src/stores/payslip";
 import { useBranchesStore } from "src/stores/branch";
 import { useWarehousesStore } from "src/stores/warehouse";
-import { formatFullname } from "src/composables/employeeFunction/useEmployeeFunctions";
-import { Notify, useQuasar } from "quasar";
-import SendPayrollEmailDialog from "../details/components/payroll/SendPayrollEmailDialog.vue";
+import { useUsersStore } from "src/stores/user";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
+import GB_LOGO from "src/assets/GB_LOGO.png";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
 pdfMake.vfs = pdfFonts.default;
 
-const $q = useQuasar();
 const payslipStore = usePayslipStore();
 const branchesStore = useBranchesStore();
 const warehousesStore = useWarehousesStore();
+const usersStore = useUsersStore();
+
+const {
+  passwordConfirmDialog,
+  passwordConfirmInput,
+  passwordConfirmShow,
+  passwordConfirmLoading,
+  passwordConfirmTarget,
+  promptPasswordConfirm,
+  handlePasswordConfirmSubmit,
+} = usePasswordConfirm();
+
+const getPreparedSignatory = () => {
+  const emp = usersStore.userData?.data?.employee;
+  const user = usersStore.userData?.data || usersStore.userData;
+
+  let fullName = "PAYROLL ADMINISTRATOR";
+  if (emp) {
+    const capitalize = (str) =>
+      str
+        ? str
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(" ")
+        : "";
+    const fn = emp.firstname ? capitalize(emp.firstname) : "";
+    const mi = emp.middlename ? `${capitalize(emp.middlename).charAt(0)}.` : "";
+    const ln = emp.lastname ? capitalize(emp.lastname) : "";
+    fullName = `${fn} ${mi} ${ln}`.trim().toUpperCase() || "PAYROLL ADMINISTRATOR";
+  } else if (user?.name) {
+    fullName = user.name.toUpperCase();
+  }
+
+  let position = emp?.position || emp?.designation || user?.role || localStorage.getItem("role") || "Payroll Officer";
+
+  return {
+    name: fullName,
+    position: position,
+    generatedAt: new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  };
+};
 
 // Reactive State
 const loadingPeriods = ref(false);
@@ -1031,6 +1089,7 @@ const grandTotals = computed(() => {
 
 // Formal PDF Generation Logic (Includes Employee Signature column & Establishment Header)
 const generatePdfDocDefinition = () => {
+  const preparedSignatory = getPreparedSignatory();
   const period = selectedPeriod.value;
   const fromStr = period ? period.from : 'N/A';
   const toStr = period ? period.to : 'N/A';
@@ -1237,23 +1296,32 @@ const generatePdfDocDefinition = () => {
         columns: [
           {
             stack: [
-              { text: "____________________________________", alignment: "center" },
-              { text: "PREPARED BY", fontSize: 8, bold: true, alignment: "center", margin: [0, 4, 0, 0] },
-              { text: "Payroll Officer", fontSize: 7, color: "#64748b", alignment: "center" }
+              { text: "PREPARED BY:", fontSize: 7.5, bold: true, color: "#475569" },
+              { text: preparedSignatory.name, fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 8, 0, 1], alignment: "center" },
+              { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+              { text: "Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+              { text: `Position: ${preparedSignatory.position}`, fontSize: 7, color: "#334155", alignment: "center", bold: true },
+              { text: `Date: ${preparedSignatory.generatedAt}`, fontSize: 6.5, color: "#64748b", alignment: "center" }
             ]
           },
           {
             stack: [
-              { text: "____________________________________", alignment: "center" },
-              { text: "CHECKED BY", fontSize: 8, bold: true, alignment: "center", margin: [0, 4, 0, 0] },
-              { text: "Accounting Head", fontSize: 7, color: "#64748b", alignment: "center" }
+              { text: "CHECKED BY:", fontSize: 7.5, bold: true, color: "#475569" },
+              { text: " ", fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 8, 0, 1], alignment: "center" },
+              { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+              { text: "Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+              { text: "Position: ____________________", fontSize: 7, color: "#334155", alignment: "center" },
+              { text: "Date: ________________________", fontSize: 6.5, color: "#64748b", alignment: "center" }
             ]
           },
           {
             stack: [
-              { text: "____________________________________", alignment: "center" },
-              { text: "APPROVED BY", fontSize: 8, bold: true, alignment: "center", margin: [0, 4, 0, 0] },
-              { text: "General Manager / Admin", fontSize: 7, color: "#64748b", alignment: "center" }
+              { text: "APPROVED BY:", fontSize: 7.5, bold: true, color: "#475569" },
+              { text: " ", fontSize: 8.5, bold: true, color: "#0f172a", margin: [0, 8, 0, 1], alignment: "center" },
+              { text: "____________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+              { text: "Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center", margin: [0, 0, 0, 4] },
+              { text: "General Manager / Admin", fontSize: 7, color: "#334155", alignment: "center" },
+              { text: "Date: ________________________", fontSize: 6.5, color: "#64748b", alignment: "center" }
             ]
           }
         ],
@@ -1280,18 +1348,30 @@ const openPdfDialog = () => {
 
 const triggerPhysicalPrintPdf = () => {
   if (currentDocDefinition) {
-    pdfMake.createPdf(currentDocDefinition).print();
+    promptPasswordConfirm({
+      label: "Payroll Cut-off Summary Register (Print)",
+      description: "Please enter your admin password to authorize printing the confidential",
+      onConfirm: () => {
+        pdfMake.createPdf(currentDocDefinition).print();
+      },
+    });
   }
 };
 
 const triggerDownloadPdf = () => {
   if (currentDocDefinition) {
-    const period = selectedPeriod.value;
-    const fromStr = period ? period.from : 'N/A';
-    const toStr = period ? period.to : 'N/A';
-    const estSlug = (activeEstablishmentLabel.value || 'Global').replace(/[^a-zA-Z0-9]/g, '_');
-    const filename = `GB_Bakeshop_Payroll_Summary_${estSlug}_${fromStr}_to_${toStr}.pdf`;
-    pdfMake.createPdf(currentDocDefinition).download(filename);
+    promptPasswordConfirm({
+      label: "Payroll Cut-off Summary Register PDF",
+      description: "Please enter your admin password to authorize downloading the confidential",
+      onConfirm: () => {
+        const period = selectedPeriod.value;
+        const fromStr = period ? period.from : 'N/A';
+        const toStr = period ? period.to : 'N/A';
+        const estSlug = (activeEstablishmentLabel.value || 'Global').replace(/[^a-zA-Z0-9]/g, '_');
+        const filename = `GB_Bakeshop_Payroll_Summary_${estSlug}_${fromStr}_to_${toStr}.pdf`;
+        pdfMake.createPdf(currentDocDefinition).download(filename);
+      },
+    });
   }
 };
 
@@ -1299,6 +1379,18 @@ const triggerDownloadPdf = () => {
 const exportToExcel = () => {
   if (!filteredSummary.value.length) return;
 
+  promptPasswordConfirm({
+    label: "Payroll Cut-off Summary Excel (.xls)",
+    description: "Please enter your admin password to authorize exporting the confidential",
+    onConfirm: () => {
+      executeExcelExport();
+    },
+  });
+};
+
+const executeExcelExport = () => {
+
+  const preparedSignatory = getPreparedSignatory();
   const period = selectedPeriod.value;
   const fromStr = period ? period.from : 'N/A';
   const toStr = period ? period.to : 'N/A';
@@ -1443,20 +1535,29 @@ const exportToExcel = () => {
 
         <!-- Official Signatures Block -->
         <tr>
-          <td colspan="4" style="text-align: center; vertical-align: top;">
-            <div>____________________________________</div>
-            <div style="font-weight: bold; font-size: 10px; margin-top: 4px;">PREPARED BY</div>
-            <div style="color: #64748b; font-size: 9px;">Payroll Officer</div>
+          <td colspan="4" style="text-align: center; vertical-align: top; border: 1px solid #cbd5e1; padding: 8px; background-color: #f8fafc;">
+            <div style="font-weight: bold; font-size: 9px; color: #475569; text-align: left;">PREPARED BY:</div>
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-top: 8px;">${preparedSignatory.name}</div>
+            <div style="color: #94a3b8;">____________________________________</div>
+            <div style="font-size: 8px; color: #64748b; font-style: italic;">Signature Over Printed Name</div>
+            <div style="font-size: 9px; color: #334155; margin-top: 4px;"><b>Position:</b> ${preparedSignatory.position}</div>
+            <div style="font-size: 8.5px; color: #64748b;"><b>Date:</b> ${preparedSignatory.generatedAt}</div>
           </td>
-          <td colspan="4" style="text-align: center; vertical-align: top;">
-            <div>____________________________________</div>
-            <div style="font-weight: bold; font-size: 10px; margin-top: 4px;">CHECKED BY</div>
-            <div style="color: #64748b; font-size: 9px;">Accounting Head</div>
+          <td colspan="4" style="text-align: center; vertical-align: top; border: 1px solid #cbd5e1; padding: 8px; background-color: #f8fafc;">
+            <div style="font-weight: bold; font-size: 9px; color: #475569; text-align: left;">CHECKED BY:</div>
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-top: 8px;">&nbsp;</div>
+            <div style="color: #94a3b8;">____________________________________</div>
+            <div style="font-size: 8px; color: #64748b; font-style: italic;">Signature Over Printed Name</div>
+            <div style="font-size: 9px; color: #334155; margin-top: 4px;"><b>Position:</b> ____________________</div>
+            <div style="font-size: 8.5px; color: #64748b;"><b>Date:</b> ________________________</div>
           </td>
-          <td colspan="5" style="text-align: center; vertical-align: top;">
-            <div>____________________________________</div>
-            <div style="font-weight: bold; font-size: 10px; margin-top: 4px;">APPROVED BY</div>
-            <div style="color: #64748b; font-size: 9px;">General Manager / Admin</div>
+          <td colspan="5" style="text-align: center; vertical-align: top; border: 1px solid #cbd5e1; padding: 8px; background-color: #f8fafc;">
+            <div style="font-weight: bold; font-size: 9px; color: #475569; text-align: left;">APPROVED BY:</div>
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-top: 8px;">&nbsp;</div>
+            <div style="color: #94a3b8;">____________________________________</div>
+            <div style="font-size: 8px; color: #64748b; font-style: italic;">Signature Over Printed Name</div>
+            <div style="font-size: 9px; color: #334155; margin-top: 4px;"><b>Position:</b> General Manager / Admin</div>
+            <div style="font-size: 8.5px; color: #64748b;"><b>Date:</b> ________________________</div>
           </td>
         </tr>
       </table>

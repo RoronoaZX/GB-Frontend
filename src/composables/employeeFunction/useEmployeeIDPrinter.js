@@ -7,8 +7,11 @@ pdfMake.vfs = pdfFonts.default;
 export function useEmployeeIDPrinter(IDLogo, GB_LOGO) {
   const dialog = ref(false);
   const pdfUrl = ref("");
+  const currentDocDefinition = ref(null);
+  const currentEmployee = ref(null);
 
   const handlePrintID = (employee) => {
+    currentEmployee.value = employee;
     convertImageToBase64(IDLogo, (base64Image) => {
       convertImageToBase64(GB_LOGO, (base64Logo) => {
         const docDefinition = generateDocDefinition(
@@ -16,12 +19,21 @@ export function useEmployeeIDPrinter(IDLogo, GB_LOGO) {
           base64Image,
           base64Logo
         );
+        currentDocDefinition.value = docDefinition;
         pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
           pdfUrl.value = dataUrl;
           dialog.value = true;
         });
       });
     });
+  };
+
+  const downloadPDFDirectly = () => {
+    if (currentDocDefinition.value) {
+      const empName = currentEmployee.value ? formatFullname(currentEmployee.value) : "Employee";
+      const filename = `Employee_ID_${empName.replace(/\s+/g, "_")}.pdf`;
+      pdfMake.createPdf(currentDocDefinition.value).download(filename);
+    }
   };
 
   const convertImageToBase64 = (url, callback) => {
@@ -104,5 +116,7 @@ export function useEmployeeIDPrinter(IDLogo, GB_LOGO) {
     dialog,
     pdfUrl,
     handlePrintID,
+    downloadPDFDirectly,
+    currentEmployee,
   };
 }

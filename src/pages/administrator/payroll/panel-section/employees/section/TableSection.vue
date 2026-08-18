@@ -81,11 +81,12 @@
             </div>
           </div>
           <q-popup-edit
-            v-model="props.row"
-            @update:model-value="
-              (val) => updateEmployeeFullname(props.row, val)
-            "
-            v-slot="{ value, set }"
+            :model-value="{
+              firstname: props.row.firstname,
+              middlename: props.row.middlename,
+              lastname: props.row.lastname,
+            }"
+            v-slot="scope"
             content-class="popup-card"
           >
             <div class="q-pa-md" style="min-width: 320px">
@@ -93,33 +94,40 @@
               <div class="column q-gutter-y-sm">
                 <q-input
                   class="text-capitalize popup-input"
-                  v-model="value.firstname"
+                  v-model="scope.value.firstname"
                   label="First Name"
                   outlined
                   dense
                   autofocus
-                  @keyup.enter="set(value)"
+                  @keyup.enter="openEditConfirm(props.row, scope.value, 'fullname', 'Employee Name', scope.cancel)"
                 />
                 <q-input
                   class="text-capitalize popup-input"
-                  v-model="value.middlename"
+                  v-model="scope.value.middlename"
                   label="Middle Name"
                   outlined
                   dense
-                  @keyup.enter="set(value)"
+                  @keyup.enter="openEditConfirm(props.row, scope.value, 'fullname', 'Employee Name', scope.cancel)"
                 />
                 <q-input
                   class="text-capitalize popup-input"
-                  v-model="value.lastname"
+                  v-model="scope.value.lastname"
                   label="Last Name"
                   outlined
                   dense
-                  @keyup.enter="set(value)"
+                  @keyup.enter="openEditConfirm(props.row, scope.value, 'fullname', 'Employee Name', scope.cancel)"
                 />
               </div>
               <div class="row justify-end q-mt-md q-gutter-x-sm">
-                <q-btn flat label="Cancel" color="grey-7" no-caps v-close-popup />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="set(value)" />
+                <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'fullname', 'Employee Name', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -142,10 +150,7 @@
             <q-icon name="edit" size="12px" color="grey-6" class="edit-icon q-ml-xs" />
           </div>
           <q-popup-edit
-            @update:model-value="
-              (val) => updateEmployeePosition(props.row, val)
-            "
-            v-model="props.row.position"
+            :model-value="props.row.position"
             v-slot="scope"
             content-class="popup-card"
           >
@@ -158,11 +163,18 @@
                 outlined
                 dense
                 autofocus
-                @keyup.enter="scope.set(scope.value)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'position', 'Position', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set(scope.value)" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'position', 'Position', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -182,12 +194,9 @@
             <q-icon name="edit" size="12px" color="grey-6" class="edit-icon q-ml-xs" />
           </div>
           <q-popup-edit
-            v-model="props.row.employment_type.id"
+            :model-value="props.row.employment_type?.id"
             v-slot="scope"
             content-class="popup-card"
-            @save="
-              (val) => updateEmploymentType(props.row, val, reloadTableData)
-            "
           >
             <div class="q-pa-md" style="min-width: 280px">
               <div class="popup-title q-mb-md">Edit Employment Type</div>
@@ -203,11 +212,18 @@
                 outlined
                 class="popup-input"
                 behavior="menu"
-                @keyup.enter="scope.set(scope.value)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'employmentType', 'Employment Type', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set(scope.value)" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'employmentType', 'Employment Type', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -223,8 +239,7 @@
             <q-icon name="edit" size="12px" color="grey-6" class="edit-icon q-ml-xs" />
           </div>
           <q-popup-edit
-            @update:model-value="(val) => updateEmployeeAddress(props.row, val)"
-            v-model="props.row.address"
+            :model-value="props.row.address"
             v-slot="scope"
             content-class="popup-card"
           >
@@ -236,11 +251,18 @@
                 dense
                 outlined
                 autofocus
-                @keyup.enter="scope.set(scope.value)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'address', 'Address', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set(scope.value)" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'address', 'Address', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -256,8 +278,7 @@
             <q-icon name="edit" size="12px" color="grey-6" class="edit-icon q-ml-xs" />
           </div>
           <q-popup-edit
-            @update:model-value="(val) => updateEmployeePhone(props.row, val)"
-            v-model="props.row.phone"
+            :model-value="props.row.phone"
             v-slot="scope"
             content-class="popup-card"
           >
@@ -270,11 +291,18 @@
                 autofocus
                 mask="+(63) ### - ### - ####"
                 class="popup-input"
-                @keyup.enter="scope.set(scope.value)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'phone', 'Phone Number', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set(scope.value)" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'phone', 'Phone Number', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -290,10 +318,7 @@
             <q-icon name="edit" size="12px" color="grey-6" class="edit-icon q-ml-xs" />
           </div>
           <q-popup-edit
-            @update:model-value="
-              (val) => updateEmployeeBirthdate(props.row, val)
-            "
-            v-model="props.row.birthdate"
+            :model-value="props.row.birthdate"
             v-slot="scope"
             content-class="popup-card"
           >
@@ -306,11 +331,18 @@
                 autofocus
                 type="date"
                 class="popup-input"
-                @keyup.enter="scope.set(scope.value)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'birthdate', 'Birthdate', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set(scope.value)" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'birthdate', 'Birthdate', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -327,17 +359,9 @@
           </div>
           <q-popup-edit
             v-if="props.row.designation"
-            v-model="props.row.designation.id"
+            :model-value="props.row.designation.id"
             v-slot="scope"
             content-class="popup-card"
-            @save="
-              (val) =>
-                updateEmployeeDesignation(
-                  props.row.designation,
-                  val,
-                  reloadTableData
-                )
-            "
           >
             <div class="q-pa-md" style="min-width: 280px">
               <div class="popup-title q-mb-md">Edit Designation</div>
@@ -351,11 +375,18 @@
                 dense
                 outlined
                 class="popup-input"
-                @keyup.enter="scope.set(scope.value)"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'designation', 'Designation', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set(scope.value)" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'designation', 'Designation', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -372,10 +403,7 @@
           </div>
           <q-popup-edit
             v-if="props.row.designation"
-            @update:model-value="
-              (val) => updateEmployeeTimeIn(props.row.designation, val)
-            "
-            v-model="props.row.designation.time_in"
+            :model-value="props.row.designation.time_in"
             v-slot="scope"
             content-class="popup-card"
           >
@@ -384,19 +412,24 @@
               <div class="text-caption text-grey-5 q-mb-md">Format: 01:00 AM/PM</div>
               <q-input
                 v-model="scope.value"
-                :model-value="scope.value"
-                @update:model-value="scope.value = $event"
                 dense
                 outlined
                 autofocus
                 mask="##:## AA"
                 :rules="[validateTimeFormat]"
                 class="popup-input"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'time_in', 'Time In', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'time_in', 'Time In', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -413,10 +446,7 @@
           </div>
           <q-popup-edit
             v-if="props.row.designation"
-            @update:model-value="
-              (val) => updateEmployeeTimeOut(props.row.designation, val)
-            "
-            v-model="props.row.designation.time_out"
+            :model-value="props.row.designation.time_out"
             v-slot="scope"
             content-class="popup-card"
           >
@@ -425,19 +455,24 @@
               <div class="text-caption text-grey-5 q-mb-md">Format: 01:00 AM/PM</div>
               <q-input
                 v-model="scope.value"
-                :model-value="scope.value"
-                @update:model-value="scope.value = $event"
                 dense
                 outlined
                 autofocus
                 mask="##:## AA"
                 :rules="[validateTimeFormat]"
                 class="popup-input"
-                @keyup.enter="scope.set"
+                @keyup.enter="openEditConfirm(props.row, scope.value, 'time_out', 'Time Out', scope.cancel)"
               />
               <div class="row justify-end q-mt-md q-gutter-x-sm">
                 <q-btn flat label="Cancel" color="grey-7" no-caps @click="scope.cancel" />
-                <q-btn unelevated label="Save" color="teal" no-caps class="q-px-md rounded-btn" @click="scope.set" />
+                <q-btn
+                  unelevated
+                  label="Save"
+                  color="teal"
+                  no-caps
+                  class="q-px-md rounded-btn"
+                  @click="openEditConfirm(props.row, scope.value, 'time_out', 'Time Out', scope.cancel)"
+                />
               </div>
             </div>
           </q-popup-edit>
@@ -464,6 +499,57 @@
       </template>
     </q-table>
   </div>
+
+  <!-- Edit Password Confirmation Dialog -->
+  <q-dialog v-model="editPasswordDialog" persistent>
+    <q-card class="confirm-card q-pa-md" style="width: 400px; max-width: 90vw; border-radius: 12px;">
+      <q-card-section class="row items-center q-pb-none">
+        <q-avatar icon="lock" color="teal" text-color="white" size="36px" class="q-mr-sm" />
+        <div class="text-h6 text-weight-bold text-teal-9">Admin Authentication</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section class="q-pt-md">
+        <div class="text-body2 text-grey-8 q-mb-sm">
+          Please enter your admin password to save changes to
+          <strong class="text-teal-9">{{ pendingEdit?.label }}</strong> for
+          <strong class="text-dark">{{ pendingEdit?.employeeName }}</strong>.
+        </div>
+        <q-input
+          v-model="editPasswordInput"
+          :type="showPassword ? 'text' : 'password'"
+          label="Enter Admin Password"
+          outlined
+          dense
+          autofocus
+          class="q-mt-sm"
+          @keyup.enter="handleEditConfirm"
+        >
+          <template v-slot:append>
+            <q-icon
+              :name="showPassword ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </q-input>
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-pt-none">
+        <q-btn flat label="Cancel" color="grey-7" no-caps v-close-popup />
+        <q-btn
+          unelevated
+          label="Confirm & Save"
+          color="teal"
+          no-caps
+          class="q-px-md rounded-btn"
+          :loading="editConfirmLoading"
+          @click="handleEditConfirm"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
   <q-dialog v-model="dialog" persistent backdrop-filter="blur(4px)">
     <q-card class="pdf-preview-card" style="width: 750px; max-width: 90vw; overflow: hidden;">
       <q-card-section class="row items-center q-px-lg q-py-md dialog-header text-white">
@@ -482,6 +568,18 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+
+  <!-- PDF Download Password Confirmation Dialog -->
+  <PasswordAuthDialog
+    v-model="pdfPasswordDialog"
+    :label="pdfPasswordTarget?.label"
+    :description="pdfPasswordTarget?.description"
+    v-model:password="pdfPasswordInput"
+    v-model:showPassword="pdfPasswordShow"
+    :loading="pdfPasswordLoading"
+    color="teal"
+    @confirm="handlePdfPasswordConfirm"
+  />
 </template>
 
 <script setup>
@@ -507,21 +605,146 @@ import {
 } from "src/composables/employeeFunction/useEmployeeFunctions";
 import { badgeColor } from "src/composables/badge-color/badge-color";
 // import SearchEmployee from "./SearchEmployee.vue";
-// import { date, useQuasar } from "quasar";
+import { Notify } from "quasar";
 import { useEmployeeStore } from "src/stores/employee";
 import { useEmploymentTypeStore } from "src/stores/employment-type";
+import { useUsersStore } from "src/stores/user";
+import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import IDLogo from "src/assets/IDLogo.png";
 import GB_LOGO from "src/assets/GB_LOGO.png";
 import { useEmployeeIDPrinter } from "src/composables/employeeFunction/useEmployeeIDPrinter";
 
-const { dialog, pdfUrl, handlePrintID } = useEmployeeIDPrinter(IDLogo, GB_LOGO);
+const { dialog, pdfUrl, handlePrintID, downloadPDFDirectly, currentEmployee } = useEmployeeIDPrinter(IDLogo, GB_LOGO);
 const { getUserBadgePositionColor } = badgeColor();
+
+const {
+  passwordConfirmDialog: pdfPasswordDialog,
+  passwordConfirmInput: pdfPasswordInput,
+  passwordConfirmShow: pdfPasswordShow,
+  passwordConfirmLoading: pdfPasswordLoading,
+  passwordConfirmTarget: pdfPasswordTarget,
+  promptPasswordConfirm: promptPdfPasswordConfirm,
+  handlePasswordConfirmSubmit: handlePdfPasswordConfirm,
+} = usePasswordConfirm();
+
+const downloadPDF = () => {
+  const empName = currentEmployee.value ? formatFullname(currentEmployee.value) : "Employee";
+  promptPdfPasswordConfirm({
+    label: `Employee ID Card PDF (${empName})`,
+    description: "Please enter your admin password to authorize downloading the official",
+    onConfirm: () => {
+      downloadPDFDirectly();
+    },
+  });
+};
 
 const employmentStore = useEmploymentTypeStore();
 const employeeStore = useEmployeeStore();
+const userStore = useUsersStore();
 const employeeRows = computed(() => employeeStore.employees); // Computed property will automatically update when the store changes
 const employeesRowsData = ref([]);
+
+// ── Password-Gated Edit Confirmation Logic ──
+const editPasswordDialog = ref(false);
+const editPasswordInput = ref("");
+const showPassword = ref(false);
+const editConfirmLoading = ref(false);
+const pendingEdit = ref(null);
+
+const openEditConfirm = (row, val, field, label, cancelFn) => {
+  if (typeof cancelFn === "function") {
+    cancelFn();
+  }
+  editPasswordInput.value = "";
+  showPassword.value = false;
+  pendingEdit.value = {
+    row,
+    val,
+    field,
+    label,
+    employeeName: formatFullname(row),
+  };
+  editPasswordDialog.value = true;
+};
+
+const handleEditConfirm = async () => {
+  if (!editPasswordInput.value) {
+    Notify.create({
+      message: "Password is required",
+      color: "negative",
+      position: "top",
+      timeout: 2000,
+    });
+    return;
+  }
+
+  editConfirmLoading.value = true;
+  try {
+    const userId = userStore.userData?.data?.id || userStore.userData?.id;
+    if (!userId) {
+      Notify.create({
+        message: "User session not found. Please log in again.",
+        color: "negative",
+        position: "top",
+        timeout: 2000,
+      });
+      return;
+    }
+
+    const isValid = await userStore.verifyUserPassword(userId, editPasswordInput.value);
+    if (!isValid) {
+      Notify.create({
+        message: "Incorrect password. Changes were not saved.",
+        color: "negative",
+        position: "top",
+        timeout: 2500,
+      });
+      return;
+    }
+
+    const { row, val, field } = pendingEdit.value;
+
+    if (field === "fullname") {
+      await updateEmployeeFullname(row, val);
+    } else if (field === "position") {
+      await updateEmployeePosition(row, val);
+    } else if (field === "employmentType") {
+      await updateEmploymentType(row, val, reloadTableData);
+    } else if (field === "address") {
+      await updateEmployeeAddress(row, val);
+    } else if (field === "phone") {
+      await updateEmployeePhone(row, val);
+    } else if (field === "birthdate") {
+      await updateEmployeeBirthdate(row, val);
+    } else if (field === "designation") {
+      await updateEmployeeDesignation(row.designation, val, reloadTableData);
+    } else if (field === "time_in") {
+      await updateEmployeeTimeIn(row.designation, val);
+    } else if (field === "time_out") {
+      await updateEmployeeTimeOut(row.designation, val);
+    }
+
+    await reloadTableData(
+      pagination.value.page,
+      pagination.value.rowsPerPage,
+      filter.value
+    );
+
+    editPasswordDialog.value = false;
+  } catch (error) {
+    console.error("Error executing employee edit:", error);
+    Notify.create({
+      message: "Failed to update employee details",
+      color: "negative",
+      position: "top",
+      timeout: 2500,
+    });
+  } finally {
+    editConfirmLoading.value = false;
+  }
+};
 
 const positionOptions = [
   "Super Admin",
@@ -630,16 +853,6 @@ const getInitials = (row) => {
   const first = row.firstname ? row.firstname.charAt(0) : "";
   const last = row.lastname ? row.lastname.charAt(0) : "";
   return (first + last).toUpperCase() || "?";
-};
-
-const downloadPDF = () => {
-  if (!pdfUrl.value) return;
-  const link = document.createElement("a");
-  link.href = pdfUrl.value;
-  link.download = `Employee_ID_Card_${Date.now()}.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 };
 </script>
 

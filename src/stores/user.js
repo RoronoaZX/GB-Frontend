@@ -32,11 +32,12 @@ export const useUsersStore = defineStore("users", () => {
 
   const verifyUserPassword = async (userId, password) => {
     try {
-      const response = await api.post(`/api/verify-password`, {
-        user_id: userId,
-        password: password,
-      });
-      return response.data.isValid; // Assuming the backend returns { isValid: true/false }
+      const payload = { password: password };
+      if (userId) {
+        payload.user_id = userId;
+      }
+      const response = await api.post(`/api/verify-password`, payload);
+      return Boolean(response.data?.isValid);
     } catch (error) {
       console.error("Error verifying password:", error);
       Notify.create({
