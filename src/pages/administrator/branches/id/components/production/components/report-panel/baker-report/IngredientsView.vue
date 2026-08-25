@@ -40,18 +40,23 @@
           >
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ capitalizeFirstLetter(ingredient?.ingredients?.name) || "" }}
+                {{ capitalizeFirstLetter(ingredient?.ingredients?.name) || "Unknown Ingredient" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label class="text-caption">
-                {{ ingredient.ingredients.code }}
+                {{ ingredient?.ingredients?.code || "N/A" }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-item-label class="text-caption">
                 {{ formatQuantity(ingredient) }}
               </q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="!ingredientProduction || ingredientProduction.length === 0">
+            <q-item-section class="text-center text-grey-6 q-pa-md">
+              No ingredients recorded for this production report.
             </q-item-section>
           </q-item>
         </q-list>

@@ -31,6 +31,21 @@
         </div>
       </q-card-section>
       <q-card-section>
+        <!-- Notice Banner when both reports are empty -->
+        <q-banner
+          v-if="!hasBakerReports && !hasSalesReports"
+          class="bg-amber-1 text-amber-10 rounded-borders q-mb-md border-amber"
+          style="border: 1px solid #fef3c7; border-radius: 12px;"
+        >
+          <template v-slot:avatar>
+            <q-icon name="report_problem" color="amber-9" size="md" />
+          </template>
+          <div class="text-weight-bold text-subtitle1">No Reports Filed for {{ reportLabel }} Shift</div>
+          <div class="text-caption">
+            Neither a Baker Production Report nor a Sales Report has been submitted for this shift yet.
+          </div>
+        </q-banner>
+
         <div>
           <q-tabs
             v-model="tab"
@@ -41,13 +56,35 @@
             <q-tab
               class="text-purple"
               name="bakerReport"
-              label="Baker Reports"
-            />
+            >
+              <div class="row items-center no-wrap">
+                <q-icon name="bakery_dining" size="sm" class="q-mr-xs" />
+                <span>Baker Reports</span>
+                <q-badge
+                  :color="hasBakerReports ? 'purple-8' : 'grey-6'"
+                  :outline="!hasBakerReports"
+                  class="q-ml-sm"
+                >
+                  {{ hasBakerReports ? bakerReports.length : 'No Report' }}
+                </q-badge>
+              </div>
+            </q-tab>
             <q-tab
               class="text-orange"
               name="salesReport"
-              label="Sales Report"
-            />
+            >
+              <div class="row items-center no-wrap">
+                <q-icon name="receipt_long" size="sm" class="q-mr-xs" />
+                <span>Sales Report</span>
+                <q-badge
+                  :color="hasSalesReports ? 'orange-8' : 'grey-6'"
+                  :outline="!hasSalesReports"
+                  class="q-ml-sm"
+                >
+                  {{ hasSalesReports ? salesReports.length : 'No Report' }}
+                </q-badge>
+              </div>
+            </q-tab>
           </q-tabs>
         </div>
         <div>
@@ -81,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import BakerReportPanel from "./report-panel/BakerReportPanel.vue";
 import SalesReportPanel from "./report-panel/SalesReportPanel.vue";
@@ -96,16 +133,13 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 
 const props = defineProps(["reports", "reportLabel", "rowIndex", "reportDate"]);
-/* console.log("production report sss", props.reports); */
-/* console.log("rowIndex", props.rowIndex); */
-/* console.log("reportDatessss", props.reportDate); */
 
-const bakerReports = props.reports.baker_reports;
-/* console.log("bakerReportsssss", bakerReports); */
-const salesReports = props.reports.sales_reports;
-// const reportLabel = props.reports.reportLabel;
-const sales_report_id = props.reports.sales_reports_id;
-/* console.log("sales_reporssst_id", sales_report_id); */
+const bakerReports = props.reports?.baker_reports || [];
+const salesReports = props.reports?.sales_reports || [];
+const sales_report_id = props.reports?.sales_reports_id;
+
+const hasBakerReports = computed(() => bakerReports && bakerReports.length > 0);
+const hasSalesReports = computed(() => salesReports && salesReports.length > 0);
 
 const emit = defineEmits(["selectReport", "hide", "ok", "cancel"]); // Declare emits
 

@@ -1,34 +1,81 @@
 <template>
   <div>
     <q-card class="my-card q-pa-md">
-      <div class="row justify-between">
-        <div class="text-h6">Baker Report</div>
-      </div>
-      <div class="text-subtitle1 text-weight-regular">
+      <!-- Header details and export buttons (shown only when reports exist) -->
+      <div v-if="reportsData && reportsData.length > 0" class="row justify-between items-center q-mb-md">
         <div>
-          Name:
-          {{
-            formatFullname(
-              reportsData[0]?.user?.employee ||
-                reportsData[1]?.user?.employee ||
-                "No name available"
-            )
-          }}
+          <div class="text-h6 text-weight-bold">Baker Report</div>
+          <div class="text-subtitle1 text-weight-regular">
+            <div>
+              Name:
+              {{
+                formatFullname(
+                  reportsData[0]?.user?.employee ||
+                    reportsData[1]?.user?.employee ||
+                    "No name available"
+                )
+              }}
+            </div>
+            <div>
+              Date:
+              {{
+                `${formatDate(
+                  props.bakersReport[0]?.created_at ||
+                    props.bakersReport[1]?.created_at ||
+                    "No name available"
+                )}`
+              }}
+            </div>
+            <div>Overall Total Kilos (kgs) : {{ overallKiloTotal }}</div>
+          </div>
         </div>
-        <div>
-          Date:
-          {{
-            `${formatDate(
-              props.bakersReport[0]?.created_at ||
-                props.bakersReport[1]?.created_at ||
-                "No name available"
-            )}`
-          }}
+        <div class="row q-gutter-xs items-center">
+          <q-btn
+            color="primary"
+            icon="print"
+            label="Print All"
+            unelevated
+            class="q-px-sm"
+            @click="triggerFullReportPrint"
+          >
+            <q-tooltip>Print / Preview Entire Baker Report</q-tooltip>
+          </q-btn>
+          <q-btn
+            color="negative"
+            icon="picture_as_pdf"
+            label="Export PDF"
+            outline
+            class="q-px-sm"
+            @click="triggerFullReportPdfDownload"
+          >
+            <q-tooltip>Export Entire Baker Report PDF</q-tooltip>
+          </q-btn>
+          <q-btn
+            color="positive"
+            icon="file_download"
+            label="Export Excel"
+            outline
+            class="q-px-sm"
+            @click="triggerFullReportExcelDownload"
+          >
+            <q-tooltip>Export Entire Baker Report Excel (.xls)</q-tooltip>
+          </q-btn>
         </div>
-        <div>Overall Total Kilos (kgs) : {{ overallKiloTotal }}</div>
       </div>
       <q-card-section>
+        <!-- Modern Empty State UI -->
+        <div v-if="!reportsData || reportsData.length === 0" class="q-pa-xl text-center">
+          <q-avatar size="80px" color="purple-1" text-color="purple-9" class="q-mb-md">
+            <q-icon name="bakery_dining" size="48px" />
+          </q-avatar>
+          <div class="text-h6 text-weight-bold text-grey-9">No Baker Production Report Recorded</div>
+          <div class="text-subtitle2 text-grey-6 q-mt-xs q-mb-md" style="max-width: 500px; margin-left: auto; margin-right: auto;">
+            No baker production reports have been submitted for this shift yet. Bakers have not logged dough or filling recipe runs for this date.
+          </div>
+        </div>
+
         <q-table
+          v-else
           class="table-container sticky-header2"
           :columns="BakerReportsColumns"
           :rows="reportsData"
@@ -290,6 +337,421 @@ const triggerPhysicalPrint = () => {
       },
     });
   }
+};
+
+const generateFullBakerReportDocDefinition = () => {
+  const bakerName = formatFullname(
+    reportsData[0]?.user?.employee ||
+      reportsData[1]?.user?.employee ||
+      reportsData[0]?.user?.name ||
+      "Baker"
+  );
+  const branchName = capitalizeFirstLetter(
+    reportsData[0]?.branch?.name || "Branch"
+  );
+  const dateStr = formatDate(
+    props.bakersReport[0]?.created_at || props.bakersReport[1]?.created_at
+  );
+
+  const tableBody = [
+    [
+      { text: "Recipe Name", style: "tableHeader", alignment: "left" },
+      { text: "Category", style: "tableHeader", alignment: "center" },
+      { text: "Kilo (kgs)", style: "tableHeader", alignment: "center" },
+      { text: "Target", style: "tableHeader", alignment: "center" },
+      { text: "Actual Target", style: "tableHeader", alignment: "center" },
+      { text: "Production", style: "tableHeader", alignment: "center" },
+      { text: "Over", style: "tableHeader", alignment: "center" },
+      { text: "Short", style: "tableHeader", alignment: "center" },
+    ],
+  ];
+
+  (reportsData || []).forEach((row) => {
+    const recipeName = capitalizeFirstLetter(
+      row?.branch_recipe?.recipe?.name || row?.recipe_name || "Unknown Recipe"
+    );
+    const category = row?.recipe_category || "Dough";
+    const kiloVal = trimTrailingZeros(row.kilo || 0);
+    const targetVal = row.target || 0;
+    const actualTargetVal = Math.ceil((row.target || 0) * (row.kilo || 0));
+
+    const breads = row.combined_bakers_reports || [];
+    const totalProdPcs = breads.reduce(
+      (sum, b) => sum + (Number(b.bread_production) || 0),
+      0
+    );
+
+    // Parent Recipe Summary Row
+    tableBody.push([
+      { text: recipeName, bold: true, fillColor: "#f8fafc" },
+      { text: category, alignment: "center", fillColor: "#f8fafc" },
+      { text: `${kiloVal} kg`, alignment: "center", fillColor: "#f8fafc" },
+      { text: targetVal.toString(), alignment: "center", fillColor: "#f8fafc" },
+      { text: `${actualTargetVal} pcs`, alignment: "center", fillColor: "#f8fafc" },
+      { text: `${totalProdPcs} pcs`, alignment: "center", bold: true, fillColor: "#f8fafc" },
+      { text: (row.over || 0).toString(), alignment: "center", color: (row.over || 0) > 0 ? "#16a34a" : "#334155", fillColor: "#f8fafc" },
+      { text: (row.short || 0).toString(), alignment: "center", color: (row.short || 0) > 0 ? "#dc2626" : "#334155", fillColor: "#f8fafc" },
+    ]);
+
+    // Grouped Bread Breakdown Rows
+    breads.forEach((bread) => {
+      const rawBreadName =
+        bread?.bread?.name || bread?.bread_name || "Bread Product";
+      const breadName = capitalizeFirstLetter(rawBreadName);
+      const pcs = bread.bread_production || 0;
+      tableBody.push([
+        {
+          text: `   - ${breadName}`,
+          italics: true,
+          color: "#475569",
+          margin: [10, 0, 0, 0],
+        },
+        { text: "", colSpan: 4 },
+        {},
+        {},
+        {},
+        { text: `${pcs} pcs`, alignment: "center", italics: true, color: "#475569" },
+        { text: "-", alignment: "center", color: "#94a3b8" },
+        { text: "-", alignment: "center", color: "#94a3b8" },
+      ]);
+    });
+  });
+
+  // Footer Total Kilos Row
+  tableBody.push([
+    { text: "TOTAL KILOS", bold: true, colSpan: 2, fillColor: "#e2e8f0" },
+    {},
+    {
+      text: overallKiloTotal.value,
+      bold: true,
+      alignment: "center",
+      fillColor: "#e2e8f0",
+      color: "#0f172a",
+    },
+    { text: "", colSpan: 5, fillColor: "#e2e8f0" },
+    {},
+    {},
+    {},
+    {},
+  ]);
+
+  return {
+    content: [
+      {
+        table: {
+          widths: ["*"],
+          body: [
+            [
+              {
+                fillColor: "#0f172a",
+                stack: [
+                  {
+                    text: "GB BAKESHOP — BAKER PRODUCTION REPORT",
+                    color: "#ffffff",
+                    fontSize: 14,
+                    bold: true,
+                    alignment: "center",
+                    margin: [0, 6, 0, 2],
+                  },
+                  {
+                    text: `LOCATION: ${branchName.toUpperCase()} | BAKER: ${bakerName.toUpperCase()} | DATE: ${dateStr}`,
+                    color: "#38bdf8",
+                    fontSize: 8,
+                    bold: true,
+                    alignment: "center",
+                    margin: [0, 0, 0, 6],
+                  },
+                ],
+                border: [false, false, false, false],
+              },
+            ],
+          ],
+        },
+        margin: [0, -10, 0, 15],
+      },
+      {
+        text: "Recipe Production Summary & Bread Breakdown",
+        style: "subheader",
+        bold: true,
+        margin: [0, 0, 0, 6],
+      },
+      {
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto", "auto", "auto", "auto", "auto", "auto"],
+          body: tableBody,
+        },
+        layout: {
+          hLineWidth: (i, node) => (i === 0 || i === 1 || i === node.table.body.length ? 1.5 : 0.5),
+          vLineWidth: () => 0,
+          hLineColor: () => "#cbd5e1",
+        },
+        margin: [0, 0, 0, 20],
+      },
+      {
+        unbreakable: true,
+        table: {
+          widths: ["48%", "4%", "48%"],
+          body: [
+            [
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [10, 8, 10, 8],
+                stack: [
+                  { text: "PREPARED BY (BAKER):", fontSize: 7.5, bold: true, color: "#475569" },
+                  { text: bakerName, fontSize: 9.5, bold: true, color: "#0f172a", margin: [0, 14, 0, 1], alignment: "center" },
+                  { text: "________________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center" },
+                ],
+              },
+              { text: "", border: [false, false, false, false] },
+              {
+                fillColor: "#f8fafc",
+                borderColor: ["#cbd5e1", "#cbd5e1", "#cbd5e1", "#cbd5e1"],
+                margin: [10, 8, 10, 8],
+                stack: [
+                  { text: "REVIEWED BY (SUPERVISOR / ADMIN):", fontSize: 7.5, bold: true, color: "#475569" },
+                  { text: " ", fontSize: 9.5, bold: true, color: "#0f172a", margin: [0, 14, 0, 1], alignment: "center" },
+                  { text: "________________________________________", color: "#94a3b8", alignment: "center", margin: [0, 0, 0, 2] },
+                  { text: "Signature Over Printed Name", fontSize: 6.5, color: "#64748b", italics: true, alignment: "center" },
+                ],
+              },
+            ],
+          ],
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => "#cbd5e1",
+          vLineColor: () => "#cbd5e1",
+        },
+      },
+    ],
+    footer: (currentPage, pageCount) => ({
+      columns: [
+        {
+          text: "Report generated via GB Bakeshop Admin Console",
+          style: "footerText",
+          alignment: "left",
+          margin: [20, 0, 0, 0],
+        },
+        {
+          text: `Page ${currentPage.toString()} of ${pageCount.toString()}`,
+          style: "footerText",
+          alignment: "right",
+          margin: [0, 0, 20, 0],
+        },
+      ],
+    }),
+    styles: {
+      header: { fontSize: 14, bold: true, color: "#0f172a" },
+      subheader: { fontSize: 10, bold: true, color: "#0f172a" },
+      tableHeader: { bold: true, fontSize: 8, color: "#ffffff", fillColor: "#1e293b", margin: [0, 3, 0, 3] },
+      footerText: { fontSize: 7, color: "#64748b", italics: true },
+    },
+    defaultStyle: { font: "Roboto", fontSize: 8 },
+    pageSize: "A4",
+    pageOrientation: "portrait",
+    pageMargins: [20, 20, 20, 30],
+  };
+};
+
+const triggerFullReportPrint = () => {
+  const bakerName = formatFullname(
+    reportsData[0]?.user?.employee || "Baker"
+  );
+  const docDef = generateFullBakerReportDocDefinition();
+
+  promptPasswordConfirm({
+    label: `Print Baker Report (${bakerName})`,
+    description: "Please enter your admin password to authorize printing the confidential Baker Production Report",
+    onConfirm: () => {
+      pdfMake.createPdf(docDef).print();
+    },
+  });
+};
+
+const triggerFullReportPdfDownload = () => {
+  const bakerName = formatFullname(
+    reportsData[0]?.user?.employee || "Baker"
+  );
+  const dateStr = formatDate(
+    props.bakersReport[0]?.created_at
+  );
+  const docDef = generateFullBakerReportDocDefinition();
+  const filename = `Baker_Report_${bakerName.replace(/\s+/g, "_")}_${dateStr.replace(/\s+/g, "_")}.pdf`;
+
+  promptPasswordConfirm({
+    label: `Baker Production Report PDF (${bakerName})`,
+    description: "Please enter your admin password to authorize downloading the confidential Baker Production Report",
+    onConfirm: () => {
+      pdfMake.createPdf(docDef).download(filename);
+    },
+  });
+};
+
+const triggerFullReportExcelDownload = () => {
+  const bakerName = formatFullname(
+    reportsData[0]?.user?.employee || "Baker"
+  );
+  const branchName = capitalizeFirstLetter(
+    reportsData[0]?.branch?.name || "Branch"
+  );
+  const dateStr = formatDate(
+    props.bakersReport[0]?.created_at
+  );
+
+  promptPasswordConfirm({
+    label: `Export Baker Report Excel (${bakerName})`,
+    description: "Please enter your admin password to authorize downloading the Baker Production Report spreadsheet",
+    onConfirm: () => {
+      executeFullReportExcelExport(bakerName, branchName, dateStr);
+    },
+  });
+};
+
+const executeFullReportExcelExport = (bakerName, branchName, dateStr) => {
+  let rowsHtml = "";
+
+  (reportsData || []).forEach((row) => {
+    const recipeName = capitalizeFirstLetter(
+      row?.branch_recipe?.recipe?.name || row?.recipe_name || "Unknown Recipe"
+    );
+    const category = row?.recipe_category || "Dough";
+    const kiloVal = trimTrailingZeros(row.kilo || 0);
+    const targetVal = row.target || 0;
+    const actualTargetVal = Math.ceil((row.target || 0) * (row.kilo || 0));
+    const breads = row.combined_bakers_reports || [];
+    const totalProdPcs = breads.reduce(
+      (sum, b) => sum + (Number(b.bread_production) || 0),
+      0
+    );
+
+    // Parent Recipe Row
+    rowsHtml += `
+      <tr style="background-color: #f1f5f9; font-weight: bold;">
+        <td style="border: 1px solid #cbd5e1; padding: 6px;">${recipeName}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${category}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${kiloVal} kg</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${targetVal}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${actualTargetVal} pcs</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${totalProdPcs} pcs</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center; color: ${row.over > 0 ? 'green' : 'black'};">${row.over || 0}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center; color: ${row.short > 0 ? 'red' : 'black'};">${row.short || 0}</td>
+      </tr>
+    `;
+
+    // Grouped Child Bread Rows
+    breads.forEach((bread) => {
+      const rawBreadName = bread?.bread?.name || bread?.bread_name || "Bread Product";
+      const breadName = capitalizeFirstLetter(rawBreadName);
+      const pcs = bread.bread_production || 0;
+      rowsHtml += `
+        <tr style="color: #475569; font-style: italic;">
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px 4px 24px;">- ${breadName}</td>
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center;">-</td>
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center;">-</td>
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center;">-</td>
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center;">-</td>
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center;">${pcs} pcs</td>
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center;">-</td>
+          <td style="border: 1px solid #e2e8f0; padding: 4px 6px; text-align: center;">-</td>
+        </tr>
+      `;
+    });
+  });
+
+  const excelTemplate = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="utf-8">
+      <!--[if gte mso 9]>
+      <xml>
+        <x:ExcelWorkbook>
+          <x:ExcelWorksheets>
+            <x:ExcelWorksheet>
+              <x:Name>Baker Production Report</x:Name>
+              <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+            </x:ExcelWorksheet>
+          </x:ExcelWorksheets>
+        </x:ExcelWorkbook>
+      </xml>
+      <![endif]-->
+      <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        .title { font-size: 16px; font-weight: bold; text-align: center; background-color: #0f172a; color: #ffffff; padding: 10px; }
+        .meta { font-size: 11px; text-align: center; background-color: #0f172a; color: #38bdf8; padding: 4px; font-weight: bold; }
+        .header-cell { background-color: #1e293b; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #0f172a; padding: 6px; }
+        .total-cell { background-color: #cbd5e1; font-weight: bold; border: 1px solid #94a3b8; padding: 6px; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <table>
+        <tr><td colspan="8" class="title">GB BAKESHOP — BAKER PRODUCTION REPORT</td></tr>
+        <tr><td colspan="8" class="meta">LOCATION: ${branchName.toUpperCase()} | BAKER: ${bakerName.toUpperCase()} | DATE: ${dateStr}</td></tr>
+        <tr><td colspan="8"></td></tr>
+        <thead>
+          <tr>
+            <th class="header-cell">Recipe Name</th>
+            <th class="header-cell">Category</th>
+            <th class="header-cell">Kilo (kgs)</th>
+            <th class="header-cell">Target Pcs</th>
+            <th class="header-cell">Actual Target</th>
+            <th class="header-cell">Total Production</th>
+            <th class="header-cell">Over</th>
+            <th class="header-cell">Short</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" class="total-cell" style="text-align: left;">TOTAL KILOS</td>
+            <td class="total-cell">${overallKiloTotal.value}</td>
+            <td colspan="5" class="total-cell"></td>
+          </tr>
+        </tfoot>
+      </table>
+      <br/><br/>
+      <table>
+        <tr>
+          <td colspan="4" style="text-align: center; vertical-align: top; border: 1px solid #cbd5e1; padding: 10px; background-color: #f8fafc;">
+            <div style="font-weight: bold; font-size: 9px; color: #475569; text-align: left;">PREPARED BY (BAKER):</div>
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-top: 10px;">${bakerName}</div>
+            <div style="color: #94a3b8;">________________________________________</div>
+            <div style="font-size: 8px; color: #64748b; font-style: italic;">Signature Over Printed Name</div>
+          </td>
+          <td colspan="4" style="text-align: center; vertical-align: top; border: 1px solid #cbd5e1; padding: 10px; background-color: #f8fafc;">
+            <div style="font-weight: bold; font-size: 9px; color: #475569; text-align: left;">REVIEWED BY (SUPERVISOR / ADMIN):</div>
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-top: 10px;">&nbsp;</div>
+            <div style="color: #94a3b8;">________________________________________</div>
+            <div style="font-size: 8px; color: #64748b; font-style: italic;">Signature Over Printed Name</div>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob(["\uFEFF" + excelTemplate], {
+    type: "application/vnd.ms-excel;charset=utf-8",
+  });
+  const filename = `Baker_Report_${bakerName.replace(/\s+/g, "_")}_${dateStr.replace(/\s+/g, "_")}.xls`;
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  $q.notify({
+    message: `Exported Baker Report Excel: ${filename}`,
+    type: "positive",
+    position: "top-right",
+    icon: "file_download",
+  });
 };
 const $q = useQuasar();
 const handleBreadDialog = (breadProduction, branchRecipe) => {

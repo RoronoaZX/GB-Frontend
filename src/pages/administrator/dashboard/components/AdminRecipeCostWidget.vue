@@ -130,6 +130,7 @@
             </div>
           </q-card-section>
         </q-card>
+      </div>
     </div>
 
     <!-- PDF Download Password Confirmation Dialog -->

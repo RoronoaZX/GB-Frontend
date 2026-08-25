@@ -1,7 +1,18 @@
 <template>
   <q-card class="my-card q-pa-md">
     <q-card-section>
-      <div class="q-mt-lg row items-start q-gutter-md justify-center">
+      <!-- Modern Empty State UI for Sales Report -->
+      <div v-if="!reportsData || reportsData.length === 0" class="q-pa-xl text-center">
+        <q-avatar size="80px" color="orange-1" text-color="orange-9" class="q-mb-md">
+          <q-icon name="receipt_long" size="48px" />
+        </q-avatar>
+        <div class="text-h6 text-weight-bold text-grey-9">No Sales Report Recorded</div>
+        <div class="text-subtitle2 text-grey-6 q-mt-xs q-mb-md" style="max-width: 500px; margin-left: auto; margin-right: auto;">
+          No sales lady report has been filed for this shift yet. End-of-shift sales, bread counts, and cash remittances are pending.
+        </div>
+      </div>
+
+      <div v-else class="q-mt-lg row items-start q-gutter-md justify-center">
         <div v-for="(report, index) in reportsData" :key="index">
           <q-card flat dense bordered>
             <q-card-section>
