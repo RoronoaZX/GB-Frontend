@@ -391,6 +391,7 @@ const {
 
 const printDialog = ref(false);
 const pdfUrl = ref("");
+let currentDocDefinition = null;
 const chartWidgetsRef = ref(null);
 
 const getPreparedSignatory = () => {

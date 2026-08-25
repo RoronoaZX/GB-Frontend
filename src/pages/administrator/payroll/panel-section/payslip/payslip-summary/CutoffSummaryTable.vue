@@ -576,18 +576,22 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+import { useQuasar, Notify } from "quasar";
 import { usePayslipStore } from "src/stores/payslip";
 import { useBranchesStore } from "src/stores/branch";
 import { useWarehousesStore } from "src/stores/warehouse";
 import { useUsersStore } from "src/stores/user";
 import { usePasswordConfirm } from "src/composables/usePasswordConfirm";
+import { formatFullname } from "src/composables/employeeFunction/useEmployeeFunctions";
 import PasswordAuthDialog from "src/components/PasswordAuthDialog.vue";
+import SendPayrollEmailDialog from "src/pages/administrator/payroll/panel-section/payslip/details/components/payroll/SendPayrollEmailDialog.vue";
 import GB_LOGO from "src/assets/GB_LOGO.png";
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
 pdfMake.vfs = pdfFonts.default;
 
+const $q = useQuasar();
 const payslipStore = usePayslipStore();
 const branchesStore = useBranchesStore();
 const warehousesStore = useWarehousesStore();

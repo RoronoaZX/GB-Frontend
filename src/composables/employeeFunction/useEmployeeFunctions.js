@@ -427,6 +427,7 @@ export const validateTimeFormat = (val) => {
 };
 
 export function formatFullname(row) {
+  if (!row) return "";
   const capitalizeWords = (str) =>
     str
       ? str
