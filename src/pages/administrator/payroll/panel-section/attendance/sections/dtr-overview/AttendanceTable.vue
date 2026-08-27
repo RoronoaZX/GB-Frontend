@@ -883,40 +883,42 @@
       </template>
 
       <template v-slot:body-cell-ot_status="props">
-        <q-td :props="props" class="row items-center">
-          <!-- APPROVED -->
-          <q-chip
-            v-if="props.row.ot_status === 'approved'"
-            size="sm"
-            color="green-1"
-            text-color="green-8"
-            rounded
-            icon="check_circle"
-            :label="helpers.capitalize(props.row.ot_status)"
-          />
+        <q-td :props="props" class="text-center">
+          <div class="ot-status-cell">
+            <!-- APPROVED -->
+            <q-chip
+              v-if="props.row.ot_status === 'approved'"
+              size="sm"
+              color="green-1"
+              text-color="green-8"
+              rounded
+              icon="check_circle"
+              :label="helpers.capitalize(props.row.ot_status)"
+            />
 
-          <!-- DECLINED -->
-          <q-chip
-            v-else-if="props.row.ot_status === 'declined'"
-            size="sm"
-            color="red-2"
-            text-color="red-14"
-            rounded
-            icon="cancel"
-            :label="helpers.capitalize(props.row.ot_status)"
-          />
+            <!-- DECLINED -->
+            <q-chip
+              v-else-if="props.row.ot_status === 'declined'"
+              size="sm"
+              color="red-2"
+              text-color="red-14"
+              rounded
+              icon="cancel"
+              :label="helpers.capitalize(props.row.ot_status)"
+            />
 
-          <!-- PENDING — unified approve | decline pill -->
-          <div
-            v-else-if="props.row.ot_status === 'pending'"
-            class="ot-action-pill"
-          >
-            <DeclineOTButton :decline="props.row" class="ot-decline-wrap" />
-            <ApproveOTButton :approve="props.row" class="ot-approve-wrap" />
+            <!-- PENDING — unified approve | decline pill -->
+            <div
+              v-else-if="props.row.ot_status === 'pending'"
+              class="ot-action-pill"
+            >
+              <DeclineOTButton :decline="props.row" class="ot-decline-wrap" />
+              <ApproveOTButton :approve="props.row" class="ot-approve-wrap" />
+            </div>
+
+            <!-- NO STATUS OR OTHER VALUES -->
+            <span v-else> - - - </span>
           </div>
-
-          <!-- NO STATUS OR OTHER VALUES -->
-          <span v-else> - - - </span>
 
           <!-- EDIT ICON (only visible if not pending) -->
           <q-popup-edit
@@ -2762,47 +2764,97 @@ const kpiStats = computed(() => {
   letter-spacing: 0.04em;
 }
 
-/* ── OT Action Pill ──────────────────────────── */
-.ot-action-pill {
+/* ── OT Status cell inner wrapper ────────────── */
+.ot-status-cell {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
+  justify-content: center;
+}
+
+/* ── OT Decision Control ─────────────────────── */
+.ot-action-pill {
+  display: inline-flex;
+  align-items: stretch;
+  height: 24px;
+  border-radius: 6px;
   overflow: hidden;
-  border: 1.5px solid #d1d5db;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   gap: 0;
 
+  /* ── Reject (secondary destructive) ─── */
   .ot-decline-wrap :deep(.q-btn) {
     border-radius: 0 !important;
-    background: #fee2e2 !important;
-    color: #b91c1c !important;
-    border-right: 1px solid #fca5a5;
-    padding: 4px 12px !important;
-    font-size: 0.74rem;
+    background: #fff1f2 !important;
+    color: #dc2626 !important;
+    border-right: 1px solid #fecaca !important;
+    padding: 0 8px !important;
+    height: 24px;
+    min-height: 24px;
+    font-size: 0.68rem;
     font-weight: 600;
+    letter-spacing: 0.01em;
     box-shadow: none !important;
     transform: none !important;
-    min-height: unset;
+    transition: background 0.18s ease, color 0.18s ease !important;
+
+    .q-btn__content {
+      gap: 5px;
+    }
+
     &:hover {
-      background: #fecaca !important;
+      background: #fca5a5 !important;
+      color: #7f1d1d !important;
       transform: none !important;
       box-shadow: none !important;
     }
+
+    &:focus-visible {
+      outline: 2px solid #f87171;
+      outline-offset: -2px;
+    }
+
+    &:active {
+      background: #ef4444 !important;
+      color: #fff !important;
+      transform: none !important;
+    }
   }
 
+  /* ── Approve (primary action) ─────── */
   .ot-approve-wrap :deep(.q-btn) {
     border-radius: 0 !important;
-    background: #dcfce7 !important;
-    color: #166534 !important;
-    padding: 4px 12px !important;
-    font-size: 0.74rem;
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    padding: 0 10px !important;
+    height: 24px;
+    min-height: 24px;
+    font-size: 0.68rem;
     font-weight: 600;
+    letter-spacing: 0.01em;
     box-shadow: none !important;
     transform: none !important;
-    min-height: unset;
+    transition: background 0.18s ease, box-shadow 0.18s ease !important;
+
+    .q-btn__content {
+      gap: 5px;
+    }
+
     &:hover {
-      background: #bbf7d0 !important;
+      background: #334155 !important;
+      box-shadow: 0 2px 8px rgba(30, 41, 59, 0.30) !important;
       transform: none !important;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #64748b;
+      outline-offset: -2px;
+    }
+
+    &:active {
+      background: #0f172a !important;
       box-shadow: none !important;
+      transform: none !important;
     }
   }
 }
