@@ -89,6 +89,7 @@
 </template>
 
 <script setup>
+// This is intended to edit the DTR of an employee
 import { reactive, ref } from "vue";
 
 const props = defineProps(["edit"]);

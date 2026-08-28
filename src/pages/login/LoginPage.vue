@@ -88,10 +88,10 @@ import { Notify, useQuasar, Loading } from "quasar";
 import { useRouter } from "vue-router";
 import axios, { api } from "src/boot/axios";
 
-// const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); // super admin
-const uuid = ref(
- "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
-); //laptop / warehouse
+const uuid = ref("91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"); // super admin
+// const uuid = ref(
+//  "91c61eefafeaedb3e9cf16507aa391148fab7d8a42c155e4c51d0a1bedb9d12c"
+// ); //laptop / warehouse
 // const uuid = ref("b76baeef9c2aef9a"); // Endrina Branch ID 6
 // const uuid = ref("51fdb5e7a1d6079a"); // Endrina Branch ID 6
 // const uuid = ref("e31eaea24d126881"); // Warehouse Endrina
