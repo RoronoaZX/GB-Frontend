@@ -64,7 +64,7 @@ export const useUsersStore = defineStore("users", () => {
   };
 
   const registerUser = async (data) => {
-    /* console.log("userdata", data); */
+    // console.log("userdata", data);
     try {
       Loading.show();
       const response = await api.post("/api/register", data);
@@ -224,12 +224,12 @@ export const useUsersStore = defineStore("users", () => {
     try {
       Loading.show();
       const response = await api.put(`/api/users/${userId}/toggle-status`);
-      
+
       const index = users.value.findIndex((u) => u.id === userId);
       if (index !== -1) {
         users.value[index].is_active = response.data.is_active;
       }
-      
+
       if (user.value && user.value.id === userId) {
         user.value.is_active = response.data.is_active;
       }

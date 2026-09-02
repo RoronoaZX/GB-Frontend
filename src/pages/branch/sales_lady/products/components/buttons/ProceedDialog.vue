@@ -128,7 +128,7 @@ const userId = computed(
     ""
 );
 
-/* console.log("useeessrId", userId.value); */
+console.log("useeessrId", userId.value); 
 
 const branchProductsStore = useBranchProductsStore();
 
@@ -147,7 +147,7 @@ const receiveProduct = async (product) => {
 
   const data = {
     id: product.id,
-    empoyee_id: userId.value,
+    employee_id: userId.value,
     branch_id: product.to_branch_id,
     product_id: product.product_id,
     quantity: product.added_product,
@@ -157,7 +157,7 @@ const receiveProduct = async (product) => {
 
   try {
     loading.value = true;
-    /* console.log("datssa", data); */
+     console.log("datssa", data); 
     const response = await branchProductsStore.receivedSendBranchProducts(data);
 
     /* console.log("Received Branch Products:", response); */

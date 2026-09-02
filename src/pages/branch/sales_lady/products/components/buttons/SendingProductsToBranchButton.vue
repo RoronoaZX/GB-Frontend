@@ -469,7 +469,7 @@ const branches = computed(() => branchStore.branch);
 const branchProductsStore = useBranchProductsStore();
 
 const userData = computed(() => salesReportsStore.user);
-/* console.log("user data", userData.value); */
+ console.log("user data", userData.value); 
 
 const branchId =
   userData.value?.device?.reference_id ||
@@ -477,7 +477,7 @@ const branchId =
   "";
 /* console.log("branchId", branchId); */
 
-const employee_id = userData.value?.employee?.employee_id || "";
+const employee_id = userData.value?.data?.employee_id || "";
 
 const $q = useQuasar();
 
@@ -713,7 +713,7 @@ const sendProducts = async () => {
     })),
   };
 
-  /* console.log("Sending products to branch:", dataToSend); */
+  console.log("Sending products to branch:", dataToSend);
 
   try {
     const response = await branchProductsStore.sendProductsToBranch(dataToSend);

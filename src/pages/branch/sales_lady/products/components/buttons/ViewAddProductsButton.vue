@@ -223,7 +223,7 @@ const fetchASBranchProd = async (page = 0, rowsPerPage = 5, search = "") => {
 
     /* console.log("branchProducts.value", branchProducts.value); */
 
-    /* console.log("data", data); */
+     console.log("data", data); 
 
     rows.value = data;
 
@@ -281,6 +281,7 @@ const getCategoryIcon = (cat) => {
   };
   return icons[cat?.toLowerCase()] || "inventory_2";
 };
+console.log("this is console log")
 
 const getStatusColor = (status) => {
   const s = (status || "").toLowerCase();
@@ -293,7 +294,7 @@ const getStatusColor = (status) => {
 const viewDetails = (row) => {
   /* console.log("View:", row); */
   // → open details drawer / modal / page
-
+  console.log("rowssss", row);
   $q.dialog({
     component: ViewDetails,
     componentProps: {
@@ -328,7 +329,7 @@ const productColumns = [
   {
     name: "employee",
     label: "Staff",
-    field: (row) => formatFullname(row.employee),
+    field: (row) => (row.employee ? formatFullname(row.employee) : "N/A"),
     align: "left",
     sortable: true,
   },
